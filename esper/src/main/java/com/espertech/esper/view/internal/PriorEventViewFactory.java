@@ -10,6 +10,7 @@ package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -34,12 +35,10 @@ public class PriorEventViewFactory implements ViewFactory
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
-        List<Object> viewParameters = ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters);
-        if (viewParameters.size() != 1)
-        {
+        if (expressionParameters.size() != 1) {
             throw new ViewParameterException("View requires a single parameter indicating unbound or not");
         }
-        isUnbound = (Boolean) viewParameters.get(0);
+        isUnbound = (Boolean) ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0));
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -90,7 +89,7 @@ public class PriorEventViewFactory implements ViewFactory
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         return false;
     }

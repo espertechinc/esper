@@ -11,6 +11,7 @@
 
 package com.espertech.esper.view.std;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
@@ -33,8 +34,9 @@ public class TestLastElementViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
-        assertFalse(factory.canReuse(new FirstElementView(null)));
-        assertTrue(factory.canReuse(new LastElementView(null)));
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
+        assertTrue(factory.canReuse(new LastElementView(null), agentInstanceContext));
     }
 
     private void tryInvalidParameter(Object param) throws Exception

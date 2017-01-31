@@ -10,12 +10,14 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
@@ -40,7 +42,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
     /**
      * The number of msec to expire.
      */
-    protected ExprTimePeriodEvalDeltaConst timeDeltaComputation;
+    protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
@@ -63,7 +65,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         timestampExpressionEval = timestampExpression.getExprEvaluator();
         ViewFactorySupport.assertReturnsNonConstant(windowName, validated[0], 0);
 
-        timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), statementContext, viewParameters.get(1), getViewParamMessage(), 1);
+        timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), statementContext, viewParameters.get(1), getViewParamMessage(), 1);
 
         // validate optional parameters
         if (validated.length == 3) {
@@ -83,6 +85,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new ExternallyTimedBatchView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, optionalReferencePoint, viewUpdatedCollection, agentInstanceViewFactoryContext);
     }
@@ -92,7 +95,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof ExternallyTimedBatchView))
         {
@@ -100,7 +103,8 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         }
 
         ExternallyTimedBatchView myView = (ExternallyTimedBatchView) view;
-        if ((!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
+        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
             (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression)))
         {
             return false;
@@ -118,10 +122,6 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
 
     public Long getOptionalReferencePoint() {
         return optionalReferencePoint;
-    }
-
-    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
-        return timeDeltaComputation;
     }
 
     private String getViewParamMessage() {

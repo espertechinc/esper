@@ -13,7 +13,7 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.EventFactoryHelper;
 import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
@@ -38,7 +38,7 @@ public class TestTimeWindowView extends TestCase
         schedulingServiceStub = new SupportSchedulingServiceImpl();
 
         // Set up length window view and a test child view
-        myView = new TimeWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(schedulingServiceStub), new TimeWindowViewFactory(), new ExprTimePeriodEvalDeltaConstMsec(TEST_WINDOW_MSEC), null);
+        myView = new TimeWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(schedulingServiceStub), new TimeWindowViewFactory(), new ExprTimePeriodEvalDeltaConstGivenMsec(TEST_WINDOW_MSEC), null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
     }

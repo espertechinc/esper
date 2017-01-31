@@ -11,17 +11,23 @@
 
 package com.espertech.esper.epl.expression.time;
 
-public class ExprTimePeriodEvalDeltaConstMsec implements ExprTimePeriodEvalDeltaConst
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+
+public class ExprTimePeriodEvalDeltaConstGivenMsec implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory
 {
     private final long msec;
 
-    public ExprTimePeriodEvalDeltaConstMsec(long msec) {
+    public ExprTimePeriodEvalDeltaConstGivenMsec(long msec) {
         this.msec = msec;
     }
 
+    public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext) {
+        return this;
+    }
+
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst otherComputation) {
-        if (otherComputation instanceof ExprTimePeriodEvalDeltaConstMsec) {
-            ExprTimePeriodEvalDeltaConstMsec other = (ExprTimePeriodEvalDeltaConstMsec) otherComputation;
+        if (otherComputation instanceof ExprTimePeriodEvalDeltaConstGivenMsec) {
+            ExprTimePeriodEvalDeltaConstGivenMsec other = (ExprTimePeriodEvalDeltaConstGivenMsec) otherComputation;
             return other.msec == msec;
         }
         return false;

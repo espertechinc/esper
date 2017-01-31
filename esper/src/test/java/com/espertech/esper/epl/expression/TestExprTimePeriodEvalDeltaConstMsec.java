@@ -11,7 +11,7 @@
 
 package com.espertech.esper.epl.expression;
 
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaResult;
 import junit.framework.TestCase;
 
@@ -19,11 +19,11 @@ public class TestExprTimePeriodEvalDeltaConstMsec extends TestCase {
 
     public void testComputeDelta()
     {
-        ExprTimePeriodEvalDeltaConstMsec delta500 = new ExprTimePeriodEvalDeltaConstMsec(500);
+        ExprTimePeriodEvalDeltaConstGivenMsec delta500 = new ExprTimePeriodEvalDeltaConstGivenMsec(500);
         assertEquals(500, delta500.deltaMillisecondsAdd(0));
         assertEquals(500, delta500.deltaMillisecondsSubtract(0));
 
-        ExprTimePeriodEvalDeltaConstMsec delta10k = new ExprTimePeriodEvalDeltaConstMsec(10000);
+        ExprTimePeriodEvalDeltaConstGivenMsec delta10k = new ExprTimePeriodEvalDeltaConstGivenMsec(10000);
         assertEquals(10000, delta10k.deltaMillisecondsAdd(0));
         assertEquals(10000, delta10k.deltaMillisecondsSubtract(0));
 

@@ -10,10 +10,12 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -28,14 +30,14 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
     /**
      * Number of msec of quiet time before results are flushed.
      */
-    protected ExprTimePeriodEvalDeltaConst timeDeltaComputation;
+    protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
         if (expressionParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
+        timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -49,13 +51,12 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
-        if (agentInstanceViewFactoryContext.isRemoveStream())
-        {
+        if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new TimeAccumViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation);
         }
-        else
-        {
+        else {
             return new TimeAccumView(this, agentInstanceViewFactoryContext, timeDeltaComputation, randomAccess);
         }
     }
@@ -65,7 +66,7 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof TimeAccumView))
         {
@@ -73,6 +74,7 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
         }
 
         TimeAccumView myView = (TimeAccumView) view;
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
         {
             return false;
@@ -83,10 +85,6 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
 
     public String getViewName() {
         return "Time-Accumulative-Batch";
-    }
-
-    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
-        return timeDeltaComputation;
     }
 
     private String getViewParamMessage() {

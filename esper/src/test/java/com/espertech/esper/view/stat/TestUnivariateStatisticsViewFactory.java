@@ -11,6 +11,7 @@
 
 package com.espertech.esper.view.stat;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.view.ViewFactoryContext;
 import junit.framework.TestCase;
@@ -43,9 +44,10 @@ public class TestUnivariateStatisticsViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListMD(new Object[] {"price"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
         EventType type = UnivariateStatisticsView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         UnivariateStatisticsViewFactory factoryOne = new UnivariateStatisticsViewFactory();
         factoryOne.setEventType(type);
@@ -53,8 +55,8 @@ public class TestUnivariateStatisticsViewFactory extends TestCase
         UnivariateStatisticsViewFactory factoryTwo = new UnivariateStatisticsViewFactory();
         factoryTwo.setEventType(type);
         factoryTwo.setFieldExpression(SupportExprNodeFactory.makeIdentNodeMD("price"));
-        assertFalse(factory.canReuse(new UnivariateStatisticsView(factoryOne, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
-        assertTrue(factory.canReuse(new UnivariateStatisticsView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
+        assertFalse(factory.canReuse(new UnivariateStatisticsView(factoryOne, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
+        assertTrue(factory.canReuse(new UnivariateStatisticsView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
     }
 
     public void testAttaches() throws Exception

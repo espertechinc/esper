@@ -9,6 +9,7 @@
 package com.espertech.esper.view.stat;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -80,7 +81,7 @@ public class CorrelationViewFactory implements ViewFactory
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof CorrelationView))
         {

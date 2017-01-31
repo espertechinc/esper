@@ -10,9 +10,11 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
@@ -38,7 +40,7 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
             viewParamValues[i] = ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(i));
         }
 
-        timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
+        timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
 
         if ((viewParamValues.length == 2) && (viewParamValues[1] instanceof String)) {
             processKeywords(viewParamValues[1], getViewParamMessage());
@@ -68,13 +70,12 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
-        if (agentInstanceViewFactoryContext.isRemoveStream())
-        {
+        if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new TimeBatchViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation, optionalReferencePoint, isForceUpdate, isStartEager);
         }
-        else
-        {
+        else {
             return new TimeBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, optionalReferencePoint, isForceUpdate, isStartEager, viewUpdatedCollection);
         }
     }
@@ -84,7 +85,7 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof TimeBatchView))
         {
@@ -92,6 +93,7 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
         }
 
         TimeBatchView myView = (TimeBatchView) view;
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
         {
             return false;

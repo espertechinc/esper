@@ -63,14 +63,14 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         if (!hasMonth && !hasYear) {
             double seconds = evaluateAsSeconds(null, true, context);
             long msec = Math.round(seconds * 1000d);
-            return new ExprTimePeriodEvalDeltaConstMsec(msec);
+            return new ExprTimePeriodEvalDeltaConstGivenMsec(msec);
         }
         else {
             int[] values = new int[adders.length];
             for (int i = 0; i < values.length; i++) {
                 values[i] = ((Number) evaluators[i].evaluate(null, true, context)).intValue();
             }
-            return new ExprTimePeriodEvalDeltaConstCalAdd(adders, values, timeZone);
+            return new ExprTimePeriodEvalDeltaConstGivenCalAdd(adders, values, timeZone);
         }
     }
 

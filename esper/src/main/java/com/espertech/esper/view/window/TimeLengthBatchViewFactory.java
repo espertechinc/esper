@@ -10,10 +10,12 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -26,30 +28,23 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
     /**
      * Number of events to collect before batch fires.
      */
-    protected long numberOfEvents;
+    protected ExprEvaluator sizeEvaluator;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
-        Object[] viewParameters = new Object[expressionParameters.size()];
-        for (int i = 1; i < expressionParameters.size(); i++) {
-            viewParameters[i] = ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(i));
-        }
+        ExprNode[] validated = ViewFactorySupport.validate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters);
         String errorMessage = getViewName() + " view requires a numeric or time period parameter as a time interval size, and an integer parameter as a maximal number-of-events, and an optional list of control keywords as a string parameter (please see the documentation)";
-        if ((viewParameters.length != 2) && (viewParameters.length != 3)) {
+        if ((validated.length != 2) && (validated.length != 3)) {
             throw new ViewParameterException(errorMessage);
         }
 
-        timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), errorMessage, 0);
+        timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), errorMessage, 0);
 
-        // parameter 2
-        Object parameter = viewParameters[1];
-        if (!(parameter instanceof Number) || (JavaClassHelper.isFloatingPointNumber((Number) parameter))) {
-            throw new ViewParameterException(errorMessage);
-        }
-        numberOfEvents = ((Number) parameter).longValue();
+        sizeEvaluator = ViewFactorySupport.validateSizeParam(getViewName(), viewFactoryContext.getStatementContext(), validated[1], 1);
 
-        if (viewParameters.length > 2) {
-            processKeywords(viewParameters[2], errorMessage);
+        if (validated.length > 2) {
+            Object keywords = ViewFactorySupport.evaluate(validated[2].getExprEvaluator(), 2, getViewName(), viewFactoryContext.getStatementContext());
+            processKeywords(keywords, errorMessage);
         }
     }
 
@@ -64,8 +59,10 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
+        int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
-        return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, numberOfEvents, isForceUpdate, isStartEager, viewUpdatedCollection);
+        return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, size, isForceUpdate, isStartEager, viewUpdatedCollection);
     }
 
     public EventType getEventType()
@@ -73,7 +70,7 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof TimeLengthBatchView))
         {
@@ -81,13 +78,14 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
         }
 
         TimeLengthBatchView myView = (TimeLengthBatchView) view;
-
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
         {
             return false;
         }
 
-        if (myView.getNumberOfEvents() != numberOfEvents)
+        int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
+        if (myView.getNumberOfEvents() != size)
         {
             return false;
         }
@@ -107,9 +105,5 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
 
     public String getViewName() {
         return "Time-Length-Batch";
-    }
-
-    public long getNumberOfEvents() {
-        return numberOfEvents;
     }
 }

@@ -11,6 +11,7 @@
 
 package com.espertech.esper.view.std;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -36,9 +37,10 @@ public class TestUniqueByPropertyViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(null, TestViewSupport.toExprListBean(new Object[] {"intPrimitive"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportBean.class), SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
     }
 
     private void tryInvalidParameter(Object param) throws Exception

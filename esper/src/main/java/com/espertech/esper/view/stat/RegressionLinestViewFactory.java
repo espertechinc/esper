@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.view.stat;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
@@ -72,7 +73,7 @@ public class RegressionLinestViewFactory implements ViewFactory
         return new RegressionLinestView(this, agentInstanceViewFactoryContext.getAgentInstanceContext(), expressionX, expressionY, eventType, additionalProps);
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof RegressionLinestView))
         {

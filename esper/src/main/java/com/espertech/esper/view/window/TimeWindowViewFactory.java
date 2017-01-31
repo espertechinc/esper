@@ -10,10 +10,12 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.List;
  */
 public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
 {
-    protected ExprTimePeriodEvalDeltaConst timeDeltaComputation;
+    protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
     private EventType eventType;
 
@@ -32,7 +34,7 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         if (expressionParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
+        timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -46,6 +48,7 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new TimeWindowView(agentInstanceViewFactoryContext, this, timeDeltaComputation, randomAccess);
     }
@@ -55,7 +58,7 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof TimeWindowView))
         {
@@ -63,8 +66,8 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         }
 
         TimeWindowView myView = (TimeWindowView) view;
-        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
-        {
+        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        if (!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }
 
@@ -76,8 +79,8 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return "Time";
     }
 
-    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
-        return timeDeltaComputation;
+    public ExprTimePeriodEvalDeltaConstFactory getTimeDeltaComputationFactory() {
+        return timeDeltaComputationFactory;
     }
 
     private String getViewParamMessage() {

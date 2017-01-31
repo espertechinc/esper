@@ -8,13 +8,16 @@
  **************************************************************************************/
 package com.espertech.esper.view;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
+import com.espertech.esper.util.JavaClassHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +32,7 @@ public abstract class ViewFactorySupport implements ViewFactory
 {
     private static Logger log = LoggerFactory.getLogger(ViewFactorySupport.class);
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         return false;
     }
@@ -48,24 +51,14 @@ public abstract class ViewFactorySupport implements ViewFactory
         return validateAndEvaluateExpr(viewName, statementContext, expression, new StreamTypeServiceImpl(statementContext.getEngineURI(), false), 0);
     }
 
-    /**
-     * Validate the view parameter expressions and evaluate the expressions returning the result object.
-     * @param viewName textual name of view
-     * @param statementContext context with statement services
-     * @param expressions view expression parameter to validate
-     * @return object result value of parameter expressions
-     * @throws ViewParameterException if the expressions fail to validate
-     */
-    public static List<Object> validateAndEvaluate(String viewName, StatementContext statementContext, List<ExprNode> expressions)
+    public static ExprNode[] validate(String viewName, StatementContext statementContext, List<ExprNode> expressions)
             throws ViewParameterException
     {
-        List<Object> results = new ArrayList<Object>();
+        ExprNode[] results = new ExprNode[expressions.size()];
         int expressionNumber = 0;
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(statementContext.getEngineURI(), false);
-        for (ExprNode expr : expressions)
-        {
-            Object result = validateAndEvaluateExpr(viewName, statementContext, expr, streamTypeService, expressionNumber);
-            results.add(result);
+        for (ExprNode expr : expressions) {
+            results[expressionNumber] = validateExpr(viewName, statementContext, expr, streamTypeService, expressionNumber);
             expressionNumber++;
         }
         return results;
@@ -125,16 +118,13 @@ public abstract class ViewFactorySupport implements ViewFactory
         }
     }
 
-    /**
-     * Assert and throws an exception if the expression uses event property values.
-     * @param viewName textual name of view
-     * @param expression expression to check
-     * @param index number offset of expression in view parameters
-     * @param exprEvaluatorContext context for expression evaluation
-     * @return expression evaluation value
-     * @throws ViewParameterException if assertion fails
-     */
     public static Object evaluateAssertNoProperties(String viewName, ExprNode expression, int index, ExprEvaluatorContext exprEvaluatorContext) throws ViewParameterException
+    {
+        validateNoProperties(viewName, expression, index);
+        return expression.getExprEvaluator().evaluate(null, false, exprEvaluatorContext);
+    }
+
+    public static void validateNoProperties(String viewName, ExprNode expression, int index) throws ViewParameterException
     {
         ExprNodeSummaryVisitor visitor = new ExprNodeSummaryVisitor();
         expression.accept(visitor);
@@ -143,8 +133,6 @@ public abstract class ViewFactorySupport implements ViewFactory
             String message = "Invalid view parameter expression " + index + getViewDesc(viewName) + ", " + visitor.getMessage() + " are not allowed within the expression";
             throw new ViewParameterException(message);
         }
-
-        return expression.getExprEvaluator().evaluate(null, false, exprEvaluatorContext);
     }
 
     public static Object validateAndEvaluateExpr(String viewName, StatementContext statementContext, ExprNode expression, StreamTypeService streamTypeService, int expressionNumber)
@@ -155,6 +143,25 @@ public abstract class ViewFactorySupport implements ViewFactory
         try
         {
             return validated.getExprEvaluator().evaluate(null, true, new ExprEvaluatorContextStatement(statementContext, false));
+        }
+        catch (RuntimeException ex)
+        {
+            String message = "Failed to evaluate parameter expression " + expressionNumber + getViewDesc(viewName);
+            if (ex.getMessage() != null)
+            {
+                message += ": " + ex.getMessage();
+            }
+            log.error(message, ex);
+            throw new ViewParameterException(message, ex);
+        }
+    }
+
+    public static Object evaluate(ExprEvaluator evaluator, int expressionNumber, String viewName, StatementContext statementContext)
+            throws ViewParameterException
+    {
+        try
+        {
+            return evaluator.evaluate(null, true, new ExprEvaluatorContextStatement(statementContext, false));
         }
         catch (RuntimeException ex)
         {
@@ -196,7 +203,53 @@ public abstract class ViewFactorySupport implements ViewFactory
         return " for " + viewName + " view";
     }
 
-    public static String getViewParamMessageNumericOrTimePeriod(String viewName) {
-        return viewName + " view requires a single numeric or time period parameter";
+    public static ExprEvaluator validateSizeSingleParam(String viewName, ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
+        ExprNode[] validated = ViewFactorySupport.validate(viewName, viewFactoryContext.getStatementContext(), expressionParameters);
+        if (validated.length != 1) {
+            throw new ViewParameterException(getViewParamMessage(viewName));
+        }
+        return validateSizeParam(viewName, viewFactoryContext.getStatementContext(), validated[0], 0);
+    }
+
+    public static ExprEvaluator validateSizeParam(String viewName, StatementContext statementContext, ExprNode sizeNode, int expressionNumber) throws ViewParameterException {
+        ExprEvaluator sizeEvaluator = sizeNode.getExprEvaluator();
+        Class returnType = JavaClassHelper.getBoxedType(sizeEvaluator.getType());
+        if (!JavaClassHelper.isNumeric(returnType) || JavaClassHelper.isFloatingPointClass(returnType) || returnType == Long.class) {
+            throw new ViewParameterException(getViewParamMessage(viewName));
+        }
+        if (sizeNode.isConstantResult()) {
+            Number size = (Number) ViewFactorySupport.evaluate(sizeEvaluator, expressionNumber, viewName, statementContext);
+            if (!validateSize(size)) {
+                throw new ViewParameterException(getSizeValidationMsg(viewName, size));
+            }
+        }
+        return sizeEvaluator;
+    }
+
+    public static int evaluateSizeParam(String viewName, ExprEvaluator sizeEvaluator, AgentInstanceContext context) {
+        Number size = (Number) sizeEvaluator.evaluate(null, true, context);
+        if (!validateSize(size)) {
+            throw new EPException(getSizeValidationMsg(viewName, size));
+        }
+        return size.intValue();
+    }
+
+    private static boolean validateSize(Number size) {
+        return !(size == null || size.intValue() <= 0);
+    }
+
+    private static String getViewParamMessage(String viewName) {
+        return viewName + " view requires a single integer-type parameter";
+    }
+
+    private static String getSizeValidationMsg(String viewName, Number size) {
+        return viewName + " view requires a positive integer for size but received " + size;
+    }
+
+    public static void validateNoParameters(String viewName, List<ExprNode> expressionParameters) throws ViewParameterException {
+        if (!expressionParameters.isEmpty()) {
+            String errorMessage = viewName + " view requires an empty parameter list";
+            throw new ViewParameterException(errorMessage);
+        }
     }
 }

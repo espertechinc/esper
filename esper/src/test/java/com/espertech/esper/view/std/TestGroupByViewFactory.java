@@ -12,6 +12,7 @@
 package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -45,15 +46,16 @@ public class TestGroupByViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListBean(new Object[] {"theString", "longPrimitive"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportBean.class), SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
-        assertFalse(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString"), null)));
-        assertTrue(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString", "longPrimitive"), null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
+        assertFalse(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString"), null), agentInstanceContext));
+        assertTrue(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString", "longPrimitive"), null), agentInstanceContext));
 
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListBean(new Object[] {SupportExprNodeFactory.makeIdentNodesBean("theString", "longPrimitive")}));
-        assertFalse(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString"), null)));
-        assertTrue(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString", "longPrimitive"), null)));
+        assertFalse(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString"), null), agentInstanceContext));
+        assertTrue(factory.canReuse(new GroupByViewImpl(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), SupportExprNodeFactory.makeIdentNodesBean("theString", "longPrimitive"), null), agentInstanceContext));
     }
 
     public void testAttaches() throws Exception

@@ -12,45 +12,45 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
+import com.espertech.esper.epl.expression.time.*;
 import com.espertech.esper.util.JavaClassHelper;
 
 public class ViewFactoryTimePeriodHelper
 {
-    public static ExprTimePeriodEvalDeltaConst validateAndEvaluateTimeDelta(String viewName,
-                                                                           StatementContext statementContext,
-                                                                           ExprNode expression,
-                                                                           String expectedMessage,
-                                                                           int expressionNumber)
+    public static ExprTimePeriodEvalDeltaConstFactory validateAndEvaluateTimeDeltaFactory(String viewName,
+                                                                                      StatementContext statementContext,
+                                                                                      ExprNode expression,
+                                                                                      String expectedMessage,
+                                                                                      int expressionNumber)
             throws ViewParameterException
     {
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(statementContext.getEngineURI(), false);
-        ExprTimePeriodEvalDeltaConst timeDelta;
+        ExprTimePeriodEvalDeltaConstFactory factory;
         if (expression instanceof ExprTimePeriod) {
             ExprTimePeriod validated = (ExprTimePeriod) ViewFactorySupport.validateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
-            timeDelta = validated.constEvaluator(new ExprEvaluatorContextStatement(statementContext, false));
+            factory = validated.constEvaluator(new ExprEvaluatorContextStatement(statementContext, false));
         }
         else {
-            Object result = ViewFactorySupport.validateAndEvaluateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
-            if (!(result instanceof Number)) {
+            ExprNode validated = ViewFactorySupport.validateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
+            ExprEvaluator secondsEvaluator = validated.getExprEvaluator();
+            Class returnType = JavaClassHelper.getBoxedType(secondsEvaluator.getType());
+            if (!JavaClassHelper.isNumeric(returnType)) {
                 throw new ViewParameterException(expectedMessage);
             }
-            Number param = (Number) result;
-            long millisecondsBeforeExpiry;
-            if (JavaClassHelper.isFloatingPointNumber(param)) {
-                millisecondsBeforeExpiry = Math.round(1000d * param.doubleValue());
+            if (validated.isConstantResult()) {
+                Number time = (Number) ViewFactorySupport.evaluate(secondsEvaluator, 0, viewName, statementContext);
+                if (!ExprTimePeriodUtil.validateTime(time)) {
+                    throw new ViewParameterException(ExprTimePeriodUtil.getTimeInvalidMsg(viewName, "view", time));
+                }
+                long msec = ExprTimePeriodUtil.computeTimeMSec(time);
+                factory = new ExprTimePeriodEvalDeltaConstGivenMsec(msec);
             }
             else {
-                millisecondsBeforeExpiry = 1000 * param.longValue();
+                factory = new ExprTimePeriodEvalDeltaConstFactoryMsec(secondsEvaluator);
             }
-            timeDelta = new ExprTimePeriodEvalDeltaConstMsec(millisecondsBeforeExpiry);
         }
-        if (timeDelta.deltaMillisecondsAdd(0) < 1) {
-            throw new ViewParameterException(viewName + " view requires a size of at least 1 msec");
-        }
-        return timeDelta;
+        return factory;
     }
 }

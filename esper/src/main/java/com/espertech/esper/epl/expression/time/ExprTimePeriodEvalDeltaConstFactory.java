@@ -11,10 +11,9 @@
 
 package com.espertech.esper.epl.expression.time;
 
-public interface ExprTimePeriodEvalDeltaConst extends ExprTimePeriodEvalDeltaConstFactory
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+
+public interface ExprTimePeriodEvalDeltaConstFactory
 {
-    public long deltaMillisecondsAdd(long fromTime);
-    public long deltaMillisecondsSubtract(long fromTime);
-    public ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long fromTime, long reference);
-    public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst timeDeltaComputation);
+    ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext);
 }

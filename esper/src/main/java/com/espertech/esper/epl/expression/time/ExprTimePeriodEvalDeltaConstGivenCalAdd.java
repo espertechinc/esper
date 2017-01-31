@@ -11,24 +11,30 @@
 
 package com.espertech.esper.epl.expression.time;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class ExprTimePeriodEvalDeltaConstCalAdd implements ExprTimePeriodEvalDeltaConst
+public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory
 {
     private final Calendar cal;
     private final ExprTimePeriodImpl.TimePeriodAdder[] adders;
     private final int[] added;
 
-    public ExprTimePeriodEvalDeltaConstCalAdd(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added, TimeZone timeZone) {
+    public ExprTimePeriodEvalDeltaConstGivenCalAdd(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added, TimeZone timeZone) {
         this.adders = adders;
         this.added = added;
         this.cal = Calendar.getInstance(timeZone);
     }
 
+    public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext) {
+        return this;
+    }
+
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst otherComputation) {
-        if (otherComputation instanceof ExprTimePeriodEvalDeltaConstCalAdd) {
-            ExprTimePeriodEvalDeltaConstCalAdd other = (ExprTimePeriodEvalDeltaConstCalAdd) otherComputation;
+        if (otherComputation instanceof ExprTimePeriodEvalDeltaConstGivenCalAdd) {
+            ExprTimePeriodEvalDeltaConstGivenCalAdd other = (ExprTimePeriodEvalDeltaConstGivenCalAdd) otherComputation;
             if (other.adders.length != adders.length) {
                 return false;
             }

@@ -38,6 +38,6 @@ public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDe
 
     public ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         long msec = deltaMillisecondsAdd(current, eventsPerStream, isNewData, context);
-        return new ExprTimePeriodEvalDeltaResult(ExprTimePeriodEvalDeltaConstMsec.deltaMillisecondsAddWReference(current, reference, msec), reference);
+        return new ExprTimePeriodEvalDeltaResult(ExprTimePeriodEvalDeltaConstGivenMsec.deltaMillisecondsAddWReference(current, reference, msec), reference);
     }
 }

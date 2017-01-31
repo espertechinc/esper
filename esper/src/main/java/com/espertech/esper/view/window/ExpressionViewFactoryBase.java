@@ -9,6 +9,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryFactory;
@@ -87,7 +88,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         return false;
     }

@@ -9,6 +9,7 @@
 package com.espertech.esper.view;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -63,10 +64,11 @@ public interface ViewFactory
      * Determines if the given view could be used instead of creating a new view,
      * requires the view factory to compare view type, parameters and other capabilities provided.
      * @param view is the candidate view to compare to
+     * @param agentInstanceContext
      * @return true if the given view can be reused instead of creating a new view, or false to indicate
      * the view is not right for reuse
      */
-    public boolean canReuse(View view);
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext);
 
     /**
      * Returns the name of the view, not namespace+name but readable name.

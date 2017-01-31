@@ -10,6 +10,7 @@ Changes in version 6.0.0
     - SLF4J is now required (slf4j-api-1.7.21.jar) (commons-logging is no longer used) (optionally use with Log4J by adding slf4j-log4j12-1.7.21.jar)
   - Support for Avro
   - Support for passing transient objects as part of configuration, for extensions that rely on injected objects
+  - Support for view parameters to originate from context-provided properties
   - New EsperIO Kafka input adapter
   - The @EventRepresentation annotation changed: it now takes a default parameter i.e. @EventRepresentation(map)
   - Minor change in behavior in respect to Object-array event types: When inserting a single column into an existing Object-array event type the engine would allow that column to become the property of a Object-array fragment (inconsistent with other types)

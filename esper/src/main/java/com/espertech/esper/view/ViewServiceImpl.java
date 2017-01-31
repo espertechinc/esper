@@ -211,7 +211,7 @@ public final class ViewServiceImpl implements ViewService
             resultPair = new Pair<Viewable, List<View>>(eventStreamViewable, Collections.<View>emptyList());
         }
         else {
-            resultPair = ViewServiceHelper.matchExistingViews(eventStreamViewable, viewFactories);
+            resultPair = ViewServiceHelper.matchExistingViews(eventStreamViewable, viewFactories, viewFactoryChainContext.getAgentInstanceContext());
         }
 
         Viewable parentViewable = resultPair.getFirst();

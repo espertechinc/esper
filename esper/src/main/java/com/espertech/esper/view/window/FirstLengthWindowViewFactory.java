@@ -9,8 +9,10 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
@@ -25,35 +27,13 @@ public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFact
     /**
      * Size of length first window.
      */
-    protected int size;
+    protected ExprEvaluator sizeEvaluator;
 
     private EventType eventType;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
-        List<Object> viewParameters = ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters);
-        if (viewParameters.size() != 1)
-        {
-            throw new ViewParameterException(getViewParamMessage());
-        }
-
-        Object parameter = viewParameters.get(0);
-        if (!(parameter instanceof Number))
-        {
-            throw new ViewParameterException(getViewParamMessage());
-        }
-        Number numParam = (Number) parameter;
-        if ( (JavaClassHelper.isFloatingPointNumber(numParam)) ||
-             (numParam instanceof Long))
-        {
-            throw new ViewParameterException(getViewParamMessage());
-        }
-
-        size =  numParam.intValue();
-        if (size <= 0)
-        {
-            throw new ViewParameterException(getViewName() + " view requires a positive number");
-        }
+        sizeEvaluator = ViewFactorySupport.validateSizeSingleParam(getViewName(), viewFactoryContext, expressionParameters);
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -63,6 +43,7 @@ public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFact
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         return new FirstLengthWindowView(agentInstanceViewFactoryContext, this, size);
     }
 
@@ -71,7 +52,7 @@ public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFact
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof FirstLengthWindowView))
         {
@@ -79,23 +60,11 @@ public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFact
         }
 
         FirstLengthWindowView myView = (FirstLengthWindowView) view;
-        if (myView.getSize() != size)
-        {
-            return false;
-        }
-
-        return myView.isEmpty();
+        int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
+        return myView.getSize() == size && myView.isEmpty();
     }
 
     public String getViewName() {
         return "First-Length";
-    }
-
-    private String getViewParamMessage() {
-        return getViewName() + " view requires an integer-type size parameter";
-    }
-
-    public int getSize() {
-        return size;
     }
 }

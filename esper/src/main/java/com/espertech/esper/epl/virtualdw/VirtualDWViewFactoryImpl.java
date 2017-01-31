@@ -17,6 +17,7 @@ import com.espertech.esper.client.hook.VirtualDataWindow;
 import com.espertech.esper.client.hook.VirtualDataWindowContext;
 import com.espertech.esper.client.hook.VirtualDataWindowFactory;
 import com.espertech.esper.client.hook.VirtualDataWindowFactoryContext;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
@@ -109,7 +110,7 @@ public class VirtualDWViewFactoryImpl implements ViewFactory, DataWindowViewFact
         return parentEventType;
     }
 
-    public boolean canReuse(View view) {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;
     }
 

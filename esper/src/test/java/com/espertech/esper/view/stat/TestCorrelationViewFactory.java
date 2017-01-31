@@ -12,6 +12,7 @@
 package com.espertech.esper.view.stat;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -47,13 +48,14 @@ public class TestCorrelationViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(new ViewFactoryContext(null, 1, null, null, false, -1, false), TestViewSupport.toExprListMD(new Object[] {"price", "volume"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
         EventType type = CorrelationView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
-        assertFalse(factory.canReuse(new CorrelationView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("volume"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null)));
-        assertFalse(factory.canReuse(new CorrelationView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("feed"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null)));
-        assertTrue(factory.canReuse(new CorrelationView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null)));
+        assertFalse(factory.canReuse(new CorrelationView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("volume"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null), agentInstanceContext));
+        assertFalse(factory.canReuse(new CorrelationView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("feed"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null), agentInstanceContext));
+        assertTrue(factory.canReuse(new CorrelationView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null), agentInstanceContext));
     }
 
     public void testAttaches() throws Exception

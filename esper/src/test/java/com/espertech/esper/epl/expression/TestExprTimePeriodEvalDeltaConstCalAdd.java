@@ -15,7 +15,7 @@ import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstCalAdd;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenCalAdd;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaResult;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodImpl;
 import junit.framework.TestCase;
@@ -30,7 +30,7 @@ public class TestExprTimePeriodEvalDeltaConstCalAdd extends TestCase {
         timePeriod.addChildNode(new ExprConstantNodeImpl(1));
         timePeriod.validate(null);
 
-        ExprTimePeriodEvalDeltaConstCalAdd addMonth = (ExprTimePeriodEvalDeltaConstCalAdd) timePeriod.constEvaluator(null);
+        ExprTimePeriodEvalDeltaConstGivenCalAdd addMonth = (ExprTimePeriodEvalDeltaConstGivenCalAdd) timePeriod.constEvaluator(null);
         assertEquals(28*24*60*60*1000L, addMonth.deltaMillisecondsAdd(parse("2002-02-15T09:00:00.000")));
         assertEquals(28*24*60*60*1000L, addMonth.deltaMillisecondsSubtract(parse("2002-03-15T09:00:00.000")));
 

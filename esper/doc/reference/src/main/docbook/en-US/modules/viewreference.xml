@@ -241,7 +241,10 @@
 			<programlisting><![CDATA[select * from StockTickEvent#time(VAR_WINDOW_SIZE)]]></programlisting>
 
 		   <para>
-			   Expression parameters for views are evaluated at the time the view is first created with the exception of the expression window (<literal>expr</literal>) and expression batch window (<literal>expr_batch</literal>). 
+			   Expression parameters for views are evaluated at the time of context partition instantiation with the exception of the expression window (<literal>expr</literal>) and expression batch window (<literal>expr_batch</literal>). 
+		   </para>
+
+		   <para>
 			   Also consider multiple data windows in intersection or union (keywords <literal>retain-intersection</literal> and <literal>retain-union</literal>). Consider writing a custom plug-in view if your application requires behavior that is not yet provided by any of the built-in views.
 		   </para>
 
@@ -256,6 +259,13 @@
 			<programlisting><![CDATA[select * from StockTickEvent#keepall()]]></programlisting>
 			<programlisting><![CDATA[select * from StockTickEvent.win:keepall()]]></programlisting>
 			<programlisting><![CDATA[select * from StockTickEvent.win:keepall]]></programlisting>
+
+		   <para>
+			   Expression parameters can reference context-provided properties. For example:
+		   </para>
+			<programlisting><![CDATA[create schema ParameterEvent(windowSize int)]]></programlisting>
+			<programlisting><![CDATA[create context MyContext initiated by ParameterEvent as params terminated after 1 year]]></programlisting>
+			<programlisting><![CDATA[context MyContext select * from StockTickEvent#length(context.params.windowSize)]]></programlisting>
 		</sect1>
 
 		<sect1 xml:id="view-batchwindows" >

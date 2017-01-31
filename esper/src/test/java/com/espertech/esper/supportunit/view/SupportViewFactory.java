@@ -12,6 +12,7 @@
 package com.espertech.esper.supportunit.view;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -40,7 +41,7 @@ public abstract class SupportViewFactory implements ViewFactory
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }

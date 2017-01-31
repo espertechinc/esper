@@ -12,6 +12,7 @@
 package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -37,7 +38,7 @@ public class NoopViewFactory implements DataWindowViewFactory {
         return eventType;
     }
 
-    public boolean canReuse(View view) {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;
     }
 

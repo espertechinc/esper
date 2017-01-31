@@ -9,10 +9,12 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -27,14 +29,14 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
     /**
      * Number of msec before expiry.
      */
-    protected ExprTimePeriodEvalDeltaConst timeDeltaComputation;
+    protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
         if (expressionParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        timeDeltaComputation = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDelta(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
+        timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -44,6 +46,7 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         return new FirstTimeView(this, agentInstanceViewFactoryContext, timeDeltaComputation);
     }
 
@@ -52,7 +55,7 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof FirstTimeView))
         {
@@ -60,20 +63,15 @@ public class FirstTimeViewFactory implements AsymetricDataWindowViewFactory, Dat
         }
 
         FirstTimeView myView = (FirstTimeView) view;
-        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
-        {
+        ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
+        if (!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }
-
         return myView.isEmpty();
     }
 
     public String getViewName() {
         return "First-Time";
-    }
-
-    public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
-        return timeDeltaComputation;
     }
 
     private String getViewParamMessage() {

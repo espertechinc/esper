@@ -12,6 +12,7 @@
 package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import junit.framework.TestCase;
 
 import com.espertech.esper.view.TestViewSupport;
@@ -33,9 +34,10 @@ public class TestSizeViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
-        assertFalse(factory.canReuse(new LastElementView(null)));
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
+        assertFalse(factory.canReuse(new LastElementView(null), agentInstanceContext));
         EventType type = SizeView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
-        assertTrue(factory.canReuse(new SizeView(SupportStatementContextFactory.makeAgentInstanceContext(), type, null)));
+        assertTrue(factory.canReuse(new SizeView(SupportStatementContextFactory.makeAgentInstanceContext(), type, null), agentInstanceContext));
     }
 
     private void tryParameter(Object[] param) throws Exception

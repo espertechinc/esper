@@ -10,10 +10,11 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.ViewUpdatedCollection;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -26,35 +27,13 @@ public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindo
     /**
      * Size of length window.
      */
-    protected int size;
+    protected ExprEvaluator sizeEvaluator;
 
     private EventType eventType;
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
-        List<Object> viewParameters = ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters);
-        if (viewParameters.size() != 1)
-        {
-            throw new ViewParameterException(getViewParamMessage());
-        }
-
-        Object parameter = viewParameters.get(0);
-        if (!(parameter instanceof Number))
-        {
-            throw new ViewParameterException(getViewParamMessage());
-        }
-        Number numParam = (Number) parameter;
-        if ( (JavaClassHelper.isFloatingPointNumber(numParam)) ||
-             (numParam instanceof Long))
-        {
-            throw new ViewParameterException(getViewParamMessage());
-        }
-
-        size =  numParam.intValue();
-        if (size <= 0)
-        {
-            throw new ViewParameterException(getViewName() + " view requires a positive number");
-        }
+        sizeEvaluator = ViewFactorySupport.validateSizeSingleParam(getViewName(), viewFactoryContext, expressionParameters);
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -68,13 +47,12 @@ public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindo
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
-        if (agentInstanceViewFactoryContext.isRemoveStream())
-        {
+        if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new LengthWindowViewRStream(agentInstanceViewFactoryContext, this, size);
         }
-        else
-        {
+        else {
             return new LengthWindowView(agentInstanceViewFactoryContext, this, size, randomAccess);
         }
     }
@@ -84,30 +62,17 @@ public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindo
         return eventType;
     }
 
-    public boolean canReuse(View view)
-    {
-        if (!(view instanceof LengthWindowView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof LengthWindowView)) {
             return false;
         }
 
         LengthWindowView myView = (LengthWindowView) view;
-        if (myView.getSize() != size)
-        {
-            return false;
-        }
-        return myView.isEmpty();
+        int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
+        return myView.getSize() == size && myView.isEmpty();
     }
 
     public String getViewName() {
         return "Length";
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    private String getViewParamMessage() {
-        return getViewName() + " view requires a single integer-type parameter";
     }
 }

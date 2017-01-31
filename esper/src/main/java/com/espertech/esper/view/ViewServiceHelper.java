@@ -12,6 +12,8 @@ import com.espertech.esper.client.annotation.Audit;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.client.annotation.HintEnum;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.context.mgr.AgentInstance;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -263,7 +265,8 @@ public class ViewServiceHelper
      * of parent views
      */
     protected static Pair<Viewable, List<View>> matchExistingViews(Viewable rootViewable,
-                                                                   List<ViewFactory> viewFactories)
+                                                                   List<ViewFactory> viewFactories,
+                                                                   AgentInstanceContext agentInstanceContext)
     {
         Viewable currentParent = rootViewable;
         List<View> matchedViewList = new LinkedList<View>();
@@ -283,7 +286,7 @@ public class ViewServiceHelper
             {
                 ViewFactory currentFactory = viewFactories.get(0);
 
-                if (!(currentFactory.canReuse(childView)))
+                if (!(currentFactory.canReuse(childView, agentInstanceContext)))
                 {
                      continue;
                 }
@@ -343,7 +346,7 @@ public class ViewServiceHelper
             catch (ViewParameterException e)
             {
                 throw new ViewProcessingException("Error in view '" + spec.getObjectName() +
-                        "', " + e.getMessage());
+                        "', " + e.getMessage(), e);
             }
 
             if (viewFactory instanceof GroupByViewFactoryMarker) {

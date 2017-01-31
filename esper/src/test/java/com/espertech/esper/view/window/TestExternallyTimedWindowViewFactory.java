@@ -12,8 +12,9 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
@@ -45,13 +46,14 @@ public class TestExternallyTimedWindowViewFactory extends TestCase
     public void testCanReuse() throws Exception
     {
         EventType parentType = SupportEventTypeFactory.createBeanType(SupportBean.class);
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
 
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[] {"longBoxed", 1000}));
         factory.attach(parentType, SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
-        assertFalse(factory.canReuse(new ExternallyTimedWindowView(factory, SupportExprNodeFactory.makeIdentNodeBean("longPrimitive"), null, new ExprTimePeriodEvalDeltaConstMsec(1000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
-        assertFalse(factory.canReuse(new ExternallyTimedWindowView(factory, SupportExprNodeFactory.makeIdentNodeBean("longBoxed"), null, new ExprTimePeriodEvalDeltaConstMsec(999), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
-        assertTrue(factory.canReuse(new ExternallyTimedWindowView(factory, SupportExprNodeFactory.makeIdentNodeBean("longBoxed"), null, new ExprTimePeriodEvalDeltaConstMsec(1000000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
+        assertFalse(factory.canReuse(new ExternallyTimedWindowView(factory, SupportExprNodeFactory.makeIdentNodeBean("longPrimitive"), null, new ExprTimePeriodEvalDeltaConstGivenMsec(1000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
+        assertFalse(factory.canReuse(new ExternallyTimedWindowView(factory, SupportExprNodeFactory.makeIdentNodeBean("longBoxed"), null, new ExprTimePeriodEvalDeltaConstGivenMsec(999), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
+        assertTrue(factory.canReuse(new ExternallyTimedWindowView(factory, SupportExprNodeFactory.makeIdentNodeBean("longBoxed"), null, new ExprTimePeriodEvalDeltaConstGivenMsec(1000000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
     }
 
     public void testInvalid() throws Exception
@@ -108,6 +110,6 @@ public class TestExternallyTimedWindowViewFactory extends TestCase
         factory.attach(SupportEventTypeFactory.createBeanType(SupportBean.class), SupportStatementContextFactory.makeContext(), null, null);
         ExternallyTimedWindowView view = (ExternallyTimedWindowView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
         assertEquals(fieldName, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(view.getTimestampExpression()));
-        assertTrue(new ExprTimePeriodEvalDeltaConstMsec(msec).equalsTimePeriod(view.getTimeDeltaComputation()));
+        assertTrue(new ExprTimePeriodEvalDeltaConstGivenMsec(msec).equalsTimePeriod(view.getTimeDeltaComputation()));
     }
 }

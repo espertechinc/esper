@@ -9,7 +9,10 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
+import com.espertech.esper.view.ViewFactorySupport;
 import com.espertech.esper.view.ViewParameterException;
 
 /**
@@ -35,7 +38,7 @@ public class TimeBatchViewFactoryParams {
     /**
      * Number of msec before batch fires (either interval or number of events).
      */
-    protected ExprTimePeriodEvalDeltaConst timeDeltaComputation;
+    protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
     /**
      * Indicate whether to output only if there is data, or to keep outputting empty batches.
@@ -49,7 +52,7 @@ public class TimeBatchViewFactoryParams {
 
 	/**
 	 * Convert keywords into isForceUpdate and isStartEager members
-	 * @param keywords flow control keyword string
+	 * @param keywords flow control keyword string expression
 	 * @param errorMessage error message
 	 * @throws ViewParameterException if parsing failed
 	 */
@@ -83,10 +86,6 @@ public class TimeBatchViewFactoryParams {
 		        throw new ViewParameterException("Time-length-combination view encountered an invalid keyword '" + keywordText + "', valid control keywords are: " + keywordRange);
 		    }
 		}
-	}
-
-	public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
-		return timeDeltaComputation;
 	}
 
 	public boolean isForceUpdate() {

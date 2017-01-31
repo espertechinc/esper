@@ -12,6 +12,7 @@
 package com.espertech.esper.view.stat;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
@@ -49,13 +50,14 @@ public class TestRegressionLinestViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListMD(new Object[] {"price", "volume"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
         EventType type = RegressionLinestView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
-        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null)));
-        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("volume"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null)));
-        assertTrue(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null)));
+        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null), agentInstanceContext));
+        assertFalse(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("volume"), SupportExprNodeFactory.makeIdentNodeMD("price"), type, null), agentInstanceContext));
+        assertTrue(factory.canReuse(new RegressionLinestView(null, SupportStatementContextFactory.makeAgentInstanceContext(), SupportExprNodeFactory.makeIdentNodeMD("price"), SupportExprNodeFactory.makeIdentNodeMD("volume"), type, null), agentInstanceContext));
     }
 
     public void testAttaches() throws Exception

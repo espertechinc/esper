@@ -11,6 +11,7 @@
 
 package com.espertech.esper.view.window;
 
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
@@ -40,10 +41,11 @@ public class TestLengthBatchViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[] {1000}));
-        assertFalse(factory.canReuse(new FirstElementView(null)));
-        assertFalse(factory.canReuse(new LengthBatchView(null, factory, 1, null)));
-        assertTrue(factory.canReuse(new LengthBatchView(null, factory, 1000, null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
+        assertFalse(factory.canReuse(new LengthBatchView(null, factory, 1, null), agentInstanceContext));
+        assertTrue(factory.canReuse(new LengthBatchView(null, factory, 1000, null), agentInstanceContext));
     }
 
     private void tryInvalidParameter(Object param) throws Exception

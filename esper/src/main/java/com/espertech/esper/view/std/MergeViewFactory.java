@@ -10,6 +10,7 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
@@ -122,7 +123,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof MergeView))
         {

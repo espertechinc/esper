@@ -9,6 +9,7 @@
 package com.espertech.esper.view.ext;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
@@ -45,7 +46,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
     /**
      * The sort window size.
      */
-    protected int sortWindowSize;
+    protected ExprEvaluator sizeEvaluator;
 
     private EventType eventType;
     private boolean useCollatorSort = false;
@@ -70,13 +71,8 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
             ViewFactorySupport.assertReturnsNonConstant(NAME + " window", validated[i], i);
         }
 
-        ExprEvaluatorContextStatement exprEvaluatorContext = new ExprEvaluatorContextStatement(statementContext, false);
-        Object sortSize = ViewFactorySupport.evaluateAssertNoProperties(NAME + " window", validated[0], 0, exprEvaluatorContext);
-        if ((sortSize == null) || (!(sortSize instanceof Number)))
-        {
-            throw new ViewParameterException(message);
-        }
-        sortWindowSize = ((Number) sortSize).intValue();
+        ViewFactorySupport.validateNoProperties(getViewName(), validated[0], 0);
+        sizeEvaluator = ViewFactorySupport.validateSizeParam(getViewName(), statementContext, validated[0], 0);
 
         sortCriteriaExpressions = new ExprNode[validated.length - 1];
         isDescendingValues = new boolean[sortCriteriaExpressions.length];
@@ -102,8 +98,8 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
     {
+        int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         IStreamSortRankRandomAccess sortedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
-
         return new SortWindowView(this, sortCriteriaExpressions, sortCriteriaEvaluators, isDescendingValues, sortWindowSize, sortedRandomAccess, useCollatorSort, agentInstanceViewFactoryContext);
     }
 
@@ -116,7 +112,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof SortWindowView))
         {
@@ -124,6 +120,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
         }
 
         SortWindowView other = (SortWindowView) view;
+        int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
         if ((other.getSortWindowSize() != sortWindowSize) ||
             (!compare(other.getIsDescendingValues(), isDescendingValues)) ||
             (!ExprNodeUtility.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions)) )
@@ -144,10 +141,6 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     public boolean[] getIsDescendingValues() {
         return isDescendingValues;
-    }
-
-    public int getSortWindowSize() {
-        return sortWindowSize;
     }
 
     public boolean isUseCollatorSort() {

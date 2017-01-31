@@ -9,6 +9,7 @@
 package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -64,7 +65,7 @@ public class UniqueByPropertyViewFactory implements DataWindowViewFactoryUniqueC
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof UniqueByPropertyView))
         {

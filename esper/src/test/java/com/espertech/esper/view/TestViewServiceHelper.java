@@ -13,6 +13,7 @@ package com.espertech.esper.view;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.spec.ViewSpec;
@@ -88,9 +89,10 @@ public class TestViewServiceHelper extends TestCase
     {
         SupportStreamImpl stream = new SupportStreamImpl(TEST_CLASS, 10);
         List<ViewFactory> viewFactories = SupportViewSpecFactory.makeFactoryListOne(stream.getEventType());
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
 
         // No views under stream, no matches
-        Pair<Viewable, List<View>> result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        Pair<Viewable, List<View>> result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
         assertEquals(stream, result.getFirst());
         assertEquals(3, viewFactories.size());
         assertEquals(0, result.getSecond().size());
@@ -98,7 +100,7 @@ public class TestViewServiceHelper extends TestCase
         // One top view under the stream that doesn't match
         SupportBeanClassView testView = new SupportBeanClassView(TEST_CLASS);
         stream.addView(new FirstElementView(null));
-        result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
 
         assertEquals(stream, result.getFirst());
         assertEquals(3, viewFactories.size());
@@ -107,7 +109,7 @@ public class TestViewServiceHelper extends TestCase
         // Another top view under the stream that doesn't matche again
         testView = new SupportBeanClassView(TEST_CLASS);
         stream.addView(new LengthWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), null, 999, null));
-        result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
 
         assertEquals(stream, result.getFirst());
         assertEquals(3, viewFactories.size());
@@ -116,7 +118,7 @@ public class TestViewServiceHelper extends TestCase
         // One top view under the stream that does actually match
         LengthWindowView myLengthWindowView = new LengthWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), null, 1000, null);
         stream.addView(myLengthWindowView);
-        result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
 
         assertEquals(myLengthWindowView, result.getFirst());
         assertEquals(2, viewFactories.size());
@@ -131,7 +133,7 @@ public class TestViewServiceHelper extends TestCase
         factory.setEventType(type);
         factory.setFieldExpression(SupportExprNodeFactory.makeIdentNodeBean("longBoxed"));
         myLengthWindowView.addView(new UnivariateStatisticsView(factory, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()));
-        result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
         assertEquals(1, result.getSecond().size());
         assertEquals(myLengthWindowView, result.getSecond().get(0));
         assertEquals(myLengthWindowView, result.getFirst());
@@ -144,7 +146,7 @@ public class TestViewServiceHelper extends TestCase
         factoryTwo.setFieldExpression(SupportExprNodeFactory.makeIdentNodeBean("intPrimitive"));
         UnivariateStatisticsView myUnivarView = new UnivariateStatisticsView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
         myLengthWindowView.addView(myUnivarView);
-        result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
 
         assertEquals(myUnivarView, result.getFirst());
         assertEquals(1, viewFactories.size());
@@ -153,7 +155,7 @@ public class TestViewServiceHelper extends TestCase
         viewFactories = SupportViewSpecFactory.makeFactoryListOne(stream.getEventType());
         LastElementView lastElementView = new LastElementView(null);
         myUnivarView.addView(lastElementView);
-        result = ViewServiceHelper.matchExistingViews(stream, viewFactories);
+        result = ViewServiceHelper.matchExistingViews(stream, viewFactories, agentInstanceContext);
 
         assertEquals(lastElementView, result.getFirst());
         assertEquals(0, viewFactories.size());

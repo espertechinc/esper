@@ -12,6 +12,7 @@
 package com.espertech.esper.view.stat;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -68,17 +69,18 @@ public class TestWeightedAverageViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(viewFactoryContext, TestViewSupport.toExprListMD(new Object[] {"price", "volume"}));
         factory.attach(SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class), SupportStatementContextFactory.makeContext(), null, null);
-        assertFalse(factory.canReuse(new FirstElementView(null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
         EventType type = WeightedAverageView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         WeightedAverageViewFactory factoryTwo = new WeightedAverageViewFactory();
         factoryTwo.setFieldNameX(SupportExprNodeFactory.makeIdentNodeMD("price"));
         factoryTwo.setEventType(type);
         factoryTwo.setFieldNameWeight(SupportExprNodeFactory.makeIdentNodeMD("price"));
-        assertFalse(factory.canReuse(new WeightedAverageView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
+        assertFalse(factory.canReuse(new WeightedAverageView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
         factoryTwo.setFieldNameWeight(SupportExprNodeFactory.makeIdentNodeMD("volume"));
-        assertTrue(factory.canReuse(new WeightedAverageView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext())));
+        assertTrue(factory.canReuse(new WeightedAverageView(factoryTwo, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()), agentInstanceContext));
     }
 
     private void tryInvalidParameter(Object[] parameters) throws Exception

@@ -11,7 +11,8 @@
 
 package com.espertech.esper.view.window;
 
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
@@ -40,10 +41,11 @@ public class TestTimeWindowViewFactory extends TestCase
 
     public void testCanReuse() throws Exception
     {
+        AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[] {1000}));
-        assertFalse(factory.canReuse(new FirstElementView(null)));
-        assertFalse(factory.canReuse(new TimeBatchView(null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), new ExprTimePeriodEvalDeltaConstMsec(1000), null, false, false, null)));
-        assertTrue(factory.canReuse(new TimeWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), factory, new ExprTimePeriodEvalDeltaConstMsec(1000000), null)));
+        assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
+        assertFalse(factory.canReuse(new TimeBatchView(null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), new ExprTimePeriodEvalDeltaConstGivenMsec(1000), null, false, false, null), agentInstanceContext));
+        assertTrue(factory.canReuse(new TimeWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), factory, new ExprTimePeriodEvalDeltaConstGivenMsec(1000000), null), agentInstanceContext));
     }
 
     private void tryInvalidParameter(Object param) throws Exception

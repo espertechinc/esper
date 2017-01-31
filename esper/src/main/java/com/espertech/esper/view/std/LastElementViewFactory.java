@@ -9,6 +9,7 @@
 package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -27,12 +28,7 @@ public class LastElementViewFactory implements DataWindowViewFactory
 
     public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
     {
-        List<Object> viewParameters = ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters);
-        if (!viewParameters.isEmpty())
-        {
-            String errorMessage = getViewName() + " view does not take any parameters";
-            throw new ViewParameterException(errorMessage);
-        }
+        ViewFactorySupport.validateNoParameters(getViewName(), expressionParameters);
     }
 
     public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
@@ -50,7 +46,7 @@ public class LastElementViewFactory implements DataWindowViewFactory
         return eventType;
     }
 
-    public boolean canReuse(View view)
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
     {
         if (!(view instanceof LastElementView))
         {

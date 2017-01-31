@@ -76,7 +76,9 @@ public class ViewResolutionServiceImpl implements ViewResolutionService
 
         if (viewFactoryClass == null)
         {
-            String message = "View name '" + nameSpace + ":" + name + "' is not a known view name";
+            String message = nameSpace == null ?
+                    "View name '" + name + "' is not a known view name" :
+                    "View name '" + nameSpace + ":" + name + "' is not a known view name";
             throw new ViewProcessingException(message);
         }
 

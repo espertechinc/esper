@@ -20,7 +20,7 @@ import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
@@ -375,7 +375,7 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                         }
                         Double secondsExpire = ((Number) expr.getExprEvaluator().evaluate(null, true, evaluatorContext)).doubleValue();
                         if ((secondsExpire != null) && (secondsExpire > 0)) {
-                            timeDeltaComputation = new ExprTimePeriodEvalDeltaConstMsec(Math.round(1000d * secondsExpire));
+                            timeDeltaComputation = new ExprTimePeriodEvalDeltaConstGivenMsec(Math.round(1000d * secondsExpire));
                             expiryTimeExp = expr;
                         }
                     }
