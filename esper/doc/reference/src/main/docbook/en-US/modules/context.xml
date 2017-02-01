@@ -710,7 +710,8 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			<title>Non-Overlapping Context</title>
 			
 			<para>
-				  You may declare a non-overlapping context that exists once or that repeats in a regular fashion as controlled by start and end conditions. The number of context partitions is always either one or zero: Context partitions do not overlap.
+				  You may declare a non-overlapping context that exists once or that repeats in a regular fashion as controlled by a start condition and an optional end condition. 
+				  The number of context partitions is always either one or zero: Context partitions do not overlap.
 			</para>
 			
 			<para>
@@ -718,23 +719,26 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			</para>
 			<synopsis>create context <emphasis>context_name</emphasis>
   start (@now | <emphasis>start_condition</emphasis>) 
-  end <emphasis>end_condition</emphasis></synopsis>
+  [ end <emphasis>end_condition</emphasis> ]</synopsis>
 						
 			<para>
 				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
 			</para>
 				
 			<para>
-				Following the context name is the <literal>start</literal> keyword, either <literal>@now</literal> or a <emphasis>start_condition</emphasis>, the <literal>end</literal> keyword and an <emphasis>end_condition</emphasis>.
+				Following the context name is the <literal>start</literal> keyword, either <literal>@now</literal> or a <emphasis>start_condition</emphasis>. It follows the optional <literal>end</literal> keyword and an <emphasis>end_condition</emphasis>.
 			</para>
 			
 			<para>
-			  Both the start (if specified) and end condition can be an event filter, a pattern, a crontab or a time period. The syntax of start and end conditions is described in <xref linkend="context_def_condition"/>.
+			  Both the start condition and the end condition, if specified, can be an event filter, a pattern, a crontab or a time period. 
+			  The syntax of start and end conditions is described in <xref linkend="context_def_condition"/>.
 			</para>
 			
 			<para>
-			  Once the start condition occurs, the engine no longer observes the start condition and begins observing the end condition. Once the end condition occurs, the engine observes the start condition again.
+			  Once the start condition occurs, the engine no longer observes the start condition and begins observing the end condition, if an end condition was provided.
+			  Once the end condition occurs, the engine observes the start condition again.
 			  If you specified <literal>@now</literal> instead of a start condition, the engine begins observing the end condition instead.
+			  If there is no end condition the context partition remains alive and does not end.
 			</para>
 						
 			<para>
@@ -783,6 +787,11 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
   			</para>
   			<programlisting><![CDATA[create context Every15Minutes start @now end after 15 minutes]]></programlisting>
   			
+			<para>
+  				The next example declares an <literal>AlwaysOn</literal> context: It starts immediately and does not end unless the application uses the API to terminate the context partition:
+  			</para>
+  			<programlisting><![CDATA[create context AlwaysOn start @now]]></programlisting>
+
   			<tip>
 				<para>
 				A non-overlapping context with <literal>@now</literal> is always-on: A context partition is always allocated at any given point in time. Only if <literal>@now</literal> is specified
@@ -818,7 +827,8 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			<title>Overlapping Context</title>
 			
 			<para>
-				  This context initiates a new context partition when an initiating condition occurs, and terminates one or more context partitions when the terminating condition occurs. The engine maintains as many context partitions as the initiating condition fired, and discards context partitions that terminate when the termination condition fires.
+				  This context initiates a new context partition when an initiating condition occurs, and terminates one or more context partitions when the terminating condition occurs, 
+				  if a terminating condition was specified. Thus multiple overlapping context partitions can be active at any point and context partitions can overlap.
 			</para>
 			
 			<para>
@@ -826,7 +836,7 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 			</para>
 			<synopsis>create context <emphasis>context_name</emphasis>
   initiated [by] [distinct (<emphasis>distinct_value_expr [,...]</emphasis>)] [@now and] <emphasis>initiating_condition</emphasis>
-  terminated [by] <emphasis>terminating_condition</emphasis></synopsis>
+  [ terminated [by] <emphasis>terminating_condition</emphasis> ]</synopsis>
 						
 			<para>
 				The <emphasis>context_name</emphasis> you assign to the context can be any identifier.
@@ -840,11 +850,12 @@ select * from pattern [every a=LoginEvent -> b=LogoutEvent where timer:within(10
 
 			<para>
 				After the <literal>initiated</literal> keyword you must specify the initiating condition. 
-				It follows the <literal>terminated</literal> keyword followed by the terminating condition.
+				You may optionally use the <literal>terminated</literal> keyword followed by the terminating condition.
+				If no terminating condition is specified each context partition remains alive and does not terminate.
 			</para>
 
 			<para>
-			  Both the initiating and terminating condition can be an event filter, a pattern, a crontab or a time period. The syntax of initiating and terminating conditions is described in <xref linkend="context_def_condition"/>.
+			  Both the initiating condition and the terminating condition, if specified, can be an event filter, a pattern, a crontab or a time period. The syntax of initiating and terminating conditions is described in <xref linkend="context_def_condition"/>.
 			</para>
 			
 			<para>
@@ -899,6 +910,11 @@ select t1 from pattern [
 			  To output only the last value when a context partition ends (terminates, expires), please read on to the description of output rate limiting.
 			</para>
 			
+			<para>
+				By providing no terminating condition, we can tell the engine to allocate context partitions that never terminate, for example:
+			</para>
+			<programlisting><![CDATA[create context CtxTrainEnter initiated by TrainEnterEvent as te]]></programlisting>
+
 			<note>
 				<para>
 					If you specified an event filter or pattern as the termination condition for a context partition, and statements that refer to the context specify an event filter or pattern that matches the same conditions,

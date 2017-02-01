@@ -9,22 +9,22 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.client.soda;
 
-import com.espertech.esper.filter.FilterSpecCompiled;
+import java.io.StringWriter;
 
-import java.util.Collections;
-import java.util.List;
+/**
+ * Context condition that starts/initiates immediately.
+ */
+public class ContextDescriptorConditionNever implements ContextDescriptorCondition {
 
-public class ContextDetailConditionImmediate implements ContextDetailCondition {
-    private static final long serialVersionUID = -2941853977692802522L;
-
-    public final static ContextDetailConditionImmediate INSTANCE = new ContextDetailConditionImmediate();
-
-    private ContextDetailConditionImmediate() {
+    /**
+     * Ctor.
+     */
+    public ContextDescriptorConditionNever() {
     }
 
-    public List<FilterSpecCompiled> getFilterSpecIfAny() {
-        return Collections.emptyList();
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
+
     }
 }

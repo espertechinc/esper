@@ -49,6 +49,9 @@ public class ContextControllerConditionFactory {
         else if (endpoint instanceof ContextDetailConditionImmediate) {
             return new ContextControllerConditionImmediate();
         }
+        else if (endpoint instanceof ContextDetailConditionNever) {
+            return new ContextControllerConditionNever();
+        }
         throw new IllegalStateException("Unrecognized context range endpoint " + endpoint.getClass());
     }
 }

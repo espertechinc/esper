@@ -213,7 +213,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             Pair<MatchEventSpec, Set<String>> matches = validatePatternContextConditionPattern(statementContext, pattern, eventTypesReferenced, priorMatches, priorAllTags);
             return new ContextDetailMatchPair(pattern, matches.getFirst(), matches.getSecond());
         }
-        else if (endpoint instanceof ContextDetailConditionImmediate) {
+        else if (endpoint instanceof ContextDetailConditionImmediate || endpoint instanceof ContextDetailConditionNever) {
             return new ContextDetailMatchPair(endpoint, new MatchEventSpec(), new LinkedHashSet<String>());
         }
         else {

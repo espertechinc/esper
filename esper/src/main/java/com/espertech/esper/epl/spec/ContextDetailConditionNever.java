@@ -16,12 +16,10 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 import java.util.Collections;
 import java.util.List;
 
-public class ContextDetailConditionImmediate implements ContextDetailCondition {
-    private static final long serialVersionUID = -2941853977692802522L;
+public class ContextDetailConditionNever implements ContextDetailCondition {
+    public final static ContextDetailConditionNever INSTANCE = new ContextDetailConditionNever();
 
-    public final static ContextDetailConditionImmediate INSTANCE = new ContextDetailConditionImmediate();
-
-    private ContextDetailConditionImmediate() {
+    private ContextDetailConditionNever() {
     }
 
     public List<FilterSpecCompiled> getFilterSpecIfAny() {

@@ -11,6 +11,8 @@
 
 package com.espertech.esper.client.soda;
 
+import com.espertech.esper.epl.spec.ContextDetailConditionNever;
+
 import java.io.StringWriter;
 import java.util.List;
 
@@ -135,8 +137,10 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
             writer.append(") ");
         }
         startCondition.toEPL(writer, formatter);
-        writer.append(" ");
-        writer.append(overlapping ? "terminated " : "end ");
-        endCondition.toEPL(writer, formatter);
+        if (!(endCondition instanceof ContextDescriptorConditionNever)) {
+            writer.append(" ");
+            writer.append(overlapping ? "terminated " : "end ");
+            endCondition.toEPL(writer, formatter);
+        }
     }
 }

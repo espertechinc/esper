@@ -72,7 +72,7 @@ public class ASTContextHelper
             if (ctx.START() != null) {
                 boolean immediate = checkNow(ctx.i);
                 if (immediate) {
-                    startEndpoint = new ContextDetailConditionImmediate();
+                    startEndpoint = ContextDetailConditionImmediate.INSTANCE;
                 }
                 else {
                     startEndpoint = getContextCondition(ctx.r1, astExprNodeMap, astPatternNodeMap, propertyEvalSpec, false);
@@ -154,6 +154,9 @@ public class ASTContextHelper
     }
 
     private static ContextDetailCondition getContextCondition(EsperEPL2GrammarParser.CreateContextRangePointContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, boolean immediate) {
+        if (ctx == null) {
+            return ContextDetailConditionNever.INSTANCE;
+        }
         if (ctx.crontabLimitParameterSet() != null) {
             List<ExprNode> crontab = ASTExprHelper.exprCollectSubNodes(ctx.crontabLimitParameterSet(), 0, astExprNodeMap);
             return new ContextDetailConditionCrontab(crontab, immediate);

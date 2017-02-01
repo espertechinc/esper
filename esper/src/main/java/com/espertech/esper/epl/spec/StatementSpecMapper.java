@@ -545,6 +545,9 @@ public class StatementSpecMapper
         else if (endpoint instanceof ContextDetailConditionImmediate) {
             return new ContextDescriptorConditionImmediate();
         }
+        else if (endpoint instanceof ContextDetailConditionNever) {
+            return new ContextDescriptorConditionNever();
+        }
         throw new IllegalStateException("Unrecognized endpoint " + endpoint);
     }
 
@@ -1528,7 +1531,10 @@ public class StatementSpecMapper
             return new ContextDetailConditionTimePeriod((ExprTimePeriod) expr, timePeriod.isNow());
         }
         if (condition instanceof ContextDescriptorConditionImmediate) {
-            return new ContextDetailConditionImmediate();
+            return ContextDetailConditionImmediate.INSTANCE;
+        }
+        if (condition instanceof ContextDescriptorConditionNever) {
+            return ContextDetailConditionNever.INSTANCE;
         }
         throw new IllegalStateException("Unrecognized condition " + condition);
     }

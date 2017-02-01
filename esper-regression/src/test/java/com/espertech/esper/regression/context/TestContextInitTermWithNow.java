@@ -129,7 +129,7 @@ public class TestContextInitTermWithNow extends TestCase {
 
         // for non-overlapping contexts, @now with condition is not allowed
         tryInvalid("create context TimedImmediate start @now and after 5 seconds end after 10 seconds",
-                "Incorrect syntax near 'and' (a reserved keyword) expecting 'end' but found 'and' at line 1 column 41 [create context TimedImmediate start @now and after 5 seconds end after 10 seconds]");
+                "Incorrect syntax near 'and' (a reserved keyword) at line 1 column 41 [create context TimedImmediate start @now and after 5 seconds end after 10 seconds]");
 
         // for overlapping contexts, @now together with a filter condition is not allowed
         tryInvalid("create context TimedImmediate initiated @now and SupportBean terminated after 10 seconds",

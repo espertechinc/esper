@@ -9,22 +9,31 @@
  * *************************************************************************************
  */
 
-package com.espertech.esper.epl.spec;
+package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.pattern.MatchedEventMap;
 
-import java.util.Collections;
-import java.util.List;
+/**
+ * Context condition used for overlapping and non-overlaping to never-end/terminated.
+ */
+public class ContextControllerConditionNever implements ContextControllerCondition {
 
-public class ContextDetailConditionImmediate implements ContextDetailCondition {
-    private static final long serialVersionUID = -2941853977692802522L;
-
-    public final static ContextDetailConditionImmediate INSTANCE = new ContextDetailConditionImmediate();
-
-    private ContextDetailConditionImmediate() {
+    public void activate(EventBean optionalTriggerEvent, MatchedEventMap priorMatches, long timeOffset, boolean isRecoveringResilient) {
     }
 
-    public List<FilterSpecCompiled> getFilterSpecIfAny() {
-        return Collections.emptyList();
+    public void deactivate() {
+    }
+
+    public boolean isRunning() {
+        return true;
+    }
+
+    public Long getExpectedEndTime() {
+        return null;
+    }
+
+    public boolean isImmediate() {
+        return false;
     }
 }

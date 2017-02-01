@@ -474,8 +474,8 @@ createContextDetail : createContextChoice
 	
 contextContextNested : CONTEXT name=IDENT AS? createContextChoice;
 	
-createContextChoice : START (ATCHAR i=IDENT | r1=createContextRangePoint) END r2=createContextRangePoint
-		| INITIATED (BY)? createContextDistinct? (ATCHAR i=IDENT AND_EXPR)? r1=createContextRangePoint TERMINATED (BY)? r2=createContextRangePoint
+createContextChoice : START (ATCHAR i=IDENT | r1=createContextRangePoint) (END r2=createContextRangePoint)?
+		| INITIATED (BY)? createContextDistinct? (ATCHAR i=IDENT AND_EXPR)? r1=createContextRangePoint (TERMINATED (BY)? r2=createContextRangePoint)?
 		| PARTITION (BY)? createContextPartitionItem (COMMA createContextPartitionItem)* 
 		| createContextGroupItem (COMMA createContextGroupItem)* FROM eventFilterExpression
 		| COALESCE (BY)? createContextCoalesceItem (COMMA createContextCoalesceItem)* g=IDENT number (p=IDENT)?;

@@ -29,6 +29,7 @@ import com.espertech.esper.supportregression.bean.SupportBean_S1;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.util.AgentInstanceAssertionUtil;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
@@ -59,6 +60,19 @@ public class TestContextInitTerm extends TestCase {
     public void tearDown() {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
+    }
+
+    public void testNoTerminationCondition() {
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(5));
+
+        runAssertionNoTerminationConditionOverlapping(false);
+        runAssertionNoTerminationConditionOverlapping(true);
+
+        runAssertionNoTerminationConditionNonoverlapping(false);
+        runAssertionNoTerminationConditionNonoverlapping(true);
+
+        runAssertionNoTerminationConditionNested(false);
+        runAssertionNoTerminationConditionNested(true);
     }
 
     public void testStartZeroInitiatedNow() {
@@ -982,6 +996,69 @@ public class TestContextInitTerm extends TestCase {
                 "Failed to validate subquery number 1 querying EventsWindow: Named window by name 'EventsWindow' has been declared for context 'RuleActivityTime' and can only be used within the same context");
 
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+    }
+
+    private void runAssertionNoTerminationConditionOverlapping(boolean soda) {
+
+        SupportModelHelper.createByCompileOrParse(epService, soda, "create context SupportBeanInstanceCtx as initiated by SupportBean as sb");
+        EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, "context SupportBeanInstanceCtx " +
+                "select id, context.sb.intPrimitive as sbint, context.startTime as starttime, context.endTime as endtime from SupportBean_S0(p00=context.sb.theString)");
+        stmt.addListener(listener);
+        String[] fields = "id,sbint,starttime,endtime".split(",");
+
+        epService.getEPRuntime().sendEvent(new SupportBean("P1", 100));
+        epService.getEPRuntime().sendEvent(new SupportBean("P2", 200));
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(10, "P2"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {10, 200, 5L, null});
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(20, "P1"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {20, 100, 5L, null});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionNoTerminationConditionNonoverlapping(boolean soda) {
+
+        SupportModelHelper.createByCompileOrParse(epService, soda, "create context SupportBeanInstanceCtx as start SupportBean as sb");
+        EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, "context SupportBeanInstanceCtx " +
+                "select id, context.sb.intPrimitive as sbint, context.startTime as starttime, context.endTime as endtime from SupportBean_S0(p00=context.sb.theString)");
+        stmt.addListener(listener);
+        String[] fields = "id,sbint,starttime,endtime".split(",");
+
+        epService.getEPRuntime().sendEvent(new SupportBean("P1", 100));
+        epService.getEPRuntime().sendEvent(new SupportBean("P2", 200));
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(10, "P2"));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(20, "P1"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {20, 100, 5L, null});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionNoTerminationConditionNested(boolean soda) {
+
+        SupportModelHelper.createByCompileOrParse(epService, soda, "create context MyCtx as " +
+                "context Lvl1Ctx as start SupportBean_S0 as s0, " +
+                "context Lvl2Ctx as start SupportBean_S1 as s1");
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("context MyCtx " +
+                "select theString, context.Lvl1Ctx.s0.p00 as p00, context.Lvl2Ctx.s1.p10 as p10 from SupportBean");
+        stmt.addListener(listener);
+        String[] fields = "theString,p00,p10".split(",");
+
+        epService.getEPRuntime().sendEvent(new SupportBean("P1", 100));
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(1, "A"));
+        epService.getEPRuntime().sendEvent(new SupportBean("P1", 100));
+        epService.getEPRuntime().sendEvent(new SupportBean_S1(2, "B"));
+        assertFalse(listener.isInvoked());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 10));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", "A", "B"});
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void sendTimeEvent(String time) {
