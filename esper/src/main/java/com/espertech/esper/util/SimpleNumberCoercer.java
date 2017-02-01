@@ -20,4 +20,6 @@ public interface SimpleNumberCoercer
      * @return the numToCoerce as a value in the given result type
      */
     public Number coerceBoxed(Number numToCoerce);
+
+    public Class getReturnType();
 }

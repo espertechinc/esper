@@ -51,6 +51,14 @@ public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue
         this.statementName = statementName;
     }
 
+    public Class getReturnType() {
+        return coercionType;
+    }
+
+    public boolean constant() {
+        return false;
+    }
+
     public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext) {
         EventBean[] events = (EventBean[]) matchedEvents.getMatchingEventAsObjectByTag(resultEventAsName);
 

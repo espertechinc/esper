@@ -11,9 +11,10 @@ package com.espertech.esper.filter;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.util.JavaClassHelper;
 
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * This class represents a 'in' filter parameter in an {@link com.espertech.esper.filter.FilterSpecCompiled} filter specification.
@@ -24,6 +25,8 @@ public final class FilterSpecParamIn extends FilterSpecParam
 {
     private final List<FilterSpecParamInValue> listOfValues;
     private MultiKeyUntyped inListConstantsOnly;
+    private boolean hasCollMapOrArray;
+    private InValueAdder[] adders;
     private static final long serialVersionUID = 1723225284589047752L;
 
     /**
@@ -41,25 +44,46 @@ public final class FilterSpecParamIn extends FilterSpecParam
         super(lookupable, filterOperator);
         this.listOfValues = listofValues;
 
-        boolean isAllConstants = false;
-        for (FilterSpecParamInValue value : listofValues)
-        {
-            if (value instanceof InSetOfValuesEventProp || value instanceof InSetOfValuesContextProp)
-            {
+        for (FilterSpecParamInValue value : listofValues) {
+            Class returnType = value.getReturnType();
+            if (JavaClassHelper.isCollectionMapOrArray(returnType)) {
+                hasCollMapOrArray = true;
+                break;
+            }
+        }
+
+        if (hasCollMapOrArray) {
+            adders = new InValueAdder[listofValues.size()];
+            for (int i = 0; i < listofValues.size(); i++) {
+                Class returnType = listofValues.get(0).getReturnType();
+                if (returnType == null) {
+                    adders[i] = InValueAdderPlain.INSTANCE;
+                }
+                else if (returnType.isArray()) {
+                    adders[i] = InValueAdderArray.INSTANCE;
+                }
+                else if (JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
+                    adders[i] = InValueAdderMap.INSTANCE;
+                }
+                else if (JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
+                    adders[i] = InValueAdderColl.INSTANCE;
+                }
+                else {
+                    adders[i] = InValueAdderPlain.INSTANCE;
+                }
+            }
+        }
+
+        boolean isAllConstants = true;
+        for (FilterSpecParamInValue value : listofValues) {
+            if (!value.constant()) {
                 isAllConstants = false;
                 break;
             }
         }
 
-        if (isAllConstants)
-        {
-            Object[] constants = new Object[listOfValues.size()];
-            int count = 0;
-            for (FilterSpecParamInValue valuePlaceholder : listOfValues)
-            {
-                constants[count++] = valuePlaceholder.getFilterValue(null, null);
-            }
-            inListConstantsOnly = new MultiKeyUntyped(constants);
+        if (isAllConstants) {
+            inListConstantsOnly = getFilterValues(null, null);
         }
 
         if ((filterOperator != FilterOperator.IN_LIST_OF_VALUES) && ((filterOperator != FilterOperator.NOT_IN_LIST_OF_VALUES)))
@@ -72,19 +96,10 @@ public final class FilterSpecParamIn extends FilterSpecParam
     public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
     {
         // If the list of values consists of all-constants and no event properties, then use cached version
-        if (inListConstantsOnly != null)
-        {
+        if (inListConstantsOnly != null) {
             return inListConstantsOnly;
         }
-
-        // Determine actual values since the in-list of values contains one or more event properties
-        Object[] actualValues = new Object[listOfValues.size()];
-        int count = 0;
-        for (FilterSpecParamInValue valuePlaceholder : listOfValues)
-        {
-            actualValues[count++] = valuePlaceholder.getFilterValue(matchedEvents, agentInstanceContext);
-        }
-        return new MultiKeyUntyped(actualValues);
+        return getFilterValues(matchedEvents, agentInstanceContext);
     }
 
     /**
@@ -136,5 +151,80 @@ public final class FilterSpecParamIn extends FilterSpecParam
         int result = super.hashCode();
         result = 31 * result + (listOfValues != null ? listOfValues.hashCode() : 0);
         return result;
+    }
+
+    private MultiKeyUntyped getFilterValues(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
+        if (!hasCollMapOrArray) {
+            Object[] constants = new Object[listOfValues.size()];
+            int count = 0;
+            for (FilterSpecParamInValue valuePlaceholder : listOfValues) {
+                constants[count++] = valuePlaceholder.getFilterValue(matchedEvents, agentInstanceContext);
+            }
+            return new MultiKeyUntyped(constants);
+        }
+
+        ArrayDeque<Object> constants = new ArrayDeque<>(listOfValues.size());
+        int count = 0;
+        for (FilterSpecParamInValue valuePlaceholder : listOfValues) {
+            Object value = valuePlaceholder.getFilterValue(matchedEvents, agentInstanceContext);
+            if (value != null) {
+                adders[count].add(constants, value);
+            }
+            count++;
+        }
+        return new MultiKeyUntyped(constants.toArray());
+    }
+
+    private interface InValueAdder {
+        void add(Collection<Object> constants, Object value);
+    }
+
+    private static class InValueAdderArray implements InValueAdder {
+        private final static InValueAdderArray INSTANCE = new InValueAdderArray();
+
+        private InValueAdderArray() {
+        }
+
+        public void add(Collection<Object> constants, Object value) {
+            int len = Array.getLength(value);
+            for (int i = 0; i < len; i++) {
+                constants.add(Array.get(value, i));
+            }
+        }
+    }
+
+    private static class InValueAdderMap implements InValueAdder {
+        private final static InValueAdderMap INSTANCE = new InValueAdderMap();
+
+        private InValueAdderMap() {
+        }
+
+        public void add(Collection<Object> constants, Object value) {
+            Map map = (Map) value;
+            constants.addAll(map.keySet());
+        }
+    }
+
+    private static class InValueAdderColl implements InValueAdder {
+        private final static InValueAdderColl INSTANCE = new InValueAdderColl();
+
+        private InValueAdderColl() {
+        }
+
+        public void add(Collection<Object> constants, Object value) {
+            Collection coll = (Collection) value;
+            constants.addAll(coll);
+        }
+    }
+
+    private static class InValueAdderPlain implements InValueAdder {
+        private final static InValueAdderPlain INSTANCE = new InValueAdderPlain();
+
+        private InValueAdderPlain() {
+        }
+
+        public void add(Collection<Object> constants, Object value) {
+            constants.add(value);
+        }
     }
 }

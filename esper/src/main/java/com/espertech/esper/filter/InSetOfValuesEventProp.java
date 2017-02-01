@@ -39,6 +39,14 @@ public class InSetOfValuesEventProp implements FilterSpecParamInValue
         this.isMustCoerce = isMustCoerce;
     }
 
+    public Class getReturnType() {
+        return coercionType;
+    }
+
+    public boolean constant() {
+        return false;
+    }
+
     public final Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext)
     {
         EventBean theEvent = matchedEvents.getMatchingEventByTag(resultEventAsName);

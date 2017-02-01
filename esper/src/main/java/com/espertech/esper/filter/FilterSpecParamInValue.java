@@ -26,4 +26,8 @@ public interface FilterSpecParamInValue extends MetaDefItem, Serializable
      * @return filter-for value
      */
     public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext);
+
+    public Class getReturnType();
+
+    public boolean constant();
 }

@@ -26,8 +26,40 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import static com.espertech.esper.util.JavaClassHelper.isArrayTypeCompatible;
+import static com.espertech.esper.util.JavaClassHelper.isCollectionMapOrArray;
+
 public class TestJavaClassHelper extends TestCase
 {
+    public void testArrayTypeCompatible() {
+        assertTrue(isArrayTypeCompatible(int.class, int.class));
+        assertTrue(isArrayTypeCompatible(int.class, Integer.class));
+        assertTrue(isArrayTypeCompatible(Integer.class, int.class));
+        assertTrue(isArrayTypeCompatible(Number.class, int.class));
+        assertTrue(isArrayTypeCompatible(Number.class, Integer.class));
+        assertTrue(isArrayTypeCompatible(Object.class, int.class));
+        assertTrue(isArrayTypeCompatible(Object.class, Integer.class));
+
+        assertTrue(isArrayTypeCompatible(Collection.class, Collection.class));
+        assertTrue(isArrayTypeCompatible(Collection.class, ArrayList.class));
+        assertTrue(isArrayTypeCompatible(Object.class, ArrayList.class));
+        assertTrue(isArrayTypeCompatible(Object.class, Collection.class));
+
+        assertFalse(isArrayTypeCompatible(Boolean.class, int.class));
+        assertFalse(isArrayTypeCompatible(Integer.class, boolean.class));
+        assertFalse(isArrayTypeCompatible(Long.class, Integer.class));
+        assertFalse(isArrayTypeCompatible(Integer.class, byte.class));
+    }
+
+    public void testIsCollectionMapOrArray() {
+        for (Class clazz : Arrays.asList(HashMap.class, Map.class, Collection.class, ArrayList.class, int[].class, Object[].class)) {
+            assertTrue(isCollectionMapOrArray(clazz));
+        }
+        for (Class clazz : Arrays.asList(null, JavaClassHelper.class)) {
+            assertFalse(isCollectionMapOrArray(clazz));
+        }
+    }
+
     public void testTakeFirstN() {
         Class[] classes = new Class[] {String.class};
         EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 1));

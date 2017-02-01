@@ -14,20 +14,20 @@ package com.espertech.esper.regression.expr;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.util.CollectionUtil;
+import com.espertech.esper.util.SerializableObjectCopier;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.*;
 
 public class TestFilterExpressionsOptimizable extends TestCase
 {
@@ -53,6 +53,23 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     protected void tearDown() throws Exception {
         listener = null;
+    }
+
+    public void testInAndNotInKeywordMultivalue() throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType(MyEventInKeywordValue.class);
+
+        runAssertionInKeyword("ints", new MyEventInKeywordValue(new int[] {1, 2}));
+        runAssertionInKeyword("mapOfIntKey", new MyEventInKeywordValue(CollectionUtil.twoEntryMap(1, "x", 2, "y")));
+        runAssertionInKeyword("collOfInt", new MyEventInKeywordValue(Arrays.asList(1, 2)));
+
+        runAssertionNotInKeyword("ints", new MyEventInKeywordValue(new int[] {1, 2}));
+        runAssertionNotInKeyword("mapOfIntKey", new MyEventInKeywordValue(CollectionUtil.twoEntryMap(1, "x", 2, "y")));
+        runAssertionNotInKeyword("collOfInt", new MyEventInKeywordValue(Arrays.asList(1, 2)));
+
+        runAssertionInArrayContextProvided();
+
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from pattern[every a=MyEventInKeywordValue -> SupportBean(intPrimitive in (a.longs))]",
+           "Implicit conversion from datatype 'long' to 'int' for property 'intPrimitive' is not allowed (strict filter type coercion)");
     }
 
     public void testOptimizablePerf() {
@@ -210,6 +227,134 @@ public class TestFilterExpressionsOptimizable extends TestCase
         runAssertionHint();
     }
 
+    public void testOrPerformance()
+    {
+        for (Class clazz : new Class[] {SupportBean.class}) {
+            epService.getEPAdministrator().getConfiguration().addEventType(clazz);
+        }
+        SupportUpdateListener listener = new SupportUpdateListener();
+        for (int i = 0; i < 1000; i++) {
+            String epl = "select * from SupportBean(theString = '" + i + "' or intPrimitive=" + i + ")";
+            epService.getEPAdministrator().createEPL(epl).addListener(listener);
+        }
+
+        long start = System.nanoTime();
+        // System.out.println("Starting " + DateTime.print(new Date()));
+        for (int i = 0; i < 10000; i++) {
+            epService.getEPRuntime().sendEvent(new SupportBean("100", 1));
+            assertTrue(listener.isInvoked());
+            listener.reset();
+        }
+        // System.out.println("Ending " + DateTime.print(new Date()));
+        double delta = (System.nanoTime() - start) / 1000d / 1000d;
+        // System.out.println("Delta=" + (delta + " msec"));
+        assertTrue(delta < 500);
+    }
+
+    private void runAssertionInKeyword(String field, MyEventInKeywordValue prototype) throws Exception {
+        runAssertionInKeywordPlain(field, prototype);
+        runAssertionInKeywordPattern(field, prototype);
+    }
+
+    private void runAssertionNotInKeyword(String field, MyEventInKeywordValue prototype) throws Exception {
+        runAssertionNotInKeywordPlain(field, prototype);
+        runAssertionNotInKeywordPattern(field, prototype);
+    }
+
+    private void runAssertionInKeywordPlain(String field, MyEventInKeywordValue prototype) throws Exception {
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from MyEventInKeywordValue#keepall where 1 in (" + field + ")");
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(SerializableObjectCopier.copy(prototype));
+        assertTrue(listener.getIsInvokedAndReset());
+
+        stmt.destroy();
+    }
+
+    private void runAssertionNotInKeywordPlain(String field, MyEventInKeywordValue prototype) throws Exception {
+
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from MyEventInKeywordValue#keepall where 1 not in (" + field + ")");
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(SerializableObjectCopier.copy(prototype));
+        assertFalse(listener.getIsInvokedAndReset());
+
+        stmt.destroy();
+    }
+
+    private void runAssertionInKeywordPattern(String field, MyEventInKeywordValue prototype) throws Exception {
+
+        EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from pattern[every a=MyEventInKeywordValue -> SupportBean(intPrimitive in (a." + field + "))]");
+        stmt.addListener(listener);
+
+        assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 1, true);
+        assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 2, true);
+
+        assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 3, false);
+        assertFilterMulti("SupportBean", stmt, new FilterItem[][] {
+                {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
+        });
+
+        stmt.destroy();
+    }
+
+    private void runAssertionNotInKeywordPattern(String field, MyEventInKeywordValue prototype) throws Exception {
+
+        EPStatementSPI stmt = (EPStatementSPI) epService.getEPAdministrator().createEPL("select * from pattern[every a=MyEventInKeywordValue -> SupportBean(intPrimitive not in (a." + field + "))]");
+        stmt.addListener(listener);
+
+        assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 0, true);
+        assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 3, true);
+
+        assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 1, false);
+        assertFilterMulti("SupportBean", stmt, new FilterItem[][] {
+                {new FilterItem("intPrimitive", FilterOperator.NOT_IN_LIST_OF_VALUES)},
+        });
+
+        stmt.destroy();
+    }
+
+    private void assertInKeywordReceivedPattern(Object event, int intPrimitive, boolean expected) throws Exception {
+        epService.getEPRuntime().sendEvent(event);
+        epService.getEPRuntime().sendEvent(new SupportBean(null, intPrimitive));
+        assertEquals(expected, listener.getIsInvokedAndReset());
+    }
+
+    private void runAssertionInArrayContextProvided() {
+        SupportUpdateListener listenerOne = new SupportUpdateListener();
+        SupportUpdateListener listenerTwo = new SupportUpdateListener();
+        epService.getEPAdministrator().createEPL("create context MyContext initiated by MyEventInKeywordValue as mie terminated after 24 hours");
+
+        EPStatement statementOne = epService.getEPAdministrator().createEPL("context MyContext select * from SupportBean#keepall where intPrimitive in (context.mie.ints)");
+        statementOne.addListener(listenerOne);
+
+        EPStatementSPI statementTwo = (EPStatementSPI) epService.getEPAdministrator().createEPL("context MyContext select * from SupportBean(intPrimitive in (context.mie.ints))");
+        statementTwo.addListener(listenerTwo);
+
+        epService.getEPRuntime().sendEvent(new MyEventInKeywordValue(new int[] {1, 2}));
+
+        assertInKeywordReceivedContext(listenerOne, listenerTwo);
+
+        assertFilterMulti("SupportBean", statementTwo, new FilterItem[][] {
+                {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
+        });
+
+        statementOne.destroy();
+        statementTwo.destroy();
+    }
+
+    private void assertInKeywordReceivedContext(SupportUpdateListener listenerOne, SupportUpdateListener listenerTwo) {
+        epService.getEPRuntime().sendEvent(new SupportBean("E1", 1));
+        assertTrue(listenerOne.getIsInvokedAndReset() && listenerTwo.getIsInvokedAndReset());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E2", 2));
+        assertTrue(listenerOne.getIsInvokedAndReset() && listenerTwo.getIsInvokedAndReset());
+
+        epService.getEPRuntime().sendEvent(new SupportBean("E3", 3));
+        assertFalse(listenerOne.getIsInvokedAndReset() || listenerTwo.getIsInvokedAndReset());
+    }
+
     private void runAssertionHint() {
         String epl = "@Hint('MAX_FILTER_WIDTH=0') select * from SupportBean_IntAlphabetic((b=1 or c=1) and (d=1 or e=1))";
         assertFilterSingle(epl, ".boolean_expression", FilterOperator.BOOLEAN_EXPRESSION);
@@ -277,7 +422,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_StringAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean_StringAlphabetic", epl, new FilterItem[][] {
                     {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL)},
                     {new FilterItem("a", FilterOperator.EQUAL), getBoolExprFilterItem()},
                     {new FilterItem("b", FilterOperator.EQUAL), getBoolExprFilterItem()},
@@ -299,7 +444,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_StringAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean_StringAlphabetic", epl, new FilterItem[][] {
                     {new FilterItem("b", FilterOperator.EQUAL), getBoolExprFilterItem()},
                     {new FilterItem("c", FilterOperator.EQUAL), getBoolExprFilterItem()},
             });
@@ -327,7 +472,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
                     {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), getBoolExprFilterItem()},
                     {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), getBoolExprFilterItem()},
             });
@@ -347,7 +492,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
                     {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
                     {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
             });
@@ -367,7 +512,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
                     {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("b", FilterOperator.EQUAL)},
                     {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("c", FilterOperator.EQUAL)},
             });
@@ -387,7 +532,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
                     {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("longPrimitive", FilterOperator.EQUAL)},
             });
@@ -407,7 +552,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
                     {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
                     {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
                     {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
@@ -432,7 +577,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("theString", FilterOperator.EQUAL)},
                     {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
                     {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
@@ -461,7 +606,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("theString", FilterOperator.EQUAL)},
                     {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
                     {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
@@ -484,7 +629,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("theString", FilterOperator.EQUAL)},
                     {new FilterItem("theString", FilterOperator.EQUAL)},
                     {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
@@ -507,7 +652,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
                     {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
             });
@@ -528,7 +673,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
                     {new FilterItem("theString", FilterOperator.EQUAL)},
                     {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
@@ -566,7 +711,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti(epl, new FilterItem[][] {
+            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
                     {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
                     {new FilterItem("theString", FilterOperator.EQUAL)},
             });
@@ -583,38 +728,30 @@ public class TestFilterExpressionsOptimizable extends TestCase
         }
     }
 
-    public void testOrPerformance()
-    {
-        for (Class clazz : new Class[] {SupportBean.class}) {
-            epService.getEPAdministrator().getConfiguration().addEventType(clazz);
-        }
-        SupportUpdateListener listener = new SupportUpdateListener();
-        for (int i = 0; i < 1000; i++) {
-            String epl = "select * from SupportBean(theString = '" + i + "' or intPrimitive=" + i + ")";
-            epService.getEPAdministrator().createEPL(epl).addListener(listener);
-        }
-
-        long start = System.nanoTime();
-        System.out.println("Starting " + DateTime.print(new Date()));
-        for (int i = 0; i < 10000; i++) {
-            epService.getEPRuntime().sendEvent(new SupportBean("100", 1));
-            assertTrue(listener.isInvoked());
-            listener.reset();
-        }
-        System.out.println("Ending " + DateTime.print(new Date()));
-        double delta = (System.nanoTime() - start) / 1000d / 1000d;
-        System.out.println("Delta=" + (delta + " msec"));
-        assertTrue(delta < 500);
-    }
-
-    private EPStatement assertFilterMulti(String epl, FilterItem[][] expected) {
+    private EPStatement assertFilterMulti(String eventTypeName, String epl, FilterItem[][] expected) {
         EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         if (!((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
             return statementSPI;
         }
+        assertFilterMulti(eventTypeName, statementSPI, expected);
+        return statementSPI;
+    }
+
+    private void assertFilterMulti(String eventTypeName, EPStatementSPI statementSPI, FilterItem[][] expected) {
         FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
         FilterSet set = filterServiceSPI.take(Collections.singleton(statementSPI.getStatementId()));
-        FilterValueSet valueSet = set.getFilters().get(0).getFilterValueSet();
+
+        FilterSetEntry filterSetEntry = null;
+        for (FilterSetEntry entry : set.getFilters()) {
+            if (entry.getFilterValueSet().getEventType().getName().equals(eventTypeName)) {
+                if (filterSetEntry != null) {
+                    fail("Multiple filters for type " + eventTypeName);
+                }
+                filterSetEntry = entry;
+            }
+        }
+
+        FilterValueSet valueSet = filterSetEntry.getFilterValueSet();
         FilterValueSetParam[][] params = valueSet.getParameters();
 
         Comparator<FilterItem> comparator = new Comparator<FilterItem>() {
@@ -648,7 +785,6 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         EPAssertionUtil.assertEqualsAnyOrder(expected, found);
         filterServiceSPI.apply(set);
-        return statementSPI;
     }
 
     private void runAssertionEquals(String epl, SupportUpdateListener[] listeners) {
@@ -883,6 +1019,45 @@ public class TestFilterExpressionsOptimizable extends TestCase
             int result = name != null ? name.hashCode() : 0;
             result = 31 * result + (op != null ? op.hashCode() : 0);
             return result;
+        }
+    }
+
+    public static class MyEventInKeywordValue implements Serializable {
+        private int[] ints;
+        private long[] longs;
+        private Map<Integer, String> mapOfIntKey;
+        private Collection<Integer> collOfInt;
+
+        public MyEventInKeywordValue(int[] ints) {
+            this.ints = ints;
+        }
+
+        public MyEventInKeywordValue(Map<Integer, String> mapOfIntKey) {
+            this.mapOfIntKey = mapOfIntKey;
+        }
+
+        public MyEventInKeywordValue(Collection<Integer> collOfInt) {
+            this.collOfInt = collOfInt;
+        }
+
+        public MyEventInKeywordValue(long[] longs) {
+            this.longs = longs;
+        }
+
+        public int[] getInts() {
+            return ints;
+        }
+
+        public Map<Integer, String> getMapOfIntKey() {
+            return mapOfIntKey;
+        }
+
+        public Collection<Integer> getCollOfInt() {
+            return collOfInt;
+        }
+
+        public long[] getLongs() {
+            return longs;
         }
     }
 }

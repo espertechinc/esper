@@ -22,11 +22,21 @@ public class InSetOfValuesContextProp implements FilterSpecParamInValue
     private final String propertyName;
     private transient final EventPropertyGetter getter;
     private transient final SimpleNumberCoercer numberCoercer;
+    private transient final Class returnType;
 
-    public InSetOfValuesContextProp(String propertyName, EventPropertyGetter getter, SimpleNumberCoercer coercer) {
+    public InSetOfValuesContextProp(String propertyName, EventPropertyGetter getter, SimpleNumberCoercer coercer, Class returnType) {
         this.propertyName = propertyName;
         this.getter = getter;
         this.numberCoercer = coercer;
+        this.returnType = returnType;
+    }
+
+    public Class getReturnType() {
+        return returnType;
+    }
+
+    public boolean constant() {
+        return false;
     }
 
     public Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext) {

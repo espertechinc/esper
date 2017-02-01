@@ -459,4 +459,11 @@ public class CollectionUtil
         }
         return false;
     }
+
+    public static <K, V> Map<K, V> twoEntryMap(K k1, V v1, K k2, V v2) {
+        Map<K, V> map = new HashMap<>();
+        map.put(k1, v1);
+        map.put(k2, v2);
+        return map;
+    }
 }

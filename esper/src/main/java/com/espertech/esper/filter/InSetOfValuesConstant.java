@@ -32,6 +32,14 @@ public class InSetOfValuesConstant implements FilterSpecParamInValue
         return constant;
     }
 
+    public Class getReturnType() {
+        return constant == null ? null : constant.getClass();
+    }
+
+    public boolean constant() {
+        return true;
+    }
+
     /**
      * Returns the constant value.
      * @return constant

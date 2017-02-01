@@ -272,15 +272,16 @@ public final class FilterSpecCompilerMakeParamUtil
             {
                 ExprContextPropertyNode contextPropertyNode = (ExprContextPropertyNode) subNode;
                 Class returnType = contextPropertyNode.getType();
-                if (JavaClassHelper.isImplementsInterface(contextPropertyNode.getType(), Collection.class) ||
-                    JavaClassHelper.isImplementsInterface(contextPropertyNode.getType(), Map.class)) {
-                    return null;
+                SimpleNumberCoercer coercer;
+                if (JavaClassHelper.isCollectionMapOrArray(returnType)) {
+                    checkArrayCoercion(returnType, lookupable.getReturnType(), lookupable.getExpression());
+                    coercer = null;
                 }
-                if ((returnType != null) && (returnType.getClass().isArray())) {
-                    return null;
+                else {
+                    coercer = getNumberCoercer(left.getExprEvaluator().getType(), contextPropertyNode.getType(), lookupable.getExpression());
                 }
-                SimpleNumberCoercer coercer = getNumberCoercer(left.getExprEvaluator().getType(), contextPropertyNode.getType(), lookupable.getExpression());
-                listofValues.add(new InSetOfValuesContextProp(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer));
+                Class finalReturnType = coercer != null ? coercer.getReturnType() : returnType;
+                listofValues.add(new InSetOfValuesContextProp(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer, finalReturnType));
             }
             if (subNode instanceof ExprIdentNode)
             {
@@ -291,14 +292,21 @@ public final class FilterSpecCompilerMakeParamUtil
                 }
 
                 boolean isMustCoerce = false;
-                Class numericCoercionType = JavaClassHelper.getBoxedType(lookupable.getReturnType());
-                if (identNodeInner.getExprEvaluator().getType() != lookupable.getReturnType())
+                Class coerceToType = JavaClassHelper.getBoxedType(lookupable.getReturnType());
+                Class identReturnType = identNodeInner.getExprEvaluator().getType();
+
+                if (JavaClassHelper.isCollectionMapOrArray(identReturnType)) {
+                    checkArrayCoercion(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
+                    coerceToType = identReturnType;
+                    // no action
+                }
+                else if (identReturnType != lookupable.getReturnType())
                 {
                     if (JavaClassHelper.isNumeric(lookupable.getReturnType()))
                     {
-                        if (!JavaClassHelper.canCoerce(identNodeInner.getExprEvaluator().getType(), lookupable.getReturnType()))
+                        if (!JavaClassHelper.canCoerce(identReturnType, lookupable.getReturnType()))
                         {
-                            throwConversionError(identNodeInner.getExprEvaluator().getType(), lookupable.getReturnType(), lookupable.getExpression());
+                            throwConversionError(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
                         }
                         isMustCoerce = true;
                     }
@@ -313,11 +321,11 @@ public final class FilterSpecCompilerMakeParamUtil
                 {
                     Pair<Integer, String> indexAndProp = getStreamIndex(identNodeInner.getResolvedPropertyName());
                     inValue = new InSetOfValuesEventPropIndexed(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(),
-                            indexAndProp.getSecond(), isMustCoerce, numericCoercionType, statementName);
+                            indexAndProp.getSecond(), isMustCoerce, coerceToType, statementName);
                 }
                 else
                 {
-                    inValue = new InSetOfValuesEventProp(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName(), isMustCoerce, numericCoercionType);
+                    inValue = new InSetOfValuesEventProp(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName(), isMustCoerce, coerceToType);
                 }
 
                 listofValues.add(inValue);
@@ -330,6 +338,15 @@ public final class FilterSpecCompilerMakeParamUtil
             return new FilterSpecParamIn(lookupable, op, listofValues);
         }
         return null;
+    }
+
+    private static void checkArrayCoercion(Class returnTypeValue, Class returnTypeLookupable, String propertyName) throws ExprValidationException {
+        if (returnTypeValue == null || !returnTypeValue.isArray()) {
+            return;
+        }
+        if (!JavaClassHelper.isArrayTypeCompatible(returnTypeLookupable, returnTypeValue.getComponentType())) {
+            throwConversionError(returnTypeValue.getComponentType(), returnTypeLookupable, propertyName);
+        }
     }
 
     private static FilterSpecParam handleEqualsAndRelOp(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)

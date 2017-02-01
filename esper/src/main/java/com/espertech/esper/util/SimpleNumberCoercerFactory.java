@@ -118,6 +118,10 @@ public class SimpleNumberCoercerFactory
         {
             return numToCoerce;
         }
+
+        public Class getReturnType() {
+            return Number.class;
+        }
     }
 
     private static class SimpleNumberCoercerDouble implements SimpleNumberCoercer
@@ -125,6 +129,10 @@ public class SimpleNumberCoercerFactory
         public Number coerceBoxed(Number numToCoerce)
         {
             return numToCoerce.doubleValue();
+        }
+
+        public Class getReturnType() {
+            return Double.class;
         }
     }
 
@@ -134,6 +142,10 @@ public class SimpleNumberCoercerFactory
         {
             return numToCoerce.longValue();
         }
+
+        public Class getReturnType() {
+            return Long.class;
+        }
     }
 
     private static class SimpleNumberCoercerInt implements SimpleNumberCoercer
@@ -141,6 +153,10 @@ public class SimpleNumberCoercerFactory
         public Number coerceBoxed(Number numToCoerce)
         {
             return numToCoerce.intValue();
+        }
+
+        public Class getReturnType() {
+            return Integer.class;
         }
     }
 
@@ -150,6 +166,10 @@ public class SimpleNumberCoercerFactory
         {
             return numToCoerce.floatValue();
         }
+
+        public Class getReturnType() {
+            return Float.class;
+        }
     }
 
     private static class SimpleNumberCoercerShort implements SimpleNumberCoercer
@@ -158,6 +178,10 @@ public class SimpleNumberCoercerFactory
         {
             return numToCoerce.shortValue();
         }
+
+        public Class getReturnType() {
+            return Short.class;
+        }
     }
 
     private static class SimpleNumberCoercerByte implements SimpleNumberCoercer
@@ -165,6 +189,10 @@ public class SimpleNumberCoercerFactory
         public Number coerceBoxed(Number numToCoerce)
         {
             return numToCoerce.byteValue();
+        }
+
+        public Class getReturnType() {
+            return Byte.class;
         }
     }
 
@@ -179,6 +207,10 @@ public class SimpleNumberCoercerFactory
         {
             return BigInteger.valueOf(numToCoerce.longValue());
         }
+
+        public Class getReturnType() {
+            return Long.class;
+        }
     }
 
     private static class SimpleNumberCoercerBigDecLong implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer
@@ -191,6 +223,10 @@ public class SimpleNumberCoercerFactory
         public BigDecimal coerceBoxedBigDec(Number numToCoerce)
         {
             return new BigDecimal(numToCoerce.longValue());
+        }
+
+        public Class getReturnType() {
+            return Long.class;
         }
     }
 
@@ -205,6 +241,10 @@ public class SimpleNumberCoercerFactory
         {
             return new BigDecimal(numToCoerce.doubleValue());
         }
+
+        public Class getReturnType() {
+            return Double.class;
+        }
     }
 
     private static class SimpleNumberCoercerBigIntNull implements SimpleNumberCoercer, SimpleNumberBigIntegerCoercer
@@ -218,6 +258,10 @@ public class SimpleNumberCoercerFactory
         {
             return (BigInteger) numToCoerce;
         }
+
+        public Class getReturnType() {
+            return Number.class;
+        }
     }
 
     private static class SimpleNumberCoercerBigDecNull implements SimpleNumberCoercer, SimpleNumberBigDecimalCoercer
@@ -230,6 +274,10 @@ public class SimpleNumberCoercerFactory
         public BigDecimal coerceBoxedBigDec(Number numToCoerce)
         {
             return (BigDecimal) numToCoerce;
+        }
+
+        public Class getReturnType() {
+            return Number.class;
         }
     }
 }

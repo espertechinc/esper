@@ -40,6 +40,19 @@ import java.util.*;
  */
 public class JavaClassHelper
 {
+    public static boolean isArrayTypeCompatible(Class target, Class provided) {
+        if (target == provided || target == Object.class) {
+            return true;
+        }
+        Class targetBoxed = getBoxedType(target);
+        Class providedBoxed = getBoxedType(provided);
+        return targetBoxed == providedBoxed || isSubclassOrImplementsInterface(providedBoxed, targetBoxed);
+    }
+
+    public static boolean isCollectionMapOrArray(Class returnType) {
+        return returnType != null && (isImplementsInterface(returnType, Collection.class) || isImplementsInterface(returnType, Map.class) || returnType.isArray());
+    }
+
     /**
      * Returns the boxed class for the given class, or the class itself if already boxed or not a primitive type.
      * For primitive unboxed types returns the boxed types, e.g. returns java.lang.Integer for passing int.class.
