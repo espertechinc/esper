@@ -25,22 +25,22 @@ import java.util.Date;
 public class SupportDateTime {
 
     private String key;
-    private Long msecdate;
+    private Long longdate;
     private Date utildate;
     private Calendar caldate;
     private LocalDateTime localdate;
     private ZonedDateTime zoneddate;
 
-    public SupportDateTime(Long msecdate, Date utildate, Calendar caldate, LocalDateTime localdate, ZonedDateTime zoneddate) {
-        this.msecdate = msecdate;
+    public SupportDateTime(Long longdate, Date utildate, Calendar caldate, LocalDateTime localdate, ZonedDateTime zoneddate) {
+        this.longdate = longdate;
         this.utildate = utildate;
         this.caldate = caldate;
         this.localdate = localdate;
         this.zoneddate = zoneddate;
     }
 
-    public Long getMsecdate() {
-        return msecdate;
+    public Long getLongdate() {
+        return longdate;
     }
 
     public Date getUtildate() {
@@ -104,36 +104,36 @@ public class SupportDateTime {
         return coerce(msec, format);
     }
 
-    private static Object coerce(long msec, String format) {
-        if (format.equalsIgnoreCase("msec")) {
-            return msec;
+    private static Object coerce(long time, String format) {
+        if (format.equalsIgnoreCase("long")) {
+            return time;
         }
         else if (format.equalsIgnoreCase("util")) {
-            return new Date(msec);
+            return new Date(time);
         }
         else if (format.equalsIgnoreCase("cal")) {
             Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(msec);
+            cal.setTimeInMillis(time);
             return cal;
         }
         else if (format.equalsIgnoreCase("ldt")) {
-            return LocalDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+            return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
         }
         else if (format.equalsIgnoreCase("zdt")) {
-            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
         }
         else if (format.equalsIgnoreCase("sdf")) {
             Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(msec);
+            cal.setTimeInMillis(time);
             SimpleDateFormat sdf = new SimpleDateFormat();
             return sdf.format(cal.getTime());
         }
         else if (format.equalsIgnoreCase("dtf_isodt")) {
-            LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+            LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
             return DateTimeFormatter.ISO_DATE_TIME.format(date);
         }
         else if (format.equalsIgnoreCase("dtf_isozdt")) {
-            ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(msec), ZoneId.systemDefault());
+            ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
             return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date);
         }
         else if (format.equalsIgnoreCase("null")) {

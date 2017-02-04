@@ -18,6 +18,7 @@ import java.util.ArrayDeque;
 public class AggregatorRateEver implements AggregationMethod {
 
     protected final long interval;
+    protected final long oneSecondTime;
     protected final ArrayDeque<Long> points;
     protected boolean hasLeave = false;
     protected final TimeProvider timeProvider;
@@ -27,8 +28,9 @@ public class AggregatorRateEver implements AggregationMethod {
      * @param interval rate interval
      * @param timeProvider time
      */
-    public AggregatorRateEver(long interval, TimeProvider timeProvider) {
+    public AggregatorRateEver(long interval, long oneSecondTime, TimeProvider timeProvider) {
         this.interval = interval;
+        this.oneSecondTime = oneSecondTime;
         this.timeProvider = timeProvider;
         points = new ArrayDeque<Long>();
     }
@@ -62,7 +64,7 @@ public class AggregatorRateEver implements AggregationMethod {
         if (points.isEmpty()) {
             return 0d;
         }
-        return (points.size() * 1000d) / interval;
+        return (points.size() * oneSecondTime * 1d) / interval;
     }
 
     private void removeFromHead(long timestamp) {

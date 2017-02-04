@@ -21,7 +21,7 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
  */
 public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
 {
-    private final long msec;
+    private final long deltaTime;
     private final int numCountTo;
     private final Quitable quitable;
     private final long scheduleSlot;
@@ -32,12 +32,12 @@ public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
 
     /**
      * Ctor.
-     * @param msec - number of millisecond to guard expiration
+     * @param deltaTime - number of millisecond to guard expiration
      * @param numCountTo - max number of counts
      * @param quitable - to use to indicate that the gaurd quitted
      */
-    public TimerWithinOrMaxCountGuard(long msec, int numCountTo, Quitable quitable) {
-        this.msec = msec;
+    public TimerWithinOrMaxCountGuard(long deltaTime, int numCountTo, Quitable quitable) {
+        this.deltaTime = deltaTime;
         this.numCountTo = numCountTo;
         this.quitable = quitable;
         this.scheduleSlot = quitable.getContext().getPatternContext().getScheduleBucket().allocateSlot();
@@ -49,7 +49,7 @@ public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
         }
 
         scheduleHandle = new EPStatementHandleCallback(quitable.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
-        quitable.getContext().getPatternContext().getSchedulingService().add(msec, scheduleHandle, scheduleSlot);
+        quitable.getContext().getPatternContext().getSchedulingService().add(deltaTime, scheduleHandle, scheduleSlot);
         isTimerActive = true;
         counter = 0;
     }

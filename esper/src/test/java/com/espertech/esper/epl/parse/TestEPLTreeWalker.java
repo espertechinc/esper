@@ -1215,6 +1215,10 @@ public class TestEPLTreeWalker extends TestCase
                 {"1E2 milliseconds", 0.1d},
                 {"11 millisecond", 11/1000d},
                 {"1.1 msec", 1.1/1000d},
+                {"1 usec", 1/1000000d},
+                {"1.1 microsecond", 1.1/1000000d},
+                {"1E3 microsecond", 1000/1000000d},
+                {"5 seconds 1 microsecond", 5d + 1/1000000d},
                 {"5 seconds", 5d},
                 {"0.1 second", 0.1d},
                 {"135L sec", 135d},
@@ -1237,8 +1241,8 @@ public class TestEPLTreeWalker extends TestCase
                 {"1 year", 365*24*60*60d},
                 {"1 month", 30*24*60*60d},
                 {"1 week", 7*24*60*60d},
-                {"2 years 3 month 10 week 2 days 6 hours 2 minutes 4 seconds 3 milliseconds",
-                            2*365*24*60*60d + 3*30*24*60*60d + 10*7*24*60*60d + 2*24*60*60 + 6*60*60 + 2*60 + 4 + 3/1000d},
+                {"2 years 3 month 10 week 2 days 6 hours 2 minutes 4 seconds 3 milliseconds 7 microseconds",
+                            2*365*24*60*60d + 3*30*24*60*60d + 10*7*24*60*60d + 2*24*60*60 + 6*60*60 + 2*60 + 4 + 3/1000d + 7/1000000d},
         };
 
         for (int i = 0; i < intervals.length; i++)

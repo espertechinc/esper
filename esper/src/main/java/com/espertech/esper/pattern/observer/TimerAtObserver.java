@@ -10,6 +10,7 @@ package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.*;
@@ -64,7 +65,8 @@ public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
 
         scheduleHandle = new EPStatementHandleCallback(observerEventEvaluator.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
         SchedulingService schedulingService = observerEventEvaluator.getContext().getPatternContext().getSchedulingService();
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(scheduleSpec, schedulingService.getTime(), observerEventEvaluator.getContext().getStatementContext().getEngineImportService().getTimeZone());
+        EngineImportService engineImportService = observerEventEvaluator.getContext().getStatementContext().getEngineImportService();
+        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(scheduleSpec, schedulingService.getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
         schedulingService.add(nextScheduledTime, scheduleHandle, scheduleSlot);
         isTimerActive = true;
     }

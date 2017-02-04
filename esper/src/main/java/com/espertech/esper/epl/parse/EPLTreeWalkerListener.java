@@ -38,6 +38,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessNodeSubprop;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNodeTopLevel;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarListener;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
@@ -438,7 +439,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     }
 
     public void exitTimePeriod(EsperEPL2GrammarParser.TimePeriodContext ctx) {
-        ExprTimePeriod timeNode = ASTExprHelper.timePeriodGetExprAllParams(ctx, astExprNodeMap, variableService, statementSpec, configurationInformation);
+        ExprTimePeriod timeNode = ASTExprHelper.timePeriodGetExprAllParams(ctx, astExprNodeMap, variableService, statementSpec, configurationInformation, engineImportService.getTimeAbacus());
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(timeNode, ctx, astExprNodeMap);
     }
 
@@ -822,7 +823,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
             return;
         }
         if (ctx.s != null) {
-            ExprNode node = ASTExprHelper.timePeriodGetExprJustSeconds(ctx.expression(), astExprNodeMap, configurationInformation);
+            ExprNode node = ASTExprHelper.timePeriodGetExprJustSeconds(ctx.expression(), astExprNodeMap, configurationInformation, engineImportService.getTimeAbacus());
             astExprNodeMap.put(ctx, node);
         }
         else if (ctx.a != null || ctx.d != null) {
@@ -2404,6 +2405,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener
     public void exitCreateContextCoalesceItem(EsperEPL2GrammarParser.CreateContextCoalesceItemContext ctx) {}
     public void enterMillisecondPart(EsperEPL2GrammarParser.MillisecondPartContext ctx) {}
     public void exitMillisecondPart(EsperEPL2GrammarParser.MillisecondPartContext ctx) {}
+    public void enterMicrosecondPart(EsperEPL2GrammarParser.MicrosecondPartContext ctx) {}
+    public void exitMicrosecondPart(EsperEPL2GrammarParser.MicrosecondPartContext ctx) {}
     public void enterOnExprFrom(EsperEPL2GrammarParser.OnExprFromContext ctx) {}
     public void exitOnExprFrom(EsperEPL2GrammarParser.OnExprFromContext ctx) {}
     public void enterNegatedExpression(EsperEPL2GrammarParser.NegatedExpressionContext ctx) {}

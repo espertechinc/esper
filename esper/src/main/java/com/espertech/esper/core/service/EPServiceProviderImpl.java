@@ -44,6 +44,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
@@ -627,6 +628,9 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         // Start clocking
         if (configSnapshot.getEngineDefaults().getThreading().isInternalTimerEnabled())
         {
+            if (configSnapshot.getEngineDefaults().getTimeSource().getTimeUnit() != TimeUnit.MILLISECONDS) {
+                throw new ConfigurationException("Internal timer requires millisecond time resolution");
+            }
             services.getTimerService().startInternalClock();
         }
 

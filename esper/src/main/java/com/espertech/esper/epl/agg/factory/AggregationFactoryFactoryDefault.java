@@ -22,6 +22,7 @@ import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.expression.accessagg.*;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.schedule.TimeProvider;
 
 import java.math.MathContext;
@@ -81,8 +82,8 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
         return new AggregationMethodFactoryPlugIn(expr, factory, childType);
     }
 
-    public AggregationMethodFactory makeRate(StatementExtensionSvcContext statementExtensionSvcContext, ExprRateAggNode exprRateAggNode, boolean isEver, long intervalMsec, TimeProvider timeProvider) {
-        return new AggregationMethodFactoryRate(exprRateAggNode, isEver, intervalMsec, timeProvider);
+    public AggregationMethodFactory makeRate(StatementExtensionSvcContext statementExtensionSvcContext, ExprRateAggNode exprRateAggNode, boolean isEver, long intervalTime, TimeProvider timeProvider, TimeAbacus timeAbacus) {
+        return new AggregationMethodFactoryRate(exprRateAggNode, isEver, intervalTime, timeProvider, timeAbacus);
     }
 
     public AggregationMethodFactory makeStddev(StatementExtensionSvcContext statementExtensionSvcContext, ExprStddevNode exprStddevNode, Class childType) {

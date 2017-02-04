@@ -39,32 +39,6 @@ public class TriviaHelper {
         return date;
     }
 
-    private static Object coerce(long msec, String format) {
-        if (format.equalsIgnoreCase("msec")) {
-            return msec;
-        }
-        else if (format.equalsIgnoreCase("util")) {
-            return new Date(msec);
-        }
-        else if (format.equalsIgnoreCase("cal")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(msec);
-            return cal;
-        }
-        else if (format.equalsIgnoreCase("sdf")) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(msec);
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            return sdf.format(cal.getTime());
-        }
-        else if (format.equalsIgnoreCase("null")) {
-            return null;
-        }
-        else {
-            throw new RuntimeException("Unrecognized format abbreviation '" + format + "'");
-        }
-    }
-
     public static String print(Object date) {
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         if (date instanceof Long) {

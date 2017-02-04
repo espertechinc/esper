@@ -54,7 +54,7 @@ public class ContextDetailConditionTimePeriod implements ContextDetailCondition 
 
     public Long getExpectedEndTime(AgentInstanceContext agentInstanceContext) {
         long current = agentInstanceContext.getStatementContext().getTimeProvider().getTime();
-        long msec = timePeriod.nonconstEvaluator().deltaMillisecondsAdd(current, null, true, agentInstanceContext);
+        long msec = timePeriod.nonconstEvaluator().deltaAdd(current, null, true, agentInstanceContext);
         return current + msec;
     }
 }

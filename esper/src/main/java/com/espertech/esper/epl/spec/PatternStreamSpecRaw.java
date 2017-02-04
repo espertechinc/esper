@@ -20,7 +20,7 @@ import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenDelta;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSummaryVisitor;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
@@ -373,10 +373,14 @@ public class PatternStreamSpecRaw extends StreamSpecBase implements StreamSpecRa
                         if (!(value instanceof Number)) {
                             throw new ExprValidationException("Invalid parameter for every-distinct, expected number of seconds constant (constant not considered for distinct)");
                         }
-                        Double secondsExpire = ((Number) expr.getExprEvaluator().evaluate(null, true, evaluatorContext)).doubleValue();
-                        if ((secondsExpire != null) && (secondsExpire > 0)) {
-                            timeDeltaComputation = new ExprTimePeriodEvalDeltaConstGivenMsec(Math.round(1000d * secondsExpire));
+                        Number secondsExpire = ((Number) expr.getExprEvaluator().evaluate(null, true, evaluatorContext));
+                        Long timeExpire = secondsExpire == null ? null : context.getTimeAbacus().deltaForSecondsNumber(secondsExpire);
+                        if (timeExpire != null && timeExpire > 0) {
+                            timeDeltaComputation = new ExprTimePeriodEvalDeltaConstGivenDelta(timeExpire);
                             expiryTimeExp = expr;
+                        }
+                        else {
+                            log.warn("Invalid seconds-expire " + timeExpire + " for " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr));
                         }
                     }
                     else {

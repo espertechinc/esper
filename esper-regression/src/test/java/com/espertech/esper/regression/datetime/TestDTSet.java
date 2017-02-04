@@ -53,7 +53,7 @@ public class TestDTSet extends TestCase {
         String[] fields = "val0,val1,val2,val3,val4".split(",");
         String eplFragment = "select " +
                 "utildate.set('month', 0) as val0," +
-                "msecdate.set('month', 0) as val1," +
+                "longdate.set('month', 0) as val1," +
                 "caldate.set('month', 0) as val2," +
                 "localdate.set('month', 1) as val3," +
                 "zoneddate.set('month', 1) as val4" +
@@ -65,7 +65,7 @@ public class TestDTSet extends TestCase {
         String startTime = "2002-05-30T09:00:00.000";
         String expectedTime = "2002-1-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "msec", "cal", "ldt", "zdt"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
     }
 
     public void testFields() {

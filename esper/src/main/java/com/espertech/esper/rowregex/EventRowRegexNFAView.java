@@ -1194,13 +1194,13 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
         return agentInstanceContext.getStatementContext().getEventAdapterService().adapterForTypedMap(row, rowEventType);
     }
 
-    private void scheduleCallback(long msecAfterCurrentTime, RegexNFAStateEntry endState)
+    private void scheduleCallback(long timeDelta, RegexNFAStateEntry endState)
     {
         long matchBeginTime = endState.getMatchBeginEventTime();
         if (regexPartitionStateRepo.getScheduleState().isEmpty())
         {
             regexPartitionStateRepo.getScheduleState().putOrAdd(matchBeginTime, endState);
-            scheduler.addSchedule(msecAfterCurrentTime);
+            scheduler.addSchedule(timeDelta);
         }
         else
         {
@@ -1208,7 +1208,7 @@ public class EventRowRegexNFAView extends ViewSupport implements StopCallback, E
             if (newEntry) {
                 long currentFirstKey = regexPartitionStateRepo.getScheduleState().firstKey();
                 if (currentFirstKey > matchBeginTime) {
-                    scheduler.changeSchedule(msecAfterCurrentTime);
+                    scheduler.changeSchedule(timeDelta);
                 }
             }
         }

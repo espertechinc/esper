@@ -57,6 +57,6 @@ public class DataCacheFactory
 
     protected DataCache makeTimeCache(ConfigurationExpiryTimeCache expCache, StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, SchedulingService schedulingService, ScheduleBucket scheduleBucket, int streamNum) {
         return new DataCacheExpiringImpl(expCache.getMaxAgeSeconds(), expCache.getPurgeIntervalSeconds(), expCache.getCacheReferenceType(),
-                schedulingService, scheduleBucket.allocateSlot(), epStatementAgentInstanceHandle);
+                schedulingService, scheduleBucket.allocateSlot(), epStatementAgentInstanceHandle, statementContext.getTimeAbacus());
     }
 }

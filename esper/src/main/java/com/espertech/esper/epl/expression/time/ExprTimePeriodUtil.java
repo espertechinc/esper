@@ -11,27 +11,23 @@
 
 package com.espertech.esper.epl.expression.time;
 
-import com.espertech.esper.util.JavaClassHelper;
-
 public class ExprTimePeriodUtil {
-    public static boolean validateTime(Number timeInSeconds) {
-        if (timeInSeconds == null) {
-            return false;
-        }
-        long millisecondsBeforeExpiry = computeTimeMSec(timeInSeconds);
-        return millisecondsBeforeExpiry >= 1;
+    public static boolean validateTime(Number timeInSeconds, TimeAbacus timeAbacus) {
+        return timeInSeconds != null && timeAbacus.deltaForSecondsNumber(timeInSeconds) >= 1;
     }
 
     public static String getTimeInvalidMsg(String validateMsgName, String validateMsgValue, Number timeInSeconds) {
         return validateMsgName + " " + validateMsgValue + " requires a size of at least 1 msec but received " + timeInSeconds;
     }
 
-    public  static long computeTimeMSec(Number timeInSeconds) {
-        if (JavaClassHelper.isFloatingPointNumber(timeInSeconds)) {
-            return Math.round(1000d * timeInSeconds.doubleValue());
+    static int findIndexMicroseconds(ExprTimePeriodImpl.TimePeriodAdder[] adders) {
+        int indexMicros = -1;
+        for (int i = 0; i < adders.length; i++) {
+            if (adders[i].isMicroseconds()) {
+                indexMicros = i;
+                break;
+            }
         }
-        else {
-            return 1000 * timeInSeconds.longValue();
-        }
+        return indexMicros;
     }
 }

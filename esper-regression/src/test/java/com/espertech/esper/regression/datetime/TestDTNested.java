@@ -53,7 +53,7 @@ public class TestDTNested extends TestCase {
         String[] fields = "val0,val1,val2,val3,val4".split(",");
         String eplFragment = "select " +
                 "utildate.set('hour', 1).set('minute', 2).set('second', 3) as val0," +
-                "msecdate.set('hour', 1).set('minute', 2).set('second', 3) as val1," +
+                "longdate.set('hour', 1).set('minute', 2).set('second', 3) as val1," +
                 "caldate.set('hour', 1).set('minute', 2).set('second', 3) as val2," +
                 "localdate.set('hour', 1).set('minute', 2).set('second', 3) as val3," +
                 "zoneddate.set('hour', 1).set('minute', 2).set('second', 3) as val4" +
@@ -65,12 +65,12 @@ public class TestDTNested extends TestCase {
         String startTime = "2002-05-30T09:00:00.000";
         String expectedTime = "2002-05-30T01:02:03.000";
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "msec", "cal", "ldt", "zdt"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
 
         stmtFragment.destroy();
         eplFragment = "select " +
                 "utildate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val0," +
-                "msecdate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val1," +
+                "longdate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val1," +
                 "caldate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val2," +
                 "localdate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val3," +
                 "zoneddate.set('hour', 1).set('minute', 2).set('second', 3).toCalendar() as val4" +

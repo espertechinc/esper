@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.time;
 
 public interface ExprTimePeriodEvalDeltaConst extends ExprTimePeriodEvalDeltaConstFactory
 {
-    public long deltaMillisecondsAdd(long fromTime);
-    public long deltaMillisecondsSubtract(long fromTime);
-    public ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long fromTime, long reference);
+    public long deltaAdd(long fromTime);
+    public long deltaSubtract(long fromTime);
+    public ExprTimePeriodEvalDeltaResult deltaAddWReference(long fromTime, long reference);
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst timeDeltaComputation);
 }

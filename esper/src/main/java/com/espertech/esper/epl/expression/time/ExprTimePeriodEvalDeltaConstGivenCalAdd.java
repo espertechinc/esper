@@ -21,11 +21,15 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
     private final Calendar cal;
     private final ExprTimePeriodImpl.TimePeriodAdder[] adders;
     private final int[] added;
+    private final TimeAbacus timeAbacus;
+    private final int indexMicroseconds;
 
-    public ExprTimePeriodEvalDeltaConstGivenCalAdd(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added, TimeZone timeZone) {
+    public ExprTimePeriodEvalDeltaConstGivenCalAdd(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added, TimeZone timeZone, TimeAbacus timeAbacus) {
         this.adders = adders;
         this.added = added;
         this.cal = Calendar.getInstance(timeZone);
+        this.timeAbacus = timeAbacus;
+        this.indexMicroseconds = ExprTimePeriodUtil.findIndexMicroseconds(adders);
     }
 
     public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext) {
@@ -48,23 +52,21 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
         return false;
     }
 
-    public synchronized long deltaMillisecondsAdd(long fromTime) {
-        cal.setTimeInMillis(fromTime);
-        addSubtract(adders, added, cal, 1);
-        return cal.getTimeInMillis() - fromTime;
+    public synchronized long deltaAdd(long fromTime) {
+        long target = addSubtract(fromTime, 1);
+        return target - fromTime;
     }
 
-    public synchronized long deltaMillisecondsSubtract(long fromTime) {
-        cal.setTimeInMillis(fromTime);
-        addSubtract(adders, added, cal, -1);
-        return fromTime - cal.getTimeInMillis();
+    public synchronized long deltaSubtract(long fromTime) {
+        long target = addSubtract(fromTime, -1);
+        return fromTime - target;
     }
 
-    public synchronized ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long fromTime, long reference) {
+    public ExprTimePeriodEvalDeltaResult deltaAddWReference(long fromTime, long reference) {
         // find the next-nearest reference higher then the current time, compute delta, return reference one lower
         if (reference > fromTime) {
             while(reference > fromTime) {
-                reference = reference - deltaMillisecondsSubtract(reference);
+                reference = reference - deltaSubtract(reference);
             }
         }
 
@@ -72,15 +74,21 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
         long last;
         do {
             last = next;
-            next = next + deltaMillisecondsAdd(last);
+            next = next + deltaAdd(last);
         }
         while (next <= fromTime);
         return new ExprTimePeriodEvalDeltaResult(next - fromTime, last);
     }
 
-    private static void addSubtract(ExprTimePeriodImpl.TimePeriodAdder[] adders, int[] added, Calendar cal, int factor) {
+    private long addSubtract(long fromTime, int factor) {
+        long remainder = timeAbacus.calendarSet(fromTime, cal);
         for (int i = 0; i < adders.length; i++) {
             adders[i].add(cal, factor * added[i]);
         }
+        long result = timeAbacus.calendarGet(cal, remainder);
+        if (indexMicroseconds != -1) {
+            result += factor * added[indexMicroseconds];
+        }
+        return result;
     }
 }

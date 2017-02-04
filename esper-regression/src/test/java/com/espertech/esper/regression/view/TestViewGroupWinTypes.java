@@ -17,7 +17,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
-public class TestViewGroupByTypes extends TestCase
+public class TestViewGroupWinTypes extends TestCase
 {
     private EPServiceProvider epService;
 

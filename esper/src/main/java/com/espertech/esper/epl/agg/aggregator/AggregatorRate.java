@@ -8,15 +8,22 @@
  **************************************************************************************/
 package com.espertech.esper.epl.agg.aggregator;
 
+import com.espertech.esper.epl.expression.time.TimeAbacus;
+
 /**
  * Aggregation computing an event arrival rate for data windowed-events.
  */
 public class AggregatorRate implements AggregationMethod {
 
+    protected final long oneSecondTime;
     protected double accumulator;
     protected long latest;
     protected long oldest;
     protected boolean isSet = false;
+
+    public AggregatorRate(long oneSecondTime) {
+        this.oneSecondTime = oneSecondTime;
+    }
 
     public void enter(Object value) {
         if (value.getClass().isArray()) {
@@ -45,7 +52,7 @@ public class AggregatorRate implements AggregationMethod {
 
     public Object getValue() {
         if (!isSet) return null;
-        return (accumulator * 1000) / (latest - oldest);
+        return (accumulator * oneSecondTime) / (latest - oldest);
     }
 
     public void clear() {

@@ -41,7 +41,6 @@ import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
 import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
-import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.util.EventRendererImpl;
 import com.espertech.esper.filter.FilterHandle;
 import com.espertech.esper.filter.FilterHandleCallback;
@@ -60,6 +59,7 @@ import org.w3c.dom.Node;
 import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -539,6 +539,9 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             {
                 // Start internal clock which supplies CurrentTimeEvent events every 100ms
                 // This may be done without delay thus the write lock indeed must be reentrant.
+                if (services.getConfigSnapshot().getEngineDefaults().getTimeSource().getTimeUnit() != TimeUnit.MILLISECONDS) {
+                    throw new EPException("Internal timer requires millisecond time resolution");
+                }
                 services.getTimerService().startInternalClock();
                 isUsingExternalClocking = false;
             }
@@ -555,7 +558,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         if (theEvent instanceof CurrentTimeEvent) {
 
             CurrentTimeEvent current = (CurrentTimeEvent) theEvent;
-            long currentTime = current.getTimeInMillis();
+            long currentTime = current.getTime();
 
             if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qStimulantTime(currentTime, services.getEngineURI());}
 
@@ -594,7 +597,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
 
         // handle time span
         CurrentTimeSpanEvent span = (CurrentTimeSpanEvent) theEvent;
-        long targetTime = span.getTargetTimeInMillis();
+        long targetTime = span.getTargetTime();
         long currentTime = services.getSchedulingService().getTime();
         Long optionalResolution = span.getOptionalResolution();
 

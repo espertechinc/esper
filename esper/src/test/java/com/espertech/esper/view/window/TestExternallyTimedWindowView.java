@@ -14,7 +14,7 @@ package com.espertech.esper.view.window;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenDelta;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
@@ -33,7 +33,7 @@ public class TestExternallyTimedWindowView extends TestCase
     {
         // Set up timed window view and a test child view, set the time window size to 1 second
         ExprNode node = SupportExprNodeFactory.makeIdentNodeBean("longPrimitive");
-        myView = new ExternallyTimedWindowView(new ExternallyTimedWindowViewFactory(), node, node.getExprEvaluator(), new ExprTimePeriodEvalDeltaConstGivenMsec(1000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
+        myView = new ExternallyTimedWindowView(new ExternallyTimedWindowViewFactory(), node, node.getExprEvaluator(), new ExprTimePeriodEvalDeltaConstGivenDelta(1000), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
         childView = new SupportBeanClassView(SupportBean.class);
         myView.addView(childView);
     }
@@ -42,7 +42,7 @@ public class TestExternallyTimedWindowView extends TestCase
     {
         try
         {
-            myView = new ExternallyTimedWindowView(null, SupportExprNodeFactory.makeIdentNodeBean("theString"), null, new ExprTimePeriodEvalDeltaConstGivenMsec(0), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
+            myView = new ExternallyTimedWindowView(null, SupportExprNodeFactory.makeIdentNodeBean("theString"), null, new ExprTimePeriodEvalDeltaConstGivenDelta(0), null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
         }
         catch (IllegalArgumentException ex)
         {

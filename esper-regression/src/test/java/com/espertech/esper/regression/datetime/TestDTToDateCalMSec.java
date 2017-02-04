@@ -57,19 +57,19 @@ public class TestDTToDateCalMSec extends TestCase {
         String eplFragment = "select " +
                 "current_timestamp.toDate() as val0," +
                 "utildate.toDate() as val1," +
-                "msecdate.toDate() as val2," +
+                "longdate.toDate() as val2," +
                 "caldate.toDate() as val3," +
                 "localdate.toDate() as val4," +
                 "zoneddate.toDate() as val5," +
                 "current_timestamp.toCalendar() as val6," +
                 "utildate.toCalendar() as val7," +
-                "msecdate.toCalendar() as val8," +
+                "longdate.toCalendar() as val8," +
                 "caldate.toCalendar() as val9," +
                 "localdate.toCalendar() as val10," +
                 "zoneddate.toCalendar() as val11," +
                 "current_timestamp.toMillisec() as val12," +
                 "utildate.toMillisec() as val13," +
-                "msecdate.toMillisec() as val14," +
+                "longdate.toMillisec() as val14," +
                 "caldate.toMillisec() as val15," +
                 "localdate.toMillisec() as val16," +
                 "zoneddate.toMillisec() as val17" +
@@ -83,7 +83,7 @@ public class TestDTToDateCalMSec extends TestCase {
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
         Object[] expectedUtil = SupportDateTime.getArrayCoerced(startTime, "util", "util", "util", "util", "util", "util");
         Object[] expectedCal = SupportDateTime.getArrayCoerced(startTime, "cal", "cal", "cal", "cal", "cal", "cal");
-        Object[] expectedMsec = SupportDateTime.getArrayCoerced(startTime, "msec", "msec", "msec", "msec", "msec", "msec");
+        Object[] expectedMsec = SupportDateTime.getArrayCoerced(startTime, "long", "long", "long", "long", "long", "long");
         Object[] expected = EPAssertionUtil.concatenateArray(expectedUtil, expectedCal, expectedMsec);
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, expected);
 
@@ -91,6 +91,6 @@ public class TestDTToDateCalMSec extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{
                 SupportDateTime.getValueCoerced(startTime, "util"), null, null, null, null, null,
                 SupportDateTime.getValueCoerced(startTime, "cal"), null, null, null, null, null,
-                SupportDateTime.getValueCoerced(startTime, "msec"), null, null, null, null, null});
+                SupportDateTime.getValueCoerced(startTime, "long"), null, null, null, null, null});
     }
 }

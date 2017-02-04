@@ -13,6 +13,7 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddHelper;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddResult;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusMinus;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -33,6 +34,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
 
     // we always keep the anchor time, which could be engine time or the spec time, and never changes in computations
     protected Calendar anchorTime;
+    protected long anchorRemainder;
 
     // for fast computation, keep some last-value information around for the purpose of caching
     protected boolean isTimerActive = false;
@@ -61,7 +63,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         // compute reschedule time
         isTimerActive = false;
         SchedulingService schedulingService = observerEventEvaluator.getContext().getPatternContext().getSchedulingService();
-        long nextScheduledTime = computeNextSetLastScheduled(schedulingService.getTime());
+        long nextScheduledTime = computeNextSetLastScheduled(schedulingService.getTime(), observerEventEvaluator.getContext().getStatementContext().getTimeAbacus());
 
         boolean quit = !isFilterChildNonQuitting || nextScheduledTime == -1;
         observerEventEvaluator.observerEvaluateTrue(beginState, quit);
@@ -86,17 +88,20 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         }
 
         SchedulingService schedulingService = observerEventEvaluator.getContext().getPatternContext().getSchedulingService();
+        TimeAbacus timeAbacus = observerEventEvaluator.getContext().getStatementContext().getTimeAbacus();
+
         if (anchorTime == null) {
             if (spec.getOptionalDate() == null) {
                 anchorTime = Calendar.getInstance(observerEventEvaluator.getContext().getStatementContext().getEngineImportService().getTimeZone());
-                anchorTime.setTimeInMillis(schedulingService.getTime());
+                anchorRemainder = timeAbacus.calendarSet(schedulingService.getTime(), anchorTime);
             }
             else {
                 anchorTime = spec.getOptionalDate();
+                anchorRemainder = spec.getOptionalRemainder() == null ? 0 : spec.getOptionalRemainder();
             }
         }
 
-        long nextScheduledTime = computeNextSetLastScheduled(schedulingService.getTime());
+        long nextScheduledTime = computeNextSetLastScheduled(schedulingService.getTime(), timeAbacus);
         if (nextScheduledTime == -1) {
             stopObserve();
             observerEventEvaluator.observerEvaluateFalse(false);
@@ -124,7 +129,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         visitor.visitObserver(beginState, 2, scheduleSlot, spec, anchorTime, cachedCountRepeated, cachedLastScheduled, isTimerActive);
     }
 
-    private long computeNextSetLastScheduled(long currentTime) {
+    private long computeNextSetLastScheduled(long currentTime, TimeAbacus timeAbacus) {
 
         // handle already-stopped
         if (cachedCountRepeated == Long.MAX_VALUE) {
@@ -134,8 +139,9 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         // handle date-only-form: "<date>"
         if (spec.getOptionalRepeatCount() == null && spec.getOptionalDate() != null && spec.getOptionalTimePeriod() == null) {
             cachedCountRepeated = Long.MAX_VALUE;
-            if (anchorTime.getTimeInMillis() > currentTime) {
-                return anchorTime.getTimeInMillis() - currentTime;
+            long computed = timeAbacus.calendarGet(anchorTime, anchorRemainder);
+            if (computed > currentTime) {
+                return computed - currentTime;
             }
             return -1;
         }
@@ -146,8 +152,9 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
             cachedCountRepeated = Long.MAX_VALUE;
             cachedLastScheduled = (Calendar) anchorTime.clone();
             CalendarOpPlusMinus.action(cachedLastScheduled, 1, spec.getOptionalTimePeriod());
-            if (cachedLastScheduled.getTimeInMillis() > currentTime) {
-                return cachedLastScheduled.getTimeInMillis() - currentTime;
+            long computed = timeAbacus.calendarGet(cachedLastScheduled, anchorRemainder);
+            if (computed > currentTime) {
+                return computed - currentTime;
             }
             return -1;
         }
@@ -161,18 +168,20 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
             }
         }
 
+        CalendarOpPlusFastAddResult nextDue = CalendarOpPlusFastAddHelper.computeNextDue(currentTime, spec.getOptionalTimePeriod(), cachedLastScheduled, timeAbacus, anchorRemainder);
+
         if (spec.getOptionalRepeatCount() == -1) {
-            CalendarOpPlusFastAddResult nextDue = CalendarOpPlusFastAddHelper.computeNextDue(currentTime, spec.getOptionalTimePeriod(), cachedLastScheduled);
             cachedLastScheduled = nextDue.getScheduled();
-            return cachedLastScheduled.getTimeInMillis() - currentTime;
+            long computed = timeAbacus.calendarGet(cachedLastScheduled, anchorRemainder);
+            return computed - currentTime;
         }
 
-        CalendarOpPlusFastAddResult nextDue = CalendarOpPlusFastAddHelper.computeNextDue(currentTime, spec.getOptionalTimePeriod(), cachedLastScheduled);
         cachedCountRepeated += nextDue.getFactor();
         if (cachedCountRepeated <= spec.getOptionalRepeatCount()) {
             cachedLastScheduled = nextDue.getScheduled();
-            if (cachedLastScheduled.getTimeInMillis() > currentTime) {
-                return cachedLastScheduled.getTimeInMillis() - currentTime;
+            long computed = timeAbacus.calendarGet(cachedLastScheduled, anchorRemainder);
+            if (computed > currentTime) {
+                return computed - currentTime;
             }
         }
         cachedCountRepeated = Long.MAX_VALUE;

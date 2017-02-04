@@ -26,7 +26,7 @@ import java.io.Serializable;
 public final class CurrentTimeSpanEvent extends TimerEvent implements Serializable
 {
     private static final long serialVersionUID = -1288617544919785502L;
-    private long targetTimeInMillis;
+    private long targetTime;
     private Long optionalResolution;
 
     /**
@@ -34,21 +34,21 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
      * <p>
      * Use this constructor to have the engine decide the resolution at which time advances, according to
      * present statement schedules.
-     * @param targetTimeInMillis target time
+     * @param targetTime target time
      */
-    public CurrentTimeSpanEvent(long targetTimeInMillis) {
-        this.targetTimeInMillis = targetTimeInMillis;
+    public CurrentTimeSpanEvent(long targetTime) {
+        this.targetTime = targetTime;
     }
 
     /**
      * Constructor taking a target time to advance to and a resoultion to use to advance time.
      * <p>
      * Use this constructor to dictate a resolution at which time advances.
-     * @param targetTimeInMillis target time
+     * @param targetTime target time
      * @param optionalResolution should be a positive value
      */
-    public CurrentTimeSpanEvent(long targetTimeInMillis, long optionalResolution) {
-        this.targetTimeInMillis = targetTimeInMillis;
+    public CurrentTimeSpanEvent(long targetTime, long optionalResolution) {
+        this.targetTime = targetTime;
         this.optionalResolution = optionalResolution;
     }
 
@@ -56,16 +56,16 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
      * Returns the target time to advance engine time to.
      * @return target time
      */
-    public long getTargetTimeInMillis() {
-        return targetTimeInMillis;
+    public long getTargetTime() {
+        return targetTime;
     }
 
     /**
      * Sets the target time to advance engine time to.
-     * @param targetTimeInMillis target time
+     * @param targetTime target time
      */
-    public void setTargetTimeInMillis(long targetTimeInMillis) {
-        this.targetTimeInMillis = targetTimeInMillis;
+    public void setTargetTime(long targetTime) {
+        this.targetTime = targetTime;
     }
 
     /**

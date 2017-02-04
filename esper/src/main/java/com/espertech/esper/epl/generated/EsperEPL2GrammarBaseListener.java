@@ -3114,6 +3114,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMicrosecondPart(EsperEPL2GrammarParser.MicrosecondPartContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMicrosecondPart(EsperEPL2GrammarParser.MicrosecondPartContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNumber(EsperEPL2GrammarParser.NumberContext ctx) { }
 	/**
 	 * {@inheritDoc}

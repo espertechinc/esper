@@ -12,6 +12,7 @@
 package com.espertech.esper.schedule;
 
 import com.espertech.esper.client.util.DateTime;
+import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import com.espertech.esper.type.ScheduleUnit;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
@@ -309,7 +310,7 @@ public class TestScheduleComputeHelper extends TestCase
         Date nowDate = timeFormat.parse(now);
         Date expectedDate = timeFormat.parse(expected);
 
-        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate.getTime(), TimeZone.getDefault());
+        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate.getTime(), TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE);
         Date resultDate = new Date(result);
 
         if (!(resultDate.equals(expectedDate)))
@@ -330,7 +331,7 @@ public class TestScheduleComputeHelper extends TestCase
         long nowDate = DateTime.parseDefaultMSecWZone(nowWZone);
         long expectedDate = DateTime.parseDefaultMSecWZone(expectedWZone);
 
-        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate, TimeZone.getDefault());
+        long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE);
         Date resultDate = new Date(result);
 
         if (result != expectedDate)

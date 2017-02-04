@@ -11,6 +11,7 @@
 
 package com.espertech.esper.schedule;
 
+import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import com.espertech.esper.supportunit.schedule.SupportScheduleCallback;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import com.espertech.esper.type.ScheduleUnit;
@@ -60,8 +61,8 @@ public class TestSchedulingServiceImpl extends TestCase
         assertTrue(service.isScheduled(callbacks[0]));
         service.add(100, callbacks[0], slots[0][0]);
 
-        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime(), TimeZone.getDefault()), callbacks[1], slots[0][0]);
-        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime(), TimeZone.getDefault()), callbacks[1], slots[0][0]);
+        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime(), TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE), callbacks[1], slots[0][0]);
+        service.add(ScheduleComputeHelper.computeNextOccurance(new ScheduleSpec(), service.getTime(), TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE), callbacks[1], slots[0][0]);
     }
 
     public void testTrigger()
@@ -149,10 +150,10 @@ public class TestSchedulingServiceImpl extends TestCase
         spec.addValue(ScheduleUnit.MINUTES, 27);
         spec.addValue(ScheduleUnit.SECONDS, 20);
 
-        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime(), TimeZone.getDefault()), callbacks[3], slots[1][1]);
+        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime(), TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE), callbacks[3], slots[1][1]);
 
         spec.addValue(ScheduleUnit.SECONDS, 15);
-        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime(), TimeZone.getDefault()), callbacks[4], slots[2][0]);
+        service.add(ScheduleComputeHelper.computeDeltaNextOccurance(spec, service.getTime(), TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE), callbacks[4], slots[2][0]);
 
         // Add some more callbacks
         service.add(5000, callbacks[0], slots[0][0]);

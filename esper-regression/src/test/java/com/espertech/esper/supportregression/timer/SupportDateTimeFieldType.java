@@ -17,7 +17,7 @@ import com.espertech.esper.supportregression.bean.SupportTimeStartEndA;
 import java.util.function.Function;
 
 public enum SupportDateTimeFieldType {
-    MSEC("long", SupportTimeStartBase::getMsecdateEnd),
+    MSEC("long", SupportTimeStartBase::getlongdateEnd),
     DATE("java.util.Date", SupportTimeStartBase::getUtildateEnd),
     CAL("java.util.Calendar", SupportTimeStartBase::getCaldateEnd),
     LDT("java.time.LocalDateTime", SupportTimeStartBase::getLdtEnd),

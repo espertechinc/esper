@@ -44,6 +44,7 @@ import com.espertech.esper.epl.expression.table.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodImpl;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
 import com.espertech.esper.epl.parse.ASTAggregationHelper;
 import com.espertech.esper.epl.parse.ASTTableExprHelper;
@@ -2193,7 +2194,8 @@ public class StatementSpecMapper
         {
             TimePeriodExpression tpe = (TimePeriodExpression) expr;
             return new ExprTimePeriodImpl(mapContext.getConfiguration().getEngineDefaults().getExpression().getTimeZone(),
-                    tpe.isHasYears(), tpe.isHasMonths(), tpe.isHasWeeks(), tpe.isHasDays(), tpe.isHasHours(), tpe.isHasMinutes(), tpe.isHasSeconds(), tpe.isHasMilliseconds());
+                    tpe.isHasYears(), tpe.isHasMonths(), tpe.isHasWeeks(), tpe.isHasDays(), tpe.isHasHours(), tpe.isHasMinutes(), tpe.isHasSeconds(), tpe.isHasMilliseconds(), tpe.isHasMicroseconds(),
+                    mapContext.getEngineImportService().getTimeAbacus());
         }
         else if (expr instanceof NewOperatorExpression) {
             NewOperatorExpression noe = (NewOperatorExpression) expr;
@@ -2805,7 +2807,7 @@ public class StatementSpecMapper
         else if (expr instanceof ExprTimePeriod)
         {
             ExprTimePeriod node = (ExprTimePeriod) expr;
-            return new TimePeriodExpression(node.isHasYear(), node.isHasMonth(), node.isHasWeek(), node.isHasDay(), node.isHasHour(), node.isHasMinute(), node.isHasSecond(), node.isHasMillisecond());
+            return new TimePeriodExpression(node.isHasYear(), node.isHasMonth(), node.isHasWeek(), node.isHasDay(), node.isHasHour(), node.isHasMinute(), node.isHasSecond(), node.isHasMillisecond(), node.isHasMicrosecond());
         }
         else if (expr instanceof ExprWildcard)
         {

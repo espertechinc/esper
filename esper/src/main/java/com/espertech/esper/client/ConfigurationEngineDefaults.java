@@ -16,6 +16,7 @@ import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides access to engine configuration defaults for modification.
@@ -38,7 +39,6 @@ public class ConfigurationEngineDefaults implements Serializable
     private ConditionHandling conditionHandling;
     private ConfigurationMetricsReporting metricsReporting;
     private AlternativeContext alternativeContext;
-    private Cluster cluster;
     private Patterns patterns;
     private MatchRecognize matchRecognize;
     private Scripts scripts;
@@ -62,7 +62,6 @@ public class ConfigurationEngineDefaults implements Serializable
         exceptionHandling = new ExceptionHandling();
         conditionHandling = new ConditionHandling();
         alternativeContext = new AlternativeContext();
-        cluster = new Cluster();
         patterns = new Patterns();
         matchRecognize = new MatchRecognize();
         scripts = new Scripts();
@@ -216,22 +215,6 @@ public class ConfigurationEngineDefaults implements Serializable
      */
     public void setConditionHandling(ConditionHandling conditionHandling) {
         this.conditionHandling = conditionHandling;
-    }
-
-    /**
-     * Returns cluster configuration.
-     * @return cluster configuration
-     */
-    public Cluster getCluster() {
-        return cluster;
-    }
-
-    /**
-     * Sets cluster configuration.
-     * @param cluster cluster configuration
-     */
-    public void setCluster(Cluster cluster) {
-        this.cluster = cluster;
     }
 
     /**
@@ -1405,6 +1388,7 @@ public class ConfigurationEngineDefaults implements Serializable
     public static class TimeSource implements Serializable
     {
         private TimeSourceType timeSourceType;
+        private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         private static final long serialVersionUID = 2075039404763313824L;
 
         /**
@@ -1431,6 +1415,14 @@ public class ConfigurationEngineDefaults implements Serializable
         public void setTimeSourceType(TimeSourceType timeSourceType)
         {
             this.timeSourceType = timeSourceType;
+        }
+
+        public TimeUnit getTimeUnit() {
+            return timeUnit;
+        }
+
+        public void setTimeUnit(TimeUnit timeUnit) {
+            this.timeUnit = timeUnit;
         }
     }
 
@@ -2146,65 +2138,6 @@ public class ConfigurationEngineDefaults implements Serializable
          */
         public void addClass(Class clazz) {
             addClass(clazz.getName());
-        }
-    }
-
-    /**
-     * Cluster configuration.
-     */
-    public static class Cluster implements Serializable {
-
-        private static final long serialVersionUID = 6289817340046435823L;
-        private boolean enabled = false;
-        private String clusterConfiguratorClass;
-        private transient Object clusterConfig;
-
-        /**
-         * Returns true if enabled.
-         * @return enabled flag
-         */
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        /**
-         * Sets enabled flag
-         * @param enabled to set
-         */
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        /**
-         * Returns the cluster configuration object.
-         * @return cluster configuration object
-         */
-        public Object getClusterConfig() {
-            return clusterConfig;
-        }
-
-        /**
-         * Sets the cluster configuration object.
-         * @param clusterConfig cluster configuration object
-         */
-        public void setClusterConfig(Object clusterConfig) {
-            this.clusterConfig = clusterConfig;
-        }
-
-        /**
-         * Returns the cluster configurator class.
-         * @return class
-         */
-        public String getClusterConfiguratorClass() {
-            return clusterConfiguratorClass;
-        }
-
-        /**
-         * Sets the cluster configurator class.
-         * @param clusterConfiguratorClass class
-         */
-        public void setClusterConfiguratorClass(String clusterConfiguratorClass) {
-            this.clusterConfiguratorClass = clusterConfiguratorClass;
         }
     }
 

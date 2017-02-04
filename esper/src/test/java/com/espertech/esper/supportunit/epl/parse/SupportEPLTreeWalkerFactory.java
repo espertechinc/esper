@@ -12,6 +12,8 @@
 package com.espertech.esper.supportunit.epl.parse;
 
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;

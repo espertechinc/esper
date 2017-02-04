@@ -9,6 +9,7 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
@@ -41,14 +42,15 @@ public final class OutputConditionPolledCrontab implements OutputConditionPolled
 
         boolean output = false;
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
+        EngineImportService engineImportService = agentInstanceContext.getStatementContext().getEngineImportService();
         if (state.getCurrentReferencePoint() == null) {
         	state.setCurrentReferencePoint(currentTime);
-            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, agentInstanceContext.getStatementContext().getEngineImportService().getTimeZone()));
+            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, engineImportService.getTimeZone(), engineImportService.getTimeAbacus()));
             output = true;
         }
 
         if (state.getNextScheduledTime() <= currentTime) {
-            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, agentInstanceContext.getStatementContext().getEngineImportService().getTimeZone()));
+            state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, engineImportService.getTimeZone(), engineImportService.getTimeAbacus()));
             output = true;
         }
 

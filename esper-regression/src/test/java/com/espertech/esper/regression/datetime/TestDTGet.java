@@ -46,7 +46,7 @@ public class TestDTGet extends TestCase {
         String[] fields = "val0,val1,val2,val3,val4".split(",");
         String epl = "select " +
                 "utildate.get('month') as val0," +
-                "msecdate.get('month') as val1," +
+                "longdate.get('month') as val1," +
                 "caldate.get('month') as val2, " +
                 "localdate.get('month') as val3, " +
                 "zoneddate.get('month') as val4 " +
@@ -61,8 +61,8 @@ public class TestDTGet extends TestCase {
 
         // try event as input
         ConfigurationEventTypeLegacy configBean = new ConfigurationEventTypeLegacy();
-        configBean.setStartTimestampPropertyName("msecdateStart");
-        configBean.setEndTimestampPropertyName("msecdateEnd");
+        configBean.setStartTimestampPropertyName("longdateStart");
+        configBean.setEndTimestampPropertyName("longdateEnd");
         epService.getEPAdministrator().getConfiguration().addEventType("SupportTimeStartEndA", SupportTimeStartEndA.class.getName(), configBean);
 
         stmt.destroy();

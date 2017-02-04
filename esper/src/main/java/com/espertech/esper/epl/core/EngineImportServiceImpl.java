@@ -22,6 +22,7 @@ import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMi
 import com.espertech.esper.epl.expression.core.ExprCurrentEvaluationContextNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.TransientConfigurationResolver;
 import com.espertech.esper.util.JavaClassHelper;
@@ -54,11 +55,12 @@ public class EngineImportServiceImpl implements EngineImportService
     private final boolean sortUsingCollator;
     private final MathContext optionalDefaultMathContext;
     private final TimeZone timeZone;
+    private final TimeAbacus timeAbacus;
     private final ConfigurationEngineDefaults.ThreadingProfile threadingProfile;
     private final Map<String, Object> transientConfiguration;
     private final AggregationFactoryFactory aggregationFactoryFactory;
 
-	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory)
+	public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory)
     {
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
@@ -72,6 +74,7 @@ public class EngineImportServiceImpl implements EngineImportService
         this.sortUsingCollator = sortUsingCollator;
         this.optionalDefaultMathContext = optionalDefaultMathContext;
         this.timeZone = timeZone;
+        this.timeAbacus = timeAbacus;
         this.threadingProfile = threadingProfile;
         this.transientConfiguration = transientConfiguration;
         this.aggregationFactoryFactory = aggregationFactoryFactory;
@@ -526,6 +529,10 @@ public class EngineImportServiceImpl implements EngineImportService
 
     public TimeZone getTimeZone() {
         return timeZone;
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return timeAbacus;
     }
 
     public ConfigurationEngineDefaults.ThreadingProfile getThreadingProfile() {

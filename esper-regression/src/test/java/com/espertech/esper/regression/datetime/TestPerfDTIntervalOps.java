@@ -39,8 +39,8 @@ public class TestPerfDTIntervalOps extends TestCase {
     public void testPerf() {
 
         ConfigurationEventTypeLegacy config = new ConfigurationEventTypeLegacy();
-        config.setStartTimestampPropertyName("msecdateStart");
-        config.setEndTimestampPropertyName("msecdateEnd");
+        config.setStartTimestampPropertyName("longdateStart");
+        config.setEndTimestampPropertyName("longdateEnd");
         epService.getEPAdministrator().getConfiguration().addEventType("A", SupportTimeStartEndA.class.getName(), config);
         epService.getEPAdministrator().getConfiguration().addEventType("B", SupportTimeStartEndB.class.getName(), config);
 
@@ -58,13 +58,13 @@ public class TestPerfDTIntervalOps extends TestCase {
         String eplBefore = "select a.key as c0 from AWindow as a, B b unidirectional where a.before(b)";
         runAssertion(eplBefore, "2002-05-30T09:00:00.000", 0, "AEarlier");
 
-        String eplBeforeMSec = "select a.key as c0 from AWindow as a, B b unidirectional where a.msecdateEnd.before(b.msecdateStart)";
+        String eplBeforeMSec = "select a.key as c0 from AWindow as a, B b unidirectional where a.longdateEnd.before(b.longdateStart)";
         runAssertion(eplBeforeMSec, "2002-05-30T09:00:00.000", 0, "AEarlier");
         
-        String eplBeforeMSecMix1 = "select a.key as c0 from AWindow as a, B b unidirectional where a.msecdateEnd.before(b)";
+        String eplBeforeMSecMix1 = "select a.key as c0 from AWindow as a, B b unidirectional where a.longdateEnd.before(b)";
         runAssertion(eplBeforeMSecMix1, "2002-05-30T09:00:00.000", 0, "AEarlier");
 
-        String eplBeforeMSecMix2 = "select a.key as c0 from AWindow as a, B b unidirectional where a.before(b.msecdateStart)";
+        String eplBeforeMSecMix2 = "select a.key as c0 from AWindow as a, B b unidirectional where a.before(b.longdateStart)";
         runAssertion(eplBeforeMSecMix2, "2002-05-30T09:00:00.000", 0, "AEarlier");
 
         // assert AFTER

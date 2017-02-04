@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextControllerSelectorUtil;
 import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.spec.ContextDetailCondition;
@@ -302,8 +303,9 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
            ((factory.getContextDetail().getEnd() instanceof ContextDetailConditionCrontab)))     {
             ScheduleSpec scheduleStart = ((ContextDetailConditionCrontab) factory.getContextDetail().getStart()).getSchedule();
             ScheduleSpec scheduleEnd = ((ContextDetailConditionCrontab) factory.getContextDetail().getEnd()).getSchedule();
-            long nextScheduledStartTime = ScheduleComputeHelper.computeNextOccurance(scheduleStart, factory.getTimeProvider().getTime(), factory.getStatementContext().getEngineImportService().getTimeZone());
-            long nextScheduledEndTime = ScheduleComputeHelper.computeNextOccurance(scheduleEnd, factory.getTimeProvider().getTime(), factory.getStatementContext().getEngineImportService().getTimeZone());
+            EngineImportService engineImportService = factory.getStatementContext().getEngineImportService();
+            long nextScheduledStartTime = ScheduleComputeHelper.computeNextOccurance(scheduleStart, factory.getTimeProvider().getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
+            long nextScheduledEndTime = ScheduleComputeHelper.computeNextOccurance(scheduleEnd, factory.getTimeProvider().getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
             return nextScheduledStartTime >= nextScheduledEndTime;
         }
 

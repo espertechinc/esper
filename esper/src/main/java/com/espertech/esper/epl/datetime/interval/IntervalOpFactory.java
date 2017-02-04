@@ -17,15 +17,16 @@ import com.espertech.esper.epl.datetime.eval.OpFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 
 import java.util.List;
 import java.util.TimeZone;
 
 public class IntervalOpFactory implements OpFactory {
-    public IntervalOp getOp(StreamTypeService streamTypeService, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, ExprEvaluator[] evaluators, TimeZone timeZone)
+    public IntervalOp getOp(StreamTypeService streamTypeService, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, TimeZone timeZone, TimeAbacus timeAbacus)
         throws ExprValidationException {
 
-        return new IntervalOpImpl(method, methodNameUsed, streamTypeService, parameters, timeZone);
+        return new IntervalOpImpl(method, methodNameUsed, streamTypeService, parameters, timeZone, timeAbacus);
     }
 
 }

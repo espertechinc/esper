@@ -52,7 +52,7 @@ public class TestDTRound extends TestCase {
         String[] fields = "val0,val1,val2,val3,val4".split(",");
         String eplFragment = "select " +
                 "utildate.roundCeiling('hour') as val0," +
-                "msecdate.roundCeiling('hour') as val1," +
+                "longdate.roundCeiling('hour') as val1," +
                 "caldate.roundCeiling('hour') as val2," +
                 "localdate.roundCeiling('hour') as val3," +
                 "zoneddate.roundCeiling('hour') as val4" +
@@ -64,7 +64,7 @@ public class TestDTRound extends TestCase {
         String startTime = "2002-05-30T09:01:02.003";
         String expectedTime = "2002-5-30T10:00:00.000";
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "msec", "cal", "ldt", "zdt"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
     }
 
     public void testRoundCeil() {

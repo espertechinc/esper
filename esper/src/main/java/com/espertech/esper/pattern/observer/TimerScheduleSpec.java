@@ -19,11 +19,13 @@ import java.util.Calendar;
 public class TimerScheduleSpec implements Serializable {
     private static final long serialVersionUID = -8587555098972452213L;
     private final Calendar optionalDate;
+    private final Long optionalRemainder;
     private final Long optionalRepeatCount;
     private final TimePeriod optionalTimePeriod;
 
-    public TimerScheduleSpec(Calendar optionalDate, Long optionalRepeatCount, TimePeriod optionalTimePeriod) {
+    public TimerScheduleSpec(Calendar optionalDate, Long optionalRemainder, Long optionalRepeatCount, TimePeriod optionalTimePeriod) {
         this.optionalDate = optionalDate;
+        this.optionalRemainder = optionalRemainder;
         this.optionalRepeatCount = optionalRepeatCount;
         this.optionalTimePeriod = optionalTimePeriod;
     }
@@ -38,5 +40,9 @@ public class TimerScheduleSpec implements Serializable {
 
     public TimePeriod getOptionalTimePeriod() {
         return optionalTimePeriod;
+    }
+
+    public Long getOptionalRemainder() {
+        return optionalRemainder;
     }
 }

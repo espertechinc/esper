@@ -65,12 +65,12 @@ public class TestDTDocSamples extends TestCase {
 
         // test pattern use
         ConfigurationEventTypeLegacy leg = new ConfigurationEventTypeLegacy();
-        leg.setStartTimestampPropertyName("msecdateStart");
+        leg.setStartTimestampPropertyName("longdateStart");
         epService.getEPAdministrator().getConfiguration().addEventType("A", SupportTimeStartEndA.class.getName(), leg);
         epService.getEPAdministrator().getConfiguration().addEventType("B", SupportTimeStartEndB.class.getName(), leg);
 
-        tryRun("a.msecdateStart.after(b)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
-        tryRun("a.after(b.msecdateStart)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
+        tryRun("a.longdateStart.after(b)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
+        tryRun("a.after(b.longdateStart)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
         tryRun("a.after(b)", "2002-05-30T09:00:00.000", "2002-05-30T08:59:59.999", true);
         tryRun("a.after(b)", "2002-05-30T08:59:59.999", "2002-05-30T09:00:00.000", false);
     }

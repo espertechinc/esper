@@ -2392,6 +2392,31 @@ config.getEngineDefaults().getStreamSelection()
 config.getEngineDefaults().getTimeSource().
       setTimeSourceType(ConfigurationEngineDefaults.TimeSourceType.NANO);]]></programlisting>
 			</sect3>
+
+			<sect3 xml:id="config-engine-timeunit" revision="1">
+				<title>Time Unit</title>
+
+				<para>
+				   The default time unit of time resolution is milliseconds. Your application may set the time resolution to microseconds instead.
+				</para>
+
+				<para>
+					A sample XML configuration for millisecond time resolution is:
+				</para>
+					<programlisting><![CDATA[<engine-settings>
+  <defaults>
+    <time-source>
+      <time-unit value="milliseconds"/>
+    </time-source>
+  </defaults>
+</engine-settings>]]></programlisting>
+
+				<para>
+					The equivalent code snippet using the configuration API is here:
+				</para>
+				<programlisting><![CDATA[Configuration config = new Configuration();
+config.getEngineDefaults().getTimeSource().setTimeUnit(TimeUnit.MILLISECONDS);]]></programlisting>
+			</sect3>
 		</sect2>
 
 		<sect2 xml:id="config-engine-jmxmetrics" revision="1">

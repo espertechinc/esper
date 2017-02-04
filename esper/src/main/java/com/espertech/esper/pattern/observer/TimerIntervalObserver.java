@@ -19,7 +19,7 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
  */
 public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallback
 {
-    private final long msec;
+    private final long deltaTime;
     private final MatchedEventMap beginState;
     private final ObserverEventEvaluator observerEventEvaluator;
     private final long scheduleSlot;
@@ -29,13 +29,13 @@ public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallb
 
     /**
      * Ctor.
-     * @param msec - number of milliseconds
+     * @param deltaTime - the time deltaTime
      * @param beginState - start state
      * @param observerEventEvaluator - receiver for events
      */
-    public TimerIntervalObserver(long msec, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator)
+    public TimerIntervalObserver(long deltaTime, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator)
     {
-        this.msec = msec;
+        this.deltaTime = deltaTime;
         this.beginState = beginState;
         this.observerEventEvaluator = observerEventEvaluator;
         this.scheduleSlot = observerEventEvaluator.getContext().getPatternContext().getScheduleBucket().allocateSlot();
@@ -60,14 +60,14 @@ public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallb
             throw new IllegalStateException("Timer already active");
         }
 
-        if (msec <= 0)
+        if (deltaTime <= 0)
         {
             observerEventEvaluator.observerEvaluateTrue(beginState, true);
         }
         else
         {
             scheduleHandle = new EPStatementHandleCallback(observerEventEvaluator.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
-            observerEventEvaluator.getContext().getPatternContext().getSchedulingService().add(msec, scheduleHandle, scheduleSlot);
+            observerEventEvaluator.getContext().getPatternContext().getSchedulingService().add(deltaTime, scheduleHandle, scheduleSlot);
             isTimerActive = true;
         }
     }

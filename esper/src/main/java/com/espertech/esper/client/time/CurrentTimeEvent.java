@@ -19,36 +19,36 @@ import java.util.Date;
 public final class CurrentTimeEvent extends TimerEvent
 {
     private static final long serialVersionUID = -145001725701558269L;
-    private long timeInMillis;
+    private long time;
 
     /**
      * Constructor.
-     * @param timeInMillis is the time in milliseconds
+     * @param time is the time in milliseconds
      */
-    public CurrentTimeEvent(final long timeInMillis)
+    public CurrentTimeEvent(final long time)
     {
-        this.timeInMillis = timeInMillis;
+        this.time = time;
     }
 
     public String toString()
     {
-        return (new Date(timeInMillis)).toString();
+        return (new Date(time)).toString();
     }
 
     /**
      * Returns the time in milliseconds.
      * @return time in milliseconds
      */
-    public long getTimeInMillis()
+    public long getTime()
     {
-        return timeInMillis;
+        return time;
     }
 
     /**
      * Sets the time in milliseconds.
-     * @param timeInMillis to set
+     * @param time to set
      */
-    public void setTimeInMillis(long timeInMillis) {
-        this.timeInMillis = timeInMillis;
+    public void setTime(long time) {
+        this.time = time;
     }
 }

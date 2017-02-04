@@ -655,6 +655,7 @@
 			<xs:choice>
 				<xs:sequence>
 					<xs:element ref="esper:time-source-type" minOccurs="0"/>
+					<xs:element ref="esper:time-unit" minOccurs="0"/>
 				</xs:sequence>
 			</xs:choice>
 		</xs:complexType>
@@ -766,6 +767,17 @@
 		<xs:restriction base="xs:token">
 			<xs:enumeration value="milli"/>
 			<xs:enumeration value="nano"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:element name="time-unit">
+		<xs:complexType>
+			<xs:attribute name="value" type="esper:timeUnitTypeEnum" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:simpleType name="timeUnitTypeEnum">
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="milliseconds"/>
+			<xs:enumeration value="microseconds"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:element name="plugin-event-representation">

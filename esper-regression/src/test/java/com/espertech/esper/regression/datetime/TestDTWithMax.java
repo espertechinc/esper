@@ -53,7 +53,7 @@ public class TestDTWithMax extends TestCase {
         String[] fields = "val0,val1,val2,val3,val4".split(",");
         String eplFragment = "select " +
                 "utildate.withMax('month') as val0," +
-                "msecdate.withMax('month') as val1," +
+                "longdate.withMax('month') as val1," +
                 "caldate.withMax('month') as val2," +
                 "localdate.withMax('month') as val3," +
                 "zoneddate.withMax('month') as val4" +
@@ -65,7 +65,7 @@ public class TestDTWithMax extends TestCase {
         String startTime = "2002-05-30T09:00:00.000";
         String expectedTime = "2002-12-30T09:00:00.000";
         epService.getEPRuntime().sendEvent(SupportDateTime.make(startTime));
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "msec", "cal", "ldt", "zdt"));
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, SupportDateTime.getArrayCoerced(expectedTime, "util", "long", "cal", "ldt", "zdt"));
     }
 
     public void testFields() {

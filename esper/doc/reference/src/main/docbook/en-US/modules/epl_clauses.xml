@@ -116,7 +116,7 @@ from <emphasis>stream_def</emphasis> [as name] [, <emphasis>stream_def</emphasis
 			</para>
 		
 			<synopsis>time-period : [<emphasis>year-part</emphasis>] [<emphasis>month-part</emphasis>] [<emphasis>week-part</emphasis>] [<emphasis>day-part</emphasis>] [<emphasis>hour-part</emphasis>] 
-      [<emphasis>minute-part</emphasis>] [<emphasis>seconds-part</emphasis>] [<emphasis>milliseconds-part</emphasis>]
+      [<emphasis>minute-part</emphasis>] [<emphasis>seconds-part</emphasis>] [<emphasis>milliseconds-part</emphasis>] [<emphasis>microseconds-part</emphasis>]
 
 year-part : <emphasis>(number|variable_name)</emphasis> ("years" | "year")
 month-part : <emphasis>(number|variable_name)</emphasis> ("months" | "month")
@@ -125,7 +125,8 @@ day-part : <emphasis>(number|variable_name)</emphasis> ("days" | "day")
 hour-part : <emphasis>(number|variable_name)</emphasis> ("hours" | "hour")
 minute-part : <emphasis>(number|variable_name)</emphasis> ("minutes" | "minute" | "min")
 seconds-part : <emphasis>(number|variable_name)</emphasis> ("seconds" | "second" | "sec")
-milliseconds-part : <emphasis>(number|variable_name)</emphasis> ("milliseconds" | "millisecond" | "msec")</synopsis>
+milliseconds-part : <emphasis>(number|variable_name)</emphasis> ("milliseconds" | "millisecond" | "msec")
+microseconds-part : <emphasis>(number|variable_name)</emphasis> ("microseconds" | "microsecond" | "usec")</synopsis>
                 
 			<para>
 					Some examples of time periods are:
@@ -133,7 +134,7 @@ milliseconds-part : <emphasis>(number|variable_name)</emphasis> ("milliseconds" 
 			<programlisting>10 seconds
 10 minutes 30 seconds
 20 sec 100 msec
-1 day 2 hours 20 minutes 15 seconds 110 milliseconds
+1 day 2 hours 20 minutes 15 seconds 110 milliseconds 5 microseconds
 0.5 minutes
 1 year
 1 year 1 month</programlisting>
@@ -141,11 +142,7 @@ milliseconds-part : <emphasis>(number|variable_name)</emphasis> ("milliseconds" 
 			<para>
 				Variable names and substitution parameters '<literal>?</literal>' for prepared statements are also allowed as part of a time period expression.
 			</para>
-			
-			<para>
-				The engine uses calendar operations when the time period specifies a month or year. The engine uses milliseconds when the time period does not specify a month or year.
-			</para>
-			
+						
 			<note>
 				<para>
 					When the time period has a month or year part, all values must be integer-type values.
@@ -2977,7 +2974,7 @@ select symbol, sum(price) from StockTickEvent#groupwin(symbol)#length(10)</progr
 						</listitem>
 						<listitem>
 							<para>
-								When any of the variables in the <literal>when</literal> trigger expression changes value, the engine evaluates the expression and outputs results. Result output occurs within the minimum time interval of timer resolution (100 milliseconds).
+								When any of the variables in the <literal>when</literal> trigger expression changes value, the engine evaluates the expression and outputs results. Result output occurs within the minimum time interval of timer resolution.
 							</para>
 						</listitem>
 					</orderedlist>

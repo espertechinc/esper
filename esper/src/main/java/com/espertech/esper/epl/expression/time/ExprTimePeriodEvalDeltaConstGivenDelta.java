@@ -13,12 +13,12 @@ package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public class ExprTimePeriodEvalDeltaConstGivenMsec implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory
+public class ExprTimePeriodEvalDeltaConstGivenDelta implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory
 {
-    private final long msec;
+    private final long timeDelta;
 
-    public ExprTimePeriodEvalDeltaConstGivenMsec(long msec) {
-        this.msec = msec;
+    public ExprTimePeriodEvalDeltaConstGivenDelta(long timeDelta) {
+        this.timeDelta = timeDelta;
     }
 
     public ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext) {
@@ -26,26 +26,26 @@ public class ExprTimePeriodEvalDeltaConstGivenMsec implements ExprTimePeriodEval
     }
 
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst otherComputation) {
-        if (otherComputation instanceof ExprTimePeriodEvalDeltaConstGivenMsec) {
-            ExprTimePeriodEvalDeltaConstGivenMsec other = (ExprTimePeriodEvalDeltaConstGivenMsec) otherComputation;
-            return other.msec == msec;
+        if (otherComputation instanceof ExprTimePeriodEvalDeltaConstGivenDelta) {
+            ExprTimePeriodEvalDeltaConstGivenDelta other = (ExprTimePeriodEvalDeltaConstGivenDelta) otherComputation;
+            return other.timeDelta == timeDelta;
         }
         return false;
     }
 
-    public long deltaMillisecondsAdd(long fromTime) {
-        return msec;
+    public long deltaAdd(long fromTime) {
+        return timeDelta;
     }
 
-    public long deltaMillisecondsSubtract(long fromTime) {
-        return msec;
+    public long deltaSubtract(long fromTime) {
+        return timeDelta;
     }
 
-    public ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long fromTime, long reference) {
-        return new ExprTimePeriodEvalDeltaResult(deltaMillisecondsAddWReference(fromTime, reference, msec), reference);
+    public ExprTimePeriodEvalDeltaResult deltaAddWReference(long fromTime, long reference) {
+        return new ExprTimePeriodEvalDeltaResult(deltaAddWReference(fromTime, reference, timeDelta), reference);
     }
 
-    protected static long deltaMillisecondsAddWReference(long current, long reference, long msec) {
+    protected static long deltaAddWReference(long current, long reference, long msec) {
         // Example:  current c=2300, reference r=1000, interval i=500, solution s=200
         //
         // int n = ((2300 - 1000) / 500) = 2

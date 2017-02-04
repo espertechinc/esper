@@ -123,7 +123,7 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
                     oldestTimestamp = timestamp;
                 }
                 else {
-                    ExprTimePeriodEvalDeltaResult delta = timeDeltaComputation.deltaMillisecondsAddWReference(oldestTimestamp, referenceTimestamp);
+                    ExprTimePeriodEvalDeltaResult delta = timeDeltaComputation.deltaAddWReference(oldestTimestamp, referenceTimestamp);
                     this.referenceTimestamp = delta.getLastReference();
                     if (timestamp - oldestTimestamp >= delta.getDelta()) {
                         if (batchNewData == null) {

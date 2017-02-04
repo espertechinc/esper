@@ -18,6 +18,7 @@ import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.epl.expression.ops.ExprMathNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodImpl;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
@@ -61,9 +62,9 @@ public class ASTExprHelper {
         statementSpec.getReferencedVariables().add(variableName);
     }
 
-    public static ExprTimePeriod timePeriodGetExprAllParams(EsperEPL2GrammarParser.TimePeriodContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, StatementSpecRaw spec, ConfigurationInformation config) {
+    public static ExprTimePeriod timePeriodGetExprAllParams(EsperEPL2GrammarParser.TimePeriodContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, StatementSpecRaw spec, ConfigurationInformation config, TimeAbacus timeAbacus) {
 
-        ExprNode nodes[] = new ExprNode[8];
+        ExprNode nodes[] = new ExprNode[9];
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree unitRoot = ctx.getChild(i);
 
@@ -84,6 +85,9 @@ public class ASTExprHelper {
                 valueExpr = ref.get();
             }
 
+            if (ASTUtil.getRuleIndexIfProvided(unitRoot) == EsperEPL2GrammarParser.RULE_microsecondPart) {
+                nodes[8] = valueExpr;
+            }
             if (ASTUtil.getRuleIndexIfProvided(unitRoot) == EsperEPL2GrammarParser.RULE_millisecondPart) {
                 nodes[7] = valueExpr;
             }
@@ -111,22 +115,18 @@ public class ASTExprHelper {
         }
 
         ExprTimePeriod timeNode = new ExprTimePeriodImpl(config.getEngineDefaults().getExpression().getTimeZone(),
-                nodes[0] != null, nodes[1]!= null, nodes[2]!= null, nodes[3]!= null, nodes[4]!= null, nodes[5]!= null, nodes[6]!= null, nodes[7]!= null);
-        if (nodes[0] != null) timeNode.addChildNode(nodes[0]);
-        if (nodes[1] != null) timeNode.addChildNode(nodes[1]);
-        if (nodes[2] != null) timeNode.addChildNode(nodes[2]);
-        if (nodes[3] != null) timeNode.addChildNode(nodes[3]);
-        if (nodes[4] != null) timeNode.addChildNode(nodes[4]);
-        if (nodes[5] != null) timeNode.addChildNode(nodes[5]);
-        if (nodes[6] != null) timeNode.addChildNode(nodes[6]);
-        if (nodes[7] != null) timeNode.addChildNode(nodes[7]);
+                nodes[0] != null, nodes[1]!= null, nodes[2]!= null, nodes[3]!= null, nodes[4]!= null, nodes[5]!= null, nodes[6]!= null, nodes[7]!= null, nodes[8]!= null, timeAbacus);
+
+        for (ExprNode node : nodes) {
+            if (node != null) timeNode.addChildNode(node);
+        }
         return timeNode;
     }
 
-    public static ExprTimePeriod timePeriodGetExprJustSeconds(EsperEPL2GrammarParser.ExpressionContext expression, Map<Tree, ExprNode> astExprNodeMap, ConfigurationInformation config) {
+    public static ExprTimePeriod timePeriodGetExprJustSeconds(EsperEPL2GrammarParser.ExpressionContext expression, Map<Tree, ExprNode> astExprNodeMap, ConfigurationInformation config, TimeAbacus timeAbacus) {
         ExprNode node = exprCollectSubNodes(expression, 0, astExprNodeMap).get(0);
         ExprTimePeriod timeNode = new ExprTimePeriodImpl(config.getEngineDefaults().getExpression().getTimeZone(),
-                false, false, false, false, false, false, true, false);
+                false, false, false, false, false, false, true, false, false, timeAbacus);
         timeNode.addChildNode(node);
         return timeNode;
     }

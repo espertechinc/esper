@@ -62,7 +62,7 @@ public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcess
         else if (afterTimePeriod != null)
         {
             isAfterConditionSatisfied = false;
-            long delta = afterTimePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(null, agentInstanceContext);
+            long delta = afterTimePeriod.nonconstEvaluator().deltaUseEngineTime(null, agentInstanceContext);
             afterConditionTime = agentInstanceContext.getStatementContext().getTimeProvider().getTime() + delta;
         }
 

@@ -125,7 +125,7 @@ public class ExternallyTimedWindowView extends ViewSupport implements DataWindow
         ArrayDeque<EventBean> expired = null;
         if (timestamp != -1)
         {
-            expired = timeWindow.expireEvents(timestamp - timeDeltaComputation.deltaMillisecondsSubtract(timestamp) + 1);
+            expired = timeWindow.expireEvents(timestamp - timeDeltaComputation.deltaSubtract(timestamp) + 1);
         }
 
         EventBean[] oldDataUpdate = null;

@@ -13,6 +13,7 @@ import com.espertech.esper.collection.apachecommons.ReferenceMap;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
@@ -32,12 +33,13 @@ import java.util.WeakHashMap;
  */
 public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
 {
-    private final long maxAgeMSec;
-    private final long purgeIntervalMSec;
+    private final double maxAgeSec;
+    private final double purgeIntervalSec;
     private final SchedulingService schedulingService;
     private final long scheduleSlot;
     private final Map<Object, Item> cache;
     private final EPStatementAgentInstanceHandle epStatementAgentInstanceHandle;
+    private final TimeAbacus timeAbacus;
 
     private boolean isScheduled;
 
@@ -55,12 +57,14 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
                                  ConfigurationCacheReferenceType cacheReferenceType,
                                  SchedulingService schedulingService,
                                  long scheduleSlot,
-                                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle)
+                                 EPStatementAgentInstanceHandle epStatementAgentInstanceHandle,
+                                 TimeAbacus timeAbacus)
     {
-        this.maxAgeMSec = (long) maxAgeSec * 1000;
-        this.purgeIntervalMSec = (long) purgeIntervalSec * 1000;
+        this.maxAgeSec = maxAgeSec;
+        this.purgeIntervalSec = purgeIntervalSec;
         this.schedulingService = schedulingService;
         this.scheduleSlot = scheduleSlot;
+        this.timeAbacus = timeAbacus;
 
         if (cacheReferenceType == ConfigurationCacheReferenceType.HARD)
         {
@@ -88,6 +92,7 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
         }
 
         long now = schedulingService.getTime();
+        long maxAgeMSec = timeAbacus.deltaForSecondsDouble(maxAgeSec);
         if ((now - item.getTime()) > maxAgeMSec)
         {
             cache.remove(key);
@@ -107,7 +112,7 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
         if (!isScheduled)
         {
             EPStatementHandleCallback callback = new EPStatementHandleCallback(epStatementAgentInstanceHandle, this);
-            schedulingService.add(purgeIntervalMSec, callback, scheduleSlot);
+            schedulingService.add(timeAbacus.deltaForSecondsDouble(purgeIntervalSec), callback, scheduleSlot);
             isScheduled = true;
         }
     }
@@ -116,18 +121,13 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
      * Returns the maximum age in milliseconds.
      * @return millisecon max age
      */
-    protected long getMaxAgeMSec()
+    protected double getMaxAgeSec()
     {
-        return maxAgeMSec;
+        return maxAgeSec;
     }
 
-    /**
-     * Returns the purge interval in milliseconds.
-     * @return millisecond purge interval
-     */
-    protected long getPurgeIntervalMSec()
-    {
-        return purgeIntervalMSec;
+    public double getPurgeIntervalSec() {
+        return purgeIntervalSec;
     }
 
     public boolean isActive()
@@ -150,6 +150,7 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback
         // purge expired
         long now = schedulingService.getTime();
         Iterator<Object> it = cache.keySet().iterator();
+        long maxAgeMSec = timeAbacus.deltaForSecondsDouble(maxAgeSec);
         for (;it.hasNext();)
         {
             Item item = cache.get(it.next());

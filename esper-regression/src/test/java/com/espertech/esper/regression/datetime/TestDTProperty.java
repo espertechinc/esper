@@ -59,7 +59,7 @@ public class TestDTProperty extends TestCase {
                 "current_timestamp.getweekyear() as valwye,"+
                 "current_timestamp.getyear() as valyea,"+
                 "utildate.gethourOfDay() as val1," +
-                "msecdate.gethourOfDay() as val2," +
+                "longdate.gethourOfDay() as val2," +
                 "caldate.gethourOfDay() as val3," +
                 "zoneddate.gethourOfDay() as val4," +
                 "localdate.gethourOfDay() as val5" +

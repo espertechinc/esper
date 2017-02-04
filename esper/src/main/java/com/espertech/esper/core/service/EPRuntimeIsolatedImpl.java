@@ -239,7 +239,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
         if (theEvent instanceof CurrentTimeEvent) {
             CurrentTimeEvent current = (CurrentTimeEvent) theEvent;
-            long currentTime = current.getTimeInMillis();
+            long currentTime = current.getTime();
 
             if (currentTime == services.getSchedulingService().getTime())
             {
@@ -263,7 +263,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
         // handle time span
         CurrentTimeSpanEvent span = (CurrentTimeSpanEvent) theEvent;
-        long targetTime = span.getTargetTimeInMillis();
+        long targetTime = span.getTargetTime();
         long currentTime = services.getSchedulingService().getTime();
         Long optionalResolution = span.getOptionalResolution();
 

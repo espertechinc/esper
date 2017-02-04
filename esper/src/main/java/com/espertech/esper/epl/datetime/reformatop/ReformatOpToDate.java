@@ -20,6 +20,7 @@ import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -31,13 +32,15 @@ import java.util.TimeZone;
 public class ReformatOpToDate implements ReformatOp {
 
     private final TimeZone timeZone;
+    private final TimeAbacus timeAbacus;
 
-    public ReformatOpToDate(TimeZone timeZone) {
+    public ReformatOpToDate(TimeZone timeZone, TimeAbacus timeAbacus) {
         this.timeZone = timeZone;
+        this.timeAbacus = timeAbacus;
     }
 
     public Object evaluate(Long ts, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-        return new Date(ts);
+        return timeAbacus.toDate(ts);
     }
 
     public Object evaluate(Date d, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {

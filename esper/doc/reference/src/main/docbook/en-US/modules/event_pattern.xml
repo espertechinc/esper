@@ -2252,7 +2252,7 @@ timer:within(125)</programlisting>
 							</thead>
 							<tbody>
 								<row>
-									<entry>Complete date plus hours, minutes and seconds (zero milliseconds):</entry>
+									<entry>Complete date plus hours, minutes and seconds (zero milliseconds, zero microseconds):</entry>
 									<entry><literal>YYYY-MM-DDThh:mm:ssTZD</literal></entry>
 									<entry>
 										<para><literal>1997-07-16T19:20:30Z</literal></para> <para>(i.e. GMT+00:00, UTC)</para>
@@ -2261,7 +2261,7 @@ timer:within(125)</programlisting>
 									</entry>
 								</row>
 								<row>
-									<entry>Complete date plus hours, minutes, seconds and a decimal fraction of a second</entry>
+									<entry>Complete date plus hours, minutes, seconds and a decimal fraction of a second (zero microseconds)</entry>
 									<entry><literal>YYYY-MM-DDThh:mm:ss.sTZD</literal></entry>
 									<entry>
 										<para><literal>1997-07-16T19:20:30.45Z</literal></para> <para>(i.e. GMT+00:00, UTC)</para>

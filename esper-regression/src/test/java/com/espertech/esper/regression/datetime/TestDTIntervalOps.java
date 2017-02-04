@@ -271,9 +271,9 @@ public class TestDTIntervalOps extends TestCase {
         configBean.setEndTimestampPropertyName("theString");
         tryInvalidConfig(SupportBean.class, configBean, "Declared end timestamp property 'theString' is expected to return a Date, Calendar or long-typed value but returns 'java.lang.String'");
 
-        configBean.setStartTimestampPropertyName("msecdate");
+        configBean.setStartTimestampPropertyName("longdate");
         configBean.setEndTimestampPropertyName("caldate");
-        tryInvalidConfig(SupportDateTime.class, configBean, "Declared end timestamp property 'caldate' is expected to have the same property type as the start-timestamp property 'msecdate'");
+        tryInvalidConfig(SupportDateTime.class, configBean, "Declared end timestamp property 'caldate' is expected to have the same property type as the start-timestamp property 'longdate'");
     }
 
     public void testBeforeInSelectClause() {
@@ -283,7 +283,7 @@ public class TestDTIntervalOps extends TestCase {
         String[] fields = "c0,c1".split(",");
         String epl =
                 "select " +
-                "a.msecdateStart.before(b.msecdateStart) as c0," +
+                "a.longdateStart.before(b.longdateStart) as c0," +
                 "a.before(b) as c1 " +
                 " from A#lastevent as a, " +
                 "      B#lastevent as b";
@@ -316,20 +316,20 @@ public class TestDTIntervalOps extends TestCase {
                 "a.before(b)",
                 "a.before(b, 1 millisecond)",
                 "a.before(b, 1 millisecond, 1000000000L)",
-                "a.msecdateStart.before(b)",
+                "a.longdateStart.before(b)",
                 "a.utildateStart.before(b)",
                 "a.caldateStart.before(b)",
-                "a.before(b.msecdateStart)",
+                "a.before(b.longdateStart)",
                 "a.before(b.utildateStart)",
                 "a.before(b.caldateStart)",
-                "a.msecdateStart.before(b.msecdateStart)",
-                "a.msecdateStart.before(b.msecdateStart)",
+                "a.longdateStart.before(b.longdateStart)",
+                "a.longdateStart.before(b.longdateStart)",
                 "a.utildateStart.before(b.utildateStart)",
                 "a.caldateStart.before(b.caldateStart)",
                 "a.utildateStart.before(b.caldateStart)",
-                "a.utildateStart.before(b.msecdateStart)",
+                "a.utildateStart.before(b.longdateStart)",
                 "a.caldateStart.before(b.utildateStart)",
-                "a.caldateStart.before(b.msecdateStart)",
+                "a.caldateStart.before(b.longdateStart)",
                 "a.ldtStart.before(b.ldtStart)",
                 "a.zdtStart.before(b.zdtStart)"
         };
@@ -1159,8 +1159,8 @@ public class TestDTIntervalOps extends TestCase {
 
     private void registerBeanType() {
         ConfigurationEventTypeLegacy configBean = new ConfigurationEventTypeLegacy();
-        configBean.setStartTimestampPropertyName("msecdateStart");
-        configBean.setEndTimestampPropertyName("msecdateEnd");
+        configBean.setStartTimestampPropertyName("longdateStart");
+        configBean.setEndTimestampPropertyName("longdateEnd");
         epService.getEPAdministrator().getConfiguration().addEventType("A", SupportTimeStartEndA.class.getName(), configBean);
         epService.getEPAdministrator().getConfiguration().addEventType("B", SupportTimeStartEndB.class.getName(), configBean);
     }

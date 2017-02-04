@@ -85,7 +85,7 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber) {
         AggSvcGroupByReclaimAgedEvalFunc max = evaluationFunctionMaxAge.make(agentInstanceContext);
         AggSvcGroupByReclaimAgedEvalFunc freq = evaluationFunctionFrequency.make(agentInstanceContext);
-        return new AggSvcGroupByReclaimAgedImpl(evaluators, aggregators, accessors, accessAggregations, isJoin, max, freq);
+        return new AggSvcGroupByReclaimAgedImpl(evaluators, aggregators, accessors, accessAggregations, isJoin, max, freq, agentInstanceContext.getStatementContext().getTimeAbacus());
     }
 
     private AggSvcGroupByReclaimAgedEvalFuncFactory getEvaluationFunction(final VariableService variableService, String hintValue, String optionalContextName)

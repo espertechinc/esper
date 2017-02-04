@@ -41,12 +41,14 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     private final boolean hasMinute;
     private final boolean hasSecond;
     private final boolean hasMillisecond;
+    private final boolean hasMicrosecond;
     private boolean hasVariable;
     private transient ExprEvaluator[] evaluators;
     private transient TimePeriodAdder[] adders;
+    private final TimeAbacus timeAbacus;
     private static final long serialVersionUID = -7229827032500659319L;
 
-    public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond)
+    public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond, boolean hasMicrosecond, TimeAbacus timeAbacus)
     {
         this.timeZone = timeZone;
         this.hasYear = hasYear;
@@ -57,20 +59,22 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         this.hasMinute = hasMinute;
         this.hasSecond = hasSecond;
         this.hasMillisecond = hasMillisecond;
+        this.hasMicrosecond = hasMicrosecond;
+        this.timeAbacus = timeAbacus;
     }
 
     public ExprTimePeriodEvalDeltaConst constEvaluator(ExprEvaluatorContext context) {
         if (!hasMonth && !hasYear) {
             double seconds = evaluateAsSeconds(null, true, context);
-            long msec = Math.round(seconds * 1000d);
-            return new ExprTimePeriodEvalDeltaConstGivenMsec(msec);
+            long msec = timeAbacus.deltaForSecondsDouble(seconds);
+            return new ExprTimePeriodEvalDeltaConstGivenDelta(msec);
         }
         else {
             int[] values = new int[adders.length];
             for (int i = 0; i < values.length; i++) {
                 values[i] = ((Number) evaluators[i].evaluate(null, true, context)).intValue();
             }
-            return new ExprTimePeriodEvalDeltaConstGivenCalAdd(adders, values, timeZone);
+            return new ExprTimePeriodEvalDeltaConstGivenCalAdd(adders, values, timeZone, timeAbacus);
         }
     }
 
@@ -81,6 +85,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         else {
             return new ExprTimePeriodEvalDeltaNonConstCalAdd(timeZone, this);
         }
+    }
+
+    public TimeAbacus getTimeAbacus() {
+        return timeAbacus;
     }
 
     public ExprEvaluator getExprEvaluator() {
@@ -142,6 +150,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     public boolean isHasMillisecond()
     {
         return hasMillisecond;
+    }
+
+    public boolean isHasMicrosecond() {
+        return hasMicrosecond;
     }
 
     /**
@@ -209,6 +221,9 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         }
         if (hasMillisecond) {
             list.add(new TimePeriodAdderMSec());
+        }
+        if (hasMicrosecond) {
+            list.add(new TimePeriodAdderUSec());
         }
         adders = list.toArray(new TimePeriodAdder[list.size()]);
         return null;
@@ -310,9 +325,15 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         Integer milliseconds = null;
         if (hasMillisecond)
         {
-            milliseconds = getInt(evaluators[exprCtr].evaluate(eventsPerStream, newData, context));
+            milliseconds = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
         }
-        return new TimePeriod(year, month, week, day, hours, minutes, seconds, milliseconds);
+
+        Integer microseconds = null;
+        if (hasMicrosecond)
+        {
+            microseconds = getInt(evaluators[exprCtr].evaluate(eventsPerStream, newData, context));
+        }
+        return new TimePeriod(year, month, week, day, hours, minutes, seconds, milliseconds, microseconds);
     }
 
     private Integer getInt(Object evaluated) {
@@ -325,6 +346,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     public static interface TimePeriodAdder {
         public double compute(Double value);
         public void add(Calendar cal, int value);
+        boolean isMicroseconds();
     }
 
     public static class TimePeriodAdderYear implements TimePeriodAdder {
@@ -335,6 +357,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.YEAR, value);
+        }
+
+        public boolean isMicroseconds() {
+            return false;
         }
     }
 
@@ -347,6 +373,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.MONTH, value);
         }
+
+        public boolean isMicroseconds() {
+            return false;
+        }
     }
 
     public static class TimePeriodAdderWeek implements TimePeriodAdder {
@@ -357,6 +387,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.WEEK_OF_YEAR, value);
+        }
+
+        public boolean isMicroseconds() {
+            return false;
         }
     }
 
@@ -369,6 +403,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.DAY_OF_MONTH, value);
         }
+
+        public boolean isMicroseconds() {
+            return false;
+        }
     }
 
     public static class TimePeriodAdderHour implements TimePeriodAdder {
@@ -379,6 +417,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.HOUR_OF_DAY, value);
+        }
+
+        public boolean isMicroseconds() {
+            return false;
         }
     }
 
@@ -391,6 +433,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.MINUTE, value);
         }
+
+        public boolean isMicroseconds() {
+            return false;
+        }
     }
 
     public static class TimePeriodAdderSecond implements TimePeriodAdder {
@@ -401,6 +447,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.SECOND, value);
         }
+
+        public boolean isMicroseconds() {
+            return false;
+        }
     }
 
     public static class TimePeriodAdderMSec implements TimePeriodAdder {
@@ -410,6 +460,24 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
         public void add(Calendar cal, int value) {
             cal.add(Calendar.MILLISECOND, value);
+        }
+
+        public boolean isMicroseconds() {
+            return false;
+        }
+    }
+
+    public static class TimePeriodAdderUSec implements TimePeriodAdder {
+        public double compute(Double value) {
+            return value / 1000000d;
+        }
+
+        public void add(Calendar cal, int value) {
+            // no action : calendar does not add microseconds
+        }
+
+        public boolean isMicroseconds() {
+            return true;
         }
     }
 
@@ -484,8 +552,15 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         if (hasMillisecond)
         {
             writer.append(delimiter);
-            getChildNodes()[exprCtr].toEPL(writer, getPrecedence());
+            getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" milliseconds");
+            delimiter = " ";
+        }
+        if (hasMicrosecond)
+        {
+            writer.append(delimiter);
+            getChildNodes()[exprCtr].toEPL(writer, getPrecedence());
+            writer.append(" microseconds");
         }
     }
 
@@ -529,6 +604,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         {
             return false;
         }
-        return (hasMillisecond == other.hasMillisecond);
+        if (hasMillisecond != other.hasMillisecond)
+        {
+            return false;
+        }
+        return (hasMicrosecond == other.hasMicrosecond);
     }
 }

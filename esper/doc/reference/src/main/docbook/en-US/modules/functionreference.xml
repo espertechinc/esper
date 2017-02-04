@@ -131,7 +131,7 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 						<entry><synopsis>current_timestamp[()]</synopsis></entry>
 						<entry>
 							<para>
-								Returns the current engine time as a <literal>long</literal> millisecond value. Reserved keyword with optional parenthesis.
+								Returns the current engine time as a <literal>long</literal> value. Reserved keyword with optional parenthesis.
 							</para>
 						</entry>
 					</row>
@@ -450,7 +450,7 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 			<indexterm><primary>current_timestamp function</primary></indexterm>
 			<indexterm><primary>functions</primary><secondary>current_timestamp</secondary></indexterm>
 			<para>
-				The <literal>current_timestamp</literal> function is a reserved keyword and requires no parameters. The result of the <literal>current_timestamp</literal> function is the <literal>long</literal>-type millisecond value of the current engine system time.
+				The <literal>current_timestamp</literal> function is a reserved keyword and requires no parameters. The result of the <literal>current_timestamp</literal> function is the <literal>long</literal>-type value of the current engine system time.
 			</para>
 			
 			<para>

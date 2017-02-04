@@ -28,7 +28,7 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
     /**
      * Number of milliseconds.
      */
-    protected ExprNode millisecondsExpr;
+    protected ExprNode timeExpr;
 
     /**
      * Number of count-to max.
@@ -57,23 +57,22 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
             throw new GuardParameterException(message);
         }
 
-        this.millisecondsExpr = parameters.get(0);
+        this.timeExpr = parameters.get(0);
         this.numCountToExpr = parameters.get(1);
         this.convertor = convertor;
     }
 
-    public long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
-        if (millisecondsExpr instanceof ExprTimePeriod) {
-            ExprTimePeriod timePeriod = (ExprTimePeriod) millisecondsExpr;
-            return timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
+    public long computeTime(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+        if (timeExpr instanceof ExprTimePeriod) {
+            ExprTimePeriod timePeriod = (ExprTimePeriod) timeExpr;
+            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
         }
         else {
-            Object millisecondVal = PatternExpressionUtil.evaluate("Timer-Within-Or-Max-Count guard", beginState, millisecondsExpr, convertor, context.getAgentInstanceContext());
-            if (null == millisecondVal) {
+            Object time = PatternExpressionUtil.evaluate("Timer-Within-Or-Max-Count guard", beginState, timeExpr, convertor, context.getAgentInstanceContext());
+            if (null == time) {
                 throw new EPException("Timer-within-or-max first parameter evaluated to a null-value");
             }
-            Number param = (Number) millisecondVal;
-            return Math.round(1000d * param.doubleValue());
+            return context.getStatementContext().getTimeAbacus().deltaForSecondsNumber((Number) time);
         }
     }
 
@@ -87,6 +86,6 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
 
     public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap beginState, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState)
     {
-        return new TimerWithinOrMaxCountGuard(computeMilliseconds(beginState, context), computeNumCountTo(beginState, context), quitable);
+        return new TimerWithinOrMaxCountGuard(computeTime(beginState, context), computeNumCountTo(beginState, context), quitable);
     }
 }

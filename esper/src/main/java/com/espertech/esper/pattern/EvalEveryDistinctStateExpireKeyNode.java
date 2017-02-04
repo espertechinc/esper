@@ -140,7 +140,7 @@ public class EvalEveryDistinctStateExpireKeyNode extends EvalStateNode implement
             }
             else
             {
-                long expiryTime = everyNode.getFactoryNode().absMillisecondExpiry(everyNode.getContext());
+                long expiryTime = everyNode.getFactoryNode().absExpiry(everyNode.getContext());
                 keysFromNode.put(matchEventKey, expiryTime);
             }
         }        

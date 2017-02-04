@@ -13,6 +13,7 @@ import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;

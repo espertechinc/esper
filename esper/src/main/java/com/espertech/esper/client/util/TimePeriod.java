@@ -23,8 +23,9 @@ public class TimePeriod implements Serializable {
     private Integer minutes;
     private Integer seconds;
     private Integer milliseconds;
+    private Integer microseconds;
 
-    public TimePeriod(Integer years, Integer months, Integer weeks, Integer days, Integer hours, Integer minutes, Integer seconds, Integer milliseconds) {
+    public TimePeriod(Integer years, Integer months, Integer weeks, Integer days, Integer hours, Integer minutes, Integer seconds, Integer milliseconds, Integer microseconds) {
         this.years = years;
         this.months = months;
         this.weeks = weeks;
@@ -33,6 +34,7 @@ public class TimePeriod implements Serializable {
         this.minutes = minutes;
         this.seconds = seconds;
         this.milliseconds = milliseconds;
+        this.microseconds = microseconds;
     }
 
     public TimePeriod() {
@@ -70,6 +72,10 @@ public class TimePeriod implements Serializable {
         return milliseconds;
     }
 
+    public Integer getMicroseconds() {
+        return microseconds;
+    }
+
     public void setYears(Integer years) {
         this.years = years;
     }
@@ -100,6 +106,10 @@ public class TimePeriod implements Serializable {
 
     public void setMilliseconds(Integer milliseconds) {
         this.milliseconds = milliseconds;
+    }
+
+    public void setMicroseconds(Integer microseconds) {
+        this.microseconds = microseconds;
     }
 
     public TimePeriod years(Integer years) {
@@ -142,6 +152,11 @@ public class TimePeriod implements Serializable {
         return this;
     }
 
+    public TimePeriod micros(Integer microseconds) {
+        this.microseconds = microseconds;
+        return this;
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -151,6 +166,7 @@ public class TimePeriod implements Serializable {
         if (days != null ? !days.equals(that.days) : that.days != null) return false;
         if (hours != null ? !hours.equals(that.hours) : that.hours != null) return false;
         if (milliseconds != null ? !milliseconds.equals(that.milliseconds) : that.milliseconds != null) return false;
+        if (microseconds != null ? !microseconds.equals(that.microseconds) : that.microseconds != null) return false;
         if (minutes != null ? !minutes.equals(that.minutes) : that.minutes != null) return false;
         if (months != null ? !months.equals(that.months) : that.months != null) return false;
         if (seconds != null ? !seconds.equals(that.seconds) : that.seconds != null) return false;
@@ -169,6 +185,7 @@ public class TimePeriod implements Serializable {
         result = 31 * result + (minutes != null ? minutes.hashCode() : 0);
         result = 31 * result + (seconds != null ? seconds.hashCode() : 0);
         result = 31 * result + (milliseconds != null ? milliseconds.hashCode() : 0);
+        result = 31 * result + (microseconds != null ? microseconds.hashCode() : 0);
         return result;
     }
 
@@ -226,6 +243,9 @@ public class TimePeriod implements Serializable {
         }
         if (milliseconds != null && (absMax == null || Math.abs(milliseconds) > absMax)) {
             absMax = Math.abs(milliseconds);
+        }
+        if (microseconds != null && (absMax == null || Math.abs(microseconds) > absMax)) {
+            absMax = Math.abs(microseconds);
         }
         return absMax;
     }

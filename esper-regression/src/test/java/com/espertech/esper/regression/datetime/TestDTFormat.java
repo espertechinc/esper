@@ -54,7 +54,7 @@ public class TestDTFormat extends TestCase {
         String eplFragment = "select " +
                 "current_timestamp.format() as val0," +
                 "utildate.format() as val1," +
-                "msecdate.format() as val2," +
+                "longdate.format() as val2," +
                 "caldate.format() as val3," +
                 "localdate.format() as val4," +
                 "zoneddate.format() as val5" +

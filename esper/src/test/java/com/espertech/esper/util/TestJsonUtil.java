@@ -17,6 +17,7 @@ import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -27,7 +28,7 @@ public class TestJsonUtil extends TestCase {
     private EngineImportService engineImportService;
 
     protected void setUp() {
-        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE);
+        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE, ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE);
     }
 
     protected void tearDown() {

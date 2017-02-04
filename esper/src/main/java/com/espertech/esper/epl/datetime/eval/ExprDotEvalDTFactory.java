@@ -24,6 +24,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.methodbase.DotMethodFPProvided;
 import com.espertech.esper.epl.methodbase.DotMethodInputTypeMatcher;
 import com.espertech.esper.epl.methodbase.DotMethodTypeEnum;
@@ -38,7 +39,7 @@ import java.util.TimeZone;
 
 public class ExprDotEvalDTFactory {
 
-    public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeZone timeZone)
+    public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeZone timeZone, TimeAbacus timeAbacus)
             throws ExprValidationException
     {
         // verify input
@@ -86,7 +87,7 @@ public class ExprDotEvalDTFactory {
                 calendarOps.add(calendarOp);
             }
             else if (opFactory instanceof ReformatOpFactory) {
-                reformatOp = ((ReformatOpFactory) opFactory).getOp(timeZone, currentMethod, currentMethodName, currentParameters);
+                reformatOp = ((ReformatOpFactory) opFactory).getOp(timeZone, timeAbacus, currentMethod, currentMethodName, currentParameters);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {
@@ -97,7 +98,7 @@ public class ExprDotEvalDTFactory {
                 }
             }
             else if (opFactory instanceof IntervalOpFactory) {
-                intervalOp = ((IntervalOpFactory) opFactory).getOp(streamTypeService, currentMethod, currentMethodName, currentParameters, evaluators, timeZone);
+                intervalOp = ((IntervalOpFactory) opFactory).getOp(streamTypeService, currentMethod, currentMethodName, currentParameters, timeZone, timeAbacus);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {
@@ -130,7 +131,7 @@ public class ExprDotEvalDTFactory {
         ExprDotEval dotEval;
         EPType returnType;
 
-        dotEval = new ExprDotEvalDT(calendarOps, timeZone, reformatOp, intervalOp, EPTypeHelper.getClassSingleValued(inputType), EPTypeHelper.getEventTypeSingleValued(inputType));
+        dotEval = new ExprDotEvalDT(calendarOps, timeZone, timeAbacus, reformatOp, intervalOp, EPTypeHelper.getClassSingleValued(inputType), EPTypeHelper.getEventTypeSingleValued(inputType));
         returnType = dotEval.getTypeInfo();
         return new ExprDotEvalDTMethodDesc(dotEval, returnType, filterAnalyzerDesc);
     }

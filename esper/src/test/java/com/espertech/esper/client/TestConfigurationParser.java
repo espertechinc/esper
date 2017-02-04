@@ -25,6 +25,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class TestConfigurationParser extends TestCase
 {
@@ -89,6 +90,7 @@ public class TestConfigurationParser extends TestCase
         assertEquals(null, config.getEngineDefaults().getMatchRecognize().getMaxStates());
         assertEquals(true, config.getEngineDefaults().getMatchRecognize().isMaxStatesPreventStart());
         assertEquals(ConfigurationEngineDefaults.TimeSourceType.MILLI, config.getEngineDefaults().getTimeSource().getTimeSourceType());
+        assertEquals(TimeUnit.MILLISECONDS, config.getEngineDefaults().getTimeSource().getTimeUnit());
         assertFalse(config.getEngineDefaults().getExecution().isPrioritized());
         assertFalse(config.getEngineDefaults().getExecution().isDisableLocking());
         assertFalse(config.getEngineDefaults().getExecution().isAllowIsolatedService());
@@ -438,6 +440,7 @@ public class TestConfigurationParser extends TestCase
         assertEquals(StreamSelector.RSTREAM_ISTREAM_BOTH, config.getEngineDefaults().getStreamSelection().getDefaultStreamSelector());
 
         assertEquals(ConfigurationEngineDefaults.TimeSourceType.NANO, config.getEngineDefaults().getTimeSource().getTimeSourceType());
+        assertEquals(TimeUnit.MICROSECONDS, config.getEngineDefaults().getTimeSource().getTimeUnit());
         assertTrue(config.getEngineDefaults().getExecution().isPrioritized());
         assertTrue(config.getEngineDefaults().getExecution().isFairlock());
         assertTrue(config.getEngineDefaults().getExecution().isDisableLocking());

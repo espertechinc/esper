@@ -13,6 +13,7 @@ package com.espertech.esper.epl.datetime.calop;
 
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.client.util.TimePeriod;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,8 @@ public class CalendarOpPlusFastAddHelper {
     private static boolean DEBUG = false;
     private static Logger log = LoggerFactory.getLogger(CalendarOpPlusFastAddHelper.class);
 
-    public static CalendarOpPlusFastAddResult computeNextDue(long currentTime, TimePeriod timePeriod, Calendar reference) {
-        if (reference.getTimeInMillis() > currentTime) {
+    public static CalendarOpPlusFastAddResult computeNextDue(long currentTime, TimePeriod timePeriod, Calendar reference, TimeAbacus timeAbacus, long remainder) {
+        if (timeAbacus.calendarGet(reference, remainder) > currentTime) {
             return new CalendarOpPlusFastAddResult(0, reference);
         }
 
@@ -35,7 +36,7 @@ public class CalendarOpPlusFastAddHelper {
         }
 
         CalendarOpPlusMinus.actionSafeOverflow(work, 1, timePeriod);
-        long inMillis = work.getTimeInMillis();
+        long inMillis = timeAbacus.calendarGet(work, remainder);
         if (inMillis > currentTime) {
             return new CalendarOpPlusFastAddResult(1, work);
         }
@@ -46,8 +47,9 @@ public class CalendarOpPlusFastAddHelper {
         long factor = 1;
 
         // determine multiplier
-        long deltaCurrentToStart = currentTime - reference.getTimeInMillis();
-        long deltaAddedOne = work.getTimeInMillis() - reference.getTimeInMillis();
+        long refTime = timeAbacus.calendarGet(reference, remainder);
+        long deltaCurrentToStart = currentTime - refTime;
+        long deltaAddedOne = timeAbacus.calendarGet(work, remainder) - refTime;
         double multiplierDbl = (deltaCurrentToStart / deltaAddedOne) - 1;
         long multiplierRoundedLong = (long) multiplierDbl;
 
@@ -67,8 +69,8 @@ public class CalendarOpPlusFastAddHelper {
         factor += multiplierRoundedInt;
 
         // if below, add more
-        if (work.getTimeInMillis() <= currentTime) {
-            while(work.getTimeInMillis() <= currentTime) {
+        if (timeAbacus.calendarGet(work, remainder) <= currentTime) {
+            while(timeAbacus.calendarGet(work, remainder) <= currentTime) {
                 CalendarOpPlusMinus.actionSafeOverflow(work, 1, timePeriod);
                 factor += 1;
                 if (DEBUG && log.isDebugEnabled()) {
@@ -79,7 +81,7 @@ public class CalendarOpPlusFastAddHelper {
         }
 
         // we are over
-        while(work.getTimeInMillis() > currentTime) {
+        while(timeAbacus.calendarGet(work, remainder) > currentTime) {
             CalendarOpPlusMinus.actionSafeOverflow(work, -1, timePeriod);
             factor -= 1;
             if (DEBUG && log.isDebugEnabled()) {

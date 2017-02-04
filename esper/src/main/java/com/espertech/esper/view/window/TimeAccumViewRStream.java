@@ -100,7 +100,7 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
             if (!currentBatch.isEmpty())
             {
                 // check if we need to reschedule
-                long callbackTime = timestamp + timeDeltaComputation.deltaMillisecondsAdd(timestamp);
+                long callbackTime = timestamp + timeDeltaComputation.deltaAdd(timestamp);
                 if (callbackTime != callbackScheduledTime)
                 {
                     removeSchedule = true;
@@ -119,9 +119,9 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
             }
             if (addSchedule)
             {
-                long msecIntervalSize = timeDeltaComputation.deltaMillisecondsAdd(timestamp);
-                agentInstanceContext.getStatementContext().getSchedulingService().add(msecIntervalSize, handle, scheduleSlot);
-                callbackScheduledTime = msecIntervalSize + timestamp;
+                long timeIntervalSize = timeDeltaComputation.deltaAdd(timestamp);
+                agentInstanceContext.getStatementContext().getSchedulingService().add(timeIntervalSize, handle, scheduleSlot);
+                callbackScheduledTime = timeIntervalSize + timestamp;
             }
 
             // add data points to the window
@@ -165,7 +165,7 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
 
                     // reschedule, newest event deleted
                     long timestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-                    long callbackTime = lastTimestamp + timeDeltaComputation.deltaMillisecondsAdd(lastTimestamp);
+                    long callbackTime = lastTimestamp + timeDeltaComputation.deltaAdd(lastTimestamp);
                     long deltaFromNow = callbackTime - timestamp;
                     if (callbackTime != callbackScheduledTime)
                     {

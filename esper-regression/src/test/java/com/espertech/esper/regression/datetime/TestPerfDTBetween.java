@@ -51,7 +51,7 @@ public class TestPerfDTBetween extends TestCase {
         epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("AEarlier", "2002-05-30T08:00:00.000", 100));
         epService.getEPRuntime().sendEvent(SupportTimeStartEndA.make("ALater", "2002-05-30T10:00:00.000", 100));
 
-        String epl = "select a.key as c0 from SupportDateTime unidirectional, AWindow as a where msecdate.between(msecdateStart, msecdateEnd, false, true)";
+        String epl = "select a.key as c0 from SupportDateTime unidirectional, AWindow as a where longdate.between(longdateStart, longdateEnd, false, true)";
         EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
         stmt.addListener(listener);
 

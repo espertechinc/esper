@@ -54,8 +54,8 @@ public class TestDTBetween extends TestCase {
 
         String[] fieldsCurrentTs = "val0,val1,val2,val3,val4,val5,val6,val7,val8".split(",");
         String eplCurrentTS = "select " +
-                "current_timestamp.after(msecdateStart) as val0, " +
-                "current_timestamp.between(msecdateStart, msecdateEnd) as val1, " +
+                "current_timestamp.after(longdateStart) as val0, " +
+                "current_timestamp.between(longdateStart, longdateEnd) as val1, " +
                 "current_timestamp.between(utildateStart, caldateEnd) as val2, " +
                 "current_timestamp.between(caldateStart, utildateEnd) as val3, " +
                 "current_timestamp.between(utildateStart, utildateEnd) as val4, " +
@@ -91,12 +91,12 @@ public class TestDTBetween extends TestCase {
         epService.getEPAdministrator().getConfiguration().addImport(DateTime.class);
         String[] fieldsConstants = "val0,val1,val2,val3,val4,val5".split(",");
         String eplConstants = "select " +
-                "msecdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val0, " +
+                "longdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val0, " +
                 "utildateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val1, " +
                 "caldateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val2, " +
                 "ldtStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val3, " +
                 "zdtStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val4, " +
-                "msecdateStart.between(DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val5 " +
+                "longdateStart.between(DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\")) as val5 " +
                 "from SupportTimeStartEndA";
         EPStatement stmtConstants = epService.getEPAdministrator().createEPL(eplConstants);
         stmtConstants.addListener(listener);
@@ -129,7 +129,7 @@ public class TestDTBetween extends TestCase {
         epService.getEPAdministrator().createEPL("create variable boolean VAR_TRUE = true");
         epService.getEPAdministrator().createEPL("create variable boolean VAR_FALSE = false");
 
-        runAssertionExcludeEndpoints("msecdateStart, msecdateEnd");
+        runAssertionExcludeEndpoints("longdateStart, longdateEnd");
         runAssertionExcludeEndpoints("utildateStart, utildateEnd");
         runAssertionExcludeEndpoints("caldateStart, caldateEnd");
         runAssertionExcludeEndpoints("ldtStart, ldtEnd");
@@ -171,10 +171,10 @@ public class TestDTBetween extends TestCase {
         epService.getEPAdministrator().getConfiguration().addImport(DateTime.class);
         String[] fieldsConstants = "val0,val1,val2,val3".split(",");
         String eplConstants = "select " +
-                "msecdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), true, true) as val0, " +
-                "msecdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), true, false) as val1, " +
-                "msecdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), false, true) as val2, " +
-                "msecdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), false, false) as val3 " +
+                "longdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), true, true) as val0, " +
+                "longdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), true, false) as val1, " +
+                "longdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), false, true) as val2, " +
+                "longdateStart.between(DateTime.toCalendar('2002-05-30T09:00:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), DateTime.toCalendar('2002-05-30T09:01:00.000', \"yyyy-MM-dd'T'HH:mm:ss.SSS\"), false, false) as val3 " +
                 "from SupportTimeStartEndA";
         EPStatement stmtConstants = epService.getEPAdministrator().createEPL(eplConstants);
         stmtConstants.addListener(listener);

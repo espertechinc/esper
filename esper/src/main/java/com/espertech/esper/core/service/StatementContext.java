@@ -17,6 +17,7 @@ import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
@@ -577,4 +578,6 @@ public final class StatementContext
     public EngineImportService getEngineImportService() {
         return stmtEngineServices.getEngineImportService();
     }
+
+    public TimeAbacus getTimeAbacus() { return stmtEngineServices.getEngineImportService().getTimeAbacus(); }
 }

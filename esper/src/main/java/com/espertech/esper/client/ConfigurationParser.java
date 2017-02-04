@@ -41,6 +41,7 @@ import java.math.MathContext;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Parser for configuration XML.
@@ -1390,25 +1391,36 @@ class ConfigurationParser {
             if (subElement.getNodeName().equals("time-source-type"))
             {
                 String valueText = getRequiredAttribute(subElement, "value");
-                if (valueText == null)
-                {
+                if (valueText == null) {
                     throw new ConfigurationException("No value attribute supplied for time-source element");
                 }
                 ConfigurationEngineDefaults.TimeSourceType timeSourceType;
-                if (valueText.toUpperCase().trim().equals("NANO"))
-                {
+                if (valueText.toUpperCase().trim().equals("NANO")) {
                     timeSourceType = ConfigurationEngineDefaults.TimeSourceType.NANO;
                 }
-                else if (valueText.toUpperCase().trim().equals("MILLI"))
-                {
+                else if (valueText.toUpperCase().trim().equals("MILLI")) {
                     timeSourceType = ConfigurationEngineDefaults.TimeSourceType.MILLI;
                 }
-                else
-                {
+                else {
                     throw new ConfigurationException("Value attribute for time-source element invalid, " +
                             "expected one of the following keywords: nano, milli");
                 }
                 configuration.getEngineDefaults().getTimeSource().setTimeSourceType(timeSourceType);
+            }
+
+            if (subElement.getNodeName().equals("time-unit"))
+            {
+                String valueText = getRequiredAttribute(subElement, "value");
+                if (valueText == null) {
+                    throw new ConfigurationException("No value attribute supplied for time-unit element");
+                }
+                try {
+                    TimeUnit timeUnit = TimeUnit.valueOf(valueText.toUpperCase());
+                    configuration.getEngineDefaults().getTimeSource().setTimeUnit(timeUnit);
+                }
+                catch (Throwable t) {
+                    throw new ConfigurationException("Value attribute for time-unit element invalid: " + t.getMessage(), t);
+                }
             }
         }
     }

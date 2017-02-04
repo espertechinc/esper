@@ -14,6 +14,7 @@ import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     private final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
+    private final TimeAbacus timeAbacus;
 
     private final AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge;
     private final AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency;
@@ -52,7 +54,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     private volatile long currentMaxAge = DEFAULT_MAX_AGE_MSEC;
     private volatile long currentReclaimFrequency = DEFAULT_MAX_AGE_MSEC;
 
-    public AggSvcGroupByReclaimAgedImpl(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency) {
+    public AggSvcGroupByReclaimAgedImpl(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency, TimeAbacus timeAbacus) {
         super(evaluators, aggregators);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
@@ -60,6 +62,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         this.evaluationFunctionMaxAge = evaluationFunctionMaxAge;
         this.evaluationFunctionFrequency = evaluationFunctionFrequency;
         this.aggregatorsPerGroup = new HashMap<Object, AggregationMethodRowAged>();
+        this.timeAbacus = timeAbacus;
         removedKeys = new ArrayList<Object>();
     }
 
@@ -153,7 +156,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         {
             return currentMaxAge;
         }
-        return Math.round(maxAge * 1000d);
+        return timeAbacus.deltaForSecondsDouble(maxAge);
     }
 
     private long getReclaimFrequency(long currentReclaimFrequency)
@@ -163,7 +166,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         {
             return currentReclaimFrequency;
         }
-        return Math.round(frequency * 1000d);
+        return timeAbacus.deltaForSecondsDouble(frequency);
     }
 
     public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)

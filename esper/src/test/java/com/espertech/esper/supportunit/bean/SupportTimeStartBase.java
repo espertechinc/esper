@@ -23,12 +23,12 @@ import java.util.Date;
 public abstract class SupportTimeStartBase {
 
     private String key;
-    private Long msecdateStart;
+    private Long longdateStart;
     private Date utildateStart;
     private Calendar caldateStart;
     private LocalDateTime ldtStart;
     private ZonedDateTime zdtStart;
-    private Long msecdateEnd;
+    private Long longdateEnd;
     private Date utildateEnd;
     private Calendar caldateEnd;
     private LocalDateTime ldtEnd;
@@ -42,12 +42,12 @@ public abstract class SupportTimeStartBase {
             long start = DateTime.parseDefaultMSec(datestr);
             long end = start + duration;
 
-            this.msecdateStart = start;
+            this.longdateStart = start;
             this.utildateStart = SupportDateTime.toDate(start);
             this.caldateStart = SupportDateTime.toCalendar(start);
             this.ldtStart = DateTime.parseDefaultLocalDateTime(datestr);
             this.zdtStart = ldtStart.atZone(ZoneId.systemDefault());
-            this.msecdateEnd = end;
+            this.longdateEnd = end;
             this.utildateEnd = SupportDateTime.toDate(end);
             this.caldateEnd = SupportDateTime.toCalendar(end);
             this.ldtEnd = ldtStart.plus(duration, ChronoUnit.MILLIS);
@@ -55,8 +55,8 @@ public abstract class SupportTimeStartBase {
         }
     }
 
-    public Long getMsecdateStart() {
-        return msecdateStart;
+    public Long getLongdateStart() {
+        return longdateStart;
     }
 
     public Date getUtildateStart() {
@@ -67,8 +67,8 @@ public abstract class SupportTimeStartBase {
         return caldateStart;
     }
 
-    public Long getMsecdateEnd() {
-        return msecdateEnd;
+    public Long getLongdateEnd() {
+        return longdateEnd;
     }
 
     public Date getUtildateEnd() {

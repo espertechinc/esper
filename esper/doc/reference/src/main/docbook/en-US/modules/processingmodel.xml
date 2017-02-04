@@ -340,6 +340,10 @@ having amount > 1000]]></programlisting>
 		</para>
 		
 		<para>
+			For more detailed information on batch windows please see <xref linkend="view-batchwindows"/>.
+		</para>
+		
+		<para>
 		   Related to batch data windows is output rate limiting. While batch data windows retain events the <literal>output</literal> clause offered by output rate limiting can control or stabilize the rate at which events are output, see <xref linkend="epl-output-rate"/>.
 		</para>
 

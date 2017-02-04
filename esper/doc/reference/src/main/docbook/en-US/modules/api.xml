@@ -1693,9 +1693,10 @@ ThreadPoolExecutor threadpool = spi.getThreadingService().getInboundThreadPool()
 
 		<indexterm><primary>time</primary><secondary>controlling</secondary></indexterm>
 		<indexterm><primary>external time</primary></indexterm>
+		<indexterm><primary>event time</primary></indexterm>
 		
         <para>
-			There are two modes for an engine to keep track of time: The internal timer based on JVM system time (the default), and externally-controlled time giving your application full control over the concept of time within an engine or isolated service.
+			There are two modes for an engine to keep track of time: The internal timer based on JVM system time (the default), and externally-controlled (aka. event time) time giving your application full control over the concept of time within an engine or isolated service.
         </para>
 
         <para>
@@ -1703,7 +1704,8 @@ ThreadPoolExecutor threadpool = spi.getThreadingService().getInboundThreadPool()
         </para>
 
         <para>
-			By default the internal timer provides time and evaluates schedules. External clocking can be used to supply time ticks to the engine instead. The latter is useful for testing time-based event sequences or for synchronizing the engine with an external time source.
+			By default the internal timer provides time and evaluates schedules. External clocking i.e. event time can be used to supply time ticks to the engine instead. 
+			The latter is useful for when events themselves provide the time to advance. External clocking also helps in testing time-based event sequences or for synchronizing the engine with an external time source.  
         </para>
 
         <para>
@@ -1839,6 +1841,130 @@ runtime.sendEvent(new CurrentTimeSpanEvent(startTime.getTime() + 10*60*1000));]]
 runtime.sendEvent(new CurrentTimeSpanEvent(startTime.getTime() + 10*60*1000, 100));]]></programlisting>
 		</sect2>
 
+		<sect2 xml:id="api-time-resolution">
+			<title>Time Resolution and Time Unit</title>
+	
+			<indexterm><primary>time</primary><secondary>resolution</secondary></indexterm>
+			
+			<para>
+				Time can have a resolution of either milliseconds or microseconds. 
+			</para>
+	
+			<para>
+				The default time resolution is milliseconds.  To configure the engine for microsecond resolution, please see <xref linkend="config-engine-timeunit"/>. 
+			</para>
+
+			<table frame="topbot">
+				<title>Time Resolution</title>
+				<tgroup cols="3">
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry></entry>
+							<entry>Millisecond</entry>
+							<entry>Microsecond</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Smallest unit for advancing time</entry>
+							<entry>1 millisecond</entry>
+							<entry>1 microsecond</entry>
+						</row>
+						<row>
+							<entry>Equivalent <literal>java.util.concurrent.TimeUnit</literal></entry>
+							<entry>TimeUnit.MILLISECONDS</entry>
+							<entry>TimeUnit.MICROSECONDS</entry>
+						</row>
+						<row>
+							<entry>Default?</entry>
+							<entry>Default</entry>
+							<entry>Requires configuration change, see <xref linkend="config-engine-timeunit"/></entry>
+						</row>
+						<row>
+							<entry>Long-type engine time represents</entry>
+							<entry>Milliseconds since Epoch</entry>
+							<entry>Microseconds since Epoch</entry>
+						</row>
+						<row>
+							<entry>Example: the date Tue, 01 Jan 1980 00:00:00 GMT</entry>
+							<entry>315532800000</entry>
+							<entry>315532800000000</entry>
+						</row>
+						<row>
+							<entry>Support for Internal System Time</entry>
+							<entry>Yes</entry>
+							<entry>No, requires external time (aka. event time) via <literal>CurrentTimeSpanEvent</literal> or <literal>CurrentTimeEvent</literal></entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table> 
+					
+			<para>
+				A few notes on usage of microsecond time unit for time resolution:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>
+					The engine automatically computes time periods into microseconds. For example <literal>1 minute 2 seconds</literal> is <literal>62000000</literal> microseconds (<literal>62 * 1000000</literal>).
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+					The engine automatically computes time-in-second parameters into microseconds. For example <literal>5.02 seconds</literal> is <literal>5020000</literal> microseconds.
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+					The engine automatically computes ISO schedules, crontabs and hints related to engine time into microseconds. 
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+					The <literal>CurrentTimeSpanEvent</literal> or <literal>CurrentTimeEvent</literal> events must provide microsecond values.
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+					Date-time methods with long-type input values assume microsecond values.
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+					Date-time methods or other functions that take millisecond parameters or produce millisecond values still consume/produce millisecond values, such as the date-time method <literal>toMillisec</literal>.
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+					The internal timer must be disabled (<literal>setInternalTimerEnabled(false)</literal>) and <literal>TimerControlEvent.ClockType.CLOCK_INTERNAL</literal> cannot be used.
+					</para>
+				</ns:listitem>
+			</itemizedlist>
+		</sect2>
+
+		<sect2 xml:id="api-time-internal">
+			<title>Internal Timer Based on JVM System Time</title>
+			<para>
+				By default the internal timer is enabled and that tracks VM system time. For many use cases your application may want to use event time or external time instead, as discussed above.
+			</para>
+			
+			<para>
+				The internal timer thread, by default, uses the call <literal>System.currentTimeMillis()</literal> to obtain system time. Please see the JIRA issue ESPER-191 Support nano/microsecond resolution for more information on Java system time-call performance, accuracy and drift. 
+			</para>
+				
+			<para>
+				The internal timer thread can be configured to use nano-second time as returned by <literal>System.nanoTime()</literal>. If configured for nano-second time, the engine computes an offset of the nano-second ticks to wall clock time upon startup to present back an accurate millisecond wall clock time. 
+				Please see section <xref linkend="config-engine-time-source"/> to configure the internal timer thread to use <literal>System.nanoTime()</literal>.
+			</para>
+	
+			<para>
+				The internal timer is based on <literal>java.util.concurrent.ScheduledThreadPoolExecutor</literal> and that generally provides high accuracy VM time
+				(<literal>java.util.Timer</literal> does not support high accuracy VM time).
+			</para>			
+		</sect2>
+
 		<sect2 xml:id="api-controlling-time-spi">
 			<title>Additional Time-Related APIs</title>
 			<para>
@@ -1849,42 +1975,6 @@ runtime.sendEvent(new CurrentTimeSpanEvent(startTime.getTime() + 10*60*1000, 100
 				Additional engine-internal SPI interfaces can be obtained by downcasting <literal>EPServiceProvider</literal> to <literal>EPServiceProviderSPI</literal>. For example the <literal>SchedulingServiceSPI</literal> exposes schedule information per statement (downcast from <literal>SchedulingService</literal>). Engine-internal SPI are subject to change between versions.
 			</para>
 		</sect2>
-    </sect1>
-
-    <sect1 xml:id="api-time-resolution">
-        <title>Time Resolution</title>
-
-		<indexterm><primary>time</primary><secondary>resolution</secondary></indexterm>
-        <para>
-			The minimum resolution that all data windows, patterns and output rate limiting operate at is the millisecond. 
-			Parameters to time window views, pattern operators or the <literal>output</literal> clause that are less then 1 millisecond are not allowed. As stated earlier, the default frequency at which the internal timer operates is 100 milliseconds (configurable).
-        </para>
-        
-        <para>
-			The internal timer thread, by default, uses the call <literal>System.currentTimeMillis()</literal> to obtain system time. Please see the JIRA issue ESPER-191 Support nano/microsecond resolution for more information on Java system time-call performance, accuracy and drift. 
-        </para>
-			
-		<para>
-			The internal timer thread can be configured to use nano-second time as returned by <literal>System.nanoTime()</literal>. If configured for nano-second time, the engine computes an offset of the nano-second ticks to wall clock time upon startup to present back an accurate millisecond wall clock time. 
-			Please see section <xref linkend="config-engine-time-source"/> to configure the internal timer thread to use <literal>System.nanoTime()</literal>.
-		</para>
-
-        <para>
-			The internal timer is based on <literal>java.util.concurrent.ScheduledThreadPoolExecutor</literal> (<literal>java.util.Timer</literal> does not support high accuracy VM time).
-        </para>
-			
-        <para>
-			Your application can achieve a higher tick rate then 1 tick per millisecond by sending external timer events that carry a long-value which is not based on milliseconds since January 1, 1970, 00:00:00 GMT. In this case, your time interval parameters need to take consideration of the changed use of engine time. 
-        </para>
-			
-        <para>
-			Thus, if your external timer events send long values that represents microseconds (1E-6 sec), then your time window interval must be 1000-times larger, i.e. "win:time(1000)" becomes a 1-second time window.
-        </para>
-			        
-        <para>
-			And therefore, if your external timer events send long values that represents nanoseconds (1E-9 sec), then your time window interval must be 1000000-times larger, i.e. "win:time(1000000)" becomes a 1-second time window.
-        </para>
-
     </sect1>
 
     <sect1 xml:id="api-isolatedservice">

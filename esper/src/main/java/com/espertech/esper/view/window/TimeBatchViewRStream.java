@@ -245,8 +245,8 @@ public class TimeBatchViewRStream extends ViewSupport implements CloneableView, 
     protected void scheduleCallback()
     {
         long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        ExprTimePeriodEvalDeltaResult deltaWReference = timeDeltaComputation.deltaMillisecondsAddWReference(current, currentReferencePoint);
-        long afterMSec = deltaWReference.getDelta();
+        ExprTimePeriodEvalDeltaResult deltaWReference = timeDeltaComputation.deltaAddWReference(current, currentReferencePoint);
+        long afterTime = deltaWReference.getDelta();
         currentReferencePoint = deltaWReference.getLastReference();
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
@@ -258,7 +258,7 @@ public class TimeBatchViewRStream extends ViewSupport implements CloneableView, 
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
-        agentInstanceContext.getStatementContext().getSchedulingService().add(afterMSec, handle, scheduleSlot);
+        agentInstanceContext.getStatementContext().getSchedulingService().add(afterTime, handle, scheduleSlot);
     }
 
     public void stopView() {

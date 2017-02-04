@@ -13,7 +13,7 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenDelta;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.EventFactoryHelper;
 import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
@@ -38,7 +38,7 @@ public class TestTimeBatchView extends TestCase
         schedulingServiceStub = new SupportSchedulingServiceImpl();
 
         // Set up length window view and a test child view
-        myView = new TimeBatchView(new TimeBatchViewFactory(), SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(schedulingServiceStub), new ExprTimePeriodEvalDeltaConstGivenMsec(TEST_INTERVAL_MSEC), null, false, false, null);
+        myView = new TimeBatchView(new TimeBatchViewFactory(), SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(schedulingServiceStub), new ExprTimePeriodEvalDeltaConstGivenDelta(TEST_INTERVAL_MSEC), null, false, false, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
     }
@@ -158,7 +158,7 @@ public class TestTimeBatchView extends TestCase
         long startTime = 50000;
         schedulingServiceStub.setTime(startTime);
 
-        myView = new TimeBatchView(new TimeBatchViewFactory(), SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(schedulingServiceStub), new ExprTimePeriodEvalDeltaConstGivenMsec(TEST_INTERVAL_MSEC), 1505L, false, false, null);
+        myView = new TimeBatchView(new TimeBatchViewFactory(), SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(schedulingServiceStub), new ExprTimePeriodEvalDeltaConstGivenDelta(TEST_INTERVAL_MSEC), 1505L, false, false, null);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
 

@@ -114,9 +114,11 @@ select insert from MyEvent]]></programlisting>
 				<row><entry>min</entry><entry>yes</entry></row>
 				<row><entry>minute</entry><entry>yes</entry></row>
 				<row><entry>minutes</entry><entry>yes</entry></row>
-				<row><entry>msec</entry><entry>yes</entry></row>
+				<row><entry>microsecond</entry><entry>yes</entry></row>
+				<row><entry>microseconds</entry><entry>yes</entry></row>
 				<row><entry>millisecond</entry><entry>yes</entry></row>
 				<row><entry>milliseconds</entry><entry>yes</entry></row>
+				<row><entry>msec</entry><entry>yes</entry></row>
 				<row><entry>new</entry><entry>-</entry></row>
 				<row><entry>not</entry><entry>-</entry></row>
 				<row><entry>null</entry><entry>-</entry></row>
@@ -154,6 +156,7 @@ select insert from MyEvent]]></programlisting>
 				<row><entry>unidirectional</entry><entry>yes</entry></row>
 				<row><entry>until</entry><entry>yes</entry></row>
 				<row><entry>update</entry><entry>-</entry></row>
+				<row><entry>usec</entry><entry>yes</entry></row>
 				<row><entry>using</entry><entry>yes</entry></row>
 				<row><entry>variable</entry><entry>yes</entry></row>
 				<row><entry>values</entry><entry>yes</entry></row>

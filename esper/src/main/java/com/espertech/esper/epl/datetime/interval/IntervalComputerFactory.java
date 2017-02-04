@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaNonConst;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,8 @@ import java.util.List;
 
 public class IntervalComputerFactory {
 
-    public static IntervalComputer make(DatetimeMethodEnum method, List<ExprNode> expressions) throws ExprValidationException {
-        ExprOptionalConstant[] parameters = getParameters(expressions);
+    public static IntervalComputer make(DatetimeMethodEnum method, List<ExprNode> expressions, TimeAbacus timeAbacus) throws ExprValidationException {
+        ExprOptionalConstant[] parameters = getParameters(expressions, timeAbacus);
 
         if (method == DatetimeMethodEnum.BEFORE) {
             if (parameters.length == 0) {
@@ -71,7 +72,7 @@ public class IntervalComputerFactory {
             if (parameters.length == 2) {
                 return new IntervalComputerDuringAndIncludesMinMax(method == DatetimeMethodEnum.DURING, pair.getStart().getEvaluator(), pair.getEnd().getEvaluator());
             }
-            return new IntervalComputerDuringMinMaxStartEnd(method == DatetimeMethodEnum.DURING, getEvaluators(expressions));
+            return new IntervalComputerDuringMinMaxStartEnd(method == DatetimeMethodEnum.DURING, getEvaluators(expressions, timeAbacus));
         }
         else if (method == DatetimeMethodEnum.FINISHES) {
             if (parameters.length == 0) {
@@ -136,30 +137,30 @@ public class IntervalComputerFactory {
         }
     }
 
-    private static ExprOptionalConstant[] getParameters(List<ExprNode> expressions) {
+    private static ExprOptionalConstant[] getParameters(List<ExprNode> expressions, TimeAbacus timeAbacus) {
         ExprOptionalConstant[] parameters = new ExprOptionalConstant[expressions.size() - 1];
         for (int i = 1; i < expressions.size(); i++) {
-            parameters[i - 1] = getExprOrConstant(expressions.get(i));
+            parameters[i - 1] = getExprOrConstant(expressions.get(i), timeAbacus);
         }
         return parameters;
     }
 
-    private static IntervalDeltaExprEvaluator[] getEvaluators(List<ExprNode> expressions) {
+    private static IntervalDeltaExprEvaluator[] getEvaluators(List<ExprNode> expressions, TimeAbacus timeAbacus) {
         IntervalDeltaExprEvaluator[] parameters = new IntervalDeltaExprEvaluator[expressions.size() - 1];
         for (int i = 1; i < expressions.size(); i++) {
-            parameters[i - 1] = getExprOrConstant(expressions.get(i)).getEvaluator();
+            parameters[i - 1] = getExprOrConstant(expressions.get(i), timeAbacus).getEvaluator();
         }
         return parameters;
     }
 
-    private static ExprOptionalConstant getExprOrConstant(ExprNode exprNode) {
+    private static ExprOptionalConstant getExprOrConstant(ExprNode exprNode, TimeAbacus timeAbacus) {
         if (exprNode instanceof ExprTimePeriod) {
             final ExprTimePeriod timePeriod = (ExprTimePeriod) exprNode;
             if (!timePeriod.isHasMonth() && !timePeriod.isHasYear()) {
                 // no-month and constant
                 if (exprNode.isConstantResult()) {
                     double sec = timePeriod.evaluateAsSeconds(null, true, null);
-                    final long l = (long)(sec * 1000L);
+                    final long l = timeAbacus.deltaForSecondsDouble(sec);
                     IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                         public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                             return l;
@@ -172,7 +173,7 @@ public class IntervalComputerFactory {
                     IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                         public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                             double sec = timePeriod.evaluateAsSeconds(eventsPerStream, isNewData, context);
-                            return Math.round(sec * 1000d);
+                            return timeAbacus.deltaForSecondsDouble(sec);
                         }
                     };
                     return new ExprOptionalConstant(eval, null);
@@ -185,7 +186,7 @@ public class IntervalComputerFactory {
                     final ExprTimePeriodEvalDeltaConst timerPeriodConst = timePeriod.constEvaluator(null);
                     IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                         public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-                            return timerPeriodConst.deltaMillisecondsAdd(reference);
+                            return timerPeriodConst.deltaAdd(reference);
                         }
                     };
                     return new ExprOptionalConstant(eval, null);
@@ -195,7 +196,7 @@ public class IntervalComputerFactory {
                     final ExprTimePeriodEvalDeltaNonConst timerPeriodNonConst = timePeriod.nonconstEvaluator();
                     IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                         public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-                            return timerPeriodNonConst.deltaMillisecondsAdd(reference, eventsPerStream, isNewData, context);
+                            return timerPeriodNonConst.deltaAdd(reference, eventsPerStream, isNewData, context);
                         }
                     };
                     return new ExprOptionalConstant(eval, null);

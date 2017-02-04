@@ -61,6 +61,12 @@ public interface ExprTimePeriod extends ExprNode
     public boolean isHasMillisecond();
 
     /**
+     * Indicator whether the time period has a microsecond part child expression.
+     * @return true for part present, false for not present
+     */
+    public boolean isHasMicrosecond();
+
+    /**
      * Indicator whether the time period has a year part child expression.
      * @return true for part present, false for not present
      */

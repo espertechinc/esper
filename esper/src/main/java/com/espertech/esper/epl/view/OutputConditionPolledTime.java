@@ -29,7 +29,7 @@ public final class OutputConditionPolledTime implements OutputConditionPolled
     public boolean updateOutputCondition(int newEventsCount, int oldEventsCount)
     {
         // If we pull the interval from a variable, then we may need to reschedule
-        long msecIntervalSize = factory.getTimePeriod().nonconstEvaluator().deltaMillisecondsUseEngineTime(null, context);
+        long msecIntervalSize = factory.getTimePeriod().nonconstEvaluator().deltaUseEngineTime(null, context);
 
         long current = context.getTimeProvider().getTime();
         if (state.getLastUpdate() == null || current - state.getLastUpdate() >= msecIntervalSize) {

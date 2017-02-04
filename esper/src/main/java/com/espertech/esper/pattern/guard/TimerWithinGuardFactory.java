@@ -28,7 +28,7 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
     /**
      * Number of milliseconds.
      */
-    protected ExprNode millisecondsExpr;
+    protected ExprNode timeExpr;
 
     /**
      * For converting matched-events maps to events-per-stream.
@@ -49,28 +49,25 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
         }
 
         this.convertor = convertor;
-        this.millisecondsExpr = parameters.get(0);
+        this.timeExpr = parameters.get(0);
     }
 
-    public long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
-        if (millisecondsExpr instanceof ExprTimePeriod) {
-            ExprTimePeriod timePeriod = (ExprTimePeriod) millisecondsExpr;
-            return timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
+    public long computeTime(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+        if (timeExpr instanceof ExprTimePeriod) {
+            ExprTimePeriod timePeriod = (ExprTimePeriod) timeExpr;
+            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
         }
         else {
-            Object millisecondVal = PatternExpressionUtil.evaluate("Timer-within guard", beginState, millisecondsExpr, convertor, context.getAgentInstanceContext());
-
-            if (millisecondVal == null) {
+            Object time = PatternExpressionUtil.evaluate("Timer-within guard", beginState, timeExpr, convertor, context.getAgentInstanceContext());
+            if (time == null) {
                 throw new EPException("Timer-within guard expression returned a null-value");
             }
-
-            Number param = (Number) millisecondVal;
-            return Math.round(1000d * param.doubleValue());
+            return context.getStatementContext().getTimeAbacus().deltaForSecondsNumber((Number) time);
         }
     }
 
     public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap matchedEventMap, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState)
     {
-        return new TimerWithinGuard(computeMilliseconds(matchedEventMap, context), quitable);
+        return new TimerWithinGuard(computeTime(matchedEventMap, context), quitable);
     }
 }

@@ -123,13 +123,6 @@ public final class EPServiceProviderManager
     }
 
     private static EPServiceProviderSPI getProviderInternal(Configuration configuration, String providerURINonNull) {
-        // cluster-wide configuration
-        if (configuration != null && configuration.getEngineDefaults().getCluster() != null && configuration.getEngineDefaults().getCluster().isEnabled()) {
-            String className = configuration.getEngineDefaults().getCluster().getClusterConfiguratorClass();
-            Configurator configurator = (Configurator) JavaClassHelper.instantiate(Configurator.class, className, TransientConfigurationResolver.resolveClassForNameProvider(configuration.getTransientConfiguration()));
-            return configurator.configure(new ConfiguratorContext(providerURINonNull, runtimes), configuration);
-        }
-
         return new EPServiceProviderImpl(configuration, providerURINonNull, runtimes);
     }
 }

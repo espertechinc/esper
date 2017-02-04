@@ -13,6 +13,7 @@ import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.util.JavaClassHelper;
@@ -107,7 +108,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
 
         if (allConstantResult) {
             try {
-                spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null, validationContext.getEngineImportService().getTimeZone());
+                spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null, validationContext.getEngineImportService().getTimeZone(), validationContext.getEngineImportService().getTimeAbacus());
             }
             catch (ScheduleParameterException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
@@ -129,7 +130,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             return spec;
         }
         try {
-            return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext(), context.getStatementContext().getEngineImportService().getTimeZone());
+            return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext(), context.getStatementContext().getEngineImportService().getTimeZone(), context.getStatementContext().getEngineImportService().getTimeAbacus());
         }
         catch (ScheduleParameterException e) {
             throw new EPException("Error computing iso8601 schedule specification: " + e.getMessage(), e);
@@ -137,7 +138,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
     }
 
     private static interface TimerScheduleSpecCompute {
-        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone)
+        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone, TimeAbacus timeAbacus)
                 throws ScheduleParameterException;
     }
 
@@ -148,7 +149,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             this.parameter = parameter;
         }
 
-        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone) throws ScheduleParameterException {
+        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone, TimeAbacus timeAbacus) throws ScheduleParameterException {
             Object param = PatternExpressionUtil.evaluate(NAME_OBSERVER, beginState, parameter, convertor, exprEvaluatorContext);
             String iso = (String) param;
             if (iso == null) {
@@ -169,8 +170,9 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             this.periodNode = periodNode;
         }
 
-        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone) throws ScheduleParameterException {
+        public TimerScheduleSpec compute(MatchedEventConvertor convertor, MatchedEventMap beginState, ExprEvaluatorContext exprEvaluatorContext, TimeZone timeZone, TimeAbacus timeAbacus) throws ScheduleParameterException {
             Calendar optionalDate = null;
+            Long optionalRemainder = null;
             if (dateNode != null) {
                 Object param = PatternExpressionUtil.evaluate(NAME_OBSERVER, beginState, dateNode, convertor, exprEvaluatorContext);
                 if (param instanceof String) {
@@ -179,7 +181,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                 else if (param instanceof Number) {
                     long msec = ((Number) param).longValue();
                     optionalDate = Calendar.getInstance(timeZone);
-                    optionalDate.setTimeInMillis(msec);
+                    optionalRemainder = timeAbacus.calendarSet(msec, optionalDate);
                 }
                 else if (param instanceof Calendar) {
                     optionalDate = (Calendar) param;
@@ -204,7 +206,6 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                 else {
                     throw new EPException("Unrecognized date-time value " + param.getClass());
                 }
-                System.out.println(DateTime.printWithZone(optionalDate));
             }
 
             TimePeriod optionalTimePeriod = null;
@@ -225,7 +226,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                 throw new EPException("Required date or time period are both null for " + NAME_OBSERVER);
             }
 
-            return new TimerScheduleSpec(optionalDate, optionalRepeatCount, optionalTimePeriod);
+            return new TimerScheduleSpec(optionalDate, optionalRemainder, optionalRepeatCount, optionalTimePeriod);
         }
     }
 }

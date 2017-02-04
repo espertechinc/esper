@@ -44,23 +44,23 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
         ExprNode first = this.positionalParams[0];
         if (first.isConstantResult()) {
             String message = "The rate aggregation function requires a numeric constant or time period as the first parameter in the constant-value notation";
-            long intervalMSec;
+            long intervalTime;
             if (first instanceof ExprTimePeriod) {
                 double secInterval = ((ExprTimePeriod) first).evaluateAsSeconds(null, true, validationContext.getExprEvaluatorContext());
-                intervalMSec = Math.round(secInterval * 1000d);
+                intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsDouble(secInterval);
             }
             else if (ExprNodeUtility.isConstantValueExpr(first)) {
                 if (!JavaClassHelper.isNumeric(first.getExprEvaluator().getType())) {
                     throw new ExprValidationException(message);
                 }
                 Number num = (Number) first.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
-                intervalMSec = Math.round(num.doubleValue() * 1000d);
+                intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsNumber(num);
             }
             else {
                 throw new ExprValidationException(message);
             }
 
-            return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, true, intervalMSec, validationContext.getTimeProvider());
+            return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, true, intervalTime, validationContext.getTimeProvider(), validationContext.getEngineImportService().getTimeAbacus());
         }
 
         String message = "The rate aggregation function requires a property or expression returning a non-constant long-type value as the first parameter in the timestamp-property notation";
@@ -83,7 +83,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
         if (!hasDataWindows) {
             throw new ExprValidationException("The rate aggregation function in the timestamp-property notation requires data windows");
         }
-        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, false, -1, validationContext.getTimeProvider());
+        return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, false, -1, validationContext.getTimeProvider(), validationContext.getEngineImportService().getTimeAbacus());
     }
 
     public String getAggregationFunctionName()

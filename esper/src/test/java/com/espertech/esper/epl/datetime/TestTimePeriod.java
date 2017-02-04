@@ -25,8 +25,10 @@ public class TestTimePeriod extends TestCase {
         assertEquals(6, (int) new TimePeriod().min(6).largestAbsoluteValue());
         assertEquals(7, (int) new TimePeriod().sec(7).largestAbsoluteValue());
         assertEquals(8, (int) new TimePeriod().millis(8).largestAbsoluteValue());
+        assertEquals(9, (int) new TimePeriod().micros(9).largestAbsoluteValue());
         assertEquals(10, (int) new TimePeriod().millis(9).sec(10).hours(3).largestAbsoluteValue());
-        assertEquals(1, (int) new TimePeriod().years(1).months(1).weeks(1).days(1).hours(1).min(1).sec(1).millis(1).largestAbsoluteValue());
+        assertEquals(10, (int) new TimePeriod().micros(1).millis(9).sec(10).hours(3).largestAbsoluteValue());
+        assertEquals(1, (int) new TimePeriod().years(1).months(1).weeks(1).days(1).hours(1).min(1).sec(1).millis(1).micros(1).largestAbsoluteValue());
     }
 
     public void testToStringISO8601() {

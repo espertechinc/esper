@@ -85,7 +85,7 @@ public class TimerScheduleISO8601Parser
         }
 
         // parse repeating interval
-        return new TimerScheduleSpec(optionalDate, optionalRepeats, optionalTimePeriod);
+        return new TimerScheduleSpec(optionalDate, null, optionalRepeats, optionalTimePeriod);
     }
 
     public static Calendar parseDate(String dateText) throws ScheduleParameterException {

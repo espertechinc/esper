@@ -66,7 +66,7 @@ public class MatchRecognizeInterval implements MetaDefItem, Serializable
         if (timeDeltaComputation == null) {
             timeDeltaComputation = timePeriodExpr.constEvaluator(new ExprEvaluatorContextStatement(agentInstanceContext.getStatementContext(), false));
         }
-        long result = timeDeltaComputation.deltaMillisecondsAdd(fromTime);
+        long result = timeDeltaComputation.deltaAdd(fromTime);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegIntervalValue(result);}
         return result;
     }
@@ -83,7 +83,7 @@ public class MatchRecognizeInterval implements MetaDefItem, Serializable
         if (timeDeltaComputation == null) {
             timeDeltaComputation = timePeriodExpr.constEvaluator(new ExprEvaluatorContextStatement(agentInstanceContext.getStatementContext(), false));
         }
-        long result = timeDeltaComputation.deltaMillisecondsSubtract(fromTime);
+        long result = timeDeltaComputation.deltaSubtract(fromTime);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegIntervalValue(result);}
         return result;
     }

@@ -65,15 +65,15 @@ public final class SchedulingServiceImpl implements SchedulingServiceSPI
         this.currentTime = currentTime;
     }
 
-    public synchronized final void add(long afterMSec, ScheduleHandle handle, long slot)
+    public synchronized final void add(long afterTime, ScheduleHandle handle, long slot)
             throws ScheduleServiceException
     {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qScheduleAdd(currentTime, afterMSec, handle, slot);}
+        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qScheduleAdd(currentTime, afterTime, handle, slot);}
         if (handleSetMap.containsKey(handle)) {
             remove(handle, slot);
         }
 
-        long triggerOnTime = currentTime + afterMSec;
+        long triggerOnTime = currentTime + afterTime;
         addTrigger(slot, handle, triggerOnTime);
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aScheduleAdd();}
     }

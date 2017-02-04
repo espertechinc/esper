@@ -31,6 +31,9 @@ import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.expression.time.TimeAbacusMicroseconds;
+import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import com.espertech.esper.epl.lookup.EventTableIndexServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
 import com.espertech.esper.epl.named.*;
@@ -74,6 +77,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Factory for services context.
@@ -568,12 +572,24 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      */
     protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot, AggregationFactoryFactory aggregationFactoryFactory)
     {
+        TimeUnit timeUnit = configSnapshot.getEngineDefaults().getTimeSource().getTimeUnit();
+        TimeAbacus timeAbacus;
+        if (timeUnit == TimeUnit.MILLISECONDS) {
+            timeAbacus = TimeAbacusMilliseconds.INSTANCE;
+        }
+        else if (timeUnit == TimeUnit.MICROSECONDS) {
+            timeAbacus = TimeAbacusMicroseconds.INSTANCE;
+        }
+        else {
+            throw new ConfigurationException("Invalid time-source time unit of " + timeUnit + ", expected millis or micros");
+        }
+
         ConfigurationEngineDefaults.Expression expression = configSnapshot.getEngineDefaults().getExpression();
         EngineImportServiceImpl engineImportService = new EngineImportServiceImpl(expression.isExtendedAggregation(),
                 expression.isUdfCache(), expression.isDuckTyping(),
                 configSnapshot.getEngineDefaults().getLanguage().isSortUsingCollator(),
                 configSnapshot.getEngineDefaults().getExpression().getMathContext(),
-                configSnapshot.getEngineDefaults().getExpression().getTimeZone(),
+                configSnapshot.getEngineDefaults().getExpression().getTimeZone(), timeAbacus,
                 configSnapshot.getEngineDefaults().getExecution().getThreadingProfile(),
                 configSnapshot.getTransientConfiguration(),
                 aggregationFactoryFactory);

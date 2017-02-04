@@ -16,6 +16,7 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.view.*;
 import org.slf4j.Logger;
@@ -42,20 +43,22 @@ public class GroupByViewReclaimAged extends ViewSupport implements CloneableView
      * Constructor.
      * @param agentInstanceContext contains required view services
      * @param criteriaExpressions is the fields from which to pull the values to group by
-     * @param reclaimMaxAge age after which to reclaim group
-     * @param reclaimFrequency frequency in which to check for groups to reclaim
+     * @param reclaimMaxAgeSeconds age after which to reclaim group
+     * @param reclaimFrequencySeconds frequency in which to check for groups to reclaim
      * @param criteriaEvaluators evaluators
      */
     public GroupByViewReclaimAged(AgentInstanceViewFactoryChainContext agentInstanceContext,
                                   ExprNode[] criteriaExpressions,
                                   ExprEvaluator[] criteriaEvaluators,
-                                  double reclaimMaxAge, double reclaimFrequency)
+                                  double reclaimMaxAgeSeconds, double reclaimFrequencySeconds)
     {
         this.agentInstanceContext = agentInstanceContext;
         this.criteriaExpressions = criteriaExpressions;
         this.criteriaEvaluators = criteriaEvaluators;
-        this.reclaimMaxAge = (long) (reclaimMaxAge * 1000d);
-        this.reclaimFrequency = (long) (reclaimFrequency * 1000d);
+
+        TimeAbacus timeAbacus = agentInstanceContext.getStatementContext().getEngineImportService().getTimeAbacus();
+        this.reclaimMaxAge = timeAbacus.deltaForSecondsDouble(reclaimMaxAgeSeconds);
+        this.reclaimFrequency = timeAbacus.deltaForSecondsDouble(reclaimFrequencySeconds);
 
         propertyNames = new String[criteriaExpressions.length];
         for (int i = 0; i < criteriaExpressions.length; i++)

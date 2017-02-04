@@ -17,6 +17,7 @@ import com.espertech.esper.core.service.EPStatementHandleCallback;
 import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.core.service.StatementAgentInstanceFilterVersion;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.spec.ContextDetailConditionCrontab;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
@@ -69,7 +70,8 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
         EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
         scheduleHandle = new EPStatementHandleCallback(agentHandle, scheduleCallback);
         SchedulingService schedulingService = statementContext.getSchedulingService();
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(spec.getSchedule(), schedulingService.getTime(), statementContext.getEngineImportService().getTimeZone());
+        EngineImportService engineImportService = statementContext.getEngineImportService();
+        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(spec.getSchedule(), schedulingService.getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
         statementContext.getSchedulingService().add(nextScheduledTime, scheduleHandle, scheduleSlot);
     }
 
@@ -81,7 +83,8 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
     }
 
     public Long getExpectedEndTime() {
-        return ScheduleComputeHelper.computeNextOccurance(spec.getSchedule(), statementContext.getTimeProvider().getTime(), statementContext.getEngineImportService().getTimeZone());
+        EngineImportService engineImportService = statementContext.getEngineImportService();
+        return ScheduleComputeHelper.computeNextOccurance(spec.getSchedule(), statementContext.getTimeProvider().getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
     }
 
     public boolean isImmediate() {

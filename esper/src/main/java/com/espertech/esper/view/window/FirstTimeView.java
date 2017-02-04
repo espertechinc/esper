@@ -156,7 +156,7 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
 
     private void scheduleCallback()
     {
-        long afterMSec = timeDeltaComputation.deltaMillisecondsAdd(agentInstanceContext.getStatementContext().getSchedulingService().getTime());
+        long afterTime = timeDeltaComputation.deltaAdd(agentInstanceContext.getStatementContext().getSchedulingService().getTime());
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
             public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
@@ -168,7 +168,7 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
-        agentInstanceContext.getStatementContext().getSchedulingService().add(afterMSec, handle, scheduleSlot);
+        agentInstanceContext.getStatementContext().getSchedulingService().add(afterTime, handle, scheduleSlot);
     }
 
     public void stopView() {

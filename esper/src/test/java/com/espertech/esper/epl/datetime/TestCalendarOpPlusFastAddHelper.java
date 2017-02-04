@@ -15,6 +15,7 @@ import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddHelper;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddResult;
 import com.espertech.esper.client.util.TimePeriod;
+import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import junit.framework.TestCase;
 
 import java.util.Calendar;
@@ -123,7 +124,7 @@ public class TestCalendarOpPlusFastAddHelper extends TestCase {
                                LongAssertion factorAssertion, String expectedTarget) {
 
         Calendar referenceDate = DateTime.parseDefaultCal(reference);
-        CalendarOpPlusFastAddResult result = CalendarOpPlusFastAddHelper.computeNextDue(current, timePeriod, referenceDate);
+        CalendarOpPlusFastAddResult result = CalendarOpPlusFastAddHelper.computeNextDue(current, timePeriod, referenceDate, TimeAbacusMilliseconds.INSTANCE, 0);
         assertEquals("\nExpected " + expectedTarget + "\n" +
                      "Received " + DateTime.print(result.getScheduled()) + "\n",
                      DateTime.parseDefaultCal(expectedTarget), result.getScheduled());

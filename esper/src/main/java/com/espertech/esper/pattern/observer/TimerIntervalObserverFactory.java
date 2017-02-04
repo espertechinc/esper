@@ -59,30 +59,23 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
         this.convertor = convertor;
     }
 
-    public long computeMilliseconds(MatchedEventMap beginState, PatternAgentInstanceContext context) {
+    public long computeDelta(MatchedEventMap beginState, PatternAgentInstanceContext context) {
         if (parameter instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) parameter;
-            return timePeriod.nonconstEvaluator().deltaMillisecondsUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
+            return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
         }
         else {
             Object result = parameter.getExprEvaluator().evaluate(convertor.convert(beginState), true, context.getAgentInstanceContext());
             if (result == null) {
                 throw new EPException("Null value returned for guard expression");
             }
-
-            Number param = (Number) result;
-            if (JavaClassHelper.isFloatingPointNumber(param)) {
-                return Math.round(1000d * param.doubleValue());
-            }
-            else {
-                return 1000 * param.longValue();
-            }
+            return context.getStatementContext().getTimeAbacus().deltaForSecondsNumber((Number) result);
         }
     }
 
     public EventObserver makeObserver(PatternAgentInstanceContext context, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, EvalStateNodeNumber stateNodeId, Object observerState, boolean isFilterChildNonQuitting)
     {
-        return new TimerIntervalObserver(computeMilliseconds(beginState, context), beginState, observerEventEvaluator);
+        return new TimerIntervalObserver(computeDelta(beginState, context), beginState, observerEventEvaluator);
     }
 
     public boolean isNonRestarting() {

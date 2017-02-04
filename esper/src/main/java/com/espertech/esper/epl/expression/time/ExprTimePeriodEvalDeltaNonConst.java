@@ -17,8 +17,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public interface ExprTimePeriodEvalDeltaNonConst
 {
-    public long deltaMillisecondsAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
-    public long deltaMillisecondsSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
-    public long deltaMillisecondsUseEngineTime(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext);
-    public ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    public long deltaAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    public long deltaSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+    public long deltaUseEngineTime(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext);
+    public ExprTimePeriodEvalDeltaResult deltaAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 }

@@ -14,6 +14,7 @@ import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -189,6 +190,8 @@ public interface EngineImportService
     public MathContext getDefaultMathContext();
 
     public TimeZone getTimeZone();
+
+    public TimeAbacus getTimeAbacus();
 
     public ConfigurationEngineDefaults.ThreadingProfile getThreadingProfile();
 

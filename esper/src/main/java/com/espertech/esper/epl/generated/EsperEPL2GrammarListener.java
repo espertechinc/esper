@@ -2632,6 +2632,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitMillisecondPart(EsperEPL2GrammarParser.MillisecondPartContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#microsecondPart}.
+	 * @param ctx the parse tree
+	 */
+	void enterMicrosecondPart(EsperEPL2GrammarParser.MicrosecondPartContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#microsecondPart}.
+	 * @param ctx the parse tree
+	 */
+	void exitMicrosecondPart(EsperEPL2GrammarParser.MicrosecondPartContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#number}.
 	 * @param ctx the parse tree
 	 */

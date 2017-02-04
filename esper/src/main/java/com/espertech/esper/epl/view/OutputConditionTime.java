@@ -65,7 +65,7 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
         if (parent.getTimePeriod().hasVariable())
         {
             long now = context.getStatementContext().getSchedulingService().getTime();
-            ExprTimePeriodEvalDeltaResult delta = parent.getTimePeriod().nonconstEvaluator().deltaMillisecondsAddWReference(now, currentReferencePoint, null, true, context);
+            ExprTimePeriodEvalDeltaResult delta = parent.getTimePeriod().nonconstEvaluator().deltaAddWReference(now, currentReferencePoint, null, true, context);
             if (delta.getDelta() != currentScheduledTime)
             {
                 if (isCallbackScheduled)
@@ -93,15 +93,15 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
     {
     	isCallbackScheduled = true;
         long current = context.getStatementContext().getSchedulingService().getTime();
-        ExprTimePeriodEvalDeltaResult delta = parent.getTimePeriod().nonconstEvaluator().deltaMillisecondsAddWReference(current, currentReferencePoint, null, true, context);
-        long afterMSec = delta.getDelta();
+        ExprTimePeriodEvalDeltaResult delta = parent.getTimePeriod().nonconstEvaluator().deltaAddWReference(current, currentReferencePoint, null, true, context);
+        long deltaTime = delta.getDelta();
         currentReferencePoint = delta.getLastReference();
-        currentScheduledTime = afterMSec;
+        currentScheduledTime = deltaTime;
 
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
         {
             log.debug(".scheduleCallback Scheduled new callback for " +
-                    " afterMsec=" + afterMSec +
+                    " afterMsec=" + deltaTime +
                     " now=" + current +
                     " currentReferencePoint=" + currentReferencePoint);
         }
@@ -117,7 +117,7 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
             }
         };
         handle = new EPStatementHandleCallback(context.getEpStatementAgentInstanceHandle(), callback);
-        context.getStatementContext().getSchedulingService().add(afterMSec, handle, scheduleSlot);
+        context.getStatementContext().getSchedulingService().add(deltaTime, handle, scheduleSlot);
         context.addTerminationCallback(this);
     }
 

@@ -8,6 +8,7 @@
  **************************************************************************************/
 package com.espertech.esper.schedule;
 
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.type.CronOperatorEnum;
 import com.espertech.esper.type.CronParameter;
 import com.espertech.esper.type.ScheduleUnit;
@@ -15,6 +16,7 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.SortedSet;
@@ -40,11 +42,6 @@ public final class ScheduleComputeHelper
         Calendar.FRIDAY, Calendar.SATURDAY};
 
     /**
-     * Minimum time to next occurance.
-     */
-    private static final int MIN_OFFSET_MSEC = 1000;
-
-    /**
      * Computes the next lowest date in milliseconds based on a specification and the
      * from-time passed in.
      * @param spec defines the schedule
@@ -52,7 +49,7 @@ public final class ScheduleComputeHelper
      * @param timeZone time zone
      * @return a long date millisecond value for the next schedule occurance matching the spec
      */
-    public static long computeNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
+    public static long computeNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone, TimeAbacus timeAbacus)
     {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
         {
@@ -65,14 +62,14 @@ public final class ScheduleComputeHelper
         // Add the minimum resolution to the start time to ensure we don't get the same exact time
         if (spec.getUnitValues().containsKey(ScheduleUnit.SECONDS))
         {
-            afterTimeInMillis += MIN_OFFSET_MSEC;
+            afterTimeInMillis += timeAbacus.getOneSecond();
         }
         else
         {
-            afterTimeInMillis += 60 * MIN_OFFSET_MSEC;
+            afterTimeInMillis += 60 * timeAbacus.getOneSecond();
         }
 
-        return compute(spec, afterTimeInMillis, timeZone);
+        return compute(spec, afterTimeInMillis, timeZone, timeAbacus);
     }
 
     /**
@@ -83,13 +80,14 @@ public final class ScheduleComputeHelper
      * @param timeZone time zone
      * @return a long millisecond value representing the delta between current time and the next schedule occurance matching the spec
      */
-    public static long computeDeltaNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
+    public static long computeDeltaNextOccurance(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone, TimeAbacus timeAbacus)
     {
-        return computeNextOccurance(spec, afterTimeInMillis, timeZone) - afterTimeInMillis;
+        return computeNextOccurance(spec, afterTimeInMillis, timeZone, timeAbacus) - afterTimeInMillis;
     }
 
-    private static long compute(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone)
+    private static long compute(ScheduleSpec spec, long afterTimeInMillis, TimeZone timeZone, TimeAbacus timeAbacus)
     {
+        long remainderMicros = -1;
         while (true)
         {
             Calendar after;
@@ -99,7 +97,10 @@ public final class ScheduleComputeHelper
             else {
                 after = Calendar.getInstance(timeZone);
             }
-            after.setTimeInMillis(afterTimeInMillis);
+            long remainder = timeAbacus.calendarSet(afterTimeInMillis, after);
+            if (remainderMicros == -1) {
+                remainderMicros = remainder;
+            }
 
             ScheduleCalendar result = new ScheduleCalendar();
             result.setMilliseconds(after.get(Calendar.MILLISECOND));
@@ -185,11 +186,11 @@ public final class ScheduleComputeHelper
             int year = after.get(Calendar.YEAR);
             if (!(checkDayValidInMonth(timeZone, result.getDayOfMonth(), result.getMonth() - 1, year)))
             {
-                afterTimeInMillis = after.getTimeInMillis();
+                afterTimeInMillis = timeAbacus.calendarGet(after, remainder);
                 continue;
             }
 
-            return getTime(result, after.get(Calendar.YEAR), spec.getOptionalTimeZone(), timeZone);
+            return getTime(result, after.get(Calendar.YEAR), spec.getOptionalTimeZone(), timeZone, timeAbacus, remainder);
         }
     }
 
@@ -316,7 +317,7 @@ public final class ScheduleComputeHelper
         return dayOfMonth;
     }
 
-    private static long getTime(ScheduleCalendar result, int year, String optionalTimeZone, TimeZone timeZone)
+    private static long getTime(ScheduleCalendar result, int year, String optionalTimeZone, TimeZone timeZone, TimeAbacus timeAbacus, long remainder)
     {
         Calendar calendar;
         if (optionalTimeZone != null) {
@@ -327,7 +328,8 @@ public final class ScheduleComputeHelper
         }
         calendar.set(year, result.getMonth() - 1, result.getDayOfMonth(), result.getHour(), result.getMinute(), result.getSecond());
         calendar.set(Calendar.MILLISECOND, result.getMilliseconds());
-        return calendar.getTimeInMillis();
+
+        return timeAbacus.calendarGet(calendar, remainder);
     }
 
     /*

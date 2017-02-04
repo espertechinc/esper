@@ -25,6 +25,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputProp;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputStream;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ public class IntervalOpImpl implements IntervalOp {
 
     private final IntervalOpEval intervalOpEval;
 
-    public IntervalOpImpl(DatetimeMethodEnum method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions, TimeZone timeZone)
+    public IntervalOpImpl(DatetimeMethodEnum method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions, TimeZone timeZone, TimeAbacus timeAbacus)
         throws ExprValidationException {
 
         ExprEvaluator evaluatorEndTimestamp = null;
@@ -117,7 +118,7 @@ public class IntervalOpImpl implements IntervalOp {
             }
         }
 
-        IntervalComputer intervalComputer = IntervalComputerFactory.make(method, expressions);
+        IntervalComputer intervalComputer = IntervalComputerFactory.make(method, expressions, timeAbacus);
 
         // evaluation without end timestamp
         if (evaluatorEndTimestamp == null) {

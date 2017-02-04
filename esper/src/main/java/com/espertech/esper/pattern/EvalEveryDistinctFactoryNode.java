@@ -102,9 +102,9 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
         return true;
     }
 
-    public long absMillisecondExpiry(PatternAgentInstanceContext context) {
+    public long absExpiry(PatternAgentInstanceContext context) {
         long current = context.getStatementContext().getSchedulingService().getTime();
-        return current + timeDeltaComputation.deltaMillisecondsAdd(current);
+        return current + timeDeltaComputation.deltaAdd(current);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {

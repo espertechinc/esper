@@ -41,14 +41,14 @@ public class ViewFactoryTimePeriodHelper
             }
             if (validated.isConstantResult()) {
                 Number time = (Number) ViewFactorySupport.evaluate(secondsEvaluator, 0, viewName, statementContext);
-                if (!ExprTimePeriodUtil.validateTime(time)) {
+                if (!ExprTimePeriodUtil.validateTime(time, statementContext.getTimeAbacus())) {
                     throw new ViewParameterException(ExprTimePeriodUtil.getTimeInvalidMsg(viewName, "view", time));
                 }
-                long msec = ExprTimePeriodUtil.computeTimeMSec(time);
-                factory = new ExprTimePeriodEvalDeltaConstGivenMsec(msec);
+                long msec = statementContext.getTimeAbacus().deltaForSecondsNumber(time);
+                factory = new ExprTimePeriodEvalDeltaConstGivenDelta(msec);
             }
             else {
-                factory = new ExprTimePeriodEvalDeltaConstFactoryMsec(secondsEvaluator);
+                factory = new ExprTimePeriodEvalDeltaConstFactoryMsec(secondsEvaluator, statementContext.getTimeAbacus());
             }
         }
         return factory;

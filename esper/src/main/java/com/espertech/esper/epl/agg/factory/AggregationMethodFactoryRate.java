@@ -23,21 +23,24 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 import com.espertech.esper.epl.expression.methodagg.ExprRateAggNode;
+import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.schedule.TimeProvider;
 
 public class AggregationMethodFactoryRate implements AggregationMethodFactory
 {
     protected final ExprRateAggNode parent;
     protected final boolean isEver;
-    protected final long intervalMSec;
+    protected final long intervalTime;
     protected final TimeProvider timeProvider;
+    protected final TimeAbacus timeAbacus;
 
-    public AggregationMethodFactoryRate(ExprRateAggNode parent, boolean isEver, long intervalMSec, TimeProvider timeProvider)
+    public AggregationMethodFactoryRate(ExprRateAggNode parent, boolean isEver, long intervalTime, TimeProvider timeProvider, TimeAbacus timeAbacus)
     {
         this.parent = parent;
         this.isEver = isEver;
-        this.intervalMSec = intervalMSec;
+        this.intervalTime = intervalTime;
         this.timeProvider = timeProvider;
+        this.timeAbacus = timeAbacus;
     }
 
     public boolean isAccessAggregation() {
@@ -63,10 +66,10 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory
 
     public AggregationMethod make() {
         if (isEver) {
-            return new AggregatorRateEver(intervalMSec, timeProvider);
+            return new AggregatorRateEver(intervalTime, timeAbacus.getOneSecond(), timeProvider);
         }
         else {
-            return new AggregatorRate();
+            return new AggregatorRate(timeAbacus.getOneSecond());
         }
     }
 
@@ -77,11 +80,11 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
         AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
         AggregationMethodFactoryRate that = (AggregationMethodFactoryRate) intoTableAgg;
-        if (intervalMSec != that.intervalMSec) {
+        if (intervalTime != that.intervalTime) {
             throw new ExprValidationException("The size is " +
-                    intervalMSec +
+                    intervalTime +
                     " and provided is " +
-                    that.intervalMSec);
+                    that.intervalTime);
         }
         AggregationMethodFactoryUtil.validateAggregationUnbound(!isEver, !that.isEver);
     }

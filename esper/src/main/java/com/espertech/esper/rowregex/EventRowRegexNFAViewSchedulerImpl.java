@@ -37,13 +37,13 @@ public class EventRowRegexNFAViewSchedulerImpl implements EventRowRegexNFAViewSc
         this.handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
     }
 
-    public void addSchedule(long msecAfterCurrentTime) {
-        agentInstanceContext.getStatementContext().getSchedulingService().add(msecAfterCurrentTime, handle, scheduleSlot);
+    public void addSchedule(long timeDelta) {
+        agentInstanceContext.getStatementContext().getSchedulingService().add(timeDelta, handle, scheduleSlot);
     }
 
-    public void changeSchedule(long msecAfterCurrentTime) {
+    public void changeSchedule(long timeDelta) {
         agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
-        agentInstanceContext.getStatementContext().getSchedulingService().add(msecAfterCurrentTime, handle, scheduleSlot);
+        agentInstanceContext.getStatementContext().getSchedulingService().add(timeDelta, handle, scheduleSlot);
     }
 
     public void removeSchedule() {

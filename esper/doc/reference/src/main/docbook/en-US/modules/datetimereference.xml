@@ -26,7 +26,7 @@
 				<orderedlist>
 					<listitem>
 						<para>
-							A long-type millisecond value.
+							A long-type millisecond or microsecond value.
 						</para>
 					</listitem>
 					<listitem>
@@ -477,7 +477,7 @@
 from MyEvent]]></programlisting>
 	
 			<para>
-				The statement above outputs in field <literal>time1am</literal> a long-type millisecond-value reflecting 1am on the same date as engine time. Since the input value is provided by the built-in <literal>current_timestamp</literal> function which returns current engine date as a long-type millisecond value the output is also a long-type millisecond value.
+				The statement above outputs in field <literal>time1am</literal> a long-type value (milliseconds or microseconds) reflecting 1am on the same date as engine time. Since the input value is provided by the built-in <literal>current_timestamp</literal> function which returns current engine date as a long-type value the output is also a long-type value.
 			</para>
 			
 			<para>
@@ -496,7 +496,7 @@ from MyEvent]]></programlisting>
 from RFIDEvent#lastevent rfid, WifiEvent#lastevent wifi]]></programlisting>
 
 			<para>
-			   For comparing date-time values and considering event duration (event start and end timestamps) we recommend any of the interval algebra methods. You may also compare millisecond values using the <literal>between</literal> or <literal>in</literal> ranges and inverted ranges or relational operators (<literal>&gt; , &lt;, &gt;=, &lt;=)</literal>.
+			   For comparing date-time values and considering event duration (event start and end timestamps) we recommend any of the interval algebra methods. You may also compare long-type values using the <literal>between</literal> or <literal>in</literal> ranges and inverted ranges or relational operators (<literal>&gt; , &lt;, &gt;=, &lt;=)</literal>.
 			</para>
 						
 			<para>

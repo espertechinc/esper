@@ -23,21 +23,21 @@ public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDe
         this.exprTimePeriod = exprTimePeriod;
     }
 
-    public long deltaMillisecondsAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+    public long deltaAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         double d = exprTimePeriod.evaluateAsSeconds(eventsPerStream, isNewData, context);
-        return Math.round(d * 1000d);
+        return exprTimePeriod.getTimeAbacus().deltaForSecondsDouble(d);
     }
 
-    public long deltaMillisecondsSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return deltaMillisecondsAdd(currentTime, eventsPerStream, isNewData, context);
+    public long deltaSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        return deltaAdd(currentTime, eventsPerStream, isNewData, context);
     }
 
-    public long deltaMillisecondsUseEngineTime(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext) {
-        return deltaMillisecondsAdd(0, eventsPerStream, true, agentInstanceContext);
+    public long deltaUseEngineTime(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext) {
+        return deltaAdd(0, eventsPerStream, true, agentInstanceContext);
     }
 
-    public ExprTimePeriodEvalDeltaResult deltaMillisecondsAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        long msec = deltaMillisecondsAdd(current, eventsPerStream, isNewData, context);
-        return new ExprTimePeriodEvalDeltaResult(ExprTimePeriodEvalDeltaConstGivenMsec.deltaMillisecondsAddWReference(current, reference, msec), reference);
+    public ExprTimePeriodEvalDeltaResult deltaAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        long msec = deltaAdd(current, eventsPerStream, isNewData, context);
+        return new ExprTimePeriodEvalDeltaResult(ExprTimePeriodEvalDeltaConstGivenDelta.deltaAddWReference(current, reference, msec), reference);
     }
 }

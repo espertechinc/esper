@@ -12,7 +12,7 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenMsec;
+import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstGivenDelta;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
@@ -44,8 +44,8 @@ public class TestTimeWindowViewFactory extends TestCase
         AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[] {1000}));
         assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
-        assertFalse(factory.canReuse(new TimeBatchView(null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), new ExprTimePeriodEvalDeltaConstGivenMsec(1000), null, false, false, null), agentInstanceContext));
-        assertTrue(factory.canReuse(new TimeWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), factory, new ExprTimePeriodEvalDeltaConstGivenMsec(1000000), null), agentInstanceContext));
+        assertFalse(factory.canReuse(new TimeBatchView(null, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), new ExprTimePeriodEvalDeltaConstGivenDelta(1000), null, false, false, null), agentInstanceContext));
+        assertTrue(factory.canReuse(new TimeWindowView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), factory, new ExprTimePeriodEvalDeltaConstGivenDelta(1000000), null), agentInstanceContext));
     }
 
     private void tryInvalidParameter(Object param) throws Exception
@@ -67,6 +67,6 @@ public class TestTimeWindowViewFactory extends TestCase
         TimeWindowViewFactory factory = new TimeWindowViewFactory();
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[] {param}));
         TimeWindowView view = (TimeWindowView) factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        assertEquals(msec, view.getTimeDeltaComputation().deltaMillisecondsAdd(0));
+        assertEquals(msec, view.getTimeDeltaComputation().deltaAdd(0));
     }
 }

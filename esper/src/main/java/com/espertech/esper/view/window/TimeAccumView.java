@@ -113,7 +113,7 @@ public class TimeAccumView extends ViewSupport implements CloneableView, DataWin
         if (!currentBatch.isEmpty())
         {
             // check if we need to reschedule
-            long callbackTime = timestamp + timeDeltaComputation.deltaMillisecondsAdd(timestamp);
+            long callbackTime = timestamp + timeDeltaComputation.deltaAdd(timestamp);
             if (callbackTime != callbackScheduledTime)
             {
                 removeSchedule = true;
@@ -131,9 +131,9 @@ public class TimeAccumView extends ViewSupport implements CloneableView, DataWin
         }
         if (addSchedule)
         {
-            long msecIntervalSize = timeDeltaComputation.deltaMillisecondsAdd(timestamp);
-            agentInstanceContext.getStatementContext().getSchedulingService().add(msecIntervalSize, handle, scheduleSlot);
-            callbackScheduledTime = msecIntervalSize + timestamp;
+            long timeIntervalSize = timeDeltaComputation.deltaAdd(timestamp);
+            agentInstanceContext.getStatementContext().getSchedulingService().add(timeIntervalSize, handle, scheduleSlot);
+            callbackScheduledTime = timeIntervalSize + timestamp;
         }
 
         // add data points to the window

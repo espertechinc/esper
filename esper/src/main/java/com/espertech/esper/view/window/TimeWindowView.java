@@ -124,7 +124,7 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
             if (timeWindow.isEmpty())
             {
                 long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-                scheduleCallback(timeDeltaComputation.deltaMillisecondsAdd(current));
+                scheduleCallback(timeDeltaComputation.deltaAdd(current));
             }
 
             // add data points to the timeWindow
@@ -156,7 +156,7 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
     protected final void expire()
     {
         long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long expireBeforeTimestamp = current - timeDeltaComputation.deltaMillisecondsSubtract(current) + 1;
+        long expireBeforeTimestamp = current - timeDeltaComputation.deltaSubtract(current) + 1;
 
         // Remove from the timeWindow any events that have an older or timestamp then the given timestamp
         // The window extends from X to (X - millisecondsBeforeExpiry + 1)
@@ -189,17 +189,17 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
         }
         Long oldestTimestamp = timeWindow.getOldestTimestamp();
         long currentTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long scheduleMillisec = timeDeltaComputation.deltaMillisecondsAdd(oldestTimestamp) + oldestTimestamp - currentTimestamp;
-        scheduleCallback(scheduleMillisec);
+        long scheduleTime = timeDeltaComputation.deltaAdd(oldestTimestamp) + oldestTimestamp - currentTimestamp;
+        scheduleCallback(scheduleTime);
     }
 
     public ExprTimePeriodEvalDeltaConst getTimeDeltaComputation() {
         return timeDeltaComputation;
     }
 
-    private void scheduleCallback(long msecAfterCurrentTime)
+    private void scheduleCallback(long timeAfterCurrentTime)
     {
-        agentInstanceContext.getStatementContext().getSchedulingService().add(msecAfterCurrentTime, handle, scheduleSlot);
+        agentInstanceContext.getStatementContext().getSchedulingService().add(timeAfterCurrentTime, handle, scheduleSlot);
     }
 
     public final Iterator<EventBean> iterator()

@@ -289,7 +289,7 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long scheduled = timeDeltaComputation.deltaMillisecondsAdd(currentTime) - delta;
+        long scheduled = timeDeltaComputation.deltaAdd(currentTime) - delta;
         agentInstanceContext.getStatementContext().getSchedulingService().add(scheduled, handle, scheduleSlot);
         callbackScheduledTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime() + scheduled;
     }

@@ -20,7 +20,7 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
  */
 public class TimerWithinGuard implements Guard, ScheduleHandleCallback
 {
-    private final long msec;
+    private final long deltaTime;
     private final Quitable quitable;
     private final long scheduleSlot;
 
@@ -29,12 +29,12 @@ public class TimerWithinGuard implements Guard, ScheduleHandleCallback
 
     /**
      * Ctor.
-     * @param msec - number of millisecond to guard expiration
+     * @param delta - number of millisecond to guard expiration
      * @param quitable - to use to indicate that the gaurd quitted
      */
-    public TimerWithinGuard(long msec, Quitable quitable)
+    public TimerWithinGuard(long delta, Quitable quitable)
     {
-        this.msec = msec;
+        this.deltaTime = delta;
         this.quitable = quitable;
         this.scheduleSlot = quitable.getContext().getPatternContext().getScheduleBucket().allocateSlot();
     }
@@ -48,7 +48,7 @@ public class TimerWithinGuard implements Guard, ScheduleHandleCallback
 
         // Start the stopwatch timer
         scheduleHandle = new EPStatementHandleCallback(quitable.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
-        quitable.getContext().getPatternContext().getSchedulingService().add(msec, scheduleHandle, scheduleSlot);
+        quitable.getContext().getPatternContext().getSchedulingService().add(deltaTime, scheduleHandle, scheduleSlot);
         isTimerActive = true;
     }
 

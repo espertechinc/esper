@@ -176,6 +176,9 @@ grammar EsperEPL2Grammar;
 	parserTokenParaphases.put(TIMEPERIOD_MILLISEC, "'msec'");
 	parserTokenParaphases.put(TIMEPERIOD_MILLISECOND, "'millisecond'");
 	parserTokenParaphases.put(TIMEPERIOD_MILLISECONDS, "'milliseconds'");
+	parserTokenParaphases.put(TIMEPERIOD_MICROSEC, "'usec'");
+	parserTokenParaphases.put(TIMEPERIOD_MICROSECOND, "'microsecond'");
+	parserTokenParaphases.put(TIMEPERIOD_MICROSECONDS, "'microseconds'");
 	parserTokenParaphases.put(BOOLEAN_TRUE, "'true'");
 	parserTokenParaphases.put(BOOLEAN_FALSE, "'false'");
 	parserTokenParaphases.put(VALUE_NULL, "'null'");
@@ -1066,14 +1069,15 @@ escapableStr : i1=IDENT | i2=EVENTS | i3=TICKED_STRING_LITERAL;
 	
 escapableIdent : IDENT | t=TICKED_STRING_LITERAL;
 
-timePeriod : (	yearPart monthPart? weekPart? dayPart? hourPart? minutePart? secondPart? millisecondPart?
-		| monthPart weekPart? dayPart? hourPart? minutePart? secondPart? millisecondPart?
-		| weekPart dayPart? hourPart? minutePart? secondPart? millisecondPart?
-		| dayPart hourPart? minutePart? secondPart? millisecondPart?
-		| hourPart minutePart? secondPart? millisecondPart?
-		| minutePart secondPart? millisecondPart?
-		| secondPart millisecondPart?
-		| millisecondPart
+timePeriod : (	yearPart monthPart? weekPart? dayPart? hourPart? minutePart? secondPart? millisecondPart? microsecondPart?
+		| monthPart weekPart? dayPart? hourPart? minutePart? secondPart? millisecondPart? microsecondPart?
+		| weekPart dayPart? hourPart? minutePart? secondPart? millisecondPart? microsecondPart?
+		| dayPart hourPart? minutePart? secondPart? millisecondPart? microsecondPart?
+		| hourPart minutePart? secondPart? millisecondPart? microsecondPart?
+		| minutePart secondPart? millisecondPart? microsecondPart?
+		| secondPart millisecondPart? microsecondPart?
+		| millisecondPart microsecondPart?
+		| microsecondPart 
 		);
 
 yearPart : (numberconstant|i=IDENT|substitution) (TIMEPERIOD_YEARS | TIMEPERIOD_YEAR);
@@ -1092,6 +1096,8 @@ secondPart : (numberconstant|i=IDENT|substitution) (TIMEPERIOD_SECONDS | TIMEPER
 	
 millisecondPart : (numberconstant|i=IDENT|substitution) (TIMEPERIOD_MILLISECONDS | TIMEPERIOD_MILLISECOND | TIMEPERIOD_MILLISEC);
 	
+microsecondPart : (numberconstant|i=IDENT|substitution) (TIMEPERIOD_MICROSECONDS | TIMEPERIOD_MICROSECOND | TIMEPERIOD_MICROSEC);
+
 number : IntegerLiteral | FloatingPointLiteral;
 
 substitution : q=QUESTION (COLON slashIdentifier)?;
@@ -1232,6 +1238,9 @@ TIMEPERIOD_SECONDS:'seconds';
 TIMEPERIOD_MILLISEC:'msec';
 TIMEPERIOD_MILLISECOND:'millisecond';
 TIMEPERIOD_MILLISECONDS:'milliseconds';
+TIMEPERIOD_MICROSEC:'usec';
+TIMEPERIOD_MICROSECOND:'microsecond';
+TIMEPERIOD_MICROSECONDS:'microseconds';
 BOOLEAN_TRUE:'true';
 BOOLEAN_FALSE:'false';
 VALUE_NULL:'null';

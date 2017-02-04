@@ -66,7 +66,7 @@
 					<row>
 						<entry>Externally-timed Window</entry>
 						<entry><literal>ext_timed(</literal><emphasis>timestamp expression</emphasis>, <emphasis>time period</emphasis><literal>)</literal></entry>
-						<entry>Sliding time window, based on the millisecond time value supplied by an expression.</entry>
+						<entry>Sliding time window, based on the long-type time value supplied by an expression.</entry>
 					</row>
 					<row>
 						<entry>Time Batch Window</entry>
@@ -76,7 +76,7 @@
 					<row>
 						<entry>Externally-timed Batch Window</entry>
 						<entry><literal>ext_timed_batch(</literal><emphasis>timestamp expression</emphasis>, <emphasis>time period</emphasis>[,<emphasis>optional reference point</emphasis>]<literal>)</literal></entry>
-						<entry>Tumbling window that batches events and releases them every specified time interval based on the millisecond value supplied by an expression.</entry>
+						<entry>Tumbling window that batches events and releases them every specified time interval based on the long-type value supplied by an expression.</entry>
 					</row>
 					<row>
 						<entry>Time-Length Combination Batch Window</entry>
@@ -278,7 +278,8 @@
 		   </para>
 		   
 		   <para>
-			   It is often desirable to aggregate without retaining events in memory. You can declare a context and define what starts and ends a "batch" instead.
+			   It is often desirable to aggregate without retaining events in memory, or with just keeping the current events in memory (and not also the last batch of events). 
+			   You can declare a context and define what starts and ends a "batch" instead.
 			   Contexts provide a large degree of freedom in allowing batches to overlap, in allowing batches to span multiple statements and in allowing batches to have complex start and end conditions.
 			   They are further described in <xref linkend="context"/>.
 		   </para>
@@ -286,12 +287,33 @@
 		   <para>
 			   This example declares a non-overlapping context that spans a time interval of 3 seconds (i.e. a batch of 3 seconds):
 		   </para>
-			<programlisting><![CDATA[create context BatchSpanning3Seconds start @now end after 3 sec]]></programlisting>
+			<programlisting><![CDATA[create context IntervalSpanning3Seconds start @now end after 3 sec]]></programlisting>
 
 		   <para>
-			   The next example EPL aggregates events without retaining events in memory and outputs at the end of each batch:
+			   The next example EPL aggregates events without retaining events in memory and outputs at the end of each interval:
 		   </para>
-			<programlisting><![CDATA[context BatchSpanning3Seconds select count(*) from Events output snapshot when terminated]]></programlisting>
+			<programlisting><![CDATA[context IntervalSpanning3Seconds select count(*) from Events output snapshot when terminated]]></programlisting>
+
+		   <para>
+			   Here is an example that outputs all events when at least 10 events, in the 3-second interval, have collected:
+		   </para>
+			<programlisting><![CDATA[context IntervalSpanning3Seconds select window(*) from Events#keepall having count(*) >= 10]]></programlisting>
+			
+			<para>
+				For the examples above, at the end of each 3-second interval, the engine discards all data windows and aggregation state.
+				If your application would like 3-second intervals keyed by some fields please consider a nested context declaration with a keyed segmented context, for example:
+			</para>
+			<programlisting><![CDATA[create context PerSymbolInterval3Sec 
+  context ById partition by symbol from StockTick, 
+  context Interval3Sec start @now end after 3 sec]]></programlisting>
+
+			<para>
+				Batch windows keep not only the current batch in memory but also the previous batch of events. 
+				For example, let's say at time 0 an event arrives and enters the batch window. 
+				At time 3 seconds (3-second batch window) the event becomes an insert-stream event and the engine now updates aggregations for that batch (i.e. count goes up to 1). 
+				At time 6 seconds the event becomes a remove-stream event and the engine now updates aggregations for that batch (i.e. count goes down to 0).
+				Since the engine continually updates aggregations from insert and remove stream events, and does not re-compute aggregations, batch windows follow the same paradigm. 
+			</para>
 		</sect1>
 
         <sect1 xml:id="win-views" >
@@ -373,7 +395,7 @@ select * from StockTickEvent#length(1)]]></programlisting>
 				</para>
 	
 				<programlisting><![CDATA[select sum(price) from StockTickEvent(symbol='GE')#time(1 sec)]]></programlisting>
-
+				
 				<para>
 					The following time windows are equivalent specifications:
 				</para>
@@ -392,7 +414,7 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 				<indexterm><primary>data window views</primary><secondary>externally-timed window</secondary></indexterm>
 
 				<para>
-					Similar to the time window, this view is a moving (sliding) time window extending the specified time interval into the past, but based on the millisecond
+					Similar to the time window, this view is a moving (sliding) time window extending the specified time interval into the past, but based on the long-type
 					time value supplied by a timestamp expression. The view takes two parameters: the expression to return long-typed timestamp values,
 					and a time period or expression that provides a number of seconds:
 				</para>
@@ -447,9 +469,14 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 					reference point. Therefore if the reference point is not specified and the first event arrives at time t<subscript>1</subscript>, then the batch flushes at time t<subscript>1</subscript> plus <emphasis>time_period</emphasis> and every <emphasis>time_period</emphasis> thereafter.
 				</para>
 
-				<para>
-					Note that using this view means that the engine keeps events in memory until the time is up: Consider your event arrival rate and determine if this is the behavior you want. Use context declaration or output rate limiting such as <literal>output snapshot</literal> as an alternative.
-				</para>	
+				<note>
+					<para>
+						Please see <xref linkend="view-batchwindows"/> for information on what a batch window is and how to best to compute over intervals. 
+					</para>
+					<para>
+						Note that using this view means that the engine keeps events in memory until the time is up: Consider your event arrival rate and determine if this is the behavior you want. Use context declaration or output rate limiting such as <literal>output snapshot</literal> as an alternative.
+					</para>	
+				</note>
 
 				<para>
 					The below example batches events into a 5 second window releasing new batches every 5 seconds. Listeners to updates
@@ -488,7 +515,7 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 				<programlisting><![CDATA[select * from MyEvent#time_batch(10 sec, "FORCE_UPDATE, START_EAGER")]]></programlisting>				
 				
 				<para>
-				  The optional reference point is provided as a long-value of milliseconds relative to January 1, 1970 and time 00:00:00.
+				  The optional reference point is provided as a long-value of milliseconds (or microseconds for microsecond engine time unit) relative to January 1, 1970 and time 00:00:00.
 				</para>
 				
 				<para>
@@ -506,7 +533,7 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 
 				<para>
 				    Similar to the time batch window, this view buffers events (tumbling) and releases them every specified time interval in one update, 
-				    but based on the millisecond time value supplied by a timestamp expression.
+				    but based on the long-type time value supplied by a timestamp expression.
 					The view has two required parameters taking an expression that returns long-typed timestamp values and a time period or constant-value expression that provides a number of seconds:
 				</para>
 
@@ -540,7 +567,7 @@ time(MYINTERVAL)  // MYINTERVAL defined as a variable</programlisting>
 				<programlisting><![CDATA[select * from StockTickEvent#ext_timed_batch(timestamp, 5 sec)]]></programlisting>
 												
 				<para>
-				  The optional reference point is provided as a long-value of milliseconds relative to January 1, 1970 and time 00:00:00.
+				  The optional reference point is provided as a long-value of milliseconds (or microseconds) relative to January 1, 1970 and time 00:00:00.
 				</para>
 				
 				<para>
@@ -833,7 +860,7 @@ following conditions occurs, whichever occurs first: the data window has collect
 				<programlisting><![CDATA[select * from MyEvent#expr(oldest_timestamp > newest_timestamp - 2000)]]></programlisting>
 
 				<para>
-					The following example implements a dynamically-sized time window. As the SIZE millisecond variable value changes 
+					The following example implements a dynamically-sized time window. As the SIZE long-type variable value changes 
 					the view retains a time interval accordingly:
 				</para>
 				<programlisting><![CDATA[create variable long SIZE = 1000]]></programlisting>
@@ -1811,7 +1838,7 @@ events with the highest price (with ties resolved by alphabetical order of symbo
 				<synopsis>time_order(<emphasis>timestamp_expression</emphasis>, <emphasis>seconds_interval_expression</emphasis>)</synopsis>
 
 				<para>
-					The first parameter to the view is the expression that supplies timestamp values. The timestamp is expected to be a long-typed millisecond value that denotes an event's time of consideration by the view (or other expression). This is typically the time of arrival. The second parameter is a number-of-seconds expression or the time period specifying the time interval that an arriving event should maximally be held, in order to consider older events arriving at a later time.
+					The first parameter to the view is the expression that supplies timestamp values. The timestamp is expected to be a long-typed value that denotes an event's time of consideration by the view (or other expression). This is typically the time of arrival. The second parameter is a number-of-seconds expression or the time period specifying the time interval that an arriving event should maximally be held, in order to consider older events arriving at a later time.
 				</para>
 
 				<para>
@@ -1825,7 +1852,7 @@ events with the highest price (with ties resolved by alphabetical order of symbo
 select rstream * from MyTimestampedEvent#time_order(arrival_time, 10 sec)]]></programlisting>
 
 				<para>
-					In the example above, the <literal>arrival_time</literal> property holds a long-typed timestamp value in milliseconds. On arrival of an event, the engine compares the timestamp value of each event to the tail-time of the window. The tail-time of the window is, in this example, 10 seconds before engine time (continuously sliding). If the timestamp value indicates that the event is older then the tail-time of the time window, the event is released immediately in the remove stream. If the timestamp value indicates that the event is newer then the tail-time of the window, the view retains the event until engine time moves such that the event timestamp is older then tail-time.
+					In the example above, the <literal>arrival_time</literal> property holds a long-typed timestamp value. On arrival of an event, the engine compares the timestamp value of each event to the tail-time of the window. The tail-time of the window is, in this example, 10 seconds before engine time (continuously sliding). If the timestamp value indicates that the event is older then the tail-time of the time window, the event is released immediately in the remove stream. If the timestamp value indicates that the event is newer then the tail-time of the window, the view retains the event until engine time moves such that the event timestamp is older then tail-time.
 				</para> 
 
 				<para>

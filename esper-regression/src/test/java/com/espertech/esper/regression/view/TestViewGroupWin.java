@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class TestViewGroupBy extends TestCase
+public class TestViewGroupWin extends TestCase
 {
     private static String SYMBOL_CISCO = "CSCO.O";
     private static String SYMBOL_IBM = "IBM.N";

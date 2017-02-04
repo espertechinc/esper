@@ -144,7 +144,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
         {
             // figure out the current tail time
             long engineTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-            long windowTailTime = engineTime - timeDeltaComputation.deltaMillisecondsAdd(engineTime) + 1;
+            long windowTailTime = engineTime - timeDeltaComputation.deltaAdd(engineTime) + 1;
             long oldestEvent = Long.MAX_VALUE;
             if (!sortedEvents.isEmpty())
             {
@@ -282,7 +282,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     protected final void expire()
     {
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
-        long expireBeforeTimestamp = currentTime - timeDeltaComputation.deltaMillisecondsSubtract(currentTime) + 1;
+        long expireBeforeTimestamp = currentTime - timeDeltaComputation.deltaSubtract(currentTime) + 1;
         isCallbackScheduled = false;
 
         List<EventBean> releaseEvents = null;
