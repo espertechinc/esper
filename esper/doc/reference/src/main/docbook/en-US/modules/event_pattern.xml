@@ -1542,10 +1542,16 @@ a=A -> (B(id = a.id) and C(id = a.id))]]></programlisting>
 			<programlisting><![CDATA[A or B]]></programlisting>
 
             <para>
-				Detect all stock ticks that are either above or below a threshold.
+				The next EPL outputs all A and B events:
             </para>
-			<programlisting><![CDATA[every (StockTick(symbol='IBM', price < 100) or StockTick(symbol='IBM', price > 105)]]></programlisting>
-            
+			<programlisting><![CDATA[every A or every B]]></programlisting>
+
+			<para>
+				Elaborating further, the expression <literal>every A or every B</literal> is equivalent to <literal>every (A or B)</literal>. 
+				We prefer <literal>every A or every B</literal> as the <literal>every</literal> keys lets the engine know that filters for A and B can remain active.
+				Consider the expression <literal>every A or every timer:interval(10 sec)</literal> which is not equivalent to <literal>every (A or timer:interval(10 sec))</literal>. 
+				This is because in the latter expression when an A event arrives the interval restarts.
+			</para>
         </sect2>
 
         <sect2 xml:id="pattern-logical-not" >

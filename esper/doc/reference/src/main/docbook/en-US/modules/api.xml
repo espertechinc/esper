@@ -1720,6 +1720,12 @@ ThreadPoolExecutor threadpool = spi.getThreadingService().getInboundThreadPool()
 			If using a timer execution thread pool as discussed above, the internal timer or external time event provide the schedule evaluation however do not actually perform the time-based processing. The time-based processing is performed by the threads in the timer execution thread pool.
         </para>
 
+		<tip>
+			<para>
+			  External and internal/system time is the same internally to the engine thus the engine behaves the same whether using external or internal timer.
+			</para>
+		</tip>
+
         <para>
 			This code snippet shows the use of the configuration API to disable the internal timer and thereby turn on externally-provided time (see the Configuration section for configuration via XML file):
         </para>
