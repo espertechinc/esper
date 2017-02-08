@@ -1,0 +1,13 @@
+<project name="espergrammar" default="replace_antlr_generated_comment" basedir=".">
+	<property name="src" value="../src/main/java/com/espertech/esper/epl/generated"/>
+	
+	<!-- For Checkstyle header license checking -->
+	<target name="replace_antlr_generated_comment">
+		<replace dir="${src}" value="">
+			<include name="**/*EsperEPL2Grammar*.java"/>
+			<replacetoken><![CDATA[// Generated from EsperEPL2Grammar.g by ANTLR 4.5.3
+
+]]></replacetoken>
+		</replace>
+	</target>
+</project>
