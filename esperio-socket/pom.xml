@@ -1,10 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.espertech</groupId>
-        <artifactId>esper-parent</artifactId>
-        <version>6.0.0</version>
+	<parent>
+		<groupId>com.espertech</groupId>
+		<artifactId>esper-parent</artifactId>
+		<version>6.0.0</version>
 	</parent>
+	<properties>
+		<rootPath>${project.parent.basedir}</rootPath>
+	</properties>
 	<name>EsperIO-Socket</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esperio-socket</artifactId>
@@ -67,11 +70,11 @@
 			<artifactId>cglib-nodep</artifactId>
 			<version>${cglib-nodep.version}</version>
 		</dependency>
-  		<dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
-			<scope>test</scope> 
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -135,7 +138,7 @@
 				<configuration>
 					<archive>
 						<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
-				  </archive>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
@@ -155,21 +158,21 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<configuration>
-				  <outputDirectory>lib</outputDirectory>
-				  <excludeTransitive>true</excludeTransitive>
+					<outputDirectory>lib</outputDirectory>
+					<excludeTransitive>true</excludeTransitive>
 				</configuration>
-			</plugin>	
+			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.1</version>
 				<executions>
-				   <execution>
-					  <goals>
-						 <goal>jar</goal>
-					  </goals>
-				   </execution>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
 				</executions>
-			 </plugin>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>

@@ -1,10 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.espertech</groupId>
-        <artifactId>esper-parent</artifactId>
-        <version>6.0.0</version>
+	<parent>
+		<groupId>com.espertech</groupId>
+		<artifactId>esper-parent</artifactId>
+		<version>6.0.0</version>
 	</parent>
+	<properties>
+		<rootPath>${project.parent.basedir}</rootPath>
+	</properties>
 	<name>EsperIO-HTTP</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esperio-http</artifactId>

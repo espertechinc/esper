@@ -1,10 +1,13 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.espertech</groupId>
-        <artifactId>esper-parent</artifactId>
-        <version>6.0.0</version>
+	<parent>
+		<groupId>com.espertech</groupId>
+		<artifactId>esper-parent</artifactId>
+		<version>6.0.0</version>
 	</parent>
+	<properties>
+		<rootPath>${project.parent.basedir}</rootPath>
+	</properties>
 	<name>Esper Examples</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esper-examples-parent</artifactId>
@@ -25,8 +28,8 @@
 		<module>stockticker</module>
 		<module>terminalsvc</module>
 		<module>terminalsvc-jse</module>
-		<module>transaction</module>		
-		<module>trivia</module>		
+		<module>transaction</module>
+		<module>trivia</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -51,33 +54,33 @@
 				<groupId>javaee</groupId>
 				<artifactId>javaee-api</artifactId>
 				<version>5</version>
-			</dependency>			
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j-api.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.jms</groupId>
-					<artifactId>jms</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jdmk</groupId>
-					<artifactId>jmxtools</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jmx</groupId>
-					<artifactId>jmxri</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>test</scope>
-		</dependency>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${slf4j-api.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>${log4j.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.jms</groupId>
+						<artifactId>jms</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.jdmk</groupId>
+						<artifactId>jmxtools</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.sun.jmx</groupId>
+						<artifactId>jmxri</artifactId>
+					</exclusion>
+				</exclusions>
+				<scope>test</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 </project>
