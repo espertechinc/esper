@@ -28,8 +28,7 @@ import java.util.Set;
 /**
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
-public class OutputConditionExpressionFactory implements OutputConditionFactory
-{
+public class OutputConditionExpressionFactory implements OutputConditionFactory {
     private final ExprEvaluator whenExpressionNodeEval;
     private final ExprEvaluator andWhenTerminatedExpressionNodeEval;
     private final VariableReadWritePackage variableReadWritePackage;
@@ -40,8 +39,7 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory
     private EventType builtinPropertiesEventType;
 
     public OutputConditionExpressionFactory(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, final StatementContext statementContext, ExprNode andWhenTerminatedExpr, List<OnTriggerSetAssignment> afterTerminateAssignments, boolean isStartConditionOnCreation)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.whenExpressionNodeEval = whenExpressionNode.getExprEvaluator();
         this.andWhenTerminatedExpressionNodeEval = andWhenTerminatedExpr != null ? andWhenTerminatedExpr.getExprEvaluator() : null;
         this.isStartConditionOnCreation = isStartConditionOnCreation;
@@ -71,22 +69,19 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory
             }
         }
 
-        if (containsBuiltinProperties)
-        {
+        if (containsBuiltinProperties) {
             builtinPropertiesEventType = getBuiltInEventType(statementContext.getEventAdapterService());
         }
 
         if (assignments != null) {
             variableReadWritePackage = new VariableReadWritePackage(assignments, statementContext.getVariableService(), statementContext.getEventAdapterService());
-        }
-        else{
+        } else {
             variableReadWritePackage = null;
         }
 
         if (afterTerminateAssignments != null) {
             variableReadWritePackageAfterTerminated = new VariableReadWritePackage(afterTerminateAssignments, statementContext.getVariableService(), statementContext.getEventAdapterService());
-        }
-        else {
+        } else {
             variableReadWritePackageAfterTerminated = null;
         }
     }
@@ -121,16 +116,15 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory
 
     /**
      * Build the event type for built-in properties.
+     *
      * @param eventAdapterService event adapters
      * @return event type
      */
-    public static EventType getBuiltInEventType(EventAdapterService eventAdapterService)
-    {
+    public static EventType getBuiltInEventType(EventAdapterService eventAdapterService) {
         return eventAdapterService.createAnonymousObjectArrayType(OutputConditionExpressionFactory.class.getName(), OutputConditionExpressionTypeUtil.TYPEINFO);
     }
 
-    private boolean containsBuiltinProperties(ExprNode expr)
-    {
+    private boolean containsBuiltinProperties(ExprNode expr) {
         ExprNodeIdentifierVisitor propertyVisitor = new ExprNodeIdentifierVisitor(false);
         expr.accept(propertyVisitor);
         return !propertyVisitor.getExprProperties().isEmpty();

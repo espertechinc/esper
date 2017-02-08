@@ -31,9 +31,8 @@ import java.util.Set;
  * Output process view that does not enforce any output policies and may simply
  * hand over events to child views, but works with distinct and after-output policies
  */
-public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBaseWAfter
-{
-	private static final Logger log = LoggerFactory.getLogger(OutputProcessViewDirectDistinctOrAfter.class);
+public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBaseWAfter {
+    private static final Logger log = LoggerFactory.getLogger(OutputProcessViewDirectDistinctOrAfter.class);
 
     private final OutputProcessViewDirectDistinctOrAfterFactory parent;
 
@@ -56,13 +55,12 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
 
     /**
      * The update method is called if the view does not participate in a join.
+     *
      * @param newData - new events
      * @param oldData - old events
      */
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".update Received update, " +
                     "  newData.length==" + ((newData == null) ? 0 : newData.length) +
                     "  oldData.length==" + ((oldData == null) ? 0 : oldData.length));
@@ -73,19 +71,16 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
 
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processViewResult(newData, oldData, isGenerateSynthetic);
 
-        if (!super.checkAfterCondition(newOldEvents, parent.getStatementContext()))
-        {
+        if (!super.checkAfterCondition(newOldEvents, parent.getStatementContext())) {
             return;
         }
 
-        if (parent.isDistinct() && newOldEvents != null)
-        {
+        if (parent.isDistinct() && newOldEvents != null) {
             newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
             newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
         }
 
-        if ((!isGenerateSynthetic) && (!isGenerateNatural))
-        {
+        if ((!isGenerateSynthetic) && (!isGenerateNatural)) {
             if (AuditPath.isAuditEnabled) {
                 OutputStrategyUtil.indicateEarlyReturn(parent.getStatementContext(), newOldEvents);
             }
@@ -94,27 +89,24 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
 
         boolean forceOutput = false;
         if ((newData == null) && (oldData == null) &&
-                ((newOldEvents == null) || (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null)))
-        {
+                ((newOldEvents == null) || (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null))) {
             forceOutput = true;
         }
 
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcess(forceOutput, newOldEvents, childView);
         }
     }
 
     /**
      * This process (update) method is for participation in a join.
+     *
      * @param newEvents - new events
      * @param oldEvents - old events
      */
-    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".process Received update, " +
                     "  newData.length==" + ((newEvents == null) ? 0 : newEvents.size()) +
                     "  oldData.length==" + ((oldEvents == null) ? 0 : oldEvents.size()));
@@ -125,33 +117,28 @@ public class OutputProcessViewDirectDistinctOrAfter extends OutputProcessViewBas
 
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processJoinResult(newEvents, oldEvents, isGenerateSynthetic);
 
-        if (!checkAfterCondition(newOldEvents, parent.getStatementContext()))
-        {
+        if (!checkAfterCondition(newOldEvents, parent.getStatementContext())) {
             return;
         }
 
-        if (parent.isDistinct() && newOldEvents != null)
-        {
+        if (parent.isDistinct() && newOldEvents != null) {
             newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
             newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
         }
 
-        if ((!isGenerateSynthetic) && (!isGenerateNatural))
-        {
+        if ((!isGenerateSynthetic) && (!isGenerateNatural)) {
             if (AuditPath.isAuditEnabled) {
                 OutputStrategyUtil.indicateEarlyReturn(parent.getStatementContext(), newOldEvents);
             }
             return;
         }
 
-        if (newOldEvents == null)
-        {
+        if (newOldEvents == null) {
             return;
         }
 
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcess(false, newOldEvents, childView);
         }
     }

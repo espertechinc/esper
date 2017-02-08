@@ -54,8 +54,7 @@ import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 /**
  * Helper class for mapping a XSD schema model to an internal representation.
  */
-public class XSDSchemaMapper
-{
+public class XSDSchemaMapper {
     private static final Logger log = LoggerFactory.getLogger(XSDSchemaMapper.class);
 
     private static final int JAVA5_COMPLEX_TYPE = 13;
@@ -65,24 +64,19 @@ public class XSDSchemaMapper
 
     /**
      * Loading and mapping of the schema to the internal representation.
+     *
      * @param schemaResource schema to load and map.
-     * @param schemaText schema
+     * @param schemaText     schema
      * @return model
      */
-    public static SchemaModel loadAndMap(String schemaResource, String schemaText, EngineImportService engineImportService)
-    {
+    public static SchemaModel loadAndMap(String schemaResource, String schemaText, EngineImportService engineImportService) {
         // Load schema
         XSModel model;
-        try
-        {
+        try {
             model = readSchemaInternal(schemaResource, schemaText, engineImportService);
-        }
-        catch (ConfigurationException ex)
-        {
+        } catch (ConfigurationException ex) {
             throw ex;
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             throw new ConfigurationException("Failed to read schema '" + schemaResource + "' : " + ex.getMessage(), ex);
         }
 
@@ -91,16 +85,14 @@ public class XSDSchemaMapper
     }
 
     private static XSModel readSchemaInternal(String schemaResource, String schemaText, EngineImportService engineImportService) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
-            ConfigurationException, URISyntaxException
-    {
+            ConfigurationException, URISyntaxException {
         LSInputImpl input = null;
         String baseURI = null;
         URL url = null;
         if (schemaResource != null) {
             url = ResourceLoader.resolveClassPathOrURLResource("schema", schemaResource, engineImportService.getClassLoader());
             baseURI = url.toURI().toString();
-        }
-        else {
+        } else {
             input = new LSInputImpl(schemaText);
         }
 
@@ -115,15 +107,14 @@ public class XSDSchemaMapper
             String message = "The XS-Loader instance returned by the DOM registry class '" + xsImplementation.getClass().getName() + "' does not implement the interface '" + XSImplementation.class.getName() + "'; If you have a another Xerces distribution in your classpath please ensure the classpath order loads the JRE Xerces distribution or set the DOMImplementationRegistry.PROPERTY system property";
             throw new ConfigurationException(message);
         }
-        XSImplementation impl =(XSImplementation) xsImplementation; 
+        XSImplementation impl = (XSImplementation) xsImplementation;
         XSLoader schemaLoader = impl.createXSLoader(null);
         schemaLoader.getConfig().setParameter("error-handler", new XSDSchemaMapperErrorHandler(schemaResource));
         XSModel xsModel;
 
         if (input != null) {
             xsModel = schemaLoader.load(input);
-        }
-        else {
+        } else {
             xsModel = schemaLoader.loadURI(baseURI);
 
             // If having trouble loading from the uri, try to attempt from file system.
@@ -131,8 +122,7 @@ public class XSDSchemaMapper
                 String schema;
                 try {
                     schema = FileUtil.readTextFile(new File(url.toURI()));
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     throw new ConfigurationException("Failed to read file '" + url.toURI() + "':" + e.getMessage(), e);
                 }
 
@@ -142,21 +132,18 @@ public class XSDSchemaMapper
             }
         }
 
-        if (xsModel == null)
-        {
+        if (xsModel == null) {
             throw new ConfigurationException("Failed to read schema via URL '" + schemaResource + '\'');
         }
 
         return xsModel;
     }
 
-    private static SchemaModel map(XSModel xsModel)
-    {
+    private static SchemaModel map(XSModel xsModel) {
         // get namespaces
         StringList namespaces = xsModel.getNamespaces();
         List<String> namesspaceList = new ArrayList<String>();
-        for (int i = 0; i < namespaces.getLength(); i++)
-        {
+        for (int i = 0; i < namespaces.getLength(); i++) {
             namesspaceList.add(namespaces.item(i));
         }
 
@@ -164,17 +151,14 @@ public class XSDSchemaMapper
         XSNamedMap elements = xsModel.getComponents(XSConstants.ELEMENT_DECLARATION);
         List<SchemaElementComplex> components = new ArrayList<SchemaElementComplex>();
 
-        for (int i = 0; i < elements.getLength(); i++)
-        {
+        for (int i = 0; i < elements.getLength(); i++) {
             XSObject object = elements.item(i);
-            if (!(object instanceof XSElementDeclaration))
-            {
+            if (!(object instanceof XSElementDeclaration)) {
                 continue;
             }
 
             XSElementDeclaration decl = (XSElementDeclaration) elements.item(i);
-            if (!isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory()))
-            {
+            if (!isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory())) {
                 continue;
             }
 
@@ -184,15 +168,13 @@ public class XSDSchemaMapper
 
             ElementPathNode rootNode = new ElementPathNode(null, name);
 
-            if (log.isDebugEnabled())
-            {
+            if (log.isDebugEnabled()) {
                 log.debug("Processing component " + namespace + " " + name);
             }
 
             SchemaElementComplex complexElement = process(name, namespace, complexActualElement, false, rootNode);
 
-            if (log.isDebugEnabled())
-            {
+            if (log.isDebugEnabled()) {
                 log.debug("Adding component " + namespace + " " + name);
             }
             components.add(complexElement);
@@ -201,20 +183,16 @@ public class XSDSchemaMapper
         return new SchemaModel(components, namesspaceList);
     }
 
-    private static boolean isComplexTypeCategory(short typeCategory)
-    {
+    private static boolean isComplexTypeCategory(short typeCategory) {
         return (typeCategory == XSTypeDefinition.COMPLEX_TYPE) || (typeCategory == JAVA5_COMPLEX_TYPE) || (typeCategory == JAVA6_COMPLEX_TYPE);
     }
 
-    private static boolean isSimpleTypeCategory(short typeCategory)
-    {
+    private static boolean isSimpleTypeCategory(short typeCategory) {
         return (typeCategory == XSTypeDefinition.SIMPLE_TYPE) || (typeCategory == JAVA5_SIMPLE_TYPE) || (typeCategory == JAVA6_SIMPLE_TYPE);
     }
 
-    private static SchemaElementComplex process(String complexElementName, String complexElementNamespace, XSComplexTypeDefinition complexActualElement, boolean isArray, ElementPathNode node)
-    {
-        if (log.isDebugEnabled())
-        {
+    private static SchemaElementComplex process(String complexElementName, String complexElementNamespace, XSComplexTypeDefinition complexActualElement, boolean isArray, ElementPathNode node) {
+        if (log.isDebugEnabled()) {
             log.debug("Processing complex " + complexElementNamespace + " " + complexElementName + " stack " + node.toString());
         }
 
@@ -234,9 +212,8 @@ public class XSDSchemaMapper
 
         // add attributes
         XSObjectList attrs = complexActualElement.getAttributeUses();
-        for(int i = 0; i < attrs.getLength(); i++)
-        {
-            XSAttributeUse attr = (XSAttributeUse)attrs.item(i);
+        for (int i = 0; i < attrs.getLength(); i++) {
+            XSAttributeUse attr = (XSAttributeUse) attrs.item(i);
             String namespace = attr.getAttrDeclaration().getNamespace();
             String name = attr.getAttrDeclaration().getName();
             XSSimpleTypeDecl simpleType = (XSSimpleTypeDecl) attr.getAttrDeclaration().getTypeDefinition();
@@ -244,12 +221,10 @@ public class XSDSchemaMapper
         }
 
         if ((complexActualElement.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_ELEMENT) ||
-            (complexActualElement.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED))
-        {
+                (complexActualElement.getContentType() == XSComplexTypeDefinition.CONTENTTYPE_MIXED)) {
             // has children
             XSParticle particle = complexActualElement.getParticle();
-            if (particle.getTerm() instanceof XSModelGroup )
-            {
+            if (particle.getTerm() instanceof XSModelGroup) {
                 return processModelGroup(particle, simpleElements, complexElements, node, complexActualElement, complexElement);
             }
         }
@@ -257,24 +232,21 @@ public class XSDSchemaMapper
         return complexElement;
     }
 
-    private static SchemaElementComplex processModelGroup(XSObject xsObject, List<SchemaElementSimple> simpleElements, List<SchemaElementComplex> complexElements, ElementPathNode node, XSComplexTypeDefinition complexActualElement, SchemaElementComplex complexElement){
+    private static SchemaElementComplex processModelGroup(XSObject xsObject, List<SchemaElementSimple> simpleElements, List<SchemaElementComplex> complexElements, ElementPathNode node, XSComplexTypeDefinition complexActualElement, SchemaElementComplex complexElement) {
         XSTerm term = null;
-        if(xsObject instanceof XSParticle){
-            term = ((XSParticle)xsObject).getTerm();
-        }
-        else {
+        if (xsObject instanceof XSParticle) {
+            term = ((XSParticle) xsObject).getTerm();
+        } else {
             term = (XSTerm) xsObject;
         }
 
-        if(term instanceof XSModelGroup){
+        if (term instanceof XSModelGroup) {
             XSModelGroup group = (XSModelGroup) term;
             XSObjectList particles = group.getParticles();
-            for (int i = 0; i < particles.getLength(); i++)
-            {
-                XSParticle childParticle = (XSParticle)particles.item(i);
+            for (int i = 0; i < particles.getLength(); i++) {
+                XSParticle childParticle = (XSParticle) particles.item(i);
 
-                if (childParticle.getTerm() instanceof XSElementDeclaration)
-                {
+                if (childParticle.getTerm() instanceof XSElementDeclaration) {
                     XSElementDeclaration decl = (XSElementDeclaration) childParticle.getTerm();
                     boolean isArrayFlag = isArray(childParticle);
 
@@ -284,21 +256,19 @@ public class XSDSchemaMapper
                         simpleElements.add(new SchemaElementSimple(decl.getName(), decl.getNamespace(), simpleType.getPrimitiveKind(), simpleType.getName(), isArrayFlag, fractionDigits));
                     }
 
-                    if (isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory()))
-                    {
+                    if (isComplexTypeCategory(decl.getTypeDefinition().getTypeCategory())) {
                         String name = decl.getName();
                         String namespace = decl.getNamespace();
                         ElementPathNode newChild = node.addChild(name);
 
-                        if(newChild.doesNameAlreadyExistInHierarchy()){
-                        	continue;
+                        if (newChild.doesNameAlreadyExistInHierarchy()) {
+                            continue;
                         }
 
                         complexActualElement = (XSComplexTypeDefinition) decl.getTypeDefinition();
                         SchemaElementComplex innerComplex = process(name, namespace, complexActualElement, isArrayFlag, newChild);
 
-                        if (log.isDebugEnabled())
-                        {
+                        if (log.isDebugEnabled()) {
                             log.debug("Adding complex " + complexElement);
                         }
                         complexElements.add(innerComplex);
@@ -312,25 +282,18 @@ public class XSDSchemaMapper
         return complexElement;
     }
 
-    private static Integer getFractionRestriction(XSSimpleTypeDecl simpleType)
-    {
-        if ((simpleType.getDefinedFacets() & XSSimpleType.FACET_FRACTIONDIGITS) != 0){
+    private static Integer getFractionRestriction(XSSimpleTypeDecl simpleType) {
+        if ((simpleType.getDefinedFacets() & XSSimpleType.FACET_FRACTIONDIGITS) != 0) {
             XSObjectList facets = simpleType.getFacets();
             Integer digits = null;
-            for (int f = 0; f < facets.getLength(); f++)
-            {
+            for (int f = 0; f < facets.getLength(); f++) {
                 XSObject item = facets.item(f);
-                if (item instanceof XSFacet)
-                {
+                if (item instanceof XSFacet) {
                     XSFacet facet = (XSFacet) item;
-                    if (facet.getFacetKind() == XSSimpleType.FACET_FRACTIONDIGITS)
-                    {
-                        try
-                        {
+                    if (facet.getFacetKind() == XSSimpleType.FACET_FRACTIONDIGITS) {
+                        try {
                             digits = Integer.parseInt(facet.getLexicalFacetValue());
-                        }
-                        catch (RuntimeException ex)
-                        {
+                        } catch (RuntimeException ex) {
                             log.warn("Error parsing fraction facet value '" + facet.getLexicalFacetValue() + "' : " + ex.getMessage(), ex);
                         }
                     }
@@ -341,11 +304,10 @@ public class XSDSchemaMapper
         return null;
     }
 
-    private static boolean isArray(XSParticle particle)
-    {
-        return particle.getMaxOccursUnbounded() || (particle.getMaxOccurs() > 1); 
+    private static boolean isArray(XSParticle particle) {
+        return particle.getMaxOccursUnbounded() || (particle.getMaxOccurs() > 1);
     }
-    
+
     public static class LSInputImpl implements LSInput {
 
         private String stringData;
@@ -356,7 +318,7 @@ public class XSDSchemaMapper
 
         @Override
         public Reader getCharacterStream() {
-            return null;  
+            return null;
         }
 
         @Override
@@ -365,7 +327,7 @@ public class XSDSchemaMapper
 
         @Override
         public InputStream getByteStream() {
-            return null;  
+            return null;
         }
 
         @Override
@@ -384,7 +346,7 @@ public class XSDSchemaMapper
 
         @Override
         public String getSystemId() {
-            return null;  
+            return null;
         }
 
         @Override
@@ -393,7 +355,7 @@ public class XSDSchemaMapper
 
         @Override
         public String getPublicId() {
-            return null;  
+            return null;
         }
 
         @Override
@@ -411,7 +373,7 @@ public class XSDSchemaMapper
 
         @Override
         public String getEncoding() {
-            return null;  
+            return null;
         }
 
         @Override
@@ -420,7 +382,7 @@ public class XSDSchemaMapper
 
         @Override
         public boolean getCertifiedText() {
-            return false;  
+            return false;
         }
 
         @Override
@@ -438,12 +400,12 @@ public class XSDSchemaMapper
         public boolean handleError(DOMError error) {
             String from = schemaResource != null ? schemaResource : "string";
             log.warn("DOM error reported loading schema from " + from + ":\n" +
-                "  message: " + error.getMessage() + "\n" +
-                "  type: " + error.getType() + "\n" +
-                "  related data: " + error.getRelatedData() + "\n" +
-                "  related exception: " + error.getRelatedException() + "\n" +
-                "  severity: " + error.getSeverity() + "\n" +
-                "  location: " + error.getLocation());
+                    "  message: " + error.getMessage() + "\n" +
+                    "  type: " + error.getType() + "\n" +
+                    "  related data: " + error.getRelatedData() + "\n" +
+                    "  related exception: " + error.getRelatedException() + "\n" +
+                    "  severity: " + error.getSeverity() + "\n" +
+                    "  location: " + error.getLocation());
 
             if (error.getRelatedException() instanceof Throwable) {
                 Throwable t = (Throwable) error.getRelatedException();

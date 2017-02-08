@@ -31,8 +31,7 @@ import java.util.Date;
 /**
  * Viewable providing historical data from a database.
  */
-public class PollExecStrategyDBQuery implements PollExecStrategy
-{
+public class PollExecStrategyDBQuery implements PollExecStrategy {
     private static final Logger jdbcPerfLog = LoggerFactory.getLogger(AuditPath.JDBC_LOG);
 
     private static final Logger log = LoggerFactory.getLogger(PollExecStrategyDBQuery.class);
@@ -49,14 +48,15 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
 
     /**
      * Ctor.
-     * @param eventAdapterService for generating event beans
-     * @param eventType is the event type that this poll generates
-     * @param connectionCache caches Connection and PreparedStatement
-     * @param preparedStatementText is the SQL to use for polling
-     * @param outputTypes describe columns selected by the SQL
-     * @param outputRowConversionHook hook to convert rows, if any hook is registered
+     *
+     * @param eventAdapterService      for generating event beans
+     * @param eventType                is the event type that this poll generates
+     * @param connectionCache          caches Connection and PreparedStatement
+     * @param preparedStatementText    is the SQL to use for polling
+     * @param outputTypes              describe columns selected by the SQL
+     * @param outputRowConversionHook  hook to convert rows, if any hook is registered
      * @param columnTypeConversionHook hook to convert columns, if any hook is registered
-     * @param enableJDBCLogging jdbc logging flag
+     * @param enableJDBCLogging        jdbc logging flag
      */
     public PollExecStrategyDBQuery(EventAdapterService eventAdapterService,
                                    EventType eventType,
@@ -65,8 +65,7 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
                                    Map<String, DBOutputTypeDesc> outputTypes,
                                    SQLColumnTypeConversion columnTypeConversionHook,
                                    SQLOutputRowConversion outputRowConversionHook,
-                                   boolean enableJDBCLogging)
-    {
+                                   boolean enableJDBCLogging) {
         this.eventAdapterService = eventAdapterService;
         this.eventType = eventType;
         this.connectionCache = connectionCache;
@@ -77,30 +76,23 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
         this.enableJDBCLogging = enableJDBCLogging;
     }
 
-    public void start()
-    {
+    public void start() {
         resources = connectionCache.getConnection();
     }
 
-    public void done()
-    {
+    public void done() {
         connectionCache.doneWith(resources);
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         connectionCache.destroy();
     }
 
-    public List<EventBean> poll(Object[] lookupValues, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public List<EventBean> poll(Object[] lookupValues, ExprEvaluatorContext exprEvaluatorContext) {
         List<EventBean> result;
-        try
-        {
+        try {
             result = execute(resources.getSecond(), lookupValues);
-        }
-        catch (EPException ex)
-        {
+        } catch (EPException ex) {
             connectionCache.doneWith(resources);
             throw ex;
         }
@@ -109,10 +101,8 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
     }
 
     private synchronized List<EventBean> execute(PreparedStatement preparedStatement,
-                                    Object[] lookupValuePerStream)
-    {
-        if (ExecutionPathDebugLog.isDebugEnabled && log.isInfoEnabled())
-        {
+                                                 Object[] lookupValuePerStream) {
+        if (ExecutionPathDebugLog.isDebugEnabled && log.isInfoEnabled()) {
             log.info(".execute Executing prepared statement '" + preparedStatementText + "'");
         }
 
@@ -129,14 +119,11 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
         if (hasJDBCLogging) {
             parameters = new Object[lookupValuePerStream.length];
         }
-        for (int i = 0; i < lookupValuePerStream.length; i++)
-        {
-            try
-            {
+        for (int i = 0; i < lookupValuePerStream.length; i++) {
+            try {
                 Object parameter = lookupValuePerStream[i];
-                if (ExecutionPathDebugLog.isDebugEnabled && log.isInfoEnabled())
-                {
-                    log.info(".execute Setting parameter " + count + " to " + parameter + " typed " + ((parameter == null)? "null" : parameter.getClass()));
+                if (ExecutionPathDebugLog.isDebugEnabled && log.isInfoEnabled()) {
+                    log.info(".execute Setting parameter " + count + " to " + parameter + " typed " + ((parameter == null) ? "null" : parameter.getClass()));
                 }
 
                 if (columnTypeConversionHook != null) {
@@ -145,13 +132,11 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
                     parameter = columnTypeConversionHook.getParameterValue(inputParameterContext);
                 }
 
-				setObject(preparedStatement, count, parameter);
+                setObject(preparedStatement, count, parameter);
                 if (parameters != null) {
                     parameters[i] = parameter;
                 }
-            }
-            catch (SQLException ex)
-            {
+            } catch (SQLException ex) {
                 throw new EPException("Error setting parameter " + count, ex);
             }
 
@@ -163,12 +148,9 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
         if (hasJDBCLogging) {
             long startTimeNS = System.nanoTime();
             long startTimeMS = System.currentTimeMillis();
-            try
-            {
+            try {
                 resultSet = preparedStatement.executeQuery();
-            }
-            catch (SQLException ex)
-            {
+            } catch (SQLException ex) {
                 throw new EPException("Error executing statement '" + preparedStatementText + '\'', ex);
             }
             long endTimeNS = System.nanoTime();
@@ -176,22 +158,17 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
             jdbcPerfLog.info("Statement '" + preparedStatementText + "' delta nanosec " + (endTimeNS - startTimeNS) +
                     " delta msec " + (endTimeMS - startTimeMS) +
                     " parameters " + Arrays.toString(parameters));
-        }
-        else {
-            try
-            {
+        } else {
+            try {
                 resultSet = preparedStatement.executeQuery();
-            }
-            catch (SQLException ex)
-            {
+            } catch (SQLException ex) {
                 throw new EPException("Error executing statement '" + preparedStatementText + '\'', ex);
             }
         }
 
         // generate events for result set
         List<EventBean> rows = new LinkedList<EventBean>();
-        try
-        {
+        try {
             SQLColumnValueContext valueContext = null;
             if (columnTypeConversionHook != null) {
                 valueContext = new SQLColumnValueContext();
@@ -203,22 +180,17 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
             }
 
             int rowNum = 0;
-            while (resultSet.next())
-            {
+            while (resultSet.next()) {
                 int colNum = 1;
                 Map<String, Object> row = new HashMap<String, Object>();
-                for (Map.Entry<String, DBOutputTypeDesc> entry : outputTypes.entrySet())
-                {
+                for (Map.Entry<String, DBOutputTypeDesc> entry : outputTypes.entrySet()) {
                     String columnName = entry.getKey();
 
                     Object value;
                     DatabaseTypeBinding binding = entry.getValue().getOptionalBinding();
-                    if (binding != null)
-                    {
+                    if (binding != null) {
                         value = binding.getValue(resultSet, columnName);
-                    }
-                    else
-                    {
+                    } else {
                         value = resultSet.getObject(columnName);
                     }
 
@@ -237,8 +209,7 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
                 EventBean eventBeanRow = null;
                 if (this.outputRowConversionHook == null) {
                     eventBeanRow = eventAdapterService.adapterForTypedMap(row, eventType);
-                }
-                else {
+                } else {
                     rowContext.setValues(row);
                     rowContext.setRowNum(rowNum);
                     rowContext.setResultSet(resultSet);
@@ -247,15 +218,13 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
                         eventBeanRow = eventAdapterService.adapterForTypedBean(rowData, (BeanEventType) eventType);
                     }
                 }
-                
+
                 if (eventBeanRow != null) {
                     rows.add(eventBeanRow);
                     rowNum++;
                 }
             }
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             throw new EPException("Error reading results for statement '" + preparedStatementText + '\'', ex);
         }
 
@@ -263,30 +232,23 @@ public class PollExecStrategyDBQuery implements PollExecStrategy
             jdbcPerfLog.info("Statement '" + preparedStatementText + "' " + rows.size() + " rows");
         }
 
-        try
-        {
+        try {
             resultSet.close();
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             throw new EPException("Error closing statement '" + preparedStatementText + '\'', ex);
         }
 
         return rows;
     }
 
-	private void setObject(PreparedStatement preparedStatement, int column, Object value) throws SQLException
-	{
-		// Allow java.util.Date conversion for JDBC drivers that don't provide this feature
-		if (value instanceof Date)
-		{
-			value = new Timestamp(((Date)value).getTime());
-		}
-        else if (value instanceof Calendar)
-        {
-            value = new Timestamp(((Calendar)value).getTimeInMillis());
+    private void setObject(PreparedStatement preparedStatement, int column, Object value) throws SQLException {
+        // Allow java.util.Date conversion for JDBC drivers that don't provide this feature
+        if (value instanceof Date) {
+            value = new Timestamp(((Date) value).getTime());
+        } else if (value instanceof Calendar) {
+            value = new Timestamp(((Calendar) value).getTimeInMillis());
         }
 
-		preparedStatement.setObject(column, value);		
-	}
+        preparedStatement.setObject(column, value);
+    }
 }

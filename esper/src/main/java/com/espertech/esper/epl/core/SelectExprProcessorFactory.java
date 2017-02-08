@@ -38,8 +38,7 @@ import java.util.*;
 /**
  * Factory for select expression processors.
  */
-public class SelectExprProcessorFactory
-{
+public class SelectExprProcessorFactory {
     private static final Logger log = LoggerFactory.getLogger(SelectExprProcessorFactory.class);
 
     public static SelectExprProcessor getProcessor(Collection<Integer> assignedTypeNumberStack,
@@ -69,8 +68,7 @@ public class SelectExprProcessorFactory
                                                    IntoTableSpec intoTableClause,
                                                    GroupByRollupInfo groupByRollupInfo,
                                                    StatementExtensionSvcContext statementExtensionSvcContext)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (selectExprProcessorCallback != null) {
             BindProcessor bindProcessor = new BindProcessor(selectionList, typeService.getEventTypes(), typeService.getStreamNames(), tableService);
             Map<String, Object> properties = new LinkedHashMap<String, Object>();
@@ -84,8 +82,7 @@ public class SelectExprProcessorFactory
         SelectExprProcessor synthetic = getProcessorInternal(assignedTypeNumberStack, selectionList, isUsingWildcard, insertIntoDesc, optionalInsertIntoEventType, typeService, eventAdapterService, valueAddEventService, selectExprEventTypeRegistry, engineImportService, statementId, statementName, annotations, configuration, namedWindowMgmtService, tableService, groupByRollupInfo);
 
         // Handle table as an optional service
-        if (statementResultService != null)
-        {
+        if (statementResultService != null) {
             // Handle for-clause delivery contract checking
             ExprNode[] groupedDeliveryExpr = null;
             boolean forDelivery = false;
@@ -105,8 +102,7 @@ public class SelectExprProcessorFactory
                         if (forDelivery) {
                             throw new ExprValidationException("The for-clause with delivery keywords may only occur once in a statement");
                         }
-                    }
-                    catch (RuntimeException ex) {
+                    } catch (RuntimeException ex) {
                         throw new ExprValidationException("Expected any of the " + Arrays.toString(ForClauseKeyword.values()).toLowerCase() + " for-clause keywords after reserved keyword 'for'");
                     }
 
@@ -129,45 +125,40 @@ public class SelectExprProcessorFactory
     }
 
     private static SelectExprProcessor getProcessorInternal(
-                                                   Collection<Integer> assignedTypeNumberStack,
-                                                   SelectClauseElementCompiled[] selectionList,
-                                                   boolean isUsingWildcard,
-                                                   InsertIntoDesc insertIntoDesc,
-                                                   EventType optionalInsertIntoEventType,
-                                                   StreamTypeService typeService,
-                                                   EventAdapterService eventAdapterService,
-                                                   ValueAddEventService valueAddEventService,
-                                                   SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                                   EngineImportService engineImportService,
-                                                   int statementId,
-                                                   String statementName,
-                                                   Annotation[] annotations,
-                                                   ConfigurationInformation configuration,
-                                                   NamedWindowMgmtService namedWindowMgmtService,
-                                                   TableService tableService,
-                                                   GroupByRollupInfo groupByRollupInfo)
-        throws ExprValidationException
-    {
+            Collection<Integer> assignedTypeNumberStack,
+            SelectClauseElementCompiled[] selectionList,
+            boolean isUsingWildcard,
+            InsertIntoDesc insertIntoDesc,
+            EventType optionalInsertIntoEventType,
+            StreamTypeService typeService,
+            EventAdapterService eventAdapterService,
+            ValueAddEventService valueAddEventService,
+            SelectExprEventTypeRegistry selectExprEventTypeRegistry,
+            EngineImportService engineImportService,
+            int statementId,
+            String statementName,
+            Annotation[] annotations,
+            ConfigurationInformation configuration,
+            NamedWindowMgmtService namedWindowMgmtService,
+            TableService tableService,
+            GroupByRollupInfo groupByRollupInfo)
+            throws ExprValidationException {
         // Wildcard not allowed when insert into specifies column order
-    	if(isUsingWildcard && insertIntoDesc != null && !insertIntoDesc.getColumnNames().isEmpty())
-    	{
-    		throw new ExprValidationException("Wildcard not allowed when insert-into specifies column order");
-    	}
+        if (isUsingWildcard && insertIntoDesc != null && !insertIntoDesc.getColumnNames().isEmpty()) {
+            throw new ExprValidationException("Wildcard not allowed when insert-into specifies column order");
+        }
 
         // Determine wildcard processor (select *)
-        if (isWildcardsOnly(selectionList))
-        {
+        if (isWildcardsOnly(selectionList)) {
             // For joins
-            if (typeService.getStreamNames().length > 1)
-            {
+            if (typeService.getStreamNames().length > 1) {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
                 return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier());
             }
             // Single-table selects with no insert-into
             // don't need extra processing
-            else if (insertIntoDesc == null)
-            {
-            	log.debug(".getProcessor Using wildcard processor");
+            else if (insertIntoDesc == null) {
+                log.debug(".getProcessor Using wildcard processor");
                 if (typeService.hasTableTypes()) {
                     String tableName = TableServiceUtil.getTableNameFromEventType(typeService.getEventTypes()[0]);
                     return new SelectExprWildcardTableProcessor(tableName, tableService);
@@ -197,32 +188,25 @@ public class SelectExprProcessorFactory
 
     /**
      * Verify that each given name occurs exactly one.
+     *
      * @param selectionList is the list of select items to verify names
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException thrown if a name occured more then once
      */
-    protected static void verifyNameUniqueness(SelectClauseElementCompiled[] selectionList) throws ExprValidationException
-    {
+    protected static void verifyNameUniqueness(SelectClauseElementCompiled[] selectionList) throws ExprValidationException {
         Set<String> names = new HashSet<String>();
-        for (SelectClauseElementCompiled element : selectionList)
-        {
-            if (element instanceof SelectClauseExprCompiledSpec)
-            {
+        for (SelectClauseElementCompiled element : selectionList) {
+            if (element instanceof SelectClauseExprCompiledSpec) {
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) element;
-                if (names.contains(expr.getAssignedName()))
-                {
+                if (names.contains(expr.getAssignedName())) {
                     throw new ExprValidationException("Column name '" + expr.getAssignedName() + "' appears more then once in select clause");
                 }
                 names.add(expr.getAssignedName());
-            }
-            else if (element instanceof SelectClauseStreamCompiledSpec)
-            {
+            } else if (element instanceof SelectClauseStreamCompiledSpec) {
                 SelectClauseStreamCompiledSpec stream = (SelectClauseStreamCompiledSpec) element;
-                if (stream.getOptionalName() == null)
-                {
+                if (stream.getOptionalName() == null) {
                     continue; // ignore no-name stream selectors
                 }
-                if (names.contains(stream.getOptionalName()))
-                {
+                if (names.contains(stream.getOptionalName())) {
                     throw new ExprValidationException("Column name '" + stream.getOptionalName() + "' appears more then once in select clause");
                 }
                 names.add(stream.getOptionalName());
@@ -230,38 +214,29 @@ public class SelectExprProcessorFactory
         }
     }
 
-    private static boolean isWildcardsOnly(SelectClauseElementCompiled[] elements)
-    {
-        for (SelectClauseElementCompiled element : elements)
-        {
-            if (!(element instanceof SelectClauseElementWildcard))
-            {
+    private static boolean isWildcardsOnly(SelectClauseElementCompiled[] elements) {
+        for (SelectClauseElementCompiled element : elements) {
+            if (!(element instanceof SelectClauseElementWildcard)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static SelectExprBuckets getSelectExpressionBuckets(SelectClauseElementCompiled[] elements)
-    {
+    private static SelectExprBuckets getSelectExpressionBuckets(SelectClauseElementCompiled[] elements) {
         List<SelectClauseExprCompiledSpec> expressions = new ArrayList<SelectClauseExprCompiledSpec>();
         List<SelectExprStreamDesc> selectedStreams = new ArrayList<SelectExprStreamDesc>();
 
-        for (SelectClauseElementCompiled element : elements)
-        {
-            if (element instanceof SelectClauseExprCompiledSpec)
-            {
+        for (SelectClauseElementCompiled element : elements) {
+            if (element instanceof SelectClauseExprCompiledSpec) {
                 SelectClauseExprCompiledSpec expr = (SelectClauseExprCompiledSpec) element;
                 if (!isTransposingFunction(expr.getSelectExpression())) {
                     expressions.add(expr);
-                }
-                else {
+                } else {
                     selectedStreams.add(new SelectExprStreamDesc(expr));
                 }
-            }
-            else if (element instanceof SelectClauseStreamCompiledSpec)
-            {
-                selectedStreams.add(new SelectExprStreamDesc((SelectClauseStreamCompiledSpec)element));
+            } else if (element instanceof SelectClauseStreamCompiledSpec) {
+                selectedStreams.add(new SelectExprStreamDesc((SelectClauseStreamCompiledSpec) element));
             }
         }
         return new SelectExprBuckets(expressions, selectedStreams);

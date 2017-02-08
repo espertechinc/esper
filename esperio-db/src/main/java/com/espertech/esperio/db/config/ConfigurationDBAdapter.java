@@ -75,18 +75,18 @@ public class ConfigurationDBAdapter {
     public void setExecutors(Map<String, Executor> executors) {
         this.executors = executors;
     }
-    
+
     /**
-	 * Use the configuration specified in an application
-	 * resource named <tt>esper.cfg.xml</tt>.
+     * Use the configuration specified in an application
+     * resource named <tt>esper.cfg.xml</tt>.
+     *
      * @return Configuration initialized from the resource
      * @throws RuntimeException thrown to indicate error reading configuration
      */
-	public ConfigurationDBAdapter configure() throws RuntimeException
-    {
-		configure('/' + "esperio.db.cfg.xml");
-		return this;
-	}
+    public ConfigurationDBAdapter configure() throws RuntimeException {
+        configure('/' + "esperio.db.cfg.xml");
+        return this;
+    }
 
     /**
      * Use the ConfigurationDBAdapter specified in the given application
@@ -97,18 +97,17 @@ public class ConfigurationDBAdapter {
      * That method can be overridden to implement an arbitrary lookup strategy.
      * </p>
      * See <tt>getResourceAsStream</tt> for information on how the resource name is resolved.
+     *
      * @param resource if the file name of the resource
      * @return ConfigurationDBAdapter initialized from the resource
      * @throws RuntimeException thrown to indicate error reading configuration
      */
-    public ConfigurationDBAdapter configure(String resource) throws RuntimeException
-    {
-        if (log.isInfoEnabled())
-        {
-            log.info( "Configuring from resource: " + resource );
+    public ConfigurationDBAdapter configure(String resource) throws RuntimeException {
+        if (log.isInfoEnabled()) {
+            log.info("Configuring from resource: " + resource);
         }
-        InputStream stream = getConfigurationInputStream(resource );
-        ConfigurationDBAdapterParser.doConfigure(this, stream, resource );
+        InputStream stream = getConfigurationInputStream(resource);
+        ConfigurationDBAdapterParser.doConfigure(this, stream, resource);
         return this;
     }
 
@@ -118,12 +117,12 @@ public class ConfigurationDBAdapter {
      * mechanism.
      * <p>
      * See <tt>getResourceAsStream</tt> for information on how the resource name is resolved.
+     *
      * @param resource is the resource name
      * @return input stream for resource
      * @throws RuntimeException thrown to indicate error reading configuration
      */
-    protected static InputStream getConfigurationInputStream(String resource) throws RuntimeException
-    {
+    protected static InputStream getConfigurationInputStream(String resource) throws RuntimeException {
         return getResourceAsStream(resource);
     }
 
@@ -136,11 +135,9 @@ public class ConfigurationDBAdapter {
      * @return A ConfigurationDBAdapter configured via the file
      * @throws RuntimeException is thrown when the URL could not be access
      */
-    public ConfigurationDBAdapter configureFromString(String xml) throws RuntimeException
-    {
-        if (log.isInfoEnabled())
-        {
-            log.info( "Configuring from string");
+    public ConfigurationDBAdapter configureFromString(String xml) throws RuntimeException {
+        if (log.isInfoEnabled()) {
+            log.info("Configuring from string");
         }
         try {
             InputSource source = new InputSource(new StringReader(xml));
@@ -150,39 +147,35 @@ public class ConfigurationDBAdapter {
 
             ConfigurationDBAdapterParser.doConfigure(this, doc);
             return this;
-        }
-        catch (IOException ioe) {
-            throw new RuntimeException("could not configure from String: " + ioe.getMessage(), ioe );
+        } catch (IOException ioe) {
+            throw new RuntimeException("could not configure from String: " + ioe.getMessage(), ioe);
         } catch (SAXException e) {
-            throw new RuntimeException("could not configure from String: " + e.getMessage(), e );
+            throw new RuntimeException("could not configure from String: " + e.getMessage(), e);
         } catch (ParserConfigurationException e) {
-            throw new RuntimeException("could not configure from String: " + e.getMessage(), e );
+            throw new RuntimeException("could not configure from String: " + e.getMessage(), e);
         }
     }
 
-	/**
-	 * Use the ConfigurationDBAdapter specified by the given URL.
-	 * The format of the document obtained from the URL is defined in
-	 * <tt>esper-configuration-2.0.xsd</tt>.
-	 *
-	 * @param url URL from which you wish to load the configuration
-	 * @return A ConfigurationDBAdapter configured via the file
-	 * @throws RuntimeException is thrown when the URL could not be access
-	 */
-	public ConfigurationDBAdapter configure(URL url) throws RuntimeException
-    {
-        if (log.isInfoEnabled())
-        {
-            log.info( "Configuring from url: " + url.toString() );
+    /**
+     * Use the ConfigurationDBAdapter specified by the given URL.
+     * The format of the document obtained from the URL is defined in
+     * <tt>esper-configuration-2.0.xsd</tt>.
+     *
+     * @param url URL from which you wish to load the configuration
+     * @return A ConfigurationDBAdapter configured via the file
+     * @throws RuntimeException is thrown when the URL could not be access
+     */
+    public ConfigurationDBAdapter configure(URL url) throws RuntimeException {
+        if (log.isInfoEnabled()) {
+            log.info("Configuring from url: " + url.toString());
         }
         try {
             ConfigurationDBAdapterParser.doConfigure(this, url.openStream(), url.toString());
             return this;
-		}
-		catch (IOException ioe) {
-			throw new RuntimeException("could not configure from URL: " + url, ioe );
-		}
-	}
+        } catch (IOException ioe) {
+            throw new RuntimeException("could not configure from URL: " + url, ioe);
+        }
+    }
 
     /**
      * Returns an input stream from an application resource in the classpath.
@@ -206,49 +199,45 @@ public class ConfigurationDBAdapter {
      * @param resource to get input stream for
      * @return input stream for resource
      */
-    protected static InputStream getResourceAsStream(String resource)
-    {
+    protected static InputStream getResourceAsStream(String resource) {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
         InputStream stream = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader!=null) {
-            stream = classLoader.getResourceAsStream( stripped );
+        if (classLoader != null) {
+            stream = classLoader.getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            stream = ConfigurationDBAdapter.class.getResourceAsStream( resource );
+        if (stream == null) {
+            stream = ConfigurationDBAdapter.class.getResourceAsStream(resource);
         }
-        if ( stream == null ) {
-            stream = ConfigurationDBAdapter.class.getClassLoader().getResourceAsStream( stripped );
+        if (stream == null) {
+            stream = ConfigurationDBAdapter.class.getClassLoader().getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            throw new RuntimeException( resource + " not found" );
+        if (stream == null) {
+            throw new RuntimeException(resource + " not found");
         }
         return stream;
     }
 
-	/**
-	 * Use the ConfigurationDBAdapter specified in the given application
-	 * file. The format of the file is defined in
-	 * <tt>esper-configuration-2.0.xsd</tt>.
-	 *
-	 * @param configFile <tt>File</tt> from which you wish to load the configuration
-	 * @return A ConfigurationDBAdapter configured via the file
-	 * @throws RuntimeException when the file could not be found
-	 */
-	public ConfigurationDBAdapter configure(File configFile) throws RuntimeException
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug( "configuring from file: " + configFile.getName() );
+    /**
+     * Use the ConfigurationDBAdapter specified in the given application
+     * file. The format of the file is defined in
+     * <tt>esper-configuration-2.0.xsd</tt>.
+     *
+     * @param configFile <tt>File</tt> from which you wish to load the configuration
+     * @return A ConfigurationDBAdapter configured via the file
+     * @throws RuntimeException when the file could not be found
+     */
+    public ConfigurationDBAdapter configure(File configFile) throws RuntimeException {
+        if (log.isDebugEnabled()) {
+            log.debug("configuring from file: " + configFile.getName());
         }
         try {
             ConfigurationDBAdapterParser.doConfigure(this, new FileInputStream(configFile), configFile.toString());
-		}
-		catch (FileNotFoundException fnfe) {
-			throw new RuntimeException( "could not find file: " + configFile, fnfe );
-		}
+        } catch (FileNotFoundException fnfe) {
+            throw new RuntimeException("could not find file: " + configFile, fnfe);
+        }
         return this;
     }
 

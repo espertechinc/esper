@@ -26,13 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class ExprDotEvalStaticMethod implements ExprEvaluator, EventPropertyGetter
-{
+public class ExprDotEvalStaticMethod implements ExprEvaluator, EventPropertyGetter {
     private static final Logger log = LoggerFactory.getLogger(ExprDotEvalStaticMethod.class);
 
     private final String statementName;
     private final String classOrPropertyName;
-	private final FastMethod staticMethod;
+    private final FastMethod staticMethod;
     private final ExprEvaluator[] childEvals;
     private final boolean isConstantParameters;
     private final ExprDotEval[] chainEval;
@@ -51,8 +50,7 @@ public class ExprDotEvalStaticMethod implements ExprEvaluator, EventPropertyGett
                                    ExprDotStaticMethodWrap resultWrapLambda,
                                    ExprDotEval[] chainEval,
                                    boolean rethrowExceptions,
-                                   Object targetObject)
-    {
+                                   Object targetObject) {
         this.statementName = statementName;
         this.classOrPropertyName = classOrPropertyName;
         this.staticMethod = staticMethod;
@@ -60,8 +58,7 @@ public class ExprDotEvalStaticMethod implements ExprEvaluator, EventPropertyGett
         this.targetObject = targetObject;
         if (chainEval.length > 0) {
             isConstantParameters = false;
-        }
-        else {
+        } else {
             this.isConstantParameters = constantParameters;
         }
         this.resultWrapLambda = resultWrapLambda;
@@ -69,75 +66,70 @@ public class ExprDotEvalStaticMethod implements ExprEvaluator, EventPropertyGett
         this.rethrowExceptions = rethrowExceptions;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         if (chainEval.length == 0) {
             return staticMethod.getReturnType();
-        }
-        else {
+        } else {
             return EPTypeHelper.getNormalizedClass(chainEval[chainEval.length - 1].getTypeInfo());
         }
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-	{
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprPlugInSingleRow(staticMethod.getJavaMethod());}
-        if ((isConstantParameters) && (isCachedResult))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprPlugInSingleRow(cachedResult);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprPlugInSingleRow(staticMethod.getJavaMethod());
+        }
+        if ((isConstantParameters) && (isCachedResult)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprPlugInSingleRow(cachedResult);
+            }
             return cachedResult;
         }
 
-		Object[] args = new Object[childEvals.length];
-		for(int i = 0; i < args.length; i++)
-		{
-			args[i] = childEvals[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-		}
+        Object[] args = new Object[childEvals.length];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = childEvals[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        }
 
-		// The method is static so the object it is invoked on
-		// can be null
-		try
-		{
+        // The method is static so the object it is invoked on
+        // can be null
+        try {
             Object result = staticMethod.invoke(targetObject, args);
 
             result = ExprDotNodeUtility.evaluateChainWithWrap(resultWrapLambda, result, null, staticMethod.getReturnType(), chainEval, eventsPerStream, isNewData, exprEvaluatorContext);
 
-            if (isConstantParameters)
-            {
+            if (isConstantParameters) {
                 cachedResult = result;
                 isCachedResult = true;
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprPlugInSingleRow(result);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprPlugInSingleRow(result);
+            }
             return result;
-		}
-		catch (InvocationTargetException e)
-		{
+        } catch (InvocationTargetException e) {
             String message = JavaClassHelper.getMessageInvocationTarget(statementName, staticMethod.getJavaMethod(), classOrPropertyName, args, e);
             log.error(message, e.getTargetException());
             if (rethrowExceptions) {
                 throw new EPException(message, e.getTargetException());
             }
-		}
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprPlugInSingleRow(null);}
+        }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprPlugInSingleRow(null);
+        }
         return null;
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
         Object[] args = new Object[childEvals.length];
-        for(int i = 0; i < args.length; i++)
-        {
-            args[i] = childEvals[i].evaluate(new EventBean[] {eventBean}, false, null);
+        for (int i = 0; i < args.length; i++) {
+            args[i] = childEvals[i].evaluate(new EventBean[]{eventBean}, false, null);
         }
 
         // The method is static so the object it is invoked on
         // can be null
-        try
-        {
+        try {
             return staticMethod.invoke(targetObject, args);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = JavaClassHelper.getMessageInvocationTarget(statementName, staticMethod.getJavaMethod(), classOrPropertyName, args, e);
             log.error(message, e.getTargetException());
             if (rethrowExceptions) {

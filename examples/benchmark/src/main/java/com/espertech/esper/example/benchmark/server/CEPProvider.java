@@ -73,16 +73,16 @@ public class CEPProvider {
 
 
             // EsperJMX enablement - if available
-			try {
-				Class.forName("com.espertech.esper.jmx.client.EsperJMXPlugin");
-	            configuration.addPluginLoader(
-	                    "EsperJMX",
-	                    "com.espertech.esper.jmx.client.EsperJMXPlugin",
-	    				null);// will use platform mbean - should enable platform mbean connector in startup command line
+            try {
+                Class.forName("com.espertech.esper.jmx.client.EsperJMXPlugin");
+                configuration.addPluginLoader(
+                        "EsperJMX",
+                        "com.espertech.esper.jmx.client.EsperJMXPlugin",
+                        null);// will use platform mbean - should enable platform mbean connector in startup command line
                 System.out.println("=== EsperJMX is available, using platform mbean ===");
-			} catch (ClassNotFoundException e) {
-				;
-			}
+            } catch (ClassNotFoundException e) {
+                ;
+            }
 
 
             EPServiceProvider epService = EPServiceProviderManager.getProvider("benchmark", configuration);

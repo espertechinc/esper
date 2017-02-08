@@ -25,25 +25,21 @@ import com.espertech.esper.view.Viewable;
 import java.util.Iterator;
 import java.util.Set;
 
-public class OutputStrategyUtil
-{
-    public static void output(boolean forceUpdate, UniformPair<EventBean[]> result, UpdateDispatchView finalView)
-    {
+public class OutputStrategyUtil {
+    public static void output(boolean forceUpdate, UniformPair<EventBean[]> result, UpdateDispatchView finalView) {
         EventBean[] newEvents = result != null ? result.getFirst() : null;
         EventBean[] oldEvents = result != null ? result.getSecond() : null;
-        if(newEvents != null || oldEvents != null)
-        {
+        if (newEvents != null || oldEvents != null) {
             finalView.newResult(result);
-        }
-        else if(forceUpdate)
-        {
+        } else if (forceUpdate) {
             finalView.newResult(result);
         }
     }
 
     /**
      * Indicate statement result.
-     * @param newOldEvents result
+     *
+     * @param newOldEvents     result
      * @param statementContext context
      */
     public static void indicateEarlyReturn(StatementContext statementContext, UniformPair<EventBean[]> newOldEvents) {
@@ -51,8 +47,8 @@ public class OutputStrategyUtil
             return;
         }
         if ((statementContext.getMetricReportingService() != null) &&
-            (statementContext.getMetricReportingService().getStatementOutputHooks() != null) &&
-            (!statementContext.getMetricReportingService().getStatementOutputHooks().isEmpty())) {
+                (statementContext.getMetricReportingService().getStatementOutputHooks() != null) &&
+                (!statementContext.getMetricReportingService().getStatementOutputHooks().isEmpty())) {
             for (StatementResultListener listener : statementContext.getMetricReportingService().getStatementOutputHooks()) {
                 listener.update(newOldEvents.getFirst(), newOldEvents.getSecond(), statementContext.getStatementName(), null, null);
             }
@@ -62,25 +58,19 @@ public class OutputStrategyUtil
     public static Iterator<EventBean> getIterator(JoinExecutionStrategy joinExecutionStrategy, ResultSetProcessor resultSetProcessor, Viewable parentView, boolean distinct) {
         Iterator<EventBean> iterator;
         EventType eventType;
-        if (joinExecutionStrategy != null)
-        {
+        if (joinExecutionStrategy != null) {
             Set<MultiKey<EventBean>> joinSet = joinExecutionStrategy.staticJoin();
             iterator = resultSetProcessor.getIterator(joinSet);
             eventType = resultSetProcessor.getResultEventType();
-        }
-        else if(resultSetProcessor != null)
-    	{
+        } else if (resultSetProcessor != null) {
             iterator = resultSetProcessor.getIterator(parentView);
             eventType = resultSetProcessor.getResultEventType();
-    	}
-    	else
-    	{
-    		iterator = parentView.iterator();
+        } else {
+            iterator = parentView.iterator();
             eventType = parentView.getEventType();
-    	}
+        }
 
-        if (!distinct)
-        {
+        if (!distinct) {
             return iterator;
         }
         return new EventDistinctIterator(iterator, eventType);

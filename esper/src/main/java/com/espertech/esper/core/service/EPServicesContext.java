@@ -60,8 +60,7 @@ import com.espertech.esper.view.stream.StreamFactoryService;
 /**
  * Convenience class to hold implementations for all services.
  */
-public final class EPServicesContext
-{
+public final class EPServicesContext {
     private String engineURI;
     private FilterServiceSPI filterService;
     private TimerService timerService;
@@ -180,8 +179,7 @@ public final class EPServicesContext
                              DataCacheFactory dataCacheFactory,
                              MultiMatchHandlerFactory multiMatchHandlerFactory,
                              NamedWindowConsumerMgmtService namedWindowConsumerMgmtService,
-                             AggregationFactoryFactory aggregationFactoryFactory)
-    {
+                             AggregationFactoryFactory aggregationFactoryFactory) {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
         this.eventAdapterService = eventAdapterService;
@@ -248,198 +246,197 @@ public final class EPServicesContext
 
     /**
      * Sets the service dealing with starting and stopping statements.
+     *
      * @param statementLifecycleSvc statement lifycycle svc
      */
-    public void setStatementLifecycleSvc(StatementLifecycleSvc statementLifecycleSvc)
-    {
+    public void setStatementLifecycleSvc(StatementLifecycleSvc statementLifecycleSvc) {
         this.statementLifecycleSvc = statementLifecycleSvc;
     }
 
     /**
      * Returns the event routing destination.
+     *
      * @return event routing destination
      */
-    public InternalEventRouteDest getInternalEventEngineRouteDest()
-    {
+    public InternalEventRouteDest getInternalEventEngineRouteDest() {
         return internalEventEngineRouteDest;
     }
 
     /**
      * Sets the event routing destination.
+     *
      * @param internalEventEngineRouteDest event routing destination
      */
-    public void setInternalEventEngineRouteDest(InternalEventRouteDest internalEventEngineRouteDest)
-    {
+    public void setInternalEventEngineRouteDest(InternalEventRouteDest internalEventEngineRouteDest) {
         this.internalEventEngineRouteDest = internalEventEngineRouteDest;
     }
 
     /**
      * Returns router for internal event processing.
+     *
      * @return router for internal event processing
      */
-    public InternalEventRouterImpl getInternalEventRouter()
-    {
+    public InternalEventRouterImpl getInternalEventRouter() {
         return internalEventRouter;
     }
 
     /**
      * Returns filter evaluation service implementation.
+     *
      * @return filter evaluation service
      */
-    public final FilterServiceSPI getFilterService()
-    {
+    public final FilterServiceSPI getFilterService() {
         return filterService;
     }
 
     /**
      * Returns time provider service implementation.
+     *
      * @return time provider service
      */
-    public final TimerService getTimerService()
-    {
+    public final TimerService getTimerService() {
         return timerService;
     }
 
     /**
      * Returns scheduling service implementation.
+     *
      * @return scheduling service
      */
-    public final SchedulingServiceSPI getSchedulingService()
-    {
+    public final SchedulingServiceSPI getSchedulingService() {
         return schedulingService;
     }
 
     /**
      * Returns dispatch service responsible for dispatching events to listeners.
+     *
      * @return dispatch service.
      */
-    public DispatchService getDispatchService()
-    {
+    public DispatchService getDispatchService() {
         return dispatchService;
     }
 
     /**
      * Returns services for view creation, sharing and removal.
+     *
      * @return view service
      */
-    public ViewService getViewService()
-    {
+    public ViewService getViewService() {
         return viewService;
     }
 
     /**
      * Returns stream service.
+     *
      * @return stream service
      */
-    public StreamFactoryService getStreamService()
-    {
+    public StreamFactoryService getStreamService() {
         return streamFactoryService;
     }
 
     /**
      * Returns event type resolution service.
+     *
      * @return service resolving event type
      */
-    public EventAdapterService getEventAdapterService()
-    {
+    public EventAdapterService getEventAdapterService() {
         return eventAdapterService;
     }
 
     /**
      * Returns the import and class name resolution service.
+     *
      * @return import service
      */
-    public EngineImportService getEngineImportService()
-    {
-    	return engineImportService;
+    public EngineImportService getEngineImportService() {
+        return engineImportService;
     }
 
     /**
      * Returns the database settings service.
+     *
      * @return database info service
      */
-    public DatabaseConfigService getDatabaseRefService()
-    {
+    public DatabaseConfigService getDatabaseRefService() {
         return databaseConfigService;
     }
 
     /**
      * Information to resolve plug-in view namespace and name.
+     *
      * @return plug-in view information
      */
-    public PluggableObjectCollection getPlugInViews()
-    {
+    public PluggableObjectCollection getPlugInViews() {
         return plugInViews;
     }
 
     /**
      * Information to resolve plug-in pattern object namespace and name.
+     *
      * @return plug-in pattern object information
      */
-    public PluggableObjectCollection getPlugInPatternObjects()
-    {
+    public PluggableObjectCollection getPlugInPatternObjects() {
         return plugInPatternObjects;
     }
 
     /**
      * Factory for statement-level locks.
+     *
      * @return factory
      */
-    public StatementLockFactory getStatementLockFactory()
-    {
+    public StatementLockFactory getStatementLockFactory() {
         return statementLockFactory;
     }
 
     /**
      * Returns the event processing lock for coordinating statement administration with event processing.
+     *
      * @return lock
      */
-    public ManagedReadWriteLock getEventProcessingRWLock()
-    {
+    public ManagedReadWriteLock getEventProcessingRWLock() {
         return eventProcessingRWLock;
     }
 
     /**
      * Returns statement lifecycle svc
+     *
      * @return service for statement start and stop
      */
-    public StatementLifecycleSvc getStatementLifecycleSvc()
-    {
+    public StatementLifecycleSvc getStatementLifecycleSvc() {
         return statementLifecycleSvc;
     }
 
     /**
      * Returns extension service for adding custom the services.
+     *
      * @return extension service context
      */
-    public EngineLevelExtensionServicesContext getEngineLevelExtensionServicesContext()
-    {
+    public EngineLevelExtensionServicesContext getEngineLevelExtensionServicesContext() {
         return engineLevelExtensionServicesContext;
     }
 
     /**
      * Returns the engine environment context for getting access to engine-external resources, such as adapters
+     *
      * @return engine environment context
      */
-    public EngineEnvContext getEngineEnvContext()
-    {
+    public EngineEnvContext getEngineEnvContext() {
         return engineEnvContext;
     }
 
     /**
      * Returns engine-level threading settings.
+     *
      * @return threading service
      */
-    public ThreadingService getThreadingService()
-    {
+    public ThreadingService getThreadingService() {
         return threadingService;
     }
 
     /**
      * Destroy services.
      */
-    public void destroy()
-    {
+    public void destroy() {
         if (exprDeclaredService != null) {
             exprDeclaredService.destroy();
         }
@@ -449,48 +446,37 @@ public final class EPServicesContext
         if (variableService != null) {
             variableService.destroy();
         }
-        if (metricsReportingService != null)
-        {
+        if (metricsReportingService != null) {
             metricsReportingService.destroy();
         }
-        if (threadingService != null)
-        {
+        if (threadingService != null) {
             threadingService.destroy();
         }
-        if (statementLifecycleSvc != null)
-        {
+        if (statementLifecycleSvc != null) {
             statementLifecycleSvc.destroy();
         }
-        if (filterService != null)
-        {
+        if (filterService != null) {
             filterService.destroy();
         }
-        if (schedulingService != null)
-        {
+        if (schedulingService != null) {
             schedulingService.destroy();
         }
-        if (schedulingMgmtService != null)
-        {
+        if (schedulingMgmtService != null) {
             schedulingMgmtService.destroy();
         }
-        if (streamFactoryService != null)
-        {
+        if (streamFactoryService != null) {
             streamFactoryService.destroy();
         }
-        if (namedWindowMgmtService != null)
-        {
+        if (namedWindowMgmtService != null) {
             namedWindowMgmtService.destroy();
         }
-        if (namedWindowDispatchService != null)
-        {
+        if (namedWindowDispatchService != null) {
             namedWindowDispatchService.destroy();
         }
-        if (engineLevelExtensionServicesContext != null)
-        {
+        if (engineLevelExtensionServicesContext != null) {
             engineLevelExtensionServicesContext.destroy();
         }
-        if (statementIsolationService != null)
-        {
+        if (statementIsolationService != null) {
             statementIsolationService.destroy();
         }
         if (deploymentStateService != null) {
@@ -501,8 +487,7 @@ public final class EPServicesContext
     /**
      * Destroy services.
      */
-    public void initialize()
-    {
+    public void initialize() {
         this.statementLifecycleSvc = null;
         this.engineURI = null;
         this.schedulingService = null;
@@ -530,101 +515,102 @@ public final class EPServicesContext
     }
 
     /**
-    }
-
-    public ExpressionResultCacheService getExpressionResultCacheSharable() {
-        return expressionResultCacheSharable;
+     * }
+     * <p>
+     * public ExpressionResultCacheService getExpressionResultCacheSharable() {
+     * return expressionResultCacheSharable;
      * Returns the factory to use for creating a statement context.
+     *
      * @return statement context factory
      */
-    public StatementContextFactory getStatementContextFactory()
-    {
+    public StatementContextFactory getStatementContextFactory() {
         return statementContextFactory;
     }
 
     /**
      * Returns the engine URI.
+     *
      * @return engine URI
      */
-    public String getEngineURI()
-    {
+    public String getEngineURI() {
         return engineURI;
     }
 
     /**
      * Returns engine settings.
+     *
      * @return settings
      */
-    public EngineSettingsService getEngineSettingsService()
-    {
+    public EngineSettingsService getEngineSettingsService() {
         return engineSettingsService;
     }
 
     /**
      * Returns the named window management service.
+     *
      * @return service for managing named windows
      */
-    public NamedWindowMgmtService getNamedWindowMgmtService()
-    {
+    public NamedWindowMgmtService getNamedWindowMgmtService() {
         return namedWindowMgmtService;
     }
 
     /**
      * Returns the variable service.
+     *
      * @return variable service
      */
-    public VariableService getVariableService()
-    {
+    public VariableService getVariableService() {
         return variableService;
     }
 
     /**
      * Returns the time source provider class.
+     *
      * @return time source
      */
-    public TimeSourceService getTimeSource()
-    {
+    public TimeSourceService getTimeSource() {
         return timeSourceService;
     }
 
     /**
      * Returns the service for handling updates to events.
+     *
      * @return revision service
      */
-    public ValueAddEventService getValueAddEventService()
-    {
+    public ValueAddEventService getValueAddEventService() {
         return valueAddEventService;
     }
 
     /**
      * Returns metrics reporting.
+     *
      * @return metrics reporting
      */
-    public MetricReportingServiceSPI getMetricsReportingService()
-    {
+    public MetricReportingServiceSPI getMetricsReportingService() {
         return metricsReportingService;
     }
 
     /**
      * Returns service for statement to event type mapping.
+     *
      * @return statement-type mapping
      */
-    public StatementEventTypeRef getStatementEventTypeRefService()
-    {
+    public StatementEventTypeRef getStatementEventTypeRefService() {
         return statementEventTypeRef;
     }
 
     /**
      * Returns the configuration.
+     *
      * @return configuration
      */
-    public ConfigurationInformation getConfigSnapshot()
-    {
+    public ConfigurationInformation getConfigSnapshot() {
         return configSnapshot;
     }
 
     /**
      * Service for keeping track of variable-statement use.
+     *
      * @return svc
      */
     public StatementVariableRef getStatementVariableRefService() {
@@ -633,33 +619,32 @@ public final class EPServicesContext
 
     /**
      * Returns the schedule management service.
+     *
      * @return schedule management service
      */
-    public SchedulingMgmtService getSchedulingMgmtService()
-    {
+    public SchedulingMgmtService getSchedulingMgmtService() {
         return schedulingMgmtService;
     }
 
     /**
      * Returns the service for maintaining statement isolation information.
+     *
      * @return isolation service
      */
-    public StatementIsolationService getStatementIsolationService()
-    {
+    public StatementIsolationService getStatementIsolationService() {
         return statementIsolationService;
     }
 
     /**
      * Sets the service for maintaining statement isolation information.
+     *
      * @param statementIsolationService isolation service
      */
-    public void setStatementIsolationService(StatementIsolationService statementIsolationService)
-    {
+    public void setStatementIsolationService(StatementIsolationService statementIsolationService) {
         this.statementIsolationService = statementIsolationService;
     }
 
-    public DeploymentStateService getDeploymentStateService()
-    {
+    public DeploymentStateService getDeploymentStateService() {
         return deploymentStateService;
     }
 

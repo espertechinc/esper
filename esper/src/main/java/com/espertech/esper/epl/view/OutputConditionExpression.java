@@ -27,8 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
-public class OutputConditionExpression extends OutputConditionBase implements OutputCondition, VariableChangeCallback, StopCallback
-{
+public class OutputConditionExpression extends OutputConditionBase implements OutputCondition, VariableChangeCallback, StopCallback {
     private static final Logger log = LoggerFactory.getLogger(OutputConditionExpression.class);
     private final AgentInstanceContext agentInstanceContext;
     private final OutputConditionExpressionFactory parent;
@@ -55,17 +54,14 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
         scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
         this.eventsPerStream = new EventBean[1];
 
-        if (parent.getBuiltinPropertiesEventType() != null)
-        {
+        if (parent.getBuiltinPropertiesEventType() != null) {
             builtinProperties = new ObjectArrayEventBean(OutputConditionExpressionTypeUtil.getOAPrototype(), parent.getBuiltinPropertiesEventType());
             lastOutputTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         }
 
-        if (parent.getVariableNames() != null)
-        {
+        if (parent.getVariableNames() != null) {
             // if using variables, register a callback on the change of the variable
-            for (String variableName : parent.getVariableNames())
-            {
+            for (String variableName : parent.getVariableNames()) {
                 final String theVariableName = variableName;
                 agentInstanceContext.getStatementContext().getVariableService().registerCallback(variableName, agentInstanceContext.getAgentInstanceId(), this);
                 agentInstanceContext.addTerminationCallback(new StopCallback() {
@@ -81,34 +77,29 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
         }
     }
 
-    public void updateOutputCondition(int newEventsCount, int oldEventsCount)
-    {
+    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {
         this.totalNewEventsCount += newEventsCount;
         this.totalOldEventsCount += oldEventsCount;
         this.totalNewEventsSum += newEventsCount;
         this.totalOldEventsSum += oldEventsCount;
 
         boolean isOutput = evaluate(parent.getWhenExpressionNodeEval());
-        if (isOutput)
-        {
+        if (isOutput) {
             executeThenAssignments();
             outputCallback.continueOutputProcessing(true, true);
             resetBuiltinProperties();
         }
     }
 
-    public void update(Object newValue, Object oldValue)
-    {
-        if (ignoreVariableCallbacks)
-        {
+    public void update(Object newValue, Object oldValue) {
+        if (ignoreVariableCallbacks) {
             log.debug(".update Ignoring variable callback");
             return;
         }
 
         agentInstanceContext.getStatementContext().getVariableService().setLocalVersion();
         boolean isOutput = evaluate(parent.getWhenExpressionNodeEval());
-        if ((isOutput) && (!isCallbackScheduled))
-        {
+        if ((isOutput) && (!isCallbackScheduled)) {
             scheduleCallback();
         }
     }
@@ -127,8 +118,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
             output = evaluate(parent.getAndWhenTerminatedExpressionNodeEval());
         }
         if (parent.getVariableReadWritePackageAfterTerminated() != null) {
-            if (builtinProperties != null)
-            {
+            if (builtinProperties != null) {
                 populateBuiltinProps();
                 eventsPerStream[0] = builtinProperties;
             }
@@ -136,8 +126,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
             ignoreVariableCallbacks = true;
             try {
                 parent.getVariableReadWritePackageAfterTerminated().writeVariables(agentInstanceContext.getStatementContext().getVariableService(), eventsPerStream, null, agentInstanceContext);
-            }
-            finally {
+            } finally {
                 ignoreVariableCallbacks = false;
             }
         }
@@ -146,44 +135,42 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
         }
     }
 
-    private boolean evaluate(ExprEvaluator evaluator)
-    {
-        if (builtinProperties != null)
-        {
+    private boolean evaluate(ExprEvaluator evaluator) {
+        if (builtinProperties != null) {
             populateBuiltinProps();
             eventsPerStream[0] = builtinProperties;
         }
 
         boolean result = false;
         Boolean output = (Boolean) evaluator.evaluate(eventsPerStream, true, agentInstanceContext);
-        if ((output != null) && (output))
-        {
+        if ((output != null) && (output)) {
             result = true;
         }
 
         return result;
     }
 
-    private void scheduleCallback()
-    {
-    	isCallbackScheduled = true;
+    private void scheduleCallback() {
+        isCallbackScheduled = true;
         long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".scheduleCallback Scheduled new callback for " +
                     " afterMsec=" + 0 +
                     " now=" + current);
         }
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputRateConditionScheduledEval();}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qOutputRateConditionScheduledEval();
+                }
                 OutputConditionExpression.this.isCallbackScheduled = false;
                 OutputConditionExpression.this.outputCallback.continueOutputProcessing(true, true);
                 resetBuiltinProperties();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputRateConditionScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aOutputRateConditionScheduledEval();
+                }
             }
         };
         scheduleHandle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
@@ -195,10 +182,8 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
     }
 
     private void executeThenAssignments() {
-        if (parent.getVariableReadWritePackage() != null)
-        {
-            if (builtinProperties != null)
-            {
+        if (parent.getVariableReadWritePackage() != null) {
+            if (builtinProperties != null) {
                 populateBuiltinProps();
                 eventsPerStream[0] = builtinProperties;
             }
@@ -206,17 +191,14 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
             ignoreVariableCallbacks = true;
             try {
                 parent.getVariableReadWritePackage().writeVariables(agentInstanceContext.getStatementContext().getVariableService(), eventsPerStream, null, agentInstanceContext);
-            }
-            finally {
+            } finally {
                 ignoreVariableCallbacks = false;
             }
         }
     }
 
-    private void resetBuiltinProperties()
-    {
-        if (builtinProperties != null)
-        {
+    private void resetBuiltinProperties() {
+        if (builtinProperties != null) {
             totalNewEventsCount = 0;
             totalOldEventsCount = 0;
             lastOutputTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();

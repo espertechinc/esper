@@ -26,22 +26,21 @@ import java.util.Set;
  * An implementation of SendableEvent that wraps a Map event for
  * sending into the runtime.
  */
-public class SendableBeanEvent extends AbstractSendableEvent
-{
-	private final Object beanToSend;
+public class SendableBeanEvent extends AbstractSendableEvent {
+    private final Object beanToSend;
     private final Map<Class, Map<String, BeanEventPropertyWriter>> writersMap = new HashMap<Class, Map<String, BeanEventPropertyWriter>>();
 
-	/**
-	 * Converts mapToSend to an instance of beanClass
-	 * @param mapToSend - the map containing data to send into the runtime
-	 * @param beanClass  - type of the bean to create from mapToSend
-	 * @param eventTypeName - the event type name for the map event
-	 * @param timestamp - the timestamp for this event
-	 * @param scheduleSlot - the schedule slot for the entity that created this event
-	 */
-	public SendableBeanEvent(Map<String, Object> mapToSend, Class beanClass, String eventTypeName, long timestamp, long scheduleSlot)
-	{
-		super(timestamp, scheduleSlot);
+    /**
+     * Converts mapToSend to an instance of beanClass
+     *
+     * @param mapToSend     - the map containing data to send into the runtime
+     * @param beanClass     - type of the bean to create from mapToSend
+     * @param eventTypeName - the event type name for the map event
+     * @param timestamp     - the timestamp for this event
+     * @param scheduleSlot  - the schedule slot for the entity that created this event
+     */
+    public SendableBeanEvent(Map<String, Object> mapToSend, Class beanClass, String eventTypeName, long timestamp, long scheduleSlot) {
+        super(timestamp, scheduleSlot);
 
         try {
             Map<String, BeanEventPropertyWriter> writers = writersMap.get(beanClass);
@@ -65,22 +64,19 @@ public class SendableBeanEvent extends AbstractSendableEvent
                     writer.writeValue(entry.getValue(), beanToSend);
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Cannot populate bean instance", e);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see com.espertech.esperio.SendableEvent#send(com.espertech.esper.client.EPRuntime)
-	 */
-	public void send(AbstractSender sender)
-	{
-		sender.sendEvent(this, beanToSend);
-	}
+    /* (non-Javadoc)
+     * @see com.espertech.esperio.SendableEvent#send(com.espertech.esper.client.EPRuntime)
+     */
+    public void send(AbstractSender sender) {
+        sender.sendEvent(this, beanToSend);
+    }
 
-	public String toString()
-	{
-		return beanToSend.toString();
-	}
+    public String toString() {
+        return beanToSend.toString();
+    }
 }

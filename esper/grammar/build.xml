@@ -9,5 +9,12 @@
 
 ]]></replacetoken>
 		</replace>
+
+		<replaceregexp match="\t" replace="    " flags="g" byline="true">
+		  <fileset dir="${src}">
+		    <include name="*EsperEPL2Grammar*.java"/>
+		  </fileset>
+		</replaceregexp>
+
 	</target>
 </project>

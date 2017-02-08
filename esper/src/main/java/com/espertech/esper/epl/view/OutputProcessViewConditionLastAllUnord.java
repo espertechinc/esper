@@ -30,13 +30,12 @@ import java.util.Set;
 /**
  * Handles output rate limiting for LAST and without order-by.
  */
-public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBaseWAfter
-{
+public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBaseWAfter {
     private final OutputProcessViewConditionFactory parent;
     private final OutputCondition outputCondition;
     private final boolean isAll;
 
-	private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionLastAllUnord.class);
+    private static final Logger log = LoggerFactory.getLogger(OutputProcessViewConditionLastAllUnord.class);
 
     public OutputProcessViewConditionLastAllUnord(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext) {
         super(resultSetProcessorHelperFactory, agentInstanceContext, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, afterConditionSatisfied);
@@ -63,10 +62,8 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         return null;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".update Received update, " +
                     "  newData.length==" + ((newData == null) ? 0 : newData.length) +
                     "  oldData.length==" + ((oldData == null) ? 0 : oldData.length));
@@ -75,20 +72,19 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
         resultSetProcessor.processOutputLimitedLastAllNonBufferedView(newData, oldData, isGenerateSynthetic, isAll);
 
-        if (!super.checkAfterCondition(newData, parent.getStatementContext()))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
+        if (!super.checkAfterCondition(newData, parent.getStatementContext())) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aOutputProcessWCondition(false);
+            }
             return;
         }
 
         int newDataLength = 0;
         int oldDataLength = 0;
-        if(newData != null)
-        {
+        if (newData != null) {
             newDataLength = newData.length;
         }
-        if(oldData != null)
-        {
+        if (oldData != null) {
             oldDataLength = oldData.length;
         }
 
@@ -97,13 +93,12 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
 
     /**
      * This process (update) method is for participation in a join.
+     *
      * @param newEvents - new events
      * @param oldEvents - old events
      */
-    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".process Received update, " +
                     "  newData.length==" + ((newEvents == null) ? 0 : newEvents.size()) +
                     "  oldData.length==" + ((oldEvents == null) ? 0 : oldEvents.size()));
@@ -112,9 +107,10 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
         resultSetProcessor.processOutputLimitedLastAllNonBufferedJoin(newEvents, oldEvents, isGenerateSynthetic, isAll);
 
-        if (!super.checkAfterCondition(newEvents, parent.getStatementContext()))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessWCondition(false);}
+        if (!super.checkAfterCondition(newEvents, parent.getStatementContext())) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aOutputProcessWCondition(false);
+            }
             return;
         }
 
@@ -130,14 +126,15 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         outputCondition.updateOutputCondition(newEventsSize, oldEventsSize);
     }
 
-	/**
-	 * Called once the output condition has been met.
-	 * Invokes the result set processor.
-	 * Used for non-join event data.
-	 * @param doOutput - true if the batched events should actually be output as well as processed, false if they should just be processed
-	 * @param forceUpdate - true if output should be made even when no updating events have arrived
-	 * */
-	protected void continueOutputProcessingView(boolean doOutput, boolean forceUpdate) {
+    /**
+     * Called once the output condition has been met.
+     * Invokes the result set processor.
+     * Used for non-join event data.
+     *
+     * @param doOutput    - true if the batched events should actually be output as well as processed, false if they should just be processed
+     * @param forceUpdate - true if output should be made even when no updating events have arrived
+     */
+    protected void continueOutputProcessingView(boolean doOutput, boolean forceUpdate) {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".continueOutputProcessingView");
         }
@@ -148,26 +145,23 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         continueOutputProcessingViewAndJoin(doOutput, forceUpdate, newOldEvents);
     }
 
-	protected void output(boolean forceUpdate, UniformPair<EventBean[]> results)
-	{
+    protected void output(boolean forceUpdate, UniformPair<EventBean[]> results) {
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             OutputStrategyUtil.output(forceUpdate, results, childView);
         }
-	}
+    }
 
-	/**
-	 * Called once the output condition has been met.
-	 * Invokes the result set processor.
-	 * Used for join event data.
-	 * @param doOutput - true if the batched events should actually be output as well as processed, false if they should just be processed
-	 * @param forceUpdate - true if output should be made even when no updating events have arrived
-	 */
-	protected void continueOutputProcessingJoin(boolean doOutput, boolean forceUpdate)
-	{
-		if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    /**
+     * Called once the output condition has been met.
+     * Invokes the result set processor.
+     * Used for join event data.
+     *
+     * @param doOutput    - true if the batched events should actually be output as well as processed, false if they should just be processed
+     * @param forceUpdate - true if output should be made even when no updating events have arrived
+     */
+    protected void continueOutputProcessingJoin(boolean doOutput, boolean forceUpdate) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".continueOutputProcessingJoin");
         }
 
@@ -175,28 +169,20 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.continueOutputLimitedLastAllNonBufferedJoin(isGenerateSynthetic, isAll);
 
         continueOutputProcessingViewAndJoin(doOutput, forceUpdate, newOldEvents);
-	}
+    }
 
-    private OutputCallback getCallbackToLocal(int streamCount)
-    {
+    private OutputCallback getCallbackToLocal(int streamCount) {
         // single stream means no join
         // multiple streams means a join
-        if(streamCount == 1)
-        {
-            return new OutputCallback()
-            {
-                public void continueOutputProcessing(boolean doOutput, boolean forceUpdate)
-                {
+        if (streamCount == 1) {
+            return new OutputCallback() {
+                public void continueOutputProcessing(boolean doOutput, boolean forceUpdate) {
                     OutputProcessViewConditionLastAllUnord.this.continueOutputProcessingView(doOutput, forceUpdate);
                 }
             };
-        }
-        else
-        {
-            return new OutputCallback()
-            {
-                public void continueOutputProcessing(boolean doOutput, boolean forceUpdate)
-                {
+        } else {
+            return new OutputCallback() {
+                public void continueOutputProcessing(boolean doOutput, boolean forceUpdate) {
                     OutputProcessViewConditionLastAllUnord.this.continueOutputProcessingJoin(doOutput, forceUpdate);
                 }
             };
@@ -215,16 +201,17 @@ public class OutputProcessViewConditionLastAllUnord extends OutputProcessViewBas
 
     private void continueOutputProcessingViewAndJoin(boolean doOutput, boolean forceUpdate, UniformPair<EventBean[]> newOldEvents) {
 
-        if (parent.isDistinct() && newOldEvents != null)
-        {
+        if (parent.isDistinct() && newOldEvents != null) {
             newOldEvents.setFirst(EventBeanUtility.getDistinctByProp(newOldEvents.getFirst(), parent.getEventBeanReader()));
             newOldEvents.setSecond(EventBeanUtility.getDistinctByProp(newOldEvents.getSecond(), parent.getEventBeanReader()));
         }
 
-        if(doOutput) {
+        if (doOutput) {
             output(forceUpdate, newOldEvents);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputRateConditionOutputNow(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aOutputRateConditionOutputNow(true);
+        }
     }
 }

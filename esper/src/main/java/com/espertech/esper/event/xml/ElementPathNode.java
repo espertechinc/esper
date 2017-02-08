@@ -18,46 +18,45 @@ import java.util.List;
  */
 public class ElementPathNode {
 
-	private final String name;
-	private final ElementPathNode parent;
-	private List<ElementPathNode> children = null;
-	
-	public ElementPathNode(final ElementPathNode parent, final String name){
-		this.name = name;
-		this.parent = parent;
-	}
-	
-	public ElementPathNode addChild(String name){
-		if(children == null){
-			children = new ArrayList<ElementPathNode>();
-		}
-		ElementPathNode newChild = new ElementPathNode(this, name);	
-		children.add(newChild);
-		return newChild;
-	}
+    private final String name;
+    private final ElementPathNode parent;
+    private List<ElementPathNode> children = null;
 
-	public String getName() {
-		return name;
-	}
+    public ElementPathNode(final ElementPathNode parent, final String name) {
+        this.name = name;
+        this.parent = parent;
+    }
 
-	public ElementPathNode getParent() {
-		return parent;
-	}
+    public ElementPathNode addChild(String name) {
+        if (children == null) {
+            children = new ArrayList<ElementPathNode>();
+        }
+        ElementPathNode newChild = new ElementPathNode(this, name);
+        children.add(newChild);
+        return newChild;
+    }
 
-	public boolean doesNameAlreadyExistInHierarchy() {
-		return doesNameAlreadyExistInHierarchy(this.getName());
-	}
+    public String getName() {
+        return name;
+    }
 
-	private boolean doesNameAlreadyExistInHierarchy(String nameToFind) {
-		boolean doesNameAlreadyExistInHierarchy = false;
-		if(parent != null){
-			if(parent.getName().equals(nameToFind)){
-				doesNameAlreadyExistInHierarchy = true;
-			}
-			else{
-				return parent.doesNameAlreadyExistInHierarchy(nameToFind);
-			}
-		}
-		return doesNameAlreadyExistInHierarchy;
-	}
+    public ElementPathNode getParent() {
+        return parent;
+    }
+
+    public boolean doesNameAlreadyExistInHierarchy() {
+        return doesNameAlreadyExistInHierarchy(this.getName());
+    }
+
+    private boolean doesNameAlreadyExistInHierarchy(String nameToFind) {
+        boolean doesNameAlreadyExistInHierarchy = false;
+        if (parent != null) {
+            if (parent.getName().equals(nameToFind)) {
+                doesNameAlreadyExistInHierarchy = true;
+            } else {
+                return parent.doesNameAlreadyExistInHierarchy(nameToFind);
+            }
+        }
+        return doesNameAlreadyExistInHierarchy;
+    }
 }

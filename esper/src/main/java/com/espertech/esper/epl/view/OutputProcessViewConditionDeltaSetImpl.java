@@ -19,17 +19,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class OutputProcessViewConditionDeltaSetImpl implements OutputProcessViewConditionDeltaSet
-{
+public class OutputProcessViewConditionDeltaSetImpl implements OutputProcessViewConditionDeltaSet {
     private final List<UniformPair<EventBean[]>> viewEventsList;
-	private final List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet;
+    private final List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet;
 
     public OutputProcessViewConditionDeltaSetImpl(boolean isJoin) {
         if (isJoin) {
             joinEventsSet = new ArrayList<UniformPair<Set<MultiKey<EventBean>>>>();
             viewEventsList = Collections.emptyList();
-        }
-        else {
+        } else {
             viewEventsList = new ArrayList<UniformPair<EventBean[]>>();
             joinEventsSet = Collections.emptyList();
         }

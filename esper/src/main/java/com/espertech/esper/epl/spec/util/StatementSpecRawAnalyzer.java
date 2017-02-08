@@ -22,8 +22,7 @@ import com.espertech.esper.pattern.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatementSpecRawAnalyzer
-{
+public class StatementSpecRawAnalyzer {
     public static List<FilterSpecRaw> analyzeFilters(StatementSpecRaw spec) throws ExprValidationException {
         List<FilterSpecRaw> result = new ArrayList<FilterSpecRaw>();
         addFilters(spec, result);
@@ -45,8 +44,7 @@ public class StatementSpecRawAnalyzer
                 PatternStreamSpecRaw r = (PatternStreamSpecRaw) raw;
                 EvalNodeAnalysisResult evalNodeAnalysisResult = EvalNodeUtil.recursiveAnalyzeChildNodes(r.getEvalFactoryNode());
                 List<EvalFilterFactoryNode> filterNodes = evalNodeAnalysisResult.getFilterNodes();
-                for (EvalFilterFactoryNode filterNode : filterNodes)
-                {
+                for (EvalFilterFactoryNode filterNode : filterNodes) {
                     filters.add(filterNode.getRawFilterSpec());
                 }
             }
@@ -58,30 +56,23 @@ public class StatementSpecRawAnalyzer
         // Look for expressions with sub-selects in select expression list and filter expression
         // Recursively compile the statement within the statement.
         ExprNodeSubselectDeclaredDotVisitor visitor = new ExprNodeSubselectDeclaredDotVisitor();
-        for (SelectClauseElementRaw raw : spec.getSelectClauseSpec().getSelectExprList())
-        {
-            if (raw instanceof SelectClauseExprRawSpec)
-            {
+        for (SelectClauseElementRaw raw : spec.getSelectClauseSpec().getSelectExprList()) {
+            if (raw instanceof SelectClauseExprRawSpec) {
                 SelectClauseExprRawSpec rawExpr = (SelectClauseExprRawSpec) raw;
                 rawExpr.getSelectExpression().accept(visitor);
             }
         }
-        if (spec.getFilterRootNode() != null)
-        {
+        if (spec.getFilterRootNode() != null) {
             spec.getFilterRootNode().accept(visitor);
         }
-        if (spec.getHavingExprRootNode() != null)
-        {
+        if (spec.getHavingExprRootNode() != null) {
             spec.getHavingExprRootNode().accept(visitor);
         }
-        if (spec.getUpdateDesc() != null)
-        {
-            if (spec.getUpdateDesc().getOptionalWhereClause() != null)
-            {
+        if (spec.getUpdateDesc() != null) {
+            if (spec.getUpdateDesc().getOptionalWhereClause() != null) {
                 spec.getUpdateDesc().getOptionalWhereClause().accept(visitor);
             }
-            for (OnTriggerSetAssignment assignment : spec.getUpdateDesc().getAssignments())
-            {
+            for (OnTriggerSetAssignment assignment : spec.getUpdateDesc().getAssignments()) {
                 assignment.getExpression().accept(visitor);
             }
         }
@@ -99,8 +90,7 @@ public class StatementSpecRawAnalyzer
                         for (ExprNode filterExpr : filterNode.getRawFilterSpec().getFilterExpressions()) {
                             filterExpr.accept(visitor);
                         }
-                    }
-                    else if (evalNode instanceof EvalObserverFactoryNode) {
+                    } else if (evalNode instanceof EvalObserverFactoryNode) {
                         int beforeCount = visitor.getSubselects().size();
                         EvalObserverFactoryNode observerNode = (EvalObserverFactoryNode) evalNode;
                         for (ExprNode param : observerNode.getPatternObserverSpec().getObjectParameters()) {
@@ -114,8 +104,7 @@ public class StatementSpecRawAnalyzer
             }
         }
         // Determine filter streams
-        for (StreamSpecRaw rawSpec : spec.getStreamSpecs())
-        {
+        for (StreamSpecRaw rawSpec : spec.getStreamSpecs()) {
             if (rawSpec instanceof FilterStreamSpecRaw) {
                 FilterStreamSpecRaw raw = (FilterStreamSpecRaw) rawSpec;
                 for (ExprNode filterExpr : raw.getRawFilterSpec().getFilterExpressions()) {
@@ -130,22 +119,17 @@ public class StatementSpecRawAnalyzer
     private static void visitSubselectOnTrigger(OnTriggerDesc onTriggerDesc, ExprNodeSubselectDeclaredDotVisitor visitor) {
         if (onTriggerDesc instanceof OnTriggerWindowUpdateDesc) {
             OnTriggerWindowUpdateDesc updates = (OnTriggerWindowUpdateDesc) onTriggerDesc;
-            for (OnTriggerSetAssignment assignment : updates.getAssignments())
-            {
+            for (OnTriggerSetAssignment assignment : updates.getAssignments()) {
                 assignment.getExpression().accept(visitor);
             }
-        }
-        else if (onTriggerDesc instanceof OnTriggerSetDesc) {
+        } else if (onTriggerDesc instanceof OnTriggerSetDesc) {
             OnTriggerSetDesc sets = (OnTriggerSetDesc) onTriggerDesc;
-            for (OnTriggerSetAssignment assignment : sets.getAssignments())
-            {
+            for (OnTriggerSetAssignment assignment : sets.getAssignments()) {
                 assignment.getExpression().accept(visitor);
             }
-        }
-        else if (onTriggerDesc instanceof OnTriggerSplitStreamDesc) {
+        } else if (onTriggerDesc instanceof OnTriggerSplitStreamDesc) {
             OnTriggerSplitStreamDesc splits = (OnTriggerSplitStreamDesc) onTriggerDesc;
-            for (OnTriggerSplitStream split : splits.getSplitStreams())
-            {
+            for (OnTriggerSplitStream split : splits.getSplitStreams()) {
                 if (split.getWhereClause() != null) {
                     split.getWhereClause().accept(visitor);
                 }
@@ -158,23 +142,20 @@ public class StatementSpecRawAnalyzer
                     }
                 }
             }
-        }
-        else if (onTriggerDesc instanceof OnTriggerMergeDesc) {
+        } else if (onTriggerDesc instanceof OnTriggerMergeDesc) {
             OnTriggerMergeDesc merge = (OnTriggerMergeDesc) onTriggerDesc;
             for (OnTriggerMergeMatched matched : merge.getItems()) {
                 if (matched.getOptionalMatchCond() != null) {
                     matched.getOptionalMatchCond().accept(visitor);
                 }
-                for (OnTriggerMergeAction action : matched.getActions())
-                {
+                for (OnTriggerMergeAction action : matched.getActions()) {
                     if (action.getOptionalWhereClause() != null) {
                         action.getOptionalWhereClause().accept(visitor);
                     }
 
                     if (action instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate update = (OnTriggerMergeActionUpdate) action;
-                        for (OnTriggerSetAssignment assignment : update.getAssignments())
-                        {
+                        for (OnTriggerSetAssignment assignment : update.getAssignments()) {
                             assignment.getExpression().accept(visitor);
                         }
                     }
@@ -216,8 +197,7 @@ public class StatementSpecRawAnalyzer
                         expressions.addAll(item.getFilterSpecRaw().getFilterExpressions());
                     }
                 }
-            }
-            else if (detail instanceof ContextDetailCategory) {
+            } else if (detail instanceof ContextDetailCategory) {
                 ContextDetailCategory cat = (ContextDetailCategory) detail;
                 for (ContextDetailCategoryItem item : cat.getItems()) {
                     if (item.getExpression() != null) {
@@ -227,13 +207,11 @@ public class StatementSpecRawAnalyzer
                 if (cat.getFilterSpecRaw().getFilterExpressions() != null) {
                     expressions.addAll(cat.getFilterSpecRaw().getFilterExpressions());
                 }
-            }
-            else if (detail instanceof ContextDetailInitiatedTerminated) {
+            } else if (detail instanceof ContextDetailInitiatedTerminated) {
                 ContextDetailInitiatedTerminated ts = (ContextDetailInitiatedTerminated) detail;
                 collectExpressions(expressions, ts.getStart());
                 collectExpressions(expressions, ts.getEnd());
-            }
-            else {
+            } else {
                 throw new EPException("Failed to obtain expressions from context detail " + detail);
             }
         }
@@ -262,10 +240,10 @@ public class StatementSpecRawAnalyzer
             if (raw.getUpdateDesc().getAssignments() != null) {
                 for (OnTriggerSetAssignment pair : raw.getUpdateDesc().getAssignments()) {
                     expressions.add(pair.getExpression());
-                } 
+                }
             }
         }
-                            
+
         // on-expr
         if (raw.getOnTriggerDesc() != null) {
             if (raw.getOnTriggerDesc() instanceof OnTriggerSplitStreamDesc) {
@@ -307,8 +285,7 @@ public class StatementSpecRawAnalyzer
                             if (delete.getOptionalWhereClause() != null) {
                                 expressions.add(delete.getOptionalWhereClause());
                             }
-                        }
-                        else if (action instanceof OnTriggerMergeActionUpdate) {
+                        } else if (action instanceof OnTriggerMergeActionUpdate) {
                             OnTriggerMergeActionUpdate update = (OnTriggerMergeActionUpdate) action;
                             if (update.getOptionalWhereClause() != null) {
                                 expressions.add(update.getOptionalWhereClause());
@@ -316,8 +293,7 @@ public class StatementSpecRawAnalyzer
                             for (OnTriggerSetAssignment assignment : update.getAssignments()) {
                                 expressions.add(assignment.getExpression());
                             }
-                        }
-                        else if (action instanceof OnTriggerMergeActionInsert) {
+                        } else if (action instanceof OnTriggerMergeActionInsert) {
                             OnTriggerMergeActionInsert insert = (OnTriggerMergeActionInsert) action;
                             if (insert.getOptionalWhereClause() != null) {
                                 expressions.add(insert.getOptionalWhereClause());
@@ -328,7 +304,7 @@ public class StatementSpecRawAnalyzer
                 }
             }
         }
-        
+
         // select clause
         if (raw.getSelectClauseSpec() != null) {
             addSelectClause(expressions, raw.getSelectClauseSpec().getSelectExprList());
@@ -341,7 +317,7 @@ public class StatementSpecRawAnalyzer
                 if (stream instanceof FilterStreamSpecRaw) {
                     FilterStreamSpecRaw filterStream = (FilterStreamSpecRaw) stream;
                     FilterSpecRaw filter = filterStream.getRawFilterSpec();
-                    if ((filter != null) && (filter.getFilterExpressions() != null)){
+                    if ((filter != null) && (filter.getFilterExpressions() != null)) {
                         expressions.addAll(filter.getFilterExpressions());
                     }
                     if ((filter != null) && (filter.getOptionalPropertyEvalSpec() != null)) {
@@ -387,30 +363,26 @@ public class StatementSpecRawAnalyzer
                 }
             }
         }
-        
+
         if (raw.getFilterRootNode() != null) {
             expressions.add(raw.getFilterRootNode());
         }
-        
+
         if (raw.getGroupByExpressions() != null) {
             for (GroupByClauseElement element : raw.getGroupByExpressions()) {
                 if (element instanceof GroupByClauseElementExpr) {
-                    expressions.add( ((GroupByClauseElementExpr) element).getExpr());
-                }
-                else if (element instanceof GroupByClauseElementRollupOrCube) {
+                    expressions.add(((GroupByClauseElementExpr) element).getExpr());
+                } else if (element instanceof GroupByClauseElementRollupOrCube) {
                     GroupByClauseElementRollupOrCube rollup = (GroupByClauseElementRollupOrCube) element;
                     analyzeRollup(rollup, expressions);
-                }
-                else {
+                } else {
                     GroupByClauseElementGroupingSet set = (GroupByClauseElementGroupingSet) element;
                     for (GroupByClauseElement inner : set.getElements()) {
                         if (inner instanceof GroupByClauseElementExpr) {
-                            expressions.add( ((GroupByClauseElementExpr) inner).getExpr());
-                        }
-                        else if (inner instanceof GroupByClauseElementCombinedExpr) {
-                            expressions.addAll( ((GroupByClauseElementCombinedExpr) inner).getExpressions());
-                        }
-                        else {
+                            expressions.add(((GroupByClauseElementExpr) inner).getExpr());
+                        } else if (inner instanceof GroupByClauseElementCombinedExpr) {
+                            expressions.addAll(((GroupByClauseElementCombinedExpr) inner).getExpressions());
+                        } else {
                             analyzeRollup((GroupByClauseElementRollupOrCube) inner, expressions);
                         }
                     }
@@ -429,7 +401,7 @@ public class StatementSpecRawAnalyzer
             if (raw.getOutputLimitSpec().getThenExpressions() != null) {
                 for (OnTriggerSetAssignment thenAssign : raw.getOutputLimitSpec().getThenExpressions()) {
                     expressions.add(thenAssign.getExpression());
-                }					
+                }
             }
             if (raw.getOutputLimitSpec().getCrontabAtSchedule() != null) {
                 expressions.addAll(raw.getOutputLimitSpec().getCrontabAtSchedule());
@@ -441,13 +413,13 @@ public class StatementSpecRawAnalyzer
                 expressions.add(raw.getOutputLimitSpec().getAfterTimePeriodExpr());
             }
         }
-        
+
         if (raw.getOrderByList() != null) {
             for (OrderByItem orderByElement : raw.getOrderByList()) {
                 expressions.add(orderByElement.getExprNode());
-            }									
+            }
         }
-        
+
         if (raw.getMatchRecognizeSpec() != null) {
             if (raw.getMatchRecognizeSpec().getPartitionByExpressions() != null) {
                 expressions.addAll(raw.getMatchRecognizeSpec().getPartitionByExpressions());
@@ -479,9 +451,8 @@ public class StatementSpecRawAnalyzer
     private static void analyzeRollup(GroupByClauseElementRollupOrCube rollup, List<ExprNode> expressions) {
         for (GroupByClauseElement ex : rollup.getRollupExpressions()) {
             if (ex instanceof GroupByClauseElementExpr) {
-                expressions.add( ((GroupByClauseElementExpr) ex).getExpr());
-            }
-            else {
+                expressions.add(((GroupByClauseElementExpr) ex).getExpr());
+            } else {
                 GroupByClauseElementCombinedExpr combined = (GroupByClauseElementCombinedExpr) ex;
                 expressions.addAll(combined.getExpressions());
             }

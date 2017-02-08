@@ -26,23 +26,26 @@ public abstract class AbstractSender {
 
     /**
      * Set the engine runtime to use.
+     *
      * @param runtime runtime to use
      */
     public void setRuntime(EPRuntime runtime) {
-		this.runtime = runtime;
-	}
+        this.runtime = runtime;
+    }
 
     /**
      * Send an event
-     * @param theEvent wrapper
+     *
+     * @param theEvent   wrapper
      * @param beanToSend event object
      */
     public abstract void sendEvent(AbstractSendableEvent theEvent, Object beanToSend);
 
     /**
      * Send an event.
-     * @param theEvent wrapper
-     * @param mapToSend event object
+     *
+     * @param theEvent      wrapper
+     * @param mapToSend     event object
      * @param eventTypeName name of event type
      */
     public abstract void sendEvent(AbstractSendableEvent theEvent, Map mapToSend, String eventTypeName);

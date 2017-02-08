@@ -20,10 +20,9 @@ import org.slf4j.LoggerFactory;
  * the total number of new events arrived or the total number
  * of old events arrived is greater than a preset value.
  */
-public final class OutputConditionCount extends OutputConditionBase implements OutputCondition
-{
+public final class OutputConditionCount extends OutputConditionBase implements OutputCondition {
     private static final boolean DO_OUTPUT = true;
-	private static final boolean FORCE_UPDATE = false;
+    private static final boolean FORCE_UPDATE = false;
 
     private long eventRate;
     private int newEventsCount;
@@ -38,27 +37,26 @@ public final class OutputConditionCount extends OutputConditionBase implements O
 
     /**
      * Returns the number of new events.
+     *
      * @return number of new events
      */
     public int getNewEventsCount() {
-		return newEventsCount;
-	}
+        return newEventsCount;
+    }
 
     /**
      * Returns the number of old events.
+     *
      * @return number of old events
      */
-	public int getOldEventsCount() {
-		return oldEventsCount;
-	}
+    public int getOldEventsCount() {
+        return oldEventsCount;
+    }
 
-    public final void updateOutputCondition(int newDataCount, int oldDataCount)
-    {
-        if (variableReader != null)
-        {
+    public final void updateOutputCondition(int newDataCount, int oldDataCount) {
+        if (variableReader != null) {
             Object value = variableReader.getValue();
-            if (value != null)
-            {
+            if (value != null) {
                 eventRate = ((Number) value).longValue();
             }
         }
@@ -66,17 +64,14 @@ public final class OutputConditionCount extends OutputConditionBase implements O
         this.newEventsCount += newDataCount;
         this.oldEventsCount += oldDataCount;
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".updateBatchCondition, " +
                     "  newEventsCount==" + newEventsCount +
                     "  oldEventsCount==" + oldEventsCount);
         }
 
-        if (isSatisfied())
-        {
-        	if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-            {
+        if (isSatisfied()) {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
                 log.debug(".updateOutputCondition() condition satisfied");
             }
             this.newEventsCount = 0;
@@ -85,15 +80,13 @@ public final class OutputConditionCount extends OutputConditionBase implements O
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " eventRate=" + eventRate;
     }
 
-    private boolean isSatisfied()
-    {
-    	return (newEventsCount >= eventRate) || (oldEventsCount >= eventRate);
+    private boolean isSatisfied() {
+        return (newEventsCount >= eventRate) || (oldEventsCount >= eventRate);
     }
 
     public void terminated() {

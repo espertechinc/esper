@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class ExprDotEvalStreamMethod implements ExprEvaluator
-{
+public class ExprDotEvalStreamMethod implements ExprEvaluator {
     private final ExprDotNode dotNode;
     private final int streamNumber;
     private final ExprDotEval[] evaluators;
@@ -28,28 +27,36 @@ public class ExprDotEvalStreamMethod implements ExprEvaluator
         this.evaluators = evaluators;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return EPTypeHelper.getNormalizedClass(evaluators[evaluators.length - 1].getTypeInfo());
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-	{
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprStreamUndMethod(dotNode);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprStreamUndMethod(dotNode);
+        }
 
         // get underlying event
         EventBean theEvent = eventsPerStream[streamNumber];
         if (theEvent == null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprStreamUndMethod(null);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprStreamUndMethod(null);
+            }
             return null;
         }
         Object inner = theEvent.getUnderlying();
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDotChain(EPTypeHelper.singleValue(theEvent.getEventType().getUnderlyingType()), inner, evaluators);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprDotChain(EPTypeHelper.singleValue(theEvent.getEventType().getUnderlyingType()), inner, evaluators);
+        }
         inner = ExprDotNodeUtility.evaluateChain(evaluators, inner, eventsPerStream, isNewData, exprEvaluatorContext);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDotChain();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprDotChain();
+        }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprStreamUndMethod(inner);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprStreamUndMethod(inner);
+        }
         return inner;
     }
 }

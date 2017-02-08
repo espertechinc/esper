@@ -21,6 +21,7 @@ import java.util.Map;
 
 /**
  * EventType than can be supplied with a preconfigured list of properties getters (aka. explicit properties).
+ *
  * @author pablo
  */
 public abstract class BaseConfigurableEventType implements EventTypeSPI {
@@ -38,7 +39,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
     /**
      * Getters for each known property.
      */
-    protected Map<String,EventPropertyGetter> propertyGetters;
+    protected Map<String, EventPropertyGetter> propertyGetters;
 
     /**
      * Descriptors for each known property.
@@ -47,13 +48,13 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
     /**
      * Ctor.
-     * @param underlyngType is the underlying type returned by the event type
-     * @param metadata event type metadata
+     *
+     * @param underlyngType       is the underlying type returned by the event type
+     * @param metadata            event type metadata
      * @param eventAdapterService for dynamic event type creation
-     * @param eventTypeId type id
+     * @param eventTypeId         type id
      */
-    protected BaseConfigurableEventType(EventAdapterService eventAdapterService, EventTypeMetadata metadata, int eventTypeId, Class underlyngType)
-    {
+    protected BaseConfigurableEventType(EventAdapterService eventAdapterService, EventTypeMetadata metadata, int eventTypeId, Class underlyngType) {
         this.eventTypeId = eventTypeId;
         this.eventAdapterService = eventAdapterService;
         this.metadata = metadata;
@@ -66,6 +67,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
     /**
      * Subclasses must implement this and supply a getter to a given property.
+     *
      * @param property is the property expression
      * @return getter for property
      */
@@ -73,6 +75,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
     /**
      * Subclasses must implement this and return a type for a property.
+     *
      * @param property is the property expression
      * @return property type
      */
@@ -80,77 +83,73 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
 
     /**
      * Subclasses must implement this and return a fragment type for a property.
+     *
      * @param property is the property expression
      * @return fragment property type
      */
     protected abstract FragmentEventType doResolveFragmentType(String property);
 
-    public String getName()
-    {
+    public String getName() {
         return metadata.getPrimaryName();
     }
 
     /**
      * Returns the event adapter service.
+     *
      * @return event adapter service
      */
-    public EventAdapterService getEventAdapterService()
-    {
+    public EventAdapterService getEventAdapterService() {
         return eventAdapterService;
     }
 
     /**
      * Sets explicit properties using a map of event property name and getter instance for each property.
+     *
      * @param explicitProperties property descriptors for explicit properties
      */
-    protected void initialize(List<ExplicitPropertyDescriptor> explicitProperties)
-    {
-        propertyGetters = new HashMap<String,EventPropertyGetter>();
+    protected void initialize(List<ExplicitPropertyDescriptor> explicitProperties) {
+        propertyGetters = new HashMap<String, EventPropertyGetter>();
         propertyDescriptors = new EventPropertyDescriptor[explicitProperties.size()];
         propertyNames = new String[explicitProperties.size()];
         propertyDescriptorMap = new HashMap<String, EventPropertyDescriptor>();
         propertyFragmentTypes = new HashMap<String, Pair<ExplicitPropertyDescriptor, FragmentEventType>>();
 
         int count = 0;
-        for (ExplicitPropertyDescriptor explicit : explicitProperties)
-        {
+        for (ExplicitPropertyDescriptor explicit : explicitProperties) {
             propertyNames[count] = explicit.getDescriptor().getPropertyName();
             propertyGetters.put(explicit.getDescriptor().getPropertyName(), explicit.getGetter());
             EventPropertyDescriptor desc = explicit.getDescriptor();
             propertyDescriptors[count] = desc;
             propertyDescriptorMap.put(desc.getPropertyName(), desc);
 
-            if (explicit.getOptionalFragmentTypeName() != null)
-            {
+            if (explicit.getOptionalFragmentTypeName() != null) {
                 propertyFragmentTypes.put(explicit.getDescriptor().getPropertyName(), new Pair<ExplicitPropertyDescriptor, FragmentEventType>(explicit, null));
             }
 
-            if (!desc.isFragment())
-            {
+            if (!desc.isFragment()) {
                 propertyFragmentTypes.put(explicit.getDescriptor().getPropertyName(), null);
             }
             count++;
-        }         
+        }
     }
 
     public Class getPropertyType(String propertyExpression) {
-		EventPropertyDescriptor desc = propertyDescriptorMap.get(propertyExpression);
-		if (desc != null) {
-			return desc.getPropertyType();
+        EventPropertyDescriptor desc = propertyDescriptorMap.get(propertyExpression);
+        if (desc != null) {
+            return desc.getPropertyType();
         }
 
         return doResolvePropertyType(propertyExpression);
-	}
+    }
 
-	public Class getUnderlyingType() {
-		return underlyngType;
-	}
+    public Class getUnderlyingType() {
+        return underlyngType;
+    }
 
-	public EventPropertyGetter getGetter(String propertyExpression) {
-		EventPropertyGetter getter = propertyGetters.get(propertyExpression);
-		if (getter != null)
-        {
-			return getter;
+    public EventPropertyGetter getGetter(String propertyExpression) {
+        EventPropertyGetter getter = propertyGetters.get(propertyExpression);
+        if (getter != null) {
+            return getter;
         }
 
         return doResolvePropertyGetter(propertyExpression);
@@ -168,28 +167,23 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
         return null;
     }
 
-    public synchronized FragmentEventType getFragmentType(String property)
-    {
+    public synchronized FragmentEventType getFragmentType(String property) {
         Pair<ExplicitPropertyDescriptor, FragmentEventType> pair = propertyFragmentTypes.get(property);
-        if (pair == null)
-        {
-            if (propertyFragmentTypes.containsKey(property))
-            {
+        if (pair == null) {
+            if (propertyFragmentTypes.containsKey(property)) {
                 return null;
             }
             return doResolveFragmentType(property);
         }
 
         // if a type is assigned, use that
-        if (pair.getSecond() != null)
-        {
+        if (pair.getSecond() != null) {
             return pair.getSecond();
         }
 
         // resolve event type
         EventType existingType = eventAdapterService.getExistsTypeByName(pair.getFirst().getOptionalFragmentTypeName());
-        if (!(existingType instanceof BaseConfigurableEventType))
-        {
+        if (!(existingType instanceof BaseConfigurableEventType)) {
             log.warn("Type configured for fragment event property '" + property + "' by name '" + pair.getFirst() + "' could not be found");
             return null;
         }
@@ -200,25 +194,22 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
     }
 
     public String[] getPropertyNames() {
-		return propertyNames;
-	}
+        return propertyNames;
+    }
 
-	public boolean isProperty(String property) {
-		return (getGetter(property) != null);
-	}
+    public boolean isProperty(String property) {
+        return (getGetter(property) != null);
+    }
 
-    public EventPropertyDescriptor[] getPropertyDescriptors()
-    {
+    public EventPropertyDescriptor[] getPropertyDescriptors() {
         return propertyDescriptors;
     }
 
-    public EventTypeMetadata getMetadata()
-    {
+    public EventTypeMetadata getMetadata() {
         return metadata;
     }
 
-    public EventPropertyDescriptor getPropertyDescriptor(String propertyName)
-    {
+    public EventPropertyDescriptor getPropertyDescriptor(String propertyName) {
         return propertyDescriptorMap.get(propertyName);
-    }    
+    }
 }

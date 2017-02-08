@@ -17,15 +17,15 @@ import java.util.Map;
  */
 public class DirectSender extends AbstractSender {
 
-	public void sendEvent(AbstractSendableEvent theEvent, Object beanToSend) {
-		runtime.sendEvent(beanToSend);
-	}
+    public void sendEvent(AbstractSendableEvent theEvent, Object beanToSend) {
+        runtime.sendEvent(beanToSend);
+    }
 
-	public void sendEvent(AbstractSendableEvent theEvent, Map mapToSend, String eventTypeName) {
-		runtime.sendEvent(mapToSend, eventTypeName);
-	}
+    public void sendEvent(AbstractSendableEvent theEvent, Map mapToSend, String eventTypeName) {
+        runtime.sendEvent(mapToSend, eventTypeName);
+    }
 
-	public void onFinish() {
-		// do nothing
-	}
+    public void onFinish() {
+        // do nothing
+    }
 }

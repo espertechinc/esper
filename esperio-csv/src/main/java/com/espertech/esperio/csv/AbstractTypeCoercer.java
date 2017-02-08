@@ -39,34 +39,34 @@ public abstract class AbstractTypeCoercer {
 
     /**
      * Ctor.
+     *
      * @param propertyTypes the type conversion to be done
      */
     public void setPropertyTypes(Map<String, Object> propertyTypes) {
-		this.propertyConstructors = createPropertyConstructors(propertyTypes);
-	}
+        this.propertyConstructors = createPropertyConstructors(propertyTypes);
+    }
 
     /**
      * Convert a value.
+     *
      * @param property property name
-     * @param source value to convert
+     * @param source   value to convert
      * @return object value
      * @throws Exception if coercion failed
      */
     abstract Object coerce(String property, String source) throws Exception;
 
-	private Map<String, FastConstructor> createPropertyConstructors(Map<String, Object> propertyTypes)
-	{
-		Map<String, FastConstructor> constructors = new HashMap<String, FastConstructor>();
+    private Map<String, FastConstructor> createPropertyConstructors(Map<String, Object> propertyTypes) {
+        Map<String, FastConstructor> constructors = new HashMap<String, FastConstructor>();
 
-        Class[] parameterTypes = new Class[] { String.class };
-        for(String property : propertyTypes.keySet())
-		{
-			log.debug(".createPropertyConstructors property==" + property + ", type==" + propertyTypes.get(property	));
-			Class clazz = JavaClassHelper.getBoxedType((Class) propertyTypes.get(property));
-			FastClass fastClass = FastClass.create(FastClassClassLoaderProviderDefault.INSTANCE.classloader(clazz), clazz);
-			FastConstructor constructor = fastClass.getConstructor(parameterTypes);
-			constructors.put(property, constructor);
-		}
-		return constructors;
-	}
+        Class[] parameterTypes = new Class[]{String.class};
+        for (String property : propertyTypes.keySet()) {
+            log.debug(".createPropertyConstructors property==" + property + ", type==" + propertyTypes.get(property));
+            Class clazz = JavaClassHelper.getBoxedType((Class) propertyTypes.get(property));
+            FastClass fastClass = FastClass.create(FastClassClassLoaderProviderDefault.INSTANCE.classloader(clazz), clazz);
+            FastConstructor constructor = fastClass.getConstructor(parameterTypes);
+            constructors.put(property, constructor);
+        }
+        return constructors;
+    }
 }

@@ -52,49 +52,42 @@ public class TimeBatchViewFactoryParams {
      */
     protected boolean isStartEager;
 
-	/**
-	 * Convert keywords into isForceUpdate and isStartEager members
-	 * @param keywords flow control keyword string expression
-	 * @param errorMessage error message
-	 * @throws ViewParameterException if parsing failed
-	 */
-	protected void processKeywords(Object keywords, String errorMessage) throws ViewParameterException {
+    /**
+     * Convert keywords into isForceUpdate and isStartEager members
+     *
+     * @param keywords     flow control keyword string expression
+     * @param errorMessage error message
+     * @throws ViewParameterException if parsing failed
+     */
+    protected void processKeywords(Object keywords, String errorMessage) throws ViewParameterException {
 
-		if (!(keywords instanceof String))
-		{
-		    throw new ViewParameterException(errorMessage);
-		}
+        if (!(keywords instanceof String)) {
+            throw new ViewParameterException(errorMessage);
+        }
 
-		String[] keyword = ((String) keywords).split(",");
-		for (int i = 0; i < keyword.length; i++)
-		{
-		    String keywordText = keyword[i].toLowerCase().trim();
-		    if (keywordText.length() == 0)
-		    {
-		        continue;
-		    }
-		    if (keywordText.equals(FORCE_UPDATE_KEYWORD))
-		    {
-		        isForceUpdate = true;
-		    }
-		    else if (keywordText.equals(START_EAGER_KEYWORD))
-		    {
-		        isForceUpdate = true;
-		        isStartEager = true;
-		    }
-		    else
-		    {
-		        String keywordRange = FORCE_UPDATE_KEYWORD + "," + START_EAGER_KEYWORD;
-		        throw new ViewParameterException("Time-length-combination view encountered an invalid keyword '" + keywordText + "', valid control keywords are: " + keywordRange);
-		    }
-		}
-	}
+        String[] keyword = ((String) keywords).split(",");
+        for (int i = 0; i < keyword.length; i++) {
+            String keywordText = keyword[i].toLowerCase().trim();
+            if (keywordText.length() == 0) {
+                continue;
+            }
+            if (keywordText.equals(FORCE_UPDATE_KEYWORD)) {
+                isForceUpdate = true;
+            } else if (keywordText.equals(START_EAGER_KEYWORD)) {
+                isForceUpdate = true;
+                isStartEager = true;
+            } else {
+                String keywordRange = FORCE_UPDATE_KEYWORD + "," + START_EAGER_KEYWORD;
+                throw new ViewParameterException("Time-length-combination view encountered an invalid keyword '" + keywordText + "', valid control keywords are: " + keywordRange);
+            }
+        }
+    }
 
-	public boolean isForceUpdate() {
-		return isForceUpdate;
-	}
+    public boolean isForceUpdate() {
+        return isForceUpdate;
+    }
 
-	public boolean isStartEager() {
-		return isStartEager;
-	}
+    public boolean isStartEager() {
+        return isStartEager;
+    }
 }

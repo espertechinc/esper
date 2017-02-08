@@ -16,16 +16,16 @@ package com.espertech.esper.epl.view;
  * is allowed to continue. Once the condition is satisfied, it
  * makes a callback to continue output processing.
  */
-public interface OutputCondition
-{
-	/**
-	 * Update the output condition.
-	 * @param newEventsCount - number of new events incoming
-     * @param oldEventsCount  - number of old events incoming
+public interface OutputCondition {
+    /**
+     * Update the output condition.
+     *
+     * @param newEventsCount - number of new events incoming
+     * @param oldEventsCount - number of old events incoming
      */
-	void updateOutputCondition(int newEventsCount, int oldEventsCount);
+    void updateOutputCondition(int newEventsCount, int oldEventsCount);
 
     void terminated();
 
-	void stop();
+    void stop();
 }

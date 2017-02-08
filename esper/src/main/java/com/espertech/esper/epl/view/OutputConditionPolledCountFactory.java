@@ -19,21 +19,20 @@ import com.espertech.esper.epl.variable.VariableReader;
  * the total number of new events arrived or the total number
  * of old events arrived is greater than a preset value.
  */
-public final class OutputConditionPolledCountFactory implements OutputConditionPolledFactory
-{
+public final class OutputConditionPolledCountFactory implements OutputConditionPolledFactory {
     private final int eventRate;
     private final StatementContext statementContext;
     private final String variableName;
 
     /**
      * Constructor.
-     * @param eventRate is the number of old or new events that
-     * must arrive in order for the condition to be satisfied
-     * @param variableName variable
+     *
+     * @param eventRate        is the number of old or new events that
+     *                         must arrive in order for the condition to be satisfied
+     * @param variableName     variable
      * @param statementContext context
      */
-    public OutputConditionPolledCountFactory(int eventRate, StatementContext statementContext, String variableName)
-    {
+    public OutputConditionPolledCountFactory(int eventRate, StatementContext statementContext, String variableName) {
         if ((eventRate < 1) && (variableName == null)) {
             throw new IllegalArgumentException("Limiting output by event count requires an event count of at least 1 or a variable name");
         }

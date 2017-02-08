@@ -37,8 +37,7 @@ import java.util.List;
 /**
  * Represents an invocation of a plug-in single-row function  in the expression tree.
  */
-public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInnerNodeProvider, ExprFilterOptimizableNode
-{
+public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInnerNodeProvider, ExprFilterOptimizableNode {
     private static final long serialVersionUID = 2485214890449563098L;
 
     private final String functionName;
@@ -49,11 +48,10 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
     private transient boolean isReturnsConstantResult;
     private transient ExprEvaluator evaluator;
 
-	public ExprPlugInSingleRowNode(String functionName, Class clazz, List<ExprChainedSpec> chainSpec, EngineImportSingleRowDesc config)
-	{
+    public ExprPlugInSingleRowNode(String functionName, Class clazz, List<ExprChainedSpec> chainSpec, EngineImportSingleRowDesc config) {
         this.functionName = functionName;
         this.clazz = clazz;
-		this.chainSpec = chainSpec;
+        this.chainSpec = chainSpec;
         this.config = config;
     }
 
@@ -61,19 +59,16 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         return evaluator;
     }
 
-    public List<ExprChainedSpec> getChainSpec()
-    {
+    public List<ExprChainedSpec> getChainSpec() {
         return chainSpec;
     }
 
     @Override
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return isReturnsConstantResult;
     }
 
-    public String getFunctionName()
-    {
+    public String getFunctionName() {
         return functionName;
     }
 
@@ -118,12 +113,10 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         return ExprPrecedenceEnum.UNARY;
     }
 
-	public boolean equalsNode(ExprNode node)
-	{
-		if(!(node instanceof ExprPlugInSingleRowNode))
-		{
-			return false;
-		}
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprPlugInSingleRowNode)) {
+            return false;
+        }
 
         ExprPlugInSingleRowNode other = (ExprPlugInSingleRowNode) node;
         if (other.chainSpec.size() != this.chainSpec.size()) {
@@ -135,17 +128,16 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
             }
         }
         return other.clazz == this.clazz && other.functionName.endsWith(this.functionName);
-	}
+    }
 
-	public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-	{
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         ExprNodeUtility.validate(ExprNodeOrigin.PLUGINSINGLEROWPARAM, chainSpec, validationContext);
 
         // get first chain item
         List<ExprChainedSpec> chainList = new ArrayList<ExprChainedSpec>(chainSpec);
         ExprChainedSpec firstItem = chainList.remove(0);
 
-		// Get the types of the parameters for the first invocation
+        // Get the types of the parameters for the first invocation
         boolean allowWildcard = validationContext.getStreamTypeService().getEventTypes().length == 1;
         EventType streamZeroType = null;
         if (validationContext.getStreamTypeService().getEventTypes().length > 0) {
@@ -157,15 +149,12 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED) {
             isReturnsConstantResult = false;
             allowValueCache = false;
-        }
-        else if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.CONFIGURED) {
+        } else if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.CONFIGURED) {
             isReturnsConstantResult = validationContext.getEngineImportService().isUdfCache() && staticMethodDesc.isAllConstants() && chainList.isEmpty();
             allowValueCache = validationContext.getEngineImportService().isUdfCache();
-        }
-        else if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.ENABLED) {
+        } else if (config.getValueCache() == ConfigurationPlugInSingleRowFunction.ValueCache.ENABLED) {
             isReturnsConstantResult = staticMethodDesc.isAllConstants() && chainList.isEmpty();
-        }
-        else {
+        } else {
             throw new IllegalStateException("Invalid value cache code " + config.getValueCache());
         }
 

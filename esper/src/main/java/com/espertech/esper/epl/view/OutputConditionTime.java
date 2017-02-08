@@ -25,10 +25,9 @@ import org.slf4j.LoggerFactory;
  * Output condition that is satisfied at the end
  * of every time interval of a given length.
  */
-public final class OutputConditionTime extends OutputConditionBase implements OutputCondition, StopCallback
-{
+public final class OutputConditionTime extends OutputConditionBase implements OutputCondition, StopCallback {
     private static final boolean DO_OUTPUT = true;
-	private static final boolean FORCE_UPDATE = true;
+    private static final boolean FORCE_UPDATE = true;
 
     private final AgentInstanceContext context;
     private final OutputConditionTimeFactory parent;
@@ -50,28 +49,23 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
         }
     }
 
-    public final void updateOutputCondition(int newEventsCount, int oldEventsCount)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
-        	log.debug(".updateOutputCondition, " +
-        			"  newEventsCount==" + newEventsCount +
-        			"  oldEventsCount==" + oldEventsCount);
+    public final void updateOutputCondition(int newEventsCount, int oldEventsCount) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
+            log.debug(".updateOutputCondition, " +
+                    "  newEventsCount==" + newEventsCount +
+                    "  oldEventsCount==" + oldEventsCount);
         }
 
         if (currentReferencePoint == null) {
-        	currentReferencePoint = context.getStatementContext().getSchedulingService().getTime();
+            currentReferencePoint = context.getStatementContext().getSchedulingService().getTime();
         }
 
         // If we pull the interval from a variable, then we may need to reschedule
-        if (parent.getTimePeriod().hasVariable())
-        {
+        if (parent.getTimePeriod().hasVariable()) {
             long now = context.getStatementContext().getSchedulingService().getTime();
             ExprTimePeriodEvalDeltaResult delta = parent.getTimePeriod().nonconstEvaluator().deltaAddWReference(now, currentReferencePoint, null, true, context);
-            if (delta.getDelta() != currentScheduledTime)
-            {
-                if (isCallbackScheduled)
-                {
+            if (delta.getDelta() != currentScheduledTime) {
+                if (isCallbackScheduled) {
                     // reschedule
                     context.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
                     scheduleCallback();
@@ -80,28 +74,24 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
         }
 
         // Schedule the next callback if there is none currently scheduled
-        if (!isCallbackScheduled)
-        {
-        	scheduleCallback();
+        if (!isCallbackScheduled) {
+            scheduleCallback();
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 
-    private void scheduleCallback()
-    {
-    	isCallbackScheduled = true;
+    private void scheduleCallback() {
+        isCallbackScheduled = true;
         long current = context.getStatementContext().getSchedulingService().getTime();
         ExprTimePeriodEvalDeltaResult delta = parent.getTimePeriod().nonconstEvaluator().deltaAddWReference(current, currentReferencePoint, null, true, context);
         long deltaTime = delta.getDelta();
         currentReferencePoint = delta.getLastReference();
         currentScheduledTime = deltaTime;
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".scheduleCallback Scheduled new callback for " +
                     " afterMsec=" + deltaTime +
                     " now=" + current +
@@ -109,13 +99,16 @@ public final class OutputConditionTime extends OutputConditionBase implements Ou
         }
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputRateConditionScheduledEval();}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qOutputRateConditionScheduledEval();
+                }
                 OutputConditionTime.this.isCallbackScheduled = false;
                 OutputConditionTime.this.outputCallback.continueOutputProcessing(DO_OUTPUT, FORCE_UPDATE);
                 scheduleCallback();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputRateConditionScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aOutputRateConditionScheduledEval();
+                }
             }
         };
         handle = new EPStatementHandleCallback(context.getEpStatementAgentInstanceHandle(), callback);

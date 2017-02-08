@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class ExprDotEvalStreamEventBean implements ExprEvaluator
-{
+public class ExprDotEvalStreamEventBean implements ExprEvaluator {
     private final ExprDotNode exprDotNode;
     private final int streamNumber;
     private final ExprDotEval[] evaluators;
@@ -28,26 +27,34 @@ public class ExprDotEvalStreamEventBean implements ExprEvaluator
         this.evaluators = evaluators;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return EPTypeHelper.getClassSingleValued(evaluators[evaluators.length - 1].getTypeInfo());
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-	{
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprStreamEventMethod(exprDotNode);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprStreamEventMethod(exprDotNode);
+        }
 
         EventBean theEvent = eventsPerStream[streamNumber];
         if (theEvent == null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprStreamEventMethod(null);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprStreamEventMethod(null);
+            }
             return null;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDotChain(EPTypeHelper.singleEvent(theEvent.getEventType()), theEvent, evaluators);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprDotChain(EPTypeHelper.singleEvent(theEvent.getEventType()), theEvent, evaluators);
+        }
         Object inner = ExprDotNodeUtility.evaluateChain(evaluators, theEvent, eventsPerStream, isNewData, exprEvaluatorContext);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDotChain();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprDotChain();
+        }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprStreamEventMethod(inner);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprStreamEventMethod(inner);
+        }
         return inner;
     }
 }

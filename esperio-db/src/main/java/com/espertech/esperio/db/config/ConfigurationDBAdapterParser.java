@@ -19,58 +19,48 @@ import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 
-public class ConfigurationDBAdapterParser
-{
+public class ConfigurationDBAdapterParser {
     /**
      * Use the configuration specified in the given input stream.
+     *
      * @param configuration is the configuration object to populate
-     * @param stream	   Inputstream to be read from
-     * @param resourceName The name to use in warning/error messages
+     * @param stream        Inputstream to be read from
+     * @param resourceName  The name to use in warning/error messages
      * @throws RuntimeException is thrown when the configuration could not be parsed
      */
-    protected static void doConfigure(ConfigurationDBAdapter configuration, InputStream stream, String resourceName) throws RuntimeException
-    {
+    protected static void doConfigure(ConfigurationDBAdapter configuration, InputStream stream, String resourceName) throws RuntimeException {
         Document document = getDocument(stream, resourceName);
         doConfigure(configuration, document);
     }
 
     /**
      * Returns the document.
-     * @param stream to read
+     *
+     * @param stream       to read
      * @param resourceName resource in stream
      * @return document
      * @throws RuntimeException if the document could not be loaded or parsed
      */
-    protected static Document getDocument(InputStream stream, String resourceName) throws RuntimeException
-    {
+    protected static Document getDocument(InputStream stream, String resourceName) throws RuntimeException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 
         Document document = null;
 
-        try
-        {
+        try {
             builder = factory.newDocumentBuilder();
             document = builder.parse(stream);
-        }
-        catch (ParserConfigurationException ex)
-        {
+        } catch (ParserConfigurationException ex) {
             throw new RuntimeException("Could not get a DOM parser configuration: " + resourceName, ex);
-        }
-        catch (SAXException ex)
-        {
+        } catch (SAXException ex) {
             throw new RuntimeException("Could not parse configuration: " + resourceName, ex);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new RuntimeException("Could not read configuration: " + resourceName, ex);
-        }
-        finally {
+        } finally {
             try {
                 stream.close();
-            }
-            catch (IOException ioe) {
-                log.warn( "could not close input stream for: " + resourceName, ioe );
+            } catch (IOException ioe) {
+                log.warn("could not close input stream for: " + resourceName, ioe);
             }
         }
 
@@ -79,89 +69,69 @@ public class ConfigurationDBAdapterParser
 
     /**
      * Parse the W3C DOM document.
+     *
      * @param configuration is the configuration object to populate
-     * @param doc to parse
+     * @param doc           to parse
      * @throws RuntimeException to indicate parse errors
      */
-    protected static void doConfigure(ConfigurationDBAdapter configuration, Document doc) throws RuntimeException
-    {
+    protected static void doConfigure(ConfigurationDBAdapter configuration, Document doc) throws RuntimeException {
         Element root = doc.getDocumentElement();
 
         DOMElementIterator eventTypeNodeIterator = new DOMElementIterator(root.getChildNodes());
-        while (eventTypeNodeIterator.hasNext())
-        {
+        while (eventTypeNodeIterator.hasNext()) {
             Element element = eventTypeNodeIterator.next();
             String nodeName = element.getNodeName();
-            if (nodeName.equals("jdbc-connection"))
-            {
+            if (nodeName.equals("jdbc-connection")) {
                 handleConnection(configuration, element);
-            }
-            else if (nodeName.equals("dml"))
-            {
+            } else if (nodeName.equals("dml")) {
                 handleDml(configuration, element);
-            }
-            else if (nodeName.equals("upsert"))
-            {
+            } else if (nodeName.equals("upsert")) {
                 handleUpsert(configuration, element);
-            }
-            else if (nodeName.equals("executors"))
-            {
+            } else if (nodeName.equals("executors")) {
                 handleExecutors(configuration, element);
             }
         }
     }
 
-    private static void handleConnection(ConfigurationDBAdapter configuration, Node parentNode)
-    {
+    private static void handleConnection(ConfigurationDBAdapter configuration, Node parentNode) {
         DOMElementIterator eventTypeNodeIterator = new DOMElementIterator(parentNode.getChildNodes());
         ConfigurationDBRef connection = new ConfigurationDBRef();
         String name = getRequiredAttribute(parentNode, "name");
         configuration.getJdbcConnections().put(name, connection);
 
-        while (eventTypeNodeIterator.hasNext())
-        {
+        while (eventTypeNodeIterator.hasNext()) {
             Element subElement = eventTypeNodeIterator.next();
 
-            if (subElement.getNodeName().equals("datasource-connection"))
-            {
+            if (subElement.getNodeName().equals("datasource-connection")) {
                 String lookup = subElement.getAttributes().getNamedItem("context-lookup-name").getTextContent();
                 Properties properties = handleProperties(subElement, "env-property");
                 connection.setDataSourceConnection(lookup, properties);
             }
-            if (subElement.getNodeName().equals("datasourcefactory-connection"))
-            {
+            if (subElement.getNodeName().equals("datasourcefactory-connection")) {
                 String className = subElement.getAttributes().getNamedItem("class-name").getTextContent();
                 Properties properties = handleProperties(subElement, "env-property");
                 connection.setDataSourceFactory(properties, className);
-            }
-            else if (subElement.getNodeName().equals("drivermanager-connection"))
-            {
+            } else if (subElement.getNodeName().equals("drivermanager-connection")) {
                 String className = subElement.getAttributes().getNamedItem("class-name").getTextContent();
                 String url = subElement.getAttributes().getNamedItem("url").getTextContent();
                 String userName = subElement.getAttributes().getNamedItem("user").getTextContent();
                 String password = subElement.getAttributes().getNamedItem("password").getTextContent();
                 Properties properties = handleProperties(subElement, "connection-arg");
                 connection.setDriverManagerConnection(className, url, userName, password, properties);
-            }
-            else if (subElement.getNodeName().equals("connection-settings"))
-            {
-                if (subElement.getAttributes().getNamedItem("auto-commit") != null)
-                {
+            } else if (subElement.getNodeName().equals("connection-settings")) {
+                if (subElement.getAttributes().getNamedItem("auto-commit") != null) {
                     String autoCommit = subElement.getAttributes().getNamedItem("auto-commit").getTextContent();
                     connection.setConnectionAutoCommit(Boolean.parseBoolean(autoCommit));
                 }
-                if (subElement.getAttributes().getNamedItem("transaction-isolation") != null)
-                {
+                if (subElement.getAttributes().getNamedItem("transaction-isolation") != null) {
                     String transactionIsolation = subElement.getAttributes().getNamedItem("transaction-isolation").getTextContent();
                     connection.setConnectionTransactionIsolation(Integer.parseInt(transactionIsolation));
                 }
-                if (subElement.getAttributes().getNamedItem("catalog") != null)
-                {
+                if (subElement.getAttributes().getNamedItem("catalog") != null) {
                     String catalog = subElement.getAttributes().getNamedItem("catalog").getTextContent();
                     connection.setConnectionCatalog(catalog);
                 }
-                if (subElement.getAttributes().getNamedItem("read-only") != null)
-                {
+                if (subElement.getAttributes().getNamedItem("read-only") != null) {
                     String readOnly = subElement.getAttributes().getNamedItem("read-only").getTextContent();
                     connection.setConnectionReadOnly(Boolean.parseBoolean(readOnly));
                 }
@@ -169,8 +139,7 @@ public class ConfigurationDBAdapterParser
         }
     }
 
-    private static void handleDml(ConfigurationDBAdapter configuration, Node parentNode)
-    {
+    private static void handleDml(ConfigurationDBAdapter configuration, Node parentNode) {
         DOMElementIterator eventTypeNodeIterator = new DOMElementIterator(parentNode.getChildNodes());
         DMLQuery dmlQuery = new DMLQuery();
         String connection = getRequiredAttribute(parentNode, "connection");
@@ -182,16 +151,12 @@ public class ConfigurationDBAdapterParser
         List<BindingParameter> bindings = new ArrayList<BindingParameter>();
 
         String sql = null;
-        while (eventTypeNodeIterator.hasNext())
-        {
+        while (eventTypeNodeIterator.hasNext()) {
             Element subElement = eventTypeNodeIterator.next();
 
-            if (subElement.getNodeName().equals("sql"))
-            {
+            if (subElement.getNodeName().equals("sql")) {
                 sql = subElement.getTextContent();
-            }
-            else if (subElement.getNodeName().equals("bindings"))
-            {
+            } else if (subElement.getNodeName().equals("bindings")) {
                 handleBindings(bindings, subElement);
             }
         }
@@ -210,8 +175,7 @@ public class ConfigurationDBAdapterParser
         configuration.getDmlQueries().add(dmlQuery);
     }
 
-    private static void handleUpsert(ConfigurationDBAdapter configuration, Node parentNode)
-    {
+    private static void handleUpsert(ConfigurationDBAdapter configuration, Node parentNode) {
         DOMElementIterator eventTypeNodeIterator = new DOMElementIterator(parentNode.getChildNodes());
         UpsertQuery upsertQuery = new UpsertQuery();
         String connection = getRequiredAttribute(parentNode, "connection");
@@ -225,20 +189,14 @@ public class ConfigurationDBAdapterParser
         List<Column> values = new ArrayList<Column>();
         List<BindingParameter> bindings = new ArrayList<BindingParameter>();
 
-        while (eventTypeNodeIterator.hasNext())
-        {
+        while (eventTypeNodeIterator.hasNext()) {
             Element subElement = eventTypeNodeIterator.next();
 
-            if (subElement.getNodeName().equals("keys"))
-            {
+            if (subElement.getNodeName().equals("keys")) {
                 handleColumns(keys, subElement);
-            }
-            else if (subElement.getNodeName().equals("values"))
-            {
+            } else if (subElement.getNodeName().equals("values")) {
                 handleColumns(values, subElement);
-            }
-            else if (subElement.getNodeName().equals("bindings"))
-            {
+            } else if (subElement.getNodeName().equals("bindings")) {
                 handleBindings(bindings, subElement);
             }
         }
@@ -255,21 +213,17 @@ public class ConfigurationDBAdapterParser
         configuration.getUpsertQueries().add(upsertQuery);
     }
 
-    private static void handleExecutors(ConfigurationDBAdapter configuration, Node parentNode)
-    {
+    private static void handleExecutors(ConfigurationDBAdapter configuration, Node parentNode) {
         DOMElementIterator iterator = new DOMElementIterator(parentNode.getChildNodes());
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Element subElement = iterator.next();
-            if (subElement.getNodeName().equals("executor"))
-            {
+            if (subElement.getNodeName().equals("executor")) {
                 handleExecutor(configuration, subElement);
             }
         }
     }
 
-    private static void handleExecutor(ConfigurationDBAdapter configuration, Node parentNode)
-    {
+    private static void handleExecutor(ConfigurationDBAdapter configuration, Node parentNode) {
         Executor workQueue = new Executor();
         String name = getRequiredAttribute(parentNode, "name");
         String threads = getRequiredAttribute(parentNode, "threads");
@@ -278,15 +232,12 @@ public class ConfigurationDBAdapterParser
         configuration.getExecutors().put(name, workQueue);
     }
 
-    private static void handleBindings(List<BindingParameter> bindings, Node parentNode)
-    {
+    private static void handleBindings(List<BindingParameter> bindings, Node parentNode) {
         DOMElementIterator iterator = new DOMElementIterator(parentNode.getChildNodes());
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Element subElement = iterator.next();
 
-            if (subElement.getNodeName().equals("parameter"))
-            {
+            if (subElement.getNodeName().equals("parameter")) {
                 String position = getRequiredAttribute(subElement, "pos");
                 String property = getRequiredAttribute(subElement, "property");
                 bindings.add(new BindingParameter(Integer.parseInt(position), property));
@@ -294,15 +245,12 @@ public class ConfigurationDBAdapterParser
         }
     }
 
-    private static void handleColumns(List<Column> columns, Node parentNode)
-    {
+    private static void handleColumns(List<Column> columns, Node parentNode) {
         DOMElementIterator iterator = new DOMElementIterator(parentNode.getChildNodes());
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Element subElement = iterator.next();
 
-            if (subElement.getNodeName().equals("column"))
-            {
+            if (subElement.getNodeName().equals("column")) {
                 String property = getRequiredAttribute(subElement, "property");
                 String column = getRequiredAttribute(subElement, "column");
                 String type = getRequiredAttribute(subElement, "type");
@@ -311,15 +259,12 @@ public class ConfigurationDBAdapterParser
         }
     }
 
-    private static Properties handleProperties(Element element, String propElementName)
-    {
+    private static Properties handleProperties(Element element, String propElementName) {
         Properties properties = new Properties();
         DOMElementIterator nodeIterator = new DOMElementIterator(element.getChildNodes());
-        while (nodeIterator.hasNext())
-        {
+        while (nodeIterator.hasNext()) {
             Element subElement = nodeIterator.next();
-            if (subElement.getNodeName().equals(propElementName))
-            {
+            if (subElement.getNodeName().equals(propElementName)) {
                 String name = subElement.getAttributes().getNamedItem("name").getTextContent();
                 String value = subElement.getAttributes().getNamedItem("value").getTextContent();
                 properties.put(name, value);
@@ -330,46 +275,42 @@ public class ConfigurationDBAdapterParser
 
     /**
      * Returns an input stream from an application resource in the classpath.
+     *
      * @param resource to get input stream for
      * @return input stream for resource
      */
-    protected static InputStream getResourceAsStream(String resource)
-    {
+    protected static InputStream getResourceAsStream(String resource) {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
         InputStream stream = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader!=null) {
-            stream = classLoader.getResourceAsStream( stripped );
+        if (classLoader != null) {
+            stream = classLoader.getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            ConfigurationDBAdapterParser.class.getResourceAsStream( resource );
+        if (stream == null) {
+            ConfigurationDBAdapterParser.class.getResourceAsStream(resource);
         }
-        if ( stream == null ) {
-            stream = ConfigurationDBAdapterParser.class.getClassLoader().getResourceAsStream( stripped );
+        if (stream == null) {
+            stream = ConfigurationDBAdapterParser.class.getClassLoader().getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            throw new RuntimeException( resource + " not found" );
+        if (stream == null) {
+            throw new RuntimeException(resource + " not found");
         }
         return stream;
     }
 
-    private static String getOptionalAttribute(Node node, String key)
-    {
+    private static String getOptionalAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode != null)
-        {
+        if (valueNode != null) {
             return valueNode.getTextContent();
         }
         return null;
     }
 
-    private static String getRequiredAttribute(Node node, String key)
-    {
+    private static String getRequiredAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode == null)
-        {
+        if (valueNode == null) {
             throw new ConfigurationException("Required attribute by name '" + key + "' not found");
         }
         return valueNode.getTextContent();

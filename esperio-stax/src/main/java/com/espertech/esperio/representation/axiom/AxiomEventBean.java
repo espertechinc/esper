@@ -21,46 +21,40 @@ import com.espertech.esper.client.EventPropertyGetter;
  * be used
  *
  * @author Paul Fremantle
- *
  */
-public class AxiomEventBean implements EventBean
-{
-	private EventType eventType;
-	private OMNode theEvent;
+public class AxiomEventBean implements EventBean {
+    private EventType eventType;
+    private OMNode theEvent;
 
-	/**
-	 * Ctor.
-	 *
-	 * @param theEvent
-	 *            is the node with event property information
-	 * @param type
-	 *            is the event type for this event wrapper
-	 */
-	public AxiomEventBean(OMNode theEvent, EventType type) {
-		this.theEvent = theEvent;
-		eventType = type;
-	}
+    /**
+     * Ctor.
+     *
+     * @param theEvent is the node with event property information
+     * @param type     is the event type for this event wrapper
+     */
+    public AxiomEventBean(OMNode theEvent, EventType type) {
+        this.theEvent = theEvent;
+        eventType = type;
+    }
 
-	public EventType getEventType() {
-		return eventType;
-	}
+    public EventType getEventType() {
+        return eventType;
+    }
 
-	public Object get(String property) throws PropertyAccessException
-    {
-		EventPropertyGetter getter = eventType.getGetter(property);
-		if (getter == null) {
-			throw new PropertyAccessException("Property named '" + property
-					+ "' is not a valid property name for this type");
-		}
-		return getter.get(this);
-	}
+    public Object get(String property) throws PropertyAccessException {
+        EventPropertyGetter getter = eventType.getGetter(property);
+        if (getter == null) {
+            throw new PropertyAccessException("Property named '" + property
+                    + "' is not a valid property name for this type");
+        }
+        return getter.get(this);
+    }
 
-	public Object getUnderlying() {
-		return theEvent;
-	}
+    public Object getUnderlying() {
+        return theEvent;
+    }
 
-    public Object getFragment(String propertyExpression) throws PropertyAccessException
-    {
-        return null;  
+    public Object getFragment(String propertyExpression) throws PropertyAccessException {
+        return null;
     }
 }

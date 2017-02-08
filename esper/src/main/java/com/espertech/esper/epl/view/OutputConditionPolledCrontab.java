@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Output condition handling crontab-at schedule output.
  */
-public final class OutputConditionPolledCrontab implements OutputConditionPolled
-{
+public final class OutputConditionPolledCrontab implements OutputConditionPolled {
     private final AgentInstanceContext agentInstanceContext;
     private final OutputConditionPolledCrontabState state;
 
@@ -34,19 +33,18 @@ public final class OutputConditionPolledCrontab implements OutputConditionPolled
         return state;
     }
 
-    public final boolean updateOutputCondition(int newEventsCount, int oldEventsCount)
-    {
+    public final boolean updateOutputCondition(int newEventsCount, int oldEventsCount) {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
-        	log.debug(".updateOutputCondition, " +
-        			"  newEventsCount==" + newEventsCount +
-        			"  oldEventsCount==" + oldEventsCount);
+            log.debug(".updateOutputCondition, " +
+                    "  newEventsCount==" + newEventsCount +
+                    "  oldEventsCount==" + oldEventsCount);
         }
 
         boolean output = false;
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         EngineImportService engineImportService = agentInstanceContext.getStatementContext().getEngineImportService();
         if (state.getCurrentReferencePoint() == null) {
-        	state.setCurrentReferencePoint(currentTime);
+            state.setCurrentReferencePoint(currentTime);
             state.setNextScheduledTime(ScheduleComputeHelper.computeNextOccurance(state.getScheduleSpec(), currentTime, engineImportService.getTimeZone(), engineImportService.getTimeAbacus()));
             output = true;
         }

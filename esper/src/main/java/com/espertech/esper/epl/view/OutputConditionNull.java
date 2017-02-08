@@ -15,27 +15,27 @@ package com.espertech.esper.epl.view;
  */
 public class OutputConditionNull extends OutputConditionBase implements OutputCondition {
 
-	private static final boolean DO_OUTPUT = true;
-	private static final boolean FORCE_UPDATE = false;
+    private static final boolean DO_OUTPUT = true;
+    private static final boolean FORCE_UPDATE = false;
 
-	/**
-	 * Ctor.
-	 * @param outputCallback is the callback to make once the condition is satisfied
-	 */
-	public OutputConditionNull(OutputCallback outputCallback)
-	{
+    /**
+     * Ctor.
+     *
+     * @param outputCallback is the callback to make once the condition is satisfied
+     */
+    public OutputConditionNull(OutputCallback outputCallback) {
         super(outputCallback);
-	}
+    }
 
-	public void updateOutputCondition(int newEventsCount, int oldEventsCount) {
-		outputCallback.continueOutputProcessing(DO_OUTPUT, FORCE_UPDATE);
-	}
+    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {
+        outputCallback.continueOutputProcessing(DO_OUTPUT, FORCE_UPDATE);
+    }
 
     public void terminated() {
         outputCallback.continueOutputProcessing(true, true);
     }
 
-	public void stop() {
-		// no action required
-	}
+    public void stop() {
+        // no action required
+    }
 }

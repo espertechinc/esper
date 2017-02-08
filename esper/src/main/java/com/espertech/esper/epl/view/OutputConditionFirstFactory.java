@@ -21,16 +21,14 @@ import com.espertech.esper.epl.spec.OutputLimitSpec;
  * An output condition that is satisfied at the first event
  * of either a time-based or count-based batch.
  */
-public class OutputConditionFirstFactory implements OutputConditionFactory
-{
-	private final OutputConditionFactory innerConditionFactory;
+public class OutputConditionFirstFactory implements OutputConditionFactory {
+    private final OutputConditionFactory innerConditionFactory;
 
-	public OutputConditionFirstFactory(OutputLimitSpec outputLimitSpec, StatementContext statementContext, boolean isGrouped, boolean isWithHavingClause, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
-            throws ExprValidationException
-    {
-		OutputLimitSpec innerSpec = new OutputLimitSpec(outputLimitSpec.getRate(), outputLimitSpec.getVariableName(), outputLimitSpec.getRateType(), OutputLimitLimitType.DEFAULT, outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), outputLimitSpec.getCrontabAtSchedule(), outputLimitSpec.getTimePeriodExpr(), outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputLimitSpec.isAndAfterTerminate(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions());
-		this.innerConditionFactory = OutputConditionFactoryFactory.createCondition(innerSpec, statementContext, isGrouped, isWithHavingClause, false, resultSetProcessorHelperFactory);
-	}
+    public OutputConditionFirstFactory(OutputLimitSpec outputLimitSpec, StatementContext statementContext, boolean isGrouped, boolean isWithHavingClause, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
+            throws ExprValidationException {
+        OutputLimitSpec innerSpec = new OutputLimitSpec(outputLimitSpec.getRate(), outputLimitSpec.getVariableName(), outputLimitSpec.getRateType(), OutputLimitLimitType.DEFAULT, outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), outputLimitSpec.getCrontabAtSchedule(), outputLimitSpec.getTimePeriodExpr(), outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), outputLimitSpec.isAndAfterTerminate(), outputLimitSpec.getAndAfterTerminateExpr(), outputLimitSpec.getAndAfterTerminateThenExpressions());
+        this.innerConditionFactory = OutputConditionFactoryFactory.createCondition(innerSpec, statementContext, isGrouped, isWithHavingClause, false, resultSetProcessorHelperFactory);
+    }
 
     public OutputCondition make(AgentInstanceContext agentInstanceContext, OutputCallback outputCallback) {
         return new OutputConditionFirst(outputCallback, agentInstanceContext, innerConditionFactory);

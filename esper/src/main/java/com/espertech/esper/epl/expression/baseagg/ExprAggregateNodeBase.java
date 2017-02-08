@@ -31,12 +31,11 @@ import java.io.StringWriter;
  * Concrete subclasses must supply an aggregation state prototype node {@link com.espertech.esper.epl.agg.aggregator.AggregationMethod} that reflects
  * each group's (there may be group-by critera) current aggregation state.
  */
-public abstract class ExprAggregateNodeBase extends ExprNodeBase implements ExprEvaluator, ExprAggregateNode
-{
-	private static final long serialVersionUID = 4859196214837888423L;
+public abstract class ExprAggregateNodeBase extends ExprNodeBase implements ExprEvaluator, ExprAggregateNode {
+    private static final long serialVersionUID = 4859196214837888423L;
 
     protected transient AggregationResultFuture aggregationResultFuture;
-	protected int column;
+    protected int column;
     private transient AggregationMethodFactory aggregationMethodFactory;
     protected ExprAggregateLocalGroupByDesc optionalAggregateLocalGroupByDesc;
     protected ExprNode[] positionalParams;
@@ -48,6 +47,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
 
     /**
      * Returns the aggregation function name for representation in a generate expression string.
+     *
      * @return aggregation function name
      */
     public abstract String getAggregationFunctionName();
@@ -55,6 +55,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     /**
      * Return true if a expression aggregate node semantically equals the current node, or false if not.
      * <p>For use by the equalsNode implementation which compares the distinct flag.
+     *
      * @param node to compare to
      * @return true if semantically equal, or false if not equals
      */
@@ -63,21 +64,19 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     /**
      * Gives the aggregation node a chance to validate the sub-expression types.
      *
-     *
-     *
      * @param validationContext validation information
      * @return aggregation function factory to use
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when expression validation failed
      */
     protected abstract AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext)
-        throws ExprValidationException;
+            throws ExprValidationException;
 
     /**
      * Ctor.
+     *
      * @param distinct - sets the flag indicatating whether only unique values should be aggregated
      */
-    protected ExprAggregateNodeBase(boolean distinct)
-    {
+    protected ExprAggregateNodeBase(boolean distinct) {
         isDistinct = distinct;
     }
 
@@ -85,22 +84,19 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return positionalParams;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         validatePositionals();
         aggregationMethodFactory = validateAggregationChild(validationContext);
         if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE &&
-            optionalAggregateLocalGroupByDesc != null) {
+                optionalAggregateLocalGroupByDesc != null) {
             throw new ExprValidationException("The 'group_by' parameter is not allowed in create-table statements");
         }
         return null;
@@ -115,10 +111,8 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         this.positionalParams = paramDesc.getPositionalParams();
     }
 
-    public Class getType()
-    {
-        if (aggregationMethodFactory == null)
-        {
+    public Class getType() {
+        if (aggregationMethodFactory == null) {
             throw new IllegalStateException("Aggregation method has not been set");
         }
         return aggregationMethodFactory.getResultType();
@@ -126,12 +120,11 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
 
     /**
      * Returns the aggregation state factory for use in grouping aggregation states per group-by keys.
+     *
      * @return prototype aggregation state as a factory for aggregation states per group-by key value
      */
-    public AggregationMethodFactory getFactory()
-    {
-        if (aggregationMethodFactory == null)
-        {
+    public AggregationMethodFactory getFactory() {
+        if (aggregationMethodFactory == null) {
             throw new IllegalStateException("Aggregation method has not been set");
         }
         return aggregationMethodFactory;
@@ -139,46 +132,42 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
 
     /**
      * Assigns to the node the future which can be queried for the current aggregation state at evaluation time.
+     *
      * @param aggregationResultFuture - future containing state
-     * @param column - column to hand to future for easy access
+     * @param column                  - column to hand to future for easy access
      */
-	public void setAggregationResultFuture(AggregationResultFuture aggregationResultFuture, int column)
-    {
+    public void setAggregationResultFuture(AggregationResultFuture aggregationResultFuture, int column) {
         this.aggregationResultFuture = aggregationResultFuture;
         this.column = column;
     }
 
-	public final Object evaluate(EventBean[] events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-	{
+    public final Object evaluate(EventBean[] events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             Object value = aggregationResultFuture.getValue(column, exprEvaluatorContext.getAgentInstanceId(), events, isNewData, exprEvaluatorContext);
             InstrumentationHelper.get().qaExprAggValue(this, value);
             return value;
         }
         return aggregationResultFuture.getValue(column, exprEvaluatorContext.getAgentInstanceId(), events, isNewData, exprEvaluatorContext);
-	}
+    }
 
     /**
      * Returns true if the aggregation node is only aggregatig distinct values, or false if
      * aggregating all values.
+     *
      * @return true if 'distinct' keyword was given, false if not
      */
-    public boolean isDistinct()
-    {
+    public boolean isDistinct() {
         return isDistinct;
     }
 
-    public final boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprAggregateNode))
-        {
+    public final boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprAggregateNode)) {
             return false;
         }
 
         ExprAggregateNode other = (ExprAggregateNode) node;
 
-        if (other.isDistinct() != this.isDistinct)
-        {
+        if (other.isDistinct() != this.isDistinct) {
             return false;
         }
 
@@ -188,15 +177,14 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     /**
      * For use by implementing classes, validates the aggregation node expecting
      * a single numeric-type child node.
+     *
      * @param hasFilter for filter indication
      * @return numeric type of single child
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the validation failed
      */
     protected final Class validateNumericChildAllowFilter(boolean hasFilter)
-        throws ExprValidationException
-    {
-        if (positionalParams.length == 0 || positionalParams.length > 2)
-        {
+            throws ExprValidationException {
+        if (positionalParams.length == 0 || positionalParams.length > 2) {
             throw makeExceptionExpectedParamNum(1, 2);
         }
 
@@ -207,8 +195,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         }
 
         Class childType = child.getExprEvaluator().getType();
-        if (!JavaClassHelper.isNumeric(childType))
-        {
+        if (!JavaClassHelper.isNumeric(childType)) {
             throw new ExprValidationException("Implicit conversion from datatype '" +
                     (childType == null ? "null" : childType.getSimpleName()) +
                     "' to numeric is not allowed for aggregation function '" + getAggregationFunctionName() + "'");
@@ -221,11 +208,9 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         String message = "The '" + getAggregationFunctionName() + "' function expects ";
         if (lower == 0 && upper == 0) {
             message += "no parameters";
-        }
-        else if (lower == upper) {
+        } else if (lower == upper) {
             message += lower + " parameters";
-        }
-        else {
+        } else {
             message += "at least " + lower + " and up to " + upper + " parameters";
         }
         return new ExprValidationException(message);
@@ -243,13 +228,12 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
             this.getChildNodes()[0].toEPL(writer, getPrecedence());
 
             String delimiter = ",";
-            for (int i = 1 ; i < this.getChildNodes().length; i++) {
+            for (int i = 1; i < this.getChildNodes().length; i++) {
                 writer.write(delimiter);
                 delimiter = ",";
                 this.getChildNodes()[i].toEPL(writer, getPrecedence());
             }
-        }
-        else {
+        } else {
             if (isExprTextWildcardWhenNoParams()) {
                 writer.append('*');
             }
@@ -262,7 +246,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return ExprPrecedenceEnum.MINIMUM;
     }
 
-    public void validateFilter(ExprEvaluator filterEvaluator) throws ExprValidationException{
+    public void validateFilter(ExprEvaluator filterEvaluator) throws ExprValidationException {
         if (JavaClassHelper.getBoxedType(filterEvaluator.getType()) != Boolean.class) {
             throw new ExprValidationException("Invalid filter expression parameter to the aggregation function '" +
                     getAggregationFunctionName() +

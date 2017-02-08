@@ -28,8 +28,7 @@ import java.util.Set;
  * Implements the function to determine a join result for a unidirectional stream-to-window joins,
  * in which a single stream's events are ever only evaluated using a query strategy.
  */
-public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
-{
+public class JoinSetComposerStreamToWinImpl implements JoinSetComposer {
     private final boolean allowInitIndex;
     private final EventTable[][] repositories;
     private final int streamNumber;
@@ -41,24 +40,19 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
     private Set<MultiKey<EventBean>> emptyResults = new LinkedHashSet<MultiKey<EventBean>>();
     private Set<MultiKey<EventBean>> newResults = new LinkedHashSet<MultiKey<EventBean>>();
 
-    public JoinSetComposerStreamToWinImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, boolean isPureSelfJoin, int streamNumber, QueryStrategy queryStrategy, boolean[] selfJoinRepositoryResets)
-    {
+    public JoinSetComposerStreamToWinImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, boolean isPureSelfJoin, int streamNumber, QueryStrategy queryStrategy, boolean[] selfJoinRepositoryResets) {
         this.allowInitIndex = allowInitIndex;
         this.repositories = JoinSetComposerUtil.toArray(repositories);
         this.streamNumber = streamNumber;
         this.queryStrategy = queryStrategy;
 
         this.selfJoinRepositoryResets = selfJoinRepositoryResets;
-        if (isPureSelfJoin)
-        {
+        if (isPureSelfJoin) {
             isResetSelfJoinRepositories = true;
             Arrays.fill(selfJoinRepositoryResets, true);
-        }
-        else
-        {
+        } else {
             boolean flag = false;
-            for (boolean selfJoinRepositoryReset : selfJoinRepositoryResets)
-            {
+            for (boolean selfJoinRepositoryReset : selfJoinRepositoryResets) {
                 flag |= selfJoinRepositoryReset;
             }
             this.isResetSelfJoinRepositories = flag;
@@ -69,39 +63,33 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
         return allowInitIndex;
     }
 
-    public void init(EventBean[][] eventsPerStream)
-    {
+    public void init(EventBean[][] eventsPerStream) {
         if (!allowInitIndex) {
             throw new IllegalStateException("Initialization by events not supported");
         }
-        for (int i = 0; i < eventsPerStream.length; i++)
-        {
-            if ((eventsPerStream[i] != null) && (i != streamNumber))
-            {
-                for (int j = 0; j < repositories[i].length; j++)
-                {
+        for (int i = 0; i < eventsPerStream.length; i++) {
+            if ((eventsPerStream[i] != null) && (i != streamNumber)) {
+                for (int j = 0; j < repositories[i].length; j++) {
                     repositories[i][j].add((eventsPerStream[i]));
                 }
             }
         }
     }
 
-    public void destroy()
-    {
-        for (EventTable[] repository : repositories)
-        {
+    public void destroy() {
+        for (EventTable[] repository : repositories) {
             if (repository != null) {
-            	for (EventTable table : repository)
-            	{
-            		table.destroy();
-            	}
+                for (EventTable table : repository) {
+                    table.destroy();
+                }
             }
         }
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionStreamToWin();}
+    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qJoinCompositionStreamToWin();
+        }
         newResults.clear();
 
         // We add and remove data in one call to each index.
@@ -109,45 +97,48 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer
         // Unique indexes may remove then add.
         for (int stream = 0; stream < newDataPerStream.length; stream++) {
             if (stream != streamNumber) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionStepUpdIndex(stream, newDataPerStream[stream], oldDataPerStream[stream]);}
-                for (int j = 0; j < repositories[stream].length; j++)
-                {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qJoinCompositionStepUpdIndex(stream, newDataPerStream[stream], oldDataPerStream[stream]);
+                }
+                for (int j = 0; j < repositories[stream].length; j++) {
                     repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream]);
                 }
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionStepUpdIndex();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aJoinCompositionStepUpdIndex();
+                }
             }
         }
 
         // join new data
-        if (newDataPerStream[streamNumber] != null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionQueryStrategy(true, streamNumber, newDataPerStream[streamNumber]);}
+        if (newDataPerStream[streamNumber] != null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qJoinCompositionQueryStrategy(true, streamNumber, newDataPerStream[streamNumber]);
+            }
             queryStrategy.lookup(newDataPerStream[streamNumber], newResults, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionQueryStrategy();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aJoinCompositionQueryStrategy();
+            }
         }
 
         // on self-joins there can be repositories which are temporary for join execution
-        if (isResetSelfJoinRepositories)
-        {
-            for (int i = 0; i < selfJoinRepositoryResets.length; i++)
-            {
-                if (!selfJoinRepositoryResets[i])
-                {
+        if (isResetSelfJoinRepositories) {
+            for (int i = 0; i < selfJoinRepositoryResets.length; i++) {
+                if (!selfJoinRepositoryResets[i]) {
                     continue;
                 }
-                for (int j = 0; j < repositories[i].length; j++)
-                {
+                for (int j = 0; j < repositories[i].length; j++) {
                     repositories[i][j].clear();
                 }
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionStreamToWin(newResults);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aJoinCompositionStreamToWin(newResults);
+        }
         return new UniformPair<Set<MultiKey<EventBean>>>(newResults, emptyResults);
     }
 
-    public Set<MultiKey<EventBean>> staticJoin()
-    {
+    public Set<MultiKey<EventBean>> staticJoin() {
         throw new UnsupportedOperationException("Iteration over a unidirectional join is not supported");
     }
 

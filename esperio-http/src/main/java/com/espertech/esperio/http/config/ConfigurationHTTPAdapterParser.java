@@ -15,58 +15,48 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ConfigurationHTTPAdapterParser
-{
+public class ConfigurationHTTPAdapterParser {
     /**
      * Use the configuration specified in the given input stream.
+     *
      * @param configuration is the configuration object to populate
-     * @param stream	   Inputstream to be read from
-     * @param resourceName The name to use in warning/error messages
+     * @param stream        Inputstream to be read from
+     * @param resourceName  The name to use in warning/error messages
      * @throws RuntimeException is thrown when the configuration could not be parsed
      */
-    protected static void doConfigure(ConfigurationHTTPAdapter configuration, InputStream stream, String resourceName) throws RuntimeException
-    {
+    protected static void doConfigure(ConfigurationHTTPAdapter configuration, InputStream stream, String resourceName) throws RuntimeException {
         Document document = getDocument(stream, resourceName);
         doConfigure(configuration, document);
     }
 
     /**
      * Returns the document.
-     * @param stream to read
+     *
+     * @param stream       to read
      * @param resourceName resource in stream
      * @return document
      * @throws RuntimeException if the document could not be loaded or parsed
      */
-    protected static Document getDocument(InputStream stream, String resourceName) throws RuntimeException
-    {
+    protected static Document getDocument(InputStream stream, String resourceName) throws RuntimeException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 
         Document document = null;
 
-        try
-        {
+        try {
             builder = factory.newDocumentBuilder();
             document = builder.parse(stream);
-        }
-        catch (ParserConfigurationException ex)
-        {
+        } catch (ParserConfigurationException ex) {
             throw new RuntimeException("Could not get a DOM parser configuration: " + resourceName, ex);
-        }
-        catch (SAXException ex)
-        {
+        } catch (SAXException ex) {
             throw new RuntimeException("Could not parse configuration: " + resourceName, ex);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new RuntimeException("Could not read configuration: " + resourceName, ex);
-        }
-        finally {
+        } finally {
             try {
                 stream.close();
-            }
-            catch (IOException ioe) {
-                log.warn( "could not close input stream for: " + resourceName, ioe );
+            } catch (IOException ioe) {
+                log.warn("could not close input stream for: " + resourceName, ioe);
             }
         }
 
@@ -75,40 +65,31 @@ public class ConfigurationHTTPAdapterParser
 
     /**
      * Parse the W3C DOM document.
+     *
      * @param configuration is the configuration object to populate
-     * @param doc to parse
+     * @param doc           to parse
      * @throws RuntimeException to indicate parse errors
      */
-    protected static void doConfigure(ConfigurationHTTPAdapter configuration, Document doc) throws RuntimeException
-    {
+    protected static void doConfigure(ConfigurationHTTPAdapter configuration, Document doc) throws RuntimeException {
         Element root = doc.getDocumentElement();
 
         DOMElementIterator eventTypeNodeIterator = new DOMElementIterator(root.getChildNodes());
-        while (eventTypeNodeIterator.hasNext())
-        {
+        while (eventTypeNodeIterator.hasNext()) {
             Element element = eventTypeNodeIterator.next();
             String nodeName = element.getNodeName();
-            if (nodeName.equals("service"))
-            {
+            if (nodeName.equals("service")) {
                 handleService(configuration, element);
-            }
-            else if (nodeName.equals("service"))
-            {
+            } else if (nodeName.equals("service")) {
                 handleGet(configuration, element);
-            }
-            else if (nodeName.equals("get"))
-            {
+            } else if (nodeName.equals("get")) {
                 handleGet(configuration, element);
-            }
-            else if (nodeName.equals("request"))
-            {
+            } else if (nodeName.equals("request")) {
                 handleRequest(configuration, element);
             }
         }
     }
 
-    private static void handleService(ConfigurationHTTPAdapter configuration, Node node)
-    {
+    private static void handleService(ConfigurationHTTPAdapter configuration, Node node) {
         String name = getRequiredAttribute(node, "name");
         String port = getRequiredAttribute(node, "port");
         String nio = getRequiredAttribute(node, "nio");
@@ -119,8 +100,7 @@ public class ConfigurationHTTPAdapterParser
         service.setNio(Boolean.parseBoolean(nio));
     }
 
-    private static void handleGet(ConfigurationHTTPAdapter configuration, Node node)
-    {
+    private static void handleGet(ConfigurationHTTPAdapter configuration, Node node) {
         String service = getRequiredAttribute(node, "service");
         String pattern = getRequiredAttribute(node, "pattern");
 
@@ -130,8 +110,7 @@ public class ConfigurationHTTPAdapterParser
         get.setPattern(pattern);
     }
 
-    private static void handleRequest(ConfigurationHTTPAdapter configuration, Node node)
-    {
+    private static void handleRequest(ConfigurationHTTPAdapter configuration, Node node) {
         String stream = getRequiredAttribute(node, "stream");
         String uri = getRequiredAttribute(node, "uri");
 
@@ -143,46 +122,42 @@ public class ConfigurationHTTPAdapterParser
 
     /**
      * Returns an input stream from an application resource in the classpath.
+     *
      * @param resource to get input stream for
      * @return input stream for resource
      */
-    protected static InputStream getResourceAsStream(String resource)
-    {
+    protected static InputStream getResourceAsStream(String resource) {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
         InputStream stream = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader!=null) {
-            stream = classLoader.getResourceAsStream( stripped );
+        if (classLoader != null) {
+            stream = classLoader.getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            ConfigurationHTTPAdapterParser.class.getResourceAsStream( resource );
+        if (stream == null) {
+            ConfigurationHTTPAdapterParser.class.getResourceAsStream(resource);
         }
-        if ( stream == null ) {
-            stream = ConfigurationHTTPAdapterParser.class.getClassLoader().getResourceAsStream( stripped );
+        if (stream == null) {
+            stream = ConfigurationHTTPAdapterParser.class.getClassLoader().getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            throw new RuntimeException( resource + " not found" );
+        if (stream == null) {
+            throw new RuntimeException(resource + " not found");
         }
         return stream;
     }
 
-    private static String getOptionalAttribute(Node node, String key)
-    {
+    private static String getOptionalAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode != null)
-        {
+        if (valueNode != null) {
             return valueNode.getTextContent();
         }
         return null;
     }
 
-    private static String getRequiredAttribute(Node node, String key)
-    {
+    private static String getRequiredAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode == null)
-        {
+        if (valueNode == null) {
             throw new ConfigurationException("Required attribute by name '" + key + "' not found");
         }
         return valueNode.getTextContent();

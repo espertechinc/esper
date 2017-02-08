@@ -18,8 +18,7 @@ import com.espertech.esper.epl.enummethod.dot.ExprDotStaticMethodWrap;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class ExprDotEvalVariable implements ExprEvaluator
-{
+public class ExprDotEvalVariable implements ExprEvaluator {
     private final ExprDotNode dotNode;
     private final VariableReader variableReader;
     private final ExprDotStaticMethodWrap resultWrapLambda;
@@ -32,24 +31,25 @@ public class ExprDotEvalVariable implements ExprEvaluator
         this.chainEval = chainEval;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         if (chainEval.length == 0) {
             return variableReader.getVariableMetaData().getType();
-        }
-        else {
+        } else {
             return EPTypeHelper.getClassSingleValued(chainEval[chainEval.length - 1].getTypeInfo());
         }
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-	{
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDot(dotNode);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprDot(dotNode);
+        }
 
         Object result = variableReader.getValue();
         result = ExprDotNodeUtility.evaluateChainWithWrap(resultWrapLambda, result, variableReader.getVariableMetaData().getEventType(), variableReader.getVariableMetaData().getType(), chainEval, eventsPerStream, isNewData, exprEvaluatorContext);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDot(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprDot(result);
+        }
         return result;
     }
 }

@@ -22,16 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class ExprDotMethodEvalNoDuck implements ExprDotEval
-{
+public class ExprDotMethodEvalNoDuck implements ExprDotEval {
     private static final Logger log = LoggerFactory.getLogger(ExprDotMethodEvalNoDuck.class);
 
     protected final String statementName;
     protected final FastMethod method;
     private final ExprEvaluator[] parameters;
 
-    public ExprDotMethodEvalNoDuck(String statementName, FastMethod method, ExprEvaluator[] parameters)
-    {
+    public ExprDotMethodEvalNoDuck(String statementName, FastMethod method, ExprEvaluator[] parameters) {
         this.statementName = statementName;
         this.method = method;
         this.parameters = parameters;
@@ -46,21 +44,17 @@ public class ExprDotMethodEvalNoDuck implements ExprDotEval
             return null;
         }
 
-		Object[] args = new Object[parameters.length];
-		for(int i = 0; i < args.length; i++)
-		{
-			args[i] = parameters[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-		}
+        Object[] args = new Object[parameters.length];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = parameters[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        }
 
-		try
-		{
+        try {
             return method.invoke(target, args);
-		}
-		catch (InvocationTargetException e)
-		{
+        } catch (InvocationTargetException e) {
             String message = JavaClassHelper.getMessageInvocationTarget(statementName, method.getJavaMethod(), target.getClass().getName(), args, e);
             log.error(message, e.getTargetException());
-		}
+        }
         return null;
     }
 

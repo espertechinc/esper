@@ -26,7 +26,8 @@ public @interface SingleRowFunction {
 
     /**
      * Single-row function name for use in EPL statements.
+     *
      * @return function name.
      */
-	String name();
+    String name();
 }

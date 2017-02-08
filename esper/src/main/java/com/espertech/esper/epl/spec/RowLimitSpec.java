@@ -17,10 +17,9 @@ import java.io.Serializable;
 /**
  * Spec for defining a row limit.
  */
-public class RowLimitSpec implements MetaDefItem, Serializable
-{
+public class RowLimitSpec implements MetaDefItem, Serializable {
     private final Integer numRows;
-	private final Integer optionalOffset;
+    private final Integer optionalOffset;
 
     private final String numRowsVariable;
     private final String optionalOffsetVariable;
@@ -28,13 +27,13 @@ public class RowLimitSpec implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param numRows max num rows constant, null if using variable
-     * @param optionalOffset offset or null
-     * @param numRowsVariable max num rows variable, null if using constant
+     *
+     * @param numRows                max num rows constant, null if using variable
+     * @param optionalOffset         offset or null
+     * @param numRowsVariable        max num rows variable, null if using constant
      * @param optionalOffsetVariable offset variable or null
      */
-    public RowLimitSpec(Integer numRows, Integer optionalOffset, String numRowsVariable, String optionalOffsetVariable)
-    {
+    public RowLimitSpec(Integer numRows, Integer optionalOffset, String numRowsVariable, String optionalOffsetVariable) {
         this.numRows = numRows;
         this.optionalOffset = optionalOffset;
         this.numRowsVariable = numRowsVariable;
@@ -43,37 +42,37 @@ public class RowLimitSpec implements MetaDefItem, Serializable
 
     /**
      * Returns max num rows constant or null if using variable.
+     *
      * @return limit
      */
-    public Integer getNumRows()
-    {
+    public Integer getNumRows() {
         return numRows;
     }
 
     /**
      * Returns offset constant or null.
+     *
      * @return offset
      */
-    public Integer getOptionalOffset()
-    {
+    public Integer getOptionalOffset() {
         return optionalOffset;
     }
 
     /**
      * Returns max num rows variable or null if using constant.
+     *
      * @return limit
      */
-    public String getNumRowsVariable()
-    {
+    public String getNumRowsVariable() {
         return numRowsVariable;
     }
 
     /**
      * Returns offset variable or null
+     *
      * @return offset variable
      */
-    public String getOptionalOffsetVariable()
-    {
+    public String getOptionalOffsetVariable() {
         return optionalOffsetVariable;
     }
 }

@@ -41,25 +41,25 @@ import java.util.Map;
 /**
  * Factory for method-invocation data provider streams.
  */
-public class MethodPollingViewableFactory
-{
+public class MethodPollingViewableFactory {
     /**
      * Creates a method-invocation polling view for use as a stream that calls a method, or pulls results from cache.
-     * @param streamNumber the stream number
-     * @param methodStreamSpec defines the class and method to call
-     * @param eventAdapterService for creating event types and events
+     *
+     * @param streamNumber                   the stream number
+     * @param methodStreamSpec               defines the class and method to call
+     * @param eventAdapterService            for creating event types and events
      * @param epStatementAgentInstanceHandle for time-based callbacks
-     * @param engineImportService for resolving configurations
-     * @param schedulingService for scheduling callbacks in expiry-time based caches
-     * @param scheduleBucket for schedules within the statement
-     * @param exprEvaluatorContext expression evaluation context
-     * @param variableService variable service
-     * @param statementContext statement context
-     * @param contextName context name
-     * @param dataCacheFactory factory for cache
+     * @param engineImportService            for resolving configurations
+     * @param schedulingService              for scheduling callbacks in expiry-time based caches
+     * @param scheduleBucket                 for schedules within the statement
+     * @param exprEvaluatorContext           expression evaluation context
+     * @param variableService                variable service
+     * @param statementContext               statement context
+     * @param contextName                    context name
+     * @param dataCacheFactory               factory for cache
      * @return pollable view
      * @throws ExprValidationException if the expressions cannot be validated or the method descriptor
-     * has incorrect class and method names, or parameter number and types don't match
+     *                                 has incorrect class and method names, or parameter number and types don't match
      */
     public static HistoricalEventViewable createPollMethodView(int streamNumber,
                                                                MethodStreamSpec methodStreamSpec,
@@ -73,8 +73,7 @@ public class MethodPollingViewableFactory
                                                                String contextName,
                                                                DataCacheFactory dataCacheFactory,
                                                                StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         VariableMetaData variableMetaData = variableService.getVariableMetaData(methodStreamSpec.getClassName());
         MethodPollingExecStrategyEnum strategy;
         VariableReader variableReader;
@@ -84,8 +83,7 @@ public class MethodPollingViewableFactory
         Method methodReflection;
         Class declaringClass;
         Object invocationTarget;
-        try
-		{
+        try {
             if (variableMetaData != null) {
                 variableName = variableMetaData.getVariableName();
                 if (variableMetaData.getContextPartitionName() != null) {
@@ -95,8 +93,7 @@ public class MethodPollingViewableFactory
                     strategy = MethodPollingExecStrategyEnum.TARGET_VAR_CONTEXT;
                     variableReader = null;
                     invocationTarget = null;
-                }
-                else {
+                } else {
                     variableReader = variableService.getReader(methodStreamSpec.getClassName(), EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID);
                     if (variableMetaData.isConstant()) {
                         invocationTarget = variableReader.getValue();
@@ -104,15 +101,13 @@ public class MethodPollingViewableFactory
                             invocationTarget = ((EventBean) invocationTarget).getUnderlying();
                         }
                         strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
-                    }
-                    else {
+                    } else {
                         invocationTarget = null;
                         strategy = MethodPollingExecStrategyEnum.TARGET_VAR;
                     }
                 }
                 methodReflection = engineImportService.resolveNonStaticMethodOverloadChecked(variableMetaData.getType(), methodStreamSpec.getMethodName());
-            }
-            else {
+            } else {
                 methodReflection = engineImportService.resolveMethodOverloadChecked(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
                 invocationTarget = null;
                 variableReader = null;
@@ -120,24 +115,18 @@ public class MethodPollingViewableFactory
                 strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
             }
             declaringClass = methodReflection.getDeclaringClass();
-		}
-        catch(ExprValidationException e)
-        {
+        } catch (ExprValidationException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ExprValidationException(e.getMessage(), e);
         }
-		catch(Exception e)
-		{
-			throw new ExprValidationException(e.getMessage(), e);
-		}
 
         // Determine object type returned by method
         Class beanClass = methodReflection.getReturnType();
-        if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass)))
-        {
+        if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass))) {
             throw new ExprValidationException("Invalid return type for static method '" + methodReflection.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
         }
-        if (methodReflection.getReturnType().isArray())
-        {
+        if (methodReflection.getReturnType().isArray()) {
             beanClass = methodReflection.getReturnType().getComponentType();
         }
 
@@ -158,16 +147,14 @@ public class MethodPollingViewableFactory
         // If the method returns a Map, look up the map type
         Map<String, Object> mapType = null;
         String mapTypeName = null;
-        if ( (JavaClassHelper.isImplementsInterface(methodReflection.getReturnType(), Map.class)) ||
-             (methodReflection.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodReflection.getReturnType().getComponentType(), Map.class)) ||
-              (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
-              (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class)))
-        {
+        if ((JavaClassHelper.isImplementsInterface(methodReflection.getReturnType(), Map.class)) ||
+                (methodReflection.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodReflection.getReturnType().getComponentType(), Map.class)) ||
+                (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
+                (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class))) {
             MethodMetadataDesc metadata;
             if (variableMetaData != null) {
                 metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, Map.class);
-            }
-            else {
+            } else {
                 metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, Map.class);
             }
             mapTypeName = metadata.getTypeName();
@@ -179,14 +166,12 @@ public class MethodPollingViewableFactory
         String oaTypeName = null;
         if (methodReflection.getReturnType() == Object[].class ||
                 methodReflection.getReturnType() == Object[][].class ||
-            (isCollection && collectionClass == Object[].class) ||
-            (isIterator && iteratorClass == Object[].class))
-        {
+                (isCollection && collectionClass == Object[].class) ||
+                (isIterator && iteratorClass == Object[].class)) {
             MethodMetadataDesc metadata;
             if (variableMetaData != null) {
                 metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, LinkedHashMap.class);
-            }
-            else {
+            } else {
                 metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, LinkedHashMap.class);
             }
             oaTypeName = metadata.getTypeName();
@@ -197,11 +182,9 @@ public class MethodPollingViewableFactory
         EventType eventType;
         if (mapType != null) {
             eventType = eventAdapterService.addNestableMapType(mapTypeName, mapType, null, false, true, true, false, false);
-        }
-        else if (oaType != null) {
+        } else if (oaType != null) {
             eventType = eventAdapterService.addNestableObjectArrayType(oaTypeName, oaType, null, false, true, true, false, false, false, null);
-        }
-        else {
+        } else {
             eventType = eventAdapterService.addBeanType(beanClass.getName(), beanClass, false, true, true);
         }
 
@@ -218,8 +201,7 @@ public class MethodPollingViewableFactory
     }
 
     private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, VariableReader variableReader, EngineImportService engineImportService, Class metadataClass)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Method typeGetterMethod = getRequiredTypeGetterMethodCanNonStatic(methodName, null, variableMetaData.getType(), engineImportService, metadataClass);
 
         if (Modifier.isStatic(typeGetterMethod.getModifiers())) {
@@ -250,27 +232,23 @@ public class MethodPollingViewableFactory
     }
 
     private static Method getRequiredTypeGetterMethodCanNonStatic(String methodName, String classNameWhenNoClass, Class clazzWhenAvailable, EngineImportService engineImportService, Class metadataClass)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Method typeGetterMethod;
         String getterMethodName = methodName + "Metadata";
         try {
             if (clazzWhenAvailable != null) {
                 typeGetterMethod = engineImportService.resolveMethod(clazzWhenAvailable, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
-            }
-            else {
+            } else {
                 typeGetterMethod = engineImportService.resolveMethodOverloadChecked(classNameWhenNoClass, getterMethodName, new Class[0], new boolean[0], new boolean[0]);
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw new ExprValidationException("Could not find getter method for method invocation, expected a method by name '" + getterMethodName + "' accepting no parameters");
         }
 
         boolean fail;
         if (metadataClass.isInterface()) {
             fail = !JavaClassHelper.isImplementsInterface(typeGetterMethod.getReturnType(), metadataClass);
-        }
-        else {
+        } else {
             fail = typeGetterMethod.getReturnType() != metadataClass;
         }
         if (fail) {
@@ -281,13 +259,11 @@ public class MethodPollingViewableFactory
     }
 
     private static MethodMetadataDesc invokeMetadataMethod(Object target, String className, Method typeGetterMethod)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Object resultType;
         try {
             resultType = typeGetterMethod.invoke(target);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ExprValidationException("Error invoking metadata getter method for method invocation, for method by name '" + typeGetterMethod.getName() + "' accepting no parameters: " + e.getMessage(), e);
         }
         if (resultType == null) {

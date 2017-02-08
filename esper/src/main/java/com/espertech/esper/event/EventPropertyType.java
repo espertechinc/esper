@@ -13,20 +13,19 @@ package com.espertech.esper.event;
 /**
  * Enumeration of property types.
  */
-public enum EventPropertyType
-{
+public enum EventPropertyType {
     /**
      * Simple property.
      */
-	SIMPLE,
+    SIMPLE,
 
     /**
      * Indexed property.
      */
-	INDEXED,
+    INDEXED,
 
     /**
      * Mapped property.
      */
-	MAPPED
+    MAPPED
 }

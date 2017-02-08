@@ -28,33 +28,32 @@ import java.util.List;
  */
 public class OrderByProcessorFactoryImpl implements OrderByProcessorFactory {
 
-	private final OrderByElement[] orderBy;
-	private final ExprEvaluator[] groupByNodes;
-	private final boolean needsGroupByKeys;
-	private final Comparator<Object> comparator;
+    private final OrderByElement[] orderBy;
+    private final ExprEvaluator[] groupByNodes;
+    private final boolean needsGroupByKeys;
+    private final Comparator<Object> comparator;
 
-	/**
-	 * Ctor.
-	 *
-	 * @param orderByList -
-	 *            the nodes that generate the keys to sort events on
-	 * @param groupByNodes -
-	 *            generate the keys for determining aggregation groups
-	 * @param needsGroupByKeys -
-	 *            indicates whether this processor needs to have individual
-	 *            group by keys to evaluate the sort condition successfully
+    /**
+     * Ctor.
+     *
+     * @param orderByList         -
+     *                            the nodes that generate the keys to sort events on
+     * @param groupByNodes        -
+     *                            generate the keys for determining aggregation groups
+     * @param needsGroupByKeys    -
+     *                            indicates whether this processor needs to have individual
+     *                            group by keys to evaluate the sort condition successfully
      * @param isSortUsingCollator for string value sorting using compare or Collator
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when order-by items don't divulge a type
-	 */
-	public OrderByProcessorFactoryImpl(final List<OrderByItem> orderByList,
+     */
+    public OrderByProcessorFactoryImpl(final List<OrderByItem> orderByList,
                                        ExprNode[] groupByNodes,
                                        boolean needsGroupByKeys,
                                        boolean isSortUsingCollator)
-            throws ExprValidationException
-    {
-		this.orderBy = toElementArray(orderByList);
-		this.groupByNodes = ExprNodeUtility.getEvaluators(groupByNodes);
-		this.needsGroupByKeys = needsGroupByKeys;
+            throws ExprValidationException {
+        this.orderBy = toElementArray(orderByList);
+        this.groupByNodes = ExprNodeUtility.getEvaluators(groupByNodes);
+        this.needsGroupByKeys = needsGroupByKeys;
 
         comparator = getComparator(orderBy, isSortUsingCollator);
     }
@@ -81,13 +80,13 @@ public class OrderByProcessorFactoryImpl implements OrderByProcessorFactory {
 
     /**
      * Returns a comparator for order items that may sort string values using Collator.
-     * @param orderBy order-by items
+     *
+     * @param orderBy             order-by items
      * @param isSortUsingCollator true for Collator string sorting
      * @return comparator
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the return type of order items cannot be determined
      */
-    protected static Comparator<Object> getComparator(OrderByElement[] orderBy, boolean isSortUsingCollator) throws ExprValidationException
-    {
+    protected static Comparator<Object> getComparator(OrderByElement[] orderBy, boolean isSortUsingCollator) throws ExprValidationException {
         ExprEvaluator[] evaluators = new ExprEvaluator[orderBy.length];
         boolean[] descending = new boolean[orderBy.length];
         for (int i = 0; i < orderBy.length; i++) {

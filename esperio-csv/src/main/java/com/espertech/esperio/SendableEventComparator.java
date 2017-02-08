@@ -16,24 +16,17 @@ import java.util.Comparator;
  * A comparator that orders SendableEvents first on sendTime, and
  * then on schedule slot.
  */
-public class SendableEventComparator implements Comparator<SendableEvent>
-{
-	public int compare(SendableEvent one, SendableEvent two)
-	{
-		if(one.getSendTime() < two.getSendTime())
-		{
-			return -1;
-		}
-		else if(one.getSendTime() > two.getSendTime())
-		{
-			return 1;
-		}
-		else
-		{
-			if (one.getScheduleSlot() == two.getScheduleSlot()) {
-				return 0;
-			}
-			return one.getScheduleSlot() < two.getScheduleSlot() ? -1 : 1;
-		}
-	}
+public class SendableEventComparator implements Comparator<SendableEvent> {
+    public int compare(SendableEvent one, SendableEvent two) {
+        if (one.getSendTime() < two.getSendTime()) {
+            return -1;
+        } else if (one.getSendTime() > two.getSendTime()) {
+            return 1;
+        } else {
+            if (one.getScheduleSlot() == two.getScheduleSlot()) {
+                return 0;
+            }
+            return one.getScheduleSlot() < two.getScheduleSlot() ? -1 : 1;
+        }
+    }
 }

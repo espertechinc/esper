@@ -18,19 +18,16 @@ import net.sf.cglib.reflect.FastConstructor;
 public class BasicTypeCoercer extends AbstractTypeCoercer {
 
     public Object coerce(String property, String source) throws Exception {
-		Object[] parameters = new Object[] { source };
+        Object[] parameters = new Object[]{source};
 
         FastConstructor ctor = propertyConstructors.get(property);
         Object value;
-        if (ctor != null)
-        {
+        if (ctor != null) {
             value = ctor.newInstance(parameters);
-        }
-        else
-        {
+        } else {
             value = Long.parseLong(source);
         }
 
         return value;
-	}
+    }
 }

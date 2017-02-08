@@ -15,58 +15,48 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ConfigurationSocketAdapterParser
-{
+public class ConfigurationSocketAdapterParser {
     /**
      * Use the configuration specified in the given input stream.
+     *
      * @param configuration is the configuration object to populate
-     * @param stream	   Inputstream to be read from
-     * @param resourceName The name to use in warning/error messages
+     * @param stream        Inputstream to be read from
+     * @param resourceName  The name to use in warning/error messages
      * @throws RuntimeException is thrown when the configuration could not be parsed
      */
-    protected static void doConfigure(ConfigurationSocketAdapter configuration, InputStream stream, String resourceName) throws RuntimeException
-    {
+    protected static void doConfigure(ConfigurationSocketAdapter configuration, InputStream stream, String resourceName) throws RuntimeException {
         Document document = getDocument(stream, resourceName);
         doConfigure(configuration, document);
     }
 
     /**
      * Returns the document.
-     * @param stream to read
+     *
+     * @param stream       to read
      * @param resourceName resource in stream
      * @return document
      * @throws RuntimeException if the document could not be loaded or parsed
      */
-    protected static Document getDocument(InputStream stream, String resourceName) throws RuntimeException
-    {
+    protected static Document getDocument(InputStream stream, String resourceName) throws RuntimeException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 
         Document document = null;
 
-        try
-        {
+        try {
             builder = factory.newDocumentBuilder();
             document = builder.parse(stream);
-        }
-        catch (ParserConfigurationException ex)
-        {
+        } catch (ParserConfigurationException ex) {
             throw new RuntimeException("Could not get a DOM parser configuration: " + resourceName, ex);
-        }
-        catch (SAXException ex)
-        {
+        } catch (SAXException ex) {
             throw new RuntimeException("Could not parse configuration: " + resourceName, ex);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new RuntimeException("Could not read configuration: " + resourceName, ex);
-        }
-        finally {
+        } finally {
             try {
                 stream.close();
-            }
-            catch (IOException ioe) {
-                log.warn( "could not close input stream for: " + resourceName, ioe );
+            } catch (IOException ioe) {
+                log.warn("could not close input stream for: " + resourceName, ioe);
             }
         }
 
@@ -75,28 +65,25 @@ public class ConfigurationSocketAdapterParser
 
     /**
      * Parse the W3C DOM document.
+     *
      * @param configuration is the configuration object to populate
-     * @param doc to parse
+     * @param doc           to parse
      * @throws RuntimeException to indicate parse errors
      */
-    protected static void doConfigure(ConfigurationSocketAdapter configuration, Document doc) throws RuntimeException
-    {
+    protected static void doConfigure(ConfigurationSocketAdapter configuration, Document doc) throws RuntimeException {
         Element root = doc.getDocumentElement();
 
         DOMElementIterator eventTypeNodeIterator = new DOMElementIterator(root.getChildNodes());
-        while (eventTypeNodeIterator.hasNext())
-        {
+        while (eventTypeNodeIterator.hasNext()) {
             Element element = eventTypeNodeIterator.next();
             String nodeName = element.getNodeName();
-            if (nodeName.equals("socket"))
-            {
+            if (nodeName.equals("socket")) {
                 handleSocket(configuration, element);
             }
         }
     }
 
-    private static void handleSocket(ConfigurationSocketAdapter configuration, Node node)
-    {
+    private static void handleSocket(ConfigurationSocketAdapter configuration, Node node) {
         String name = getRequiredAttribute(node, "name");
         String port = getRequiredAttribute(node, "port");
         String dataType = getRequiredAttribute(node, "data");
@@ -124,46 +111,42 @@ public class ConfigurationSocketAdapterParser
 
     /**
      * Returns an input stream from an application resource in the classpath.
+     *
      * @param resource to get input stream for
      * @return input stream for resource
      */
-    protected static InputStream getResourceAsStream(String resource)
-    {
+    protected static InputStream getResourceAsStream(String resource) {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
         InputStream stream = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader!=null) {
-            stream = classLoader.getResourceAsStream( stripped );
+        if (classLoader != null) {
+            stream = classLoader.getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            ConfigurationSocketAdapterParser.class.getResourceAsStream( resource );
+        if (stream == null) {
+            ConfigurationSocketAdapterParser.class.getResourceAsStream(resource);
         }
-        if ( stream == null ) {
-            stream = ConfigurationSocketAdapterParser.class.getClassLoader().getResourceAsStream( stripped );
+        if (stream == null) {
+            stream = ConfigurationSocketAdapterParser.class.getClassLoader().getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            throw new RuntimeException( resource + " not found" );
+        if (stream == null) {
+            throw new RuntimeException(resource + " not found");
         }
         return stream;
     }
 
-    private static String getOptionalAttribute(Node node, String key)
-    {
+    private static String getOptionalAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode != null)
-        {
+        if (valueNode != null) {
             return valueNode.getTextContent();
         }
         return null;
     }
 
-    private static String getRequiredAttribute(Node node, String key)
-    {
+    private static String getRequiredAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode == null)
-        {
+        if (valueNode == null) {
             throw new ConfigurationException("Required attribute by name '" + key + "' not found");
         }
         return valueNode.getTextContent();

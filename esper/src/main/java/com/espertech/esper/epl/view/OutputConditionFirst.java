@@ -16,54 +16,46 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
  * An output condition that is satisfied at the first event
  * of either a time-based or count-based batch.
  */
-public class OutputConditionFirst extends OutputConditionBase implements OutputCondition
-{
-	private final OutputCondition innerCondition;
-	private boolean witnessedFirst;
+public class OutputConditionFirst extends OutputConditionBase implements OutputCondition {
+    private final OutputCondition innerCondition;
+    private boolean witnessedFirst;
 
-	public OutputConditionFirst(OutputCallback outputCallback, AgentInstanceContext agentInstanceContext, OutputConditionFactory innerConditionFactory)
-    {
-		super(outputCallback);
-		OutputCallback localCallback = createCallbackToLocal();
-		this.innerCondition = innerConditionFactory.make(agentInstanceContext, localCallback);
-		this.witnessedFirst = false;
-	}
+    public OutputConditionFirst(OutputCallback outputCallback, AgentInstanceContext agentInstanceContext, OutputConditionFactory innerConditionFactory) {
+        super(outputCallback);
+        OutputCallback localCallback = createCallbackToLocal();
+        this.innerCondition = innerConditionFactory.make(agentInstanceContext, localCallback);
+        this.witnessedFirst = false;
+    }
 
-	public void updateOutputCondition(int newEventsCount, int oldEventsCount)
-	{
-		if(!witnessedFirst)
-		{
-			witnessedFirst = true;
-			boolean doOutput = true;
-			boolean forceUpdate = false;
-			outputCallback.continueOutputProcessing(doOutput, forceUpdate);
-		}
-		innerCondition.updateOutputCondition(newEventsCount, oldEventsCount);
-	}
+    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {
+        if (!witnessedFirst) {
+            witnessedFirst = true;
+            boolean doOutput = true;
+            boolean forceUpdate = false;
+            outputCallback.continueOutputProcessing(doOutput, forceUpdate);
+        }
+        innerCondition.updateOutputCondition(newEventsCount, oldEventsCount);
+    }
 
-	private OutputCallback createCallbackToLocal()
-	{
-		return new OutputCallback()
-		{
-			public void continueOutputProcessing(boolean doOutput, boolean forceUpdate)
-			{
-				OutputConditionFirst.this.continueOutputProcessing(forceUpdate);
-			}
-		};
-	}
+    private OutputCallback createCallbackToLocal() {
+        return new OutputCallback() {
+            public void continueOutputProcessing(boolean doOutput, boolean forceUpdate) {
+                OutputConditionFirst.this.continueOutputProcessing(forceUpdate);
+            }
+        };
+    }
 
     public void terminated() {
         outputCallback.continueOutputProcessing(true, true);
     }
 
-	public void stop() {
-		// no action required
-	}
+    public void stop() {
+        // no action required
+    }
 
-	private void continueOutputProcessing(boolean forceUpdate)
-	{
-		boolean doOutput = !witnessedFirst;
-		outputCallback.continueOutputProcessing(doOutput, forceUpdate);
-		witnessedFirst = false;
-	}
+    private void continueOutputProcessing(boolean forceUpdate) {
+        boolean doOutput = !witnessedFirst;
+        outputCallback.continueOutputProcessing(doOutput, forceUpdate);
+        witnessedFirst = false;
+    }
 }

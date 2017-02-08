@@ -6,4 +6,5 @@
   <property name="localeLanguage" value="en"/>
 
   <module name="Header"/>
-</module>
+  <module name="FileTabCharacter"/>
+ </module>

@@ -52,8 +52,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 /**
  * Service provider encapsulates the engine's services for runtime and administration interfaces.
  */
-public class EPServiceProviderImpl implements EPServiceProviderSPI
-{
+public class EPServiceProviderImpl implements EPServiceProviderSPI {
     private static final Logger log = LoggerFactory.getLogger(EPServiceProviderImpl.class);
     private volatile EPServiceEngine engine;
     private ConfigurationInformation configSnapshot;
@@ -65,20 +64,18 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
     /**
      * Constructor - initializes services.
+     *
      * @param configuration is the engine configuration
-     * @param engineURI is the engine URI or "default" (or null which it assumes as "default") if this is the default provider
-     * @param runtimes map of URI and runtime
+     * @param engineURI     is the engine URI or "default" (or null which it assumes as "default") if this is the default provider
+     * @param runtimes      map of URI and runtime
      * @throws ConfigurationException is thrown to indicate a configuraton error
      */
-    public EPServiceProviderImpl(Configuration configuration, String engineURI, Map<String, EPServiceProviderSPI> runtimes) throws ConfigurationException
-    {
-        if (configuration == null)
-        {
+    public EPServiceProviderImpl(Configuration configuration, String engineURI, Map<String, EPServiceProviderSPI> runtimes) throws ConfigurationException {
+        if (configuration == null) {
             throw new NullPointerException("Unexpected null value received for configuration");
         }
-        if (engineURI == null)
-        {
-        	throw new NullPointerException("Engine URI should not be null at this stage");
+        if (engineURI == null) {
+            throw new NullPointerException("Engine URI should not be null at this stage");
         }
         this.runtimes = runtimes;
         this.engineURI = engineURI;
@@ -102,8 +99,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         if (engine.getServices().getConfigSnapshot().getEngineDefaults().getViewResources().isShareViews()) {
             throw new EPServiceNotAllowedException("Isolated runtime requires view sharing disabled, set engine defaults under view resources and share views to false");
         }
-        if (name == null)
-        {
+        if (name == null) {
             throw new IllegalArgumentException("Name parameter does not have a value provided");
         }
 
@@ -113,19 +109,15 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
     /**
      * Invoked after an initialize operation.
      */
-    public void postInitialize()
-    {
+    public void postInitialize() {
         // plugin-loaders
         List<ConfigurationPluginLoader> pluginLoaders = engine.getServices().getConfigSnapshot().getPluginLoaders();
         for (ConfigurationPluginLoader config : pluginLoaders)  // in the order configured
         {
-            try
-            {
+            try {
                 PluginLoader plugin = (PluginLoader) engine.getServices().getEngineEnvContext().lookup("plugin-loader/" + config.getLoaderName());
                 plugin.postInitialize();
-            }
-            catch (Throwable t)
-            {
+            } catch (Throwable t) {
                 String message = "Error post-initializing plugin class " + config.getClassName() + ": " + t.getMessage();
                 log.error(message, t);
                 throw new EPException(message, t);
@@ -135,41 +127,35 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
     /**
      * Sets engine configuration information for use in the next initialize.
+     *
      * @param configuration is the engine configs
      */
-    public void setConfiguration(Configuration configuration)
-    {
+    public void setConfiguration(Configuration configuration) {
         verifyConfiguration(configuration);
         configSnapshot = takeSnapshot(configuration);
     }
 
-    private void verifyConfiguration(Configuration configuration)
-    {
-        if (configuration.getEngineDefaults().getExecution().isPrioritized())
-        {
-            if (!configuration.getEngineDefaults().getViewResources().isShareViews())
-            {
+    private void verifyConfiguration(Configuration configuration) {
+        if (configuration.getEngineDefaults().getExecution().isPrioritized()) {
+            if (!configuration.getEngineDefaults().getViewResources().isShareViews()) {
                 log.info("Setting engine setting for share-views to false as execution is prioritized");
             }
             configuration.getEngineDefaults().getViewResources().setShareViews(false);
         }
     }
 
-    public String getURI()
-    {
+    public String getURI() {
         return engineURI;
     }
 
-    public EPRuntime getEPRuntime()
-    {
+    public EPRuntime getEPRuntime() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getRuntime();
     }
 
-    public EPAdministrator getEPAdministrator()
-    {
+    public EPAdministrator getEPAdministrator() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
@@ -183,32 +169,28 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return engine.getServices();
     }
 
-    public ThreadingService getThreadingService()
-    {
+    public ThreadingService getThreadingService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getThreadingService();
     }
 
-    public EventAdapterService getEventAdapterService()
-    {
+    public EventAdapterService getEventAdapterService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getEventAdapterService();
     }
 
-    public SchedulingService getSchedulingService()
-    {
+    public SchedulingService getSchedulingService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getSchedulingService();
     }
 
-    public FilterService getFilterService()
-    {
+    public FilterService getFilterService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
@@ -226,8 +208,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return configSnapshot;
     }
 
-    public NamedWindowMgmtService getNamedWindowMgmtService()
-    {
+    public NamedWindowMgmtService getNamedWindowMgmtService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
@@ -241,56 +222,49 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return engine.getServices().getTableService();
     }
 
-    public EngineLevelExtensionServicesContext getExtensionServicesContext()
-    {
+    public EngineLevelExtensionServicesContext getExtensionServicesContext() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getEngineLevelExtensionServicesContext();
     }
 
-    public StatementLifecycleSvc getStatementLifecycleSvc()
-    {
+    public StatementLifecycleSvc getStatementLifecycleSvc() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getStatementLifecycleSvc();
     }
 
-    public MetricReportingService getMetricReportingService()
-    {
+    public MetricReportingService getMetricReportingService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getMetricsReportingService();
     }
 
-    public ValueAddEventService getValueAddEventService()
-    {
+    public ValueAddEventService getValueAddEventService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getValueAddEventService();
     }
 
-    public StatementEventTypeRef getStatementEventTypeRef()
-    {
+    public StatementEventTypeRef getStatementEventTypeRef() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getStatementEventTypeRefService();
     }
 
-    public EngineEnvContext getEngineEnvContext()
-    {
+    public EngineEnvContext getEngineEnvContext() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getEngineEnvContext();
     }
 
-    public Context getContext()
-    {
+    public Context getContext() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
@@ -318,21 +292,15 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return engine.getServices().getDeploymentStateService();
     }
 
-    public synchronized void destroy()
-    {
-        if (engine != null)
-        {
+    public synchronized void destroy() {
+        if (engine != null) {
             log.info("Destroying engine URI '" + engineURI + "'");
 
             // first invoke listeners
-            for (EPServiceStateListener listener : serviceListeners)
-            {
-                try
-                {
+            for (EPServiceStateListener listener : serviceListeners) {
+                try {
                     listener.onEPServiceDestroyRequested(this);
-                }
-                catch (RuntimeException ex)
-                {
+                } catch (RuntimeException ex) {
                     log.error("Runtime exception caught during an onEPServiceDestroyRequested callback:" + ex.getMessage(), ex);
                 }
             }
@@ -346,12 +314,9 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
             engineToDestroy.getServices().getTimerService().stopInternalClock(false);
             // Give the timer thread a little moment to catch up
-            try
-            {
+            try {
                 Thread.sleep(100);
-            }
-            catch (InterruptedException ex)
-            {
+            } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
 
@@ -365,11 +330,9 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
                     try {
                         plugin = (PluginLoader) engineToDestroy.getServices().getEngineEnvContext().lookup("plugin-loader/" + config.getLoaderName());
                         plugin.destroy();
-                    }
-                    catch (NamingException e) {
+                    } catch (NamingException e) {
                         // expected
-                    }
-                    catch (RuntimeException e) {
+                    } catch (RuntimeException e) {
                         log.error("Error destroying plug-in loader: " + config.getLoaderName(), e);
                     }
                 }
@@ -379,7 +342,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
             // assign null - making EPRuntime and EPAdministrator unobtainable
             engine = null;
-            
+
             engineToDestroy.getRuntime().destroy();
             engineToDestroy.getAdmin().destroy();
             engineToDestroy.getServices().destroy();
@@ -389,8 +352,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         }
     }
 
-    public boolean isDestroyed()
-    {
+    public boolean isDestroyed() {
         return engine == null;
     }
 
@@ -409,10 +371,10 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
     /**
      * Performs the initialization.
+     *
      * @param startTime optional start time
      */
-    protected void doInitialize(Long startTime)
-    {
+    protected void doInitialize(Long startTime) {
         log.info("Initializing engine URI '" + engineURI + "' version " + Version.VERSION);
 
         // This setting applies to all engines in a given VM
@@ -431,17 +393,13 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
                 configSnapshot.getEngineDefaults().getThreading().isThreadPoolInbound() ||
                 configSnapshot.getEngineDefaults().getThreading().isThreadPoolRouteExec() ||
                 configSnapshot.getEngineDefaults().getThreading().isThreadPoolOutbound());
-        
-        if (engine != null)
-        {
+
+        if (engine != null) {
             engine.getServices().getTimerService().stopInternalClock(false);
             // Give the timer thread a little moment to catch up
-            try
-            {
+            try {
                 Thread.sleep(100);
-            }
-            catch (InterruptedException ex)
-            {
+            } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
 
@@ -457,39 +415,27 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         // Make EP services context factory
         String epServicesContextFactoryClassName = configSnapshot.getEPServicesContextFactoryClassName();
         EPServicesContextFactory epServicesContextFactory;
-        if (epServicesContextFactoryClassName == null)
-        {
+        if (epServicesContextFactoryClassName == null) {
             // Check system properties
             epServicesContextFactoryClassName = System.getProperty("ESPER_EPSERVICE_CONTEXT_FACTORY_CLASS");
         }
-        if (epServicesContextFactoryClassName == null)
-        {
+        if (epServicesContextFactoryClassName == null) {
             epServicesContextFactory = new EPServicesContextFactoryDefault();
-        }
-        else
-        {
+        } else {
             Class clazz;
-            try
-            {
+            try {
                 clazz = TransientConfigurationResolver.resolveClassForNameProvider(configSnapshot.getTransientConfiguration()).classForName(epServicesContextFactoryClassName);
-            }
-            catch (ClassNotFoundException e)
-            {
+            } catch (ClassNotFoundException e) {
                 throw new ConfigurationException("Class '" + epServicesContextFactoryClassName + "' cannot be loaded");
             }
 
             Object obj;
-            try
-            {
+            try {
                 obj = clazz.newInstance();
-            }
-            catch (InstantiationException e)
-            {
+            } catch (InstantiationException e) {
                 throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated");
-            }
-            catch (IllegalAccessException e)
-            {
-                throw new ConfigurationException("Illegal access instantiating class '"  + clazz + "'");
+            } catch (IllegalAccessException e) {
+                throw new ConfigurationException("Illegal access instantiating class '" + clazz + "'");
             }
 
             epServicesContextFactory = (EPServicesContextFactory) obj;
@@ -502,50 +448,34 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         InternalEventRouteDest routeDest;
         TimerCallback timerCallback;
         String runtimeClassName = configSnapshot.getEngineDefaults().getAlternativeContext().getRuntime();
-        if (runtimeClassName == null)
-        {
+        if (runtimeClassName == null) {
             // Check system properties
             runtimeClassName = System.getProperty("ESPER_EPRUNTIME_CLASS");
         }
-        if (runtimeClassName == null)
-        {
+        if (runtimeClassName == null) {
             EPRuntimeImpl runtimeImpl = new EPRuntimeImpl(services);
             runtimeSPI = runtimeImpl;
             routeDest = runtimeImpl;
             timerCallback = runtimeImpl;
-        }
-        else
-        {
+        } else {
             Class clazz;
-            try
-            {
+            try {
                 clazz = services.getEngineImportService().getClassForNameProvider().classForName(runtimeClassName);
-            }
-            catch (ClassNotFoundException e)
-            {
+            } catch (ClassNotFoundException e) {
                 throw new ConfigurationException("Class '" + epServicesContextFactoryClassName + "' cannot be loaded");
             }
 
             Object obj;
-            try
-            {
+            try {
                 Constructor c = clazz.getConstructor(EPServicesContext.class);
                 obj = c.newInstance(services);
-            }
-            catch (NoSuchMethodException e)
-            {
+            } catch (NoSuchMethodException e) {
                 throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated, constructor accepting services was not found");
-            }
-            catch (InstantiationException e)
-            {
+            } catch (InstantiationException e) {
                 throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated");
-            }
-            catch (IllegalAccessException e)
-            {
+            } catch (IllegalAccessException e) {
                 throw new ConfigurationException("Illegal access instantiating class '" + clazz + "'");
-            }
-            catch (InvocationTargetException e)
-            {
+            } catch (InvocationTargetException e) {
                 throw new ConfigurationException("Exception invoking constructor of class '" + clazz + "'");
             }
 
@@ -580,47 +510,31 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         EPAdministratorSPI adminSPI;
         String adminClassName = configSnapshot.getEngineDefaults().getAlternativeContext().getAdmin();
         EPAdministratorContext adminContext = new EPAdministratorContext(runtimeSPI, services, configOps, defaultStreamSelector);
-        if (adminClassName == null)
-        {
+        if (adminClassName == null) {
             // Check system properties
             adminClassName = System.getProperty("ESPER_EPADMIN_CLASS");
         }
-        if (adminClassName == null)
-        {
+        if (adminClassName == null) {
             adminSPI = new EPAdministratorImpl(adminContext);
-        }
-        else
-        {
+        } else {
             Class clazz;
-            try
-            {
+            try {
                 clazz = services.getEngineImportService().getClassForNameProvider().classForName(adminClassName);
-            }
-            catch (ClassNotFoundException e)
-            {
+            } catch (ClassNotFoundException e) {
                 throw new ConfigurationException("Class '" + epServicesContextFactoryClassName + "' cannot be loaded");
             }
 
             Object obj;
-            try
-            {
+            try {
                 Constructor c = clazz.getConstructor(EPAdministratorContext.class);
                 obj = c.newInstance(adminContext);
-            }
-            catch (NoSuchMethodException e)
-            {
+            } catch (NoSuchMethodException e) {
                 throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated, constructor accepting context was not found");
-            }
-            catch (InstantiationException e)
-            {
+            } catch (InstantiationException e) {
                 throw new ConfigurationException("Class '" + clazz + "' cannot be instantiated");
-            }
-            catch (IllegalAccessException e)
-            {
+            } catch (IllegalAccessException e) {
                 throw new ConfigurationException("Illegal access instantiating class '" + clazz + "'");
-            }
-            catch (InvocationTargetException e)
-            {
+            } catch (InvocationTargetException e) {
                 throw new ConfigurationException("Exception invoking constructor of class '" + clazz + "'");
             }
 
@@ -628,8 +542,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         }
 
         // Start clocking
-        if (configSnapshot.getEngineDefaults().getThreading().isInternalTimerEnabled())
-        {
+        if (configSnapshot.getEngineDefaults().getThreading().isInternalTimerEnabled()) {
             if (configSnapshot.getEngineDefaults().getTimeSource().getTimeUnit() != TimeUnit.MILLISECONDS) {
                 throw new ConfigurationException("Internal timer requires millisecond time resolution");
             }
@@ -637,12 +550,9 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         }
 
         // Give the timer thread a little moment to start up
-        try
-        {
+        try {
             Thread.sleep(100);
-        }
-        catch (InterruptedException ex)
-        {
+        } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
 
@@ -653,14 +563,12 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         loadAdapters(services);
 
         // Initialize extension services
-        if (services.getEngineLevelExtensionServicesContext() != null)
-        {
+        if (services.getEngineLevelExtensionServicesContext() != null) {
             services.getEngineLevelExtensionServicesContext().init(services, runtimeSPI, adminSPI);
         }
 
         // Start metrics reporting, if any
-        if (configSnapshot.getEngineDefaults().getMetricsReporting().isEnableMetricsReporting())
-        {
+        if (configSnapshot.getEngineDefaults().getMetricsReporting().isEnableMetricsReporting()) {
             services.getMetricsReportingService().setContext(runtimeSPI, services);
         }
 
@@ -670,14 +578,10 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         }
 
         // call initialize listeners
-        for (EPServiceStateListener listener : serviceListeners)
-        {
-            try
-            {
+        for (EPServiceStateListener listener : serviceListeners) {
+            try {
                 listener.onEPServiceInitialized(this);
-            }
-            catch (RuntimeException ex)
-            {
+            } catch (RuntimeException ex) {
                 log.error("Runtime exception caught during an onEPServiceInitialized callback:" + ex.getMessage(), ex);
             }
         }
@@ -700,39 +604,29 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
 
     /**
      * Loads and initializes adapter loaders.
+     *
      * @param services is the engine instance services
      */
-    private void loadAdapters(EPServicesContext services)
-    {
+    private void loadAdapters(EPServicesContext services) {
         List<ConfigurationPluginLoader> pluginLoaders = configSnapshot.getPluginLoaders();
-        if ((pluginLoaders == null) || (pluginLoaders.size() == 0))
-        {
+        if ((pluginLoaders == null) || (pluginLoaders.size() == 0)) {
             return;
         }
-        for (ConfigurationPluginLoader config : pluginLoaders)
-        {
+        for (ConfigurationPluginLoader config : pluginLoaders) {
             String className = config.getClassName();
             Class pluginLoaderClass;
-            try
-            {
+            try {
                 pluginLoaderClass = services.getEngineImportService().getClassForNameProvider().classForName(className);
-            }
-            catch (ClassNotFoundException ex)
-            {
+            } catch (ClassNotFoundException ex) {
                 throw new ConfigurationException("Failed to load adapter loader class '" + className + "'", ex);
             }
 
             Object pluginLoaderObj;
-            try
-            {
+            try {
                 pluginLoaderObj = pluginLoaderClass.newInstance();
-            }
-            catch (InstantiationException ex)
-            {
+            } catch (InstantiationException ex) {
                 throw new ConfigurationException("Failed to instantiate adapter loader class '" + className + "' via default constructor", ex);
-            }
-            catch (IllegalAccessException ex)
-            {
+            } catch (IllegalAccessException ex) {
                 throw new ConfigurationException("Illegal access to instantiate adapter loader class '" + className + "' via default constructor", ex);
             }
 
@@ -745,50 +639,40 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
             pluginLoader.init(context);
 
             // register adapter loader in JNDI context tree
-            try
-            {
+            try {
                 services.getEngineEnvContext().bind("plugin-loader/" + config.getLoaderName(), pluginLoader);
-            }
-            catch (NamingException e)
-            {
+            } catch (NamingException e) {
                 throw new EPException("Failed to use context to bind adapter loader", e);
             }
         }
     }
 
-    private static class EPServiceEngine
-    {
+    private static class EPServiceEngine {
         private EPServicesContext services;
         private EPRuntimeSPI runtimeSPI;
         private EPAdministratorSPI admin;
 
-        public EPServiceEngine(EPServicesContext services, EPRuntimeSPI runtimeSPI, EPAdministratorSPI admin)
-        {
+        public EPServiceEngine(EPServicesContext services, EPRuntimeSPI runtimeSPI, EPAdministratorSPI admin) {
             this.services = services;
             this.runtimeSPI = runtimeSPI;
             this.admin = admin;
         }
 
-        public EPServicesContext getServices()
-        {
+        public EPServicesContext getServices() {
             return services;
         }
 
-        public EPRuntimeSPI getRuntime()
-        {
+        public EPRuntimeSPI getRuntime() {
             return runtimeSPI;
         }
 
-        public EPAdministratorSPI getAdmin()
-        {
+        public EPAdministratorSPI getAdmin() {
             return admin;
         }
     }
 
-    private ConfigurationInformation takeSnapshot(Configuration configuration)
-    {
-        try
-        {
+    private ConfigurationInformation takeSnapshot(Configuration configuration) {
+        try {
             // Allow variables to have non-serializable values by copying their initial value
             Map<String, Object> variableInitialValues = null;
             if (!configuration.getVariables().isEmpty()) {
@@ -826,73 +710,58 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
             }
 
             return copy;
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new ConfigurationException("Failed to snapshot configuration instance through serialization : " + e.getMessage(), e);
-        }
-        catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             throw new ConfigurationException("Failed to snapshot configuration instance through serialization : " + e.getMessage(), e);
         }
     }
 
-    public void addServiceStateListener(EPServiceStateListener listener)
-    {
+    public void addServiceStateListener(EPServiceStateListener listener) {
         serviceListeners.add(listener);
     }
 
-    public boolean removeServiceStateListener(EPServiceStateListener listener)
-    {
+    public boolean removeServiceStateListener(EPServiceStateListener listener) {
         return serviceListeners.remove(listener);
     }
 
-    public void removeAllServiceStateListeners()
-    {
+    public void removeAllServiceStateListeners() {
         serviceListeners.clear();
     }
 
-    public synchronized void addStatementStateListener(EPStatementStateListener listener)
-    {
-        if (statementListeners.isEmpty())
-        {
+    public synchronized void addStatementStateListener(EPStatementStateListener listener) {
+        if (statementListeners.isEmpty()) {
             stmtEventDispatcher = new StatementEventDispatcherUnthreaded(this, statementListeners);
             this.getStatementLifecycleSvc().addObserver(stmtEventDispatcher);
         }
         statementListeners.add(listener);
     }
 
-    public synchronized boolean removeStatementStateListener(EPStatementStateListener listener)
-    {
+    public synchronized boolean removeStatementStateListener(EPStatementStateListener listener) {
         boolean result = statementListeners.remove(listener);
-        if (statementListeners.isEmpty())
-        {
+        if (statementListeners.isEmpty()) {
             this.getStatementLifecycleSvc().removeObserver(stmtEventDispatcher);
             stmtEventDispatcher = null;
         }
         return result;
     }
 
-    public synchronized void removeAllStatementStateListeners()
-    {
+    public synchronized void removeAllStatementStateListeners() {
         statementListeners.clear();
-        if (statementListeners.isEmpty())
-        {
+        if (statementListeners.isEmpty()) {
             this.getStatementLifecycleSvc().removeObserver(stmtEventDispatcher);
             stmtEventDispatcher = null;
         }
     }
 
-    public String[] getEPServiceIsolatedNames()
-    {
+    public String[] getEPServiceIsolatedNames() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
         return engine.getServices().getStatementIsolationService().getIsolationUnitNames();
     }
 
-    public SchedulingMgmtService getSchedulingMgmtService()
-    {
+    public SchedulingMgmtService getSchedulingMgmtService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }
@@ -913,8 +782,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI
         return engine.getServices().getSchedulingService();
     }
 
-    public VariableService getVariableService()
-    {
+    public VariableService getVariableService() {
         if (engine == null) {
             throw new EPServiceDestroyedException(engineURI);
         }

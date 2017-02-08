@@ -19,8 +19,7 @@ import com.espertech.esper.example.stockticker.eventbean.StockTick;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StockTickerMonitor
-{
+public class StockTickerMonitor {
     private final EPServiceProvider epService;
     private final StockTickerResultListener stockTickerResultListener;
 
@@ -31,35 +30,30 @@ public class StockTickerMonitor
     private EPStatement lowPriceListener = null;
     private EPStatement highPriceListener = null;
 
-    public StockTickerMonitor(EPServiceProvider epService, final StockTickerResultListener stockTickerResultListener)
-    {
+    public StockTickerMonitor(EPServiceProvider epService, final StockTickerResultListener stockTickerResultListener) {
         this.epService = epService;
         this.stockTickerResultListener = stockTickerResultListener;
 
         // Listen to all limits to be set
         String expressionText = "every pricelimit=PriceLimit()";
-	    EPStatement factory = epService.getEPAdministrator().createPattern(expressionText);
+        EPStatement factory = epService.getEPAdministrator().createPattern(expressionText);
 
-	    factory.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        factory.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 PriceLimit limitBean = (PriceLimit) newEvents[0].get("pricelimit");
 
-                if (log.isDebugEnabled())
-                {
+                if (log.isDebugEnabled()) {
                     log.debug(".update Received new limit, user=" + limitBean.getUserId() +
-                          "  stock=" + limitBean.getStockSymbol() +
-                          "  pct=" + limitBean.getLimitPct());
+                            "  stock=" + limitBean.getStockSymbol() +
+                            "  pct=" + limitBean.getLimitPct());
                 }
 
                 new StockTickerMonitor(StockTickerMonitor.this.epService, limitBean, stockTickerResultListener);
             }
-	    });
+        });
     }
 
-    public StockTickerMonitor(EPServiceProvider epService, PriceLimit limit, final StockTickerResultListener stockTickerResultListener)
-    {
+    public StockTickerMonitor(EPServiceProvider epService, PriceLimit limit, final StockTickerResultListener stockTickerResultListener) {
         this.epService = epService;
         this.limit = limit;
         this.stockTickerResultListener = stockTickerResultListener;
@@ -69,48 +63,42 @@ public class StockTickerMonitor
                 "stockSymbol='" + limit.getStockSymbol() + "')";
         newLimitListener = epService.getEPAdministrator().createPattern(expressionText);
 
-        newLimitListener.addListener(new UpdateListener ()
-        {
-		    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
-                if (log.isDebugEnabled())
-                {
+        newLimitListener.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+                if (log.isDebugEnabled()) {
                     log.debug(".update Received an override limit, stopping listeners");
                 }
 
-		        die();
-		    }
-	    });
+                die();
+            }
+        });
 
         expressionText = "tick=StockTick(stockSymbol='" + limit.getStockSymbol() + "')";
         initialPriceListener = epService.getEPAdministrator().createPattern(expressionText);
 
-        initialPriceListener.addListener(new UpdateListener ()
-        {
-		    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        initialPriceListener.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 StockTick tick = (StockTick) newEvents[0].get("tick");
                 PriceLimit limit = StockTickerMonitor.this.limit;
 
                 initialPriceListener = null;
 
                 double limitPct = limit.getLimitPct();
-                double upperLimit = tick.getPrice() * (1.0 + (limitPct/100.0));
-                double lowerLimit = tick.getPrice() * (1.0 - (limitPct/100.0));
+                double upperLimit = tick.getPrice() * (1.0 + (limitPct / 100.0));
+                double lowerLimit = tick.getPrice() * (1.0 - (limitPct / 100.0));
 
-                if (log.isDebugEnabled())
-                {
+                if (log.isDebugEnabled()) {
                     log.debug(".update Received initial tick, stock=" + tick.getStockSymbol() +
-                          "  price=" + tick.getPrice() +
-                          "  limit.limitPct=" + limitPct +
-                          "  lowerLimit=" + lowerLimit +
-                          "  upperLimit=" + upperLimit);
+                            "  price=" + tick.getPrice() +
+                            "  limit.limitPct=" + limitPct +
+                            "  lowerLimit=" + lowerLimit +
+                            "  upperLimit=" + upperLimit);
                 }
 
                 StockTickerAlertListener listener = new StockTickerAlertListener(StockTickerMonitor.this.epService, limit, tick, stockTickerResultListener);
 
                 String expressionText = "every tick=StockTick" +
-                         "(stockSymbol='" + limit.getStockSymbol() + "', price < " + lowerLimit + ")";
+                        "(stockSymbol='" + limit.getStockSymbol() + "', price < " + lowerLimit + ")";
                 lowPriceListener = StockTickerMonitor.this.epService.getEPAdministrator().createPattern(expressionText);
                 lowPriceListener.addListener(listener);
 
@@ -118,15 +106,14 @@ public class StockTickerMonitor
                         "(stockSymbol='" + limit.getStockSymbol() + "', price > " + upperLimit + ")";
                 highPriceListener = StockTickerMonitor.this.epService.getEPAdministrator().createPattern(expressionText);
                 highPriceListener.addListener(listener);
-		    }
-	    });
+            }
+        });
     }
 
-    private void die()
-    {
-	    if (newLimitListener != null) newLimitListener.removeAllListeners();
+    private void die() {
+        if (newLimitListener != null) newLimitListener.removeAllListeners();
         if (initialPriceListener != null) initialPriceListener.removeAllListeners();
-	    if (lowPriceListener != null) lowPriceListener.removeAllListeners();
+        if (lowPriceListener != null) lowPriceListener.removeAllListeners();
         if (highPriceListener != null) highPriceListener.removeAllListeners();
     }
 

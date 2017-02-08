@@ -21,47 +21,45 @@ import org.w3c.dom.Node;
  * Currently only instances of org.w3c.dom.Node can be used
  *
  * @author pablo
- *
  */
-public class XMLEventBean implements EventBeanSPI
-{
-	private EventType eventType;
-	private Node theEvent;
+public class XMLEventBean implements EventBeanSPI {
+    private EventType eventType;
+    private Node theEvent;
 
     /**
      * Ctor.
+     *
      * @param theEvent is the node with event property information
-     * @param type is the event type for this event wrapper
+     * @param type     is the event type for this event wrapper
      */
     public XMLEventBean(Node theEvent, EventType type) {
-		this.theEvent = theEvent;
-		eventType = type;
-	}
+        this.theEvent = theEvent;
+        eventType = type;
+    }
 
-	public EventType getEventType() {
-		return eventType;
-	}
+    public EventType getEventType() {
+        return eventType;
+    }
 
     public void setUnderlying(Object underlying) {
         theEvent = (Node) underlying;
     }
 
     public Object get(String property) throws PropertyAccessException {
-		EventPropertyGetter getter = eventType.getGetter(property);
-		if (getter == null)
-			 throw new PropertyAccessException("Property named '" + property + "' is not a valid property name for this type");
-		return getter.get(this);
-	}
+        EventPropertyGetter getter = eventType.getGetter(property);
+        if (getter == null)
+            throw new PropertyAccessException("Property named '" + property + "' is not a valid property name for this type");
+        return getter.get(this);
+    }
 
-	public Object getUnderlying() {
-		return theEvent;
-	}
+    public Object getUnderlying() {
+        return theEvent;
+    }
 
-    public Object getFragment(String propertyExpression)
-    {
+    public Object getFragment(String propertyExpression) {
         EventPropertyGetter getter = eventType.getGetter(propertyExpression);
         if (getter == null) {
-			throw PropertyAccessException.notAValidProperty(propertyExpression);
+            throw PropertyAccessException.notAValidProperty(propertyExpression);
         }
         return getter.getFragment(this);
     }

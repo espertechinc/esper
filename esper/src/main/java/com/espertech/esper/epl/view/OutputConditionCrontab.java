@@ -25,10 +25,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Output condition handling crontab-at schedule output.
  */
-public final class OutputConditionCrontab extends OutputConditionBase implements OutputCondition
-{
+public final class OutputConditionCrontab extends OutputConditionBase implements OutputCondition {
     private static final boolean DO_OUTPUT = true;
-	private static final boolean FORCE_UPDATE = true;
+    private static final boolean FORCE_UPDATE = true;
 
     private final AgentInstanceContext context;
     private final OutputConditionCrontabFactory factory;
@@ -47,40 +46,33 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
         }
     }
 
-    public final void updateOutputCondition(int newEventsCount, int oldEventsCount)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
-        	log.debug(".updateOutputCondition, " +
-        			"  newEventsCount==" + newEventsCount +
-        			"  oldEventsCount==" + oldEventsCount);
+    public final void updateOutputCondition(int newEventsCount, int oldEventsCount) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
+            log.debug(".updateOutputCondition, " +
+                    "  newEventsCount==" + newEventsCount +
+                    "  oldEventsCount==" + oldEventsCount);
         }
 
-        if (currentReferencePoint == null)
-        {
-        	currentReferencePoint = context.getStatementContext().getSchedulingService().getTime();
+        if (currentReferencePoint == null) {
+            currentReferencePoint = context.getStatementContext().getSchedulingService().getTime();
         }
 
         // Schedule the next callback if there is none currently scheduled
-        if (!isCallbackScheduled)
-        {
-        	scheduleCallback();
+        if (!isCallbackScheduled) {
+            scheduleCallback();
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " spec=" + factory.getScheduleSpec();
     }
 
-    private void scheduleCallback()
-    {
-    	isCallbackScheduled = true;
+    private void scheduleCallback() {
+        isCallbackScheduled = true;
         long current = context.getStatementContext().getSchedulingService().getTime();
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".scheduleCallback Scheduled new callback for " +
                     " now=" + current +
                     " currentReferencePoint=" + currentReferencePoint +
@@ -88,13 +80,16 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
         }
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputRateConditionScheduledEval();}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qOutputRateConditionScheduledEval();
+                }
                 OutputConditionCrontab.this.isCallbackScheduled = false;
                 OutputConditionCrontab.this.outputCallback.continueOutputProcessing(DO_OUTPUT, FORCE_UPDATE);
                 scheduleCallback();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputRateConditionScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aOutputRateConditionScheduledEval();
+                }
             }
         };
         EPStatementHandleCallback handle = new EPStatementHandleCallback(context.getEpStatementAgentInstanceHandle(), callback);

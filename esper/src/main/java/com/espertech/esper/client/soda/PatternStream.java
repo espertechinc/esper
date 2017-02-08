@@ -19,8 +19,7 @@ import java.util.ArrayList;
  * Patterns matches are events that match pattern expressions. Pattern expressions are built using
  * {@link Patterns}.
  */
-public class PatternStream extends ProjectedStream
-{
+public class PatternStream extends ProjectedStream {
     private PatternExpr expression;
     private AnnotationPart[] annotations;
     private static final long serialVersionUID = -8321367637970657123L;
@@ -32,55 +31,54 @@ public class PatternStream extends ProjectedStream
     }
 
     /**
-
      * Creates a pattern stream from a pattern expression.
+     *
      * @param expression pattern expression
      * @return stream
      */
-    public static PatternStream create(PatternExpr expression)
-    {
+    public static PatternStream create(PatternExpr expression) {
         return new PatternStream(expression);
     }
 
     /**
      * Creates a named pattern stream from a pattern expression.
-     * @param expression pattern expression
+     *
+     * @param expression    pattern expression
      * @param optStreamName is the pattern stream name (as-name)
      * @return stream
      */
-    public static PatternStream create(PatternExpr expression, String optStreamName)
-    {
+    public static PatternStream create(PatternExpr expression, String optStreamName) {
         return new PatternStream(expression, optStreamName);
     }
 
     /**
      * Ctor.
+     *
      * @param expression pattern expression
      */
-    public PatternStream(PatternExpr expression)
-    {
+    public PatternStream(PatternExpr expression) {
         this(expression, null);
     }
 
     /**
      * Ctor.
-     * @param expression pattern expression
+     *
+     * @param expression    pattern expression
      * @param optStreamName is the pattern stream name (as-name)
      */
-    public PatternStream(PatternExpr expression, String optStreamName)
-    {
+    public PatternStream(PatternExpr expression, String optStreamName) {
         super(new ArrayList<View>(), optStreamName);
         this.expression = expression;
     }
 
     /**
      * Ctor.
-     * @param expression pattern expression
+     *
+     * @param expression    pattern expression
      * @param optStreamName is the pattern stream name (as-name)
-     * @param annotations annotations on pattern-level, if any
+     * @param annotations   annotations on pattern-level, if any
      */
-    public PatternStream(PatternExpr expression, String optStreamName, AnnotationPart[] annotations)
-    {
+    public PatternStream(PatternExpr expression, String optStreamName, AnnotationPart[] annotations) {
         super(new ArrayList<View>(), optStreamName);
         this.expression = expression;
         this.annotations = annotations;
@@ -88,24 +86,25 @@ public class PatternStream extends ProjectedStream
 
     /**
      * Returns the pattern expression providing events to the stream.
+     *
      * @return pattern expression
      */
-    public PatternExpr getExpression()
-    {
+    public PatternExpr getExpression() {
         return expression;
     }
 
     /**
      * Sets the pattern expression providing events to the stream.
+     *
      * @param expression is the pattern expression
      */
-    public void setExpression(PatternExpr expression)
-    {
+    public void setExpression(PatternExpr expression) {
         this.expression = expression;
     }
 
     /**
      * Returns the pattern-level annotations, if any
+     *
      * @return pattern-level annotations
      */
     public AnnotationPart[] getAnnotations() {
@@ -114,14 +113,14 @@ public class PatternStream extends ProjectedStream
 
     /**
      * Sets the pattern-level annotations, if any
+     *
      * @param annotations pattern-level annotations
      */
     public void setAnnotations(AnnotationPart[] annotations) {
         this.annotations = annotations;
     }
 
-    public void toEPLProjectedStream(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toEPLProjectedStream(StringWriter writer, EPStatementFormatter formatter) {
         writer.write("pattern");
         if (annotations != null) {
             for (AnnotationPart part : annotations) {
@@ -136,8 +135,7 @@ public class PatternStream extends ProjectedStream
         writer.write(']');
     }
 
-	public void toEPLProjectedStreamType(StringWriter writer)
-	{
-		writer.write("pattern");
-	}
+    public void toEPLProjectedStreamType(StringWriter writer) {
+        writer.write("pattern");
+    }
 }

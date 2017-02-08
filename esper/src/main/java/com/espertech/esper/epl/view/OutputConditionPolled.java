@@ -11,15 +11,15 @@
 package com.espertech.esper.epl.view;
 
 
-public interface OutputConditionPolled
-{
-	public OutputConditionPolledState getState();
+public interface OutputConditionPolled {
+    public OutputConditionPolledState getState();
 
-	/**
-	 * Update the output condition.
-	 * @param newEventsCount - number of new events incoming
-     * @param oldEventsCount  - number of old events incoming
-	 * @return indicator whether to output
+    /**
+     * Update the output condition.
+     *
+     * @param newEventsCount - number of new events incoming
+     * @param oldEventsCount - number of old events incoming
+     * @return indicator whether to output
      */
-	public boolean updateOutputCondition(int newEventsCount, int oldEventsCount);
+    public boolean updateOutputCondition(int newEventsCount, int oldEventsCount);
 }

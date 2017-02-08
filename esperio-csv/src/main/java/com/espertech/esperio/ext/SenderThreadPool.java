@@ -18,22 +18,25 @@ import com.espertech.esperio.DirectSender;
 
 /**
  * Implementation of Sender to send to esper engine using a thread pool
+ *
  * @author Jerry Shea
  */
 public class SenderThreadPool extends DirectSender {
 
-	private ExecutorService executorService;
+    private ExecutorService executorService;
 
     /**
      * Ctor.
+     *
      * @param threadPoolSize size of pool
      */
     public SenderThreadPool(int threadPoolSize) {
-		executorService = Executors.newFixedThreadPool(threadPoolSize);
-	}
+        executorService = Executors.newFixedThreadPool(threadPoolSize);
+    }
 
     /**
      * Ctor.
+     *
      * @param executorService threadpool to use
      */
     public SenderThreadPool(ExecutorService executorService) {
@@ -42,26 +45,28 @@ public class SenderThreadPool extends DirectSender {
 
     /**
      * Send an event.
+     *
      * @param beanToSend event to send
      */
     public void sendEvent(final Object beanToSend) {
-		executorService.execute(new Runnable() {
-			public void run() {
-				runtime.sendEvent(beanToSend);
-			}
-		});
-	}
+        executorService.execute(new Runnable() {
+            public void run() {
+                runtime.sendEvent(beanToSend);
+            }
+        });
+    }
 
     /**
      * Send an event.
-     * @param mapToSend event to send
+     *
+     * @param mapToSend     event to send
      * @param eventTypeName name of event type
      */
     public void sendEvent(final Map mapToSend, final String eventTypeName) {
-		executorService.execute(new Runnable() {
-			public void run() {
-				runtime.sendEvent(mapToSend, eventTypeName);
-			}
-		});
-	}
+        executorService.execute(new Runnable() {
+            public void run() {
+                runtime.sendEvent(mapToSend, eventTypeName);
+            }
+        });
+    }
 }

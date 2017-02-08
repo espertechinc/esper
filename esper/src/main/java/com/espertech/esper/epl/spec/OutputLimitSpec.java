@@ -20,9 +20,8 @@ import java.util.List;
 /**
  * Spec for defining an output rate
  */
-public class OutputLimitSpec implements MetaDefItem, Serializable
-{
-	private final OutputLimitLimitType displayLimit;
+public class OutputLimitSpec implements MetaDefItem, Serializable {
+    private final OutputLimitLimitType displayLimit;
     private final OutputLimitRateType rateType;
     private final Double rate;
     private final String variableName;
@@ -37,10 +36,9 @@ public class OutputLimitSpec implements MetaDefItem, Serializable
     private List<OnTriggerSetAssignment> andAfterTerminateThenExpressions;
     private static final long serialVersionUID = 7314871194757342071L;
 
-    public OutputLimitSpec(Double rate, String variableForRate, OutputLimitRateType rateType, OutputLimitLimitType displayLimit, ExprNode whenExpressionNode, List<OnTriggerSetAssignment> thenExpressions, List<ExprNode> crontabAtSchedule, ExprTimePeriod timePeriodExpr, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, boolean andAfterTerminate, ExprNode andAfterTerminateExpr, List<OnTriggerSetAssignment> andAfterTerminateSetExpressions)
-	{
-		this.rate = rate;
-		this.displayLimit = displayLimit;
+    public OutputLimitSpec(Double rate, String variableForRate, OutputLimitRateType rateType, OutputLimitLimitType displayLimit, ExprNode whenExpressionNode, List<OnTriggerSetAssignment> thenExpressions, List<ExprNode> crontabAtSchedule, ExprTimePeriod timePeriodExpr, ExprTimePeriod afterTimePeriodExpr, Integer afterNumberOfEvents, boolean andAfterTerminate, ExprNode andAfterTerminateExpr, List<OnTriggerSetAssignment> andAfterTerminateSetExpressions) {
+        this.rate = rate;
+        this.displayLimit = displayLimit;
         this.variableName = variableForRate;
         this.rateType = rateType;
         this.crontabAtSchedule = crontabAtSchedule;
@@ -60,100 +58,100 @@ public class OutputLimitSpec implements MetaDefItem, Serializable
 
     /**
      * Returns the type of output limit.
+     *
      * @return limit
      */
-    public OutputLimitLimitType getDisplayLimit()
-    {
+    public OutputLimitLimitType getDisplayLimit() {
         return displayLimit;
     }
 
     /**
      * Returns the type of rate.
+     *
      * @return rate type
      */
-    public OutputLimitRateType getRateType()
-    {
+    public OutputLimitRateType getRateType() {
         return rateType;
     }
 
     /**
      * Returns the rate, or null or -1 if a variable is used instead
+     *
      * @return rate if set
      */
-    public Double getRate()
-    {
+    public Double getRate() {
         return rate;
     }
 
     /**
      * Returns the variable name if set, or null if a fixed rate
+     *
      * @return variable name
      */
-    public String getVariableName()
-    {
+    public String getVariableName() {
         return variableName;
     }
 
     /**
      * Returns the when-keyword trigger expression, or null if not using when.
+     *
      * @return expression
      */
-    public ExprNode getWhenExpressionNode()
-    {
+    public ExprNode getWhenExpressionNode() {
         return whenExpressionNode;
     }
 
     /**
      * Returns crontab parameters, or null if not using crontab-at output.
+     *
      * @return schedule parameters
      */
-    public List<ExprNode> getCrontabAtSchedule()
-    {
+    public List<ExprNode> getCrontabAtSchedule() {
         return crontabAtSchedule;
     }
 
     /**
      * Sets a new when-keyword trigger expression.
+     *
      * @param whenExpressionNode to set
      */
-    public void setWhenExpressionNode(ExprNode whenExpressionNode)
-    {
+    public void setWhenExpressionNode(ExprNode whenExpressionNode) {
         this.whenExpressionNode = whenExpressionNode;
     }
 
     /**
      * Returns a list of variable assignments, or null if none made.
+     *
      * @return variable assignments
      */
-    public List<OnTriggerSetAssignment> getThenExpressions()
-    {
+    public List<OnTriggerSetAssignment> getThenExpressions() {
         return thenExpressions;
     }
 
     /**
      * Returns time period expression or null if none used.
+     *
      * @return time period
      */
-    public ExprTimePeriod getTimePeriodExpr()
-    {
+    public ExprTimePeriod getTimePeriodExpr() {
         return timePeriodExpr;
     }
 
     /**
      * Returns the after-keyword time period.
+     *
      * @return after-keyword time period
      */
-    public ExprTimePeriod getAfterTimePeriodExpr()
-    {
+    public ExprTimePeriod getAfterTimePeriodExpr() {
         return afterTimePeriodExpr;
     }
 
     /**
      * Returns the after-keyword number of events.
+     *
      * @return after-keyword number of events
      */
-    public Integer getAfterNumberOfEvents()
-    {
+    public Integer getAfterNumberOfEvents() {
         return afterNumberOfEvents;
     }
 

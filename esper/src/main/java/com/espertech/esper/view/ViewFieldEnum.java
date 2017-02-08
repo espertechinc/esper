@@ -10,14 +10,11 @@
  */
 package com.espertech.esper.view;
 
-import java.util.Arrays;
-
 /**
  * Enumerates the valid values for each view's public fields. The name of the field or property can be used
  * to obtain values from the view rather than using the hardcoded String value for the field.
  */
-public enum ViewFieldEnum
-{
+public enum ViewFieldEnum {
     /**
      * Count.
      */
@@ -31,32 +28,32 @@ public enum ViewFieldEnum
     /**
      * Average.
      */
-    UNIVARIATE_STATISTICS__AVERAGE ("average"),
+    UNIVARIATE_STATISTICS__AVERAGE("average"),
 
     /**
      * Standard dev population.
      */
-    UNIVARIATE_STATISTICS__STDDEVPA ("stddevpa"),
+    UNIVARIATE_STATISTICS__STDDEVPA("stddevpa"),
 
     /**
      * Standard dev.
      */
-    UNIVARIATE_STATISTICS__STDDEV ("stddev"),
+    UNIVARIATE_STATISTICS__STDDEV("stddev"),
 
     /**
      * Variance.
      */
-    UNIVARIATE_STATISTICS__VARIANCE ("variance"),
+    UNIVARIATE_STATISTICS__VARIANCE("variance"),
 
     /**
      * Weighted average.
      */
-    WEIGHTED_AVERAGE__AVERAGE ("average"),
+    WEIGHTED_AVERAGE__AVERAGE("average"),
 
     /**
      * Correlation.
      */
-    CORRELATION__CORRELATION ("correlation"),
+    CORRELATION__CORRELATION("correlation"),
 
     /**
      * Slope.
@@ -68,109 +65,108 @@ public enum ViewFieldEnum
      */
     REGRESSION__YINTERCEPT("YIntercept"),
 
-	/**
-	* XAverage
-	*/
-	REGRESSION__XAVERAGE("XAverage"),
+    /**
+     * XAverage
+     */
+    REGRESSION__XAVERAGE("XAverage"),
 
-	/**
-	* XStandardDeviationPop
-	*/
-	REGRESSION__XSTANDARDDEVIATIONPOP("XStandardDeviationPop"),
+    /**
+     * XStandardDeviationPop
+     */
+    REGRESSION__XSTANDARDDEVIATIONPOP("XStandardDeviationPop"),
 
-	/**
-	* XStandardDeviationSample
-	*/
-	REGRESSION__XSTANDARDDEVIATIONSAMPLE("XStandardDeviationSample"),
+    /**
+     * XStandardDeviationSample
+     */
+    REGRESSION__XSTANDARDDEVIATIONSAMPLE("XStandardDeviationSample"),
 
-	/**
-	* XSum
-	*/
-	REGRESSION__XSUM("XSum"),
+    /**
+     * XSum
+     */
+    REGRESSION__XSUM("XSum"),
 
-	/**
-	* XVariance
-	*/
-	REGRESSION__XVARIANCE("XVariance"),
+    /**
+     * XVariance
+     */
+    REGRESSION__XVARIANCE("XVariance"),
 
-	/**
-	* YAverage
-	*/
-	REGRESSION__YAVERAGE("YAverage"),
+    /**
+     * YAverage
+     */
+    REGRESSION__YAVERAGE("YAverage"),
 
-	/**
-	* YStandardDeviationPop
-	*/
-	REGRESSION__YSTANDARDDEVIATIONPOP("YStandardDeviationPop"),
+    /**
+     * YStandardDeviationPop
+     */
+    REGRESSION__YSTANDARDDEVIATIONPOP("YStandardDeviationPop"),
 
-	/**
-	* YStandardDeviationSample
-	*/
-	REGRESSION__YSTANDARDDEVIATIONSAMPLE("YStandardDeviationSample"),
+    /**
+     * YStandardDeviationSample
+     */
+    REGRESSION__YSTANDARDDEVIATIONSAMPLE("YStandardDeviationSample"),
 
-	/**
-	* YSum
-	*/
-	REGRESSION__YSUM("YSum"),
+    /**
+     * YSum
+     */
+    REGRESSION__YSUM("YSum"),
 
-	/**
-	* YVariance
-	*/
-	REGRESSION__YVARIANCE("YVariance"),
+    /**
+     * YVariance
+     */
+    REGRESSION__YVARIANCE("YVariance"),
 
-	/**
-	* dataPoints
-	*/
-	REGRESSION__DATAPOINTS("dataPoints"),
+    /**
+     * dataPoints
+     */
+    REGRESSION__DATAPOINTS("dataPoints"),
 
-	/**
-	* n
-	*/
-	REGRESSION__N("n"),
+    /**
+     * n
+     */
+    REGRESSION__N("n"),
 
-	/**
-	* sumX
-	*/
-	REGRESSION__SUMX("sumX"),
+    /**
+     * sumX
+     */
+    REGRESSION__SUMX("sumX"),
 
-	/**
-	* sumXSq
-	*/
-	REGRESSION__SUMXSQ("sumXSq"),
+    /**
+     * sumXSq
+     */
+    REGRESSION__SUMXSQ("sumXSq"),
 
-	/**
-	* sumXY
-	*/
-	REGRESSION__SUMXY("sumXY"),
+    /**
+     * sumXY
+     */
+    REGRESSION__SUMXY("sumXY"),
 
-	/**
-	* sumY
-	*/
-	REGRESSION__SUMY("sumY"),
+    /**
+     * sumY
+     */
+    REGRESSION__SUMY("sumY"),
 
-	/**
-	* sumYSq
-	*/
-	REGRESSION__SUMYSQ("sumYSq"),
+    /**
+     * sumYSq
+     */
+    REGRESSION__SUMYSQ("sumYSq"),
 
     /**
      * Size.
      */
-    SIZE_VIEW__SIZE ("size");
+    SIZE_VIEW__SIZE("size");
 
     private final String name;
 
-    ViewFieldEnum(String name)
-    {
+    ViewFieldEnum(String name) {
         this.name = name;
     }
 
     /**
      * Returns the field name of fields that contain data within a view's posted objects.
+     *
      * @return field name for use with DataSchema to obtain values out of objects.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 }

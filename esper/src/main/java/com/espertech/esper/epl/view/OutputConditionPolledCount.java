@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
  * the total number of new events arrived or the total number
  * of old events arrived is greater than a preset value.
  */
-public final class OutputConditionPolledCount implements OutputConditionPolled
-{
+public final class OutputConditionPolledCount implements OutputConditionPolled {
     private final OutputConditionPolledCountFactory factory;
     private final OutputConditionPolledCountState state;
     private final VariableReader optionalVariableReader;
@@ -36,8 +35,7 @@ public final class OutputConditionPolledCount implements OutputConditionPolled
         return state;
     }
 
-    public final boolean updateOutputCondition(int newDataCount, int oldDataCount)
-    {
+    public final boolean updateOutputCondition(int newDataCount, int oldDataCount) {
         if (optionalVariableReader != null) {
             Object value = optionalVariableReader.getValue();
             if (value != null) {
@@ -49,7 +47,7 @@ public final class OutputConditionPolledCount implements OutputConditionPolled
         state.setOldEventsCount(state.getOldEventsCount() + oldDataCount);
 
         if (isSatisfied() || state.isFirst()) {
-        	if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
                 log.debug(".updateOutputCondition() condition satisfied");
             }
             state.setIsFirst(false);
@@ -61,9 +59,8 @@ public final class OutputConditionPolledCount implements OutputConditionPolled
         return false;
     }
 
-    private boolean isSatisfied()
-    {
-    	return (state.getNewEventsCount() >= state.getEventRate()) || (state.getOldEventsCount() >= state.getEventRate());
+    private boolean isSatisfied() {
+        return (state.getNewEventsCount() >= state.getEventRate()) || (state.getOldEventsCount() >= state.getEventRate());
     }
 
     private static final Logger log = LoggerFactory.getLogger(OutputConditionPolledCount.class);

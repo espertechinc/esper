@@ -27,8 +27,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ExprDotMethodEvalDuck implements ExprDotEval
-{
+public class ExprDotMethodEvalDuck implements ExprDotEval {
     private static final Logger log = LoggerFactory.getLogger(ExprDotMethodEvalDuck.class);
 
     private final String statementName;
@@ -39,8 +38,7 @@ public class ExprDotMethodEvalDuck implements ExprDotEval
 
     private Map<Class, FastMethod> cache;
 
-    public ExprDotMethodEvalDuck(String statementName, EngineImportService engineImportService, String methodName, Class[] parameterTypes, ExprEvaluator[] parameters)
-    {
+    public ExprDotMethodEvalDuck(String statementName, EngineImportService engineImportService, String methodName, Class[] parameterTypes, ExprEvaluator[] parameters) {
         this.statementName = statementName;
         this.engineImportService = engineImportService;
         this.methodName = methodName;
@@ -61,8 +59,7 @@ public class ExprDotMethodEvalDuck implements ExprDotEval
         FastMethod method;
         if (cache.containsKey(target.getClass())) {
             method = cache.get(target.getClass());
-        }
-        else {
+        } else {
             method = getFastMethod(target.getClass());
             cache.put(target.getClass(), method);
         }
@@ -71,34 +68,26 @@ public class ExprDotMethodEvalDuck implements ExprDotEval
             return null;
         }
 
-		Object[] args = new Object[parameters.length];
-		for(int i = 0; i < args.length; i++)
-		{
-			args[i] = parameters[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-		}
+        Object[] args = new Object[parameters.length];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = parameters[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+        }
 
-		try
-		{
+        try {
             return method.invoke(target, args);
-		}
-		catch (InvocationTargetException e)
-		{
+        } catch (InvocationTargetException e) {
             String message = JavaClassHelper.getMessageInvocationTarget(statementName, method.getJavaMethod(), target.getClass().getName(), args, e);
             log.error(message, e.getTargetException());
-		}
+        }
         return null;
     }
 
-    private FastMethod getFastMethod(Class clazz)
-    {
-        try
-        {
+    private FastMethod getFastMethod(Class clazz) {
+        try {
             Method method = engineImportService.resolveMethod(clazz, methodName, parameterTypes, new boolean[parameterTypes.length], new boolean[parameterTypes.length]);
             FastClass declaringClass = FastClass.create(engineImportService.getFastClassClassLoader(method.getDeclaringClass()), method.getDeclaringClass());
             return declaringClass.getMethod(method);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             log.debug("Not resolved for class '" + clazz.getName() + "' method '" + methodName + "'");
         }
         return null;
