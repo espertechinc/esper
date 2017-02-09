@@ -17,15 +17,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByNoAccessFactory extends AggregationServiceFactoryBase
-{
+public class AggSvcGroupByNoAccessFactory extends AggregationServiceFactoryBase {
     /**
      * Ctor.
+     *
      * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
      * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
      */
-    public AggSvcGroupByNoAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory prototypes[])
-    {
+    public AggSvcGroupByNoAccessFactory(ExprEvaluator[] evaluators, AggregationMethodFactory[] prototypes) {
         super(evaluators, prototypes);
     }
 

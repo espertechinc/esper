@@ -31,8 +31,7 @@ import java.util.*;
  * Maintains index tables and keeps a reference count for user. Allows reuse of indexes for multiple
  * deleting statements.
  */
-public class EventTableIndexRepository
-{
+public class EventTableIndexRepository {
     private final List<EventTable> tables;
     private final Map<IndexMultiKey, EventTableIndexRepositoryEntry> tableIndexesRefCount;
     private final HashMap<String, EventTable> explicitIndexes;
@@ -40,23 +39,21 @@ public class EventTableIndexRepository
     /**
      * Ctor.
      */
-    public EventTableIndexRepository()
-    {
+    public EventTableIndexRepository() {
         tables = new ArrayList<EventTable>();
         tableIndexesRefCount = new HashMap<IndexMultiKey, EventTableIndexRepositoryEntry>();
         explicitIndexes = new HashMap<String, EventTable>();
     }
 
     public Pair<IndexMultiKey, EventTableAndNamePair> addExplicitIndexOrReuse(
-                               boolean unique,
-                               List<IndexedPropDesc> hashProps,
-                               List<IndexedPropDesc> btreeProps,
-                               Iterable<EventBean> prefilledEvents,
-                               EventType indexedType,
-                               String indexName,
-                               AgentInstanceContext agentInstanceContext,
-                               Object optionalSerde)
-    {
+            boolean unique,
+            List<IndexedPropDesc> hashProps,
+            List<IndexedPropDesc> btreeProps,
+            Iterable<EventBean> prefilledEvents,
+            EventType indexedType,
+            String indexName,
+            AgentInstanceContext agentInstanceContext,
+            Object optionalSerde) {
         if (hashProps.isEmpty() && btreeProps.isEmpty()) {
             throw new IllegalArgumentException("Invalid zero element list for hash and btree columns");
         }
@@ -78,18 +75,17 @@ public class EventTableIndexRepository
 
     /**
      * Returns a list of current index tables in the repository.
+     *
      * @return index tables
      */
-    public List<EventTable> getTables()
-    {
+    public List<EventTable> getTables() {
         return tables;
     }
 
     /**
      * Destroy indexes.
      */
-    public void destroy()
-    {
+    public void destroy() {
         for (EventTable table : tables) {
             table.destroy();
         }
@@ -112,8 +108,7 @@ public class EventTableIndexRepository
     }
 
     public void validateAddExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (explicitIndexes.containsKey(indexName)) {
             if (allowIndexExists) {
                 return;
@@ -163,8 +158,7 @@ public class EventTableIndexRepository
 
         // fill table since its new
         EventBean[] events = new EventBean[1];
-        for (EventBean prefilledEvent : prefilledEvents)
-        {
+        for (EventBean prefilledEvent : prefilledEvents) {
             events[0] = prefilledEvent;
             table.add(events);
         }

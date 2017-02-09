@@ -11,47 +11,39 @@
 package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestNumberSetPermutationEnumeration extends TestCase
-{
-    public void testInvalid()
-    {
-        try
-        {
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+
+public class TestNumberSetPermutationEnumeration extends TestCase {
+    public void testInvalid() {
+        try {
             new PermutationEnumeration(0);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
-        }        
+        }
     }
 
-    public void testNext()
-    {
-        final int[] numberSet = new int[] {10, 11, 12};
-        final int[][] expectedValues = new int[][] {
-            { 10, 11, 12 },
-            { 10, 12, 11 },
-            { 11, 10, 12 },
-            { 11, 12, 10 },
-            { 12, 10, 11 },
-            { 12, 11, 10 }};
+    public void testNext() {
+        final int[] numberSet = new int[]{10, 11, 12};
+        final int[][] expectedValues = new int[][]{
+                {10, 11, 12},
+                {10, 12, 11},
+                {11, 10, 12},
+                {11, 12, 10},
+                {12, 10, 11},
+                {12, 11, 10}};
         tryPermutation(numberSet, expectedValues);
     }
 
-    private void tryPermutation(int[] numberSet, int[][] expectedValues)
-    {
+    private void tryPermutation(int[] numberSet, int[][] expectedValues) {
         NumberSetPermutationEnumeration enumeration = new NumberSetPermutationEnumeration(numberSet);
 
         int count = 0;
-        while(enumeration.hasMoreElements())
-        {
+        while (enumeration.hasMoreElements()) {
             int[] result = enumeration.nextElement();
             int[] expected = expectedValues[count];
 
@@ -63,13 +55,10 @@ public class TestNumberSetPermutationEnumeration extends TestCase
         }
         assertEquals(count, expectedValues.length);
 
-        try
-        {
+        try {
             enumeration.nextElement();
             fail();
-        }
-        catch (NoSuchElementException ex)
-        {
+        } catch (NoSuchElementException ex) {
             // Expected
         }
     }

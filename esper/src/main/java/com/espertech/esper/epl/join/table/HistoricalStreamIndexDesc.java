@@ -18,20 +18,19 @@ import java.util.Arrays;
  * Saves and compares the properties indexed and their types, as well as the types of key properties to
  * account for coercion.
  */
-public class HistoricalStreamIndexDesc
-{
+public class HistoricalStreamIndexDesc {
     private final String[] indexProperties;
     private final Class[] indexPropTypes;
     private final Class[] keyPropTypes;
 
     /**
      * Ctor.
+     *
      * @param indexProperties index properties
-     * @param indexPropTypes index property types
-     * @param keyPropTypes key property types
+     * @param indexPropTypes  index property types
+     * @param keyPropTypes    key property types
      */
-    public HistoricalStreamIndexDesc(String[] indexProperties, Class[] indexPropTypes, Class[] keyPropTypes)
-    {
+    public HistoricalStreamIndexDesc(String[] indexProperties, Class[] indexPropTypes, Class[] keyPropTypes) {
         this.indexProperties = indexProperties;
         this.indexPropTypes = indexPropTypes;
         this.keyPropTypes = keyPropTypes;
@@ -39,33 +38,32 @@ public class HistoricalStreamIndexDesc
 
     /**
      * Returns index properties.
+     *
      * @return index properties
      */
-    public String[] getIndexProperties()
-    {
+    public String[] getIndexProperties() {
         return indexProperties;
     }
 
     /**
      * Returns index property types.
+     *
      * @return index property types
      */
-    public Class[] getIndexPropTypes()
-    {
+    public Class[] getIndexPropTypes() {
         return indexPropTypes;
     }
 
     /**
      * Returns key property types.
+     *
      * @return key property types
      */
-    public Class[] getKeyPropTypes()
-    {
+    public Class[] getKeyPropTypes() {
         return keyPropTypes;
     }
 
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -78,8 +76,7 @@ public class HistoricalStreamIndexDesc
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result;
         result = Arrays.hashCode(indexProperties);
         result = 31 * result + Arrays.hashCode(indexPropTypes);

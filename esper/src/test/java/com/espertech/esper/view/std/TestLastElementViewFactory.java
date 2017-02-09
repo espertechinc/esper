@@ -16,44 +16,35 @@ import com.espertech.esper.view.TestViewSupport;
 import com.espertech.esper.view.ViewParameterException;
 import junit.framework.TestCase;
 
-public class TestLastElementViewFactory extends TestCase
-{
+public class TestLastElementViewFactory extends TestCase {
     private LastElementViewFactory factory;
 
-    public void setUp()
-    {
+    public void setUp() {
         factory = new LastElementViewFactory();
     }
 
-    public void testSetParameters() throws Exception
-    {
-        tryParameter(new Object[] {});
+    public void testSetParameters() throws Exception {
+        tryParameter(new Object[]{});
         tryInvalidParameter(1.1d);
     }
 
-    public void testCanReuse() throws Exception
-    {
+    public void testCanReuse() throws Exception {
         AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
         assertFalse(factory.canReuse(new FirstElementView(null), agentInstanceContext));
         assertTrue(factory.canReuse(new LastElementView(null), agentInstanceContext));
     }
 
-    private void tryInvalidParameter(Object param) throws Exception
-    {
-        try
-        {
+    private void tryInvalidParameter(Object param) throws Exception {
+        try {
             LastElementViewFactory factory = new LastElementViewFactory();
-            factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[] {param}));
+            factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(new Object[]{param}));
             fail();
-        }
-        catch (ViewParameterException ex)
-        {
+        } catch (ViewParameterException ex) {
             // expected
         }
     }
 
-    private void tryParameter(Object[] param) throws Exception
-    {
+    private void tryParameter(Object[] param) throws Exception {
         LastElementViewFactory factory = new LastElementViewFactory();
         factory.setViewParameters(SupportStatementContextFactory.makeViewContext(), TestViewSupport.toExprListBean(param));
         assertTrue(factory.makeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext()) instanceof LastElementView);

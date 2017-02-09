@@ -62,17 +62,17 @@ import java.io.Serializable;
  * (previously it extended AbstractMap). As a result, the implementation is now
  * extensible and provides a <code>MapIterator</code>.
  *
- * @see java.lang.ref.Reference
- *
- * @since Commons Collections 3.0 (previously in main package v2.1)
- * @version $Revision$ $Date$
- *
  * @author Paul Jack
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @see java.lang.ref.Reference
+ * @since Commons Collections 3.0 (previously in main package v2.1)
  */
 public class ReferenceMap extends AbstractReferenceMap implements Serializable {
 
-    /** Serialization version */
+    /**
+     * Serialization version
+     */
     private static final long serialVersionUID = 1555089888138299607L;
 
     /**
@@ -87,10 +87,10 @@ public class ReferenceMap extends AbstractReferenceMap implements Serializable {
      * Constructs a new <code>ReferenceMap</code> that will
      * use the specified types of references.
      *
-     * @param keyType  the type of reference to use for keys;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param valueType  the type of reference to use for values;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param keyType   the type of reference to use for keys;
+     *                  must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param valueType the type of reference to use for values;
+     *                  must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
      */
     public ReferenceMap(int keyType, int valueType) {
         super(keyType, valueType, DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, false);
@@ -100,12 +100,12 @@ public class ReferenceMap extends AbstractReferenceMap implements Serializable {
      * Constructs a new <code>ReferenceMap</code> that will
      * use the specified types of references.
      *
-     * @param keyType  the type of reference to use for keys;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param valueType  the type of reference to use for values;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param keyType     the type of reference to use for keys;
+     *                    must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param valueType   the type of reference to use for values;
+     *                    must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
      * @param purgeValues should the value be automatically purged when the
-     *   key is garbage collected
+     *                    key is garbage collected
      */
     public ReferenceMap(int keyType, int valueType, boolean purgeValues) {
         super(keyType, valueType, DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR, purgeValues);
@@ -116,12 +116,12 @@ public class ReferenceMap extends AbstractReferenceMap implements Serializable {
      * specified reference types, load factor and initial
      * capacity.
      *
-     * @param keyType  the type of reference to use for keys;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param keyType    the type of reference to use for keys;
+     *                   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
      * @param valueType  the type of reference to use for values;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param capacity  the initial capacity for the map
-     * @param loadFactor  the load factor for the map
+     *                   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param capacity   the initial capacity for the map
+     * @param loadFactor the load factor for the map
      */
     public ReferenceMap(int keyType, int valueType, int capacity, float loadFactor) {
         super(keyType, valueType, capacity, loadFactor, false);
@@ -132,14 +132,14 @@ public class ReferenceMap extends AbstractReferenceMap implements Serializable {
      * specified reference types, load factor and initial
      * capacity.
      *
-     * @param keyType  the type of reference to use for keys;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param valueType  the type of reference to use for values;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param capacity  the initial capacity for the map
+     * @param keyType     the type of reference to use for keys;
+     *                    must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param valueType   the type of reference to use for values;
+     *                    must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param capacity    the initial capacity for the map
      * @param loadFactor  the load factor for the map
-     * @param purgeValues  should the value be automatically purged when the
-     *   key is garbage collected
+     * @param purgeValues should the value be automatically purged when the
+     *                    key is garbage collected
      */
     public ReferenceMap(int keyType, int valueType, int capacity,
                         float loadFactor, boolean purgeValues) {
@@ -147,8 +147,10 @@ public class ReferenceMap extends AbstractReferenceMap implements Serializable {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Write the map out using a custom routine.
+     *
      * @param outputStream out stream
      * @throws IOException io error
      */
@@ -159,8 +161,9 @@ public class ReferenceMap extends AbstractReferenceMap implements Serializable {
 
     /**
      * Read the map in using a custom routine.
+     *
      * @param input in stream
-     * @throws IOException io error
+     * @throws IOException            io error
      * @throws ClassNotFoundException class not found
      */
     private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {

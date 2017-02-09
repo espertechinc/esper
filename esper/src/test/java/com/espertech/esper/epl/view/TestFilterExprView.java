@@ -17,23 +17,20 @@ import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.view.SupportMapView;
 import junit.framework.TestCase;
 
-public class TestFilterExprView extends TestCase
-{
+public class TestFilterExprView extends TestCase {
     private FilterExprView filterExprViewAdapter;
     private SupportMapView childView;
 
-    public void setUp()
-    {
+    public void setUp() {
         filterExprViewAdapter = new FilterExprView(new SupportExprNode(null), new SupportExprEvaluator(), null);
         childView = new SupportMapView();
         filterExprViewAdapter.addView(childView);
     }
 
-    public void testUpdate()
-    {
+    public void testUpdate() {
         // Test all evaluate to true (ie. all pass the filter)
-        EventBean[] oldEvents = SupportEventBeanFactory.makeEvents(new boolean[] {true, true});
-        EventBean[] newEvents = SupportEventBeanFactory.makeEvents(new boolean[] {true, true});
+        EventBean[] oldEvents = SupportEventBeanFactory.makeEvents(new boolean[]{true, true});
+        EventBean[] newEvents = SupportEventBeanFactory.makeEvents(new boolean[]{true, true});
         filterExprViewAdapter.update(newEvents, oldEvents);
 
         assertEquals(newEvents, childView.getLastNewData());
@@ -41,8 +38,8 @@ public class TestFilterExprView extends TestCase
         childView.reset();
 
         // Test all evaluate to false (ie. none pass the filter)
-        oldEvents = SupportEventBeanFactory.makeEvents(new boolean[] {false, false});
-        newEvents = SupportEventBeanFactory.makeEvents(new boolean[] {false, false});
+        oldEvents = SupportEventBeanFactory.makeEvents(new boolean[]{false, false});
+        newEvents = SupportEventBeanFactory.makeEvents(new boolean[]{false, false});
         filterExprViewAdapter.update(newEvents, oldEvents);
 
         assertFalse(childView.getAndClearIsInvoked());  // Should not be invoked if no events
@@ -50,8 +47,8 @@ public class TestFilterExprView extends TestCase
         assertNull(childView.getLastOldData());
 
         // Test some pass through the filter
-        oldEvents = SupportEventBeanFactory.makeEvents(new boolean[] {false, true, false});
-        newEvents = SupportEventBeanFactory.makeEvents(new boolean[] {true, false, true});
+        oldEvents = SupportEventBeanFactory.makeEvents(new boolean[]{false, true, false});
+        newEvents = SupportEventBeanFactory.makeEvents(new boolean[]{true, false, true});
         filterExprViewAdapter.update(newEvents, oldEvents);
 
         assertEquals(2, childView.getLastNewData().length);

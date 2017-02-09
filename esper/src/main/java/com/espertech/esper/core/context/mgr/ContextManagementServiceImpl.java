@@ -17,12 +17,14 @@ import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExceptionHandlingService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.ContextDetailNested;
 import com.espertech.esper.epl.spec.CreateContextDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class ContextManagementServiceImpl implements ContextManagementService {
     private static final Logger log = LoggerFactory.getLogger(ContextManagementServiceImpl.class);
@@ -88,7 +90,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
         entry.removeStatement(statementId);
         entry.getContextManager().destroyStatement(statementName, statementId);
-        
+
         if (entry.getStatementCount() == 0 && destroyedContexts.contains(contextName)) {
             destroyContext(contextName, entry);
         }
@@ -102,8 +104,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
         try {
             entry.getContextManager().stopStatement(statementName, statementId);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             exceptionHandlingService.handleException(ex, statementName, epl, ExceptionHandlerExceptionType.STOP, null);
         }
     }
@@ -116,8 +117,7 @@ public class ContextManagementServiceImpl implements ContextManagementService {
         }
         if (entry.getStatementCount() == 0) {
             destroyContext(contextName, entry);
-        }
-        else {
+        } else {
             // some remaining statements have references
             destroyedContexts.add(contextName);
         }

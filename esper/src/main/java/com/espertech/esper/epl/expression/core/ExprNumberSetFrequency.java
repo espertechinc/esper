@@ -21,8 +21,7 @@ import java.io.StringWriter;
 /**
  * Expression for use within crontab to specify a frequency.
  */
-public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetFrequency.class);
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -5389069399403078192L;
@@ -41,46 +40,36 @@ public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluato
         return ExprPrecedenceEnum.MINIMUM;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return this.getChildNodes()[0].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprNumberSetFrequency))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprNumberSetFrequency)) {
             return false;
         }
         return true;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluator = this.getChildNodes()[0].getExprEvaluator();
         Class type = evaluator.getType();
-        if (!(JavaClassHelper.isNumericNonFP(type)))
-        {
+        if (!(JavaClassHelper.isNumericNonFP(type))) {
             throw new ExprValidationException("Frequency operator requires an integer-type parameter");
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return FrequencyParameter.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object value = evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (value == null)
-        {
+        if (value == null) {
             log.warn("Null value returned for frequency parameter");
             return new FrequencyParameter(Integer.MAX_VALUE);
-        }
-        else
-        {
+        } else {
             int intValue = ((Number) value).intValue();
             return new FrequencyParameter(intValue);
         }

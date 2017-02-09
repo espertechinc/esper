@@ -25,8 +25,7 @@ import java.util.Map;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
-{
+public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped {
     private final AggregationAccessorSlotPair[] accessorsFactory;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
@@ -41,19 +40,19 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
 
     /**
      * Ctor.
-     * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
-     * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
-     * @param accessorsFactory accessor definitions
+     *
+     * @param evaluators         - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
+     * @param prototypes         - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
+     *                           aggregation states for each group
+     * @param accessorsFactory   accessor definitions
      * @param accessAggregations access aggs
-     * @param isJoin true for join, false for single-stream
+     * @param isJoin             true for join, false for single-stream
      */
-    public AggSvcGroupByMixedAccessImpl(ExprEvaluator evaluators[],
-                                        AggregationMethodFactory prototypes[],
+    public AggSvcGroupByMixedAccessImpl(ExprEvaluator[] evaluators,
+                                        AggregationMethodFactory[] prototypes,
                                         AggregationAccessorSlotPair[] accessorsFactory,
                                         AggregationStateFactory[] accessAggregations,
-                                        boolean isJoin)
-    {
+                                        boolean isJoin) {
         super(evaluators, prototypes);
         this.accessorsFactory = accessorsFactory;
         this.accessAggregations = accessAggregations;
@@ -61,19 +60,18 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         this.aggregatorsPerGroup = new HashMap<Object, AggregationRowPair>();
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         aggregatorsPerGroup.clear();
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupByKey);}
+    public void applyEnter(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupByKey);
+        }
         AggregationRowPair groupAggregators = aggregatorsPerGroup.get(groupByKey);
 
         // The aggregators for this group do not exist, need to create them from the prototypes
-        if (groupAggregators == null)
-        {
+        if (groupAggregators == null) {
             AggregationMethod[] methods = AggSvcGroupByUtil.newAggregators(aggregators);
             AggregationState[] states = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             groupAggregators = new AggregationRowPair(methods, states);
@@ -84,31 +82,41 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         currentAggregatorRow = groupAggregators;
         AggregationMethod[] groupAggMethods = groupAggregators.getMethods();
         for (int i = 0; i < evaluators.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, groupAggMethods[i], aggregators[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, groupAggMethods[i], aggregators[i].getAggregationExpression());
+            }
             Object columnResult = evaluators[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
             groupAggMethods[i].enter(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, groupAggMethods[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, groupAggMethods[i]);
+            }
         }
 
         AggregationState[] states = currentAggregatorRow.getStates();
         for (int i = 0; i < states.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, states[i], accessAggregations[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, states[i], accessAggregations[i].getAggregationExpression());
+            }
             states[i].applyEnter(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, states[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, states[i]);
+            }
         }
 
         internalHandleUpdated(groupByKey, groupAggregators);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);
+        }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupByKey);}
+    public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupByKey);
+        }
         AggregationRowPair groupAggregators = aggregatorsPerGroup.get(groupByKey);
 
         // The aggregators for this group do not exist, need to create them from the prototypes
-        if (groupAggregators == null)
-        {
+        if (groupAggregators == null) {
             AggregationMethod[] methods = AggSvcGroupByUtil.newAggregators(aggregators);
             AggregationState[] states = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             groupAggregators = new AggregationRowPair(methods, states);
@@ -118,32 +126,39 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         // For this row, evaluate sub-expressions, enter result
         currentAggregatorRow = groupAggregators;
         AggregationMethod[] groupAggMethods = groupAggregators.getMethods();
-        for (int i = 0; i < evaluators.length; i++)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, groupAggMethods[i], aggregators[i].getAggregationExpression());}
+        for (int i = 0; i < evaluators.length; i++) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, groupAggMethods[i], aggregators[i].getAggregationExpression());
+            }
             Object columnResult = evaluators[i].evaluate(eventsPerStream, false, exprEvaluatorContext);
             groupAggMethods[i].leave(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, groupAggMethods[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, groupAggMethods[i]);
+            }
         }
 
         AggregationState[] states = currentAggregatorRow.getStates();
         for (int i = 0; i < states.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, states[i], accessAggregations[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, states[i], accessAggregations[i].getAggregationExpression());
+            }
             states[i].applyLeave(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, states[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, states[i]);
+            }
         }
 
         internalHandleUpdated(groupByKey, groupAggregators);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);
+        }
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         currentAggregatorRow = aggregatorsPerGroup.get(groupByKey);
         this.currentGroupKey = groupByKey;
 
-        if (currentAggregatorRow == null)
-        {
+        if (currentAggregatorRow == null) {
             AggregationMethod[] methods = AggSvcGroupByUtil.newAggregators(aggregators);
             AggregationState[] states = AggSvcGroupByUtil.newAccesses(agentInstanceId, isJoin, accessAggregations, groupByKey, null);
             currentAggregatorRow = new AggregationRowPair(methods, states);
@@ -151,22 +166,19 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
         }
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (column < aggregators.length) {
             return currentAggregatorRow.getMethods()[column].getValue();
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessorsFactory[column - aggregators.length];
             return pair.getAccessor().getValue(currentAggregatorRow.getStates()[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
         }
     }
-    
+
     public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessorsFactory[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvents(currentAggregatorRow.getStates()[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -175,8 +187,7 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
     public Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessorsFactory[column - aggregators.length];
             return pair.getAccessor().getEnumerableScalar(currentAggregatorRow.getStates()[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -185,8 +196,7 @@ public class AggSvcGroupByMixedAccessImpl extends AggregationServiceBaseGrouped
     public EventBean getEventBean(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessorsFactory[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvent(currentAggregatorRow.getStates()[pair.getSlot()], eventsPerStream, isNewData, context);
         }

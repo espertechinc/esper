@@ -19,8 +19,7 @@ import java.util.Set;
 /**
  * Configuration object for event types with super-types and timestamp.
  */
-public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable
-{
+public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable {
     private static final long serialVersionUID = 6770441816508380856L;
 
     private Set<String> superTypes;
@@ -29,6 +28,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Ctor.
+     *
      * @param superTypes super types
      */
     protected ConfigurationEventTypeWithSupertype(Set<String> superTypes) {
@@ -44,6 +44,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Returns the super types, if any.
+     *
      * @return set of super type names
      */
     public Set<String> getSuperTypes() {
@@ -52,6 +53,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Sets the super types.
+     *
      * @param superTypes set of super type names
      */
     public void setSuperTypes(Set<String> superTypes) {
@@ -60,6 +62,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Returns the property name of the property providing the start timestamp value.
+     *
      * @return start timestamp property name
      */
     public String getStartTimestampPropertyName() {
@@ -68,6 +71,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Sets the property name of the property providing the start timestamp value.
+     *
      * @param startTimestampPropertyName start timestamp property name
      */
     public void setStartTimestampPropertyName(String startTimestampPropertyName) {
@@ -76,6 +80,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Returns the property name of the property providing the end timestamp value.
+     *
      * @return end timestamp property name
      */
     public String getEndTimestampPropertyName() {
@@ -84,6 +89,7 @@ public class ConfigurationEventTypeWithSupertype implements MetaDefItem, Seriali
 
     /**
      * Sets the property name of the property providing the end timestamp value.
+     *
      * @param endTimestampPropertyName start timestamp property name
      */
     public void setEndTimestampPropertyName(String endTimestampPropertyName) {

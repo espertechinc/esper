@@ -77,8 +77,7 @@ public class DefaultSupportCaptureOp<T> implements EPDataFlowSignalHandler, Futu
     public Object[] get() throws InterruptedException, ExecutionException {
         try {
             return get(Long.MAX_VALUE, TimeUnit.DAYS);
-        }
-        catch (TimeoutException e) {
+        } catch (TimeoutException e) {
         }
         return null;
     }
@@ -101,13 +100,14 @@ public class DefaultSupportCaptureOp<T> implements EPDataFlowSignalHandler, Futu
 
     /**
      * Wait for the listener invocation for up to the given number of milliseconds.
-     * @param msecWait to wait
+     *
+     * @param msecWait          to wait
      * @param numberOfNewEvents in any number of separate invocations required before returning
      * @throws RuntimeException when no results or insufficient number of events were received
      */
     public void waitForInvocation(long msecWait, int numberOfNewEvents) {
         long startTime = System.currentTimeMillis();
-        while(true) {
+        while (true) {
 
             synchronized (this) {
                 if ((System.currentTimeMillis() - startTime) > msecWait) {
@@ -121,8 +121,7 @@ public class DefaultSupportCaptureOp<T> implements EPDataFlowSignalHandler, Futu
 
             try {
                 Thread.sleep(50);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 return;
             }
         }

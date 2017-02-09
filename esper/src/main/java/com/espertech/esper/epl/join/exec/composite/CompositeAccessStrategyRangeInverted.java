@@ -42,8 +42,8 @@ public class CompositeAccessStrategyRangeInverted extends CompositeAccessStrateg
         comparableEnd = EventBeanUtility.coerce(comparableEnd, coercionType);
 
         TreeMap index = (TreeMap) parent;
-        SortedMap<Object,Set<EventBean>> submapOne = index.headMap(comparableStart, !includeStart);
-        SortedMap<Object,Set<EventBean>> submapTwo = index.tailMap(comparableEnd, !includeEnd);
+        SortedMap<Object, Set<EventBean>> submapOne = index.headMap(comparableStart, !includeStart);
+        SortedMap<Object, Set<EventBean>> submapTwo = index.tailMap(comparableEnd, !includeEnd);
         return CompositeIndexQueryRange.handle(theEvent, submapOne, submapTwo, result, next, postProcessor);
     }
 
@@ -66,8 +66,8 @@ public class CompositeAccessStrategyRangeInverted extends CompositeAccessStrateg
         comparableEnd = EventBeanUtility.coerce(comparableEnd, coercionType);
 
         TreeMap index = (TreeMap) parent;
-        SortedMap<Object,Set<EventBean>> submapOne = index.headMap(comparableStart, !includeStart);
-        SortedMap<Object,Set<EventBean>> submapTwo = index.tailMap(comparableEnd, !includeEnd);
+        SortedMap<Object, Set<EventBean>> submapOne = index.headMap(comparableStart, !includeStart);
+        SortedMap<Object, Set<EventBean>> submapTwo = index.tailMap(comparableEnd, !includeEnd);
         return CompositeIndexQueryRange.handle(eventPerStream, submapOne, submapTwo, result, next, postProcessor);
     }
 }

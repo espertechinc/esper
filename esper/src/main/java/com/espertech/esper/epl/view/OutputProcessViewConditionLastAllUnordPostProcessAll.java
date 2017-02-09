@@ -16,8 +16,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 
-public class OutputProcessViewConditionLastAllUnordPostProcessAll extends OutputProcessViewConditionLastAllUnord
-{
+public class OutputProcessViewConditionLastAllUnordPostProcessAll extends OutputProcessViewConditionLastAllUnord {
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewConditionLastAllUnordPostProcessAll(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
@@ -26,11 +25,9 @@ public class OutputProcessViewConditionLastAllUnordPostProcessAll extends Output
     }
 
     @Override
-    public void output(boolean forceUpdate, UniformPair<EventBean[]> results)
-    {
+    public void output(boolean forceUpdate, UniformPair<EventBean[]> results) {
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcessor.output(forceUpdate, results, childView);
         }
     }

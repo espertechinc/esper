@@ -1,7 +1,5 @@
 package com.espertech.esper.example.trivia;
 
-import com.espertech.esper.client.EventBean;
-
 import java.util.HashMap;
 import java.util.Map;
 

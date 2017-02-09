@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.join.assemble;
 
-import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.util.IndentWriter;
 
 import java.util.Collection;
@@ -21,54 +21,45 @@ import java.util.Set;
 /**
  * Assembly node for an event stream that is a leaf with a no child nodes below it.
  */
-public class LeafAssemblyNode extends BaseAssemblyNode
-{
+public class LeafAssemblyNode extends BaseAssemblyNode {
     /**
      * Ctor.
-     * @param streamNum - is the stream number
+     *
+     * @param streamNum  - is the stream number
      * @param numStreams - is the number of streams
      */
-    public LeafAssemblyNode(int streamNum, int numStreams)
-    {
+    public LeafAssemblyNode(int streamNum, int numStreams) {
         super(streamNum, numStreams);
     }
 
-    public void init(List<Node>[] result)
-    {
+    public void init(List<Node>[] result) {
     }
 
-    public void process(List<Node>[] result, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-    {
+    public void process(List<Node>[] result, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
         List<Node> nodes = result[streamNum];
-        if (nodes == null)
-        {
+        if (nodes == null) {
             return;
         }
 
-        for (Node node : nodes)
-        {
+        for (Node node : nodes) {
             Set<EventBean> events = node.getEvents();
-            for (EventBean theEvent : events)
-            {
+            for (EventBean theEvent : events) {
                 processEvent(theEvent, node, resultFinalRows, resultRootEvent);
             }
         }
     }
 
-    private void processEvent(EventBean theEvent, Node currentNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-    {
+    private void processEvent(EventBean theEvent, Node currentNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
         EventBean[] row = new EventBean[numStreams];
         row[streamNum] = theEvent;
         parentNode.result(row, streamNum, currentNode.getParentEvent(), currentNode.getParent(), resultFinalRows, resultRootEvent);
     }
 
-    public void result(EventBean[] row, int streamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-    {
+    public void result(EventBean[] row, int streamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
         throw new UnsupportedOperationException("Leaf node cannot process child results");
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("LeafAssemblyNode streamNum=" + streamNum);
     }
 }

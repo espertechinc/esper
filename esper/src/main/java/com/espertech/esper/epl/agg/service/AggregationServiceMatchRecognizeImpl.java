@@ -20,11 +20,10 @@ import java.util.Collection;
 /**
  * Implements an aggregation service for match recognize.
  */
-public class AggregationServiceMatchRecognizeImpl implements AggregationServiceMatchRecognize
-{
-    private ExprEvaluator evaluatorsEachStream[][];
-    private AggregationMethod aggregatorsEachStream[][];
-    private AggregationMethod aggregatorsAll[];
+public class AggregationServiceMatchRecognizeImpl implements AggregationServiceMatchRecognize {
+    private ExprEvaluator[][] evaluatorsEachStream;
+    private AggregationMethod[][] aggregatorsEachStream;
+    private AggregationMethod[] aggregatorsAll;
 
     public AggregationServiceMatchRecognizeImpl(ExprEvaluator[][] evaluatorsEachStream, AggregationMethod[][] aggregatorsEachStream, AggregationMethod[] aggregatorsAll) {
         this.evaluatorsEachStream = evaluatorsEachStream;
@@ -35,21 +34,18 @@ public class AggregationServiceMatchRecognizeImpl implements AggregationServiceM
     public void applyEnter(EventBean[] eventsPerStream, int streamId, ExprEvaluatorContext exprEvaluatorContext) {
 
         ExprEvaluator[] evaluatorsStream = evaluatorsEachStream[streamId];
-        if (evaluatorsStream == null)
-        {
+        if (evaluatorsStream == null) {
             return;
         }
 
         AggregationMethod[] aggregatorsStream = aggregatorsEachStream[streamId];
-        for (int j = 0; j < evaluatorsStream.length; j++)
-        {
+        for (int j = 0; j < evaluatorsStream.length; j++) {
             Object columnResult = evaluatorsStream[j].evaluate(eventsPerStream, true, exprEvaluatorContext);
             aggregatorsStream[j].enter(columnResult);
         }
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return aggregatorsAll[column].getValue();
     }
 
@@ -65,10 +61,8 @@ public class AggregationServiceMatchRecognizeImpl implements AggregationServiceM
         return null;
     }
 
-    public void clearResults()
-    {
-        for (AggregationMethod aggregator : aggregatorsAll)
-        {
+    public void clearResults() {
+        for (AggregationMethod aggregator : aggregatorsAll) {
             aggregator.clear();
         }
     }

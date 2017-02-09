@@ -16,7 +16,7 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 
 public class AggSvcGroupByUtil {
     public static AggregationMethod[] newAggregators(AggregationMethodFactory[] prototypes) {
-        AggregationMethod row[] = new AggregationMethod[prototypes.length];
+        AggregationMethod[] row = new AggregationMethod[prototypes.length];
         for (int i = 0; i < prototypes.length; i++) {
             row[i] = prototypes[i].make();
         }

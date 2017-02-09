@@ -10,53 +10,49 @@
  */
 package com.espertech.esper.client.soda;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.StringWriter;
 
 /**
  * Base expression.
  */
-public abstract class ExpressionBase implements Expression
-{
+public abstract class ExpressionBase implements Expression {
     private static final long serialVersionUID = 0L;
 
     private String treeObjectName;
     private List<Expression> children;
 
-    public String getTreeObjectName()
-    {
+    public String getTreeObjectName() {
         return treeObjectName;
     }
 
-    public void setTreeObjectName(String treeObjectName)
-    {
+    public void setTreeObjectName(String treeObjectName) {
         this.treeObjectName = treeObjectName;
     }
 
     /**
      * Ctor.
      */
-    public ExpressionBase()
-    {
+    public ExpressionBase() {
         children = new ArrayList<Expression>();
     }
 
     /**
      * Returns the list of sub-expressions to the current expression.
+     *
      * @return list of child expressions
      */
-    public List<Expression> getChildren()
-    {
+    public List<Expression> getChildren() {
         return children;
     }
 
     /**
      * Adds a new child expression to the current expression.
+     *
      * @param expression to add
      */
-    public void addChild(Expression expression)
-    {
+    public void addChild(Expression expression) {
         children.add(expression);
     }
 
@@ -69,20 +65,19 @@ public abstract class ExpressionBase implements Expression
             writer.write("(");
             toPrecedenceFreeEPL(writer);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer);
         }
     }
 
     /**
      * Renders child expression of a function in a comma-separated list.
+     *
      * @param functionName function name
-     * @param children child nodes
-     * @param writer writer
+     * @param children     child nodes
+     * @param writer       writer
      */
-    protected static void toPrecedenceFreeEPL(String functionName, List<Expression> children, StringWriter writer)
-    {
+    protected static void toPrecedenceFreeEPL(String functionName, List<Expression> children, StringWriter writer) {
         writer.write(functionName);
         writer.write("(");
         toPrecedenceFreeEPL(children, writer);
@@ -91,14 +86,13 @@ public abstract class ExpressionBase implements Expression
 
     /**
      * Render expression list
+     *
      * @param children expressions to render
-     * @param writer writer to render to
+     * @param writer   writer to render to
      */
-    public static void toPrecedenceFreeEPL(List<Expression> children, StringWriter writer)
-    {
+    public static void toPrecedenceFreeEPL(List<Expression> children, StringWriter writer) {
         String delimiter = "";
-        for (Expression expr : children)
-        {
+        for (Expression expr : children) {
             writer.write(delimiter);
             expr.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             delimiter = ",";
@@ -107,8 +101,9 @@ public abstract class ExpressionBase implements Expression
 
     /**
      * Render an aggregation function with distinct and parameter expressions
-     * @param writer to render to
-     * @param name function name
+     *
+     * @param writer   to render to
+     * @param name     function name
      * @param distinct distinct flag
      * @param children parameters to render
      */
@@ -130,6 +125,7 @@ public abstract class ExpressionBase implements Expression
     /**
      * Renders the expressions and all it's child expression, in full tree depth, as a string in
      * language syntax.
+     *
      * @param writer is the output to use
      */
     public abstract void toPrecedenceFreeEPL(StringWriter writer);

@@ -12,16 +12,14 @@ package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
 
-public class TestPair extends TestCase
-{
+public class TestPair extends TestCase {
     private Pair<String, String> pair1 = new Pair<String, String>("a", "b");
     private Pair<String, String> pair2 = new Pair<String, String>("a", "b");
     private Pair<String, String> pair3 = new Pair<String, String>("a", null);
     private Pair<String, String> pair4 = new Pair<String, String>(null, "b");
     private Pair<String, String> pair5 = new Pair<String, String>(null, null);
 
-    public void testHashCode()
-    {
+    public void testHashCode() {
         assertTrue(pair1.hashCode() == ("a".hashCode() ^ "b".hashCode()));
         assertTrue(pair3.hashCode() == "a".hashCode());
         assertTrue(pair4.hashCode() == "b".hashCode());
@@ -33,8 +31,7 @@ public class TestPair extends TestCase
         assertTrue(pair1.hashCode() != pair5.hashCode());
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         assertEquals(pair2, pair1);
         assertEquals(pair1, pair2);
 

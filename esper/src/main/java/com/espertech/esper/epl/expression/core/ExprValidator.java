@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Validation interface for expression nodes.
  */
-public interface ExprValidator
-{
+public interface ExprValidator {
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException;
 }

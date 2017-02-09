@@ -30,9 +30,10 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Ctor.
-     * @param pattern pattern expression
+     *
+     * @param pattern   pattern expression
      * @param inclusive if the events of the pattern should be included in the contextual statements
-     * @param now indicator whether "now"
+     * @param now       indicator whether "now"
      */
     public ContextDescriptorConditionPattern(PatternExpr pattern, boolean inclusive, boolean now) {
         this.pattern = pattern;
@@ -42,6 +43,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Returns the pattern expression.
+     *
      * @return pattern
      */
     public PatternExpr getPattern() {
@@ -50,6 +52,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Sets the pattern expression.
+     *
      * @param pattern to set
      */
     public void setPattern(PatternExpr pattern) {
@@ -58,6 +61,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Return the inclusive flag, meaning events that constitute the pattern match should be considered for context-associated statements.
+     *
      * @return inclusive flag
      */
     public boolean isInclusive() {
@@ -66,6 +70,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Set the inclusive flag, meaning events that constitute the pattern match should be considered for context-associated statements.
+     *
      * @param inclusive inclusive flag
      */
     public void setInclusive(boolean inclusive) {
@@ -74,6 +79,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Returns "now" indicator
+     *
      * @return "now" indicator
      */
     public boolean isNow() {
@@ -82,6 +88,7 @@ public class ContextDescriptorConditionPattern implements ContextDescriptorCondi
 
     /**
      * Sets "now" indicator
+     *
      * @param now "now" indicator
      */
     public void setNow(boolean now) {

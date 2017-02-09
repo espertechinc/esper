@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Provides variable configuration.
  */
-public class ConfigurationVariable implements Serializable
-{
+public class ConfigurationVariable implements Serializable {
     private String type;
     private Object initializationValue;
     private boolean constant;
@@ -24,19 +23,19 @@ public class ConfigurationVariable implements Serializable
 
     /**
      * Returns the variable type as a fully-qualified class name, primitive type or event type name.
+     *
      * @return type name
      */
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     /**
      * Sets the variable type as a fully-qualified class name, primitive type or event type name.
+     *
      * @param type type name
      */
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -44,10 +43,10 @@ public class ConfigurationVariable implements Serializable
      * Returns the initialization value, or null if none was supplied.
      * <p>
      * String-type initialization values for numeric or boolean types are allowed and are parsed.
+     *
      * @return default value
      */
-    public Object getInitializationValue()
-    {
+    public Object getInitializationValue() {
         return initializationValue;
     }
 
@@ -55,15 +54,16 @@ public class ConfigurationVariable implements Serializable
      * Sets the variable type.
      * <p>
      * Variables are scalar values and primitive or boxed Java builtin types are accepted.
+     *
      * @param initializationValue the default value or null if the default value is null
      */
-    public void setInitializationValue(Object initializationValue)
-    {
+    public void setInitializationValue(Object initializationValue) {
         this.initializationValue = initializationValue;
     }
 
     /**
      * Returns true if the variable is a constant, or false for regular variable.
+     *
      * @return true for constant, false for variable
      */
     public boolean isConstant() {
@@ -72,6 +72,7 @@ public class ConfigurationVariable implements Serializable
 
     /**
      * Set to true to indicate that the variable is a constant, or false for regular variable.
+     *
      * @param constant true for constant, false for variable
      */
     public void setConstant(boolean constant) {

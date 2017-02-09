@@ -351,16 +351,16 @@ public class JmxReporter extends AbstractReporter implements MetricsRegistryList
         }
     }
 
-    private static JmxReporter INSTANCE;
+    private static JmxReporter instance;
 
     /**
      * Starts the default instance of {@link JmxReporter}.
      *
-     * @param registry    the {@link MetricsRegistry} to report from
+     * @param registry the {@link MetricsRegistry} to report from
      */
     public static void startDefault(MetricsRegistry registry) {
-        INSTANCE = new JmxReporter(registry);
-        INSTANCE.start();
+        instance = new JmxReporter(registry);
+        instance.start();
     }
 
     /**
@@ -369,15 +369,15 @@ public class JmxReporter extends AbstractReporter implements MetricsRegistryList
      * @return The default instance or null if the default is not used
      */
     public static JmxReporter getDefault() {
-        return INSTANCE;
+        return instance;
     }
 
     /**
      * Stops the default instance of {@link JmxReporter}.
      */
     public static void shutdownDefault() {
-        if (INSTANCE != null) {
-            INSTANCE.shutdown();
+        if (instance != null) {
+            instance.shutdown();
         }
     }
 
@@ -402,7 +402,7 @@ public class JmxReporter extends AbstractReporter implements MetricsRegistryList
     /**
      * Creates a new {@link JmxReporter} for the given registry.
      *
-     * @param registry    a {@link MetricsRegistry}
+     * @param registry a {@link MetricsRegistry}
      */
     public JmxReporter(MetricsRegistry registry) {
         super(registry);
@@ -432,33 +432,33 @@ public class JmxReporter extends AbstractReporter implements MetricsRegistryList
     @Override
     public void processMeter(MetricName name, Metered meter, Context context) throws Exception {
         registerBean(context.getMetricName(), new Meter(meter, context.getObjectName()),
-                     context.getObjectName());
+                context.getObjectName());
     }
 
     @Override
     public void processCounter(MetricName name, com.espertech.esper.metrics.codahale_metrics.metrics.core.Counter counter, Context context) throws Exception {
         registerBean(context.getMetricName(),
-                     new Counter(counter, context.getObjectName()),
-                     context.getObjectName());
+                new Counter(counter, context.getObjectName()),
+                context.getObjectName());
     }
 
     @Override
     public void processHistogram(MetricName name, com.espertech.esper.metrics.codahale_metrics.metrics.core.Histogram histogram, Context context) throws Exception {
         registerBean(context.getMetricName(),
-                     new Histogram(histogram, context.getObjectName()),
-                     context.getObjectName());
+                new Histogram(histogram, context.getObjectName()),
+                context.getObjectName());
     }
 
     @Override
     public void processTimer(MetricName name, Timer timer, Context context) throws Exception {
         registerBean(context.getMetricName(), new TimerImpl(timer, context.getObjectName()),
-                     context.getObjectName());
+                context.getObjectName());
     }
 
     @Override
     public void processGauge(MetricName name, com.espertech.esper.metrics.codahale_metrics.metrics.core.Gauge gauge, Context context) throws Exception {
         registerBean(context.getMetricName(), new Gauge(gauge, context.getObjectName()),
-                     context.getObjectName());
+                context.getObjectName());
     }
 
     @Override
@@ -480,7 +480,7 @@ public class JmxReporter extends AbstractReporter implements MetricsRegistryList
     private void registerBean(MetricName name, MetricMBean bean, ObjectName objectName)
             throws MBeanRegistrationException, OperationsException {
 
-        if ( server.isRegistered(objectName) ){
+        if (server.isRegistered(objectName)) {
             server.unregisterMBean(objectName);
         }
         server.registerMBean(bean, objectName);

@@ -13,45 +13,37 @@ package com.espertech.esper.client;
 import junit.framework.TestCase;
 
 import java.io.File;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.net.URL;
 
-public class TestConfiguration extends TestCase
-{
+public class TestConfiguration extends TestCase {
     protected static final String ESPER_TEST_CONFIG = "regression/esper.test.readconfig.cfg.xml";
 
     private Configuration config;
 
-    public void setUp()
-    {
+    public void setUp() {
         config = new Configuration();
         config.getEngineDefaults().getLogging().setEnableExecutionDebug(true);
     }
 
-    public void testString() throws Exception
-    {
+    public void testString() throws Exception {
         config.configure(ESPER_TEST_CONFIG);
         TestConfigurationParser.assertFileConfig(config);
     }
 
-    public void testURL() throws Exception
-    {
+    public void testURL() throws Exception {
         URL url = this.getClass().getClassLoader().getResource(ESPER_TEST_CONFIG);
         config.configure(url);
         TestConfigurationParser.assertFileConfig(config);
     }
 
-    public void testFile() throws Exception
-    {
+    public void testFile() throws Exception {
         URL url = this.getClass().getClassLoader().getResource(ESPER_TEST_CONFIG);
         File file = new File(url.toURI());
         config.configure(file);
         TestConfigurationParser.assertFileConfig(config);
     }
 
-    public void testAddeventTypeName()
-    {
+    public void testAddeventTypeName() {
         config.addEventType("AEventType", "BClassName");
 
         assertTrue(config.isEventTypeExists("AEventType"));
@@ -60,8 +52,7 @@ public class TestConfiguration extends TestCase
         assertDefaultConfig();
     }
 
-    private void assertDefaultConfig()
-    {
+    private void assertDefaultConfig() {
         assertEquals(6, config.getImports().size());
         assertEquals("java.lang.*", config.getImports().get(0));
         assertEquals("java.math.*", config.getImports().get(1));

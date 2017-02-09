@@ -16,30 +16,25 @@ import com.espertech.esper.epl.expression.core.*;
 
 public class ExprMethodAggUtil {
     public static ExprEvaluator getDefaultEvaluator(ExprNode[] childNodes, boolean join, EventType[] typesPerStream)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprEvaluator evaluator;
         if (childNodes.length > 1) {
             evaluator = getMultiNodeEvaluator(childNodes, join, typesPerStream);
-        }
-        else if (childNodes.length > 0) {
+        } else if (childNodes.length > 0) {
             if (childNodes[0] instanceof ExprWildcard) {
                 evaluator = getWildcardEvaluator(typesPerStream, join);
-            }
-            else {
+            } else {
                 // Use the evaluation node under the aggregation node to obtain the aggregation value
                 evaluator = childNodes[0].getExprEvaluator();
             }
-        }
-        // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
-        else {
+        } else {
+            // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
             evaluator = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                {
+                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                     return null;
                 }
-                public Class getType()
-                {
+
+                public Class getType() {
                     return null;
                 }
             };
@@ -47,8 +42,7 @@ public class ExprMethodAggUtil {
         return evaluator;
     }
 
-    public static ExprEvaluator getMultiNodeEvaluator(ExprNode[] childNodes, boolean join, EventType[] typesPerStream) throws ExprValidationException
-    {
+    public static ExprEvaluator getMultiNodeEvaluator(ExprNode[] childNodes, boolean join, EventType[] typesPerStream) throws ExprValidationException {
         final ExprEvaluator[] evaluators = new ExprEvaluator[childNodes.length];
 
         // determine constant nodes
@@ -56,16 +50,14 @@ public class ExprMethodAggUtil {
         for (ExprNode node : childNodes) {
             if (node instanceof ExprWildcard) {
                 evaluators[count] = getWildcardEvaluator(typesPerStream, join);
-            }
-            else {
+            } else {
                 evaluators[count] = node.getExprEvaluator();
             }
             count++;
         }
 
         return new ExprEvaluator() {
-            public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-            {
+            public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                 Object[] values = new Object[evaluators.length];
                 for (int i = 0; i < evaluators.length; i++) {
                     values[i] = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
@@ -92,6 +84,7 @@ public class ExprMethodAggUtil {
                 }
                 return event.getUnderlying();
             }
+
             public Class getType() {
                 return returnType;
             }

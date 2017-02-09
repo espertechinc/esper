@@ -18,8 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class PluggableObjectRegistryImpl implements PluggableObjectRegistry
-{
+public class PluggableObjectRegistryImpl implements PluggableObjectRegistry {
     private PluggableObjectCollection[] collections;
 
     public PluggableObjectRegistryImpl(PluggableObjectCollection[] collections) {
@@ -56,8 +55,7 @@ public class PluggableObjectRegistryImpl implements PluggableObjectRegistry
                                 entriesDuplicate = new HashSet<>();
                             }
                             entriesDuplicate.add(viewEntry.getKey());
-                        }
-                        else {
+                        } else {
                             found = viewEntry;
                         }
                     }

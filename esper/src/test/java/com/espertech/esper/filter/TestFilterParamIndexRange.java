@@ -21,8 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestFilterParamIndexRange extends TestCase
-{
+public class TestFilterParamIndexRange extends TestCase {
     private SupportEventEvaluator testEvaluator;
     private SupportBean testBean;
     private EventBean testEventBean;
@@ -30,8 +29,7 @@ public class TestFilterParamIndexRange extends TestCase
     private List<FilterHandle> matchesList;
     private DoubleRange testRange;
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvaluator = new SupportEventEvaluator();
         testBean = new SupportBean();
         testEventBean = SupportEventBeanFactory.createObject(testBean);
@@ -41,8 +39,7 @@ public class TestFilterParamIndexRange extends TestCase
         testRange = new DoubleRange(10d, 20d);
     }
 
-    public void testLongBothEndpointsIncluded()
-    {
+    public void testLongBothEndpointsIncluded() {
         FilterParamIndexDoubleRange index = this.getLongDataset(FilterOperator.RANGE_CLOSED);
         verifyLongPrimitive(index, -1, 0);
         verifyLongPrimitive(index, 0, 2);
@@ -65,19 +62,15 @@ public class TestFilterParamIndexRange extends TestCase
         assertFalse(index.remove(testRange));
         assertEquals(null, index.get(testRange));
 
-        try
-        {
+        try {
             index.put("a", testEvaluator);
             assertTrue(false);
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected
         }
     }
 
-    public void testLongLowEndpointIncluded()
-    {
+    public void testLongLowEndpointIncluded() {
         FilterParamIndexDoubleRange index = this.getLongDataset(FilterOperator.RANGE_HALF_OPEN);
         verifyLongPrimitive(index, -1, 0);
         verifyLongPrimitive(index, 0, 2);
@@ -94,8 +87,7 @@ public class TestFilterParamIndexRange extends TestCase
         verifyLongPrimitive(index, 11, 1);
     }
 
-    public void testLongHighEndpointIncluded()
-    {
+    public void testLongHighEndpointIncluded() {
         FilterParamIndexDoubleRange index = this.getLongDataset(FilterOperator.RANGE_HALF_CLOSED);
         verifyLongPrimitive(index, -1, 0);
         verifyLongPrimitive(index, 0, 0);
@@ -112,8 +104,7 @@ public class TestFilterParamIndexRange extends TestCase
         verifyLongPrimitive(index, 11, 1);
     }
 
-    public void testLongNeitherEndpointIncluded()
-    {
+    public void testLongNeitherEndpointIncluded() {
         FilterParamIndexDoubleRange index = this.getLongDataset(FilterOperator.RANGE_OPEN);
         verifyLongPrimitive(index, -1, 0);
         verifyLongPrimitive(index, 0, 0);
@@ -130,8 +121,7 @@ public class TestFilterParamIndexRange extends TestCase
         verifyLongPrimitive(index, 11, 1);
     }
 
-    public void testDoubleBothEndpointsIncluded()
-    {
+    public void testDoubleBothEndpointsIncluded() {
         FilterParamIndexDoubleRange index = this.getDoubleDataset(FilterOperator.RANGE_CLOSED);
         verifyDoublePrimitive(index, 1.49, 0);
         verifyDoublePrimitive(index, 1.5, 1);
@@ -149,13 +139,11 @@ public class TestFilterParamIndexRange extends TestCase
         verifyDoublePrimitive(index, 10.1, 0);
     }
 
-    public void testDoubleFixedRangeSize()
-    {
+    public void testDoubleFixedRangeSize() {
         FilterParamIndexDoubleRange index = makeOne("doublePrimitive", FilterOperator.RANGE_OPEN, testEventType);
 
-        for (int i = 0; i < 10000; i++)
-        {
-            DoubleRange range = new DoubleRange(new Double(i), new Double(i+1));
+        for (int i = 0; i < 10000; i++) {
+            DoubleRange range = new DoubleRange(new Double(i), new Double(i + 1));
             index.put(range, testEvaluator);
         }
 
@@ -164,12 +152,10 @@ public class TestFilterParamIndexRange extends TestCase
         verifyDoublePrimitive(index, 5001, 0);
     }
 
-    public void testDoubleVariableRangeSize()
-    {
+    public void testDoubleVariableRangeSize() {
         FilterParamIndexDoubleRange index = makeOne("doublePrimitive", FilterOperator.RANGE_CLOSED, testEventType);
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             DoubleRange range = new DoubleRange(new Double(i), new Double(2 * i));
             index.put(range, testEvaluator);
         }
@@ -188,33 +174,31 @@ public class TestFilterParamIndexRange extends TestCase
         verifyDoublePrimitive(index, 50, 26);
     }
 
-    private FilterParamIndexDoubleRange getLongDataset(FilterOperator operatorType)
-    {
+    private FilterParamIndexDoubleRange getLongDataset(FilterOperator operatorType) {
         FilterParamIndexDoubleRange index = makeOne("longPrimitive", operatorType, testEventType);
 
-        addToIndex(index,0,5);
-        addToIndex(index,0,6);
-        addToIndex(index,1,3);
-        addToIndex(index,1,5);
-        addToIndex(index,1,7);
-        addToIndex(index,3,5);
-        addToIndex(index,3,7);
-        addToIndex(index,6,9);
-        addToIndex(index,6,10);
-        addToIndex(index,6,Integer.MAX_VALUE - 1);
-        addToIndex(index,7,8);
-        addToIndex(index,8,9);
-        addToIndex(index,8,10);
+        addToIndex(index, 0, 5);
+        addToIndex(index, 0, 6);
+        addToIndex(index, 1, 3);
+        addToIndex(index, 1, 5);
+        addToIndex(index, 1, 7);
+        addToIndex(index, 3, 5);
+        addToIndex(index, 3, 7);
+        addToIndex(index, 6, 9);
+        addToIndex(index, 6, 10);
+        addToIndex(index, 6, Integer.MAX_VALUE - 1);
+        addToIndex(index, 7, 8);
+        addToIndex(index, 8, 9);
+        addToIndex(index, 8, 10);
 
         return index;
     }
 
-    private FilterParamIndexDoubleRange getDoubleDataset(FilterOperator operatorType)
-    {
+    private FilterParamIndexDoubleRange getDoubleDataset(FilterOperator operatorType) {
         FilterParamIndexDoubleRange index = makeOne("doublePrimitive", operatorType, testEventType);
 
         addToIndex(index, 1.5, 2.5);
-        addToIndex(index, 3.5, 4.5 );
+        addToIndex(index, 3.5, 4.5);
         addToIndex(index, 3.5, 9.5);
         addToIndex(index, 5.6, 6.7);
 
@@ -225,23 +209,20 @@ public class TestFilterParamIndexRange extends TestCase
         return new FilterParamIndexDoubleRange(makeLookupable(fieldName), new ReentrantReadWriteLock(), operatorType);
     }
 
-    private void verifyDoublePrimitive(FilterParamIndexBase index, double testValue, int numExpected)
-    {
+    private void verifyDoublePrimitive(FilterParamIndexBase index, double testValue, int numExpected) {
         testBean.setDoublePrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyLongPrimitive(FilterParamIndexBase index, long testValue, int numExpected)
-    {
+    private void verifyLongPrimitive(FilterParamIndexBase index, long testValue, int numExpected) {
         testBean.setLongPrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void addToIndex(FilterParamIndexDoubleRange index, double min, double max)
-    {
-        DoubleRange r = new DoubleRange(min,max);
+    private void addToIndex(FilterParamIndexDoubleRange index, double min, double max) {
+        DoubleRange r = new DoubleRange(min, max);
         index.put(r, testEvaluator);
     }
 

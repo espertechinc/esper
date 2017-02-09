@@ -17,22 +17,21 @@ import com.espertech.esper.epl.core.EngineImportService;
 /**
  * Aggregation service for use when only first/last/window aggregation functions are used an none other.
  */
-public class AggSvcGroupByAccessOnlyFactory implements AggregationServiceFactory
-{
+public class AggSvcGroupByAccessOnlyFactory implements AggregationServiceFactory {
     private final AggregationAccessorSlotPair[] accessors;
     private final AggregationStateFactory[] accessAggSpecs;
     private final boolean isJoin;
 
     /**
      * Ctor.
-     * @param accessors accessor definitions
+     *
+     * @param accessors      accessor definitions
      * @param accessAggSpecs access aggregations
-     * @param isJoin true for join, false for single-stream
+     * @param isJoin         true for join, false for single-stream
      */
     public AggSvcGroupByAccessOnlyFactory(AggregationAccessorSlotPair[] accessors,
                                           AggregationStateFactory[] accessAggSpecs,
-                                          boolean isJoin)
-    {
+                                          boolean isJoin) {
         this.accessors = accessors;
         this.accessAggSpecs = accessAggSpecs;
         this.isJoin = isJoin;

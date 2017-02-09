@@ -18,56 +18,50 @@ import java.util.*;
  * A two-sided map for filter parameters mapping filter expression nodes to filter parameters and
  * back. For use in optimizing filter expressions.
  */
-public class FilterParamExprMap
-{
+public class FilterParamExprMap {
     private Map<ExprNode, FilterSpecParam> exprNodes;
     private Map<FilterSpecParam, ExprNode> specParams;
 
     /**
      * Ctor.
      */
-    public FilterParamExprMap()
-    {
+    public FilterParamExprMap() {
         exprNodes = new LinkedHashMap<ExprNode, FilterSpecParam>();
         specParams = new LinkedHashMap<FilterSpecParam, ExprNode>();
     }
 
     /**
      * Add a node and filter param.
+     *
      * @param exprNode is the node to add
-     * @param param is null if the expression node has not optimized form
+     * @param param    is null if the expression node has not optimized form
      */
-    public void put(ExprNode exprNode, FilterSpecParam param)
-    {
+    public void put(ExprNode exprNode, FilterSpecParam param) {
         exprNodes.put(exprNode, param);
-        if (param != null)
-        {
+        if (param != null) {
             specParams.put(param, exprNode);
         }
     }
 
     /**
      * Returns all expression nodes for which no filter parameter exists.
+     *
      * @return list of expression nodes
      */
-    public List<ExprNode> getUnassignedExpressions()
-    {
+    public List<ExprNode> getUnassignedExpressions() {
         List<ExprNode> unassigned = new ArrayList<ExprNode>();
-        for (Map.Entry<ExprNode, FilterSpecParam> entry : exprNodes.entrySet())
-        {
-            if (entry.getValue() == null){
+        for (Map.Entry<ExprNode, FilterSpecParam> entry : exprNodes.entrySet()) {
+            if (entry.getValue() == null) {
                 unassigned.add(entry.getKey());
             }
         }
         return unassigned;
     }
 
-    public int countUnassignedExpressions()
-    {
+    public int countUnassignedExpressions() {
         int count = 0;
-        for (Map.Entry<ExprNode, FilterSpecParam> entry : exprNodes.entrySet())
-        {
-            if (entry.getValue() == null){
+        for (Map.Entry<ExprNode, FilterSpecParam> entry : exprNodes.entrySet()) {
+            if (entry.getValue() == null) {
                 count++;
             }
         }
@@ -76,10 +70,10 @@ public class FilterParamExprMap
 
     /**
      * Returns all filter parameters.
+     *
      * @return filter parameters
      */
-    public Collection<FilterSpecParam> getFilterParams()
-    {
+    public Collection<FilterSpecParam> getFilterParams() {
         return specParams.keySet();
     }
 
@@ -92,14 +86,13 @@ public class FilterParamExprMap
 
     /**
      * Removes a filter parameter and it's associated expression node
+     *
      * @param param is the parameter to remove
      * @return expression node removed
      */
-    public ExprNode removeEntry(FilterSpecParam param)
-    {
+    public ExprNode removeEntry(FilterSpecParam param) {
         ExprNode exprNode = specParams.get(param);
-        if (exprNode == null)
-        {
+        if (exprNode == null) {
             throw new IllegalStateException("Not found in collection param: " + param);
         }
 
@@ -111,13 +104,12 @@ public class FilterParamExprMap
 
     /**
      * Remove a filter parameter leaving the expression node in place.
+     *
      * @param param filter parameter to remove
      */
-    public void removeValue(FilterSpecParam param)
-    {
+    public void removeValue(FilterSpecParam param) {
         ExprNode exprNode = specParams.get(param);
-        if (exprNode == null)
-        {
+        if (exprNode == null) {
             throw new IllegalStateException("Not found in collection param: " + param);
         }
 

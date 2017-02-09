@@ -18,8 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExprNodeAdapterBase
-{
+public class ExprNodeAdapterBase {
     private static final Logger log = LoggerFactory.getLogger(ExprNodeAdapterBase.class);
 
     private final int filterSpecId;
@@ -28,8 +27,7 @@ public class ExprNodeAdapterBase
     protected final ExprEvaluator exprNodeEval;
     protected final ExprEvaluatorContext evaluatorContext;
 
-    public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext)
-    {
+    public ExprNodeAdapterBase(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext) {
         this.filterSpecId = filterSpecId;
         this.filterSpecParamPathNum = filterSpecParamPathNum;
         this.exprNode = exprNode;
@@ -43,21 +41,18 @@ public class ExprNodeAdapterBase
      * @param theEvent is the stream zero event (current event)
      * @return boolean result of the expression
      */
-    public boolean evaluate(EventBean theEvent)
-    {
-        return evaluatePerStream(new EventBean[] {theEvent});
+    public boolean evaluate(EventBean theEvent) {
+        return evaluatePerStream(new EventBean[]{theEvent});
     }
 
     protected boolean evaluatePerStream(EventBean[] eventsPerStream) {
         try {
             Boolean result = (Boolean) exprNodeEval.evaluate(eventsPerStream, true, this.evaluatorContext);
-            if (result == null)
-            {
+            if (result == null) {
                 return false;
             }
             return result;
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.error("Error evaluating expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "' statement '" + getStatementName() + "': " + ex.getMessage(), ex);
             return false;
         }

@@ -19,20 +19,19 @@ import com.espertech.esper.view.internal.BufferObserver;
  * Observer to a buffer that is filled by a subselect view when it posts events,
  * to be added and removed from indexes.
  */
-public class SubselectBufferObserver implements BufferObserver
-{
+public class SubselectBufferObserver implements BufferObserver {
     private final EventTable[] eventIndex;
 
     /**
      * Ctor.
+     *
      * @param eventIndex index to update
      */
     public SubselectBufferObserver(EventTable[] eventIndex) {
         this.eventIndex = eventIndex;
     }
 
-    public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer)
-    {
+    public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer) {
         EventBean[] newData = newEventBuffer.getAndFlush();
         EventBean[] oldData = oldEventBuffer.getAndFlush();
         for (EventTable table : eventIndex) {

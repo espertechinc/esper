@@ -14,8 +14,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
-public class ExprTimePeriodEvalDeltaConstFactoryMsec implements ExprTimePeriodEvalDeltaConstFactory
-{
+public class ExprTimePeriodEvalDeltaConstFactoryMsec implements ExprTimePeriodEvalDeltaConstFactory {
     private final ExprEvaluator secondsEvaluator;
     private final TimeAbacus timeAbacus;
 

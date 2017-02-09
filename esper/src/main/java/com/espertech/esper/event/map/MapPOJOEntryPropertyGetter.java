@@ -22,17 +22,17 @@ import java.util.Map;
 /**
  * A getter that works on POJO events residing within a Map as an event property.
  */
-public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter implements MapEventPropertyGetter
-{
+public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter implements MapEventPropertyGetter {
     private final String propertyMap;
     private final BeanEventPropertyGetter mapEntryGetter;
 
     /**
      * Ctor.
-     * @param propertyMap the property to look at
-     * @param mapEntryGetter the getter for the map entry
+     *
+     * @param propertyMap         the property to look at
+     * @param mapEntryGetter      the getter for the map entry
      * @param eventAdapterService for producing wrappers to objects
-     * @param returnType type of the entry returned
+     * @param returnType          type of the entry returned
      * @param nestedComponentType nested type
      */
     public MapPOJOEntryPropertyGetter(String propertyMap, BeanEventPropertyGetter mapEntryGetter, EventAdapterService eventAdapterService, Class returnType, Class nestedComponentType) {
@@ -41,13 +41,11 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
         this.mapEntryGetter = mapEntryGetter;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = map.get(propertyMap);
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
 
@@ -58,18 +56,15 @@ public class MapPOJOEntryPropertyGetter extends BaseNativePropertyGetter impleme
         return mapEntryGetter.getBeanProp(value);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

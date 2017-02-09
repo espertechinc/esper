@@ -26,17 +26,15 @@ import junit.framework.TestCase;
 
 import java.util.List;
 
-public class TestFileSourceLineGraphs extends TestCase
-{
-	private EPServiceProvider epService;
+public class TestFileSourceLineGraphs extends TestCase {
+    private EPServiceProvider epService;
 
-	protected void setUp()
-	{
+    protected void setUp() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         configuration.addImport(FileSourceFactory.class.getName());
-		epService = EPServiceProviderManager.getDefaultProvider(configuration);
-		epService.initialize();
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
     }
 
     public void testEndOfFileMarker() throws Exception {
@@ -62,21 +60,20 @@ public class TestFileSourceLineGraphs extends TestCase
                 "EventBusSink(mylines, mybof, myeof) {}\n";
         epService.getEPAdministrator().createEPL(epl);
 
-        for (String filename : new String[] {"regression/line_file_1.txt", "regression/line_file_2.txt"} ) {
+        for (String filename : new String[]{"regression/line_file_1.txt", "regression/line_file_2.txt"}) {
             EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions();
             options.addParameterURI("FileSource/file", filename);
-            EPDataFlowInstance instance = epService.getEPRuntime().getDataFlowRuntime().instantiate("MyEOFEventFileReader",options);
+            EPDataFlowInstance instance = epService.getEPRuntime().getDataFlowRuntime().instantiate("MyEOFEventFileReader", options);
             instance.run();
             assertEquals(1, instance.getParameters().size());
             assertEquals(filename, instance.getParameters().get("FileSource/file"));
         }
 
         EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getNewDataListFlattened(), "filename,cnt".split(","),
-                new Object[][] {{"regression/line_file_1.txt", 3L}, {"regression/line_file_2.txt", 2L}});
+                new Object[][]{{"regression/line_file_1.txt", 3L}, {"regression/line_file_2.txt", 2L}});
     }
 
-    public void testPropertyOrderWLoop() throws Exception
-    {
+    public void testPropertyOrderWLoop() throws Exception {
         String graph = "create dataflow ReadCSV " +
                 "create objectarray schema MyLine (line string)," +
                 "FileSource -> mystream<MyLine> { file: 'regression/ints.csv', classpathFile: true, numLoops: 3, format: 'line'}" +
@@ -84,11 +81,10 @@ public class TestFileSourceLineGraphs extends TestCase
         List<List<Object>> received = runDataFlow(graph);
         assertEquals(1, received.size());
         Object[] compare = received.get(0).toArray();
-        EPAssertionUtil.assertEqualsExactOrder(compare, new Object[]{new Object[] {"1, 0"}, new Object[] {"2, 0"}, new Object[] {"3, 0"}});
+        EPAssertionUtil.assertEqualsExactOrder(compare, new Object[]{new Object[]{"1, 0"}, new Object[]{"2, 0"}, new Object[]{"3, 0"}});
     }
 
-    public void testZipFileLine() throws Exception
-    {
+    public void testZipFileLine() throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType("MyLineEvent", MyLineEvent.class);
 
         String graph = "create dataflow ReadCSV " +
@@ -98,12 +94,11 @@ public class TestFileSourceLineGraphs extends TestCase
         List<List<Object>> received = runDataFlow(graph);
         assertEquals(1, received.size());
         Object[] compare = received.get(0).toArray();
-        EPAssertionUtil.assertEqualsExactOrder(compare, new Object[]{new Object[] {"this is the first line"},
-                new Object[] {"this is the second line"}, new Object[] {"this is the third line"}});
+        EPAssertionUtil.assertEqualsExactOrder(compare, new Object[]{new Object[]{"this is the first line"},
+                new Object[]{"this is the second line"}, new Object[]{"this is the third line"}});
     }
 
-    public void testFileBeanEvent() throws Exception
-    {
+    public void testFileBeanEvent() throws Exception {
         epService.getEPAdministrator().getConfiguration().addEventType("MyLineEvent", MyLineEvent.class);
 
         String graph = "create dataflow ReadCSV " +
@@ -145,11 +140,9 @@ public class TestFileSourceLineGraphs extends TestCase
             epService.getEPRuntime().getDataFlowRuntime().instantiate(dataflowName,
                     new EPDataFlowInstantiationOptions().operatorProvider(new DefaultSupportGraphOpProvider(outputOp)));
             fail();
-        }
-        catch (EPDataFlowInstantiationException ex) {
+        } catch (EPDataFlowInstantiationException ex) {
             assertEquals(message, ex.getMessage());
-        }
-        finally {
+        } finally {
             stmtGraph.destroy();
         }
     }

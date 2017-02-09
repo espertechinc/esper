@@ -12,8 +12,7 @@ package com.espertech.esper.rowregex;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public interface EventRowRegexNFAViewScheduler
-{
+public interface EventRowRegexNFAViewScheduler {
     void setScheduleCallback(AgentInstanceContext agentInstanceContext, EventRowRegexNFAViewScheduleCallback scheduleCallback);
 
     void addSchedule(long msecAfterCurrentTime);

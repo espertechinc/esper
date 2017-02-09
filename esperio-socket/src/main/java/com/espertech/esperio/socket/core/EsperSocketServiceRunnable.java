@@ -3,7 +3,6 @@ package com.espertech.esperio.socket.core;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.socket.config.DataType;
 import com.espertech.esperio.socket.config.SocketConfig;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +43,9 @@ public class EsperSocketServiceRunnable implements Runnable {
                 t.setDaemon(true);
                 t.start();
                 workers.add(t);
-            }
-            catch (InterruptedIOException ex) {
+            } catch (InterruptedIOException ex) {
                 break;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 if (!shutdown) {
                     log.error("I/O error initialising connection thread for service '" + serviceName + "' : " + e.getMessage());
                 }
@@ -69,8 +66,7 @@ public class EsperSocketServiceRunnable implements Runnable {
             }
             try {
                 worker.join(1000);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
         }
         workers.clear();

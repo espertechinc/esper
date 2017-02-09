@@ -14,6 +14,8 @@ import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 
 public interface AIRegistryPrevious extends ExprPreviousEvalStrategy {
     public void assignService(int num, ExprPreviousEvalStrategy value);
+
     public void deassignService(int num);
+
     public int getAgentInstanceCount();
 }

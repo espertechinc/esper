@@ -39,14 +39,12 @@ public class EnumEvalMinMaxEvents extends EnumEvalBase implements EnumEval {
 
             if (minKey == null) {
                 minKey = (Comparable) comparable;
-            }
-            else {
+            } else {
                 if (max) {
                     if (minKey.compareTo(comparable) < 0) {
                         minKey = (Comparable) comparable;
                     }
-                }
-                else {
+                } else {
                     if (minKey.compareTo(comparable) > 0) {
                         minKey = (Comparable) comparable;
                     }

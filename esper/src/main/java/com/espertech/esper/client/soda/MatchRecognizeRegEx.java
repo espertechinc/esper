@@ -10,18 +10,17 @@
  */
 package com.espertech.esper.client.soda;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Interface representing an expression for use in match-recognize.
  * <p>
  * Event row regular expressions are organized into a tree-like structure with nodes representing sub-expressions.
  */
-public abstract class MatchRecognizeRegEx implements Serializable
-{
+public abstract class MatchRecognizeRegEx implements Serializable {
     private static final long serialVersionUID = 6650134218683492050L;
 
     private String treeObjectName;
@@ -29,19 +28,19 @@ public abstract class MatchRecognizeRegEx implements Serializable
 
     /**
      * Returns id of expression assigned by tools.
+     *
      * @return id
      */
-    public String getTreeObjectName()
-    {
+    public String getTreeObjectName() {
         return treeObjectName;
     }
 
     /**
      * Sets id of expression assigned by tools.
+     *
      * @param treeObjectName to set
      */
-    public void setTreeObjectName(String treeObjectName)
-    {
+    public void setTreeObjectName(String treeObjectName) {
         this.treeObjectName = treeObjectName;
     }
 
@@ -54,6 +53,7 @@ public abstract class MatchRecognizeRegEx implements Serializable
 
     /**
      * Returns child nodes.
+     *
      * @return child nodes
      */
     public List<MatchRecognizeRegEx> getChildren() {
@@ -62,6 +62,7 @@ public abstract class MatchRecognizeRegEx implements Serializable
 
     /**
      * Set child nodes.
+     *
      * @param children child nodes to set
      */
     public void setChildren(List<MatchRecognizeRegEx> children) {
@@ -70,6 +71,7 @@ public abstract class MatchRecognizeRegEx implements Serializable
 
     /**
      * Write EPL.
+     *
      * @param writer to use
      */
     public abstract void writeEPL(StringWriter writer);

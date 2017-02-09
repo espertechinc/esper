@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 /**
  * Converts from a map of prior matching events to a events per stream for resultion by expressions.
  */
-public interface MatchedEventConvertor
-{
+public interface MatchedEventConvertor {
     /**
      * Converts pattern matching events to events per stream.
+     *
      * @param events pattern partial matches
      * @return events per stream
      */

@@ -12,8 +12,7 @@ package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.epl.join.plan.QueryGraph;
 
-public interface ExprDotNodeFilterAnalyzerDesc
-{
+public interface ExprDotNodeFilterAnalyzerDesc {
     public void apply(QueryGraph queryGraph);
 }
 

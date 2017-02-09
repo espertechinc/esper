@@ -10,43 +10,41 @@
  */
 package com.espertech.esper.type;
 
+import java.util.Locale;
+
 /**
  * Placeholder for a boolean value in an event expression.
  */
-public final class BoolValue extends PrimitiveValueBase
-{
+public final class BoolValue extends PrimitiveValueBase {
     private Boolean boolValue;
 
-    public PrimitiveValueType getType()
-    {
+    public PrimitiveValueType getType() {
         return PrimitiveValueType.BOOL;
     }
 
     /**
      * Constructor.
+     *
      * @param boolValue sets the value.
      */
-    public BoolValue(Boolean boolValue)
-    {
+    public BoolValue(Boolean boolValue) {
         this.boolValue = boolValue;
     }
 
     /**
      * Constructor.
      */
-    public BoolValue()
-    {
+    public BoolValue() {
     }
 
     /**
      * Parse the boolean string.
+     *
      * @param value is a bool value
      * @return parsed boolean
      */
-    public static boolean parseString(String value)
-    {
-        if (!(value.toLowerCase().equals("true")) && (!(value.toLowerCase().equals("false"))))
-        {
+    public static boolean parseString(String value) {
+        if (!(value.toLowerCase(Locale.ENGLISH).equals("true")) && (!(value.toLowerCase(Locale.ENGLISH).equals("false")))) {
             throw new IllegalArgumentException("Boolean value '" + value + "' cannot be converted to boolean");
         }
         return Boolean.parseBoolean(value);
@@ -54,38 +52,32 @@ public final class BoolValue extends PrimitiveValueBase
 
     /**
      * Parse the string array returning a boolean array.
+     *
      * @param values - string array
      * @return typed array
      */
-    public static boolean[] parseString(String[] values)
-    {
+    public static boolean[] parseString(String[] values) {
         boolean[] result = new boolean[values.length];
-        for (int i = 0; i < result.length; i++)
-        {
+        for (int i = 0; i < result.length; i++) {
             result[i] = parseString(values[i]);
         }
         return result;
     }
 
-    public final void parse(String value)
-    {
+    public final void parse(String value) {
         boolValue = parseString(value);
     }
 
-    public final Object getValueObject()
-    {
+    public final Object getValueObject() {
         return boolValue;
     }
 
-    public final void setBoolean(boolean x)
-    {
+    public final void setBoolean(boolean x) {
         this.boolValue = x;
     }
 
-    public final String toString()
-    {
-        if (boolValue == null)
-        {
+    public final String toString() {
+        if (boolValue == null) {
             return "null";
         }
         return boolValue.toString();

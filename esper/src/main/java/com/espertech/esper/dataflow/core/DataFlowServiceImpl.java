@@ -123,8 +123,7 @@ public class DataFlowServiceImpl implements DataFlowService {
         DataFlowStmtDesc stmtDesc = serviceDesc.getDataFlowDesc();
         try {
             return instantiateInternal(dataFlowName, options, stmtDesc.getGraphDesc(), stmtDesc.getStatementContext(), stmtDesc.getServicesContext(), stmtDesc.getAgentInstanceContext(), stmtDesc.getOperatorAnnotations());
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             String message = "Failed to instantiate data flow '" + dataFlowName + "': " + ex.getMessage();
             log.debug(message, ex);
             throw new EPDataFlowInstantiationException(message, ex);
@@ -199,8 +198,7 @@ public class DataFlowServiceImpl implements DataFlowService {
                                                    StatementContext statementContext,
                                                    EPServicesContext servicesContext,
                                                    AgentInstanceContext agentInstanceContext,
-                                                   Map<GraphOperatorSpec, Annotation[]> operatorAnnotations) throws ExprValidationException
-    {
+                                                   Map<GraphOperatorSpec, Annotation[]> operatorAnnotations) throws ExprValidationException {
         if (options == null) {
             options = new EPDataFlowInstantiationOptions();
         }
@@ -263,7 +261,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             DataFlowSourceOperator graphSource = (DataFlowSourceOperator) operatorEntry.getValue();
             GraphSourceRunnable runnable = new GraphSourceRunnable(statementContext.getEngineURI(), statementContext.getStatementName(), graphSource, dataFlowName, meta.getOperatorName(), operatorEntry.getKey(), meta.getOperatorPrettyPrint(), options.getExceptionHandler(), audit);
             sourceRunnables.add(runnable);
-            
+
             dataFlowSignalManager.addSignalListener(operatorEntry.getKey(), runnable);
         }
 
@@ -272,20 +270,18 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private Map<String, EventType> resolveTypes(CreateDataFlowDesc desc, StatementContext statementContext, EPServicesContext servicesContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<String, EventType> types = new HashMap<String, EventType>();
         for (CreateSchemaDesc spec : desc.getSchemas()) {
             EventType eventType = EventTypeUtility.createNonVariantType(true, spec, statementContext.getAnnotations(), statementContext.getConfigSnapshot(),
-                                statementContext.getEventAdapterService(), servicesContext.getEngineImportService());
+                    statementContext.getEventAdapterService(), servicesContext.getEngineImportService());
             types.put(spec.getSchemaName(), eventType);
         }
         return types;
     }
 
     private Map<Integer, Object> instantiateOperators(Map<Integer, OperatorMetadataDescriptor> operatorClasses, CreateDataFlowDesc desc, EPDataFlowInstantiationOptions options, EngineImportService engineImportService)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<Integer, Object> operators = new HashMap<Integer, Object>();
 
         for (Map.Entry<Integer, OperatorMetadataDescriptor> operatorEntry : operatorClasses.entrySet()) {
@@ -298,7 +294,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private Object instantiateOperator(String dataFlowName, int operatorNum, OperatorMetadataDescriptor desc, GraphOperatorSpec graphOperator, EPDataFlowInstantiationOptions options, EngineImportService engineImportService)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         Object operatorObject = desc.getOptionalOperatorObject();
 
@@ -308,8 +304,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             // use non-factory class if provided
             try {
                 operatorObject = clazz.newInstance();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new ExprValidationException("Failed to instantiate: " + e.getMessage());
             }
         }
@@ -321,8 +316,7 @@ public class DataFlowServiceImpl implements DataFlowService {
         if (operatorObject instanceof DataFlowOperatorFactory) {
             try {
                 operatorObject = ((DataFlowOperatorFactory) operatorObject).create();
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 throw new ExprValidationException("Failed to obtain operator '" + desc.getOperatorName() + "', encountered an exception raised by factory class " + operatorObject.getClass().getSimpleName() + ": " + ex.getMessage(), ex);
             }
         }
@@ -331,7 +325,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private void injectObjectProperties(String dataFlowName, String operatorName, int operatorNum, Map<String, Object> configs, Object instance, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs, EngineImportService engineImportService)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         // determine if there is a property holder which holds all properties
         Set<Field> propertyHolderFields = JavaClassHelper.findAnnotatedFields(instance.getClass(), DataFlowOpPropertyHolder.class);
@@ -343,13 +337,11 @@ public class DataFlowServiceImpl implements DataFlowService {
         Object propertyInstance;
         if (propertyHolderFields.isEmpty()) {
             propertyInstance = instance;
-        }
-        else {
+        } else {
             Class propertyHolderClass = propertyHolderFields.iterator().next().getType();
             try {
                 propertyInstance = propertyHolderClass.newInstance();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new ExprValidationException("Failed to instantiate '" + propertyHolderClass + "': " + e.getMessage(), e);
             }
         }
@@ -363,28 +355,26 @@ public class DataFlowServiceImpl implements DataFlowService {
             try {
                 field.setAccessible(true);
                 field.set(instance, propertyInstance);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new ExprValidationException("Failed to set field '" + field.getName() + "': " + e.getMessage(), e);
             }
         }
     }
 
     private List<LogicalChannel> determineChannels(String dataflowName,
-                                                       Set<Integer> operatorBuildOrder,
-                                                       Map<Integer, OperatorDependencyEntry> operatorDependencies,
-                                                       Map<Integer, Object> operators,
-                                                       Map<String, EventType> types,
-                                                       Map<Integer, OperatorMetadataDescriptor> operatorMetadata,
-                                                       EPDataFlowInstantiationOptions options,
-                                                       EventAdapterService eventAdapterService,
-                                                       EngineImportService engineImportService,
-                                                       StatementContext statementContext,
-                                                       EPServicesContext servicesContext,
-                                                       AgentInstanceContext agentInstanceContext,
-                                                       EPRuntimeEventSender runtimeEventSender)
-        throws ExprValidationException
-    {
+                                                   Set<Integer> operatorBuildOrder,
+                                                   Map<Integer, OperatorDependencyEntry> operatorDependencies,
+                                                   Map<Integer, Object> operators,
+                                                   Map<String, EventType> types,
+                                                   Map<Integer, OperatorMetadataDescriptor> operatorMetadata,
+                                                   EPDataFlowInstantiationOptions options,
+                                                   EventAdapterService eventAdapterService,
+                                                   EngineImportService engineImportService,
+                                                   StatementContext statementContext,
+                                                   EPServicesContext servicesContext,
+                                                   AgentInstanceContext agentInstanceContext,
+                                                   EPRuntimeEventSender runtimeEventSender)
+            throws ExprValidationException {
         // This is a multi-step process.
         //
         // Step 1: find all the operators that have explicit output ports and determine the type of such
@@ -476,8 +466,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private void compareTypeInfo(String operatorName, String firstName, GraphTypeDesc firstType, String otherName, GraphTypeDesc otherType)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (firstType.getEventType() != null && otherType.getEventType() != null && !firstType.getEventType().equals(otherType.getEventType())) {
             throw new ExprValidationException("For operator '" + operatorName + "' stream '" + firstName + "'" +
                     " typed '" + firstType.getEventType().getName() + "'" +
@@ -502,8 +491,7 @@ public class DataFlowServiceImpl implements DataFlowService {
                                                                              Map<Integer, List<LogicalChannelProducingPortDeclared>> declaredOutputPorts,
                                                                              GraphTypeDesc[] typesPerOutput,
                                                                              Set<Integer> incomingDependentOpNums)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Either
         //  (A) the port is explicitly declared via @OutputTypes
         //  (B) the port is declared via "=> ABC<type>"
@@ -514,7 +502,7 @@ public class DataFlowServiceImpl implements DataFlowService {
 
         // we go port-by-port: what was declared, what types were determined
         Map<String, GraphTypeDesc> types = new HashMap<String, GraphTypeDesc>();
-        for (int port = 0; port < numPorts; port++ ) {
+        for (int port = 0; port < numPorts; port++) {
             String portStreamName = operatorSpec.getOutput().getItems().get(port).getStreamName();
 
             // find declaration, if any
@@ -542,8 +530,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             GraphTypeDesc compiledType;
             if (foundDeclared != null) {
                 compiledType = foundDeclared.getTypeDesc();
-            }
-            else {
+            } else {
                 compiledType = typesPerOutput[port];
             }
 
@@ -575,20 +562,19 @@ public class DataFlowServiceImpl implements DataFlowService {
 
     private GraphTypeDesc[] determineOutputForInput(String dataFlowName,
                                                     int myOpNum,
-                                                Object operator,
-                                                OperatorMetadataDescriptor meta,
-                                                GraphOperatorSpec operatorSpec,
-                                                Map<Integer, List<LogicalChannelProducingPortDeclared>> declaredOutputPorts,
-                                                Map<Integer, List<LogicalChannelProducingPortCompiled>> compiledOutputPorts,
-                                                Map<String, EventType> types,
-                                                Set<Integer> incomingDependentOpNums,
-                                                EPDataFlowInstantiationOptions options,
-                                                StatementContext statementContext,
-                                                EPServicesContext servicesContext,
-                                                AgentInstanceContext agentInstanceContext,
-                                                EPRuntimeEventSender runtimeEventSender)
-        throws ExprValidationException
-    {
+                                                    Object operator,
+                                                    OperatorMetadataDescriptor meta,
+                                                    GraphOperatorSpec operatorSpec,
+                                                    Map<Integer, List<LogicalChannelProducingPortDeclared>> declaredOutputPorts,
+                                                    Map<Integer, List<LogicalChannelProducingPortCompiled>> compiledOutputPorts,
+                                                    Map<String, EventType> types,
+                                                    Set<Integer> incomingDependentOpNums,
+                                                    EPDataFlowInstantiationOptions options,
+                                                    StatementContext statementContext,
+                                                    EPServicesContext servicesContext,
+                                                    AgentInstanceContext agentInstanceContext,
+                                                    EPRuntimeEventSender runtimeEventSender)
+            throws ExprValidationException {
         if (!(operator instanceof DataFlowOpLifecycle)) {
             return null;
         }
@@ -617,8 +603,7 @@ public class DataFlowServiceImpl implements DataFlowService {
                     throw new ExprValidationException("Failed validation for operator '" + operatorSpec.getOperatorName() + "': Failed to find output port declared");
                 }
                 port = new DataFlowOpInputPort(foundDeclared.getTypeDesc(), new HashSet<String>(Arrays.asList(inputItem.getInputStreamNames())), inputItem.getOptionalAsName(), false);
-            }
-            else {
+            } else {
                 port = new DataFlowOpInputPort(new GraphTypeDesc(false, false, producingPorts.get(0).getGraphTypeDesc().getEventType()), new HashSet<String>(Arrays.asList(inputItem.getInputStreamNames())), inputItem.getOptionalAsName(), producingPorts.get(0).isHasPunctuation());
             }
             inputPorts.put(inputPortNum, port);
@@ -639,11 +624,9 @@ public class DataFlowServiceImpl implements DataFlowService {
         DataFlowOpInitializeResult prepareResult;
         try {
             prepareResult = preparable.initialize(context);
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw new ExprValidationException("Failed validation for operator '" + operatorSpec.getOperatorName() + "': " + e.getMessage(), e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ExprValidationException("Failed initialization for operator '" + operatorSpec.getOperatorName() + "': " + e.getMessage(), e);
         }
 
@@ -654,7 +637,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private List<LogicalChannelProducingPortDeclared> determineAnnotatedOutputPorts(int producingOpNum, Object operator, OperatorMetadataDescriptor descriptor, EngineImportService engineImportService, EventAdapterService eventAdapterService)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         List<LogicalChannelProducingPortDeclared> ports = new ArrayList<LogicalChannelProducingPortDeclared>();
 
@@ -672,15 +655,13 @@ public class DataFlowServiceImpl implements DataFlowService {
                 Class clazz;
                 if (outputType.type() != null && outputType.type() != OutputType.class) {
                     clazz = outputType.type();
-                }
-                else {
+                } else {
                     String typeName = outputType.typeName();
                     clazz = JavaClassHelper.getClassForSimpleName(typeName, engineImportService.getClassForNameProvider());
                     if (clazz == null) {
                         try {
                             clazz = engineImportService.resolveClass(typeName, false);
-                        }
-                        catch (EngineImportException e) {
+                        } catch (EngineImportException e) {
                             throw new RuntimeException("Failed to resolve type '" + typeName + "'");
                         }
                     }
@@ -709,7 +690,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private List<LogicalChannelProducingPortDeclared> determineGraphDeclaredOutputPorts(Object operator, int producingOpNum, OperatorMetadataDescriptor metadata, Map<String, EventType> types, EPServicesContext servicesContext)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         List<LogicalChannelProducingPortDeclared> ports = new ArrayList<LogicalChannelProducingPortDeclared>();
 
@@ -731,8 +712,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private Map<Integer, OperatorDependencyEntry> analyzeDependencies(CreateDataFlowDesc graphDesc)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<Integer, OperatorDependencyEntry> logicalOpDependencies = new HashMap<Integer, OperatorDependencyEntry>();
         for (int i = 0; i < graphDesc.getOperators().size(); i++) {
             OperatorDependencyEntry entry = new OperatorDependencyEntry();
@@ -774,8 +754,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private Map<Integer, OperatorMetadataDescriptor> resolveMetadata(CreateDataFlowDesc graphDesc, EPDataFlowInstantiationOptions options, EngineImportService engineImportService, Map<GraphOperatorSpec, Annotation[]> operatorAnnotations)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<Integer, OperatorMetadataDescriptor> operatorClasses = new HashMap<Integer, OperatorMetadataDescriptor>();
         for (int i = 0; i < graphDesc.getOperators().size(); i++) {
             GraphOperatorSpec operatorSpec = graphDesc.getOperators().get(i);
@@ -796,8 +775,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             Class factoryClass = null;
             try {
                 factoryClass = engineImportService.resolveClass(operatorSpec.getOperatorName() + "Factory", false);
-            }
-            catch (EngineImportException e) {
+            } catch (EngineImportException e) {
             }
 
             // if the factory implements the interface use that
@@ -811,13 +789,12 @@ public class DataFlowServiceImpl implements DataFlowService {
             Class clazz;
             try {
                 clazz = engineImportService.resolveClass(operatorSpec.getOperatorName(), false);
-            }
-            catch (EngineImportException e) {
+            } catch (EngineImportException e) {
                 throw new ExprValidationException("Failed to resolve operator '" + operatorSpec.getOperatorName() + "': " + e.getMessage(), e);
             }
 
             if (!JavaClassHelper.isImplementsInterface(clazz, DataFlowSourceOperator.class) &&
-                !JavaClassHelper.isAnnotationListed(DataFlowOperator.class, clazz.getDeclaredAnnotations())) {
+                    !JavaClassHelper.isAnnotationListed(DataFlowOperator.class, clazz.getDeclaredAnnotations())) {
                 throw new ExprValidationException("Failed to resolve operator '" + operatorSpec.getOperatorName() + "', operator class " + clazz.getName() + " does not declare the " + DataFlowOperator.class.getSimpleName() + " annotation or implement the " + DataFlowSourceOperator.class.getSimpleName() + " interface");
             }
 
@@ -865,8 +842,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     private void toPrettyPrintInput(GraphOperatorInputNamesAlias inputItem, StringWriter writer) {
         if (inputItem.getInputStreamNames().length == 1) {
             writer.write(inputItem.getInputStreamNames()[0]);
-        }
-        else {
+        } else {
             writer.write("(");
             String delimiterNames = "";
             for (String name : inputItem.getInputStreamNames()) {
@@ -876,7 +852,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             }
             writer.write(")");
         }
-}
+    }
 
     private void writeTypes(List<GraphOperatorOutputItemType> types, StringWriter writer) {
         if (types.isEmpty()) {
@@ -914,12 +890,11 @@ public class DataFlowServiceImpl implements DataFlowService {
         }
 
         LinkedHashSet<Integer> topDownSet = new LinkedHashSet<Integer>();
-        while(topDownSet.size() < operators.size()) {
+        while (topDownSet.size() < operators.size()) {
 
             // secondary sort according to the order of listing
             Set<Integer> rootNodes = new TreeSet<Integer>(new Comparator<Integer>() {
-                public int compare(Integer o1, Integer o2)
-                {
+                public int compare(Integer o1, Integer o2) {
                     return -1 * o1.compareTo(o2);
                 }
             });
@@ -948,8 +923,7 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private LogicalChannelBindingMethodDesc findMatchingMethod(String operatorName, Class target, LogicalChannel channelDesc, boolean isPunctuation)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (isPunctuation) {
             for (Method method : target.getMethods()) {
                 if (method.getName().equals("onSignal")) {
@@ -970,8 +944,7 @@ public class DataFlowServiceImpl implements DataFlowService {
             expectedIndividual = new Class[0];
             expectedUnderlying = null;
             expectedUnderlyingType = null;
-        }
-        else {
+        } else {
             expectedIndividual = new Class[typeDesc.getEventType().getPropertyNames().length];
             int i = 0;
             for (EventPropertyDescriptor descriptor : typeDesc.getEventType().getPropertyDescriptors()) {
@@ -994,7 +967,7 @@ public class DataFlowServiceImpl implements DataFlowService {
                 eligible = true;
             }
 
-            if (!eligible ) {
+            if (!eligible) {
                 continue;
             }
 
@@ -1034,10 +1007,9 @@ public class DataFlowServiceImpl implements DataFlowService {
                 target.getName() + ", expected an onInput method that takes any of {" + CollectionUtil.toString(choices) + "}");
     }
 
-    private static Map<Integer,DataFlowOpOutputPort> getDeclaredOutputPorts(GraphOperatorSpec operatorSpec, Map<String, EventType> types, EPServicesContext servicesContext)
-        throws ExprValidationException
-    {
-        Map<Integer,DataFlowOpOutputPort> outputPorts = new LinkedHashMap<Integer, DataFlowOpOutputPort>();
+    private static Map<Integer, DataFlowOpOutputPort> getDeclaredOutputPorts(GraphOperatorSpec operatorSpec, Map<String, EventType> types, EPServicesContext servicesContext)
+            throws ExprValidationException {
+        Map<Integer, DataFlowOpOutputPort> outputPorts = new LinkedHashMap<Integer, DataFlowOpOutputPort>();
         for (int outputPortNum = 0; outputPortNum < operatorSpec.getOutput().getItems().size(); outputPortNum++) {
             GraphOperatorOutputItem outputItem = operatorSpec.getOutput().getItems().get(outputPortNum);
 
@@ -1052,35 +1024,31 @@ public class DataFlowServiceImpl implements DataFlowService {
     }
 
     private static GraphTypeDesc determineTypeOutputPort(GraphOperatorOutputItemType outType, Map<String, EventType> types, EPServicesContext servicesContext)
-        throws ExprValidationException {
-        
+            throws ExprValidationException {
+
         EventType eventType = null;
         boolean isWildcard = false;
         boolean isUnderlying = true;
 
         String typeOrClassname = outType.getTypeOrClassname();
-        if (typeOrClassname != null && typeOrClassname.toLowerCase().equals(EVENT_WRAPPED_TYPE)) {
+        if (typeOrClassname != null && typeOrClassname.toLowerCase(Locale.ENGLISH).equals(EVENT_WRAPPED_TYPE)) {
             isUnderlying = false;
             if (!outType.getTypeParameters().isEmpty() && !outType.getTypeParameters().get(0).isWildcard()) {
                 String typeName = outType.getTypeParameters().get(0).getTypeOrClassname();
                 eventType = resolveType(typeName, types, servicesContext);
-            }
-            else {
+            } else {
                 isWildcard = true;
             }
-        }
-        else if (typeOrClassname != null) {
+        } else if (typeOrClassname != null) {
             eventType = resolveType(typeOrClassname, types, servicesContext);
-        }
-        else {
+        } else {
             isWildcard = true;
         }
         return new GraphTypeDesc(isWildcard, isUnderlying, eventType);
     }
 
     private static EventType resolveType(String typeOrClassname, Map<String, EventType> types, EPServicesContext servicesContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         EventType eventType = types.get(typeOrClassname);
         if (eventType == null) {
             eventType = servicesContext.getEventAdapterService().getExistsTypeByName(typeOrClassname);

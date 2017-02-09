@@ -11,15 +11,14 @@
 package com.espertech.esper.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBean_A;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
 import com.espertech.esper.supportunit.view.SupportViewSpecFactory;
 import junit.framework.TestCase;
 
-public class TestViewServiceImpl extends TestCase
-{
+public class TestViewServiceImpl extends TestCase {
     private ViewServiceImpl viewService;
 
     private Viewable viewOne;
@@ -31,8 +30,7 @@ public class TestViewServiceImpl extends TestCase
     private EventStream streamOne;
     private EventStream streamTwo;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         streamOne = new SupportStreamImpl(SupportBean.class, 1);
         streamTwo = new SupportStreamImpl(SupportBean_A.class, 1);
 
@@ -47,8 +45,7 @@ public class TestViewServiceImpl extends TestCase
         viewFive = viewService.createViews(streamTwo, SupportViewSpecFactory.makeFactoryListFive(streamTwo.getEventType()), context, false).getFinalViewable();
     }
 
-    public void testCheckChainReuse()
-    {
+    public void testCheckChainReuse() {
         // Child views of first and second level must be the same
         assertEquals(2, streamOne.getViews().length);
         View child1_1 = streamOne.getViews()[0];
@@ -72,8 +69,7 @@ public class TestViewServiceImpl extends TestCase
         assertTrue(child3_1_1 != child2_1_1);
     }
 
-    public void testRemove()
-    {
+    public void testRemove() {
         assertEquals(2, streamOne.getViews().length);
         assertEquals(1, streamTwo.getViews().length);
 
@@ -88,16 +84,12 @@ public class TestViewServiceImpl extends TestCase
         assertEquals(0, streamTwo.getViews().length);
     }
 
-    public void testRemoveInvalid()
-    {
-        try
-        {
+    public void testRemoveInvalid() {
+        try {
             viewService.remove(streamOne, viewOne);
             viewService.remove(streamOne, viewOne);
             TestCase.fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected
         }
     }

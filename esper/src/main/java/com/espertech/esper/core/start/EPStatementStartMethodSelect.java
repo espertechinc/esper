@@ -47,8 +47,7 @@ import java.util.*;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodSelect extends EPStatementStartMethodBase {
     public EPStatementStartMethodSelect(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }
@@ -142,7 +141,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
                     selectDesc.getSubSelectStrategyCollection());
             services.getContextManagementService().addStatement(contextName, statement, isRecoveringResilient);
             final EPStatementStopMethod selectStop = selectDesc.getStopMethod();
-            stopStatementMethod = new EPStatementStopMethod(){
+            stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
                     services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                     selectStop.stop();
@@ -150,9 +149,8 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
             };
 
             selectDesc.getDestroyCallbacks().addCallback(new EPStatementDestroyCallbackContext(services.getContextManagementService(), contextName, statementContext.getStatementName(), statementContext.getStatementId()));
-        }
-        // Without context - start here
-        else {
+        } else {
+            // Without context - start here
             StatementAgentInstanceFactorySelectResult resultOfStart = (StatementAgentInstanceFactorySelectResult) selectDesc.getStatementAgentInstanceFactorySelect().newContext(defaultAgentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();
 
@@ -206,8 +204,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase
     }
 
     private void validateTableAccessUse(IntoTableSpec bindingSpec, ExprTableAccessNode[] tableNodes)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (statementSpec.getIntoTableSpec() != null && statementSpec.getTableNodes() != null && statementSpec.getTableNodes().length > 0) {
             for (ExprTableAccessNode node : statementSpec.getTableNodes()) {
                 if (node.getTableName().equals(statementSpec.getIntoTableSpec().getName())) {

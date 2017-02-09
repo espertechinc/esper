@@ -19,29 +19,26 @@ import java.util.Map;
 /**
  * Getter for a dynamic mappeds property for maps.
  */
-public class MapMappedPropertyGetter implements MapEventPropertyGetter, MapEventPropertyGetterAndMapped
-{
+public class MapMappedPropertyGetter implements MapEventPropertyGetter, MapEventPropertyGetterAndMapped {
     private final String key;
     private final String fieldName;
 
     /**
      * Ctor.
+     *
      * @param fieldName property name
-     * @param key get the element at
+     * @param key       get the element at
      */
-    public MapMappedPropertyGetter(String fieldName, String key)
-    {
+    public MapMappedPropertyGetter(String fieldName, String key) {
         this.key = key;
         this.fieldName = fieldName;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         return getMapInternal(map, key);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         Object value = map.get(fieldName);
         return BaseNestableEventUtil.getMappedPropertyExists(value, key);
     }
@@ -51,25 +48,21 @@ public class MapMappedPropertyGetter implements MapEventPropertyGetter, MapEvent
         return getMapInternal(data, mapKey);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         Map<String, Object> data = BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean);
         return getMap(data);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Map<String, Object> data = BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean);
         return isMapExistsProperty(data);
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 
-    private Object getMapInternal(Map<String, Object> map, String providedKey) throws PropertyAccessException
-    {
+    private Object getMapInternal(Map<String, Object> map, String providedKey) throws PropertyAccessException {
         Object value = map.get(fieldName);
         return BaseNestableEventUtil.getMappedPropertyValue(value, providedKey);
     }

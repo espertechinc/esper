@@ -17,32 +17,34 @@ import java.util.ArrayDeque;
  * have a given order, with the idea that all items of the front queue get processed before any
  * given single item of the back queue gets processed.
  */
-public class DualWorkQueue<Object> {
+public class DualWorkQueue<V> {
 
-    private ArrayDeque<Object> frontQueue;
-    private ArrayDeque<Object> backQueue;
+    private ArrayDeque<V> frontQueue;
+    private ArrayDeque<V> backQueue;
 
     /**
      * Ctor.
      */
     public DualWorkQueue() {
-        frontQueue = new ArrayDeque<Object>();
-        backQueue = new ArrayDeque<Object>();
+        frontQueue = new ArrayDeque<V>();
+        backQueue = new ArrayDeque<V>();
     }
 
     /**
      * Items to be processed first, in the order to be processed.
+     *
      * @return front queue
      */
-    public ArrayDeque<Object> getFrontQueue() {
+    public ArrayDeque<V> getFrontQueue() {
         return frontQueue;
     }
 
     /**
      * Items to be processed after front-queue is empty, in the order to be processed.
+     *
      * @return back queue
      */
-    public ArrayDeque<Object> getBackQueue() {
+    public ArrayDeque<V> getBackQueue() {
         return backQueue;
     }
 }

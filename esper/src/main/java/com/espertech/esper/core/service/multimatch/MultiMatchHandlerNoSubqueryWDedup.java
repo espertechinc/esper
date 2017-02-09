@@ -22,10 +22,8 @@ public class MultiMatchHandlerNoSubqueryWDedup implements MultiMatchHandler {
     private MultiMatchHandlerNoSubqueryWDedup() {
     }
 
-    protected final static ThreadLocal<LinkedHashSet<FilterHandleCallback>> dedups = new ThreadLocal<LinkedHashSet<FilterHandleCallback>>()
-    {
-        protected synchronized LinkedHashSet<FilterHandleCallback> initialValue()
-        {
+    protected final static ThreadLocal<LinkedHashSet<FilterHandleCallback>> DEDUPS = new ThreadLocal<LinkedHashSet<FilterHandleCallback>>() {
+        protected synchronized LinkedHashSet<FilterHandleCallback> initialValue() {
             return new LinkedHashSet<FilterHandleCallback>();
         }
     };
@@ -33,15 +31,14 @@ public class MultiMatchHandlerNoSubqueryWDedup implements MultiMatchHandler {
     public void handle(Collection<FilterHandleCallback> callbacks, EventBean theEvent) {
 
         if (callbacks.size() >= 8) {
-            LinkedHashSet<FilterHandleCallback> dedup = dedups.get();
+            LinkedHashSet<FilterHandleCallback> dedup = DEDUPS.get();
             dedup.clear();
             dedup.addAll(callbacks);
             for (FilterHandleCallback callback : dedup) {
                 callback.matchFound(theEvent, callbacks);
             }
             dedup.clear();
-        }
-        else {
+        } else {
             int count = 0;
             for (FilterHandleCallback callback : callbacks) {
                 boolean haveInvoked = checkDup(callback, callbacks, count);

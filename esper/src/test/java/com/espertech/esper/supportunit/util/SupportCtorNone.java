@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.supportunit.util;
 
-public class SupportCtorNone
-{
-    private SupportCtorNone() {}
+public class SupportCtorNone {
+    private SupportCtorNone() {
+    }
 }

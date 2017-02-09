@@ -18,8 +18,7 @@ import java.io.StringWriter;
 /**
  * This class represents an 'not' operator in the evaluation tree representing any event expressions.
  */
-public class EvalNotFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalNotFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = 2768112579538392761L;
 
     protected EvalNotFactoryNode() {
@@ -30,8 +29,7 @@ public class EvalNotFactoryNode extends EvalNodeFactoryBase
         return new EvalNotNode(agentInstanceContext, this, child);
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalNotNode children=" + this.getChildNodes().size();
     }
 

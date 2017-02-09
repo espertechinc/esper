@@ -19,18 +19,16 @@ import com.espertech.esper.epl.spec.OuterJoinDesc;
  * and placed in the query graph model as navigable relationships (by key and index
  * properties) between streams.
  */
-public class OuterJoinAnalyzer
-{
+public class OuterJoinAnalyzer {
     /**
      * Analyzes the outer join descriptor list to build a query graph model.
+     *
      * @param outerJoinDescList - list of outer join descriptors
-     * @param queryGraph - model containing relationships between streams that is written into
+     * @param queryGraph        - model containing relationships between streams that is written into
      * @return queryGraph object
      */
-    public static QueryGraph analyze(OuterJoinDesc[] outerJoinDescList, QueryGraph queryGraph)
-    {
-        for (OuterJoinDesc outerJoinDesc : outerJoinDescList)
-        {
+    public static QueryGraph analyze(OuterJoinDesc[] outerJoinDescList, QueryGraph queryGraph) {
+        for (OuterJoinDesc outerJoinDesc : outerJoinDescList) {
             // add optional on-expressions
             if (outerJoinDesc.getOptLeftNode() != null) {
                 ExprIdentNode identNodeLeft = outerJoinDesc.getOptLeftNode();
@@ -38,15 +36,12 @@ public class OuterJoinAnalyzer
 
                 add(queryGraph, identNodeLeft, identNodeRight);
 
-                if (outerJoinDesc.getAdditionalLeftNodes() != null)
-                {
-                    for (int i = 0; i < outerJoinDesc.getAdditionalLeftNodes().length; i++)
-                    {
+                if (outerJoinDesc.getAdditionalLeftNodes() != null) {
+                    for (int i = 0; i < outerJoinDesc.getAdditionalLeftNodes().length; i++) {
                         add(queryGraph, outerJoinDesc.getAdditionalLeftNodes()[i], outerJoinDesc.getAdditionalRightNodes()[i]);
                     }
                 }
-            }
-            else {
+            } else {
 
             }
         }
@@ -54,8 +49,7 @@ public class OuterJoinAnalyzer
         return queryGraph;
     }
 
-    private static void add(QueryGraph queryGraph, ExprIdentNode identNodeLeft, ExprIdentNode identNodeRight)
-    {
+    private static void add(QueryGraph queryGraph, ExprIdentNode identNodeLeft, ExprIdentNode identNodeRight) {
         queryGraph.addStrictEquals(identNodeLeft.getStreamId(), identNodeLeft.getResolvedPropertyName(), identNodeLeft,
                 identNodeRight.getStreamId(), identNodeRight.getResolvedPropertyName(), identNodeRight);
     }

@@ -15,8 +15,7 @@ import com.espertech.esper.client.EPStatement;
 /**
  * Event indicating statement lifecycle management.
  */
-public class StatementLifecycleEvent
-{
+public class StatementLifecycleEvent {
     private EPStatement statement;
     private LifecycleEventType eventType;
     private Object[] parameters;
@@ -49,12 +48,12 @@ public class StatementLifecycleEvent
 
     /**
      * Ctor.
-     * @param statement the statement
-     * @param eventType the tyoe if event
+     *
+     * @param statement  the statement
+     * @param eventType  the tyoe if event
      * @param parameters event parameters
      */
-    protected StatementLifecycleEvent(EPStatement statement, LifecycleEventType eventType, Object... parameters)
-    {
+    protected StatementLifecycleEvent(EPStatement statement, LifecycleEventType eventType, Object... parameters) {
         this.statement = statement;
         this.eventType = eventType;
         this.parameters = parameters;
@@ -62,15 +61,16 @@ public class StatementLifecycleEvent
 
     /**
      * Returns the statement instance for the event.
+     *
      * @return statement
      */
-    public EPStatement getStatement()
-    {
+    public EPStatement getStatement() {
         return statement;
     }
 
     /**
      * Returns the event type.
+     *
      * @return type of event
      */
     public LifecycleEventType getEventType() {
@@ -79,6 +79,7 @@ public class StatementLifecycleEvent
 
     /**
      * Returns event parameters.
+     *
      * @return params
      */
     public Object[] getParameters() {

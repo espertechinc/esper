@@ -36,8 +36,7 @@ public class AvroSchemaUtil {
     static String toSchemaStringSafe(Schema schema) {
         try {
             return schema.toString();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             return "[Invalid schema: " + t.getClass().getName() + ": " + t.getMessage() + "]";
         }
     }
@@ -51,8 +50,7 @@ public class AvroSchemaUtil {
             if (member.getType() == Schema.Type.RECORD) {
                 if (found == null) {
                     found = member;
-                }
-                else {
+                } else {
                     return null;
                 }
             }
@@ -81,8 +79,7 @@ public class AvroSchemaUtil {
 
         if (propertyType == null) {
             assembler.name(propertyName).type("null");
-        }
-        else if (propertyType instanceof String) {
+        } else if (propertyType instanceof String) {
             String propertyTypeName = propertyType.toString();
             boolean isArray = EventTypeUtility.isPropertyArray(propertyTypeName);
             if (isArray) {
@@ -99,148 +96,116 @@ public class AvroSchemaUtil {
 
             if (!isArray) {
                 assembler.name(propertyName).type(schema).noDefault();
-            }
-            else {
+            } else {
                 assembler.name(propertyName).type(array().items(schema)).noDefault();
             }
-        }
-        else if (propertyType instanceof EventType){
+        } else if (propertyType instanceof EventType) {
             EventType eventType = (EventType) propertyType;
             checkCompatibleType(eventType);
             if (eventType instanceof AvroEventType) {
                 schema = ((AvroEventType) eventType).getSchemaAvro();
                 assembler.name(propertyName).type(schema).noDefault();
-            }
-            else if (eventType instanceof MapEventType) {
+            } else if (eventType instanceof MapEventType) {
                 MapEventType mapEventType = (MapEventType) eventType;
                 Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService, statementName, engineURI, optionalMapper);
                 assembler.name(propertyName).type(nestedSchema).noDefault();
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Unrecognized event type " + eventType);
             }
-        }
-        else if (propertyType instanceof EventType[]) {
+        } else if (propertyType instanceof EventType[]) {
             EventType eventType = ((EventType[]) propertyType)[0];
             checkCompatibleType(eventType);
             if (eventType instanceof AvroEventType) {
                 schema = ((AvroEventType) eventType).getSchemaAvro();
                 assembler.name(propertyName).type(array().items(schema)).noDefault();
-            }
-            else if (eventType instanceof MapEventType) {
+            } else if (eventType instanceof MapEventType) {
                 MapEventType mapEventType = (MapEventType) eventType;
                 Schema nestedSchema = assembleNestedSchema(mapEventType, avroSettings, annotations, eventAdapterService, statementName, engineURI, optionalMapper);
                 assembler.name(propertyName).type(array().items(nestedSchema)).noDefault();
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Unrecognized event type " + eventType);
             }
-        }
-        else if (propertyType instanceof Class) {
+        } else if (propertyType instanceof Class) {
             Class propertyClass = (Class) propertyType;
             Class propertyClassBoxed = JavaClassHelper.getBoxedType(propertyClass);
             boolean nullable = propertyClass == propertyClassBoxed;
             boolean preferNonNull = avroSettings.isEnableSchemaDefaultNonNull();
             if (propertyClassBoxed == Boolean.class) {
                 assemblePrimitive(nullable, REQ_BOOLEAN, OPT_BOOLEAN, assembler, propertyName, preferNonNull);
-            }
-            else if (propertyClassBoxed == Integer.class || propertyClassBoxed == Byte.class) {
+            } else if (propertyClassBoxed == Integer.class || propertyClassBoxed == Byte.class) {
                 assemblePrimitive(nullable, REQ_INT, OPT_INT, assembler, propertyName, preferNonNull);
-            }
-            else if (propertyClassBoxed == Long.class) {
+            } else if (propertyClassBoxed == Long.class) {
                 assemblePrimitive(nullable, REQ_LONG, OPT_LONG, assembler, propertyName, preferNonNull);
-            }
-            else if (propertyClassBoxed == Float.class) {
+            } else if (propertyClassBoxed == Float.class) {
                 assemblePrimitive(nullable, REQ_FLOAT, OPT_FLOAT, assembler, propertyName, preferNonNull);
-            }
-            else if (propertyClassBoxed == Double.class) {
+            } else if (propertyClassBoxed == Double.class) {
                 assemblePrimitive(nullable, REQ_DOUBLE, OPT_DOUBLE, assembler, propertyName, preferNonNull);
-            }
-            else if (propertyClass == String.class || propertyClass == CharSequence.class) {
+            } else if (propertyClass == String.class || propertyClass == CharSequence.class) {
                 if (avroSettings.isEnableNativeString()) {
                     if (preferNonNull) {
                         assembler.name(propertyName).type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault();
-                    }
-                    else {
+                    } else {
                         assembler.name(propertyName).type().unionOf().nullType().and().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().endUnion().noDefault();
                     }
-                }
-                else {
+                } else {
                     assemblePrimitive(nullable, REQ_STRING, OPT_STRING, assembler, propertyName, preferNonNull);
                 }
-            }
-            else if (propertyClass == byte[].class) {
+            } else if (propertyClass == byte[].class) {
                 if (preferNonNull) {
                     assembler.requiredBytes(propertyName);
-                }
-                else {
+                } else {
                     assembler.name(propertyName).type(unionOf().nullType().and().bytesType().endUnion()).noDefault();
                 }
-            }
-            else if (propertyClass.isArray()) {
+            } else if (propertyClass.isArray()) {
                 Class componentType = propertyClass.getComponentType();
                 Class componentTypeBoxed = JavaClassHelper.getBoxedType(componentType);
                 boolean nullableElements = componentType == componentTypeBoxed;
 
                 if (componentTypeBoxed == Boolean.class) {
                     assembleArray(nullableElements, ARRAY_OF_REQ_BOOLEAN, ARRAY_OF_OPT_BOOLEAN, assembler, propertyName, preferNonNull);
-                }
-                else if (componentTypeBoxed == Integer.class) {
+                } else if (componentTypeBoxed == Integer.class) {
                     assembleArray(nullableElements, ARRAY_OF_REQ_INT, ARRAY_OF_OPT_INT, assembler, propertyName, preferNonNull);
-                }
-                else if (componentTypeBoxed == Long.class) {
+                } else if (componentTypeBoxed == Long.class) {
                     assembleArray(nullableElements, ARRAY_OF_REQ_LONG, ARRAY_OF_OPT_LONG, assembler, propertyName, preferNonNull);
-                }
-                else if (componentTypeBoxed == Float.class) {
+                } else if (componentTypeBoxed == Float.class) {
                     assembleArray(nullableElements, ARRAY_OF_REQ_FLOAT, ARRAY_OF_OPT_FLOAT, assembler, propertyName, preferNonNull);
-                }
-                else if (componentTypeBoxed == Byte.class) {
+                } else if (componentTypeBoxed == Byte.class) {
                     assembleArray(nullableElements, ARRAY_OF_REQ_INT, ARRAY_OF_OPT_INT, assembler, propertyName, preferNonNull);
-                }
-                else if (componentTypeBoxed == Double.class) {
+                } else if (componentTypeBoxed == Double.class) {
                     assembleArray(nullableElements, ARRAY_OF_REQ_DOUBLE, ARRAY_OF_OPT_DOUBLE, assembler, propertyName, preferNonNull);
-                }
-                else if (propertyClass == String[].class || propertyClass == CharSequence[].class) {
+                } else if (propertyClass == String[].class || propertyClass == CharSequence[].class) {
                     Schema array;
                     if (avroSettings.isEnableNativeString()) {
                         array = array().items(builder().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString());
-                    }
-                    else {
+                    } else {
                         array = array().items(builder().stringBuilder().endString());
                     }
 
                     if (preferNonNull) {
                         assembler.name(propertyName).type(array).noDefault();
-                    }
-                    else {
+                    } else {
                         assembler.name(propertyName).type(unionOf().nullType().and().type(array).endUnion()).noDefault();
                     }
-                }
-                else {
+                } else {
                     throw makeEPException(propertyName, propertyType);
                 }
-            }
-            else if (JavaClassHelper.isImplementsInterface(propertyClass, Map.class)) {
+            } else if (JavaClassHelper.isImplementsInterface(propertyClass, Map.class)) {
                 Schema value;
                 if (avroSettings.isEnableNativeString()) {
                     value = builder().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString();
-                }
-                else {
+                } else {
                     value = builder().stringBuilder().endString();
                 }
 
                 if (preferNonNull) {
                     assembler.name(propertyName).type(map().values(value)).noDefault();
-                }
-                else {
+                } else {
                     assembler.name(propertyName).type(unionOf().nullType().and().type(map().values(value)).endUnion()).noDefault();
                 }
-            }
-            else {
+            } else {
                 throw makeEPException(propertyName, propertyType);
             }
-        }
-        else {
+        } else {
             throw makeEPException(propertyName, propertyType);
         }
     }
@@ -265,8 +230,7 @@ public class AvroSchemaUtil {
                     String schema = avroSchemaField.schema();
                     try {
                         return new Schema.Parser().parse(schema);
-                    }
-                    catch (RuntimeException ex) {
+                    } catch (RuntimeException ex) {
                         throw new EPException("Failed to parse Avro schema for property '" + propertyName + "': " + ex.getMessage(), ex);
                     }
                 }
@@ -284,12 +248,10 @@ public class AvroSchemaUtil {
     private static void assemblePrimitive(boolean nullable, BiConsumer<FieldAssembler<Schema>, String> reqAssemble, BiConsumer<FieldAssembler<Schema>, String> optAssemble, FieldAssembler<Schema> assembler, String propertyName, boolean preferNonNull) {
         if (preferNonNull) {
             reqAssemble.accept(assembler, propertyName);
-        }
-        else {
+        } else {
             if (nullable) {
                 optAssemble.accept(assembler, propertyName);
-            }
-            else {
+            } else {
                 reqAssemble.accept(assembler, propertyName);
             }
         }
@@ -300,17 +262,14 @@ public class AvroSchemaUtil {
         if (preferNonNull) {
             if (!nullableElements) {
                 assembler.name(propertyName).type(arrayOfReq).noDefault();
-            }
-            else {
+            } else {
                 assembler.name(propertyName).type(arrayOfOpt).noDefault();
             }
-        }
-        else {
+        } else {
             if (!nullableElements) {
                 Schema union = unionOf().nullType().and().type(arrayOfReq).endUnion();
                 assembler.name(propertyName).type(union).noDefault();
-            }
-            else {
+            } else {
                 Schema union = unionOf().nullType().and().type(arrayOfOpt).endUnion();
                 assembler.name(propertyName).type(union).noDefault();
             }

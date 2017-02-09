@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.supportunit.util;
 
-public class SupportCtorInt
-{
+public class SupportCtorInt {
     private int someValue;
 
-    public SupportCtorInt(int someValue)
-    {
+    public SupportCtorInt(int someValue) {
         this.someValue = someValue;
     }
 
-    public int getSomeValue()
-    {
+    public int getSomeValue() {
         return someValue;
     }
 }

@@ -63,8 +63,7 @@ public class EnumEvalOrderByAscDescScalarLambda extends EnumEvalBase implements 
         Map<Comparable, Object> sorted;
         if (descending) {
             sorted = sort.descendingMap();
-        }
-        else {
+        } else {
             sorted = sort;
         }
 
@@ -76,8 +75,7 @@ public class EnumEvalOrderByAscDescScalarLambda extends EnumEvalBase implements 
         for (Map.Entry<Comparable, Object> entry : sorted.entrySet()) {
             if (entry.getValue() instanceof Collection) {
                 coll.addAll((Collection) entry.getValue());
-            }
-            else {
+            } else {
                 coll.add(entry.getValue());
             }
         }

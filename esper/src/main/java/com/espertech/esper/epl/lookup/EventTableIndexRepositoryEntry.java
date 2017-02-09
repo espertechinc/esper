@@ -12,8 +12,7 @@ package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.epl.join.table.EventTable;
 
-public class EventTableIndexRepositoryEntry extends EventTableIndexEntryBase
-{
+public class EventTableIndexRepositoryEntry extends EventTableIndexEntryBase {
     private final EventTable table;
 
     public EventTableIndexRepositoryEntry(String optionalIndexName, EventTable table) {

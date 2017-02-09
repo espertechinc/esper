@@ -10,15 +10,14 @@
  */
 package com.espertech.esperio.csv;
 
+import com.espertech.esper.client.EPException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.espertech.esper.client.EPException;
 
 /**
  * A utility for resolving property order information based on a

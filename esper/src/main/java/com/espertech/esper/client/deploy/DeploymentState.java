@@ -13,8 +13,7 @@ package com.espertech.esper.client.deploy;
 /**
  * Deployment state.
  */
-public enum DeploymentState
-{
+public enum DeploymentState {
     /**
      * In undeployed state a deployment is added but not currently deployed.
      */

@@ -15,8 +15,7 @@ import java.util.List;
 /**
  * A strand of one or more NFA states that has a list of start states, end states and a list of all states in the strand.
  */
-public class RegexNFAStrand
-{
+public class RegexNFAStrand {
     private List<RegexNFAStateBase> startStates;
     private List<RegexNFAStateBase> endStates;
     private List<RegexNFAStateBase> allStates;
@@ -24,9 +23,10 @@ public class RegexNFAStrand
 
     /**
      * Ctor.
+     *
      * @param startStates start states
-     * @param endStates end states
-     * @param allStates all states
+     * @param endStates   end states
+     * @param allStates   all states
      * @param passthrough true if this strand passes through (zero-or-more multiplicity for all NFA in strand)
      */
     public RegexNFAStrand(List<RegexNFAStateBase> startStates, List<RegexNFAStateBase> endStates, List<RegexNFAStateBase> allStates, boolean passthrough) {
@@ -38,6 +38,7 @@ public class RegexNFAStrand
 
     /**
      * Returns the start states.
+     *
      * @return start states
      */
     public List<RegexNFAStateBase> getStartStates() {
@@ -46,6 +47,7 @@ public class RegexNFAStrand
 
     /**
      * Returns the end states.
+     *
      * @return end states
      */
     public List<RegexNFAStateBase> getEndStates() {
@@ -54,6 +56,7 @@ public class RegexNFAStrand
 
     /**
      * Returns all states.
+     *
      * @return all states
      */
     public List<RegexNFAStateBase> getAllStates() {
@@ -62,6 +65,7 @@ public class RegexNFAStrand
 
     /**
      * Returns indicator if passing-through (zero-or-more multiplicity for all NFA states in strand).
+     *
      * @return pass-through
      */
     public boolean isPassthrough() {

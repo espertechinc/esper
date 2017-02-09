@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.view.internal;
 
-import java.util.Iterator;
-
-import com.espertech.esper.view.ViewSupport;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.FlushedEventBuffer;
+import com.espertech.esper.view.ViewSupport;
+
+import java.util.Iterator;
 
 /**
  * A view that acts as an adapter between views and update listeners.
@@ -23,8 +23,7 @@ import com.espertech.esper.collection.FlushedEventBuffer;
  * data to the UpdateListener implementation that has been supplied. If no UpdateListener has been supplied,
  * then the view will cache the last data published by the parent view.
  */
-public final class BufferView extends ViewSupport
-{
+public final class BufferView extends ViewSupport {
     private final int streamId;
 
     private BufferObserver observer;
@@ -33,34 +32,31 @@ public final class BufferView extends ViewSupport
 
     /**
      * Ctor.
+     *
      * @param streamId - number of the stream for which the view buffers the generated events.
      */
-    public BufferView(int streamId)
-    {
+    public BufferView(int streamId) {
         this.streamId = streamId;
     }
 
     /**
      * Set the observer for indicating new and old data.
+     *
      * @param observer to indicate new and old events
      */
-    public void setObserver(BufferObserver observer)
-    {
+    public void setObserver(BufferObserver observer) {
         this.observer = observer;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return parent.iterator();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public final void update(EventBean[] newData, EventBean[] oldData) {
         newDataBuffer.add(newData);
         oldDataBuffer.add(oldData);
         observer.newData(streamId, newDataBuffer, oldDataBuffer);
@@ -68,10 +64,10 @@ public final class BufferView extends ViewSupport
 
     /**
      * Returns the buffer for new data.
+     *
      * @return new data buffer
      */
-    public FlushedEventBuffer getNewDataBuffer()
-    {
+    public FlushedEventBuffer getNewDataBuffer() {
         return newDataBuffer;
     }
 }

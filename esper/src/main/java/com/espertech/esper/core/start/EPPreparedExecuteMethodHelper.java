@@ -16,22 +16,19 @@ import com.espertech.esper.client.context.ContextPartitionSelectorAll;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.mgr.ContextManager;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.TableQueryStreamSpec;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StreamSpecCompiled;
+import com.espertech.esper.epl.spec.TableQueryStreamSpec;
 
 import java.util.Collection;
 
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPPreparedExecuteMethodHelper
-{
-    protected static void validateFAFQuery(StatementSpecCompiled statementSpec) throws ExprValidationException
-    {
-        for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
-        {
+public class EPPreparedExecuteMethodHelper {
+    protected static void validateFAFQuery(StatementSpecCompiled statementSpec) throws ExprValidationException {
+        for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
             StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
             if (!(streamSpec instanceof NamedWindowConsumerStreamSpec || streamSpec instanceof TableQueryStreamSpec)) {
                 throw new ExprValidationException("On-demand queries require tables or named windows and do not allow event streams or patterns");
@@ -49,8 +46,7 @@ public class EPPreparedExecuteMethodHelper
         Collection<Integer> agentInstanceIds;
         if (selector == null || selector instanceof ContextPartitionSelectorAll) {
             agentInstanceIds = processor.getProcessorInstancesAll();
-        }
-        else {
+        } else {
             ContextManager contextManager = contextManagementService.getContextManager(contextName);
             if (contextManager == null) {
                 throw new EPException("Context by name '" + contextName + "' could not be found");

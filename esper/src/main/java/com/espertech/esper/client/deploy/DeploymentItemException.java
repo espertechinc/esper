@@ -16,16 +16,17 @@ package com.espertech.esper.client.deploy;
 public class DeploymentItemException extends DeploymentException {
 
     private static final long serialVersionUID = 5496069128630634391L;
-    
+
     private String expression;
     private RuntimeException inner;
     private int lineNumber;
 
     /**
      * Ctor.
-     * @param message exception text
+     *
+     * @param message    exception text
      * @param expression EPL
-     * @param inner compile or start exception
+     * @param inner      compile or start exception
      * @param lineNumber line number
      */
     public DeploymentItemException(String message, String expression, RuntimeException inner, int lineNumber) {
@@ -37,6 +38,7 @@ public class DeploymentItemException extends DeploymentException {
 
     /**
      * Returns EPL expression.
+     *
      * @return expression
      */
     public String getExpression() {
@@ -45,6 +47,7 @@ public class DeploymentItemException extends DeploymentException {
 
     /**
      * Returns EPL compile or start exception.
+     *
      * @return exception
      */
     public RuntimeException getInner() {
@@ -53,10 +56,10 @@ public class DeploymentItemException extends DeploymentException {
 
     /**
      * Returns line number.
+     *
      * @return line number
      */
-    public int getLineNumber()
-    {
+    public int getLineNumber() {
         return lineNumber;
     }
 }

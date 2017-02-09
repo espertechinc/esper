@@ -16,47 +16,40 @@ import com.espertech.esper.collection.RefCountedSet;
  * AggregationMethod for use on top of another aggregator that handles unique value aggregation (versus all-value aggregation)
  * for the underlying aggregator.
  */
-public class AggregatorDistinctValue implements AggregationMethod
-{
+public class AggregatorDistinctValue implements AggregationMethod {
     protected final AggregationMethod inner;
     protected final RefCountedSet<Object> valueSet;
 
     /**
      * Ctor.
+     *
      * @param inner is the aggregator function computing aggregation values
      */
-    public AggregatorDistinctValue(AggregationMethod inner)
-    {
+    public AggregatorDistinctValue(AggregationMethod inner) {
         this.inner = inner;
         this.valueSet = new RefCountedSet<Object>();
     }
 
-    public void clear()
-    {
+    public void clear() {
         valueSet.clear();
         inner.clear();
     }
 
-    public void enter(Object value)
-    {
+    public void enter(Object value) {
         // if value not already encountered, enter into aggregate
-        if (valueSet.add(value))
-        {
+        if (valueSet.add(value)) {
             inner.enter(value);
         }
     }
 
-    public void leave(Object value)
-    {
+    public void leave(Object value) {
         // if last reference to the value is removed, remove from aggregate
-        if (valueSet.remove(value))
-        {
+        if (valueSet.remove(value)) {
             inner.leave(value);
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return inner.getValue();
     }
 }

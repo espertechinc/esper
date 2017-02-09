@@ -25,8 +25,7 @@ import java.util.Map;
 /**
  * Entry holding lookup resource references for use by {@link SubSelectActivationCollection}.
  */
-public class SubSelectStrategyHolder
-{
+public class SubSelectStrategyHolder {
     private final ExprSubselectStrategy stategy;
     private final AggregationService subselectAggregationService;
     private final Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategies;

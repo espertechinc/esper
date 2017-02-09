@@ -15,31 +15,29 @@ import java.io.Serializable;
 /**
  * LRU cache settings.
  */
-public class ConfigurationLRUCache implements ConfigurationDataCache, Serializable
-{
+public class ConfigurationLRUCache implements ConfigurationDataCache, Serializable {
     private int size;
     private static final long serialVersionUID = 411347352942362467L;
 
     /**
      * Ctor.
+     *
      * @param size is the maximum cache size
      */
-    public ConfigurationLRUCache(int size)
-    {
+    public ConfigurationLRUCache(int size) {
         this.size = size;
     }
 
     /**
      * Returns the maximum cache size.
+     *
      * @return max cache size
      */
-    public int getSize()
-    {
+    public int getSize() {
         return size;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "LRUCacheDesc size=" + size;
     }
 }

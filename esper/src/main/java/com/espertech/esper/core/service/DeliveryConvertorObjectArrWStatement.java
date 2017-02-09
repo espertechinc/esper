@@ -15,8 +15,7 @@ import com.espertech.esper.client.EPStatement;
 /**
  * Implementation of a convertor for column results that renders the result as an object array itself.
  */
-public class DeliveryConvertorObjectArrWStatement implements DeliveryConvertor
-{
+public class DeliveryConvertorObjectArrWStatement implements DeliveryConvertor {
     private final EPStatement statement;
 
     public DeliveryConvertorObjectArrWStatement(EPStatement statement) {
@@ -24,6 +23,6 @@ public class DeliveryConvertorObjectArrWStatement implements DeliveryConvertor
     }
 
     public Object[] convertRow(Object[] columns) {
-        return new Object[] {statement, columns};
+        return new Object[]{statement, columns};
     }
 }

@@ -20,8 +20,7 @@ import java.io.StringWriter;
 /**
  * This class represents a match-until observer in the evaluation tree representing any event expressions.
  */
-public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = 5697835058233579562L;
     private ExprNode lowerBounds;
     private ExprNode upperBounds;
@@ -29,8 +28,7 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
     private transient MatchedEventConvertor convertor;
     private int[] tagsArrayed;
 
-    protected EvalMatchUntilFactoryNode(ExprNode lowerBounds, ExprNode upperBounds, ExprNode singleBound)
-    {
+    protected EvalMatchUntilFactoryNode(ExprNode lowerBounds, ExprNode upperBounds, ExprNode singleBound) {
         if (singleBound != null && (lowerBounds != null || upperBounds != null)) {
             throw new IllegalArgumentException("Invalid bounds, specify either single bound or range bounds");
         }
@@ -46,15 +44,16 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Returns an array of tags for events, which is all tags used within the repeat-operator.
+     *
      * @return array of tags
      */
-    public int[] getTagsArrayed()
-    {
+    public int[] getTagsArrayed() {
         return tagsArrayed;
     }
 
     /**
      * Sets the convertor for matching events to events-per-stream.
+     *
      * @param convertor convertor
      */
     public void setConvertor(MatchedEventConvertor convertor) {
@@ -87,10 +86,10 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Sets the tags used within the repeat operator.
+     *
      * @param tagsArrayedSet tags used within the repeat operator
      */
-    public void setTagsArrayedSet(int[] tagsArrayedSet)
-    {
+    public void setTagsArrayedSet(int[] tagsArrayedSet) {
         tagsArrayed = tagsArrayedSet;
     }
 
@@ -98,9 +97,8 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
         return convertor;
     }
 
-    public final String toString()
-    {
-        return ("EvalMatchUntilNode children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalMatchUntilNode children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {
@@ -116,8 +114,7 @@ public class EvalMatchUntilFactoryNode extends EvalNodeFactoryBase
             writer.append("[");
             writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(singleBound));
             writer.append("] ");
-        }
-        else {
+        } else {
             if (lowerBounds != null || upperBounds != null) {
                 writer.append("[");
                 if (lowerBounds != null) {

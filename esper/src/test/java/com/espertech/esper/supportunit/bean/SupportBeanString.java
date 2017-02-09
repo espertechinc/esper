@@ -12,32 +12,26 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanString implements Serializable
-{
+public class SupportBeanString implements Serializable {
     private String theString;
 
-    public static SupportBeanString getInstance()
-    {
+    public static SupportBeanString getInstance() {
         return new SupportBeanString(null);
     }
 
-    public SupportBeanString(String theString)
-    {
+    public SupportBeanString(String theString) {
         this.theString = theString;
     }
 
-    public String getTheString()
-    {
+    public String getTheString() {
         return theString;
     }
 
-    public void setTheString(String theString)
-    {
+    public void setTheString(String theString) {
         this.theString = theString;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "SupportBeanString string=" + theString;
     }
 }

@@ -12,16 +12,14 @@ package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.ops.ExprArrayNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.supportunit.epl.SupportExprNode;
 
-public class TestExprArrayNode extends TestCase
-{
+public class TestExprArrayNode extends TestCase {
     private ExprArrayNode[] arrayNodes;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         arrayNodes = new ExprArrayNode[4];
         arrayNodes[0] = new ExprArrayNode();
 
@@ -40,22 +38,19 @@ public class TestExprArrayNode extends TestCase
         arrayNodes[3].addChildNode(new SupportExprNode("a"));
         arrayNodes[3].addChildNode(new SupportExprNode(1));
 
-        for (int i = 0; i < arrayNodes.length; i++)
-        {
+        for (int i = 0; i < arrayNodes.length; i++) {
             arrayNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(Object[].class, arrayNodes[0].getType());
         assertEquals(Integer[].class, arrayNodes[1].getType());
         assertEquals(Double[].class, arrayNodes[2].getType());
         assertEquals(Object[].class, arrayNodes[3].getType());
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         Object result = arrayNodes[0].evaluate(null, true, null);
         assertEquals(Object[].class, result.getClass());
         assertEquals(0, ((Object[]) result).length);
@@ -79,16 +74,14 @@ public class TestExprArrayNode extends TestCase
         assertEquals(1, ((Object[]) result)[1]);
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("{}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[0]));
         assertEquals("{2,3}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[1]));
         assertEquals("{1.5,1}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[2]));
         assertEquals("{\"a\",1}", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arrayNodes[3]));
     }
 
-    public void testEqualsNode()
-    {
+    public void testEqualsNode() {
         assertTrue(arrayNodes[0].equalsNode(arrayNodes[1]));
         assertFalse(arrayNodes[0].equalsNode(new SupportExprNode(null)));
     }

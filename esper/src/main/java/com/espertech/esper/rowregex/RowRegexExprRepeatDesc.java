@@ -17,8 +17,7 @@ import com.espertech.esper.util.MetaDefItem;
 import java.io.Serializable;
 import java.io.StringWriter;
 
-public class RowRegexExprRepeatDesc implements MetaDefItem, Serializable
-{
+public class RowRegexExprRepeatDesc implements MetaDefItem, Serializable {
     private static final long serialVersionUID = -5731091962097679923L;
     private final ExprNode lower;
     private final ExprNode upper;
@@ -46,8 +45,7 @@ public class RowRegexExprRepeatDesc implements MetaDefItem, Serializable
         writer.write("{");
         if (single != null) {
             writer.write(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(single));
-        }
-        else {
+        } else {
             if (lower != null) {
                 writer.write(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(lower));
             }

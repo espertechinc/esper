@@ -10,11 +10,11 @@
  */
 package com.espertech.esperio.ext;
 
+import com.espertech.esperio.csv.BasicTypeCoercer;
+
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.espertech.esperio.csv.BasicTypeCoercer;
 
 /**
  * Date format coercion.

@@ -14,8 +14,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorFactoryDesc;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 
-public class EPStatementStartMethodOnTriggerItem
-{
+public class EPStatementStartMethodOnTriggerItem {
     private final ExprNode whereClause;
     private final boolean isNamedWindowInsert;
     private final String insertIntoTableNames;

@@ -62,16 +62,13 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         if (prototype.isOutputLast()) {
             outputLastHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupOutputLastOpt(agentInstanceContext, this, prototype);
-        }
-        else if (prototype.isOutputAll()) {
+        } else if (prototype.isOutputAll()) {
             if (!prototype.isEnableOutputLimitOpt()) {
                 outputAllGroupReps = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputAllNoOpt(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getNumStreams());
-            }
-            else {
+            } else {
                 outputAllHelper = prototype.getResultSetProcessorHelperFactory().makeRSRowPerGroupOutputAllOpt(agentInstanceContext, this, prototype);
             }
-        }
-        else if (prototype.isOutputFirst()) {
+        } else if (prototype.isOutputFirst()) {
             outputFirstHelper = prototype.getResultSetProcessorHelperFactory().makeRSGroupedOutputFirst(agentInstanceContext, prototype.getGroupKeyNodes(), prototype.getOptionalOutputFirstConditionFactory(), null, -1);
         }
     }
@@ -80,8 +77,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         this.agentInstanceContext = agentInstanceContext;
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return prototype.getResultEventType();
     }
 
@@ -122,43 +118,38 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
     }
 
-    public UniformPair<EventBean[]> processJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isSynthesize)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();}
+    public UniformPair<EventBean[]> processJoinResult(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isSynthesize) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();
+        }
         // Generate group-by keys for all events, collect all keys in a set for later event generation
         Map<Object, EventBean[]> keysAndEvents = new HashMap<Object, EventBean[]>();
         Object[] newDataMultiKey = generateGroupKeys(newEvents, keysAndEvents, true);
         Object[] oldDataMultiKey = generateGroupKeys(oldEvents, keysAndEvents, false);
 
-        if (prototype.isUnidirectional())
-        {
+        if (prototype.isUnidirectional()) {
             this.clear();
         }
 
         // generate old events
         EventBean[] selectOldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             selectOldEvents = generateOutputEventsJoin(keysAndEvents, false, isSynthesize);
         }
 
         // update aggregates
-        if (!newEvents.isEmpty())
-        {
+        if (!newEvents.isEmpty()) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> eventsPerStream : newEvents)
-            {
+            for (MultiKey<EventBean> eventsPerStream : newEvents) {
                 aggregationService.applyEnter(eventsPerStream.getArray(), newDataMultiKey[count], agentInstanceContext);
                 count++;
             }
         }
-        if (oldEvents != null && !oldEvents.isEmpty())
-        {
+        if (oldEvents != null && !oldEvents.isEmpty()) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> eventsPerStream : oldEvents)
-            {
+            for (MultiKey<EventBean> eventsPerStream : oldEvents) {
                 aggregationService.applyLeave(eventsPerStream.getArray(), oldDataMultiKey[count], agentInstanceContext);
                 count++;
             }
@@ -167,18 +158,22 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         // generate new events using select expressions
         EventBean[] selectNewEvents = generateOutputEventsJoin(keysAndEvents, true, isSynthesize);
 
-        if ((selectNewEvents != null) || (selectOldEvents != null))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);}
+        if ((selectNewEvents != null) || (selectOldEvents != null)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);
+            }
             return new UniformPair<EventBean[]>(selectNewEvents, selectOldEvents);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(null, null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(null, null);
+        }
         return null;
     }
 
-    public UniformPair<EventBean[]> processViewResult(EventBean[] newData, EventBean[] oldData, boolean isSynthesize)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();}
+    public UniformPair<EventBean[]> processViewResult(EventBean[] newData, EventBean[] oldData, boolean isSynthesize) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();
+        }
         // Generate group-by keys for all events, collect all keys in a set for later event generation
         Map<Object, EventBean> keysAndEvents = new HashMap<Object, EventBean>();
 
@@ -186,27 +181,22 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         Object[] oldDataMultiKey = generateGroupKeys(oldData, keysAndEvents, false);
 
         EventBean[] selectOldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             selectOldEvents = generateOutputEventsView(keysAndEvents, false, isSynthesize);
         }
 
         // update aggregates
         EventBean[] eventsPerStream = new EventBean[1];
-        if (newData != null)
-        {
+        if (newData != null) {
             // apply new data to aggregates
-            for (int i = 0; i < newData.length; i++)
-            {
+            for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
                 aggregationService.applyEnter(eventsPerStream, newDataMultiKey[i], agentInstanceContext);
             }
         }
-        if (oldData != null)
-        {
+        if (oldData != null) {
             // apply old data to aggregates
-            for (int i = 0; i < oldData.length; i++)
-            {
+            for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
                 aggregationService.applyLeave(eventsPerStream, oldDataMultiKey[i], agentInstanceContext);
             }
@@ -215,51 +205,52 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         // generate new events using select expressions
         EventBean[] selectNewEvents = generateOutputEventsView(keysAndEvents, true, isSynthesize);
 
-        if ((selectNewEvents != null) || (selectOldEvents != null))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);}
+        if ((selectNewEvents != null) || (selectOldEvents != null)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);
+            }
             return new UniformPair<EventBean[]>(selectNewEvents, selectOldEvents);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(null, null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(null, null);
+        }
         return null;
     }
 
-    protected EventBean[] generateOutputEventsView(Map<Object, EventBean> keysAndEvents, boolean isNewData, boolean isSynthesize)
-    {
+    protected EventBean[] generateOutputEventsView(Map<Object, EventBean> keysAndEvents, boolean isNewData, boolean isSynthesize) {
         EventBean[] eventsPerStream = new EventBean[1];
         EventBean[] events = new EventBean[keysAndEvents.size()];
         Object[] keys = new Object[keysAndEvents.size()];
         EventBean[][] currentGenerators = null;
-        if(prototype.isSorting())
-        {
+        if (prototype.isSorting()) {
             currentGenerators = new EventBean[keysAndEvents.size()][];
         }
 
         int count = 0;
-        for (Map.Entry<Object, EventBean> entry : keysAndEvents.entrySet())
-        {
+        for (Map.Entry<Object, EventBean> entry : keysAndEvents.entrySet()) {
             // Set the current row of aggregation states
             aggregationService.setCurrentAccess(entry.getKey(), agentInstanceContext.getAgentInstanceId(), null);
 
             eventsPerStream[0] = entry.getValue();
 
             // Filter the having clause
-            if (prototype.getOptionalHavingNode() != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(entry.getValue());}
+            if (prototype.getOptionalHavingNode() != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseNonJoin(entry.getValue());
+                }
                 Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(result);}
-                if ((result == null) || (!result))
-                {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseNonJoin(result);
+                }
+                if ((result == null) || (!result)) {
                     continue;
                 }
             }
 
             events[count] = selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
             keys[count] = entry.getKey();
-            if(prototype.isSorting())
-            {
-                EventBean[] currentEventsPerStream = new EventBean[] { entry.getValue() };
+            if (prototype.isSorting()) {
+                EventBean[] currentEventsPerStream = new EventBean[]{entry.getValue()};
                 currentGenerators[count] = currentEventsPerStream;
             }
 
@@ -267,18 +258,15 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
 
         // Resize if some rows were filtered out
-        if (count != events.length)
-        {
-            if (count == 0)
-            {
+        if (count != events.length) {
+            if (count == 0) {
                 return null;
             }
             EventBean[] outEvents = new EventBean[count];
             System.arraycopy(events, 0, outEvents, 0, count);
             events = outEvents;
 
-            if(prototype.isSorting())
-            {
+            if (prototype.isSorting()) {
                 Object[] outKeys = new Object[count];
                 System.arraycopy(keys, 0, outKeys, 0, count);
                 keys = outKeys;
@@ -289,90 +277,93 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        if(prototype.isSorting())
-        {
+        if (prototype.isSorting()) {
             events = orderByProcessor.sort(events, currentGenerators, keys, isNewData, agentInstanceContext);
         }
 
         return events;
     }
 
-    private void generateOutputBatchedRow(Map<Object, EventBean> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys, AgentInstanceContext agentInstanceContext)
-    {
+    private void generateOutputBatchedRow(Map<Object, EventBean> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys, AgentInstanceContext agentInstanceContext) {
         EventBean[] eventsPerStream = new EventBean[1];
 
-        for (Map.Entry<Object, EventBean> entry : keysAndEvents.entrySet())
-        {
+        for (Map.Entry<Object, EventBean> entry : keysAndEvents.entrySet()) {
             // Set the current row of aggregation states
             aggregationService.setCurrentAccess(entry.getKey(), agentInstanceContext.getAgentInstanceId(), null);
 
             eventsPerStream[0] = entry.getValue();
 
             // Filter the having clause
-            if (prototype.getOptionalHavingNode() != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(entry.getValue());}
+            if (prototype.getOptionalHavingNode() != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseNonJoin(entry.getValue());
+                }
                 Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(result);}
-                if ((result == null) || (!result))
-                {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseNonJoin(result);
+                }
+                if ((result == null) || (!result)) {
                     continue;
                 }
             }
 
             resultEvents.add(selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext));
 
-            if(prototype.isSorting())
-            {
+            if (prototype.isSorting()) {
                 optSortKeys.add(orderByProcessor.getSortKey(eventsPerStream, isNewData, agentInstanceContext));
             }
         }
     }
 
-    public void generateOutputBatchedArr(boolean join, Iterator<Map.Entry<Object, EventBean[]>> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
-    {
+    public void generateOutputBatchedArr(boolean join, Iterator<Map.Entry<Object, EventBean[]>> keysAndEvents, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
         while (keysAndEvents.hasNext()) {
             Map.Entry<Object, EventBean[]> entry = keysAndEvents.next();
             generateOutputBatchedRow(join, entry.getKey(), entry.getValue(), isNewData, isSynthesize, resultEvents, optSortKeys);
         }
     }
 
-    private void generateOutputBatchedRow(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys)
-    {
+    private void generateOutputBatchedRow(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, List<EventBean> resultEvents, List<Object> optSortKeys) {
         // Set the current row of aggregation states
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
         // Filter the having clause
-        if (prototype.getOptionalHavingNode() != null)
-        {
-            if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]); else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+        if (prototype.getOptionalHavingNode() != null) {
+            if (InstrumentationHelper.ENABLED) {
+                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]);
+                else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+            }
             Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result); else InstrumentationHelper.get().aHavingClauseJoin(result);}
-            if ((result == null) || (!result))
-            {
+            if (InstrumentationHelper.ENABLED) {
+                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
+                else InstrumentationHelper.get().aHavingClauseJoin(result);
+            }
+            if ((result == null) || (!result)) {
                 return;
             }
         }
 
         resultEvents.add(selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext));
 
-        if(prototype.isSorting())
-        {
+        if (prototype.isSorting()) {
             optSortKeys.add(orderByProcessor.getSortKey(eventsPerStream, isNewData, agentInstanceContext));
         }
     }
 
-    public EventBean generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize)
-    {
+    public EventBean generateOutputBatchedNoSortWMap(boolean join, Object mk, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize) {
         // Set the current row of aggregation states
         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
         // Filter the having clause
-        if (prototype.getOptionalHavingNode() != null)
-        {
-            if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]); else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+        if (prototype.getOptionalHavingNode() != null) {
+            if (InstrumentationHelper.ENABLED) {
+                if (!join) InstrumentationHelper.get().qHavingClauseNonJoin(eventsPerStream[0]);
+                else InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+            }
             Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            if (InstrumentationHelper.ENABLED) { if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result); else InstrumentationHelper.get().aHavingClauseJoin(result);}
+            if (InstrumentationHelper.ENABLED) {
+                if (!join) InstrumentationHelper.get().aHavingClauseNonJoin(result);
+                else InstrumentationHelper.get().aHavingClauseJoin(result);
+            }
             if ((result == null) || (!result)) {
                 return null;
             }
@@ -381,38 +372,36 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
     }
 
-    private EventBean[] generateOutputEventsJoin(Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize)
-    {
+    private EventBean[] generateOutputEventsJoin(Map<Object, EventBean[]> keysAndEvents, boolean isNewData, boolean isSynthesize) {
         EventBean[] events = new EventBean[keysAndEvents.size()];
         Object[] keys = new Object[keysAndEvents.size()];
         EventBean[][] currentGenerators = null;
-        if(prototype.isSorting())
-        {
+        if (prototype.isSorting()) {
             currentGenerators = new EventBean[keysAndEvents.size()][];
         }
 
         int count = 0;
-        for (Map.Entry<Object, EventBean[]> entry : keysAndEvents.entrySet())
-        {
+        for (Map.Entry<Object, EventBean[]> entry : keysAndEvents.entrySet()) {
             aggregationService.setCurrentAccess(entry.getKey(), agentInstanceContext.getAgentInstanceId(), null);
             EventBean[] eventsPerStream = entry.getValue();
 
             // Filter the having clause
-            if (prototype.getOptionalHavingNode() != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            if (prototype.getOptionalHavingNode() != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+                }
                 Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(result);}
-                if ((result == null) || (!result))
-                {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseJoin(result);
+                }
+                if ((result == null) || (!result)) {
                     continue;
                 }
             }
 
             events[count] = selectExprProcessor.process(eventsPerStream, isNewData, isSynthesize, agentInstanceContext);
             keys[count] = entry.getKey();
-            if(prototype.isSorting())
-            {
+            if (prototype.isSorting()) {
                 currentGenerators[count] = eventsPerStream;
             }
 
@@ -420,18 +409,15 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         }
 
         // Resize if some rows were filtered out
-        if (count != events.length)
-        {
-            if (count == 0)
-            {
+        if (count != events.length) {
+            if (count == 0) {
                 return null;
             }
             EventBean[] outEvents = new EventBean[count];
             System.arraycopy(events, 0, outEvents, 0, count);
             events = outEvents;
 
-            if(prototype.isSorting())
-            {
+            if (prototype.isSorting()) {
                 Object[] outKeys = new Object[count];
                 System.arraycopy(keys, 0, outKeys, 0, count);
                 keys = outKeys;
@@ -442,26 +428,22 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             }
         }
 
-        if(prototype.isSorting())
-        {
-            events =  orderByProcessor.sort(events, currentGenerators, keys, isNewData, agentInstanceContext);
+        if (prototype.isSorting()) {
+            events = orderByProcessor.sort(events, currentGenerators, keys, isNewData, agentInstanceContext);
         }
 
         return events;
     }
 
-    private Object[] generateGroupKeys(EventBean[] events, boolean isNewData)
-    {
-        if (events == null)
-        {
+    private Object[] generateGroupKeys(EventBean[] events, boolean isNewData) {
+        if (events == null) {
             return null;
         }
 
         EventBean[] eventsPerStream = new EventBean[1];
-        Object keys[] = new Object[events.length];
+        Object[] keys = new Object[events.length];
 
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             eventsPerStream[0] = events[i];
             keys[i] = generateGroupKey(eventsPerStream, isNewData);
         }
@@ -469,17 +451,15 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return keys;
     }
 
-    protected Object[] generateGroupKeys(EventBean[] events, Map<Object, EventBean> eventPerKey, boolean isNewData)
-    {
+    protected Object[] generateGroupKeys(EventBean[] events, Map<Object, EventBean> eventPerKey, boolean isNewData) {
         if (events == null) {
             return null;
         }
 
         EventBean[] eventsPerStream = new EventBean[1];
-        Object keys[] = new Object[events.length];
+        Object[] keys = new Object[events.length];
 
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             eventsPerStream[0] = events[i];
             keys[i] = generateGroupKey(eventsPerStream, isNewData);
             eventPerKey.put(keys[i], events[i]);
@@ -488,18 +468,15 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return keys;
     }
 
-    private Object[] generateGroupKeys(Set<MultiKey<EventBean>> resultSet, Map<Object, EventBean[]> eventPerKey, boolean isNewData)
-    {
-        if (resultSet == null || resultSet.isEmpty())
-        {
+    private Object[] generateGroupKeys(Set<MultiKey<EventBean>> resultSet, Map<Object, EventBean[]> eventPerKey, boolean isNewData) {
+        if (resultSet == null || resultSet.isEmpty()) {
             return null;
         }
 
-        Object keys[] = new Object[resultSet.size()];
+        Object[] keys = new Object[resultSet.size()];
 
         int count = 0;
-        for (MultiKey<EventBean> eventsPerStream : resultSet)
-        {
+        for (MultiKey<EventBean> eventsPerStream : resultSet) {
             keys[count] = generateGroupKey(eventsPerStream.getArray(), isNewData);
             eventPerKey.put(keys[count], eventsPerStream.getArray());
 
@@ -511,24 +488,23 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
     /**
      * Returns the optional having expression.
+     *
      * @return having expression node
      */
-    public ExprEvaluator getOptionalHavingNode()
-    {
+    public ExprEvaluator getOptionalHavingNode() {
         return prototype.getOptionalHavingNode();
     }
 
     /**
      * Returns the select expression processor
+     *
      * @return select processor.
      */
-    public SelectExprProcessor getSelectExprProcessor()
-    {
+    public SelectExprProcessor getSelectExprProcessor() {
         return selectExprProcessor;
     }
 
-    public Iterator<EventBean> getIterator(Viewable parent)
-    {
+    public Iterator<EventBean> getIterator(Viewable parent) {
         if (!prototype.isHistoricalOnly()) {
             return obtainIterator(parent);
         }
@@ -536,7 +512,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         aggregationService.clearResults(agentInstanceContext);
         Iterator<EventBean> it = parent.iterator();
         EventBean[] eventsPerStream = new EventBean[1];
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             eventsPerStream[0] = it.next();
             Object groupKey = generateGroupKey(eventsPerStream, true);
             aggregationService.applyEnter(eventsPerStream, groupKey, agentInstanceContext);
@@ -547,10 +523,8 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return deque.iterator();
     }
 
-    public Iterator<EventBean> obtainIterator(Viewable parent)
-    {
-        if (orderByProcessor == null)
-        {
+    public Iterator<EventBean> obtainIterator(Viewable parent) {
+        if (orderByProcessor == null) {
             return new ResultSetRowPerGroupIterator(parent.iterator(), this, aggregationService, agentInstanceContext);
         }
         return getIteratorSorted(parent.iterator());
@@ -564,24 +538,26 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         List<Object> orderKeys = new ArrayList<Object>();
         Set<Object> priorSeenGroups = new HashSet<Object>();
 
-        for (;parentIter.hasNext();) {
+        for (; parentIter.hasNext(); ) {
             EventBean candidate = parentIter.next();
             eventsPerStream[0] = candidate;
 
             Object groupKey = generateGroupKey(eventsPerStream, true);
             aggregationService.setCurrentAccess(groupKey, agentInstanceContext.getAgentInstanceId(), null);
 
-            if (prototype.getOptionalHavingNode() != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(candidate);}
+            if (prototype.getOptionalHavingNode() != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseNonJoin(candidate);
+                }
                 Boolean pass = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStream, true, agentInstanceContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(pass);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseNonJoin(pass);
+                }
                 if ((pass == null) || (!pass)) {
                     continue;
                 }
             }
-            if (priorSeenGroups.contains(groupKey))
-            {
+            if (priorSeenGroups.contains(groupKey)) {
                 continue;
             }
             priorSeenGroups.add(groupKey);
@@ -600,48 +576,38 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
         return new ArrayEventIterator(orderedEvents);
     }
 
-    public Iterator<EventBean> getIterator(Set<MultiKey<EventBean>> joinSet)
-    {
+    public Iterator<EventBean> getIterator(Set<MultiKey<EventBean>> joinSet) {
         Map<Object, EventBean[]> keysAndEvents = new HashMap<Object, EventBean[]>();
         generateGroupKeys(joinSet, keysAndEvents, true);
         EventBean[] selectNewEvents = generateOutputEventsJoin(keysAndEvents, true, true);
         return new ArrayEventIterator(selectNewEvents);
     }
 
-    public void clear()
-    {
+    public void clear() {
         aggregationService.clearResults(agentInstanceContext);
     }
 
-    public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
-    {
+    public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType) {
         if (outputLimitLimitType == OutputLimitLimitType.DEFAULT) {
             return processOutputLimitedJoinDefault(joinEventsSet, generateSynthetic);
-        }
-        else if (outputLimitLimitType == OutputLimitLimitType.ALL) {
+        } else if (outputLimitLimitType == OutputLimitLimitType.ALL) {
             return processOutputLimitedJoinAll(joinEventsSet, generateSynthetic);
-        }
-        else if (outputLimitLimitType == OutputLimitLimitType.FIRST) {
+        } else if (outputLimitLimitType == OutputLimitLimitType.FIRST) {
             return processOutputLimitedJoinFirst(joinEventsSet, generateSynthetic);
-        }
-        else if (outputLimitLimitType == OutputLimitLimitType.LAST) {
+        } else if (outputLimitLimitType == OutputLimitLimitType.LAST) {
             return processOutputLimitedJoinLast(joinEventsSet, generateSynthetic);
         }
         throw new IllegalStateException("Unrecognized output limit type " + outputLimitLimitType);
     }
 
-    public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
-    {
+    public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType) {
         if (outputLimitLimitType == OutputLimitLimitType.DEFAULT) {
             return processOutputLimitedViewDefault(viewEventsList, generateSynthetic);
-        }
-        else if (outputLimitLimitType == OutputLimitLimitType.ALL) {
+        } else if (outputLimitLimitType == OutputLimitLimitType.ALL) {
             return processOutputLimitedViewAll(viewEventsList, generateSynthetic);
-        }
-        else if (outputLimitLimitType == OutputLimitLimitType.FIRST) {
+        } else if (outputLimitLimitType == OutputLimitLimitType.FIRST) {
             return processOutputLimitedViewFirst(viewEventsList, generateSynthetic);
-        }
-        else if (outputLimitLimitType == OutputLimitLimitType.LAST) {
+        } else if (outputLimitLimitType == OutputLimitLimitType.LAST) {
             return processOutputLimitedViewLast(viewEventsList, generateSynthetic);
         }
         throw new IllegalStateException("Unrecognized output limit type " + outputLimitLimitType);
@@ -672,8 +638,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
             Object keyObject;
             if (prototype.getGroupKeyNode() != null) {
                 keyObject = prototype.getGroupKeyNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-            }
-            else {
+            } else {
                 ExprEvaluator[] evals = prototype.getGroupKeyNodes();
                 Object[] keys = new Object[evals.length];
                 for (int i = 0; i < evals.length; i++) {
@@ -688,8 +653,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         if (prototype.getGroupKeyNode() != null) {
             return prototype.getGroupKeyNode().evaluate(eventsPerStream, isNewData, agentInstanceContext);
-        }
-        else {
+        } else {
             ExprEvaluator[] evals = prototype.getGroupKeyNodes();
             Object[] keys = new Object[evals.length];
             for (int i = 0; i < evals.length; i++) {
@@ -702,8 +666,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     public void processOutputLimitedLastAllNonBufferedView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic, boolean isAll) {
         if (isAll) {
             outputAllHelper.processView(newData, oldData, isGenerateSynthetic);
-        }
-        else {
+        } else {
             outputLastHelper.processView(newData, oldData, isGenerateSynthetic);
         }
     }
@@ -711,8 +674,7 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     public void processOutputLimitedLastAllNonBufferedJoin(Set<MultiKey<EventBean>> newData, Set<MultiKey<EventBean>> oldData, boolean isGenerateSynthetic, boolean isAll) {
         if (isAll) {
             outputAllHelper.processJoin(newData, oldData, isGenerateSynthetic);
-        }
-        else {
+        } else {
             outputLastHelper.processJoin(newData, oldData, isGenerateSynthetic);
         }
     }
@@ -768,62 +730,49 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedJoinLast(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
         Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
-        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-        {
+        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet) {
             Set<MultiKey<EventBean>> newData = pair.getFirst();
             Set<MultiKey<EventBean>> oldData = pair.getSecond();
 
-            if (prototype.isUnidirectional())
-            {
+            if (prototype.isUnidirectional()) {
                 this.clear();
             }
 
-            if (newData != null)
-            {
+            if (newData != null) {
                 // apply new data to aggregates
-                for (MultiKey<EventBean> aNewData : newData)
-                {
+                for (MultiKey<EventBean> aNewData : newData) {
                     Object mk = generateGroupKey(aNewData.getArray(), true);
 
                     // if this is a newly encountered group, generate the remove stream event
-                    if (groupRepsView.put(mk, aNewData.getArray()) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (groupRepsView.put(mk, aNewData.getArray()) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
                     aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
                 }
             }
-            if (oldData != null)
-            {
+            if (oldData != null) {
                 // apply old data to aggregates
-                for (MultiKey<EventBean> anOldData : oldData)
-                {
+                for (MultiKey<EventBean> anOldData : oldData) {
                     Object mk = generateGroupKey(anOldData.getArray(), true);
 
-                    if (groupRepsView.put(mk, anOldData.getArray()) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (groupRepsView.put(mk, anOldData.getArray()) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
@@ -837,25 +786,21 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
 
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -864,43 +809,35 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedJoinFirst(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
         Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
         if (prototype.getOptionalHavingNode() == null) {
-            for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-            {
+            for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet) {
                 Set<MultiKey<EventBean>> newData = pair.getFirst();
                 Set<MultiKey<EventBean>> oldData = pair.getSecond();
 
-                if (newData != null)
-                {
+                if (newData != null) {
                     // apply new data to aggregates
-                    for (MultiKey<EventBean> aNewData : newData)
-                    {
+                    for (MultiKey<EventBean> aNewData : newData) {
                         Object mk = generateGroupKey(aNewData.getArray(), true);
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             // if this is a newly encountered group, generate the remove stream event
-                            if (groupRepsView.put(mk, aNewData.getArray()) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            if (groupRepsView.put(mk, aNewData.getArray()) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -908,19 +845,15 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
                     }
                 }
-                if (oldData != null)
-                {
+                if (oldData != null) {
                     // apply old data to aggregates
-                    for (MultiKey<EventBean> anOldData : oldData)
-                    {
+                    for (MultiKey<EventBean> anOldData : oldData) {
                         Object mk = generateGroupKey(anOldData.getArray(), true);
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
-                            if (groupRepsView.put(mk, anOldData.getArray()) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            if (groupRepsView.put(mk, anOldData.getArray()) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -930,53 +863,48 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     }
                 }
             }
-        }
-        else {
+        } else {
             groupRepsView.clear();
-            for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-            {
+            for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet) {
                 Set<MultiKey<EventBean>> newData = pair.getFirst();
                 Set<MultiKey<EventBean>> oldData = pair.getSecond();
 
                 Object[] newDataMultiKey = generateGroupKeys(newData, true);
                 Object[] oldDataMultiKey = generateGroupKeys(oldData, false);
 
-                if (newData != null)
-                {
+                if (newData != null) {
                     // apply new data to aggregates
                     int count = 0;
-                    for (MultiKey<EventBean> aNewData : newData)
-                    {
+                    for (MultiKey<EventBean> aNewData : newData) {
                         aggregationService.applyEnter(aNewData.getArray(), newDataMultiKey[count], agentInstanceContext);
                         count++;
                     }
                 }
-                if (oldData != null)
-                {
+                if (oldData != null) {
                     // apply old data to aggregates
                     int count = 0;
-                    for (MultiKey<EventBean> anOldData : oldData)
-                    {
+                    for (MultiKey<EventBean> anOldData : oldData) {
                         aggregationService.applyLeave(anOldData.getArray(), oldDataMultiKey[count], agentInstanceContext);
                         count++;
                     }
                 }
 
                 // evaluate having-clause
-                if (newData != null)
-                {
+                if (newData != null) {
                     int count = 0;
-                    for (MultiKey<EventBean> aNewData : newData)
-                    {
+                    for (MultiKey<EventBean> aNewData : newData) {
                         Object mk = newDataMultiKey[count];
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(aNewData.getArray());}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().qHavingClauseJoin(aNewData.getArray());
+                        }
                         Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(aNewData.getArray(), true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(result);}
-                        if ((result == null) || (!result))
-                        {
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aHavingClauseJoin(result);
+                        }
+                        if ((result == null) || (!result)) {
                             count++;
                             continue;
                         }
@@ -984,10 +912,8 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
-                            if (groupRepsView.put(mk, aNewData.getArray()) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            if (groupRepsView.put(mk, aNewData.getArray()) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -997,20 +923,21 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                 }
 
                 // evaluate having-clause
-                if (oldData != null)
-                {
+                if (oldData != null) {
                     int count = 0;
-                    for (MultiKey<EventBean> anOldData : oldData)
-                    {
+                    for (MultiKey<EventBean> anOldData : oldData) {
                         Object mk = oldDataMultiKey[count];
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(anOldData.getArray());}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().qHavingClauseJoin(anOldData.getArray());
+                        }
                         Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(anOldData.getArray(), false, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(result);}
-                        if ((result == null) || (!result))
-                        {
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aHavingClauseJoin(result);
+                        }
+                        if ((result == null) || (!result)) {
                             count++;
                             continue;
                         }
@@ -1018,10 +945,8 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
-                            if (groupRepsView.put(mk, anOldData.getArray()) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            if (groupRepsView.put(mk, anOldData.getArray()) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -1036,24 +961,20 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -1062,66 +983,52 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedJoinAll(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             generateOutputBatchedArr(true, outputAllGroupReps.entryIterator(), false, generateSynthetic, oldEvents, oldEventsSortKey);
         }
 
-        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-        {
+        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet) {
             Set<MultiKey<EventBean>> newData = pair.getFirst();
             Set<MultiKey<EventBean>> oldData = pair.getSecond();
 
-            if (prototype.isUnidirectional())
-            {
+            if (prototype.isUnidirectional()) {
                 this.clear();
             }
 
-            if (newData != null)
-            {
+            if (newData != null) {
                 // apply new data to aggregates
-                for (MultiKey<EventBean> aNewData : newData)
-                {
+                for (MultiKey<EventBean> aNewData : newData) {
                     Object mk = generateGroupKey(aNewData.getArray(), true);
 
                     // if this is a newly encountered group, generate the remove stream event
-                    if (outputAllGroupReps.put(mk, aNewData.getArray()) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (outputAllGroupReps.put(mk, aNewData.getArray()) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(true, mk, aNewData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
                     aggregationService.applyEnter(aNewData.getArray(), mk, agentInstanceContext);
                 }
             }
-            if (oldData != null)
-            {
+            if (oldData != null) {
                 // apply old data to aggregates
-                for (MultiKey<EventBean> anOldData : oldData)
-                {
+                for (MultiKey<EventBean> anOldData : oldData) {
                     Object mk = generateGroupKey(anOldData.getArray(), true);
 
-                    if (outputAllGroupReps.put(mk, anOldData.getArray()) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (outputAllGroupReps.put(mk, anOldData.getArray()) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(true, mk, anOldData.getArray(), false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
@@ -1135,24 +1042,20 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -1161,59 +1064,49 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedJoinDefault(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
         Map<Object, EventBean[]> keysAndEvents = new HashMap<Object, EventBean[]>();
 
-        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet)
-        {
+        for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet) {
             Set<MultiKey<EventBean>> newData = pair.getFirst();
             Set<MultiKey<EventBean>> oldData = pair.getSecond();
 
-            if (prototype.isUnidirectional())
-            {
+            if (prototype.isUnidirectional()) {
                 this.clear();
             }
 
             Object[] newDataMultiKey = generateGroupKeys(newData, keysAndEvents, true);
             Object[] oldDataMultiKey = generateGroupKeys(oldData, keysAndEvents, false);
 
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 generateOutputBatchedArr(true, keysAndEvents.entrySet().iterator(), false, generateSynthetic, oldEvents, oldEventsSortKey);
             }
 
-            if (newData != null)
-            {
+            if (newData != null) {
                 // apply new data to aggregates
                 int count = 0;
-                for (MultiKey<EventBean> aNewData : newData)
-                {
+                for (MultiKey<EventBean> aNewData : newData) {
                     aggregationService.applyEnter(aNewData.getArray(), newDataMultiKey[count], agentInstanceContext);
                     count++;
                 }
             }
-            if (oldData != null)
-            {
+            if (oldData != null) {
                 // apply old data to aggregates
                 int count = 0;
-                for (MultiKey<EventBean> anOldData : oldData)
-                {
+                for (MultiKey<EventBean> anOldData : oldData) {
                     aggregationService.applyLeave(anOldData.getArray(), oldDataMultiKey[count], agentInstanceContext);
                     count++;
                 }
@@ -1226,24 +1119,20 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -1252,59 +1141,47 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedViewLast(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
         Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
-        for (UniformPair<EventBean[]> pair : viewEventsList)
-        {
+        for (UniformPair<EventBean[]> pair : viewEventsList) {
             EventBean[] newData = pair.getFirst();
             EventBean[] oldData = pair.getSecond();
 
-            if (newData != null)
-            {
+            if (newData != null) {
                 // apply new data to aggregates
-                for (EventBean aNewData : newData)
-                {
-                    EventBean[] eventsPerStream = new EventBean[] {aNewData};
+                for (EventBean aNewData : newData) {
+                    EventBean[] eventsPerStream = new EventBean[]{aNewData};
                     Object mk = generateGroupKey(eventsPerStream, true);
 
                     // if this is a newly encountered group, generate the remove stream event
-                    if (groupRepsView.put(mk, eventsPerStream) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (groupRepsView.put(mk, eventsPerStream) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
                     aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
                 }
             }
-            if (oldData != null)
-            {
+            if (oldData != null) {
                 // apply old data to aggregates
-                for (EventBean anOldData : oldData)
-                {
-                    EventBean[] eventsPerStream = new EventBean[] {anOldData};
+                for (EventBean anOldData : oldData) {
+                    EventBean[] eventsPerStream = new EventBean[]{anOldData};
                     Object mk = generateGroupKey(eventsPerStream, true);
 
-                    if (groupRepsView.put(mk, eventsPerStream) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (groupRepsView.put(mk, eventsPerStream) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
@@ -1318,24 +1195,20 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -1344,44 +1217,36 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedViewFirst(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
         Map<Object, EventBean[]> groupRepsView = new LinkedHashMap<Object, EventBean[]>();
         if (prototype.getOptionalHavingNode() == null) {
-            for (UniformPair<EventBean[]> pair : viewEventsList)
-            {
+            for (UniformPair<EventBean[]> pair : viewEventsList) {
                 EventBean[] newData = pair.getFirst();
                 EventBean[] oldData = pair.getSecond();
 
-                if (newData != null)
-                {
+                if (newData != null) {
                     // apply new data to aggregates
-                    for (EventBean aNewData : newData)
-                    {
-                        EventBean[] eventsPerStream = new EventBean[] {aNewData};
+                    for (EventBean aNewData : newData) {
+                        EventBean[] eventsPerStream = new EventBean[]{aNewData};
                         Object mk = generateGroupKey(eventsPerStream, true);
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(1, 0);
                         if (pass) {
                             // if this is a newly encountered group, generate the remove stream event
-                            if (groupRepsView.put(mk, eventsPerStream) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            if (groupRepsView.put(mk, eventsPerStream) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -1389,20 +1254,16 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                         aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
                     }
                 }
-                if (oldData != null)
-                {
+                if (oldData != null) {
                     // apply old data to aggregates
-                    for (EventBean anOldData : oldData)
-                    {
-                        EventBean[] eventsPerStream = new EventBean[] {anOldData};
+                    for (EventBean anOldData : oldData) {
+                        EventBean[] eventsPerStream = new EventBean[]{anOldData};
                         Object mk = generateGroupKey(eventsPerStream, true);
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
-                            if (groupRepsView.put(mk, eventsPerStream) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            if (groupRepsView.put(mk, eventsPerStream) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -1412,62 +1273,55 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                     }
                 }
             }
-        }
-        else { // having clause present, having clause evaluates at the level of individual posts
+        } else { // having clause present, having clause evaluates at the level of individual posts
             EventBean[] eventsPerStreamOneStream = new EventBean[1];
-            for (UniformPair<EventBean[]> pair : viewEventsList)
-            {
+            for (UniformPair<EventBean[]> pair : viewEventsList) {
                 EventBean[] newData = pair.getFirst();
                 EventBean[] oldData = pair.getSecond();
 
                 Object[] newDataMultiKey = generateGroupKeys(newData, true);
                 Object[] oldDataMultiKey = generateGroupKeys(oldData, false);
 
-                if (newData != null)
-                {
+                if (newData != null) {
                     // apply new data to aggregates
-                    for (int i = 0; i < newData.length; i++)
-                    {
+                    for (int i = 0; i < newData.length; i++) {
                         eventsPerStreamOneStream[0] = newData[i];
                         aggregationService.applyEnter(eventsPerStreamOneStream, newDataMultiKey[i], agentInstanceContext);
                     }
                 }
-                if (oldData != null)
-                {
+                if (oldData != null) {
                     // apply old data to aggregates
-                    for (int i = 0; i < oldData.length; i++)
-                    {
+                    for (int i = 0; i < oldData.length; i++) {
                         eventsPerStreamOneStream[0] = oldData[i];
                         aggregationService.applyLeave(eventsPerStreamOneStream, oldDataMultiKey[i], agentInstanceContext);
                     }
                 }
 
                 // evaluate having-clause
-                if (newData != null)
-                {
-                    for (int i = 0; i < newData.length; i++)
-                    {
+                if (newData != null) {
+                    for (int i = 0; i < newData.length; i++) {
                         Object mk = newDataMultiKey[i];
                         eventsPerStreamOneStream[0] = newData[i];
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(newData[i]);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().qHavingClauseNonJoin(newData[i]);
+                        }
                         Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStreamOneStream, true, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(result);}
-                        if ((result == null) || (!result))
-                        {
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aHavingClauseNonJoin(result);
+                        }
+                        if ((result == null) || (!result)) {
                             continue;
                         }
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
-                            EventBean[] eventsPerStream = new EventBean[] {newData[i]};
-                            if (groupRepsView.put(mk, eventsPerStream) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            EventBean[] eventsPerStream = new EventBean[]{newData[i]};
+                            if (groupRepsView.put(mk, eventsPerStream) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(false, mk, eventsPerStream, true, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -1476,31 +1330,30 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
                 }
 
                 // evaluate having-clause
-                if (oldData != null)
-                {
-                    for (int i = 0; i < oldData.length; i++)
-                    {
+                if (oldData != null) {
+                    for (int i = 0; i < oldData.length; i++) {
                         Object mk = oldDataMultiKey[i];
                         eventsPerStreamOneStream[0] = oldData[i];
                         aggregationService.setCurrentAccess(mk, agentInstanceContext.getAgentInstanceId(), null);
 
                         // Filter the having clause
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(oldData[i]);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().qHavingClauseNonJoin(oldData[i]);
+                        }
                         Boolean result = (Boolean) prototype.getOptionalHavingNode().evaluate(eventsPerStreamOneStream, false, agentInstanceContext);
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(result);}
-                        if ((result == null) || (!result))
-                        {
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aHavingClauseNonJoin(result);
+                        }
+                        if ((result == null) || (!result)) {
                             continue;
                         }
 
                         OutputConditionPolled outputStateGroup = outputFirstHelper.getOrAllocate(mk, agentInstanceContext, prototype.getOptionalOutputFirstConditionFactory());
                         boolean pass = outputStateGroup.updateOutputCondition(0, 1);
                         if (pass) {
-                            EventBean[] eventsPerStream = new EventBean[] {oldData[i]};
-                            if (groupRepsView.put(mk, eventsPerStream) == null)
-                            {
-                                if (prototype.isSelectRStream())
-                                {
+                            EventBean[] eventsPerStream = new EventBean[]{oldData[i]};
+                            if (groupRepsView.put(mk, eventsPerStream) == null) {
+                                if (prototype.isSelectRStream()) {
                                     generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                                 }
                             }
@@ -1514,24 +1367,20 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -1542,63 +1391,50 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             generateOutputBatchedArr(false, outputAllGroupReps.entryIterator(), false, generateSynthetic, oldEvents, oldEventsSortKey);
         }
 
-        for (UniformPair<EventBean[]> pair : viewEventsList)
-        {
+        for (UniformPair<EventBean[]> pair : viewEventsList) {
             EventBean[] newData = pair.getFirst();
             EventBean[] oldData = pair.getSecond();
 
-            if (newData != null)
-            {
+            if (newData != null) {
                 // apply new data to aggregates
-                for (EventBean aNewData : newData)
-                {
+                for (EventBean aNewData : newData) {
                     eventsPerStream[0] = aNewData;
                     Object mk = generateGroupKey(eventsPerStream, true);
 
                     // if this is a newly encountered group, generate the remove stream event
-                    if (outputAllGroupReps.put(mk, new EventBean[] {aNewData}) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (outputAllGroupReps.put(mk, new EventBean[]{aNewData}) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
                     aggregationService.applyEnter(eventsPerStream, mk, agentInstanceContext);
                 }
             }
-            if (oldData != null)
-            {
+            if (oldData != null) {
                 // apply old data to aggregates
-                for (EventBean anOldData : oldData)
-                {
+                for (EventBean anOldData : oldData) {
                     eventsPerStream[0] = anOldData;
                     Object mk = generateGroupKey(eventsPerStream, true);
 
-                    if (outputAllGroupReps.put(mk, new EventBean[] {anOldData}) == null)
-                    {
-                        if (prototype.isSelectRStream())
-                        {
+                    if (outputAllGroupReps.put(mk, new EventBean[]{anOldData}) == null) {
+                        if (prototype.isSelectRStream()) {
                             generateOutputBatchedRow(false, mk, eventsPerStream, false, generateSynthetic, oldEvents, oldEventsSortKey);
                         }
                     }
@@ -1612,24 +1448,20 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
@@ -1638,55 +1470,46 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
     private UniformPair<EventBean[]> processOutputLimitedViewDefault(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic) {
         List<EventBean> newEvents = new LinkedList<EventBean>();
         List<EventBean> oldEvents = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEvents = new LinkedList<EventBean>();
         }
 
         List<Object> newEventsSortKey = null;
         List<Object> oldEventsSortKey = null;
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             newEventsSortKey = new LinkedList<Object>();
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 oldEventsSortKey = new LinkedList<Object>();
             }
         }
 
         Map<Object, EventBean> keysAndEvents = new HashMap<Object, EventBean>();
 
-        for (UniformPair<EventBean[]> pair : viewEventsList)
-        {
+        for (UniformPair<EventBean[]> pair : viewEventsList) {
             EventBean[] newData = pair.getFirst();
             EventBean[] oldData = pair.getSecond();
 
             Object[] newDataMultiKey = generateGroupKeys(newData, keysAndEvents, true);
             Object[] oldDataMultiKey = generateGroupKeys(oldData, keysAndEvents, false);
 
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 generateOutputBatchedRow(keysAndEvents, false, generateSynthetic, oldEvents, oldEventsSortKey, agentInstanceContext);
             }
 
             EventBean[] eventsPerStream = new EventBean[1];
-            if (newData != null)
-            {
+            if (newData != null) {
                 // apply new data to aggregates
                 int count = 0;
-                for (EventBean aNewData : newData)
-                {
+                for (EventBean aNewData : newData) {
                     eventsPerStream[0] = aNewData;
                     aggregationService.applyEnter(eventsPerStream, newDataMultiKey[count], agentInstanceContext);
                     count++;
                 }
             }
-            if (oldData != null)
-            {
+            if (oldData != null) {
                 // apply old data to aggregates
                 int count = 0;
-                for (EventBean anOldData : oldData)
-                {
+                for (EventBean anOldData : oldData) {
                     eventsPerStream[0] = anOldData;
                     aggregationService.applyLeave(eventsPerStream, oldDataMultiKey[count], agentInstanceContext);
                     count++;
@@ -1700,41 +1523,34 @@ public class ResultSetProcessorRowPerGroup implements ResultSetProcessor, Aggreg
 
         EventBean[] newEventsArr = (newEvents.isEmpty()) ? null : newEvents.toArray(new EventBean[newEvents.size()]);
         EventBean[] oldEventsArr = null;
-        if (prototype.isSelectRStream())
-        {
+        if (prototype.isSelectRStream()) {
             oldEventsArr = (oldEvents.isEmpty()) ? null : oldEvents.toArray(new EventBean[oldEvents.size()]);
         }
 
-        if (orderByProcessor != null)
-        {
+        if (orderByProcessor != null) {
             Object[] sortKeysNew = (newEventsSortKey.isEmpty()) ? null : newEventsSortKey.toArray(new Object[newEventsSortKey.size()]);
             newEventsArr = orderByProcessor.sort(newEventsArr, sortKeysNew, agentInstanceContext);
-            if (prototype.isSelectRStream())
-            {
+            if (prototype.isSelectRStream()) {
                 Object[] sortKeysOld = (oldEventsSortKey.isEmpty()) ? null : oldEventsSortKey.toArray(new Object[oldEventsSortKey.size()]);
                 oldEventsArr = orderByProcessor.sort(oldEventsArr, sortKeysOld, agentInstanceContext);
             }
         }
 
-        if ((newEventsArr == null) && (oldEventsArr == null))
-        {
+        if ((newEventsArr == null) && (oldEventsArr == null)) {
             return null;
         }
         return new UniformPair<EventBean[]>(newEventsArr, oldEventsArr);
     }
 
-    private Object[] generateGroupKeys(Set<MultiKey<EventBean>> resultSet, boolean isNewData)
-    {
-        if (resultSet.isEmpty())
-        {
+    private Object[] generateGroupKeys(Set<MultiKey<EventBean>> resultSet, boolean isNewData) {
+        if (resultSet.isEmpty()) {
             return null;
         }
 
-        Object keys[] = new Object[resultSet.size()];
+        Object[] keys = new Object[resultSet.size()];
 
         int count = 0;
-        for (MultiKey<EventBean> eventsPerStream : resultSet)
-        {
+        for (MultiKey<EventBean> eventsPerStream : resultSet) {
             keys[count] = generateGroupKey(eventsPerStream.getArray(), isNewData);
             count++;
         }

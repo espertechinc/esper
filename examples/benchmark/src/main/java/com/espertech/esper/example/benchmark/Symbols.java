@@ -39,7 +39,7 @@ public class Symbols {
         SIZE = LENGTH * Character.SIZE;
     }
 
-    public static final String SYMBOLS[];
+    public static final String[] SYMBOLS;
 
     public static double nextPrice(double theBase) {
         int percentVar = RAND.nextInt(9) + 1;

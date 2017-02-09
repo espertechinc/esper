@@ -45,8 +45,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
     private ExprEvaluator evalIncludeHigh;
 
     public ReformatOpBetweenNonConstantParams(List<ExprNode> parameters, TimeZone timeZone)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.timeZone = timeZone;
         start = parameters.get(0);
         startEval = start.getExprEvaluator();
@@ -59,18 +58,15 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
             includeBoth = true;
             includeLow = true;
             includeHigh = true;
-        }
-        else {
+        } else {
             if (parameters.get(2).isConstantResult()) {
                 includeLow = getBooleanValue(parameters.get(2));
-            }
-            else {
+            } else {
                 evalIncludeLow = parameters.get(2).getExprEvaluator();
             }
             if (parameters.get(3).isConstantResult()) {
                 includeHigh = getBooleanValue(parameters.get(3));
-            }
-            else {
+            } else {
                 evalIncludeHigh = parameters.get(3).getExprEvaluator();
             }
             if (includeLow != null && includeHigh != null && includeLow && includeHigh) {
@@ -80,8 +76,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
     }
 
     private boolean getBooleanValue(ExprNode exprNode)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Object value = exprNode.getExprEvaluator().evaluate(null, true, null);
         if (value == null) {
             throw new ExprValidationException("Date-time method 'between' requires non-null parameter values");
@@ -136,18 +131,15 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
         if (includeBoth) {
             if (first <= second) {
                 return first <= ts && ts <= second;
-            }
-            else {
+            } else {
                 return second <= ts && ts <= first;
             }
-        }
-        else {
+        } else {
 
             boolean includeLowEndpoint;
             if (includeLow != null) {
                 includeLowEndpoint = includeLow;
-            }
-            else {
+            } else {
                 Object value = evalIncludeLow.evaluate(eventsPerStream, newData, exprEvaluatorContext);
                 if (value == null) {
                     return null;
@@ -159,8 +151,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
             boolean includeHighEndpoint;
             if (includeHigh != null) {
                 includeHighEndpoint = includeHigh;
-            }
-            else {
+            } else {
                 Object value = evalIncludeHigh.evaluate(eventsPerStream, newData, exprEvaluatorContext);
                 if (value == null) {
                     return null;
@@ -173,8 +164,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
                 if (ts < first) {
                     return false;
                 }
-            }
-            else {
+            } else {
                 if (ts <= first) {
                     return false;
                 }
@@ -184,8 +174,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
                 if (ts > second) {
                     return false;
                 }
-            }
-            else {
+            } else {
                 if (ts >= second) {
                     return false;
                 }
@@ -207,13 +196,11 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
             targetStreamNum = targetStream.getStreamNum();
             EventType targetType = typesPerStream[targetStreamNum];
             targetProperty = targetType.getStartTimestampPropertyName();
-        }
-        else if (inputDesc instanceof ExprDotNodeFilterAnalyzerInputProp) {
+        } else if (inputDesc instanceof ExprDotNodeFilterAnalyzerInputProp) {
             ExprDotNodeFilterAnalyzerInputProp targetStream = (ExprDotNodeFilterAnalyzerInputProp) inputDesc;
             targetStreamNum = targetStream.getStreamNum();
             targetProperty = targetStream.getPropertyName();
-        }
-        else {
+        } else {
             return null;
         }
 

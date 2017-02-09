@@ -11,17 +11,15 @@
 package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.ConfigurationDBRef;
-import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
-import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
+import com.espertech.esper.epl.db.DatabaseConfigServiceImpl;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
-public class SupportDatabaseService
-{
+public class SupportDatabaseService {
     public final static String DBNAME_FULLURL = "mydb";
     public final static String DBNAME_PARTURL = "mydb_part";
 
@@ -31,8 +29,7 @@ public class SupportDatabaseService
     public final static String FULLURL = "jdbc:mysql://localhost/test?user=root&password=password";
     public final static String PARTURL = "jdbc:mysql://localhost/test";
 
-    public static DatabaseConfigServiceImpl makeService()
-    {
+    public static DatabaseConfigServiceImpl makeService() {
         Map<String, ConfigurationDBRef> configs = new HashMap<String, ConfigurationDBRef>();
 
         ConfigurationDBRef config = new ConfigurationDBRef();

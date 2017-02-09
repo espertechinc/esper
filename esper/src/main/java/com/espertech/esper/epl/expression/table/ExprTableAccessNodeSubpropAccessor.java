@@ -25,8 +25,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode implements ExprEvaluator, ExprEvaluatorEnumeration
-{
+public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode implements ExprEvaluator, ExprEvaluatorEnumeration {
     private static final long serialVersionUID = 3355957760722481622L;
 
     private final String subpropName;
@@ -65,7 +64,7 @@ public class ExprTableAccessNodeSubpropAccessor extends ExprTableAccessNode impl
         if (column.getAccessAccessorSlotPair() == null) {
             throw new ExprValidationException("Invalid combination of aggregation state and aggregation accessor");
         }
-        ExprAggregateAccessMultiValueNode mfNode = ((ExprAggregateAccessMultiValueNode) aggregateAccessMultiValueNode);
+        ExprAggregateAccessMultiValueNode mfNode = (ExprAggregateAccessMultiValueNode) aggregateAccessMultiValueNode;
         mfNode.validatePositionals();
         accessorFactory = mfNode.validateAggregationParamsWBinding(validationContext, column);
     }

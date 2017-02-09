@@ -22,13 +22,11 @@ import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
-import com.espertech.esper.event.arr.ObjectArrayEventBean;
 
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration
-{
+public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration {
     private static final long serialVersionUID = -8308528998078977774L;
 
     private final int streamNum;

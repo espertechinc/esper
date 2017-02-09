@@ -10,53 +10,45 @@
  */
 package com.espertech.esper.supportunit.filter;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.filter.EventEvaluator;
 import com.espertech.esper.filter.FilterHandle;
-import com.espertech.esper.client.EventBean;
 
-import java.util.List;
 import java.util.Collection;
+import java.util.List;
 
-public class SupportEventEvaluator implements EventEvaluator
-{
+public class SupportEventEvaluator implements EventEvaluator {
     private int countInvoked;
     private EventBean lastEvent;
     private Collection<FilterHandle> lastMatches;
 
-    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         countInvoked++;
         lastEvent = theEvent;
         lastMatches = matches;
     }
 
-    public EventBean getLastEvent()
-    {
+    public EventBean getLastEvent() {
         return lastEvent;
     }
 
-    public Collection<FilterHandle> getLastMatches()
-    {
+    public Collection<FilterHandle> getLastMatches() {
         return lastMatches;
     }
 
-    public void setCountInvoked(int countInvoked)
-    {
+    public void setCountInvoked(int countInvoked) {
         this.countInvoked = countInvoked;
     }
 
-    public void setLastEvent(EventBean lastEvent)
-    {
+    public void setLastEvent(EventBean lastEvent) {
         this.lastEvent = lastEvent;
     }
 
-    public void setLastMatches(List<FilterHandle> lastMatches)
-    {
+    public void setLastMatches(List<FilterHandle> lastMatches) {
         this.lastMatches = lastMatches;
     }
 
-    public int getAndResetCountInvoked()
-    {
+    public int getAndResetCountInvoked() {
         int count = countInvoked;
         countInvoked = 0;
         return count;

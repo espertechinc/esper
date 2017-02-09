@@ -33,9 +33,9 @@ import java.util.Random;
 @SuppressWarnings("UnusedDeclaration")
 class ThreadLocalRandom extends Random {
     // same constants as Random, but must be redeclared because private
-    private static final long multiplier = 0x5DEECE66DL;
-    private static final long addend = 0xBL;
-    private static final long mask = (1L << 48) - 1;
+    private static final long MULTIPLIER = 0x5DEECE66DL;
+    private static final long ADDEND = 0xBL;
+    private static final long MASK = (1L << 48) - 1;
 
     /**
      * The random seed. We can't use super.seed.
@@ -57,12 +57,12 @@ class ThreadLocalRandom extends Random {
     /**
      * The actual ThreadLocal
      */
-    private static final ThreadLocal<ThreadLocalRandom> localRandom =
-            new ThreadLocal<ThreadLocalRandom>() {
-                protected ThreadLocalRandom initialValue() {
-                    return new ThreadLocalRandom();
-                }
-            };
+    private static final ThreadLocal<ThreadLocalRandom> LOCAL_RANDOM_THREAD_LOCAL =
+        new ThreadLocal<ThreadLocalRandom>() {
+            protected ThreadLocalRandom initialValue() {
+                return new ThreadLocalRandom();
+            }
+        };
 
 
     /**
@@ -79,7 +79,7 @@ class ThreadLocalRandom extends Random {
      * @return the current thread's {@code ThreadLocalRandom}
      */
     public static ThreadLocalRandom current() {
-        return localRandom.get();
+        return LOCAL_RANDOM_THREAD_LOCAL.get();
     }
 
     /**
@@ -91,11 +91,11 @@ class ThreadLocalRandom extends Random {
     public void setSeed(long seed) {
         if (initialized)
             throw new UnsupportedOperationException();
-        rnd = (seed ^ multiplier) & mask;
+        rnd = (seed ^ MULTIPLIER) & MASK;
     }
 
     protected int next(int bits) {
-        rnd = (rnd * multiplier + addend) & mask;
+        rnd = (rnd * MULTIPLIER + ADDEND) & MASK;
         return (int) (rnd >>> (48 - bits));
     }
 

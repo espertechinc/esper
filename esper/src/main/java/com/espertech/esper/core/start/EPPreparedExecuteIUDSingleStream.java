@@ -33,9 +33,8 @@ import java.util.*;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExecuteMethod
-{
-    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExecuteMethod {
+    private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
     private static final Logger log = LoggerFactory.getLogger(EPPreparedExecuteIUDSingleStream.class);
 
     protected final StatementSpecCompiled statementSpec;
@@ -50,20 +49,20 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
 
     /**
      * Ctor.
-     * @param statementSpec is a container for the definition of all statement constructs that
-     * may have been used in the statement, i.e. if defines the select clauses, insert into, outer joins etc.
-     * @param services is the service instances for dependency injection
+     *
+     * @param statementSpec    is a container for the definition of all statement constructs that
+     *                         may have been used in the statement, i.e. if defines the select clauses, insert into, outer joins etc.
+     * @param services         is the service instances for dependency injection
      * @param statementContext is statement-level information and statement services
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the preparation failed
      */
     public EPPreparedExecuteIUDSingleStream(StatementSpecCompiled statementSpec,
                                             EPServicesContext services,
                                             StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         boolean queryPlanLogging = services.getConfigSnapshot().getEngineDefaults().getLogging().isEnableQueryPlan();
         if (queryPlanLogging) {
-            queryPlanLog.info("Query plans for Fire-and-forget query '" + statementContext.getExpression() + "'");
+            QUERY_PLAN_LOG.info("Query plans for Fire-and-forget query '" + statementContext.getExpression() + "'");
         }
 
         this.hasTableAccess = statementSpec.getIntoTableSpec() != null ||
@@ -72,7 +71,7 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
             hasTableAccess = true;
         }
         if (statementSpec.getFireAndForgetSpec() instanceof FireAndForgetSpecUpdate ||
-            statementSpec.getFireAndForgetSpec() instanceof FireAndForgetSpecDelete) {
+                statementSpec.getFireAndForgetSpec() instanceof FireAndForgetSpecDelete) {
             hasTableAccess |= statementSpec.getStreamSpecs()[0] instanceof TableQueryStreamSpec;
         }
 
@@ -98,7 +97,7 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
         }
 
         // compile filter to optimize access to named window
-        StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[] {eventType}, new String[] {aliasName}, new boolean[] {true}, services.getEngineURI(), true);
+        StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{aliasName}, new boolean[]{true}, services.getEngineURI(), true);
         FilterSpecCompiled filter;
         if (statementSpec.getFilterRootNode() != null) {
             LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
@@ -108,14 +107,12 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
                         Collections.singletonList(statementSpec.getFilterRootNode()), null,
                         tagged, tagged, typeService,
                         null, statementContext, Collections.singleton(0));
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
                 filterCompiled = null;
             }
             filter = filterCompiled;
-        }
-        else {
+        } else {
             filter = null;
         }
 
@@ -128,19 +125,19 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
 
     /**
      * Returns the event type of the prepared statement.
+     *
      * @return event type
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return processor.getEventTypeResultSetProcessor();
     }
 
     /**
      * Executes the prepared query.
+     *
      * @return query results
      */
-    public EPPreparedQueryResult execute(ContextPartitionSelector[] contextPartitionSelectors)
-    {
+    public EPPreparedQueryResult execute(ContextPartitionSelector[] contextPartitionSelectors) {
         try {
             if (contextPartitionSelectors != null && contextPartitionSelectors.length != 1) {
                 throw new IllegalArgumentException("Number of context partition selectors must be one");
@@ -149,8 +146,8 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
 
             // validate context
             if (processor.getContextName() != null &&
-                statementSpec.getOptionalContextName() != null &&
-                !processor.getContextName().equals(statementSpec.getOptionalContextName())) {
+                    statementSpec.getOptionalContextName() != null &&
+                    !processor.getContextName().equals(statementSpec.getOptionalContextName())) {
                 throw new EPException("Context for named window is '" + processor.getContextName() + "' and query specifies context '" + statementSpec.getOptionalContextName() + "'");
             }
 
@@ -196,8 +193,7 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
                 dispatch();
             }
             return new EPPreparedQueryResult(processor.getEventTypeResultSetProcessor(), allRows.toArray(new EventBean[allRows.size()]));
-        }
-        finally {
+        } finally {
             if (hasTableAccess) {
                 services.getTableService().getTableExprEvaluatorContext().releaseAcquiredLocks();
             }

@@ -12,9 +12,12 @@ package com.espertech.esper.event.avro;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.event.*;
 import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventBeanManufacturer;
+import com.espertech.esper.event.EventTypeMetadata;
+import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.util.TypeWidenerCustomizer;
 
 import java.lang.annotation.Annotation;

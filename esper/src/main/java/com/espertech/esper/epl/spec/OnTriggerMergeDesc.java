@@ -15,10 +15,9 @@ import java.util.List;
 /**
  * Specification for the merge statement.
  */
-public class OnTriggerMergeDesc extends OnTriggerWindowDesc
-{
+public class OnTriggerMergeDesc extends OnTriggerWindowDesc {
     private static final long serialVersionUID = 3388811105339812571L;
-    
+
     private List<OnTriggerMergeMatched> items;
 
     public OnTriggerMergeDesc(String windowName, String optionalAsName, List<OnTriggerMergeMatched> items) {

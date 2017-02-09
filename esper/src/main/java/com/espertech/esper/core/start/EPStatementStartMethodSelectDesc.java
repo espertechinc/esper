@@ -18,8 +18,7 @@ import com.espertech.esper.epl.core.ViewResourceDelegateUnverified;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodSelectDesc
-{
+public class EPStatementStartMethodSelectDesc {
     private final StatementAgentInstanceFactorySelect statementAgentInstanceFactorySelect;
     private final SubSelectStrategyCollection subSelectStrategyCollection;
     private final ViewResourceDelegateUnverified viewResourceDelegateUnverified;

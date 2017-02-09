@@ -22,8 +22,7 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 /**
  * A view that handles the "output snapshot" keyword in output rate stabilizing.
  */
-public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDistinctOrAfterFactory
-{
+public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDistinctOrAfterFactory {
     private final OutputConditionFactory outputConditionFactory;
     private final int streamCount;
     private final ConditionType conditionType;
@@ -53,12 +52,9 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
         // determine after-stuff
         boolean isAfterConditionSatisfied = true;
         Long afterConditionTime = null;
-        if (afterConditionNumberOfEvents != null)
-        {
+        if (afterConditionNumberOfEvents != null) {
             isAfterConditionSatisfied = false;
-        }
-        else if (afterTimePeriod != null)
-        {
+        } else if (afterTimePeriod != null) {
             isAfterConditionSatisfied = false;
             long delta = afterTimePeriod.nonconstEvaluator().deltaUseEngineTime(null, agentInstanceContext);
             afterConditionTime = agentInstanceContext.getStatementContext().getTimeProvider().getTime() + delta;
@@ -70,22 +66,19 @@ public class OutputProcessViewConditionFactory extends OutputProcessViewDirectDi
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
             return new OutputProcessViewConditionSnapshotPostProcess(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
-        }
-        else if (conditionType == ConditionType.POLICY_FIRST) {
+        } else if (conditionType == ConditionType.POLICY_FIRST) {
             if (super.postProcessFactory == null) {
                 return new OutputProcessViewConditionFirst(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
             return new OutputProcessViewConditionFirstPostProcess(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
-        }
-        else if (conditionType == ConditionType.POLICY_LASTALL_UNORDERED) {
+        } else if (conditionType == ConditionType.POLICY_LASTALL_UNORDERED) {
             if (super.postProcessFactory == null) {
                 return new OutputProcessViewConditionLastAllUnord(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext);
             }
             OutputStrategyPostProcess postProcess = postProcessFactory.make(agentInstanceContext);
             return new OutputProcessViewConditionLastAllUnordPostProcessAll(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, postProcess);
-        }
-        else {
+        } else {
             if (super.postProcessFactory == null) {
                 return new OutputProcessViewConditionDefault(resultSetProcessorHelperFactory, resultSetProcessor, afterConditionTime, afterConditionNumberOfEvents, isAfterConditionSatisfied, this, agentInstanceContext, streamCount > 1);
             }

@@ -37,6 +37,7 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Copy annotation values.
+     *
      * @param other to copy
      */
     public void copy(AnnotationPart other) {
@@ -46,24 +47,25 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Returns the internal expression id assigned for tools to identify the expression.
+     *
      * @return object name
      */
-    public String getTreeObjectName()
-    {
+    public String getTreeObjectName() {
         return treeObjectName;
     }
 
     /**
      * Sets an internal expression id assigned for tools to identify the expression.
+     *
      * @param treeObjectName object name
      */
-    public void setTreeObjectName(String treeObjectName)
-    {
+    public void setTreeObjectName(String treeObjectName) {
         this.treeObjectName = treeObjectName;
     }
 
     /**
      * Ctor.
+     *
      * @param name of annotation
      */
     public AnnotationPart(String name) {
@@ -72,26 +74,27 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Ctor.
-     * @param name name of annotation
+     *
+     * @param name       name of annotation
      * @param attributes are the attribute values
      */
-    public AnnotationPart(String name, List<AnnotationAttribute> attributes)
-    {
+    public AnnotationPart(String name, List<AnnotationAttribute> attributes) {
         this.name = name;
         this.attributes = attributes;
     }
 
     /**
      * Returns annotation interface class name.
+     *
      * @return name of class, can be fully qualified
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Sets annotation interface class name.
+     *
      * @param name name of class, can be fully qualified
      */
     public void setName(String name) {
@@ -100,6 +103,7 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Add value.
+     *
      * @param value to add
      */
     public void addValue(Object value) {
@@ -108,7 +112,8 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Add named value.
-     * @param name name
+     *
+     * @param name  name
      * @param value value
      */
     public void addValue(String name, Object value) {
@@ -117,18 +122,19 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Returns annotation attributes.
+     *
      * @return the attribute values
      */
-    public List<AnnotationAttribute> getAttributes()
-    {
+    public List<AnnotationAttribute> getAttributes() {
         return attributes;
     }
 
     /**
      * Print.
-     * @param writer to print to
+     *
+     * @param writer      to print to
      * @param annotations annotations
-     * @param formatter for newline-whitespace formatting
+     * @param formatter   for newline-whitespace formatting
      */
     public static void toEPL(StringWriter writer, List<AnnotationPart> annotations, EPStatementFormatter formatter) {
         if ((annotations == null) || (annotations.isEmpty())) {
@@ -146,6 +152,7 @@ public class AnnotationPart implements Serializable {
 
     /**
      * Print part.
+     *
      * @param writer to write to
      */
     public void toEPL(StringWriter writer) {
@@ -185,27 +192,22 @@ public class AnnotationPart implements Serializable {
             writer.append("'");
             writer.append(second.toString());
             writer.append("'");
-        }
-        else if (second instanceof AnnotationPart) {
+        } else if (second instanceof AnnotationPart) {
             ((AnnotationPart) second).toEPL(writer);
-        }
-        else if (second.getClass().isEnum()) {
+        } else if (second.getClass().isEnum()) {
             writer.append(second.getClass().getName());
             writer.append(".");
             writer.append(second.toString());
-        }
-        else if (second.getClass().isArray()) {
+        } else if (second.getClass().isArray()) {
             String delimiter = "";
             writer.append("{");
-            for (int i = 0; i < Array.getLength(second); i++)
-            {
+            for (int i = 0; i < Array.getLength(second); i++) {
                 writer.append(delimiter);
                 toEPL(writer, Array.get(second, i));
                 delimiter = ",";
             }
             writer.append("}");
-        }
-        else {
+        } else {
             writer.append(second.toString());
         }
     }

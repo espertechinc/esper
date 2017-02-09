@@ -28,19 +28,20 @@ import java.sql.SQLException;
  * This is not a pool - a cache is associated with one client class and that
  * class is expected to use cache methods in well-defined order of get, done-with and destroy.
  */
-public abstract class ConnectionCache
-{
+public abstract class ConnectionCache {
     private DatabaseConnectionFactory databaseConnectionFactory;
     private String sql;
 
     /**
      * Returns a cached or new connection and statement pair.
+     *
      * @return connection and statement pair
      */
     public abstract Pair<Connection, PreparedStatement> getConnection();
 
     /**
      * Indicate to return the connection and statement pair after use.
+     *
      * @param pair is the resources to return
      */
     public abstract void doneWith(Pair<Connection, PreparedStatement> pair);
@@ -52,72 +53,58 @@ public abstract class ConnectionCache
 
     /**
      * Ctor.
+     *
      * @param databaseConnectionFactory - connection factory
-     * @param sql - statement sql
+     * @param sql                       - statement sql
      */
-    protected ConnectionCache(DatabaseConnectionFactory databaseConnectionFactory, String sql)
-    {
+    protected ConnectionCache(DatabaseConnectionFactory databaseConnectionFactory, String sql) {
         this.databaseConnectionFactory = databaseConnectionFactory;
         this.sql = sql;
     }
 
     /**
      * Close resources.
+     *
      * @param pair is the resources to close.
      */
-    protected static void close(Pair<Connection, PreparedStatement> pair)
-    {
+    protected static void close(Pair<Connection, PreparedStatement> pair) {
         log.info(".close Closing statement and connection");
-        try
-        {
+        try {
             pair.getSecond().close();
-        }
-        catch (SQLException ex)
-        {
-            try
-            {
+        } catch (SQLException ex) {
+            try {
                 pair.getFirst().close();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 log.error("Error closing JDBC connection:" + e.getMessage(), e);
             }
             throw new EPException("Error closing statement", ex);
         }
 
-        try
-        {
+        try {
             pair.getFirst().close();
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             throw new EPException("Error closing statement", ex);
         }
     }
 
     /**
      * Make a new pair of resources.
+     *
      * @return pair of resources
      */
-    protected Pair<Connection, PreparedStatement> makeNew()
-    {
+    protected Pair<Connection, PreparedStatement> makeNew() {
         log.info(".makeNew Obtaining new connection and statement");
         Connection connection;
-        try
-        {
+        try {
             connection = databaseConnectionFactory.getConnection();
-        }
-        catch (DatabaseConfigException ex)
-        {
+        } catch (DatabaseConfigException ex) {
             throw new EPException("Error obtaining connection", ex);
         }
 
         PreparedStatement preparedStatement;
-        try
-        {
+        try {
             preparedStatement = connection.prepareStatement(sql);
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             try {
                 connection.close();
             } catch (SQLException e) {

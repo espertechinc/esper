@@ -13,17 +13,14 @@ package com.espertech.esper.epl.agg.service;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByReclaimAgedEvalFuncConstant implements AggSvcGroupByReclaimAgedEvalFunc
-{
+public class AggSvcGroupByReclaimAgedEvalFuncConstant implements AggSvcGroupByReclaimAgedEvalFunc {
     private final double longValue;
 
-    public AggSvcGroupByReclaimAgedEvalFuncConstant(double longValue)
-    {
+    public AggSvcGroupByReclaimAgedEvalFuncConstant(double longValue) {
         this.longValue = longValue;
     }
 
-    public Double getLongValue()
-    {
+    public Double getLongValue() {
         return longValue;
     }
 }

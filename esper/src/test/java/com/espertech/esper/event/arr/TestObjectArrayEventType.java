@@ -12,11 +12,11 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
@@ -43,14 +43,12 @@ public class TestObjectArrayEventType extends TestCase {
         eventType = new ObjectArrayEventType(metadata, "typename", 1, eventAdapterService, namesAndTypes, null, null, null);
     }
 
-    public void testGetPropertyNames()
-    {
+    public void testGetPropertyNames() {
         String[] properties = eventType.getPropertyNames();
         EPAssertionUtil.assertEqualsAnyOrder(properties, new String[]{"myInt", "myIntBoxed", "myString", "mySupportBean", "myComplexBean", "myNullType"});
     }
 
-    public void testGetPropertyType()
-    {
+    public void testGetPropertyType() {
         assertEquals(int.class, eventType.getPropertyType("myInt"));
         assertEquals(Integer.class, eventType.getPropertyType("myIntBoxed"));
         assertEquals(String.class, eventType.getPropertyType("myString"));
@@ -67,14 +65,12 @@ public class TestObjectArrayEventType extends TestCase {
         assertNull(eventType.getPropertyType("xxx.intPrimitive"));
         assertNull(eventType.getPropertyType("myComplexBean.nested.nestedValueXXX"));
     }
-    
-    public void testGetUnderlyingType()
-    {
+
+    public void testGetUnderlyingType() {
         assertEquals(Object[].class, eventType.getUnderlyingType());
     }
 
-    public void testIsValidProperty()
-    {
+    public void testIsValidProperty() {
         assertTrue(eventType.isProperty("myInt"));
         assertTrue(eventType.isProperty("myIntBoxed"));
         assertTrue(eventType.isProperty("myString"));
@@ -90,15 +86,14 @@ public class TestObjectArrayEventType extends TestCase {
         assertFalse(eventType.isProperty("myComplexBean.nested.nestedValueXXX"));
     }
 
-    public void testGetGetter()
-    {
+    public void testGetGetter() {
         SupportBean nestedSupportBean = new SupportBean();
         nestedSupportBean.setIntPrimitive(100);
         SupportBeanComplexProps complexPropBean = SupportBeanComplexProps.makeDefaultBean();
 
         assertEquals(null, eventType.getGetter("dummy"));
 
-        Object[] values = new Object[] {20, 20, "a", nestedSupportBean, complexPropBean, null};
+        Object[] values = new Object[]{20, 20, "a", nestedSupportBean, complexPropBean, null};
         EventBean eventBean = new ObjectArrayEventBean(values, eventType);
 
         assertEquals(20, eventType.getGetter("myInt").get(eventBean));
@@ -108,19 +103,15 @@ public class TestObjectArrayEventType extends TestCase {
         assertEquals(100, eventType.getGetter("mySupportBean.intPrimitive").get(eventBean));
         assertEquals("nestedValue", eventType.getGetter("myComplexBean.nested.nestedValue").get(eventBean));
 
-        try
-        {
+        try {
             eventBean = SupportEventBeanFactory.createObject(new Object());
             eventType.getGetter("myInt").get(eventBean);
             assertTrue(false);
-        }
-        catch (ClassCastException ex)
-        {
+        } catch (ClassCastException ex) {
         }
     }
 
-    public void testGetSuperTypes()
-    {
+    public void testGetSuperTypes() {
         assertNull(eventType.getSuperTypes());
     }
 }

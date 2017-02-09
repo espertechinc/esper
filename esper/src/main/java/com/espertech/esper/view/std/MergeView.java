@@ -33,8 +33,7 @@ import java.util.*;
  * The parent view of this view is generally the AddPropertyValueView that adds the grouped-by information
  * back into the data.
  */
-public final class MergeView extends ViewSupport implements CloneableView, MergeViewMarker
-{
+public final class MergeView extends ViewSupport implements CloneableView, MergeViewMarker {
     private final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final Collection<View> parentViews;
     private final ExprNode[] groupFieldNames;
@@ -44,13 +43,11 @@ public final class MergeView extends ViewSupport implements CloneableView, Merge
     public MergeView(AgentInstanceViewFactoryChainContext agentInstanceContext,
                      ExprNode[] groupCriteria,
                      EventType resultEventType,
-                     boolean removable)
-    {
+                     boolean removable) {
         this.removable = removable;
         if (!removable) {
             parentViews = new ArrayDeque<View>();
-        }
-        else {
+        } else {
             parentViews = new HashSet<View>();
         }
         this.agentInstanceContext = agentInstanceContext;
@@ -58,60 +55,53 @@ public final class MergeView extends ViewSupport implements CloneableView, Merge
         this.eventType = resultEventType;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new MergeView(agentInstanceContext, groupFieldNames, eventType, removable);
     }
 
     /**
      * Returns the field name that contains the values to group by.
+     *
      * @return field name providing group key value
      */
-    public final ExprNode[] getGroupFieldNames()
-    {
+    public final ExprNode[] getGroupFieldNames() {
         return groupFieldNames;
     }
 
     /**
      * Add a parent data merge view.
+     *
      * @param parentView is the parent data merge view to add
      */
-    public final void addParentView(View parentView)
-    {
+    public final void addParentView(View parentView) {
         parentViews.add(parentView);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's type, or the type plus the added field(s)
         return eventType;
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public final void update(EventBean[] newData, EventBean[] oldData) {
         updateChildren(newData, oldData);
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         // The merge data view has multiple parent views which are AddPropertyValueView
         ArrayDeque<Iterable<EventBean>> iterables = new ArrayDeque<Iterable<EventBean>>();
 
-        for (View dataView : parentViews)
-        {
+        for (View dataView : parentViews) {
             iterables.add(dataView);
         }
 
         return new IterablesListIterator(iterables.iterator());
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " groupFieldName=" + Arrays.toString(groupFieldNames);
     }
 
-    public void removeParentView(View view)
-    {
+    public void removeParentView(View view) {
         parentViews.remove(view);
     }
 

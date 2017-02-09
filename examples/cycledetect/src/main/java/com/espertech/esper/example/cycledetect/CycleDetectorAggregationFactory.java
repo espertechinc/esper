@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.example.cycledetect;
 
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionDeclarationContext;
+import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionHandler;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 public class CycleDetectorAggregationFactory implements PlugInAggregationMultiFunctionFactory {
     private ExprEvaluator fromExpression;

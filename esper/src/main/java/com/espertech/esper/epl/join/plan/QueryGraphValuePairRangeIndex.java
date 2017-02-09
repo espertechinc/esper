@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.plan;
 
 import java.util.List;
 
-public class QueryGraphValuePairRangeIndex
-{
+public class QueryGraphValuePairRangeIndex {
     private final String[] indexed;
     private final List<QueryGraphValueEntryRange> key;
 

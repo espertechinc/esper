@@ -31,24 +31,21 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class SelectExprJoinWildcardProcessorFactory
-{
+public class SelectExprJoinWildcardProcessorFactory {
     public static SelectExprProcessor create(Collection<Integer> assignedTypeNumberStack,
-                                                  int statementId,
-                                                  String statementName,
-                                                  String[] streamNames,
-                                                  EventType[] streamTypes,
-                                                  EventAdapterService eventAdapterService,
-                                                  InsertIntoDesc insertIntoDesc,
-                                                  SelectExprEventTypeRegistry selectExprEventTypeRegistry,
-                                                  EngineImportService engineImportService,
-                                                  Annotation[] annotations,
-                                                  ConfigurationInformation configuration,
-                                                  TableService tableService,
-                                                  String engineURI) throws ExprValidationException
-    {
-        if ((streamNames.length < 2) || (streamTypes.length < 2) || (streamNames.length != streamTypes.length))
-        {
+                                             int statementId,
+                                             String statementName,
+                                             String[] streamNames,
+                                             EventType[] streamTypes,
+                                             EventAdapterService eventAdapterService,
+                                             InsertIntoDesc insertIntoDesc,
+                                             SelectExprEventTypeRegistry selectExprEventTypeRegistry,
+                                             EngineImportService engineImportService,
+                                             Annotation[] annotations,
+                                             ConfigurationInformation configuration,
+                                             TableService tableService,
+                                             String engineURI) throws ExprValidationException {
+        if ((streamNames.length < 2) || (streamTypes.length < 2) || (streamNames.length != streamTypes.length)) {
             throw new IllegalArgumentException("Stream names and types parameter length is invalid, expected use of this class is for join statements");
         }
 
@@ -56,8 +53,7 @@ public class SelectExprJoinWildcardProcessorFactory
         Map<String, Object> selectProperties = new LinkedHashMap<String, Object>();
         EventType[] streamTypesWTables = new EventType[streamTypes.length];
         boolean hasTables = false;
-        for (int i = 0; i < streamTypes.length; i++)
-        {
+        for (int i = 0; i < streamTypes.length; i++) {
             streamTypesWTables[i] = streamTypes[i];
             String tableName = TableServiceUtil.getTableNameFromEventType(streamTypesWTables[i]);
             if (tableName != null) {
@@ -84,43 +80,33 @@ public class SelectExprJoinWildcardProcessorFactory
                 try {
                     if (representation == EventUnderlyingType.MAP) {
                         resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true);
-                    }
-                    else if (representation == EventUnderlyingType.OBJECTARRAY) {
+                    } else if (representation == EventUnderlyingType.OBJECTARRAY) {
                         resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selectProperties, null, false, false, false, false, true, false, null);
-                    }
-                    else if (representation == EventUnderlyingType.AVRO) {
+                    } else if (representation == EventUnderlyingType.AVRO) {
                         resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selectProperties, false, false, false, false, true, annotations, null, statementName, engineURI);
-                    }
-                    else {
+                    } else {
                         throw new IllegalStateException("Unrecognized code " + representation);
                     }
                     selectExprEventTypeRegistry.add(resultEventType);
-                }
-                catch (EventAdapterException ex) {
+                } catch (EventAdapterException ex) {
                     throw new ExprValidationException(ex.getMessage(), ex);
                 }
-            }
-            else {
+            } else {
                 if (representation == EventUnderlyingType.MAP) {
                     resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, true);
-                }
-                else if (representation == EventUnderlyingType.OBJECTARRAY) {
+                } else if (representation == EventUnderlyingType.OBJECTARRAY) {
                     resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties);
-                }
-                else if (representation == EventUnderlyingType.AVRO) {
+                } else if (representation == EventUnderlyingType.AVRO) {
                     resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_join_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selectProperties, annotations, statementName, engineURI);
-                }
-                else {
+                } else {
                     throw new IllegalStateException("Unrecognized enum " + representation);
                 }
             }
             if (resultEventType instanceof ObjectArrayEventType) {
                 processor = new SelectExprJoinWildcardProcessorObjectArray(streamNames, resultEventType, eventAdapterService);
-            }
-            else if (resultEventType instanceof MapEventType){
+            } else if (resultEventType instanceof MapEventType) {
                 processor = new SelectExprJoinWildcardProcessorMap(streamNames, resultEventType, eventAdapterService);
-            }
-            else if (resultEventType instanceof AvroSchemaEventType){
+            } else if (resultEventType instanceof AvroSchemaEventType) {
                 processor = eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeJoinWildcard(streamNames, resultEventType, eventAdapterService);
             }
         }

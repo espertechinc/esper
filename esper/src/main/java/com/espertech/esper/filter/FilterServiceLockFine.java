@@ -17,8 +17,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public final class FilterServiceLockFine extends FilterServiceBase
-{
+public final class FilterServiceLockFine extends FilterServiceBase {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public FilterServiceLockFine(boolean allowIsolation) {
@@ -37,8 +36,7 @@ public final class FilterServiceLockFine extends FilterServiceBase
         lock.readLock().lock();
         try {
             return super.takeInternal(statementId);
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -47,8 +45,7 @@ public final class FilterServiceLockFine extends FilterServiceBase
         lock.readLock().lock();
         try {
             super.applyInternal(filterSet);
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -57,8 +54,7 @@ public final class FilterServiceLockFine extends FilterServiceBase
         lock.readLock().lock();
         try {
             return super.evaluateInternal(theEvent, matches);
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -67,8 +63,7 @@ public final class FilterServiceLockFine extends FilterServiceBase
         lock.readLock().lock();
         try {
             return super.evaluateInternal(theEvent, matches, statementId);
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }

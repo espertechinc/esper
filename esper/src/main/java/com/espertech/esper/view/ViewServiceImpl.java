@@ -18,7 +18,6 @@ import com.espertech.esper.epl.spec.StreamSpecOptions;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.view.internal.IntersectViewFactory;
 import com.espertech.esper.view.internal.UnionViewFactory;
-import com.espertech.esper.view.std.GroupByViewFactory;
 import com.espertech.esper.view.std.GroupByViewFactoryMarker;
 import com.espertech.esper.view.std.MergeViewFactory;
 import com.espertech.esper.view.std.MergeViewFactoryMarker;
@@ -30,13 +29,11 @@ import java.util.*;
 /**
  * Implementation of the view evaluation service business interface.
  */
-public final class ViewServiceImpl implements ViewService
-{
+public final class ViewServiceImpl implements ViewService {
     /**
      * Ctor.
      */
-    public ViewServiceImpl()
-    {
+    public ViewServiceImpl() {
     }
 
     public ViewFactoryChain createFactories(int streamNum,
@@ -46,8 +43,7 @@ public final class ViewServiceImpl implements ViewService
                                             StatementContext context,
                                             boolean isSubquery,
                                             int subqueryNumber)
-            throws ViewProcessingException
-    {
+            throws ViewProcessingException {
         // Clone the view spec list to prevent parameter modification
         List<ViewSpec> viewSpecList = new ArrayList<ViewSpec>(Arrays.asList(viewSpecDefinitions));
 
@@ -59,20 +55,15 @@ public final class ViewServiceImpl implements ViewService
 
         ViewFactory parentViewFactory = null;
         List<ViewFactory> attachedViewFactories = new ArrayList<ViewFactory>();
-        for (int i = 0; i < viewFactories.size(); i++)
-        {
+        for (int i = 0; i < viewFactories.size(); i++) {
             ViewFactory factoryToAttach = viewFactories.get(i);
-            try
-            {
+            try {
                 factoryToAttach.attach(parentEventType, context, parentViewFactory, attachedViewFactories);
                 attachedViewFactories.add(viewFactories.get(i));
                 parentEventType = factoryToAttach.getEventType();
-            }
-            catch (ViewParameterException ex)
-            {
+            } catch (ViewParameterException ex) {
                 String text = "Error attaching view to parent view";
-                if (i == 0)
-                {
+                if (i == 0) {
                     text = "Error attaching view to event stream";
                 }
                 throw new ViewProcessingException(text + ": " + ex.getMessage(), ex);
@@ -82,20 +73,16 @@ public final class ViewServiceImpl implements ViewService
         // obtain count of data windows
         int dataWindowCount = 0;
         int firstNonDataWindowIndex = -1;
-        for (int i = 0; i < viewFactories.size(); i++)
-        {
+        for (int i = 0; i < viewFactories.size(); i++) {
             ViewFactory factory = viewFactories.get(i);
-            if (factory instanceof DataWindowViewFactory)
-            {
+            if (factory instanceof DataWindowViewFactory) {
                 dataWindowCount++;
                 continue;
             }
-            if ((factory instanceof GroupByViewFactoryMarker) || (factory instanceof MergeViewFactory))
-            {
+            if ((factory instanceof GroupByViewFactoryMarker) || (factory instanceof MergeViewFactory)) {
                 continue;
             }
-            if (firstNonDataWindowIndex == -1)
-            {
+            if (firstNonDataWindowIndex == -1) {
                 firstNonDataWindowIndex = i;
             }
         }
@@ -105,80 +92,62 @@ public final class ViewServiceImpl implements ViewService
         boolean isRetainUnion = options.isRetainUnion();
 
         // Set the default to retain-intersection unless allow-multiple-expiry is turned on
-        if ((!isAllowMultipleExpiry) && (!isRetainUnion))
-        {
+        if ((!isAllowMultipleExpiry) && (!isRetainUnion)) {
             isRetainIntersection = true;
         }
 
         // handle multiple data windows with retain union.
         // wrap view factories into the union view factory and handle a group-by, if present
-        if ((isRetainUnion || isRetainIntersection) && dataWindowCount > 1)
-        {
-            viewFactories = getRetainViewFactories(parentEventType, viewFactories, isRetainUnion,  context);
+        if ((isRetainUnion || isRetainIntersection) && dataWindowCount > 1) {
+            viewFactories = getRetainViewFactories(parentEventType, viewFactories, isRetainUnion, context);
         }
 
         return new ViewFactoryChain(parentEventType, viewFactories);
     }
 
     private List<ViewFactory> getRetainViewFactories(EventType parentEventType, List<ViewFactory> viewFactories, boolean isUnion, StatementContext context)
-            throws ViewProcessingException
-    {
+            throws ViewProcessingException {
         Set<Integer> groupByFactory = new HashSet<Integer>();
         Set<Integer> mergeFactory = new HashSet<Integer>();
         List<ViewFactory> derivedValueViews = new ArrayList<ViewFactory>();
         List<ViewFactory> dataWindowViews = new ArrayList<ViewFactory>();
-        for (int i = 0; i < viewFactories.size(); i++)
-        {
+        for (int i = 0; i < viewFactories.size(); i++) {
             ViewFactory factory = viewFactories.get(i);
-            if (factory instanceof GroupByViewFactoryMarker)
-            {
+            if (factory instanceof GroupByViewFactoryMarker) {
                 groupByFactory.add(i);
-            }
-            else if (factory instanceof MergeViewFactoryMarker)
-            {
+            } else if (factory instanceof MergeViewFactoryMarker) {
                 mergeFactory.add(i);
-            }
-            else if (factory instanceof DataWindowViewFactory)
-            {
+            } else if (factory instanceof DataWindowViewFactory) {
                 dataWindowViews.add(factory);
-            }
-            else
-            {
+            } else {
                 derivedValueViews.add(factory);
             }
         }
 
-        if (groupByFactory.size() > 1)
-        {
+        if (groupByFactory.size() > 1) {
             throw new ViewProcessingException("Multiple groupwin views are not allowed in conjuntion with multiple data windows");
         }
-        if ((!groupByFactory.isEmpty()) && (groupByFactory.iterator().next() != 0))
-        {
+        if ((!groupByFactory.isEmpty()) && (groupByFactory.iterator().next() != 0)) {
             throw new ViewProcessingException("The groupwin view must occur in the first position in conjuntion with multiple data windows");
         }
-        if ((!groupByFactory.isEmpty()) && (mergeFactory.iterator().next() != (viewFactories.size() - 1)))
-        {
+        if ((!groupByFactory.isEmpty()) && (mergeFactory.iterator().next() != (viewFactories.size() - 1))) {
             throw new ViewProcessingException("The merge view cannot be used in conjuntion with multiple data windows");
         }
 
         GroupByViewFactoryMarker groupByViewFactory = null;
         MergeViewFactoryMarker mergeViewFactory = null;
-        if (!groupByFactory.isEmpty())
-        {
+        if (!groupByFactory.isEmpty()) {
             groupByViewFactory = (GroupByViewFactoryMarker) viewFactories.remove(0);
             mergeViewFactory = (MergeViewFactoryMarker) viewFactories.remove(viewFactories.size() - 1);
         }
 
         ViewFactory retainPolicy;
-        if (isUnion)
-        {
+        if (isUnion) {
             UnionViewFactory viewFactory = (UnionViewFactory) context.getViewResolutionService().create("internal", "union");
             viewFactory.setParentEventType(parentEventType);
             viewFactory.setViewFactories(dataWindowViews);
             retainPolicy = viewFactory;
-        }
-        else
-        {
+        } else {
             IntersectViewFactory viewFactory = (IntersectViewFactory) context.getViewResolutionService().create("internal", "intersect");
             viewFactory.setParentEventType(parentEventType);
             viewFactory.setViewFactories(dataWindowViews);
@@ -187,14 +156,11 @@ public final class ViewServiceImpl implements ViewService
 
         List<ViewFactory> nonRetainViewFactories = new ArrayList<ViewFactory>();
         nonRetainViewFactories.add(retainPolicy);
-        if (groupByViewFactory != null)
-        {
+        if (groupByViewFactory != null) {
             nonRetainViewFactories.add(0, (ViewFactory) groupByViewFactory);
             nonRetainViewFactories.addAll(derivedValueViews);
             nonRetainViewFactories.add((ViewFactory) mergeViewFactory);
-        }
-        else
-        {
+        } else {
             nonRetainViewFactories.addAll(derivedValueViews);
         }
 
@@ -202,26 +168,22 @@ public final class ViewServiceImpl implements ViewService
     }
 
     public ViewServiceCreateResult createViews(Viewable eventStreamViewable,
-                                List<ViewFactory> viewFactories,
-                                AgentInstanceViewFactoryChainContext viewFactoryChainContext,
-                                boolean hasPreviousNode)
-    {
+                                               List<ViewFactory> viewFactories,
+                                               AgentInstanceViewFactoryChainContext viewFactoryChainContext,
+                                               boolean hasPreviousNode) {
         // Attempt to find existing views under the stream that match specs.
         // The viewSpecList may have been changed by this method.
         Pair<Viewable, List<View>> resultPair;
         if (hasPreviousNode) {
             resultPair = new Pair<Viewable, List<View>>(eventStreamViewable, Collections.<View>emptyList());
-        }
-        else {
+        } else {
             resultPair = ViewServiceHelper.matchExistingViews(eventStreamViewable, viewFactories, viewFactoryChainContext.getAgentInstanceContext());
         }
 
         Viewable parentViewable = resultPair.getFirst();
 
-        if (viewFactories.isEmpty())
-        {
-            if (log.isDebugEnabled())
-            {
+        if (viewFactories.isEmpty()) {
+            if (log.isDebugEnabled()) {
                 log.debug(".createView No new views created, dumping stream ... " + eventStreamViewable);
                 ViewSupport.dumpChildViews("EventStream ", eventStreamViewable);
             }
@@ -233,17 +195,14 @@ public final class ViewServiceImpl implements ViewService
         List<View> views = ViewServiceHelper.instantiateChain(parentViewable, viewFactories, viewFactoryChainContext);
 
         // Initialize any views that need initializing after the chain is complete
-        for (View view : views)
-        {
-            if (view instanceof InitializableView)
-            {
+        for (View view : views) {
+            if (view instanceof InitializableView) {
                 InitializableView initView = (InitializableView) view;
                 initView.initialize();
             }
         }
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".createView New views created for stream, all views ... " + eventStreamViewable);
             ViewSupport.dumpChildViews("EventStream ", eventStreamViewable);
         }
@@ -251,16 +210,13 @@ public final class ViewServiceImpl implements ViewService
         return new ViewServiceCreateResult(views.get(views.size() - 1), views.get(0), views);
     }
 
-    public void remove(EventStream eventStream, Viewable viewToRemove)
-    {
+    public void remove(EventStream eventStream, Viewable viewToRemove) {
         // If the viewToRemove to remove has child viewToRemove, don't disconnect - the child viewToRemove(s) need this
-        if (viewToRemove.hasViews())
-        {
+        if (viewToRemove.hasViews()) {
             return;
         }
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".remove Views before the remove of view " + viewToRemove + ", for event stream " + eventStream);
             ViewSupport.dumpChildViews("EventStream ", eventStream);
         }
@@ -268,8 +224,7 @@ public final class ViewServiceImpl implements ViewService
         // Remove views in chain leaving only non-empty parent views to the child view to be removed
         ViewServiceHelper.removeChainLeafView(eventStream, viewToRemove);
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".remove Views after the remove, for event stream " + eventStream);
             ViewSupport.dumpChildViews("EventStream ", eventStream);
         }

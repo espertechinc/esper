@@ -21,39 +21,35 @@ import java.util.Map;
 /**
  * A getter that works on arrays residing within a Map as an event property.
  */
-public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGetter implements MapEventPropertyGetter, MapEventPropertyGetterAndIndexed
-{
+public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGetter implements MapEventPropertyGetter, MapEventPropertyGetterAndIndexed {
     private final String propertyMap;
     private final int index;
 
     /**
      * Ctor.
-     * @param propertyMap the property to use for the map lookup
-     * @param index the index to fetch the array element for
+     *
+     * @param propertyMap         the property to use for the map lookup
+     * @param index               the index to fetch the array element for
      * @param eventAdapterService factory for event beans and event types
-     * @param returnType type of the entry returned
+     * @param returnType          type of the entry returned
      */
-    public MapArrayPOJOEntryIndexedPropertyGetter(String propertyMap, int index, EventAdapterService eventAdapterService, Class returnType)
-    {
+    public MapArrayPOJOEntryIndexedPropertyGetter(String propertyMap, int index, EventAdapterService eventAdapterService, Class returnType) {
         super(eventAdapterService, returnType, null);
         this.propertyMap = propertyMap;
         this.index = index;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         return getMapInternal(map, index);
     }
 
-    public Object getMapInternal(Map<String, Object> map, int index) throws PropertyAccessException
-    {
+    public Object getMapInternal(Map<String, Object> map, int index) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = map.get(propertyMap);
         return BaseNestableEventUtil.getIndexedValue(value, index);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return map.containsKey(propertyMap);
     }
 
@@ -62,13 +58,11 @@ public class MapArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGe
         return getMapInternal(map, index);
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Map map = BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean);
         return map.containsKey(propertyMap);
     }

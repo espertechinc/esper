@@ -21,50 +21,44 @@ import java.util.concurrent.locks.ReadWriteLock;
 /**
  * Index that simply maintains a list of boolean expressions.
  */
-public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase
-{
+public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase {
     private final Map<ExprNodeAdapterBase, EventEvaluator> evaluatorsMap;
     private final ReadWriteLock constantsMapRWLock;
 
-    public FilterParamIndexBooleanExpr(ReadWriteLock readWriteLock)
-    {
+    public FilterParamIndexBooleanExpr(ReadWriteLock readWriteLock) {
         super(FilterOperator.BOOLEAN_EXPRESSION);
 
         evaluatorsMap = new LinkedHashMap<ExprNodeAdapterBase, EventEvaluator>();
         constantsMapRWLock = readWriteLock;
     }
 
-    public final EventEvaluator get(Object filterConstant)
-    {
+    public final EventEvaluator get(Object filterConstant) {
         ExprNodeAdapterBase keyValues = (ExprNodeAdapterBase) filterConstant;
         return evaluatorsMap.get(keyValues);
     }
 
-    public final void put(Object filterConstant, EventEvaluator evaluator)
-    {
+    public final void put(Object filterConstant, EventEvaluator evaluator) {
         ExprNodeAdapterBase keys = (ExprNodeAdapterBase) filterConstant;
         evaluatorsMap.put(keys, evaluator);
     }
 
-    public final boolean remove(Object filterConstant)
-    {
+    public final boolean remove(Object filterConstant) {
         ExprNodeAdapterBase keys = (ExprNodeAdapterBase) filterConstant;
         return evaluatorsMap.remove(keys) != null;
     }
 
-    public final int size()
-    {
+    public final int size() {
         return evaluatorsMap.size();
     }
 
-    public final ReadWriteLock getReadWriteLock()
-    {
+    public final ReadWriteLock getReadWriteLock() {
         return constantsMapRWLock;
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterBoolean(this);}
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilterBoolean(this);
+        }
         constantsMapRWLock.readLock().lock();
         try {
 
@@ -79,18 +73,18 @@ public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase
                         evals.getValue().matchEvent(theEvent, matches);
                     }
                 }
-            }
-            else {
+            } else {
                 for (Map.Entry<ExprNodeAdapterBase, EventEvaluator> evals : evaluatorsMap.entrySet()) {
                     if (evals.getKey().evaluate(theEvent)) {
                         evals.getValue().matchEvent(theEvent, matches);
                     }
                 }
             }
-        }
-        finally {
+        } finally {
             constantsMapRWLock.readLock().unlock();
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterBoolean();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilterBoolean();
+        }
     }
 }

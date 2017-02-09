@@ -13,17 +13,14 @@ package com.espertech.esper.epl.join.plan;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
 
-public class TestOuterInnerDirectionalGraph extends TestCase
-{
+public class TestOuterInnerDirectionalGraph extends TestCase {
     private OuterInnerDirectionalGraph graph;
 
-    public void setUp()
-    {
+    public void setUp() {
         graph = new OuterInnerDirectionalGraph(4);
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         graph.add(0, 1);
 
         // testing duplicate add
@@ -37,8 +34,7 @@ public class TestOuterInnerDirectionalGraph extends TestCase
         tryInvalidAdd(-1, 2);
     }
 
-    public void testIsInner()
-    {
+    public void testIsInner() {
         graph.add(0, 1);
         assertTrue(graph.isInner(0, 1));
         assertFalse(graph.isInner(1, 0));
@@ -60,8 +56,7 @@ public class TestOuterInnerDirectionalGraph extends TestCase
         tryInvalidIsInner(-1, 1);
     }
 
-    public void testIsOuter()
-    {
+    public void testIsOuter() {
         graph.add(0, 1);
         assertTrue(graph.isOuter(0, 1));
         assertFalse(graph.isOuter(1, 0));
@@ -83,8 +78,7 @@ public class TestOuterInnerDirectionalGraph extends TestCase
         tryInvalidIsInner(-1, 1);
     }
 
-    public void testGetInner()
-    {
+    public void testGetInner() {
         tryInvalidGetInner(4);
         tryInvalidGetInner(-1);
 
@@ -102,8 +96,7 @@ public class TestOuterInnerDirectionalGraph extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{0, 2, 3}, graph.getInner(1));
     }
 
-    public void testGetOuter()
-    {
+    public void testGetOuter() {
         tryInvalidGetOuter(4);
         tryInvalidGetOuter(-1);
 
@@ -122,67 +115,47 @@ public class TestOuterInnerDirectionalGraph extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{0, 1, 2}, graph.getOuter(3));
     }
 
-    private void tryInvalidGetOuter(int stream)
-    {
-        try
-        {
+    private void tryInvalidGetOuter(int stream) {
+        try {
             graph.getOuter(stream);
             fail();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // expected
         }
     }
 
-    private void tryInvalidGetInner(int stream)
-    {
-        try
-        {
+    private void tryInvalidGetInner(int stream) {
+        try {
             graph.getInner(stream);
             fail();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // expected
         }
     }
 
-    private void tryInvalidIsInner(int inner, int outer)
-    {
-        try
-        {
+    private void tryInvalidIsInner(int inner, int outer) {
+        try {
             graph.isInner(inner, outer);
             fail();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // expected
         }
     }
 
-    private void tryInvalidIsOuter(int inner, int outer)
-    {
-        try
-        {
+    private void tryInvalidIsOuter(int inner, int outer) {
+        try {
             graph.isOuter(outer, inner);
             fail();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // expected
         }
     }
 
-    private void tryInvalidAdd(int inner, int outer)
-    {
-        try
-        {
+    private void tryInvalidAdd(int inner, int outer) {
+        try {
             graph.add(inner, outer);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }

@@ -18,13 +18,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-/** Outputs events using a bucket, whose contents are shuffled.
+/**
+ * Outputs events using a bucket, whose contents are shuffled.
  *
  * @author Hans Gilde
- *
  */
 public class ShuffledBucketOutput {
-    private static final Random random = RandomUtil.getNewInstance();
+    private static final Random RANDOM = RandomUtil.getNewInstance();
 
     private EventSource eventSource;
     private OutputStream outputStream;
@@ -33,7 +33,7 @@ public class ShuffledBucketOutput {
     /**
      * @param eventSource
      * @param outputStream
-     * @param bucketSize how many events should be in the bucket when it's shuffled?
+     * @param bucketSize   how many events should be in the bucket when it's shuffled?
      */
     public ShuffledBucketOutput(EventSource eventSource, OutputStream outputStream, int bucketSize) {
         this.eventSource = eventSource;
@@ -44,7 +44,7 @@ public class ShuffledBucketOutput {
     public void output() throws IOException {
         List<TxnEventBase> bucket = new ArrayList<TxnEventBase>(bucketSize);
 
-        for (TxnEventBase e:eventSource) {
+        for (TxnEventBase e : eventSource) {
             bucket.add(e);
             if (bucket.size() == bucketSize) {
                 outputBucket(bucket);
@@ -61,7 +61,7 @@ public class ShuffledBucketOutput {
      * @throws IOException
      */
     private void outputBucket(List<TxnEventBase> bucket) throws IOException {
-        Collections.shuffle(bucket, random);
+        Collections.shuffle(bucket, RANDOM);
         outputStream.output(bucket);
         bucket.clear();
     }

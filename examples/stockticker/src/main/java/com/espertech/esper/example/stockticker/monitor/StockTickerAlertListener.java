@@ -10,39 +10,36 @@
  */
 package com.espertech.esper.example.stockticker.monitor;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
 import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
 import com.espertech.esper.example.stockticker.eventbean.StockTick;
-import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class StockTickerAlertListener implements UpdateListener
-{
+public class StockTickerAlertListener implements UpdateListener {
     private final EPServiceProvider epService;
     private final PriceLimit limit;
     private final StockTick initialPriceTick;
     private final StockTickerResultListener stockTickerResultListener;
 
-    public StockTickerAlertListener(EPServiceProvider epService, PriceLimit limit, StockTick initialPriceTick, StockTickerResultListener stockTickerResultListener)
-    {
+    public StockTickerAlertListener(EPServiceProvider epService, PriceLimit limit, StockTick initialPriceTick, StockTickerResultListener stockTickerResultListener) {
         this.epService = epService;
         this.limit = limit;
         this.initialPriceTick = initialPriceTick;
         this.stockTickerResultListener = stockTickerResultListener;
     }
 
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        Object theEvent =  newEvents[0].get("tick");
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        Object theEvent = newEvents[0].get("tick");
         StockTick tick = (StockTick) theEvent;
 
         log.debug(".update Alert for stock=" + tick.getStockSymbol() +
-                  "  price=" + tick.getPrice() +
-                  "  initialPriceTick=" + initialPriceTick.getPrice() +
-                  "  limt=" + limit.getLimitPct());
+                "  price=" + tick.getPrice() +
+                "  initialPriceTick=" + initialPriceTick.getPrice() +
+                "  limt=" + limit.getLimitPct());
 
         LimitAlert alert = new LimitAlert(tick, limit, initialPriceTick.getPrice());
         stockTickerResultListener.emitted(alert);

@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 /**
  * Specification for the merge statement delete-part.
  */
-public class OnTriggerMergeActionDelete extends OnTriggerMergeAction
-{
+public class OnTriggerMergeActionDelete extends OnTriggerMergeAction {
     private static final long serialVersionUID = 8183386154578818969L;
 
     public OnTriggerMergeActionDelete(ExprNode optionalMatchCond) {

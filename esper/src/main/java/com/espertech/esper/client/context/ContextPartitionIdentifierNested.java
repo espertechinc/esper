@@ -27,6 +27,7 @@ public class ContextPartitionIdentifierNested extends ContextPartitionIdentifier
 
     /**
      * Ctor.
+     *
      * @param identifiers nested identifiers, count should match nesting level of context
      */
     public ContextPartitionIdentifierNested(ContextPartitionIdentifier[] identifiers) {
@@ -35,6 +36,7 @@ public class ContextPartitionIdentifierNested extends ContextPartitionIdentifier
 
     /**
      * Returns nested partition identifiers.
+     *
      * @return identifiers
      */
     public ContextPartitionIdentifier[] getIdentifiers() {
@@ -43,6 +45,7 @@ public class ContextPartitionIdentifierNested extends ContextPartitionIdentifier
 
     /**
      * Sets nested partition identifiers.
+     *
      * @param identifiers identifiers
      */
     public void setIdentifiers(ContextPartitionIdentifier[] identifiers) {

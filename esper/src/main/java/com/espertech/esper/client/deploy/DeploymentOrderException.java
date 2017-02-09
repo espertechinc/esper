@@ -19,10 +19,10 @@ public class DeploymentOrderException extends DeploymentException {
 
     /**
      * Ctor.
+     *
      * @param message error message
      */
-    public DeploymentOrderException(String message)
-    {
+    public DeploymentOrderException(String message) {
         super(message);
     }
 }

@@ -18,47 +18,41 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 /**
  * The '*' state in the regex NFA states.
  */
-public class RegexNFAStateZeroToMany extends RegexNFAStateBase implements RegexNFAState
-{
+public class RegexNFAStateZeroToMany extends RegexNFAStateBase implements RegexNFAState {
     private ExprEvaluator exprNode;
     private boolean exprRequiresMultimatchState;
 
     /**
      * Ctor.
-     * @param nodeNum node num
-     * @param variableName variable name
-     * @param streamNum stream number
-     * @param multiple true for multiple matches
-     * @param isGreedy true for greedy
-     * @param exprNode filter expression
+     *
+     * @param nodeNum                     node num
+     * @param variableName                variable name
+     * @param streamNum                   stream number
+     * @param multiple                    true for multiple matches
+     * @param isGreedy                    true for greedy
+     * @param exprNode                    filter expression
      * @param exprRequiresMultimatchState indicator for multi-match state required
      */
-    public RegexNFAStateZeroToMany(String nodeNum, String variableName, int streamNum, boolean multiple, boolean isGreedy, ExprNode exprNode, boolean exprRequiresMultimatchState)
-    {
+    public RegexNFAStateZeroToMany(String nodeNum, String variableName, int streamNum, boolean multiple, boolean isGreedy, ExprNode exprNode, boolean exprRequiresMultimatchState) {
         super(nodeNum, variableName, streamNum, multiple, isGreedy);
         this.exprNode = exprNode == null ? null : exprNode.getExprEvaluator();
         this.exprRequiresMultimatchState = exprRequiresMultimatchState;
         this.addState(this);
     }
 
-    public boolean matches(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (exprNode == null)
-        {
+    public boolean matches(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (exprNode == null) {
             return true;
         }
         Boolean result = (Boolean) exprNode.evaluate(eventsPerStream, true, exprEvaluatorContext);
-        if (result != null)
-        {
+        if (result != null) {
             return result;
         }
         return false;
     }
 
-    public String toString()
-    {
-        if (exprNode == null)
-        {
+    public String toString() {
+        if (exprNode == null) {
             return "ZeroMany-Unfiltered";
         }
         return "ZeroMany-Filtered";

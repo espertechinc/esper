@@ -27,6 +27,7 @@ public class MultimatchState {
 
     /**
      * Ctor.
+     *
      * @param theEvent first event to hold
      */
     public MultimatchState(EventBean theEvent) {
@@ -36,10 +37,10 @@ public class MultimatchState {
 
     /**
      * Ctor.
+     *
      * @param state to copy
      */
-    public MultimatchState(MultimatchState state)
-    {
+    public MultimatchState(MultimatchState state) {
         EventBean[] copyArray = new EventBean[state.getBuffer().length];
         System.arraycopy(state.getBuffer(), 0, copyArray, 0, state.getCount());
 
@@ -49,12 +50,11 @@ public class MultimatchState {
 
     /**
      * Add an event.
+     *
      * @param theEvent to add
      */
-    public void add(EventBean theEvent)
-    {
-        if (count == events.length)
-        {
+    public void add(EventBean theEvent) {
+        if (count == events.length) {
             EventBean[] buf = new EventBean[events.length * 2];
             System.arraycopy(events, 0, buf, 0, events.length);
             events = buf;
@@ -64,6 +64,7 @@ public class MultimatchState {
 
     /**
      * Returns the count of events.
+     *
      * @return count
      */
     public int getCount() {
@@ -72,6 +73,7 @@ public class MultimatchState {
 
     /**
      * Returns the raw buffer.
+     *
      * @return buffer
      */
     public EventBean[] getBuffer() {
@@ -80,15 +82,13 @@ public class MultimatchState {
 
     /**
      * Determines if an event is in the collection.
+     *
      * @param theEvent to check
      * @return indicator
      */
-    public boolean containsEvent(EventBean theEvent)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            if (events[i].equals(theEvent))
-            {
+    public boolean containsEvent(EventBean theEvent) {
+        for (int i = 0; i < count; i++) {
+            if (events[i].equals(theEvent)) {
                 return true;
             }
         }
@@ -97,10 +97,10 @@ public class MultimatchState {
 
     /**
      * Returns the buffer sized to only the contained events, and shrinks the event array unless it is empty
+     *
      * @return events
      */
-    public EventBean[] getShrinkEventArray()
-    {
+    public EventBean[] getShrinkEventArray() {
         if (count == 0) {
             return CollectionUtil.EVENTBEANARRAY_EMPTY;
         }

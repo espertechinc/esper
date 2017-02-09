@@ -12,8 +12,7 @@ package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public class ExprTimePeriodEvalDeltaConstGivenDelta implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory
-{
+public class ExprTimePeriodEvalDeltaConstGivenDelta implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory {
     private final long timeDelta;
 
     public ExprTimePeriodEvalDeltaConstGivenDelta(long timeDelta) {

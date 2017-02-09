@@ -12,10 +12,8 @@ package com.espertech.esperio.db.core;
 
 import java.util.concurrent.Executor;
 
-public class ExecutorSameThread implements Executor
-{
-    public void execute(Runnable command)
-    {
+public class ExecutorSameThread implements Executor {
+    public void execute(Runnable command) {
         command.run();
     }
 }

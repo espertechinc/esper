@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Represents a create-variable syntax for creating a new variable.
  */
-public class CreateTableClause implements Serializable
-{
+public class CreateTableClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String tableName;
@@ -32,6 +31,7 @@ public class CreateTableClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param tableName the table name
      */
     public CreateTableClause(String tableName) {
@@ -40,8 +40,9 @@ public class CreateTableClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param tableName the table name
-     * @param columns table columns
+     * @param columns   table columns
      */
     public CreateTableClause(String tableName, List<CreateTableColumn> columns) {
         this.tableName = tableName;
@@ -50,6 +51,7 @@ public class CreateTableClause implements Serializable
 
     /**
      * Returns the table name
+     *
      * @return table name
      */
     public String getTableName() {
@@ -58,6 +60,7 @@ public class CreateTableClause implements Serializable
 
     /**
      * Sets the table name
+     *
      * @param tableName table name
      */
     public void setTableName(String tableName) {
@@ -66,6 +69,7 @@ public class CreateTableClause implements Serializable
 
     /**
      * Returns the table columns
+     *
      * @return table columns
      */
     public List<CreateTableColumn> getColumns() {
@@ -74,6 +78,7 @@ public class CreateTableClause implements Serializable
 
     /**
      * Sets the table columns
+     *
      * @param columns table columns
      */
     public void setColumns(List<CreateTableColumn> columns) {
@@ -82,10 +87,10 @@ public class CreateTableClause implements Serializable
 
     /**
      * Render create-table clause
+     *
      * @param writer to render to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         writer.append("create table ");
         writer.append(tableName);
         writer.append(" (");

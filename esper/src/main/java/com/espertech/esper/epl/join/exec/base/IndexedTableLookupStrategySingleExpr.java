@@ -21,16 +21,14 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Set;
 
-public class IndexedTableLookupStrategySingleExpr implements JoinExecTableLookupStrategy
-{
+public class IndexedTableLookupStrategySingleExpr implements JoinExecTableLookupStrategy {
     private final PropertyIndexedEventTableSingle index;
     private final ExprEvaluator exprEvaluator;
     private final int streamNum;
     private final EventBean[] eventsPerStream;
     private final LookupStrategyDesc strategyDesc;
 
-    public IndexedTableLookupStrategySingleExpr(ExprNode exprNode, int streamNum, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc)
-    {
+    public IndexedTableLookupStrategySingleExpr(ExprNode exprNode, int streamNum, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc) {
         if (index == null) {
             throw new IllegalArgumentException("Unexpected null index received");
         }
@@ -43,16 +41,17 @@ public class IndexedTableLookupStrategySingleExpr implements JoinExecTableLookup
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) {InstrumentationHelper.get().qIndexJoinLookup(this, index);}
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, index);
+        }
 
         eventsPerStream[streamNum] = theEvent;
         Object key = exprEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
@@ -65,8 +64,7 @@ public class IndexedTableLookupStrategySingleExpr implements JoinExecTableLookup
         return index.lookup(key);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IndexedTableLookupStrategySingleExpr evaluation" +
                 " index=(" + index + ')';
     }

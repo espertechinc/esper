@@ -21,8 +21,7 @@ import java.util.Arrays;
 /**
  * Represents an stream property identifier in a filter expressiun tree.
  */
-public class ExprContextPropertyNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprContextPropertyNode extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = 2816977190089087618L;
     private final String propertyName;
     private Class returnType;
@@ -32,8 +31,7 @@ public class ExprContextPropertyNode extends ExprNodeBase implements ExprEvaluat
         this.propertyName = propertyName;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
@@ -41,8 +39,7 @@ public class ExprContextPropertyNode extends ExprNodeBase implements ExprEvaluat
         return propertyName;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (validationContext.getContextDescriptor() == null) {
             throw new ExprValidationException("Context property '" + propertyName + "' cannot be used in the expression as provided");
         }

@@ -19,8 +19,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 /**
  * Processor for select-clause expressions that handles wildcards. Computes results based on matching events.
  */
-public class SelectExprJoinWildcardProcessorTableRows implements SelectExprProcessor
-{
+public class SelectExprJoinWildcardProcessorTableRows implements SelectExprProcessor {
     private final SelectExprProcessor inner;
     private final EventBean[] eventsPerStreamWTableRows;
     private final TableMetadata[] tables;
@@ -34,21 +33,18 @@ public class SelectExprJoinWildcardProcessorTableRows implements SelectExprProce
         }
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         for (int i = 0; i < eventsPerStreamWTableRows.length; i++) {
             if (tables[i] != null && eventsPerStream[i] != null) {
                 eventsPerStreamWTableRows[i] = tables[i].getEventToPublic().convert(eventsPerStream[i], eventsPerStream, isNewData, exprEvaluatorContext);
-            }
-            else {
+            } else {
                 eventsPerStreamWTableRows[i] = eventsPerStream[i];
             }
         }
         return inner.process(eventsPerStreamWTableRows, isNewData, isSynthesize, exprEvaluatorContext);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return inner.getResultEventType();
     }
 }

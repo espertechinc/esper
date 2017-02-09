@@ -23,25 +23,22 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestQueryGraph extends TestCase
-{
+public class TestQueryGraph extends TestCase {
     private QueryGraph queryGraph;
     private EventType[] types;
 
-    public void setUp()
-    {
+    public void setUp() {
         queryGraph = new QueryGraph(3, null, false);
-        types = new EventType[] {
+        types = new EventType[]{
                 SupportEventTypeFactory.createMapType(createType("p0,p00,p01,p02")),
                 SupportEventTypeFactory.createMapType(createType("p1,p10,p11,p12")),
                 SupportEventTypeFactory.createMapType(createType("p2,p20,p21")),
                 SupportEventTypeFactory.createMapType(createType("p3,p30,p31")),
                 SupportEventTypeFactory.createMapType(createType("p4,p40,p41,p42")),
-            };
+        };
     }
 
-    public void testFillEquivalency()
-    {
+    public void testFillEquivalency() {
         // test with just 3 streams
         queryGraph.addStrictEquals(0, "p00", make(0, "p00"), 1, "p10", make(1, "p10"));
         queryGraph.addStrictEquals(1, "p10", make(1, "p10"), 2, "p20", make(2, "p20"));
@@ -53,8 +50,8 @@ public class TestQueryGraph extends TestCase
         QueryGraph.fillEquivalentNav(types, queryGraph);
 
         assertTrue(queryGraph.isNavigableAtAll(0, 2));
-        String[] expectedOne = new String[] {"p00"};
-        String[] expectedTwo = new String[] {"p20"};
+        String[] expectedOne = new String[]{"p00"};
+        String[] expectedTwo = new String[]{"p20"};
         assertTrue(Arrays.equals(expectedOne, QueryGraphTestUtil.getStrictKeyProperties(queryGraph, 0, 2)));
         assertTrue(Arrays.equals(expectedTwo, QueryGraphTestUtil.getIndexProperties(queryGraph, 0, 2)));
 
@@ -67,12 +64,9 @@ public class TestQueryGraph extends TestCase
 
         QueryGraph.fillEquivalentNav(types, queryGraph);
 
-        for (int i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < 5; j++)
-            {
-                if (i == j)
-                {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (i == j) {
                     continue;
                 }
                 assertTrue("Not navigable: i=" + i + " j=" + j, queryGraph.isNavigableAtAll(i, j));
@@ -80,27 +74,20 @@ public class TestQueryGraph extends TestCase
         }
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         // Try invalid add
-        try
-        {
+        try {
             queryGraph.addStrictEquals(1, null, null, 2, null, null);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
 
         // Try invalid add
-        try
-        {
+        try {
             queryGraph.addStrictEquals(1, "a", null, 1, "b", null);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
 
@@ -110,24 +97,21 @@ public class TestQueryGraph extends TestCase
         try {
             queryGraph.addStrictEquals(2, "p22", null, 3, "p31", null);
             fail();
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             // success
         }
 
         try {
             queryGraph.addStrictEquals(2, "p22", null, 3, "p31", null);
             fail();
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             // success
         }
 
         log.debug(queryGraph.toString());
     }
 
-    public void testIsNavigable()
-    {
+    public void testIsNavigable() {
         assertFalse(queryGraph.isNavigableAtAll(0, 1));
         assertFalse(queryGraph.isNavigableAtAll(0, 2));
         assertFalse(queryGraph.isNavigableAtAll(1, 2));
@@ -148,8 +132,7 @@ public class TestQueryGraph extends TestCase
         assertTrue(queryGraph.isNavigableAtAll(1, 2));
     }
 
-    public void testGetNavigableStreams()
-    {
+    public void testGetNavigableStreams() {
         queryGraph = new QueryGraph(5, null, false);
         queryGraph.addStrictEquals(3, "p3", null, 4, "p4", null);
         queryGraph.addStrictEquals(2, "p2", null, 3, "p3", null);
@@ -162,15 +145,14 @@ public class TestQueryGraph extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3}, queryGraph.getNavigableStreams(4));
     }
 
-    public void testGetProperties()
-    {
+    public void testGetProperties() {
         // s1.p11 = s0.p01 and s0.p02 = s1.p12
         queryGraph.addStrictEquals(1, "p11", make(1, "p11"), 0, "p01", make(0, "p01"));
         queryGraph.addStrictEquals(0, "p02", make(0, "p02"), 1, "p12", make(1, "p12"));
         log.debug(queryGraph.toString());
 
-        String[] expectedOne = new String[] {"p11", "p12"};
-        String[] expectedTwo = new String[] {"p01", "p02"};
+        String[] expectedOne = new String[]{"p11", "p12"};
+        String[] expectedTwo = new String[]{"p01", "p02"};
         assertTrue(Arrays.equals(expectedTwo, QueryGraphTestUtil.getIndexProperties(queryGraph, 1, 0)));
         assertTrue(Arrays.equals(expectedOne, QueryGraphTestUtil.getIndexProperties(queryGraph, 0, 1)));
         assertTrue(Arrays.equals(expectedOne, QueryGraphTestUtil.getStrictKeyProperties(queryGraph, 1, 0)));

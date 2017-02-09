@@ -15,14 +15,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-public class FilterServiceGranularLockFactoryNone implements FilterServiceGranularLockFactory
-{
+public class FilterServiceGranularLockFactoryNone implements FilterServiceGranularLockFactory {
     public static final FilterServiceGranularLockFactoryNone INSTANCE = new FilterServiceGranularLockFactoryNone();
 
     private FilterServiceGranularLockFactoryNone() {
     }
 
-    private static Lock LOCKNONE = new Lock() {
+    private final static Lock LOCKNONE = new Lock() {
         public void lock() {
         }
 
@@ -45,7 +44,7 @@ public class FilterServiceGranularLockFactoryNone implements FilterServiceGranul
         }
     };
 
-    private static ReadWriteLock RWLOCKNONE = new ReadWriteLock() {
+    private final static ReadWriteLock RWLOCKNONE = new ReadWriteLock() {
         public Lock readLock() {
             return LOCKNONE;
         }

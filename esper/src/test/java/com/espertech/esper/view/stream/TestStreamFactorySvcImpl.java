@@ -25,8 +25,7 @@ import com.espertech.esper.supportunit.filter.SupportFilterSpecBuilder;
 import com.espertech.esper.view.EventStream;
 import junit.framework.TestCase;
 
-public class TestStreamFactorySvcImpl extends TestCase
-{
+public class TestStreamFactorySvcImpl extends TestCase {
     private StreamFactoryService streamFactoryService;
     private SupportFilterServiceImpl supportFilterService;
 
@@ -35,37 +34,31 @@ public class TestStreamFactorySvcImpl extends TestCase
     private EPStatementHandle handle = new EPStatementHandle(1, "name", "text", StatementType.SELECT, "text", false, null, 1, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler());
     private EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(handle, new StatementAgentInstanceRWLockImpl(false), -1, null, null);
 
-    public void setUp()
-    {
+    public void setUp() {
         supportFilterService = new SupportFilterServiceImpl();
         streamFactoryService = new StreamFactorySvcImpl("default", true);
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
 
         filterSpecs = new FilterSpecCompiled[3];
-        filterSpecs[0] = SupportFilterSpecBuilder.build(eventType, new Object[] { "string", FilterOperator.EQUAL, "a" });
-        filterSpecs[1] = SupportFilterSpecBuilder.build(eventType, new Object[] { "string", FilterOperator.EQUAL, "a" });
-        filterSpecs[2] = SupportFilterSpecBuilder.build(eventType, new Object[] { "string", FilterOperator.EQUAL, "b" });
+        filterSpecs[0] = SupportFilterSpecBuilder.build(eventType, new Object[]{"string", FilterOperator.EQUAL, "a"});
+        filterSpecs[1] = SupportFilterSpecBuilder.build(eventType, new Object[]{"string", FilterOperator.EQUAL, "a"});
+        filterSpecs[2] = SupportFilterSpecBuilder.build(eventType, new Object[]{"string", FilterOperator.EQUAL, "b"});
     }
 
-    public void testInvalidJoin()
-    {
+    public void testInvalidJoin() {
         streams = new EventStream[3];
         streams[0] = streamFactoryService.createStream(1, filterSpecs[0], supportFilterService, agentHandle, true, null, false, false, null, false, 0, false).getFirst();
 
-        try
-        {
+        try {
             // try to reuse the same filter spec object, should fail
             streamFactoryService.createStream(1, filterSpecs[0], supportFilterService, agentHandle, true, null, false, false, null, false, 0, false);
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // expected
         }
     }
 
-    public void testCreateJoin()
-    {
+    public void testCreateJoin() {
         streams = new EventStream[3];
         streams[0] = streamFactoryService.createStream(1, filterSpecs[0], supportFilterService, agentHandle, true, null, false, false, null, false, 0, false).getFirst();
         streams[1] = streamFactoryService.createStream(1, filterSpecs[1], supportFilterService, agentHandle, true, null, false, false, null, false, 0, false).getFirst();
@@ -83,8 +76,7 @@ public class TestStreamFactorySvcImpl extends TestCase
         assertEquals(3, supportFilterService.getAdded().size());
     }
 
-    public void testDropJoin()
-    {
+    public void testDropJoin() {
         streams = new EventStream[3];
         streams[0] = streamFactoryService.createStream(1, filterSpecs[0], supportFilterService, agentHandle, true, null, false, false, null, false, 0, false).getFirst();
         streams[1] = streamFactoryService.createStream(2, filterSpecs[1], supportFilterService, agentHandle, true, null, false, false, null, false, 0, false).getFirst();
@@ -99,19 +91,15 @@ public class TestStreamFactorySvcImpl extends TestCase
         assertEquals(3, supportFilterService.getRemoved().size());
 
         // Something already removed
-        try
-        {
+        try {
             streamFactoryService.dropStream(filterSpecs[2], supportFilterService, true, false, false, false);
             TestCase.fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected
         }
     }
 
-    public void testCreateNoJoin()
-    {
+    public void testCreateNoJoin() {
         EPStatementHandle stmtHande = new EPStatementHandle(1, "id", null, StatementType.SELECT, "text", false, null, 1, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler());
         EPStatementAgentInstanceHandle stmtAgentHandle = new EPStatementAgentInstanceHandle(stmtHande, new StatementAgentInstanceRWLockImpl(false), -1, null, null);
 
@@ -133,8 +121,7 @@ public class TestStreamFactorySvcImpl extends TestCase
         assertEquals(2, supportFilterService.getAdded().size());
     }
 
-    public void testDropNoJoin()
-    {
+    public void testDropNoJoin() {
         EPStatementHandle stmtHande = new EPStatementHandle(1, "id", null, StatementType.SELECT, "text", false, null, 1, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler());
         EPStatementAgentInstanceHandle stmtAgentHandle = new EPStatementAgentInstanceHandle(stmtHande, new StatementAgentInstanceRWLockImpl(false), -1, null, null);
         streams = new EventStream[4];
@@ -155,13 +142,10 @@ public class TestStreamFactorySvcImpl extends TestCase
         assertEquals(2, supportFilterService.getRemoved().size());
 
         // Something already removed
-        try
-        {
+        try {
             streamFactoryService.dropStream(filterSpecs[2], supportFilterService, false, false, false, false);
             TestCase.fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected
         }
     }

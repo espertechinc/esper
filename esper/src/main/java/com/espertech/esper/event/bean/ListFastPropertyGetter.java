@@ -25,26 +25,24 @@ import java.util.List;
 /**
  * Getter for a list property identified by a given index, using the CGLIB fast method.
  */
-public class ListFastPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed
-{
+public class ListFastPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed {
     private final FastMethod fastMethod;
     private final int index;
 
     /**
      * Constructor.
-     * @param method the underlying method
-     * @param fastMethod is the method to use to retrieve a value from the object
-     * @param index is tge index within the array to get the property from
+     *
+     * @param method              the underlying method
+     * @param fastMethod          is the method to use to retrieve a value from the object
+     * @param index               is tge index within the array to get the property from
      * @param eventAdapterService factory for event beans and event types
      */
-    public ListFastPropertyGetter(Method method, FastMethod fastMethod, int index, EventAdapterService eventAdapterService)
-    {
+    public ListFastPropertyGetter(Method method, FastMethod fastMethod, int index, EventAdapterService eventAdapterService) {
         super(eventAdapterService, JavaClassHelper.getGenericReturnType(method, false), null);
         this.index = index;
         this.fastMethod = fastMethod;
 
-        if (index < 0)
-        {
+        if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
     }
@@ -57,52 +55,40 @@ public class ListFastPropertyGetter extends BaseNativePropertyGetter implements 
         return getBeanPropInternal(object, index);
     }
 
-    public Object getBeanPropInternal(Object object, int index) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
+        try {
             Object value = fastMethod.invoke(object, null);
-            if (!(value instanceof List))
-            {
+            if (!(value instanceof List)) {
                 return null;
             }
             List valueList = (List) value;
-            if (valueList.size() <= index)
-            {
+            if (valueList.size() <= index) {
                 return null;
             }
             return valueList.get(index);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(fastMethod.getJavaMethod(), e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "ListFastPropertyGetter " +
                 " fastMethod=" + fastMethod.toString() +
                 " index=" + index;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

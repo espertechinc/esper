@@ -27,14 +27,12 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.*;
 
-public class EventTableIndexUtil
-{
+public class EventTableIndexUtil {
     private static final Logger log = LoggerFactory.getLogger(EventTableIndexUtil.class);
     private final static IndexComparatorShortestPath INDEX_COMPARATOR_INSTANCE = new IndexComparatorShortestPath();
 
     public static EventTableCreateIndexDesc validateCompileExplicitIndex(boolean unique, List<CreateIndexItem> columns, EventType eventType)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<IndexedPropDesc> hashProps = new ArrayList<IndexedPropDesc>();
         List<IndexedPropDesc> btreeProps = new ArrayList<IndexedPropDesc>();
 
@@ -146,7 +144,7 @@ public class EventTableIndexUtil
             }
         }
         if (!indexes.isEmpty()) {
-            Collections.sort(indexes,INDEX_COMPARATOR_INSTANCE);
+            Collections.sort(indexes, INDEX_COMPARATOR_INSTANCE);
             return getPair(indexCandidates, indexes.get(0));
         }
 
@@ -154,7 +152,7 @@ public class EventTableIndexUtil
         indexes.clear();
         indexes.addAll(indexCandidates.keySet());
         if (indexes.size() > 1) {
-            Collections.sort(indexes,INDEX_COMPARATOR_INSTANCE);
+            Collections.sort(indexes, INDEX_COMPARATOR_INSTANCE);
         }
         return getPair(indexCandidates, indexes.get(0));
     }
@@ -269,8 +267,7 @@ public class EventTableIndexUtil
     private static class IndexComparatorShortestPath implements Comparator<IndexMultiKey>, Serializable {
         private static final long serialVersionUID = -2214412607714095566L;
 
-        public int compare(IndexMultiKey o1, IndexMultiKey o2)
-        {
+        public int compare(IndexMultiKey o1, IndexMultiKey o2) {
             String[] indexedProps1 = IndexedPropDesc.getIndexProperties(o1.getHashIndexedProps());
             String[] indexedProps2 = IndexedPropDesc.getIndexProperties(o2.getHashIndexedProps());
             if (indexedProps1.length > indexedProps2.length) {

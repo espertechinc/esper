@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Configuration information for plugging in a custom single-row function.
  */
-public class ConfigurationPlugInSingleRowFunction implements Serializable
-{
+public class ConfigurationPlugInSingleRowFunction implements Serializable {
     private static final long serialVersionUID = 4096734947283212246L;
 
     private String name;
@@ -29,66 +28,66 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable
     /**
      * Ctor.
      */
-    public ConfigurationPlugInSingleRowFunction()
-    {
+    public ConfigurationPlugInSingleRowFunction() {
     }
 
     /**
      * Returns the single-row function name for use in EPL.
+     *
      * @return single-row function name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Sets the single-row function name for use in EPL.
+     *
      * @param name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Returns the single-row function name.
+     *
      * @return name
      */
-    public String getFunctionClassName()
-    {
+    public String getFunctionClassName() {
         return functionClassName;
     }
 
     /**
      * Sets the single-row function's implementation class name.
+     *
      * @param functionClassName is the implementation class name
      */
-    public void setFunctionClassName(String functionClassName)
-    {
+    public void setFunctionClassName(String functionClassName) {
         this.functionClassName = functionClassName;
     }
 
     /**
      * Returns the name of the single-row function.
+     *
      * @return function name
      */
-    public String getFunctionMethodName()
-    {
+    public String getFunctionMethodName() {
         return functionMethodName;
     }
 
     /**
      * Sets the name of the single-row function.
+     *
      * @param functionMethodName single-row function name
      */
-    public void setFunctionMethodName(String functionMethodName)
-    {
+    public void setFunctionMethodName(String functionMethodName) {
         this.functionMethodName = functionMethodName;
     }
 
     /**
      * Returns the setting for the cache behavior.
+     *
      * @return cache behavior
      */
     public ValueCache getValueCache() {
@@ -97,6 +96,7 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable
 
     /**
      * Sets the cache behavior.
+     *
      * @param valueCache cache behavior
      */
     public void setValueCache(ValueCache valueCache) {
@@ -105,6 +105,7 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable
 
     /**
      * Returns filter optimization settings.
+     *
      * @return filter optimization settings
      */
     public FilterOptimizable getFilterOptimizable() {
@@ -113,6 +114,7 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable
 
     /**
      * Sets filter optimization settings.
+     *
      * @param filterOptimizable filter optimization settings
      */
     public void setFilterOptimizable(FilterOptimizable filterOptimizable) {
@@ -123,6 +125,7 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable
      * Returns indicator whether the engine re-throws exceptions
      * thrown by the single-row function. The default is false
      * therefore the engine by default does not rethrow exceptions.
+     *
      * @return indicator
      */
     public boolean isRethrowExceptions() {
@@ -133,6 +136,7 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable
      * Sets indicator whether the engine re-throws exceptions
      * thrown by the single-row function. The default is false
      * therefore the engine by default does not rethrow exceptions.
+     *
      * @param rethrowExceptions indicator
      */
     public void setRethrowExceptions(boolean rethrowExceptions) {

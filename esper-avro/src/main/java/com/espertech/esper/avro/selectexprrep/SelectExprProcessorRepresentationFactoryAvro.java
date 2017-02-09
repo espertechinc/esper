@@ -12,8 +12,8 @@ package com.espertech.esper.avro.selectexprrep;
 
 import com.espertech.esper.avro.writer.AvroRecastFactory;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.core.SelectExprProcessor;
+import com.espertech.esper.epl.core.SelectExprProcessorRepresentationFactory;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;

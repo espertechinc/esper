@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class QueryGraphValuePairInKWMultiIdx
-{
+public class QueryGraphValuePairInKWMultiIdx {
     private final ExprNode[] indexed;
     private final QueryGraphValueEntryInKeywordMultiIdx key;
 

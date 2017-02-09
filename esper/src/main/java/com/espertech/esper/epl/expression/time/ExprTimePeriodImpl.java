@@ -29,8 +29,7 @@ import java.util.TimeZone;
  * <p>
  * Child nodes to this expression carry the actual parts and must return a numeric value.
  */
-public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, ExprEvaluator
-{
+public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, ExprEvaluator {
     private final TimeZone timeZone;
     private final boolean hasYear;
     private final boolean hasMonth;
@@ -47,8 +46,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     private final TimeAbacus timeAbacus;
     private static final long serialVersionUID = -7229827032500659319L;
 
-    public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond, boolean hasMicrosecond, TimeAbacus timeAbacus)
-    {
+    public ExprTimePeriodImpl(TimeZone timeZone, boolean hasYear, boolean hasMonth, boolean hasWeek, boolean hasDay, boolean hasHour, boolean hasMinute, boolean hasSecond, boolean hasMillisecond, boolean hasMicrosecond, TimeAbacus timeAbacus) {
         this.timeZone = timeZone;
         this.hasYear = hasYear;
         this.hasMonth = hasMonth;
@@ -67,8 +65,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
             double seconds = evaluateAsSeconds(null, true, context);
             long msec = timeAbacus.deltaForSecondsDouble(seconds);
             return new ExprTimePeriodEvalDeltaConstGivenDelta(msec);
-        }
-        else {
+        } else {
             int[] values = new int[adders.length];
             for (int i = 0; i < values.length; i++) {
                 values[i] = ((Number) evaluators[i].evaluate(null, true, context)).intValue();
@@ -80,8 +77,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     public ExprTimePeriodEvalDeltaNonConst nonconstEvaluator() {
         if (!hasMonth && !hasYear) {
             return new ExprTimePeriodEvalDeltaNonConstMsec(this);
-        }
-        else {
+        } else {
             return new ExprTimePeriodEvalDeltaNonConstCalAdd(timeZone, this);
         }
     }
@@ -108,46 +104,46 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     /**
      * Indicator whether the time period has a day part child expression.
+     *
      * @return true for part present, false for not present
      */
-    public boolean isHasDay()
-    {
+    public boolean isHasDay() {
         return hasDay;
     }
 
     /**
      * Indicator whether the time period has a hour part child expression.
+     *
      * @return true for part present, false for not present
      */
-    public boolean isHasHour()
-    {
+    public boolean isHasHour() {
         return hasHour;
     }
 
     /**
      * Indicator whether the time period has a minute part child expression.
+     *
      * @return true for part present, false for not present
      */
-    public boolean isHasMinute()
-    {
+    public boolean isHasMinute() {
         return hasMinute;
     }
 
     /**
      * Indicator whether the time period has a second part child expression.
+     *
      * @return true for part present, false for not present
      */
-    public boolean isHasSecond()
-    {
+    public boolean isHasSecond() {
         return hasSecond;
     }
 
     /**
      * Indicator whether the time period has a millisecond part child expression.
+     *
      * @return true for part present, false for not present
      */
-    public boolean isHasMillisecond()
-    {
+    public boolean isHasMillisecond() {
         return hasMillisecond;
     }
 
@@ -157,6 +153,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     /**
      * Indicator whether the time period has a year part child expression.
+     *
      * @return true for part present, false for not present
      */
     public boolean isHasYear() {
@@ -165,6 +162,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     /**
      * Indicator whether the time period has a month part child expression.
+     *
      * @return true for part present, false for not present
      */
     public boolean isHasMonth() {
@@ -173,6 +171,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     /**
      * Indicator whether the time period has a week part child expression.
+     *
      * @return true for part present, false for not present
      */
     public boolean isHasWeek() {
@@ -181,18 +180,16 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     /**
      * Indicator whether the time period has a variable in any of the child expressions.
+     *
      * @return true for variable present, false for not present
      */
-    public boolean hasVariable()
-    {
+    public boolean hasVariable() {
         return hasVariable;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        for (ExprNode childNode : this.getChildNodes())
-        {
+        for (ExprNode childNode : this.getChildNodes()) {
             validate(childNode);
         }
 
@@ -228,10 +225,8 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         return null;
     }
 
-    private void validate(ExprNode expression) throws ExprValidationException
-    {
-        if (expression == null)
-        {
+    private void validate(ExprNode expression) throws ExprValidationException {
+        if (expression == null) {
             return;
         }
         Class returnType = expression.getExprEvaluator().getType();
@@ -241,41 +236,41 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         if ((hasMonth || hasYear) && (JavaClassHelper.getBoxedType(returnType) != Integer.class)) {
             throw new ExprValidationException("Time period expressions with month or year component require integer values, received a " + returnType.getSimpleName() + " value");
         }
-        if (expression instanceof ExprVariableNode)
-        {
+        if (expression instanceof ExprVariableNode) {
             hasVariable = true;
         }
     }
 
     public double evaluateAsSeconds(EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprTimePeriod(this);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprTimePeriod(this);
+        }
         double seconds = 0;
         for (int i = 0; i < adders.length; i++) {
             Double result = eval(evaluators[i], eventsPerStream, newData, context);
-            if (result == null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTimePeriod(null);}
+            if (result == null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTimePeriod(null);
+                }
                 throw new EPException("Failed to evaluate time period, received a null value for '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this) + "'");
             }
             seconds += adders[i].compute(result);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTimePeriod(seconds);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprTimePeriod(seconds);
+        }
         return seconds;
     }
 
-    private Double eval(ExprEvaluator expr, EventBean[] events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    private Double eval(ExprEvaluator expr, EventBean[] events, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object value = expr.evaluate(events, isNewData, exprEvaluatorContext);
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
-        if (value instanceof BigDecimal)
-        {
+        if (value instanceof BigDecimal) {
             return ((Number) value).doubleValue();
         }
-        if (value instanceof BigInteger)
-        {
+        if (value instanceof BigInteger) {
             return ((Number) value).doubleValue();
         }
         return ((Number) value).doubleValue();
@@ -285,7 +280,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         int exprCtr = 0;
 
         Integer year = null;
-        if (hasYear){
+        if (hasYear) {
             year = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
         }
 
@@ -310,26 +305,22 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         }
 
         Integer minutes = null;
-        if (hasMinute)
-        {
+        if (hasMinute) {
             minutes = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
         }
 
         Integer seconds = null;
-        if (hasSecond)
-        {
+        if (hasSecond) {
             seconds = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
         }
 
         Integer milliseconds = null;
-        if (hasMillisecond)
-        {
+        if (hasMillisecond) {
             milliseconds = getInt(evaluators[exprCtr++].evaluate(eventsPerStream, newData, context));
         }
 
         Integer microseconds = null;
-        if (hasMicrosecond)
-        {
+        if (hasMicrosecond) {
             microseconds = getInt(evaluators[exprCtr].evaluate(eventsPerStream, newData, context));
         }
         return new TimePeriod(year, month, week, day, hours, minutes, seconds, milliseconds, microseconds);
@@ -344,14 +335,17 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     public static interface TimePeriodAdder {
         public double compute(Double value);
+
         public void add(Calendar cal, int value);
+
         boolean isMicroseconds();
     }
 
     public static class TimePeriodAdderYear implements TimePeriodAdder {
-        private static final double MULTIPLIER = 365*24*60*60;
+        private static final double MULTIPLIER = 365 * 24 * 60 * 60;
+
         public double compute(Double value) {
-            return value*MULTIPLIER;
+            return value * MULTIPLIER;
         }
 
         public void add(Calendar cal, int value) {
@@ -364,9 +358,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     }
 
     public static class TimePeriodAdderMonth implements TimePeriodAdder {
-        private static final double MULTIPLIER = 30*24*60*60;
+        private static final double MULTIPLIER = 30 * 24 * 60 * 60;
+
         public double compute(Double value) {
-            return value*MULTIPLIER;
+            return value * MULTIPLIER;
         }
 
         public void add(Calendar cal, int value) {
@@ -379,9 +374,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     }
 
     public static class TimePeriodAdderWeek implements TimePeriodAdder {
-        private static final double MULTIPLIER = 7*24*60*60;
+        private static final double MULTIPLIER = 7 * 24 * 60 * 60;
+
         public double compute(Double value) {
-            return value*MULTIPLIER;
+            return value * MULTIPLIER;
         }
 
         public void add(Calendar cal, int value) {
@@ -394,9 +390,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     }
 
     public static class TimePeriodAdderDay implements TimePeriodAdder {
-        private static final double MULTIPLIER = 24*60*60;
+        private static final double MULTIPLIER = 24 * 60 * 60;
+
         public double compute(Double value) {
-            return value*MULTIPLIER;
+            return value * MULTIPLIER;
         }
 
         public void add(Calendar cal, int value) {
@@ -409,9 +406,10 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     }
 
     public static class TimePeriodAdderHour implements TimePeriodAdder {
-        private static final double MULTIPLIER = 60*60;
+        private static final double MULTIPLIER = 60 * 60;
+
         public double compute(Double value) {
-            return value*MULTIPLIER;
+            return value * MULTIPLIER;
         }
 
         public void add(Calendar cal, int value) {
@@ -425,8 +423,9 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
 
     public static class TimePeriodAdderMinute implements TimePeriodAdder {
         private static final double MULTIPLIER = 60;
+
         public double compute(Double value) {
-            return value*MULTIPLIER;
+            return value * MULTIPLIER;
         }
 
         public void add(Calendar cal, int value) {
@@ -480,17 +479,13 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         }
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Double.class;
     }
 
-    public boolean isConstantResult()
-    {
-        for (ExprNode child : getChildNodes())
-        {
-            if (!child.isConstantResult())
-            {
+    public boolean isConstantResult() {
+        for (ExprNode child : getChildNodes()) {
+            if (!child.isConstantResult()) {
                 return false;
             }
         }
@@ -500,63 +495,54 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         int exprCtr = 0;
         String delimiter = "";
-        if (hasYear)
-        {
+        if (hasYear) {
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" years");
             delimiter = " ";
         }
-        if (hasMonth)
-        {
+        if (hasMonth) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" months");
             delimiter = " ";
         }
-        if (hasWeek)
-        {
+        if (hasWeek) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" weeks");
             delimiter = " ";
         }
-        if (hasDay)
-        {
+        if (hasDay) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" days");
             delimiter = " ";
         }
-        if (hasHour)
-        {
+        if (hasHour) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" hours");
             delimiter = " ";
         }
-        if (hasMinute)
-        {
+        if (hasMinute) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" minutes");
             delimiter = " ";
         }
-        if (hasSecond)
-        {
+        if (hasSecond) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" seconds");
             delimiter = " ";
         }
-        if (hasMillisecond)
-        {
+        if (hasMillisecond) {
             writer.append(delimiter);
             getChildNodes()[exprCtr++].toEPL(writer, getPrecedence());
             writer.append(" milliseconds");
             delimiter = " ";
         }
-        if (hasMicrosecond)
-        {
+        if (hasMicrosecond) {
             writer.append(delimiter);
             getChildNodes()[exprCtr].toEPL(writer, getPrecedence());
             writer.append(" microseconds");
@@ -567,46 +553,36 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprTimePeriodImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprTimePeriodImpl)) {
             return false;
         }
         ExprTimePeriodImpl other = (ExprTimePeriodImpl) node;
 
-        if (hasYear!= other.hasYear)
-        {
+        if (hasYear != other.hasYear) {
             return false;
         }
-        if (hasMonth != other.hasMonth)
-        {
+        if (hasMonth != other.hasMonth) {
             return false;
         }
-        if (hasWeek != other.hasWeek)
-        {
+        if (hasWeek != other.hasWeek) {
             return false;
         }
-        if (hasDay != other.hasDay)
-        {
+        if (hasDay != other.hasDay) {
             return false;
         }
-        if (hasHour != other.hasHour)
-        {
+        if (hasHour != other.hasHour) {
             return false;
         }
-        if (hasMinute != other.hasMinute)
-        {
+        if (hasMinute != other.hasMinute) {
             return false;
         }
-        if (hasSecond != other.hasSecond)
-        {
+        if (hasSecond != other.hasSecond) {
             return false;
         }
-        if (hasMillisecond != other.hasMillisecond)
-        {
+        if (hasMillisecond != other.hasMillisecond) {
             return false;
         }
-        return (hasMicrosecond == other.hasMicrosecond);
+        return hasMicrosecond == other.hasMicrosecond;
     }
 }

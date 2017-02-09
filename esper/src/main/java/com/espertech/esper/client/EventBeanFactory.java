@@ -19,6 +19,7 @@ public interface EventBeanFactory {
 
     /**
      * Wraps the underlying event object.
+     *
      * @param underlying event to wrap
      * @return event bean
      */
@@ -26,6 +27,7 @@ public interface EventBeanFactory {
 
     /**
      * Returns the type of the underlying class expected for successful wrapping.
+     *
      * @return underlying type expected
      */
     public Class getUnderlyingType();

@@ -19,7 +19,10 @@ import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
 
 public class InnerEvaluatorArrPrimitiveToColl implements ExprDotEvalRootChildInnerEval {
 

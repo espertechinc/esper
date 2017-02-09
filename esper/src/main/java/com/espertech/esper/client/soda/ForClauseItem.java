@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * An item in a for-clause for controlling delivery of result events to listeners and subscribers.
  */
-public class ForClauseItem implements Serializable
-{
+public class ForClauseItem implements Serializable {
     private static final long serialVersionUID = -8476488858601535928L;
 
     private ForClauseKeyword keyword;
@@ -27,11 +26,11 @@ public class ForClauseItem implements Serializable
 
     /**
      * Creates a for-clause with no expressions.
+     *
      * @param keyword keyword to use
      * @return for-clause
      */
-    public static ForClauseItem create(ForClauseKeyword keyword)
-    {
+    public static ForClauseItem create(ForClauseKeyword keyword) {
         return new ForClauseItem(keyword);
     }
 
@@ -40,23 +39,23 @@ public class ForClauseItem implements Serializable
      * <p>
      * Must set a keyword and optionally add expressions.
      */
-    public ForClauseItem()
-    {
+    public ForClauseItem() {
         expressions = new ArrayList<Expression>();
     }
 
     /**
      * Ctor.
+     *
      * @param keyword the delivery keyword
      */
-    public ForClauseItem(ForClauseKeyword keyword)
-    {
+    public ForClauseItem(ForClauseKeyword keyword) {
         this();
         setKeyword(keyword);
     }
 
     /**
      * Returns the for-clause keyword.
+     *
      * @return keyword
      */
     public ForClauseKeyword getKeyword() {
@@ -65,6 +64,7 @@ public class ForClauseItem implements Serializable
 
     /**
      * Sets the for-clause keyword.
+     *
      * @param keyword to set
      */
     public void setKeyword(ForClauseKeyword keyword) {
@@ -73,6 +73,7 @@ public class ForClauseItem implements Serializable
 
     /**
      * Returns for-clause expressions.
+     *
      * @return expressions
      */
     public List<Expression> getExpressions() {
@@ -81,6 +82,7 @@ public class ForClauseItem implements Serializable
 
     /**
      * Sets for-clause expressions.
+     *
      * @param expressions expressions to set
      */
     public void setExpressions(List<Expression> expressions) {
@@ -89,10 +91,10 @@ public class ForClauseItem implements Serializable
 
     /**
      * Renders the clause in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         if (keyword == null) {
             return;
         }
@@ -104,8 +106,7 @@ public class ForClauseItem implements Serializable
 
         writer.write("(");
         String delimiter = "";
-        for (Expression child : expressions)
-        {
+        for (Expression child : expressions) {
             writer.write(delimiter);
             child.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             delimiter = ", ";

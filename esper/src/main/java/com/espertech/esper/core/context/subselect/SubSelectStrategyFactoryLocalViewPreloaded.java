@@ -60,8 +60,7 @@ import java.util.*;
 /**
  * Entry holding lookup resource references for use by {@link SubSelectActivationCollection}.
  */
-public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStrategyFactory
-{
+public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStrategyFactory {
     private static Logger log = LoggerFactory.getLogger(SubSelectStrategyFactoryLocalViewPreloaded.class);
     private final static SubordTableLookupStrategyNullRow NULL_ROW_STRATEGY = new SubordTableLookupStrategyNullRow();
 
@@ -128,16 +127,13 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             if (groupKeys == null) {
                 if (filterExprEval == null) {
                     aggregatorView = new SubselectAggregatorViewUnfilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null);
-                }
-                else {
+                } else {
                     aggregatorView = new SubselectAggregatorViewFilteredUngrouped(aggregationService, filterExprEval, agentInstanceContext, null, filterExprNode);
                 }
-            }
-            else {
+            } else {
                 if (filterExprEval == null) {
                     aggregatorView = new SubselectAggregatorViewUnfilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeys);
-                }
-                else {
+                } else {
                     aggregatorView = new SubselectAggregatorViewFilteredGrouped(aggregationService, filterExprEval, agentInstanceContext, groupKeys, filterExprNode);
                 }
             }
@@ -163,16 +159,13 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             if (groupKeys == null) {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);
-                }
-                else {
+                } else {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredUngrouped(aggregationService, filterExprEval, null);
                 }
-            }
-            else {
+            } else {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredGrouped(aggregationService, filterExprEval, groupKeys);
-                }
-                else {
+                } else {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredGrouped(aggregationService, filterExprEval, groupKeys);
                 }
             }
@@ -193,8 +186,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
                     }
                 }
             };
-        }
-        else {
+        } else {
             postLoad = new StatementAgentInstancePostLoad() {
                 public void executePostLoad() {
                     // no post-load
@@ -216,8 +208,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
     }
 
     private void preload(EPServicesContext services, EventTable[] eventIndex, Viewable subselectView, AgentInstanceContext agentInstanceContext) {
-        if (subSelectHolder.getStreamSpecCompiled() instanceof NamedWindowConsumerStreamSpec)
-        {
+        if (subSelectHolder.getStreamSpecCompiled() instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) subSelectHolder.getStreamSpecCompiled();
             NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
             if (processor == null) {
@@ -242,42 +233,36 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
                     Collection<EventBean> snapshot = consumerView.snapshotNoLock(filterSpecCompiled, agentInstanceContext.getStatementContext().getAnnotations());
                     eventsInWindow = new ArrayList<EventBean>(snapshot.size());
                     ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
                     eventsInWindow = new ArrayList<EventBean>();
                     ExprNodeUtility.applyFilterExpressionsIterable(consumerView, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
                 }
-            }
-            else {
+            } else {
                 eventsInWindow = new ArrayList<EventBean>();
-                for(Iterator<EventBean> it = consumerView.iterator(); it.hasNext();) {
+                for (Iterator<EventBean> it = consumerView.iterator(); it.hasNext(); ) {
                     eventsInWindow.add(it.next());
                 }
             }
             EventBean[] newEvents = eventsInWindow.toArray(new EventBean[eventsInWindow.size()]);
             if (subselectView != null) {
-                ((com.espertech.esper.view.View)subselectView).update(newEvents, null);
+                ((com.espertech.esper.view.View) subselectView).update(newEvents, null);
             }
             if (eventIndex != null) {
                 for (EventTable table : eventIndex) {
                     table.add(newEvents);  // fill index
                 }
             }
-        }
-        else        // preload from the data window that sit on top
-        {
+        } else {
+            // preload from the data window that sit on top
             // Start up event table from the iterator
             Iterator<EventBean> it = subselectView.iterator();
-            if ((it != null) && (it.hasNext()))
-            {
+            if ((it != null) && (it.hasNext())) {
                 ArrayList<EventBean> preloadEvents = new ArrayList<EventBean>();
-                for (;it.hasNext();)
-                {
+                for (; it.hasNext(); ) {
                     preloadEvents.add(it.next());
                 }
-                if (eventIndex != null)
-                {
+                if (eventIndex != null) {
                     for (EventTable table : eventIndex) {
                         table.add(preloadEvents.toArray(new EventBean[preloadEvents.size()]));
                     }

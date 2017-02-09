@@ -21,8 +21,7 @@ import java.io.StringWriter;
 /**
  * This class represents a filter of events in the evaluation tree representing any event expressions.
  */
-public class EvalFilterFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalFilterFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = 0L;
     private final FilterSpecRaw rawFilterSpec;
     private final String eventAsName;
@@ -33,15 +32,15 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Constructor.
+     *
      * @param filterSpecification specifies the filter properties
-     * @param eventAsName is the name to use for adding matching events to the MatchedEventMap
-     * table used when indicating truth value of true.
-     * @param consumptionLevel when using @consume
+     * @param eventAsName         is the name to use for adding matching events to the MatchedEventMap
+     *                            table used when indicating truth value of true.
+     * @param consumptionLevel    when using @consume
      */
     protected EvalFilterFactoryNode(FilterSpecRaw filterSpecification,
                                     String eventAsName,
-                                    Integer consumptionLevel)
-    {
+                                    Integer consumptionLevel) {
         this.rawFilterSpec = filterSpecification;
         this.eventAsName = eventAsName;
         this.consumptionLevel = consumptionLevel;
@@ -53,37 +52,37 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Returns the raw (unoptimized/validated) filter definition.
+     *
      * @return filter def
      */
-    public FilterSpecRaw getRawFilterSpec()
-    {
+    public FilterSpecRaw getRawFilterSpec() {
         return rawFilterSpec;
     }
 
     /**
      * Returns filter specification.
+     *
      * @return filter definition
      */
-    public final FilterSpecCompiled getFilterSpec()
-    {
+    public final FilterSpecCompiled getFilterSpec() {
         return filterSpec;
     }
 
     /**
      * Sets a validated and optimized filter specification
+     *
      * @param filterSpec is the optimized filter
      */
-    public void setFilterSpec(FilterSpecCompiled filterSpec)
-    {
+    public void setFilterSpec(FilterSpecCompiled filterSpec) {
         this.filterSpec = filterSpec;
     }
 
     /**
      * Returns the tag for any matching events to this filter, or null since tags are optional.
+     *
      * @return tag string for event
      */
-    public final String getEventAsName()
-    {
+    public final String getEventAsName() {
         return eventAsName;
     }
 
@@ -92,8 +91,7 @@ public class EvalFilterFactoryNode extends EvalNodeFactoryBase
     }
 
     @SuppressWarnings({"StringConcatenationInsideStringBufferAppend"})
-    public final String toString()
-    {
+    public final String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("EvalFilterNode rawFilterSpec=" + this.rawFilterSpec);
         buffer.append(" filterSpec=" + this.filterSpec);

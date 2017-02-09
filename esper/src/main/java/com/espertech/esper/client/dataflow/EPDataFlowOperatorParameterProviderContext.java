@@ -24,12 +24,13 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Ctor.
-     * @param operatorName operator name
-     * @param parameterName parameter name
+     *
+     * @param operatorName     operator name
+     * @param parameterName    parameter name
      * @param operatorInstance operator instance
-     * @param operatorNum operator number
-     * @param providedValue value if any was provided as part of the declaration
-     * @param dataFlowName data flow name
+     * @param operatorNum      operator number
+     * @param providedValue    value if any was provided as part of the declaration
+     * @param dataFlowName     data flow name
      */
     public EPDataFlowOperatorParameterProviderContext(String operatorName, String parameterName, Object operatorInstance, int operatorNum, Object providedValue, String dataFlowName) {
         this.operatorName = operatorName;
@@ -42,6 +43,7 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Returns the operator name.
+     *
      * @return operator name
      */
     public String getOperatorName() {
@@ -50,6 +52,7 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Returns the parameter name.
+     *
      * @return parameter name
      */
     public String getParameterName() {
@@ -58,6 +61,7 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Returns the operator instance.
+     *
      * @return operator instance
      */
     public Object getOperatorInstance() {
@@ -66,6 +70,7 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Returns the operator number
+     *
      * @return operator num
      */
     public int getOperatorNum() {
@@ -74,6 +79,7 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Returns the parameters declared value, if any
+     *
      * @return value
      */
     public Object getProvidedValue() {
@@ -82,6 +88,7 @@ public class EPDataFlowOperatorParameterProviderContext {
 
     /**
      * Returns the data flow name.
+     *
      * @return data flow name
      */
     public String getDataFlowName() {

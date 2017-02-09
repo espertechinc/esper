@@ -17,8 +17,10 @@ public interface ContextPropertyRegistry {
     public final static String CONTEXT_PREFIX = "context";
 
     public boolean isContextPropertyPrefix(String prefixName);
+
     public EventType getContextEventType();
 
     public boolean isPartitionProperty(EventType fromType, String propertyName);
+
     public String getPartitionContextPropertyName(EventType fromType, String propertyName);
 }

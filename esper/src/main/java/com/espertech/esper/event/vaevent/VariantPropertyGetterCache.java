@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.event.vaevent;
 
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.client.EventType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A thread-safe cache for property getters per event type.
@@ -24,8 +24,7 @@ import java.util.ArrayList;
  * Since most often getters are used in a row for the same type, keeps a row of last used getters for
  * fast lookup based on type.
  */
-public class VariantPropertyGetterCache
-{
+public class VariantPropertyGetterCache {
     private volatile EventType[] knownTypes;
     private volatile VariantPropertyGetterRow lastUsedGetters;
     private List<String> properties;
@@ -33,10 +32,10 @@ public class VariantPropertyGetterCache
 
     /**
      * Ctor.
+     *
      * @param knownTypes types known at cache construction type, may be an empty list for the ANY type variance.
      */
-    public VariantPropertyGetterCache(EventType[] knownTypes)
-    {
+    public VariantPropertyGetterCache(EventType[] knownTypes) {
         this.knownTypes = knownTypes;
         allGetters = new HashMap<EventType, VariantPropertyGetterRow>();
         properties = new ArrayList<String>();
@@ -44,19 +43,17 @@ public class VariantPropertyGetterCache
 
     /**
      * Adds the getters for a property that is identified by a property number which indexes into array of getters per type.
+     *
      * @param assignedPropertyNumber number of property
-     * @param propertyName to add
+     * @param propertyName           to add
      */
-    public void addGetters(int assignedPropertyNumber, String propertyName)
-    {
-        for (EventType type : knownTypes)
-        {
+    public void addGetters(int assignedPropertyNumber, String propertyName) {
+        for (EventType type : knownTypes) {
             EventPropertyGetter getter = type.getGetter(propertyName);
 
             VariantPropertyGetterRow row = allGetters.get(type);
-            if (row == null)
-            {
-                synchronized(this) {
+            if (row == null) {
+                synchronized (this) {
                     row = new VariantPropertyGetterRow(type, new EventPropertyGetter[assignedPropertyNumber + 1]);
                     allGetters.put(type, row);
                 }
@@ -68,15 +65,14 @@ public class VariantPropertyGetterCache
 
     /**
      * Fast lookup of a getter for a property and type.
+     *
      * @param assignedPropertyNumber number of property to use as index
-     * @param eventType type of underlying event
+     * @param eventType              type of underlying event
      * @return getter
      */
-    public EventPropertyGetter getGetter(int assignedPropertyNumber, EventType eventType)
-    {
+    public EventPropertyGetter getGetter(int assignedPropertyNumber, EventType eventType) {
         VariantPropertyGetterRow lastGetters = lastUsedGetters;
-        if ((lastGetters != null) && (lastGetters.eventType == eventType))
-        {
+        if ((lastGetters != null) && (lastGetters.eventType == eventType)) {
             return lastGetters.getGetterPerProp()[assignedPropertyNumber];
         }
 
@@ -84,13 +80,10 @@ public class VariantPropertyGetterCache
 
         // newly seen type (Using ANY type variance or as a subtype of an existing variance type)
         // synchronized add, if added twice then that is ok too
-        if (row == null)
-        {
-            synchronized(this)
-            {
+        if (row == null) {
+            synchronized (this) {
                 row = allGetters.get(eventType);
-                if (row == null)
-                {
+                if (row == null) {
                     row = addType(eventType);
                 }
             }
@@ -101,15 +94,13 @@ public class VariantPropertyGetterCache
         return getter;
     }
 
-    private VariantPropertyGetterRow addType(EventType eventType)
-    {
+    private VariantPropertyGetterRow addType(EventType eventType) {
         EventType[] newKnownTypes = (EventType[]) resizeArray(knownTypes, knownTypes.length + 1);
         newKnownTypes[newKnownTypes.length - 1] = eventType;
 
         // create getters
         EventPropertyGetter[] getters = new EventPropertyGetter[properties.size()];
-        for (int i = 0; i < properties.size(); i++)
-        {
+        for (int i = 0; i < properties.size(); i++) {
             getters[i] = eventType.getGetter(properties.get(i));
         }
 
@@ -126,8 +117,7 @@ public class VariantPropertyGetterCache
         return row;
     }
 
-    private static Object resizeArray(Object oldArray, int newSize)
-    {
+    private static Object resizeArray(Object oldArray, int newSize) {
         int oldSize = java.lang.reflect.Array.getLength(oldArray);
         Class elementType = oldArray.getClass().getComponentType();
         Object newArray = java.lang.reflect.Array.newInstance(
@@ -138,36 +128,29 @@ public class VariantPropertyGetterCache
         return newArray;
     }
 
-    private static class VariantPropertyGetterRow
-    {
+    private static class VariantPropertyGetterRow {
         private EventType eventType;
         private EventPropertyGetter[] getterPerProp;
 
-        private VariantPropertyGetterRow(EventType eventType, EventPropertyGetter[] getterPerProp)
-        {
+        private VariantPropertyGetterRow(EventType eventType, EventPropertyGetter[] getterPerProp) {
             this.eventType = eventType;
             this.getterPerProp = getterPerProp;
         }
 
-        public EventType getEventType()
-        {
+        public EventType getEventType() {
             return eventType;
         }
 
-        public EventPropertyGetter[] getGetterPerProp()
-        {
+        public EventPropertyGetter[] getGetterPerProp() {
             return getterPerProp;
         }
 
-        public void setGetterPerProp(EventPropertyGetter[] getterPerProp)
-        {
+        public void setGetterPerProp(EventPropertyGetter[] getterPerProp) {
             this.getterPerProp = getterPerProp;
         }
 
-        public void addGetter(int assignedPropertyNumber, EventPropertyGetter getter)
-        {
-            if (assignedPropertyNumber > (getterPerProp.length - 1))
-            {
+        public void addGetter(int assignedPropertyNumber, EventPropertyGetter getter) {
+            if (assignedPropertyNumber > (getterPerProp.length - 1)) {
                 getterPerProp = (EventPropertyGetter[]) resizeArray(getterPerProp, getterPerProp.length + 10);
             }
             getterPerProp[assignedPropertyNumber] = getter;

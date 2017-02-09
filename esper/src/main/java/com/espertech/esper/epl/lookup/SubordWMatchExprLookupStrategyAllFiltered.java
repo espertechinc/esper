@@ -19,46 +19,41 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SubordWMatchExprLookupStrategyAllFiltered implements SubordWMatchExprLookupStrategy
-{
+public class SubordWMatchExprLookupStrategyAllFiltered implements SubordWMatchExprLookupStrategy {
     private final ExprEvaluator joinExpr;
     private final EventBean[] eventsPerStream;
     private final Iterable<EventBean> iterableEvents;
 
     /**
      * Ctor.
+     *
      * @param joinExpr is the where clause
      * @param iterable iterable
      */
-    public SubordWMatchExprLookupStrategyAllFiltered(ExprEvaluator joinExpr, Iterable<EventBean> iterable)
-    {
+    public SubordWMatchExprLookupStrategyAllFiltered(ExprEvaluator joinExpr, Iterable<EventBean> iterable) {
         this.joinExpr = joinExpr;
         this.eventsPerStream = new EventBean[2];
         this.iterableEvents = iterable;
     }
 
-    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.FULLTABLESCAN_FILTERED); }
+    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.FULLTABLESCAN_FILTERED);
+        }
 
         Set<EventBean> removeEvents = null;
 
         Iterator<EventBean> eventsIt = iterableEvents.iterator();
-        for (;eventsIt.hasNext();)
-        {
+        for (; eventsIt.hasNext(); ) {
             eventsPerStream[0] = eventsIt.next();
 
-            for (EventBean aNewData : newData)
-            {
+            for (EventBean aNewData : newData) {
                 eventsPerStream[1] = aNewData;    // Stream 1 events are the originating events (on-delete events)
 
                 Boolean result = (Boolean) joinExpr.evaluate(eventsPerStream, true, exprEvaluatorContext);
-                if (result != null)
-                {
-                    if (result)
-                    {
-                        if (removeEvents == null)
-                        {
+                if (result != null) {
+                    if (result) {
+                        if (removeEvents == null) {
                             removeEvents = new LinkedHashSet<EventBean>();
                         }
                         removeEvents.add(eventsPerStream[0]);
@@ -67,14 +62,17 @@ public class SubordWMatchExprLookupStrategyAllFiltered implements SubordWMatchEx
             }
         }
 
-        if (removeEvents == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraTriggeredLookup(null); }
+        if (removeEvents == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aInfraTriggeredLookup(null);
+            }
             return null;
         }
 
         EventBean[] result = removeEvents.toArray(new EventBean[removeEvents.size()]);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraTriggeredLookup(result); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraTriggeredLookup(result);
+        }
         return result;
     }
 

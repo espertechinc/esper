@@ -18,8 +18,7 @@ import com.espertech.esper.util.SimpleNumberCoercer;
 /**
  * Event property value in a list of values following an in-keyword.
  */
-public class InSetOfValuesContextProp implements FilterSpecParamInValue
-{
+public class InSetOfValuesContextProp implements FilterSpecParamInValue {
     private static final long serialVersionUID = 1193129743441752016L;
     private final String propertyName;
     private transient final EventPropertyGetter getter;

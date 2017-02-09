@@ -18,14 +18,14 @@ import java.util.NoSuchElementException;
 public class TestNumberAscCombinationEnumeration extends TestCase {
 
     public void testNumberAscCombinationEnumeration() {
-        compare(new int[][] {{0}}, 1);
-        compare(new int[][] {{0, 1}, {0}, {1}}, 2);
-        compare(new int[][] {{0, 1, 2}, {0, 1}, {0, 2}, {1, 2}, {0}, {1}, {2}}, 3);
-        compare(new int[][] {{0, 1, 2, 3},
+        compare(new int[][]{{0}}, 1);
+        compare(new int[][]{{0, 1}, {0}, {1}}, 2);
+        compare(new int[][]{{0, 1, 2}, {0, 1}, {0, 2}, {1, 2}, {0}, {1}, {2}}, 3);
+        compare(new int[][]{{0, 1, 2, 3},
                 {0, 1, 2}, {0, 1, 3}, {0, 2, 3}, {1, 2, 3},
                 {0, 1}, {0, 2}, {0, 3}, {1, 2}, {1, 3}, {2, 3},
                 {0}, {1}, {2}, {3}}, 4);
-        compare(new int[][] {{0, 1, 2, 3, 4},
+        compare(new int[][]{{0, 1, 2, 3, 4},
                 {0, 1, 2, 3}, {0, 1, 2, 4}, {0, 1, 3, 4}, {0, 2, 3, 4}, {1, 2, 3, 4},
                 {0, 1, 2}, {0, 1, 3}, {0, 1, 4}, {0, 2, 3}, {0, 2, 4}, {0, 3, 4},
                 {1, 2, 3}, {1, 2, 4}, {1, 3, 4},
@@ -36,8 +36,7 @@ public class TestNumberAscCombinationEnumeration extends TestCase {
         try {
             new NumberAscCombinationEnumeration(0);
             fail();
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }
@@ -45,7 +44,7 @@ public class TestNumberAscCombinationEnumeration extends TestCase {
     private static void compare(int[][] expected, int n) {
         NumberAscCombinationEnumeration e = new NumberAscCombinationEnumeration(n);
         int count = 0;
-        while(count < expected.length) {
+        while (count < expected.length) {
             assertTrue(e.hasMoreElements());
             int[] next = e.nextElement();
             int[] expectedArr = expected[count];
@@ -59,8 +58,7 @@ public class TestNumberAscCombinationEnumeration extends TestCase {
         try {
             e.nextElement();
             fail();
-        }
-        catch (NoSuchElementException ex) {
+        } catch (NoSuchElementException ex) {
             // expected
         }
     }

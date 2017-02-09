@@ -15,20 +15,18 @@ import com.espertech.esper.util.IndentWriter;
 /**
  * Assembly node factory for an event stream that is a root with a one required child node below it.
  */
-public class RootRequiredAssemblyNodeFactory extends BaseAssemblyNodeFactory
-{
+public class RootRequiredAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     /**
      * Ctor.
-     * @param streamNum - is the stream number
+     *
+     * @param streamNum  - is the stream number
      * @param numStreams - is the number of streams
      */
-    public RootRequiredAssemblyNodeFactory(int streamNum, int numStreams)
-    {
+    public RootRequiredAssemblyNodeFactory(int streamNum, int numStreams) {
         super(streamNum, numStreams);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("RootRequiredAssemblyNode streamNum=" + streamNum);
     }
 

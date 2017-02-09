@@ -11,7 +11,6 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 

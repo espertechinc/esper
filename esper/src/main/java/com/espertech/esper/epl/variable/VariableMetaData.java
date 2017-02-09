@@ -12,10 +12,7 @@ package com.espertech.esper.epl.variable;
 
 import com.espertech.esper.client.EventType;
 
-import java.io.Serializable;
-
-public class VariableMetaData
-{
+public class VariableMetaData {
     private final String variableName;
     private final String contextPartitionName;
     private final int variableNumber;
@@ -36,10 +33,10 @@ public class VariableMetaData
 
     /**
      * Returns the variable name.
+     *
      * @return variable name
      */
-    public String getVariableName()
-    {
+    public String getVariableName() {
         return variableName;
     }
 
@@ -49,24 +46,25 @@ public class VariableMetaData
 
     /**
      * Returns the variable number.
+     *
      * @return variable index number
      */
-    public int getVariableNumber()
-    {
+    public int getVariableNumber() {
         return variableNumber;
     }
 
     /**
      * Returns the type of the variable.
+     *
      * @return type
      */
-    public Class getType()
-    {
+    public Class getType() {
         return type;
     }
 
     /**
      * Returns the event type if the variable hold event(s).
+     *
      * @return type
      */
     public EventType getEventType() {

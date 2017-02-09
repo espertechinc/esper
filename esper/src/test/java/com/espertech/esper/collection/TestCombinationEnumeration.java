@@ -21,19 +21,18 @@ import java.util.NoSuchElementException;
 public class TestCombinationEnumeration extends TestCase {
 
     public void testEnumerate() {
-        tryEnumerate("1A, 1B, 2A, 2B", new Object[][] {{1, 2}, {"A", "B"}});
-        tryEnumerate("1AX, 1AY, 1BX, 1BY", new Object[][] {{1}, {"A", "B"}, {"X", "Y"}});
-        tryEnumerate("1A, 1B", new Object[][] {{1}, {"A", "B"}});
-        tryEnumerate("1", new Object[][] {{1}});
+        tryEnumerate("1A, 1B, 2A, 2B", new Object[][]{{1, 2}, {"A", "B"}});
+        tryEnumerate("1AX, 1AY, 1BX, 1BY", new Object[][]{{1}, {"A", "B"}, {"X", "Y"}});
+        tryEnumerate("1A, 1B", new Object[][]{{1}, {"A", "B"}});
+        tryEnumerate("1", new Object[][]{{1}});
         tryEnumerate("", new Object[0][]);
-        tryEnumerate("1A, 2A, 3A", new Object[][] {{1, 2, 3}, {"A"}});
-        tryEnumerate("1AX, 1AY, 2AX, 2AY, 3AX, 3AY", new Object[][] {{1, 2, 3}, {"A"}, {"X", "Y"}});
+        tryEnumerate("1A, 2A, 3A", new Object[][]{{1, 2, 3}, {"A"}});
+        tryEnumerate("1AX, 1AY, 2AX, 2AY, 3AX, 3AY", new Object[][]{{1, 2, 3}, {"A"}, {"X", "Y"}});
 
         try {
-            new CombinationEnumeration(new Object[][] {{1}, {}});
+            new CombinationEnumeration(new Object[][]{{1}, {}});
             fail();
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             assertEquals("Expecting non-null element of minimum length 1", ex.getMessage());
         }
     }
@@ -42,7 +41,7 @@ public class TestCombinationEnumeration extends TestCase {
         CombinationEnumeration e = new CombinationEnumeration(objects);
 
         List<Object[]> results = new ArrayList<Object[]>();
-        for (;e.hasMoreElements();) {
+        for (; e.hasMoreElements(); ) {
             Object[] copy = new Object[objects.length];
             Object[] result = e.nextElement();
             System.arraycopy(result, 0, copy, 0, result.length);
@@ -52,8 +51,7 @@ public class TestCombinationEnumeration extends TestCase {
         try {
             e.nextElement();
             fail();
-        }
-        catch (NoSuchElementException ex) {
+        } catch (NoSuchElementException ex) {
             // expected
         }
 

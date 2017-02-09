@@ -14,12 +14,11 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.epl.expression.time.TimeAbacus;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.pattern.PatternNodeFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
@@ -32,8 +31,7 @@ import java.util.*;
  * Context for mapping a SODA statement to a statement specification, or multiple for subqueries,
  * and obtaining certain optimization information from a statement.
  */
-public class StatementSpecMapContext
-{
+public class StatementSpecMapContext {
     private final EngineImportService engineImportService;
     private final VariableService variableService;
     private final ConfigurationInformation configuration;
@@ -54,8 +52,7 @@ public class StatementSpecMapContext
     private String contextName;
     private Set<ExprTableAccessNode> tableNodes = new HashSet<ExprTableAccessNode>(1);
 
-    public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService)
-    {
+    public StatementSpecMapContext(EngineImportService engineImportService, VariableService variableService, ConfigurationInformation configuration, SchedulingService schedulingService, String engineURI, PatternNodeFactory patternNodeFactory, NamedWindowMgmtService namedWindowMgmtService, ContextManagementService contextManagementService, ExprDeclaredService exprDeclaredService, ContextDescriptor contextDescriptor, TableService tableService) {
         this.engineImportService = engineImportService;
         this.variableService = variableService;
         this.configuration = configuration;
@@ -72,64 +69,63 @@ public class StatementSpecMapContext
 
     /**
      * Returns the engine import service.
+     *
      * @return service
      */
-    public EngineImportService getEngineImportService()
-    {
+    public EngineImportService getEngineImportService() {
         return engineImportService;
     }
 
     /**
      * Returns the variable service.
+     *
      * @return service
      */
-    public VariableService getVariableService()
-    {
+    public VariableService getVariableService() {
         return variableService;
     }
 
     /**
      * Returns true if a statement has variables.
+     *
      * @return true for variables found
      */
-    public boolean isHasVariables()
-    {
+    public boolean isHasVariables() {
         return hasVariables;
     }
 
     /**
      * Set to true to indicate that a statement has variables.
+     *
      * @param hasVariables true for variables, false for none
      */
-    public void setHasVariables(boolean hasVariables)
-    {
+    public void setHasVariables(boolean hasVariables) {
         this.hasVariables = hasVariables;
     }
 
     /**
      * Returns the configuration.
+     *
      * @return config
      */
-    public ConfigurationInformation getConfiguration()
-    {
+    public ConfigurationInformation getConfiguration() {
         return configuration;
     }
 
     /**
      * Returns variables.
+     *
      * @return variables
      */
     public Set<String> getVariableNames() {
         return variableNames;
     }
 
-    public SchedulingService getSchedulingService()
-    {
+    public SchedulingService getSchedulingService() {
         return schedulingService;
     }
 
-    public String getEngineURI()
-    {
+    public String getEngineURI() {
         return engineURI;
     }
 

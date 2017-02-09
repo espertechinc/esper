@@ -13,8 +13,7 @@ package com.espertech.esperio;
 /**
  * Supplies properties for use in configuration files to configure Spring application context.
  */
-public class SpringContext
-{
+public class SpringContext {
     /**
      * Use to configure a classpath context.
      */

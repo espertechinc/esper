@@ -24,19 +24,18 @@ import java.util.Set;
  * may turn true. It turns permenantly false when it receives an event from a subexpression and the subexpression
  * quitted. It indicates the false state via an evaluateFalse call on its parent evaluator.
  */
-public class EvalNotStateNode extends EvalStateNode implements Evaluator
-{
+public class EvalNotStateNode extends EvalStateNode implements Evaluator {
     protected final EvalNotNode evalNotNode;
     protected EvalStateNode childNode;
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode  is the parent evaluator to call to indicate truth value
      * @param evalNotNode is the factory node associated to the state
      */
     public EvalNotStateNode(Evaluator parentNode,
-                                  EvalNotNode evalNotNode)
-    {
+                            EvalNotNode evalNotNode) {
         super(parentNode);
 
         this.evalNotNode = evalNotNode;
@@ -51,9 +50,10 @@ public class EvalNotStateNode extends EvalStateNode implements Evaluator
         return evalNotNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternNotStart(evalNotNode, beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternNotStart(evalNotNode, beginState);
+        }
         childNode = evalNotNode.getChildNode().newState(this, null, 0L);
         childNode.start(beginState);
 
@@ -61,44 +61,50 @@ public class EvalNotStateNode extends EvalStateNode implements Evaluator
         // By default the child nodes are false. This not node acts inverts the truth and pretends the child is true,
         // raising an event up.
         this.getParentEvaluator().evaluateTrue(beginState, this, false);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternNotStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternNotStart();
+        }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternNotEvalFalse(evalNotNode);}
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternNotEvalFalse();}
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternNotEvalFalse(evalNotNode);
+        }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternNotEvalFalse();
+        }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternNotEvaluateTrue(evalNotNode, matchEvent);}
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternNotEvaluateTrue(evalNotNode, matchEvent);
+        }
         // Only is the subexpression stopped listening can we tell the parent evaluator that this
         // turned permanently false.
-        if (isQuitted)
-        {
+        if (isQuitted) {
             childNode = null;
             this.getParentEvaluator().evaluateFalse(this, true);
-        }
-        else
-        {
+        } else {
             // If the subexpression did not quit, we stay in the "true" state
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternNotEvaluateTrue(isQuitted);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternNotEvaluateTrue(isQuitted);
+        }
     }
 
-    public final void quit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternNotQuit(evalNotNode);}
-        if (childNode != null)
-        {
+    public final void quit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternNotQuit(evalNotNode);
+        }
+        if (childNode != null) {
             childNode.quit();
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternNotQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternNotQuit();
+        }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitNot(evalNotNode.getFactoryNode(), this);
         if (childNode != null) {
             childNode.accept(visitor);
@@ -121,8 +127,7 @@ public class EvalNotStateNode extends EvalStateNode implements Evaluator
         return false;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalNotStateNode child=" + childNode;
     }
 

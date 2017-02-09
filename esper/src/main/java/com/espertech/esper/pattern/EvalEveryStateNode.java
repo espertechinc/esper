@@ -23,20 +23,19 @@ import java.util.Set;
  * Contains the state collected by an "every" operator. The state includes handles to any sub-listeners
  * started by the operator.
  */
-public class EvalEveryStateNode extends EvalStateNode implements Evaluator
-{
+public class EvalEveryStateNode extends EvalStateNode implements Evaluator {
     protected final EvalEveryNode evalEveryNode;
     protected final List<EvalStateNode> spawnedNodes;
     protected MatchedEventMap beginState;
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode    is the parent evaluator to call to indicate truth value
      * @param evalEveryNode is the factory node associated to the state
      */
     public EvalEveryStateNode(Evaluator parentNode,
-                                 EvalEveryNode evalEveryNode)
-    {
+                              EvalEveryNode evalEveryNode) {
         super(parentNode);
 
         this.evalEveryNode = evalEveryNode;
@@ -47,8 +46,7 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
         if (PatternConsumptionUtil.containsEvent(matchEvent, beginState)) {
             quit();
             this.getParentEvaluator().evaluateFalse(this, true);
-        }
-        else {
+        } else {
             PatternConsumptionUtil.childNodeRemoveMatches(matchEvent, spawnedNodes);
         }
     }
@@ -58,9 +56,10 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
         return evalEveryNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryStart(evalEveryNode, beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryStart(evalEveryNode, beginState);
+        }
         this.beginState = beginState.shallowCopy();
         EvalStateNode childState = evalEveryNode.getChildNode().newState(this, null, 0L);
         spawnedNodes.add(childState);
@@ -73,26 +72,28 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
         childState.start(beginState);
 
         // If the spawned expression turned true already, just quit it
-        if (spawnEvaluator.isEvaluatedTrue())
-        {
+        if (spawnEvaluator.isEvaluatedTrue()) {
             childState.quit();
-        }
-        else
-        {
+        } else {
             childState.setParentEvaluator(this);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryStart();
+        }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryEvalFalse(evalEveryNode);}
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryEvalFalse(evalEveryNode);
+        }
         fromNode.quit();
         spawnedNodes.remove(fromNode);
 
         if (!restartable) {
             getParentEvaluator().evaluateFalse(this, false);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryEvalFalse();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aPatternEveryEvalFalse();
+            }
             return;
         }
 
@@ -104,33 +105,29 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
         spawned.start(beginState);
 
         // If the whole spawned expression already turned true, quit it again
-        if (spawnEvaluator.isEvaluatedTrue())
-        {
+        if (spawnEvaluator.isEvaluatedTrue()) {
             spawned.quit();
-        }
-        else
-        {
+        } else {
             spawnedNodes.add(spawned);
             spawned.setParentEvaluator(this);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryEvalFalse();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryEvalFalse();
+        }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryEvaluateTrue(evalEveryNode, matchEvent);}
-        if (isQuitted)
-        {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryEvaluateTrue(evalEveryNode, matchEvent);
+        }
+        if (isQuitted) {
             spawnedNodes.remove(fromNode);
         }
 
         // See explanation in EvalFilterStateNode for the type check
-        if (fromNode.isFilterStateNode() || fromNode.isObserverStateNodeNonRestarting())
-        {
+        if (fromNode.isFilterStateNode() || fromNode.isObserverStateNodeNonRestarting()) {
             // We do not need to newState new listeners here, since the filter state node below this node did not quit
-        }
-        else
-        {
+        } else {
             // Spawn all nodes below this EVERY node
             // During the start of a child we need to use the temporary evaluator to catch any event created during a start
             // Such events can be raised when the "not" operator is used.
@@ -139,12 +136,9 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
             spawned.start(beginState);
 
             // If the whole spawned expression already turned true, quit it again
-            if (spawnEvaluator.isEvaluatedTrue())
-            {
+            if (spawnEvaluator.isEvaluatedTrue()) {
                 spawned.quit();
-            }
-            else
-            {
+            } else {
                 spawnedNodes.add(spawned);
                 spawned.setParentEvaluator(this);
             }
@@ -152,23 +146,26 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
 
         // All nodes indicate to their parents that their child node did not quit, therefore a false for isQuitted
         this.getParentEvaluator().evaluateTrue(matchEvent, this, false);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryEvaluateTrue();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryEvaluateTrue();
+        }
     }
 
-    public final void quit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryQuit(evalEveryNode);}
+    public final void quit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryQuit(evalEveryNode);
+        }
         // Stop all child nodes
-        for (EvalStateNode child : spawnedNodes)
-        {
+        for (EvalStateNode child : spawnedNodes) {
             child.quit();
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryQuit();
+        }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
-        visitor.visitEvery(evalEveryNode.getFactoryNode(), this,  beginState);
+    public final void accept(EvalStateNodeVisitor visitor) {
+        visitor.visitEvery(evalEveryNode.getFactoryNode(), this, beginState);
         for (EvalStateNode spawnedNode : spawnedNodes) {
             spawnedNode.accept(visitor);
         }
@@ -190,8 +187,7 @@ public class EvalEveryStateNode extends EvalStateNode implements Evaluator
         return false;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalEveryStateNode spawnedChildren=" + spawnedNodes.size();
     }
 

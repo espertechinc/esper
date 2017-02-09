@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Configuration information for plugging in a custom view.
  */
-public class ConfigurationPlugInVirtualDataWindow implements Serializable
-{
+public class ConfigurationPlugInVirtualDataWindow implements Serializable {
     private static final long serialVersionUID = 2402714694249103765L;
 
     private String namespace;
@@ -27,66 +26,66 @@ public class ConfigurationPlugInVirtualDataWindow implements Serializable
     /**
      * Ctor.
      */
-    public ConfigurationPlugInVirtualDataWindow()
-    {
+    public ConfigurationPlugInVirtualDataWindow() {
     }
 
     /**
      * Returns the namespace
+     *
      * @return namespace
      */
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return namespace;
     }
 
     /**
      * Returns the view name.
+     *
      * @return view name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Returns the view factory class name.
+     *
      * @return factory class name
      */
-    public String getFactoryClassName()
-    {
+    public String getFactoryClassName() {
         return factoryClassName;
     }
 
     /**
      * Sets the view namespace.
+     *
      * @param namespace to set
      */
-    public void setNamespace(String namespace)
-    {
+    public void setNamespace(String namespace) {
         this.namespace = namespace;
     }
 
     /**
      * Sets the view name.
+     *
      * @param name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Sets the view factory class name.
+     *
      * @param factoryClassName is the class name of the view factory
      */
-    public void setFactoryClassName(String factoryClassName)
-    {
+    public void setFactoryClassName(String factoryClassName) {
         this.factoryClassName = factoryClassName;
     }
 
     /**
      * Returns any additional configuration passed to the factory as part of the context.
+     *
      * @return optional additional configuration
      */
     public Serializable getConfig() {
@@ -95,6 +94,7 @@ public class ConfigurationPlugInVirtualDataWindow implements Serializable
 
     /**
      * Sets any additional configuration passed to the factory as part of the context.
+     *
      * @param config optional additional configuration
      */
     public void setConfig(Serializable config) {

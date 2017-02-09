@@ -37,6 +37,7 @@ public enum MatchRecognizeSkipClause {
 
     /**
      * Returns clause text.
+     *
      * @return textual
      */
     public String getText() {

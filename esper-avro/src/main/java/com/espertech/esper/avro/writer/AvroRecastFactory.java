@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.avro.writer;
 
-import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.avro.core.AvroEventType;
+import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.event.*;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
@@ -33,8 +33,7 @@ import java.util.Set;
 public class AvroRecastFactory {
 
     public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType targetType, ExprNode[] exprNodes, String statementName, String engineURI)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         AvroEventType resultType = (AvroEventType) targetType;
         AvroEventType streamType = (AvroEventType) eventTypes[streamNumber];
 
@@ -60,8 +59,7 @@ public class AvroRecastFactory {
             if (indexSource != null && indexTarget != null) {
                 if (streamTypeField.schema().equals(resultTypeField.schema())) {
                     items.add(new Item(indexTarget, indexSource, null, null));
-                }
-                else {
+                } else {
                     throw new ExprValidationException("Type by name '" + resultType.getName() + "' " +
                             "in property '" + propertyName +
                             "' expected schema '" + resultTypeField.schema() +
@@ -153,8 +151,7 @@ public class AvroRecastFactory {
 
                 if (item.getOptionalFromIndex() != -1) {
                     value = source.get(item.getOptionalFromIndex());
-                }
-                else {
+                } else {
                     value = item.getEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (item.getOptionalWidener() != null) {
                         value = item.getOptionalWidener().widen(value);

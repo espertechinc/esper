@@ -24,21 +24,19 @@ import com.espertech.esper.util.JavaClassHelper;
 /**
  * Represents the rate(...) and aggregate function is an expression tree.
  */
-public class ExprRateAggNode extends ExprAggregateNodeBase
-{
+public class ExprRateAggNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = -1616393720555472129L;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprRateAggNode(boolean distinct)
-    {
+    public ExprRateAggNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.positionalParams.length == 0) {
             throw new ExprValidationException("The rate aggregation function minimally requires a numeric constant or expression as a parameter.");
         }
@@ -50,15 +48,13 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
             if (first instanceof ExprTimePeriod) {
                 double secInterval = ((ExprTimePeriod) first).evaluateAsSeconds(null, true, validationContext.getExprEvaluatorContext());
                 intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsDouble(secInterval);
-            }
-            else if (ExprNodeUtility.isConstantValueExpr(first)) {
+            } else if (ExprNodeUtility.isConstantValueExpr(first)) {
                 if (!JavaClassHelper.isNumeric(first.getExprEvaluator().getType())) {
                     throw new ExprValidationException(message);
                 }
                 Number num = (Number) first.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
                 intervalTime = validationContext.getEngineImportService().getTimeAbacus().deltaForSecondsNumber(num);
-            }
-            else {
+            } else {
                 throw new ExprValidationException(message);
             }
 
@@ -88,13 +84,11 @@ public class ExprRateAggNode extends ExprAggregateNodeBase
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, false, -1, validationContext.getTimeProvider(), validationContext.getEngineImportService().getTimeAbacus());
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "rate";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprRateAggNode;
     }
 }

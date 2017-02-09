@@ -12,8 +12,7 @@ package com.espertech.esper.epl.lookup;
 
 import java.util.Arrays;
 
-public class LookupStrategyDesc
-{
+public class LookupStrategyDesc {
     private final LookupStrategyType lookupStrategy;
     private final String[] expressionsTexts;
 

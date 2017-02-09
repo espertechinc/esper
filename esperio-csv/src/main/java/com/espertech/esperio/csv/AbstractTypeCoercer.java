@@ -10,17 +10,15 @@
  */
 package com.espertech.esperio.csv;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.espertech.esper.client.util.FastClassClassLoaderProviderDefault;
+import com.espertech.esper.util.JavaClassHelper;
+import net.sf.cglib.reflect.FastClass;
+import net.sf.cglib.reflect.FastConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.espertech.esper.util.JavaClassHelper;
-
-import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.reflect.FastConstructor;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Coercer for type conversion.

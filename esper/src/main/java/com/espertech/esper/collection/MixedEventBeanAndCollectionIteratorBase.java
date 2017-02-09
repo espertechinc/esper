@@ -34,8 +34,7 @@ public abstract class MixedEventBeanAndCollectionIteratorBase implements Iterato
         }
     }
 
-    public final EventBean next()
-    {
+    public final EventBean next() {
         if (currentListIterator == null && currentItem == null) {
             throw new NoSuchElementException();
         }
@@ -47,13 +46,11 @@ public abstract class MixedEventBeanAndCollectionIteratorBase implements Iterato
             if (!currentListIterator.hasNext()) {
                 currentListIterator = null;
                 currentItem = null;
-                if (keyIterator.hasNext())
-                {
+                if (keyIterator.hasNext()) {
                     goToNext();
                 }
             }
-        }
-        else {
+        } else {
             eventBean = currentItem;
             currentItem = null;
             if (keyIterator.hasNext()) {
@@ -64,8 +61,7 @@ public abstract class MixedEventBeanAndCollectionIteratorBase implements Iterato
         return eventBean;
     }
 
-    public final boolean hasNext()
-    {
+    public final boolean hasNext() {
         if (currentListIterator == null && currentItem == null) {
             return false;
         }
@@ -84,25 +80,22 @@ public abstract class MixedEventBeanAndCollectionIteratorBase implements Iterato
         return keyIterator.hasNext();
     }
 
-    public final void remove()
-    {
+    public final void remove() {
         throw new UnsupportedOperationException();
     }
 
     private void goToNext() {
         Object nextKey = keyIterator.next();
         Object entry = getValue(nextKey);
-        while(true) {
+        while (true) {
             if (entry instanceof Collection) {
                 currentListIterator = ((Collection<EventBean>) entry).iterator();
                 if (currentListIterator.hasNext()) {
                     break;
-                }
-                else {
+                } else {
                     currentListIterator = null;
                 }
-            }
-            else if (entry instanceof EventBean) {
+            } else if (entry instanceof EventBean) {
                 currentItem = (EventBean) entry;
                 break;
             }
@@ -111,8 +104,7 @@ public abstract class MixedEventBeanAndCollectionIteratorBase implements Iterato
             if (keyIterator.hasNext()) {
                 nextKey = keyIterator.next();
                 entry = getValue(nextKey);
-            }
-            else {
+            } else {
                 break;
             }
         }

@@ -13,16 +13,15 @@ package com.espertech.esper.epl.variable;
 /**
  * Exception indicating a a variable already exists.
  */
-public class VariableExistsException extends VariableDeclarationException
-{
+public class VariableExistsException extends VariableDeclarationException {
     private static final long serialVersionUID = -7768464108608767486L;
 
     /**
      * Ctor.
+     *
      * @param msg the exception message.
      */
-    public VariableExistsException(String msg)
-    {
+    public VariableExistsException(String msg) {
         super(msg);
     }
 }

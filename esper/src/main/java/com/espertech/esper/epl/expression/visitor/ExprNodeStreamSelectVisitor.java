@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.visitor;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprStreamRefNode;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
 
@@ -22,40 +21,37 @@ import com.espertech.esper.epl.expression.dot.ExprDotNode;
  * The visitor can be configued to not visit aggregation nodes thus ignoring
  * properties under aggregation nodes such as sum, avg, min/max etc.
  */
-public class ExprNodeStreamSelectVisitor implements ExprNodeVisitor
-{
+public class ExprNodeStreamSelectVisitor implements ExprNodeVisitor {
     private final boolean isVisitAggregateNodes;
     private boolean hasStreamSelect;
 
     /**
      * Ctor.
+     *
      * @param visitAggregateNodes true to indicate that the visitor should visit aggregate nodes, or false
-     * if the visitor ignores aggregate nodes
+     *                            if the visitor ignores aggregate nodes
      */
-    public ExprNodeStreamSelectVisitor(boolean visitAggregateNodes)
-    {
+    public ExprNodeStreamSelectVisitor(boolean visitAggregateNodes) {
         this.isVisitAggregateNodes = visitAggregateNodes;
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         if (exprNode instanceof ExprLambdaGoesNode) {
             return false;
         }
-        
+
         if (isVisitAggregateNodes) {
             return true;
         }
 
-        return (!(exprNode instanceof ExprAggregateNode));
+        return !(exprNode instanceof ExprAggregateNode);
     }
 
     public boolean hasStreamSelect() {
         return hasStreamSelect;
     }
 
-    public void visit(ExprNode exprNode)
-    {
+    public void visit(ExprNode exprNode) {
         if (exprNode instanceof ExprStreamUnderlyingNode) {
             hasStreamSelect = true;
         }

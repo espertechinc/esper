@@ -20,51 +20,44 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Simple read-write lock based on {@link java.util.concurrent.locks.ReentrantReadWriteLock} that associates a
  * name with the lock and traces read/write locking and unlocking.
  */
-public class StatementAgentInstanceRWLockImpl implements StatementAgentInstanceLock
-{
+public class StatementAgentInstanceRWLockImpl implements StatementAgentInstanceLock {
     private final ReentrantReadWriteLock lock;
 
     /**
      * Ctor.
+     *
      * @param isFair true if a fair lock, false if not
      */
-    public StatementAgentInstanceRWLockImpl(boolean isFair)
-    {
+    public StatementAgentInstanceRWLockImpl(boolean isFair) {
         lock = new ReentrantReadWriteLock(isFair);
     }
 
     /**
      * Lock write lock.
      */
-    public void acquireWriteLock()
-    {
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+    public void acquireWriteLock() {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(ACQUIRE_TEXT + " write ", lock);
         }
         lock.writeLock().lock();
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(ACQUIRED_TEXT + " write ", lock);
         }
     }
 
     public boolean acquireWriteLock(long msecTimeout) {
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(ACQUIRE_TEXT + " write ", lock);
         }
 
         boolean result = false;
         try {
             result = lock.writeLock().tryLock(msecTimeout, TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(ACQUIRED_TEXT + " write ", lock);
         }
 
@@ -74,15 +67,12 @@ public class StatementAgentInstanceRWLockImpl implements StatementAgentInstanceL
     /**
      * Unlock write lock.
      */
-    public void releaseWriteLock()
-    {
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+    public void releaseWriteLock() {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(RELEASE_TEXT + " write ", lock);
         }
         lock.writeLock().unlock();
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(RELEASED_TEXT + " write ", lock);
         }
     }
@@ -90,15 +80,12 @@ public class StatementAgentInstanceRWLockImpl implements StatementAgentInstanceL
     /**
      * Lock read lock.
      */
-    public void acquireReadLock()
-    {
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+    public void acquireReadLock() {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(ACQUIRE_TEXT + " read ", lock);
         }
         lock.readLock().lock();
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(ACQUIRED_TEXT + " read ", lock);
         }
     }
@@ -106,21 +93,17 @@ public class StatementAgentInstanceRWLockImpl implements StatementAgentInstanceL
     /**
      * Unlock read lock.
      */
-    public void releaseReadLock()
-    {
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+    public void releaseReadLock() {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(RELEASE_TEXT + " read ", lock);
         }
         lock.readLock().unlock();
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.traceLock(RELEASED_TEXT + " read ", lock);
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName();
     }
 

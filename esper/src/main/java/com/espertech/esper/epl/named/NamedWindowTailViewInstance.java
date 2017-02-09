@@ -35,8 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * This view is hooked into a named window's view chain as the last view and handles dispatching of named window
  * insert and remove stream results via {@link NamedWindowMgmtService} to consuming statements.
  */
-public class NamedWindowTailViewInstance extends ViewSupport implements Iterable<EventBean>
-{
+public class NamedWindowTailViewInstance extends ViewSupport implements Iterable<EventBean> {
     private final NamedWindowRootViewInstance rootViewInstance;
     private final NamedWindowTailView tailView;
     private final NamedWindowProcessor namedWindowProcessor;
@@ -55,11 +54,9 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         this.latchFactory = tailView.makeLatchFactory();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         // Only old data (remove stream) needs to be removed from indexes (kept by root view), if any
-        if (oldData != null)
-        {
+        if (oldData != null) {
             rootViewInstance.removeOldData(oldData);
             numberOfEvents -= oldData.length;
         }
@@ -68,14 +65,12 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
             rootViewInstance.addNewData(newData);
         }
 
-        if (newData != null)
-        {
+        if (newData != null) {
             numberOfEvents += newData.length;
         }
 
         // Post to child views, only if there are listeners or subscribers
-        if (tailView.getStatementResultService().isMakeNatural() || tailView.getStatementResultService().isMakeSynthetic())
-        {
+        if (tailView.getStatementResultService().isMakeNatural() || tailView.getStatementResultService().isMakeSynthetic()) {
             updateChildren(newData, oldData);
         }
 
@@ -83,8 +78,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         tailView.addDispatches(latchFactory, consumersInContext, delta, agentInstanceContext);
     }
 
-    public NamedWindowConsumerView addConsumer(NamedWindowConsumerDesc consumerDesc, boolean isSubselect)
-    {
+    public NamedWindowConsumerView addConsumer(NamedWindowConsumerDesc consumerDesc, boolean isSubselect) {
         NamedWindowConsumerCallback consumerCallback = new NamedWindowConsumerCallback() {
             public Iterator<EventBean> getIterator() {
                 NamedWindowProcessorInstance instance = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
@@ -113,8 +107,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
 
         // Keep a list of consumer views per statement to accommodate joins and subqueries
         List<NamedWindowConsumerView> viewsPerStatements = consumersInContext.get(consumerDesc.getAgentInstanceContext().getEpStatementAgentInstanceHandle());
-        if (viewsPerStatements == null)
-        {
+        if (viewsPerStatements == null) {
             viewsPerStatements = new CopyOnWriteArrayList<NamedWindowConsumerView>();
 
             // avoid concurrent modification as a thread may currently iterate over consumers as its dispatching
@@ -126,8 +119,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
         if (isSubselect) {
             viewsPerStatements.add(0, consumerView);
-        }
-        else {
+        } else {
             viewsPerStatements.add(consumerView);
         }
 
@@ -137,25 +129,22 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     /**
      * Called by the consumer view to indicate it was stopped or destroyed, such that the
      * consumer can be deregistered and further dispatches disregard this consumer.
+     *
      * @param namedWindowConsumerView is the consumer representative view
      */
-    public void removeConsumer(NamedWindowConsumerView namedWindowConsumerView)
-    {
+    public void removeConsumer(NamedWindowConsumerView namedWindowConsumerView) {
         EPStatementAgentInstanceHandle handleRemoved = null;
         // Find the consumer view
-        for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : consumersInContext.entrySet())
-        {
+        for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : consumersInContext.entrySet()) {
             boolean foundAndRemoved = entry.getValue().remove(namedWindowConsumerView);
             // Remove the consumer view
-            if ((foundAndRemoved) && (entry.getValue().size() == 0))
-            {
+            if (foundAndRemoved && (entry.getValue().size() == 0)) {
                 // Remove the handle if this list is now empty
                 handleRemoved = entry.getKey();
                 break;
             }
         }
-        if (handleRemoved != null)
-        {
+        if (handleRemoved != null) {
             Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> newConsumers = NamedWindowUtil.createConsumerMap(tailView.isPrioritized());
             newConsumers.putAll(consumersInContext);
             newConsumers.remove(handleRemoved);
@@ -169,60 +158,48 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return tailView.getEventType();
     }
 
-    public Iterator<EventBean> iterator()
-    {
-        if (tailView.getRevisionProcessor() != null)
-        {
+    public Iterator<EventBean> iterator() {
+        if (tailView.getRevisionProcessor() != null) {
             Collection<EventBean> coll = tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
             return coll.iterator();
         }
 
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
-        try
-        {
+        try {
             Iterator<EventBean> it = parent.iterator();
-            if (!it.hasNext())
-            {
+            if (!it.hasNext()) {
                 return CollectionUtil.NULL_EVENT_ITERATOR;
             }
             ArrayList<EventBean> list = new ArrayList<EventBean>();
-            while (it.hasNext())
-            {
+            while (it.hasNext()) {
                 list.add(it.next());
             }
             return new ArrayEventIterator(list.toArray(new EventBean[list.size()]));
-        }
-        finally
-        {
+        } finally {
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
         }
     }
 
     /**
      * Returns a snapshot of window contents, thread-safely
-     * @param filter filters if any
+     *
+     * @param filter      filters if any
      * @param annotations annotations
      * @return window contents
      */
-    public Collection<EventBean> snapshot(FilterSpecCompiled filter, Annotation[] annotations)
-    {
-        if (tailView.getRevisionProcessor() != null)
-        {
+    public Collection<EventBean> snapshot(FilterSpecCompiled filter, Annotation[] annotations) {
+        if (tailView.getRevisionProcessor() != null) {
             return tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
         }
 
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
-        try
-        {
+        try {
             return snapshotNoLock(filter, annotations);
-        }
-        finally
-        {
+        } finally {
             releaseTableLocks(agentInstanceContext);
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
         }
@@ -246,8 +223,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
             EventBean[] deleted = events.toArray(new EventBean[events.size()]);
             rootViewInstance.update(updated, deleted);
             return updated;
-        }
-        finally {
+        } finally {
             releaseTableLocks(agentInstanceContext);
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
         }
@@ -263,15 +239,13 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
             EventBean[] eventsDeleted = events.toArray(new EventBean[events.size()]);
             rootViewInstance.update(null, eventsDeleted);
             return eventsDeleted;
-        }
-        finally {
+        } finally {
             releaseTableLocks(agentInstanceContext);
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
         }
     }
 
-    public Collection<EventBean> snapshotNoLock(FilterSpecCompiled filter, Annotation[] annotations)
-    {
+    public Collection<EventBean> snapshotNoLock(FilterSpecCompiled filter, Annotation[] annotations) {
         if (tailView.getRevisionProcessor() != null) {
             return tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
         }
@@ -291,8 +265,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         return list;
     }
 
-    public Collection<EventBean> snapshotNoLockWithFilter(FilterSpecCompiled filter, Annotation[] annotations, ExprNode filterExpr, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Collection<EventBean> snapshotNoLockWithFilter(FilterSpecCompiled filter, Annotation[] annotations, ExprNode filterExpr, ExprEvaluatorContext exprEvaluatorContext) {
         if (tailView.getRevisionProcessor() != null) {
             return tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
         }
@@ -318,8 +291,7 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         ArrayDeque<EventBean> list = new ArrayDeque<EventBean>();
         if (filterExpr != null) {
             ExprNodeUtility.applyFilterExpressionIterable(it, filterExpr.getExprEvaluator(), agentInstanceContext, list);
-        }
-        else {
+        } else {
             while (it.hasNext()) {
                 list.add(it.next());
             }
@@ -334,17 +306,16 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     /**
      * Destroy the view.
      */
-    public void destroy()
-    {
+    public void destroy() {
         consumersInContext = NamedWindowUtil.createConsumerMap(tailView.isPrioritized());
     }
 
     /**
      * Returns the number of events held.
+     *
      * @return number of events
      */
-    public long getNumberOfEvents()
-    {
+    public long getNumberOfEvents() {
         return numberOfEvents;
     }
 

@@ -43,28 +43,22 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
 
             if (!rangeProp.getType().isRangeInverted()) {
                 strategy = new CompositeAccessStrategyRangeNormal(isNWOnTrigger, lookupStream, numStreams, start, includeStart, end, includeEnd, coercionType, ((QueryGraphValueEntryRangeIn) rangeProp).isAllowRangeReversal());
-            }
-            else {
+            } else {
                 strategy = new CompositeAccessStrategyRangeInverted(isNWOnTrigger, lookupStream, numStreams, start, includeStart, end, includeEnd, coercionType);
             }
-        }
-        else {
+        } else {
             QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeProp;
             ExprEvaluator key = relOp.getExpression().getExprEvaluator();
             expressionTexts.add(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(relOp.getExpression()));
             if (rangeProp.getType() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
                 strategy = new CompositeAccessStrategyGE(isNWOnTrigger, lookupStream, numStreams, key, coercionType);
-            }
-            else if (rangeProp.getType() == QueryGraphRangeEnum.GREATER) {
+            } else if (rangeProp.getType() == QueryGraphRangeEnum.GREATER) {
                 strategy = new CompositeAccessStrategyGT(isNWOnTrigger, lookupStream, numStreams, key, coercionType);
-            }
-            else if (rangeProp.getType() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
+            } else if (rangeProp.getType() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
                 strategy = new CompositeAccessStrategyLE(isNWOnTrigger, lookupStream, numStreams, key, coercionType);
-            }
-            else if (rangeProp.getType() == QueryGraphRangeEnum.LESS) {
+            } else if (rangeProp.getType() == QueryGraphRangeEnum.LESS) {
                 strategy = new CompositeAccessStrategyLT(isNWOnTrigger, lookupStream, numStreams, key, coercionType);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Comparison operator " + rangeProp.getType() + " not supported");
             }
         }
@@ -101,8 +95,7 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
             }
             addResults(sortedMapOne, sortedMapTwo, result, postProcessor);
             return result;
-        }
-        else {
+        } else {
             if (result == null) {
                 result = new HashSet<EventBean>();
             }
@@ -127,8 +120,7 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
             }
             addResults(sortedMapOne, sortedMapTwo, result, postProcessor);
             return result;
-        }
-        else {
+        } else {
             if (result == null) {
                 result = new HashSet<EventBean>();
             }
@@ -160,8 +152,7 @@ public class CompositeIndexQueryRange implements CompositeIndexQuery {
             for (Map.Entry<Object, Set<EventBean>> entry : map.entrySet()) {
                 postProcessor.add(entry.getValue(), result);
             }
-        }
-        else {
+        } else {
             for (Map.Entry<Object, Set<EventBean>> entry : map.entrySet()) {
                 result.addAll(entry.getValue());
             }

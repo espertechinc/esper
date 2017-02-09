@@ -14,7 +14,6 @@ import com.espertech.esper.client.EventBean;
 
 import java.util.Set;
 
-public interface EventTableAsSet extends EventTable
-{
+public interface EventTableAsSet extends EventTable {
     public Set<EventBean> allValues();
 }

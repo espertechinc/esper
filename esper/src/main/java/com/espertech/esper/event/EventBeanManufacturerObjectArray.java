@@ -18,8 +18,7 @@ import java.util.Map;
 /**
  * Factory for ObjectArray-underlying events.
  */
-public class EventBeanManufacturerObjectArray implements EventBeanManufacturer
-{
+public class EventBeanManufacturerObjectArray implements EventBeanManufacturer {
     private final ObjectArrayEventType eventType;
     private final EventAdapterService eventAdapterService;
     private final int[] indexPerWritable;
@@ -27,12 +26,12 @@ public class EventBeanManufacturerObjectArray implements EventBeanManufacturer
 
     /**
      * Ctor.
-     * @param eventType type to create
+     *
+     * @param eventType           type to create
      * @param eventAdapterService event factory
-     * @param properties written properties
+     * @param properties          written properties
      */
-    public EventBeanManufacturerObjectArray(ObjectArrayEventType eventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties)
-    {
+    public EventBeanManufacturerObjectArray(ObjectArrayEventType eventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties) {
         this.eventAdapterService = eventAdapterService;
         this.eventType = eventType;
 
@@ -53,8 +52,7 @@ public class EventBeanManufacturerObjectArray implements EventBeanManufacturer
         oneToOne = oneToOneMapping && properties.length == eventType.getPropertyNames().length;
     }
 
-    public EventBean make(Object[] properties)
-    {
+    public EventBean make(Object[] properties) {
         Object[] cols = makeUnderlying(properties);
         return eventAdapterService.adapterForTypedObjectArray(cols, eventType);
     }

@@ -12,20 +12,17 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class ISupportAImplSuperGImplPlus extends ISupportAImplSuperG implements ISupportB, ISupportC, Serializable
-{
+public class ISupportAImplSuperGImplPlus extends ISupportAImplSuperG implements ISupportB, ISupportC, Serializable {
     String valueG;
     String valueA;
     String valueBaseAB;
     String valueB;
     String valueC;
 
-    public ISupportAImplSuperGImplPlus()
-    {
+    public ISupportAImplSuperGImplPlus() {
     }
 
-    public ISupportAImplSuperGImplPlus(String valueG, String valueA, String valueBaseAB, String valueB, String valueC)
-    {
+    public ISupportAImplSuperGImplPlus(String valueG, String valueA, String valueBaseAB, String valueB, String valueC) {
         this.valueG = valueG;
         this.valueA = valueA;
         this.valueBaseAB = valueBaseAB;
@@ -33,28 +30,23 @@ public class ISupportAImplSuperGImplPlus extends ISupportAImplSuperG implements 
         this.valueC = valueC;
     }
 
-    public String getG()
-    {
+    public String getG() {
         return valueG;
     }
 
-    public String getA()
-    {
+    public String getA() {
         return valueA;
     }
 
-    public String getBaseAB()
-    {
+    public String getBaseAB() {
         return valueBaseAB;
     }
 
-    public String getB()
-    {
+    public String getB() {
         return valueB;
     }
 
-    public String getC()
-    {
+    public String getC() {
         return valueC;
     }
 }

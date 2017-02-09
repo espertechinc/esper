@@ -24,8 +24,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprCountEverNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryCountEver implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryCountEver implements AggregationMethodFactory {
     protected final ExprCountEverNode parent;
     protected final boolean ignoreNulls;
 
@@ -38,8 +37,7 @@ public class AggregationMethodFactoryCountEver implements AggregationMethodFacto
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return long.class;
     }
 
@@ -89,8 +87,7 @@ public class AggregationMethodFactoryCountEver implements AggregationMethodFacto
                 return new AggregatorCountEverNonNull();
             }
             return new AggregatorCountEver();
-        }
-        else {
+        } else {
             if (ignoreNulls) {
                 return new AggregatorCountEverNonNullFilter();
             }

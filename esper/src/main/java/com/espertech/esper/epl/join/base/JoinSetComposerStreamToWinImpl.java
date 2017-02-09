@@ -70,7 +70,7 @@ public class JoinSetComposerStreamToWinImpl implements JoinSetComposer {
         for (int i = 0; i < eventsPerStream.length; i++) {
             if ((eventsPerStream[i] != null) && (i != streamNumber)) {
                 for (int j = 0; j < repositories[i].length; j++) {
-                    repositories[i][j].add((eventsPerStream[i]));
+                    repositories[i][j].add(eventsPerStream[i]);
                 }
             }
         }

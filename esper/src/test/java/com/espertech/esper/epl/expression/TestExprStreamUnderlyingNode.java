@@ -23,42 +23,32 @@ import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestExprStreamUnderlyingNode extends TestCase
-{
+public class TestExprStreamUnderlyingNode extends TestCase {
     private ExprStreamUnderlyingNodeImpl node;
     private StreamTypeService streamTypeService;
 
-    public void setUp()
-    {
+    public void setUp() {
         node = new ExprStreamUnderlyingNodeImpl("s0", false);
         streamTypeService = new SupportStreamTypeSvc3Stream();
     }
 
-    public void testValidateInvalid() throws Exception
-    {
-        try
-        {
+    public void testValidateInvalid() throws Exception {
+        try {
             node.getStreamId();
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // expected
         }
 
-        try
-        {
+        try {
             node.getExprEvaluator().getType();
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // expected
         }
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(0, node.getStreamId());
         assertEquals(SupportBean.class, node.getType());
@@ -67,38 +57,31 @@ public class TestExprStreamUnderlyingNode extends TestCase
         tryInvalidValidate(new ExprStreamUnderlyingNodeImpl("dummy", false));
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         EventBean theEvent = makeEvent(10);
-        EventBean[] events = new EventBean[] {theEvent};
+        EventBean[] events = new EventBean[]{theEvent};
 
         node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertEquals(theEvent.getUnderlying(), node.evaluate(events, false, null));
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         node.validate(SupportExprValidationContextFactory.make(streamTypeService));
         assertTrue(node.equalsNode(new ExprStreamUnderlyingNodeImpl("s0", false)));
         assertFalse(node.equalsNode(new ExprStreamUnderlyingNodeImpl("xxx", false)));
     }
 
-    protected static EventBean makeEvent(int intPrimitive)
-    {
+    protected static EventBean makeEvent(int intPrimitive) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intPrimitive);
         return SupportEventBeanFactory.createObject(theEvent);
     }
 
-    private void tryInvalidValidate(ExprStreamUnderlyingNode node)
-    {
-        try
-        {
+    private void tryInvalidValidate(ExprStreamUnderlyingNode node) {
+        try {
             node.validate(SupportExprValidationContextFactory.make(streamTypeService));
             fail();
-        }
-        catch(ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }

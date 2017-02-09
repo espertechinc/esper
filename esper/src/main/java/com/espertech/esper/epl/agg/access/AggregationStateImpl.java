@@ -20,17 +20,16 @@ import java.util.Iterator;
 /**
  * Implementation of access function for single-stream (not joins).
  */
-public class AggregationStateImpl implements AggregationStateWithSize, AggregationStateLinear
-{
+public class AggregationStateImpl implements AggregationStateWithSize, AggregationStateLinear {
     protected int streamId;
     protected ArrayList<EventBean> events = new ArrayList<EventBean>();
 
     /**
      * Ctor.
+     *
      * @param streamId stream id
      */
-    public AggregationStateImpl(int streamId)
-    {
+    public AggregationStateImpl(int streamId) {
         this.streamId = streamId;
     }
 
@@ -38,8 +37,7 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
         events.clear();
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[streamId];
         if (theEvent == null) {
             return;
@@ -47,8 +45,7 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
         events.remove(theEvent);
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[streamId];
         if (theEvent == null) {
             return;
@@ -56,8 +53,7 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
         events.add(theEvent);
     }
 
-    public EventBean getFirstNthValue(int index)
-    {
+    public EventBean getFirstNthValue(int index) {
         if (index < 0) {
             return null;
         }
@@ -84,8 +80,7 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
         return events.get(0);
     }
 
-    public EventBean getLastValue()
-    {
+    public EventBean getLastValue() {
         if (events.isEmpty()) {
             return null;
         }
@@ -100,8 +95,7 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
         return events;
     }
 
-    public int size()
-    {
+    public int size() {
         return events.size();
     }
 }

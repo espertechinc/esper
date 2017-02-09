@@ -13,8 +13,7 @@ package com.espertech.esper.supportunit.guard;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.pattern.guard.Quitable;
 
-public class SupportQuitable implements Quitable
-{
+public class SupportQuitable implements Quitable {
     private final PatternAgentInstanceContext patternContext;
 
     public int quitCounter = 0;
@@ -23,13 +22,11 @@ public class SupportQuitable implements Quitable
         this.patternContext = patternContext;
     }
 
-    public void guardQuit()
-    {
+    public void guardQuit() {
         quitCounter++;
     }
 
-    public int getAndResetQuitCounter()
-    {
+    public int getAndResetQuitCounter() {
         return quitCounter;
     }
 

@@ -13,8 +13,8 @@ package com.espertech.esper.epl.methodbase;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
-import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
@@ -38,8 +38,7 @@ public class DotMethodUtil {
     }
 
     public static DotMethodFP validateParametersDetermineFootprint(DotMethodFP[] footprints, DotMethodTypeEnum methodType, String methodUsedName, DotMethodFPProvided providedFootprint, DotMethodInputTypeMatcher inputTypeMatcher)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         boolean isLambdaApplies = DotMethodTypeEnum.ENUM == methodType;
 
         // determine footprint candidates strictly based on parameters
@@ -77,7 +76,7 @@ public class DotMethodUtil {
         // if there are multiple candidates, eliminate by input (event bean collection or component collection)
         if (candidates != null && candidates.size() > 1) {
             Iterator<DotMethodFP> candidateIt = candidates.iterator();
-            for (;candidateIt.hasNext();) {
+            for (; candidateIt.hasNext(); ) {
                 DotMethodFP fp = candidateIt.next();
                 if (!inputTypeMatcher.matches(fp)) {
                     candidateIt.remove();
@@ -97,13 +96,12 @@ public class DotMethodUtil {
             bestMatch = candidates.get(0);
             Iterator<DotMethodFP> candidateIt = candidates.iterator();
             ExprValidationException firstException = null;
-            for (;candidateIt.hasNext();) {
+            for (; candidateIt.hasNext(); ) {
                 DotMethodFP fp = candidateIt.next();
                 try {
                     validateSpecificTypes(methodUsedName, methodType, fp.getParameters(), providedFootprint.getParameters());
                     return fp;
-                }
-                catch (ExprValidationException ex) {
+                } catch (ExprValidationException ex) {
                     if (firstException == null) {
                         firstException = ex;
                     }
@@ -125,8 +123,7 @@ public class DotMethodUtil {
 
         if (footprints.length == 1) {
             throw new ExprValidationException(message + "requires " + footprints[0].toStringFootprint(isLambdaApplies));
-        }
-        else {
+        } else {
             StringWriter buf = new StringWriter();
             String delimiter = "";
             for (DotMethodFP footprint : footprints) {
@@ -140,8 +137,7 @@ public class DotMethodUtil {
     }
 
     private static void validateSpecificTypes(String methodUsedName, DotMethodTypeEnum type, DotMethodFPParam[] foundParams, DotMethodFPProvidedParam[] parameters)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         for (int i = 0; i < foundParams.length; i++) {
             DotMethodFPParam found = foundParams[i];
             DotMethodFPProvidedParam provided = parameters[i];
@@ -155,8 +151,7 @@ public class DotMethodUtil {
     }
 
     public static void validateSpecificType(String methodUsedName, DotMethodTypeEnum type, DotMethodFPParamTypeEnum expectedTypeEnum, Class expectedTypeClass, Class providedType, int parameterNum, ExprNode parameterExpression)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         String message = "Error validating " + type.getTypeName() + " method '" + methodUsedName + "', ";
         if (expectedTypeEnum == DotMethodFPParamTypeEnum.BOOLEAN && (!JavaClassHelper.isBoolean(providedType))) {
             throw new ExprValidationException(message + "expected a boolean-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));

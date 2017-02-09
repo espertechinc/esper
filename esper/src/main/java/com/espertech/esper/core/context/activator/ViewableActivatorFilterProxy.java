@@ -30,7 +30,7 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
 
     private final EPServicesContext services;
     private final FilterSpecCompiled filterSpec;
-    private final Annotation annotations[];
+    private final Annotation[] annotations;
     private final boolean isSubSelect;
     private final InstrumentationAgent instrumentationAgent;
     private final boolean isCanIterate;
@@ -57,48 +57,41 @@ public class ViewableActivatorFilterProxy implements ViewableActivator {
         final int statementId = agentInstanceContext.getStatementContext().getStatementId();
 
         FilterHandleCallback filterCallback;
-        if (filterSpec.getOptionalPropertyEvaluator() != null)
-        {
-            filterCallback = new FilterHandleCallback()
-            {
-                public int getStatementId()
-                {
+        if (filterSpec.getOptionalPropertyEvaluator() != null) {
+            filterCallback = new FilterHandleCallback() {
+                public int getStatementId() {
                     return statementId;
                 }
 
-                public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
-                {
+                public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
                     EventBean[] result = filterSpec.getOptionalPropertyEvaluator().getProperty(theEvent, agentInstanceContext);
-                    if (result == null)
-                    {
+                    if (result == null) {
                         return;
                     }
                     eventStream.insert(result);
                 }
 
-                public boolean isSubSelect()
-                {
+                public boolean isSubSelect() {
                     return isSubSelect;
                 }
             };
-        }
-        else
-        {
-            filterCallback = new FilterHandleCallback()
-            {
-                public int getStatementId()
-                {
+        } else {
+            filterCallback = new FilterHandleCallback() {
+                public int getStatementId() {
                     return statementId;
                 }
 
-                public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
-                {
-                    if (InstrumentationHelper.ENABLED) { instrumentationAgent.indicateQ();}
+                public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
+                    if (InstrumentationHelper.ENABLED) {
+                        instrumentationAgent.indicateQ();
+                    }
                     eventStream.insert(theEvent);
-                    if (InstrumentationHelper.ENABLED) { instrumentationAgent.indicateA();}
+                    if (InstrumentationHelper.ENABLED) {
+                        instrumentationAgent.indicateA();
+                    }
                 }
-                public boolean isSubSelect()
-                {
+
+                public boolean isSubSelect() {
                     return isSubSelect;
                 }
             };

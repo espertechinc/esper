@@ -19,8 +19,12 @@ import java.util.List;
 
 public interface ExprDeclaredService {
     public ExpressionDeclItem getExpression(String name);
+
     public List<ExpressionScriptProvided> getScriptsByName(String expressionName);
+
     public String addExpressionOrScript(CreateExpressionDesc expression) throws ExprValidationException;
+
     public void destroyedExpression(CreateExpressionDesc expression);
+
     public void destroy();
 }

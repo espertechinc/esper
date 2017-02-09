@@ -13,16 +13,17 @@ package com.espertech.esper.client.annotation;
 /**
  * Annotation for defining the name of the functions returning external data window key and value objects for use with queries against external data windows.
  */
-public @interface ExternalDWQuery
-{
+public @interface ExternalDWQuery {
     /**
      * Returns function name that return key objects.
+     *
      * @return function name
      */
     String functionKeys() default "";
 
     /**
      * Returns function name that return value objects.
+     *
      * @return function name
      */
     String functionValues() default "";

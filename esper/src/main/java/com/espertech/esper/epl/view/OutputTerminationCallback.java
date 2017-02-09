@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.view;
 
-public interface OutputTerminationCallback
-{
+public interface OutputTerminationCallback {
     public void terminated();
 }

@@ -18,32 +18,29 @@ import java.util.Map;
 /**
  * Copy method for wrapper events.
  */
-public class WrapperEventBeanCopyMethod implements EventBeanCopyMethod
-{
+public class WrapperEventBeanCopyMethod implements EventBeanCopyMethod {
     private final WrapperEventType wrapperEventType;
     private final EventAdapterService eventAdapterService;
     private final EventBeanCopyMethod underlyingCopyMethod;
 
     /**
      * Ctor.
-     * @param wrapperEventType wrapper type
-     * @param eventAdapterService event adapter creation
+     *
+     * @param wrapperEventType     wrapper type
+     * @param eventAdapterService  event adapter creation
      * @param underlyingCopyMethod copy method for the underlying event
      */
-    public WrapperEventBeanCopyMethod(WrapperEventType wrapperEventType, EventAdapterService eventAdapterService, EventBeanCopyMethod underlyingCopyMethod)
-    {
+    public WrapperEventBeanCopyMethod(WrapperEventType wrapperEventType, EventAdapterService eventAdapterService, EventBeanCopyMethod underlyingCopyMethod) {
         this.wrapperEventType = wrapperEventType;
         this.eventAdapterService = eventAdapterService;
         this.underlyingCopyMethod = underlyingCopyMethod;
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         DecoratingEventBean decorated = (DecoratingEventBean) theEvent;
         EventBean decoratedUnderlying = decorated.getUnderlyingEvent();
         EventBean copiedUnderlying = underlyingCopyMethod.copy(decoratedUnderlying);
-        if (copiedUnderlying == null)
-        {
+        if (copiedUnderlying == null) {
             return null;
         }
         Map<String, Object> copiedMap = new HashMap<String, Object>(decorated.getDecoratingProperties());

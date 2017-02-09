@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.core.deploy;
 
-public abstract class ParseNode
-{
+public abstract class ParseNode {
     private EPLModuleParseItem item;
 
-    protected ParseNode(EPLModuleParseItem item)
-    {
+    protected ParseNode(EPLModuleParseItem item) {
         this.item = item;
     }
 
-    public EPLModuleParseItem getItem()
-    {
+    public EPLModuleParseItem getItem() {
         return item;
     }
 }

@@ -23,8 +23,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Provides access to engine configuration defaults for modification.
  */
-public class ConfigurationEngineDefaults implements Serializable
-{
+public class ConfigurationEngineDefaults implements Serializable {
     private static final long serialVersionUID = -528835191586154300L;
 
     private Threading threading;
@@ -48,8 +47,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Ctor.
      */
-    protected ConfigurationEngineDefaults()
-    {
+    protected ConfigurationEngineDefaults() {
         threading = new Threading();
         viewResources = new ViewResources();
         eventMeta = new EventMeta();
@@ -71,124 +69,125 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Returns threading settings.
+     *
      * @return threading settings object
      */
-    public Threading getThreading()
-    {
+    public Threading getThreading() {
         return threading;
     }
 
     /**
      * Returns view resources defaults.
+     *
      * @return view resources defaults
      */
-    public ViewResources getViewResources()
-    {
+    public ViewResources getViewResources() {
         return viewResources;
     }
 
     /**
      * Returns event representation default settings.
+     *
      * @return event representation default settings
      */
-    public EventMeta getEventMeta()
-    {
+    public EventMeta getEventMeta() {
         return eventMeta;
     }
 
     /**
      * Returns logging settings applicable to the engine, other then Log4J settings.
+     *
      * @return logging settings
      */
-    public Logging getLogging()
-    {
+    public Logging getLogging() {
         return logging;
     }
 
     /**
      * Returns engine defaults applicable to variables.
+     *
      * @return variable engine defaults
      */
-    public Variables getVariables()
-    {
+    public Variables getVariables() {
         return variables;
     }
 
     /**
      * Returns engine defaults applicable to streams (insert and remove, insert only or remove only) selected for a statement.
+     *
      * @return stream selection defaults
      */
-    public StreamSelection getStreamSelection()
-    {
+    public StreamSelection getStreamSelection() {
         return streamSelection;
     }
 
     /**
      * Returns the time source configuration.
+     *
      * @return time source enum
      */
-    public TimeSource getTimeSource()
-    {
+    public TimeSource getTimeSource() {
         return timeSource;
     }
 
     /**
      * Returns the metrics reporting configuration.
+     *
      * @return metrics reporting config
      */
-    public ConfigurationMetricsReporting getMetricsReporting()
-    {
+    public ConfigurationMetricsReporting getMetricsReporting() {
         return metricsReporting;
     }
 
     /**
      * Returns the language-related settings for the engine.
+     *
      * @return language-related settings
      */
-    public Language getLanguage()
-    {
+    public Language getLanguage() {
         return language;
     }
 
     /**
      * Returns the expression-related settings for the engine.
+     *
      * @return expression-related settings
      */
-    public Expression getExpression()
-    {
+    public Expression getExpression() {
         return expression;
     }
 
     /**
      * Returns statement execution-related settings, settings that
      * influence event/schedule to statement processing.
+     *
      * @return execution settings
      */
-    public Execution getExecution()
-    {
+    public Execution getExecution() {
         return execution;
     }
 
     /**
      * For software-provider-interface use.
+     *
      * @return alternative context
      */
-    public AlternativeContext getAlternativeContext()
-    {
+    public AlternativeContext getAlternativeContext() {
         return alternativeContext;
     }
 
     /**
      * For software-provider-interface use.
+     *
      * @param alternativeContext alternative context
      */
-    public void setAlternativeContext(AlternativeContext alternativeContext)
-    {
+    public void setAlternativeContext(AlternativeContext alternativeContext) {
         this.alternativeContext = alternativeContext;
     }
 
     /**
      * Returns the exception handling configuration.
+     *
      * @return exception handling configuration
      */
     public ExceptionHandling getExceptionHandling() {
@@ -197,6 +196,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Sets the exception handling configuration.
+     *
      * @param exceptionHandling exception handling configuration
      */
     public void setExceptionHandling(ExceptionHandling exceptionHandling) {
@@ -205,6 +205,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Returns the condition handling configuration.
+     *
      * @return condition handling configuration
      */
     public ConditionHandling getConditionHandling() {
@@ -213,6 +214,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Sets the condition handling configuration.
+     *
      * @param conditionHandling exception handling configuration
      */
     public void setConditionHandling(ConditionHandling conditionHandling) {
@@ -221,6 +223,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Return pattern settings.
+     *
      * @return pattern settings
      */
     public Patterns getPatterns() {
@@ -229,6 +232,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Sets pattern settings.
+     *
      * @param patterns settings to set
      */
     public void setPatterns(Patterns patterns) {
@@ -237,6 +241,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Return match-recognize settings.
+     *
      * @return match-recognize settings
      */
     public MatchRecognize getMatchRecognize() {
@@ -245,6 +250,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Sets match-recognize settings.
+     *
      * @param matchRecognize settings to set
      */
     public void setMatchRecognize(MatchRecognize matchRecognize) {
@@ -253,6 +259,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Returns script engine settings.
+     *
      * @return script engine settings
      */
     public Scripts getScripts() {
@@ -261,6 +268,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
     /**
      * Sets script engine settings.
+     *
      * @param scripts script engine settings
      */
     public void setScripts(Scripts scripts) {
@@ -270,8 +278,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds threading settings.
      */
-    public static class Threading implements Serializable
-    {
+    public static class Threading implements Serializable {
         private static final long serialVersionUID = 6504606101119059962L;
 
         private boolean isListenerDispatchPreserveOrder;
@@ -307,8 +314,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor - sets up defaults.
          */
-        public Threading()
-        {
+        public Threading() {
             listenerDispatchTimeout = 1000;
             isListenerDispatchPreserveOrder = true;
             listenerDispatchLocking = Locking.SPIN;
@@ -338,22 +344,22 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * In multithreaded environments, this setting controls whether dispatches to listeners preserve
          * the ordering in which the statement processes events.
+         *
          * @param value is true to preserve ordering, or false if not
          */
-        public void setListenerDispatchPreserveOrder(boolean value)
-        {
+        public void setListenerDispatchPreserveOrder(boolean value) {
             isListenerDispatchPreserveOrder = value;
         }
 
         /**
          * In multithreaded environments, this setting controls when dispatches to listeners preserve
          * the ordering the timeout to complete any outstanding dispatches.
+         *
          * @param value is the timeout in milliseconds that the engine may spend
-         * waiting for a listener dispatch to complete before dispatching further
-         * results for the same statement to listeners for that statement
+         *              waiting for a listener dispatch to complete before dispatching further
+         *              results for the same statement to listeners for that statement
          */
-        public void setListenerDispatchTimeout(long value)
-        {
+        public void setListenerDispatchTimeout(long value) {
             listenerDispatchTimeout = value;
         }
 
@@ -361,40 +367,40 @@ public class ConfigurationEngineDefaults implements Serializable
          * In multithreaded environments, this setting controls whether insert-into streams preserve
          * the order of events inserted into them by one or more statements
          * such that statements that consume other statement's events behave deterministic
+         *
          * @param value is true to indicate to preserve order, or false to not preserve order
          */
-        public void setInsertIntoDispatchPreserveOrder(boolean value)
-        {
+        public void setInsertIntoDispatchPreserveOrder(boolean value) {
             isInsertIntoDispatchPreserveOrder = value;
         }
 
         /**
          * Returns true to indicate preserve order for dispatch to listeners,
          * or false to indicate not to preserve order
+         *
          * @return true or false
          */
-        public boolean isListenerDispatchPreserveOrder()
-        {
+        public boolean isListenerDispatchPreserveOrder() {
             return isListenerDispatchPreserveOrder;
         }
 
         /**
          * Returns the timeout in millisecond to wait for listener code to complete
          * before dispatching the next result, if dispatch order is preserved
+         *
          * @return listener dispatch timeout
          */
-        public long getListenerDispatchTimeout()
-        {
+        public long getListenerDispatchTimeout() {
             return listenerDispatchTimeout;
         }
 
         /**
          * Returns true to indicate preserve order for inter-statement insert-into,
          * or false to indicate not to preserve order
+         *
          * @return true or false
          */
-        public boolean isInsertIntoDispatchPreserveOrder()
-        {
+        public boolean isInsertIntoDispatchPreserveOrder() {
             return isInsertIntoDispatchPreserveOrder;
         }
 
@@ -406,37 +412,37 @@ public class ConfigurationEngineDefaults implements Serializable
          * <p>
          * By setting internal timer to false the engine does not start the internal timer thread
          * and relies on external application-supplied timer events to supply the time.
+         *
          * @param internalTimerEnabled is true for internal timer enabled, or false if the application supplies timer events
          */
-        public void setInternalTimerEnabled(boolean internalTimerEnabled)
-        {
+        public void setInternalTimerEnabled(boolean internalTimerEnabled) {
             this.internalTimerEnabled = internalTimerEnabled;
         }
 
         /**
          * Returns true if internal timer is enabled (the default), or false for internal timer disabled.
+         *
          * @return true for internal timer enabled, false for internal timer disabled
          */
-        public boolean isInternalTimerEnabled()
-        {
+        public boolean isInternalTimerEnabled() {
             return internalTimerEnabled;
         }
 
         /**
          * Returns the millisecond resolutuion of the internal timer thread.
+         *
          * @return number of msec between timer processing intervals
          */
-        public long getInternalTimerMsecResolution()
-        {
+        public long getInternalTimerMsecResolution() {
             return internalTimerMsecResolution;
         }
 
         /**
          * Sets the length of the interval (resolution) of the timer thread.
+         *
          * @param internalTimerMsecResolution is the millisecond interval length
          */
-        public void setInternalTimerMsecResolution(long internalTimerMsecResolution)
-        {
+        public void setInternalTimerMsecResolution(long internalTimerMsecResolution) {
             this.internalTimerMsecResolution = internalTimerMsecResolution;
         }
 
@@ -444,20 +450,20 @@ public class ConfigurationEngineDefaults implements Serializable
          * Returns the number of milliseconds that a thread may maximually be blocking
          * to deliver statement results from a producing statement that employs insert-into
          * to a consuming statement.
+         *
          * @return millisecond timeout for order-of-delivery blocking between statements
          */
-        public long getInsertIntoDispatchTimeout()
-        {
+        public long getInsertIntoDispatchTimeout() {
             return insertIntoDispatchTimeout;
         }
 
         /**
          * Sets the blocking strategy to use when multiple threads deliver results for
          * a single statement to listeners, and the guarantee of order of delivery must be maintained.
+         *
          * @param listenerDispatchLocking is the blocking technique
          */
-        public void setListenerDispatchLocking(Locking listenerDispatchLocking)
-        {
+        public void setListenerDispatchLocking(Locking listenerDispatchLocking) {
             this.listenerDispatchLocking = listenerDispatchLocking;
         }
 
@@ -465,256 +471,256 @@ public class ConfigurationEngineDefaults implements Serializable
          * Sets the number of milliseconds that a thread may maximually be blocking
          * to deliver statement results from a producing statement that employs insert-into
          * to a consuming statement.
+         *
          * @param msecTimeout timeout for order-of-delivery blocking between statements
          */
-        public void setInsertIntoDispatchTimeout(long msecTimeout)
-        {
+        public void setInsertIntoDispatchTimeout(long msecTimeout) {
             this.insertIntoDispatchTimeout = msecTimeout;
         }
 
         /**
          * Sets the blocking strategy to use when multiple threads deliver results for
          * a single statement to consuming statements of an insert-into, and the guarantee of order of delivery must be maintained.
+         *
          * @param insertIntoDispatchLocking is the blocking technique
          */
-        public void setInsertIntoDispatchLocking(Locking insertIntoDispatchLocking)
-        {
+        public void setInsertIntoDispatchLocking(Locking insertIntoDispatchLocking) {
             this.insertIntoDispatchLocking = insertIntoDispatchLocking;
         }
 
         /**
          * Returns the blocking strategy to use when multiple threads deliver results for
          * a single statement to listeners, and the guarantee of order of delivery must be maintained.
+         *
          * @return is the blocking technique
          */
-        public Locking getListenerDispatchLocking()
-        {
+        public Locking getListenerDispatchLocking() {
             return listenerDispatchLocking;
         }
 
         /**
          * Returns the blocking strategy to use when multiple threads deliver results for
          * a single statement to consuming statements of an insert-into, and the guarantee of order of delivery must be maintained.
+         *
          * @return is the blocking technique
          */
-        public Locking getInsertIntoDispatchLocking()
-        {
+        public Locking getInsertIntoDispatchLocking() {
             return insertIntoDispatchLocking;
         }
 
         /**
          * Returns true for inbound threading enabled, the default is false for not enabled.
+         *
          * @return indicator whether inbound threading is enabled
          */
-        public boolean isThreadPoolInbound()
-        {
+        public boolean isThreadPoolInbound() {
             return isThreadPoolInbound;
         }
 
         /**
          * Set to true for inbound threading enabled, the default is false for not enabled.
+         *
          * @param threadPoolInbound indicator whether inbound threading is enabled
          */
-        public void setThreadPoolInbound(boolean threadPoolInbound)
-        {
+        public void setThreadPoolInbound(boolean threadPoolInbound) {
             isThreadPoolInbound = threadPoolInbound;
         }
 
         /**
          * Returns true for timer execution threading enabled, the default is false for not enabled.
+         *
          * @return indicator whether timer execution threading is enabled
          */
-        public boolean isThreadPoolTimerExec()
-        {
+        public boolean isThreadPoolTimerExec() {
             return isThreadPoolTimerExec;
         }
 
         /**
          * Set to true for timer execution threading enabled, the default is false for not enabled.
+         *
          * @param threadPoolTimerExec indicator whether timer execution threading is enabled
          */
-        public void setThreadPoolTimerExec(boolean threadPoolTimerExec)
-        {
+        public void setThreadPoolTimerExec(boolean threadPoolTimerExec) {
             isThreadPoolTimerExec = threadPoolTimerExec;
         }
 
         /**
          * Returns true for route execution threading enabled, the default is false for not enabled.
+         *
          * @return indicator whether route execution threading is enabled
          */
-        public boolean isThreadPoolRouteExec()
-        {
+        public boolean isThreadPoolRouteExec() {
             return isThreadPoolRouteExec;
         }
 
         /**
          * Set to true for route execution threading enabled, the default is false for not enabled.
+         *
          * @param threadPoolRouteExec indicator whether route execution threading is enabled
          */
-        public void setThreadPoolRouteExec(boolean threadPoolRouteExec)
-        {
+        public void setThreadPoolRouteExec(boolean threadPoolRouteExec) {
             isThreadPoolRouteExec = threadPoolRouteExec;
         }
 
         /**
          * Returns true for outbound threading enabled, the default is false for not enabled.
+         *
          * @return indicator whether outbound threading is enabled
          */
-        public boolean isThreadPoolOutbound()
-        {
+        public boolean isThreadPoolOutbound() {
             return isThreadPoolOutbound;
         }
 
         /**
          * Set to true for outbound threading enabled, the default is false for not enabled.
+         *
          * @param threadPoolOutbound indicator whether outbound threading is enabled
          */
-        public void setThreadPoolOutbound(boolean threadPoolOutbound)
-        {
+        public void setThreadPoolOutbound(boolean threadPoolOutbound) {
             isThreadPoolOutbound = threadPoolOutbound;
         }
 
         /**
-         * Returns the number of thread in the inbound threading pool. 
+         * Returns the number of thread in the inbound threading pool.
+         *
          * @return number of threads
          */
-        public int getThreadPoolInboundNumThreads()
-        {
+        public int getThreadPoolInboundNumThreads() {
             return threadPoolInboundNumThreads;
         }
 
         /**
-         * Sets the number of threads in the thread pool for inbound threading.  
+         * Sets the number of threads in the thread pool for inbound threading.
+         *
          * @param num number of threads
          */
-        public void setThreadPoolInboundNumThreads(int num)
-        {
+        public void setThreadPoolInboundNumThreads(int num) {
             this.threadPoolInboundNumThreads = num;
         }
 
         /**
          * Returns the number of thread in the outbound threading pool.
+         *
          * @return number of threads
          */
-        public int getThreadPoolOutboundNumThreads()
-        {
+        public int getThreadPoolOutboundNumThreads() {
             return threadPoolOutboundNumThreads;
         }
 
         /**
          * Sets the number of threads in the thread pool for outbound threading.
+         *
          * @param num number of threads
          */
-        public void setThreadPoolOutboundNumThreads(int num)
-        {
+        public void setThreadPoolOutboundNumThreads(int num) {
             this.threadPoolOutboundNumThreads = num;
         }
 
         /**
          * Returns the number of thread in the route execution thread pool.
+         *
          * @return number of threads
          */
-        public int getThreadPoolRouteExecNumThreads()
-        {
+        public int getThreadPoolRouteExecNumThreads() {
             return threadPoolRouteExecNumThreads;
         }
 
         /**
          * Sets the number of threads in the thread pool for route exec threading.
+         *
          * @param num number of threads
          */
-        public void setThreadPoolRouteExecNumThreads(int num)
-        {
+        public void setThreadPoolRouteExecNumThreads(int num) {
             this.threadPoolRouteExecNumThreads = num;
         }
 
         /**
          * Returns the number of thread in the timer execution threading pool.
+         *
          * @return number of threads
          */
-        public int getThreadPoolTimerExecNumThreads()
-        {
+        public int getThreadPoolTimerExecNumThreads() {
             return threadPoolTimerExecNumThreads;
         }
 
         /**
-         * Sets the number of threads in the thread pool for timer exec threading.  
+         * Sets the number of threads in the thread pool for timer exec threading.
+         *
          * @param num number of threads
          */
-        public void setThreadPoolTimerExecNumThreads(int num)
-        {
+        public void setThreadPoolTimerExecNumThreads(int num) {
             this.threadPoolTimerExecNumThreads = num;
         }
 
         /**
          * Returns the capacity of the timer execution queue, or null if none defined (the unbounded case, default).
+         *
          * @return capacity or null if none defined
          */
-        public Integer getThreadPoolTimerExecCapacity()
-        {
+        public Integer getThreadPoolTimerExecCapacity() {
             return threadPoolTimerExecCapacity;
         }
 
         /**
          * Sets the capacity of the timer execution queue, or null if none defined (the unbounded case, default).
+         *
          * @param capacity capacity or null if none defined
          */
-        public void setThreadPoolTimerExecCapacity(Integer capacity)
-        {
+        public void setThreadPoolTimerExecCapacity(Integer capacity) {
             this.threadPoolTimerExecCapacity = capacity;
         }
 
         /**
          * Returns the capacity of the inbound execution queue, or null if none defined (the unbounded case, default).
+         *
          * @return capacity or null if none defined
          */
-        public Integer getThreadPoolInboundCapacity()
-        {
+        public Integer getThreadPoolInboundCapacity() {
             return threadPoolInboundCapacity;
         }
 
         /**
          * Sets the capacity of the inbound queue, or null if none defined (the unbounded case, default).
+         *
          * @param capacity capacity or null if none defined
          */
-        public void setThreadPoolInboundCapacity(Integer capacity)
-        {
+        public void setThreadPoolInboundCapacity(Integer capacity) {
             this.threadPoolInboundCapacity = capacity;
         }
 
         /**
          * Returns the capacity of the route execution queue, or null if none defined (the unbounded case, default).
+         *
          * @return capacity or null if none defined
          */
-        public Integer getThreadPoolRouteExecCapacity()
-        {
+        public Integer getThreadPoolRouteExecCapacity() {
             return threadPoolRouteExecCapacity;
         }
 
         /**
          * Sets the capacity of the route execution queue, or null if none defined (the unbounded case, default).
+         *
          * @param capacity capacity or null if none defined
          */
-        public void setThreadPoolRouteExecCapacity(Integer capacity)
-        {
+        public void setThreadPoolRouteExecCapacity(Integer capacity) {
             this.threadPoolRouteExecCapacity = capacity;
         }
 
         /**
          * Returns the capacity of the outbound queue, or null if none defined (the unbounded case, default).
+         *
          * @return capacity or null if none defined
          */
-        public Integer getThreadPoolOutboundCapacity()
-        {
+        public Integer getThreadPoolOutboundCapacity() {
             return threadPoolOutboundCapacity;
         }
 
         /**
          * Sets the capacity of the outbound queue, or null if none defined (the unbounded case, default).
+         *
          * @param capacity capacity or null if none defined
          */
-        public void setThreadPoolOutboundCapacity(Integer capacity)
-        {
+        public void setThreadPoolOutboundCapacity(Integer capacity) {
             this.threadPoolOutboundCapacity = capacity;
         }
 
@@ -724,6 +730,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * This lock coordinates
          * event processing threads (threads that send events) with threads that
          * perform administrative functions (threads that start or destroy statements, for example).
+         *
          * @return true for fair lock
          */
         public boolean isEngineFairlock() {
@@ -736,6 +743,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * This lock coordinates
          * event processing threads (threads that send events) with threads that
          * perform administrative functions (threads that start or destroy statements, for example).
+         *
          * @param engineFairlock true for fair lock
          */
         public void setEngineFairlock(boolean engineFairlock) {
@@ -746,6 +754,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * In multithreaded environments, this setting controls whether named window dispatches to named window consumers preserve
          * the order of events inserted and removed such that statements that consume a named windows delta stream
          * behave deterministic (true by default).
+         *
          * @return flag
          */
         public boolean isNamedWindowConsumerDispatchPreserveOrder() {
@@ -756,6 +765,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * In multithreaded environments, this setting controls whether named window dispatches to named window consumers preserve
          * the order of events inserted and removed such that statements that consume a named windows delta stream
          * behave deterministic (true by default).
+         *
          * @param isNamedWindowConsumerDispatchPreserveOrder flag
          */
         public void setNamedWindowConsumerDispatchPreserveOrder(boolean isNamedWindowConsumerDispatchPreserveOrder) {
@@ -764,6 +774,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the timeout millisecond value for named window dispatches to named window consumers.
+         *
          * @return timeout milliseconds
          */
         public long getNamedWindowConsumerDispatchTimeout() {
@@ -772,6 +783,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the timeout millisecond value for named window dispatches to named window consumers.
+         *
          * @param namedWindowConsumerDispatchTimeout timeout milliseconds
          */
         public void setNamedWindowConsumerDispatchTimeout(long namedWindowConsumerDispatchTimeout) {
@@ -780,6 +792,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the locking strategy value for named window dispatches to named window consumers (default is spin).
+         *
          * @return strategy
          */
         public Locking getNamedWindowConsumerDispatchLocking() {
@@ -788,6 +801,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the locking strategy value for named window dispatches to named window consumers (default is spin).
+         *
          * @param namedWindowConsumerDispatchLocking strategy
          */
         public void setNamedWindowConsumerDispatchLocking(Locking namedWindowConsumerDispatchLocking) {
@@ -797,8 +811,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Enumeration of blocking techniques.
          */
-        public enum Locking
-        {
+        public enum Locking {
             /**
              * Spin lock blocking is good for locks held very shortly or generally uncontended locks and
              * is therefore the default.
@@ -816,8 +829,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds view resources settings.
      */
-    public static class ViewResources implements Serializable
-    {
+    public static class ViewResources implements Serializable {
         private boolean shareViews;
         private boolean allowMultipleExpiryPolicies;
         private boolean iterableUnbound;
@@ -826,8 +838,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor - sets up defaults.
          */
-        protected ViewResources()
-        {
+        protected ViewResources() {
             shareViews = true;
             allowMultipleExpiryPolicies = false;
             iterableUnbound = false;
@@ -836,22 +847,22 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns true to indicate the engine shares view resources between statements, or false
          * to indicate the engine does not share view resources between statements.
+         *
          * @return indicator whether view resources are shared between statements if
          * statements share same-views and the engine sees opportunity to reuse an existing view.
          */
-        public boolean isShareViews()
-        {
+        public boolean isShareViews() {
             return shareViews;
         }
 
         /**
          * Set the flag to instruct the engine whether to share view resources between
          * statements for not
+         *
          * @param shareViews is true to share view resources between statements, or false to not share view
-         * resources between statements declaring same-views
+         *                   resources between statements declaring same-views
          */
-        public void setShareViews(boolean shareViews)
-        {
+        public void setShareViews(boolean shareViews) {
             this.shareViews = shareViews;
         }
 
@@ -861,10 +872,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * <p>
          * If set to true then multiple expiry policies are allowed and the following statement compiles without exception:
          * "select * from MyEvent#time(10)#time(10)".
+         *
          * @return allowMultipleExpiryPolicies indicator whether to allow combining expiry policies provided by views
          */
-        public boolean isAllowMultipleExpiryPolicies()
-        {
+        public boolean isAllowMultipleExpiryPolicies() {
             return allowMultipleExpiryPolicies;
         }
 
@@ -874,15 +885,16 @@ public class ConfigurationEngineDefaults implements Serializable
          * <p>
          * If set to true then multiple expiry policies are allowed and the following statement compiles without exception:
          * "select * from MyEvent#time(10)#time(10)".
+         *
          * @param allowMultipleExpiryPolicies indicator whether to allow combining expiry policies provided by views
          */
-        public void setAllowMultipleExpiryPolicies(boolean allowMultipleExpiryPolicies)
-        {
+        public void setAllowMultipleExpiryPolicies(boolean allowMultipleExpiryPolicies) {
             this.allowMultipleExpiryPolicies = allowMultipleExpiryPolicies;
         }
 
         /**
          * Returns flag to indicate whether engine-wide unbound statements are iterable and return the last event.
+         *
          * @return indicator
          */
         public boolean isIterableUnbound() {
@@ -891,6 +903,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets flag to indicate whether engine-wide unbound statements are iterable and return the last event.
+         *
          * @param iterableUnbound to set
          */
         public void setIterableUnbound(boolean iterableUnbound) {
@@ -901,8 +914,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Event representation metadata.
      */
-    public static class EventMeta implements Serializable
-    {
+    public static class EventMeta implements Serializable {
         private static final long serialVersionUID = -6091772368103140370L;
 
         private Configuration.PropertyResolutionStyle classPropertyResolutionStyle;
@@ -914,8 +926,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor.
          */
-        public EventMeta()
-        {
+        public EventMeta() {
             this.classPropertyResolutionStyle = Configuration.PropertyResolutionStyle.getDefault();
             this.defaultAccessorStyle = ConfigurationEventTypeLegacy.AccessorStyle.JAVABEAN;
             this.defaultEventRepresentation = EventUnderlyingType.getDefault();
@@ -924,44 +935,45 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the default accessor style, JavaBean unless changed.
+         *
          * @return style enum
          */
-        public ConfigurationEventTypeLegacy.AccessorStyle getDefaultAccessorStyle()
-        {
+        public ConfigurationEventTypeLegacy.AccessorStyle getDefaultAccessorStyle() {
             return defaultAccessorStyle;
         }
 
         /**
          * Sets the default accessor style, which is JavaBean unless changed.
+         *
          * @param defaultAccessorStyle style enum
          */
-        public void setDefaultAccessorStyle(ConfigurationEventTypeLegacy.AccessorStyle defaultAccessorStyle)
-        {
+        public void setDefaultAccessorStyle(ConfigurationEventTypeLegacy.AccessorStyle defaultAccessorStyle) {
             this.defaultAccessorStyle = defaultAccessorStyle;
         }
 
         /**
          * Returns the property resolution style to use for resolving property names
          * of Java classes.
+         *
          * @return style of property resolution
          */
-        public Configuration.PropertyResolutionStyle getClassPropertyResolutionStyle()
-        {
+        public Configuration.PropertyResolutionStyle getClassPropertyResolutionStyle() {
             return classPropertyResolutionStyle;
         }
 
         /**
          * Sets the property resolution style to use for resolving property names
          * of Java classes.
+         *
          * @param classPropertyResolutionStyle style of property resolution
          */
-        public void setClassPropertyResolutionStyle(Configuration.PropertyResolutionStyle classPropertyResolutionStyle)
-        {
+        public void setClassPropertyResolutionStyle(Configuration.PropertyResolutionStyle classPropertyResolutionStyle) {
             this.classPropertyResolutionStyle = classPropertyResolutionStyle;
         }
 
         /**
          * Sets the default event representation.
+         *
          * @param defaultEventRepresentation to set
          */
         public void setDefaultEventRepresentation(EventUnderlyingType defaultEventRepresentation) {
@@ -970,6 +982,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the default event representation.
+         *
          * @return setting
          */
         public EventUnderlyingType getDefaultEventRepresentation() {
@@ -978,6 +991,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the cache size for anonymous event types.
+         *
          * @return cache size
          */
         public int getAnonymousCacheSize() {
@@ -986,6 +1000,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the cache size for anonymous event types.
+         *
          * @param anonymousCacheSize cache size
          */
         public void setAnonymousCacheSize(int anonymousCacheSize) {
@@ -1000,8 +1015,7 @@ public class ConfigurationEngineDefaults implements Serializable
             this.avroSettings = avroSettings;
         }
 
-        public static class AvroSettings implements Serializable
-        {
+        public static class AvroSettings implements Serializable {
             private boolean enableAvro = true;
             private boolean enableNativeString = true;
             private boolean enableSchemaDefaultNonNull = true;
@@ -1053,8 +1067,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds view logging settings other then the Apache commons or Log4J settings.
      */
-    public static class Logging implements Serializable
-    {
+    public static class Logging implements Serializable {
         private boolean enableExecutionDebug;
         private boolean enableTimerDebug;
         private boolean enableQueryPlan;
@@ -1065,8 +1078,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor - sets up defaults.
          */
-        protected Logging()
-        {
+        protected Logging() {
             enableExecutionDebug = false;
             enableTimerDebug = true;
             enableQueryPlan = false;
@@ -1078,20 +1090,20 @@ public class ConfigurationEngineDefaults implements Serializable
          * <p>
          * Only if this flag is set to true, in addition to LOG4J settings set to DEBUG, does an engine instance,
          * produce debug out.
+         *
          * @return true if debug logging through Log4j is enabled for any event processing execution paths
          */
-        public boolean isEnableExecutionDebug()
-        {
+        public boolean isEnableExecutionDebug() {
             return enableExecutionDebug;
         }
 
         /**
          * Set the debug flag for debugging the execution path, in which case the engine logs
          * to Log4j in debug-level during execution.
+         *
          * @param enableExecutionDebug false to disable debug logging in the execution path, true to enable
          */
-        public void setEnableExecutionDebug(boolean enableExecutionDebug)
-        {
+        public void setEnableExecutionDebug(boolean enableExecutionDebug) {
             this.enableExecutionDebug = enableExecutionDebug;
         }
 
@@ -1100,25 +1112,26 @@ public class ConfigurationEngineDefaults implements Serializable
          * <p>
          * Set this value to false to reduce the debug-level logging output for the timer thread(s).
          * For use only when debug-level logging is enabled.
+         *
          * @return indicator whether timer execution is noisy in debug or not
          */
-        public boolean isEnableTimerDebug()
-        {
+        public boolean isEnableTimerDebug() {
             return enableTimerDebug;
         }
 
         /**
          * Set this value to false to reduce the debug-level logging output for the timer thread(s).
          * For use only when debug-level logging is enabled.
+         *
          * @param enableTimerDebug indicator whether timer execution is noisy in debug or not (true is noisy)
          */
-        public void setEnableTimerDebug(boolean enableTimerDebug)
-        {
+        public void setEnableTimerDebug(boolean enableTimerDebug) {
             this.enableTimerDebug = enableTimerDebug;
         }
 
         /**
          * Returns indicator whether query plan logging is enabled or not.
+         *
          * @return indicator
          */
         public boolean isEnableQueryPlan() {
@@ -1127,6 +1140,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Set indicator whether query plan logging is enabled, by default it is disabled.
+         *
          * @param enableQueryPlan indicator
          */
         public void setEnableQueryPlan(boolean enableQueryPlan) {
@@ -1135,6 +1149,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns an indicator whether JDBC query reporting is enabled.
+         *
          * @return indicator
          */
         public boolean isEnableJDBC() {
@@ -1143,6 +1158,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Set the indicator whether JDBC query reporting is enabled.
+         *
          * @param enableJDBC set to true for JDBC query reorting enabled
          */
         public void setEnableJDBC(boolean enableJDBC) {
@@ -1152,13 +1168,14 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns the pattern that formats audit logs.
          * <p>
-         *     Available conversion characters are:
+         * Available conversion characters are:
          * </p>
          * <p>
-         *  %m      - Used to output the audit message.
-         *  %s      - Used to output the statement name.
-         *  %u      - Used to output the engine URI.
+         * %m      - Used to output the audit message.
+         * %s      - Used to output the statement name.
+         * %u      - Used to output the engine URI.
          * </p>
+         *
          * @return audit formatting pattern
          */
         public String getAuditPattern() {
@@ -1167,6 +1184,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the audit formatting pattern that formats audit logs, or null if using default format.
+         *
          * @param auditPattern pattern to use
          */
         public void setAuditPattern(String auditPattern) {
@@ -1177,16 +1195,14 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds variables settings.
      */
-    public static class Variables implements Serializable
-    {
+    public static class Variables implements Serializable {
         private long msecVersionRelease;
         private static final long serialVersionUID = 8276015152830052323L;
 
         /**
          * Ctor - sets up defaults.
          */
-        protected Variables()
-        {
+        protected Variables() {
             msecVersionRelease = 15000;
         }
 
@@ -1199,22 +1215,22 @@ public class ConfigurationEngineDefaults implements Serializable
          * statement execution the value of the variables stays the same as long as the statement
          * does not take longer then the given number of milliseconds to execute. If the statement does take longer
          * to execute then the variables release time, the current variables value applies instead.
+         *
          * @return millisecond time interval that a variables version is guaranteed to be stable
          * in the context of an atomic statement execution
          */
-        public long getMsecVersionRelease()
-        {
+        public long getMsecVersionRelease() {
             return msecVersionRelease;
         }
 
         /**
          * Sets the number of milliseconds that a version of a variables is held stable for
          * use by very long-running atomic statement execution.
+         *
          * @param msecVersionRelease millisecond time interval that a variables version is guaranteed to be stable
-         * in the context of an atomic statement execution
+         *                           in the context of an atomic statement execution
          */
-        public void setMsecVersionRelease(long msecVersionRelease)
-        {
+        public void setMsecVersionRelease(long msecVersionRelease) {
             this.msecVersionRelease = msecVersionRelease;
         }
     }
@@ -1222,13 +1238,13 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holder for script settings.
      */
-    public static class Scripts implements Serializable
-    {
+    public static class Scripts implements Serializable {
         private static final long serialVersionUID = -3111856398932434323L;
         private String defaultDialect = "js";
 
         /**
          * Returns the default script dialect.
+         *
          * @return dialect
          */
         public String getDefaultDialect() {
@@ -1237,6 +1253,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the default script dialect.
+         *
          * @param defaultDialect dialect
          */
         public void setDefaultDialect(String defaultDialect) {
@@ -1247,14 +1264,14 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds pattern settings.
      */
-    public static class Patterns implements Serializable
-    {
+    public static class Patterns implements Serializable {
         private static final long serialVersionUID = -7596853289989573800L;
         private Long maxSubexpressions;
         private boolean maxSubexpressionPreventStart = true;
 
         /**
          * Returns the maximum number of subexpressions
+         *
          * @return subexpression count
          */
         public Long getMaxSubexpressions() {
@@ -1263,6 +1280,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the maximum number of subexpressions
+         *
          * @param maxSubexpressions subexpression count
          */
         public void setMaxSubexpressions(Long maxSubexpressions) {
@@ -1272,6 +1290,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns true, the default, to indicate that if there is a maximum defined
          * it is being enforced and new subexpressions are not allowed.
+         *
          * @return indicate whether enforced or not
          */
         public boolean isMaxSubexpressionPreventStart() {
@@ -1281,6 +1300,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Set to true, the default, to indicate that if there is a maximum defined
          * it is being enforced and new subexpressions are not allowed.
+         *
          * @param maxSubexpressionPreventStart indicate whether enforced or not
          */
         public void setMaxSubexpressionPreventStart(boolean maxSubexpressionPreventStart) {
@@ -1291,15 +1311,15 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds match-reconize settings.
      */
-    public static class MatchRecognize implements Serializable
-    {
+    public static class MatchRecognize implements Serializable {
         private static final long serialVersionUID = 4541565245238216789L;
-        
+
         private Long maxStates;
         private boolean maxStatesPreventStart = true;
 
         /**
          * Returns the maximum number of states
+         *
          * @return state count
          */
         public Long getMaxStates() {
@@ -1308,6 +1328,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the maximum number of states
+         *
          * @param maxStates state count
          */
         public void setMaxStates(Long maxStates) {
@@ -1317,6 +1338,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns true, the default, to indicate that if there is a maximum defined
          * it is being enforced and new states are not allowed.
+         *
          * @return indicate whether enforced or not
          */
         public boolean isMaxStatesPreventStart() {
@@ -1326,6 +1348,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Set to true, the default, to indicate that if there is a maximum defined
          * it is being enforced and new states are not allowed.
+         *
          * @param maxStatesPreventStart indicate whether enforced or not
          */
         public void setMaxStatesPreventStart(boolean maxStatesPreventStart) {
@@ -1336,16 +1359,14 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds default settings for stream selection in the select-clause.
      */
-    public static class StreamSelection implements Serializable
-    {
+    public static class StreamSelection implements Serializable {
         private StreamSelector defaultStreamSelector;
         private static final long serialVersionUID = -7943748323859161674L;
 
         /**
          * Ctor - sets up defaults.
          */
-        protected StreamSelection()
-        {
+        protected StreamSelection() {
             defaultStreamSelector = StreamSelector.ISTREAM_ONLY;
         }
 
@@ -1358,11 +1379,11 @@ public class ConfigurationEngineDefaults implements Serializable
          * <p>
          * This setting can be used to change the default behavior: Use the RSTREAM_ISTREAM_BOTH
          * value to have your statements generate both insert and remove stream results
-         * without the use of the "irstream" keyword in the select clause. 
+         * without the use of the "irstream" keyword in the select clause.
+         *
          * @return default stream selector, which is ISTREAM_ONLY unless changed
          */
-        public StreamSelector getDefaultStreamSelector()
-        {
+        public StreamSelector getDefaultStreamSelector() {
             return defaultStreamSelector;
         }
 
@@ -1376,10 +1397,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * This setting can be used to change the default behavior: Use the RSTREAM_ISTREAM_BOTH
          * value to have your statements generate both insert and remove stream results
          * without the use of the "irstream" keyword in the select clause.
+         *
          * @param defaultStreamSelector default stream selector
          */
-        public void setDefaultStreamSelector(StreamSelector defaultStreamSelector)
-        {
+        public void setDefaultStreamSelector(StreamSelector defaultStreamSelector) {
             this.defaultStreamSelector = defaultStreamSelector;
         }
     }
@@ -1387,8 +1408,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Time source configuration, the default in MILLI (millisecond resolution from System.currentTimeMillis).
      */
-    public static class TimeSource implements Serializable
-    {
+    public static class TimeSource implements Serializable {
         private TimeSourceType timeSourceType;
         private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
         private static final long serialVersionUID = 2075039404763313824L;
@@ -1396,26 +1416,25 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor.
          */
-        public TimeSource()
-        {
+        public TimeSource() {
             timeSourceType = TimeSourceType.MILLI;
         }
 
         /**
          * Returns the time source type.
+         *
          * @return time source type enum
          */
-        public TimeSourceType getTimeSourceType()
-        {
+        public TimeSourceType getTimeSourceType() {
             return timeSourceType;
         }
 
         /**
          * Sets the time source type.
+         *
          * @param timeSourceType time source type enum
          */
-        public void setTimeSourceType(TimeSourceType timeSourceType)
-        {
+        public void setTimeSourceType(TimeSourceType timeSourceType) {
             this.timeSourceType = timeSourceType;
         }
 
@@ -1431,16 +1450,14 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Language settings in the engine are for string comparisons.
      */
-    public static class Language implements Serializable
-    {
+    public static class Language implements Serializable {
         private boolean sortUsingCollator;
         private static final long serialVersionUID = -6237674558477894392L;
 
         /**
          * Ctor.
          */
-        public Language()
-        {
+        public Language() {
             sortUsingCollator = false;
         }
 
@@ -1448,10 +1465,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * Returns true to indicate to perform locale-independent string comparisons using Collator.
          * <p>
          * By default this setting is false, i.e. string comparisons use the compare method.
+         *
          * @return indicator whether to use Collator for string comparisons
          */
-        public boolean isSortUsingCollator()
-        {
+        public boolean isSortUsingCollator() {
             return sortUsingCollator;
         }
 
@@ -1459,10 +1476,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * Set to true to indicate to perform locale-independent string comparisons using Collator.
          * <p>
          * Set to false to perform string comparisons via the compare method (the default).
+         *
          * @param sortUsingCollator indicator whether to use Collator for string comparisons
          */
-        public void setSortUsingCollator(boolean sortUsingCollator)
-        {
+        public void setSortUsingCollator(boolean sortUsingCollator) {
             this.sortUsingCollator = sortUsingCollator;
         }
     }
@@ -1470,8 +1487,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Expression evaluation settings in the engine are for results of expressions.
      */
-    public static class Expression implements Serializable
-    {
+    public static class Expression implements Serializable {
         private static final long serialVersionUID = 3192205923560011213L;
 
         private boolean integerDivision;
@@ -1486,8 +1502,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor.
          */
-        public Expression()
-        {
+        public Expression() {
             integerDivision = false;
             divisionByZeroReturnsNull = false;
             udfCache = true;
@@ -1502,10 +1517,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * Returns true to signal that Java-convention integer division semantics
          * are used for divisions, whereas the division between two non-FP numbers
          * returns only the whole number part of the result and any fractional part is dropped.
+         *
          * @return indicator
          */
-        public boolean isIntegerDivision()
-        {
+        public boolean isIntegerDivision() {
             return integerDivision;
         }
 
@@ -1514,10 +1529,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * Set to true to signal the Java-convention integer division semantics
          * are used for divisions, whereas the division between two non-FP numbers
          * returns only the whole number part of the result and any fractional part is dropped.
+         *
          * @param integerDivision true for integer division returning integer, false (default) for
          */
-        public void setIntegerDivision(boolean integerDivision)
-        {
+        public void setIntegerDivision(boolean integerDivision) {
             this.integerDivision = integerDivision;
         }
 
@@ -1525,11 +1540,11 @@ public class ConfigurationEngineDefaults implements Serializable
          * Returns false (default) when division by zero returns Double.Infinity.
          * Returns true when division by zero return null.
          * <p>
-         * If integer devision is set, then division by zero for non-FP operands also returns null. 
+         * If integer devision is set, then division by zero for non-FP operands also returns null.
+         *
          * @return indicator for division-by-zero results
          */
-        public boolean isDivisionByZeroReturnsNull()
-        {
+        public boolean isDivisionByZeroReturnsNull() {
             return divisionByZeroReturnsNull;
         }
 
@@ -1538,30 +1553,30 @@ public class ConfigurationEngineDefaults implements Serializable
          * Set to true to have division by zero return null.
          * <p>
          * If integer devision is set, then division by zero for non-FP operands also returns null.
+         *
          * @param divisionByZeroReturnsNull indicator for division-by-zero results
          */
-        public void setDivisionByZeroReturnsNull(boolean divisionByZeroReturnsNull)
-        {
+        public void setDivisionByZeroReturnsNull(boolean divisionByZeroReturnsNull) {
             this.divisionByZeroReturnsNull = divisionByZeroReturnsNull;
         }
 
         /**
          * By default true, indicates that user-defined functions cache return results
          * if the parameter set is empty or has constant-only return values.
+         *
          * @return cache flag
          */
-        public boolean isUdfCache()
-        {
+        public boolean isUdfCache() {
             return udfCache;
         }
 
         /**
          * Set to true (the default) to indicate that user-defined functions cache return results
          * if the parameter set is empty or has constant-only return values.
+         *
          * @param udfCache cache flag
          */
-        public void setUdfCache(boolean udfCache)
-        {
+        public void setUdfCache(boolean udfCache) {
             this.udfCache = udfCache;
         }
 
@@ -1569,10 +1584,10 @@ public class ConfigurationEngineDefaults implements Serializable
          * Set to true (the default) to indicate that sub-selects within a statement are updated first when a new
          * event arrives. This is only relevant for statements in which both subselects
          * and the from-clause may react to the same exact event.
+         *
          * @return indicator whether to evaluate sub-selects first or last on new event arrival
          */
-        public boolean isSelfSubselectPreeval()
-        {
+        public boolean isSelfSubselectPreeval() {
             return selfSubselectPreeval;
         }
 
@@ -1580,51 +1595,52 @@ public class ConfigurationEngineDefaults implements Serializable
          * Set to true (the default) to indicate that sub-selects within a statement are updated first when a new
          * event arrives. This is only relevant for statements in which both subselects
          * and the from-clause may react to the same exact event.
+         *
          * @param selfSubselectPreeval indicator whether to evaluate sub-selects first or last on new event arrival
          */
-        public void setSelfSubselectPreeval(boolean selfSubselectPreeval)
-        {
+        public void setSelfSubselectPreeval(boolean selfSubselectPreeval) {
             this.selfSubselectPreeval = selfSubselectPreeval;
         }
 
         /**
          * Enables or disables non-SQL standard builtin aggregation functions.
+         *
          * @return indicator
          */
-        public boolean isExtendedAggregation()
-        {
+        public boolean isExtendedAggregation() {
             return extendedAggregation;
         }
 
         /**
          * Enables or disables non-SQL standard builtin aggregation functions.
+         *
          * @param extendedAggregation indicator
          */
-        public void setExtendedAggregation(boolean extendedAggregation)
-        {
+        public void setExtendedAggregation(boolean extendedAggregation) {
             this.extendedAggregation = extendedAggregation;
         }
 
         /**
          * Returns true to indicate that duck typing is enable for the specific syntax where it is allowed (check the documentation).
+         *
          * @return indicator
          */
-        public boolean isDuckTyping()
-        {
+        public boolean isDuckTyping() {
             return duckTyping;
         }
 
         /**
          * Set to true to indicate that duck typing is enable for the specific syntax where it is allowed (check the documentation).
+         *
          * @param duckTyping indicator
          */
-        public void setDuckTyping(boolean duckTyping)
-        {
+        public void setDuckTyping(boolean duckTyping) {
             this.duckTyping = duckTyping;
         }
 
         /**
          * Returns the math context for big decimal operations, or null to leave the math context undefined.
+         *
          * @return math context or null
          */
         public MathContext getMathContext() {
@@ -1633,6 +1649,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the math context for big decimal operations, or null to leave the math context undefined.
+         *
          * @param mathContext math context or null
          */
         public void setMathContext(MathContext mathContext) {
@@ -1641,6 +1658,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the time zone for calendar operations.
+         *
          * @return time zone
          */
         public TimeZone getTimeZone() {
@@ -1649,6 +1667,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the time zone for calendar operations.
+         *
          * @param timeZone time zone
          */
         public void setTimeZone(TimeZone timeZone) {
@@ -1659,8 +1678,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Holds engine execution-related settings.
      */
-    public static class Execution implements Serializable
-    {
+    public static class Execution implements Serializable {
         private boolean prioritized;
         private boolean fairlock;
         private boolean disableLocking;
@@ -1675,33 +1693,33 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Ctor - sets up defaults.
          */
-        protected Execution()
-        {
+        protected Execution() {
             prioritized = false;
         }
 
         /**
          * Returns false (the default) if the engine does not consider statement priority and preemptive instructions,
          * or true to enable priority-based statement execution order.
+         *
          * @return false by default to indicate unprioritized statement execution
          */
-        public boolean isPrioritized()
-        {
+        public boolean isPrioritized() {
             return prioritized;
         }
 
         /**
          * Set to false (the default) if the engine does not consider statement priority and preemptive instructions,
          * or true for enable priority-based statement execution order.
+         *
          * @param prioritized false by default to indicate unprioritized statement execution
          */
-        public void setPrioritized(boolean prioritized)
-        {
+        public void setPrioritized(boolean prioritized) {
             this.prioritized = prioritized;
         }
 
         /**
          * Returns true for fair locking, false for unfair locks.
+         *
          * @return fairness flag
          */
         public boolean isFairlock() {
@@ -1710,6 +1728,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Set to true for fair locking, false for unfair locks.
+         *
          * @param fairlock fairness flag
          */
         public void setFairlock(boolean fairlock) {
@@ -1720,6 +1739,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * Returns indicator whether statement-level locks are disabled.
          * The default is false meaning statement-level locks are taken by default and depending on EPL optimizations.
          * If set to true statement-level locks are never taken.
+         *
          * @return indicator for statement-level locks
          */
         public boolean isDisableLocking() {
@@ -1730,6 +1750,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * Set to true to indicate that statement-level locks are disabled.
          * The default is false meaning statement-level locks are taken by default and depending on EPL optimizations.
          * If set to true statement-level locks are never taken.
+         *
          * @param disableLocking false to take statement-level locks as required, or true to disable statement-level locking
          */
         public void setDisableLocking(boolean disableLocking) {
@@ -1738,6 +1759,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the threading profile
+         *
          * @return profile
          */
         public ThreadingProfile getThreadingProfile() {
@@ -1746,6 +1768,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the threading profile
+         *
          * @param threadingProfile profile to set
          */
         public void setThreadingProfile(ThreadingProfile threadingProfile) {
@@ -1754,6 +1777,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns indicator whether isolated services providers are enabled or disabled (the default).
+         *
          * @return indicator value
          */
         public boolean isAllowIsolatedService() {
@@ -1762,6 +1786,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets indicator whether isolated services providers are enabled or disabled (the default).
+         *
          * @param allowIsolatedService indicator to set
          */
         public void setAllowIsolatedService(boolean allowIsolatedService) {
@@ -1770,6 +1795,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the filter service profile for tuning filtering operations.
+         *
          * @return filter service profile
          */
         public FilterServiceProfile getFilterServiceProfile() {
@@ -1778,6 +1804,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Set the filter service profile for tuning filtering operations.
+         *
          * @param filterServiceProfile filter service profile
          */
         public void setFilterServiceProfile(FilterServiceProfile filterServiceProfile) {
@@ -1787,6 +1814,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns the maximum width for breaking up "or" expression in filters to
          * subexpressions for reverse indexing.
+         *
          * @return max filter width
          */
         public int getFilterServiceMaxFilterWidth() {
@@ -1796,6 +1824,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Sets the maximum width for breaking up "or" expression in filters to
          * subexpressions for reverse indexing.
+         *
          * @param filterServiceMaxFilterWidth max filter width
          */
         public void setFilterServiceMaxFilterWidth(int filterServiceMaxFilterWidth) {
@@ -1804,6 +1833,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the cache size for declared expression values
+         *
          * @return value
          */
         public int getDeclaredExprValueCacheSize() {
@@ -1812,6 +1842,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the cache size for declared expression values
+         *
          * @param declaredExprValueCacheSize value
          */
         public void setDeclaredExprValueCacheSize(int declaredExprValueCacheSize) {
@@ -1822,8 +1853,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Threading profile.
      */
-    public enum ThreadingProfile
-    {
+    public enum ThreadingProfile {
         /**
          * Large for use with 100 threads or more. Please see the documentation for more information.
          */
@@ -1838,8 +1868,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Filter service profile.
      */
-    public enum FilterServiceProfile
-    {
+    public enum FilterServiceProfile {
         /**
          * If filters are mostly static, the default.
          */
@@ -1854,8 +1883,7 @@ public class ConfigurationEngineDefaults implements Serializable
     /**
      * Time source type.
      */
-    public enum TimeSourceType
-    {
+    public enum TimeSourceType {
         /**
          * Millisecond time source type with time originating from System.currentTimeMillis
          */
@@ -1872,7 +1900,7 @@ public class ConfigurationEngineDefaults implements Serializable
      */
     public static class AlternativeContext implements Serializable {
         private static final long serialVersionUID = 4488861684585251042L;
-        
+
         private String runtime;
         private String admin;
         private String eventTypeIdGeneratorFactory;
@@ -1883,42 +1911,43 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Class name of runtime provider.
+         *
          * @return provider class
          */
-        public String getRuntime()
-        {
+        public String getRuntime() {
             return runtime;
         }
 
         /**
          * Set the class name of the runtime provider.
+         *
          * @param runtime provider class
          */
-        public void setRuntime(String runtime)
-        {
+        public void setRuntime(String runtime) {
             this.runtime = runtime;
         }
 
         /**
          * Class name of admin provider.
+         *
          * @return provider class
          */
-        public String getAdmin()
-        {
+        public String getAdmin() {
             return admin;
         }
 
         /**
          * Set the class name of the admin provider.
+         *
          * @param admin provider class
          */
-        public void setAdmin(String admin)
-        {
+        public void setAdmin(String admin) {
             this.admin = admin;
         }
 
         /**
          * Returns the class name of the event type id generator.
+         *
          * @return class name
          */
         public String getEventTypeIdGeneratorFactory() {
@@ -1927,6 +1956,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the class name of the event type id generator.
+         *
          * @param factory class name
          */
         public void setEventTypeIdGeneratorFactory(String factory) {
@@ -1935,6 +1965,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the class name of the virtual data window view factory.
+         *
          * @param factory class name
          */
         public void setVirtualDataWindowViewFactory(String factory) {
@@ -1943,6 +1974,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the class name of the virtual data window view factory.
+         *
          * @return factory class name
          */
         public String getVirtualDataWindowViewFactory() {
@@ -1951,6 +1983,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the class name of the statement metadata factory.
+         *
          * @return factory class name
          */
         public String getStatementMetadataFactory() {
@@ -1959,6 +1992,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the class name of the statement metadata factory.
+         *
          * @param factory class name
          */
         public void setStatementMetadataFactory(String factory) {
@@ -1967,6 +2001,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the application-provided configurarion object carried as part of the configurations.
+         *
          * @return config user object
          */
         public Object getUserConfiguration() {
@@ -1975,6 +2010,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets an application-provided configurarion object carried as part of the configurations.
+         *
          * @param userConfiguration to set
          */
         public void setUserConfiguration(Object userConfiguration) {
@@ -1983,6 +2019,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Returns the member name.
+         *
          * @return member name
          */
         public String getMemberName() {
@@ -1991,6 +2028,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Sets the member name.
+         *
          * @param memberName member name
          */
         public void setMemberName(String memberName) {
@@ -2009,6 +2047,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns the list of exception handler factory class names,
          * see {@link com.espertech.esper.client.hook.ExceptionHandlerFactory}
+         *
          * @return list of fully-qualified class names
          */
         public List<String> getHandlerFactories() {
@@ -2021,6 +2060,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * Provide a fully-qualified class name of the implementation
          * of the {@link com.espertech.esper.client.hook.ExceptionHandlerFactory}
          * interface.
+         *
          * @param exceptionHandlerFactoryClassName class name of exception handler factory
          */
         public void addClass(String exceptionHandlerFactoryClassName) {
@@ -2032,6 +2072,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Add a list of exception handler class names.
+         *
          * @param classNames to add
          */
         public void addClasses(List<String> classNames) {
@@ -2047,6 +2088,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * The class provided should implement the
          * {@link com.espertech.esper.client.hook.ExceptionHandlerFactory}
          * interface.
+         *
          * @param exceptionHandlerFactoryClass class of implementation
          */
         public void addClass(Class exceptionHandlerFactoryClass) {
@@ -2056,6 +2098,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns the policy to instruct the engine whether a module un-deploy rethrows runtime exceptions that are encountered
          * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
+         *
          * @return indicator
          */
         public UndeployRethrowPolicy getUndeployRethrowPolicy() {
@@ -2065,6 +2108,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Sets the policy to instruct the engine whether a module un-deploy rethrows runtime exceptions that are encountered
          * during the undeploy for any statement that is undeployed. By default we are logging exceptions.
+         *
          * @param undeployRethrowPolicy indicator
          */
         public void setUndeployRethrowPolicy(UndeployRethrowPolicy undeployRethrowPolicy) {
@@ -2074,8 +2118,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Enumeration of blocking techniques.
          */
-        public enum UndeployRethrowPolicy
-        {
+        public enum UndeployRethrowPolicy {
             /**
              * Warn.
              */
@@ -2098,6 +2141,7 @@ public class ConfigurationEngineDefaults implements Serializable
         /**
          * Returns the list of condition handler factory class names,
          * see {@link com.espertech.esper.client.hook.ConditionHandlerFactory}
+         *
          * @return list of fully-qualified class names
          */
         public List<String> getHandlerFactories() {
@@ -2110,6 +2154,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * Provide a fully-qualified class name of the implementation
          * of the {@link com.espertech.esper.client.hook.ConditionHandlerFactory}
          * interface.
+         *
          * @param className class name of condition handler factory
          */
         public void addClass(String className) {
@@ -2120,7 +2165,8 @@ public class ConfigurationEngineDefaults implements Serializable
         }
 
         /**
-         * Add a list of condition handler class names. 
+         * Add a list of condition handler class names.
+         *
          * @param classNames to add
          */
         public void addClasses(List<String> classNames) {
@@ -2136,6 +2182,7 @@ public class ConfigurationEngineDefaults implements Serializable
          * The class provided should implement the
          * {@link com.espertech.esper.client.hook.ConditionHandlerFactory}
          * interface.
+         *
          * @param clazz class of implementation
          */
         public void addClass(Class clazz) {
@@ -2150,6 +2197,7 @@ public class ConfigurationEngineDefaults implements Serializable
 
         /**
          * Provide cluster configuration information.
+         *
          * @param configuration information
          */
         public void configure(Configuration configuration);

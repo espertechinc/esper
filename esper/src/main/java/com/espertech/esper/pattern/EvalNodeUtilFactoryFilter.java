@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.pattern;
 
-public interface EvalNodeUtilFactoryFilter
-{
+public interface EvalNodeUtilFactoryFilter {
     public boolean consider(EvalFactoryNode node);
 }

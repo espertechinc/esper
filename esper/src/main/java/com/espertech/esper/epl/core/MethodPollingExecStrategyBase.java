@@ -28,8 +28,7 @@ import java.util.List;
 /**
  * Viewable providing historical data from a database.
  */
-public abstract class MethodPollingExecStrategyBase implements PollExecStrategy
-{
+public abstract class MethodPollingExecStrategyBase implements PollExecStrategy {
     private static final Logger log = LoggerFactory.getLogger(MethodPollingExecStrategyBase.class);
 
     protected final EventAdapterService eventAdapterService;
@@ -62,21 +61,17 @@ public abstract class MethodPollingExecStrategyBase implements PollExecStrategy
         return true;
     }
 
-    public void start()
-    {
+    public void start() {
     }
 
-    public void done()
-    {
+    public void done() {
     }
 
-    public void destroy()
-    {
+    public void destroy() {
     }
 
-    public List<EventBean> poll(Object[] lookupValues, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        switch(strategy) {
+    public List<EventBean> poll(Object[] lookupValues, ExprEvaluatorContext exprEvaluatorContext) {
+        switch (strategy) {
             case TARGET_CONST:
                 return invokeInternal(lookupValues, invocationTarget);
             case TARGET_VAR:
@@ -110,8 +105,7 @@ public abstract class MethodPollingExecStrategyBase implements PollExecStrategy
                 return handleResult(invocationResult);
             }
             return null;
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             throw new EPException("Method '" + method.getName() + "' of class '" + method.getJavaMethod().getDeclaringClass().getName() +
                     "' reported an exception: " + ex.getTargetException(), ex.getTargetException());
         }

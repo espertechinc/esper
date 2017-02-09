@@ -20,40 +20,35 @@ import java.util.List;
 /**
  * Getter for one or more levels deep nested properties.
  */
-public class NestedPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter
-{
+public class NestedPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter {
     private final BeanEventPropertyGetter[] getterChain;
 
     /**
      * Ctor.
-     * @param getterChain is the chain of getters to retrieve each nested property
+     *
+     * @param getterChain         is the chain of getters to retrieve each nested property
      * @param eventAdapterService is the cache and factory for event bean types and event wrappers
-     * @param finalPropertyType type of the entry returned
-     * @param finalGenericType generic type parameter of the entry returned, if any
+     * @param finalPropertyType   type of the entry returned
+     * @param finalGenericType    generic type parameter of the entry returned, if any
      */
-    public NestedPropertyGetter(List<EventPropertyGetter> getterChain, EventAdapterService eventAdapterService, Class finalPropertyType, Class finalGenericType)
-    {
-        super(eventAdapterService, finalPropertyType, finalGenericType); 
+    public NestedPropertyGetter(List<EventPropertyGetter> getterChain, EventAdapterService eventAdapterService, Class finalPropertyType, Class finalGenericType) {
+        super(eventAdapterService, finalPropertyType, finalGenericType);
         this.getterChain = new BeanEventPropertyGetter[getterChain.size()];
 
-        for (int i = 0; i < getterChain.size(); i++)
-        {
+        for (int i = 0; i < getterChain.size(); i++) {
             this.getterChain[i] = (BeanEventPropertyGetter) getterChain.get(i);
         }
     }
 
     public Object getBeanProp(Object value) throws PropertyAccessException {
-        if (value == null)
-        {
+        if (value == null) {
             return value;
         }
 
-        for (int i = 0; i < getterChain.length; i++)
-        {
+        for (int i = 0; i < getterChain.length; i++) {
             value = getterChain[i].getBeanProp(value);
 
-            if (value == null)
-            {
+            if (value == null) {
                 return null;
             }
         }
@@ -61,8 +56,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
     }
 
     public boolean isBeanExistsProperty(Object value) {
-        if (value == null)
-        {
+        if (value == null) {
             return false;
         }
 
@@ -70,12 +64,10 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
 
         // walk the getter chain up to the previous-to-last element, returning its object value.
         // any null values in between mean the property does not exists
-        for (int i = 0; i < getterChain.length - 1; i++)
-        {
+        for (int i = 0; i < getterChain.length - 1; i++) {
             value = getterChain[i].getBeanProp(value);
 
-            if (value == null)
-            {
+            if (value == null) {
                 return false;
             }
         }
@@ -83,13 +75,11 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         return getterChain[lastElementIndex].isBeanExistsProperty(value);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         return getBeanProp(eventBean.getUnderlying());
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return isBeanExistsProperty(eventBean.getUnderlying());
     }
 }

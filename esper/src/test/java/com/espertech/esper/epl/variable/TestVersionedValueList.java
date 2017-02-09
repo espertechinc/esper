@@ -14,17 +14,14 @@ import junit.framework.TestCase;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestVersionedValueList extends TestCase
-{
+public class TestVersionedValueList extends TestCase {
     private VersionedValueList<String> list;
 
-    public void setUp()
-    {
+    public void setUp() {
         list = new VersionedValueList<String>("abc", 2, "a", 1000, 10000, new ReentrantReadWriteLock().readLock(), 10, true);
     }
 
-    public void testFlowNoTime()
-    {
+    public void testFlowNoTime() {
         tryInvalid(0);
         tryInvalid(1);
         assertEquals("a", list.getVersion(2));
@@ -69,8 +66,7 @@ public class TestVersionedValueList extends TestCase
         assertEquals("e", list.getVersion(10));
     }
 
-    public void testHighWatermark()
-    {
+    public void testHighWatermark() {
         list.addValue(3, "b", 3000);
         list.addValue(4, "c", 4000);
         list.addValue(5, "d", 5000);
@@ -97,7 +93,7 @@ public class TestVersionedValueList extends TestCase
 
         list.addValue(15, "x", 11000);  // 11th value added
         assertEquals(9, list.getOlderVersions().size());
-        
+
         tryInvalid(0);
         tryInvalid(1);
         tryInvalid(2);
@@ -125,8 +121,8 @@ public class TestVersionedValueList extends TestCase
         assertEquals("y", list.getVersion(20));
 
         // expire all before 10.5 sec
-        list.addValue(21, "z1", 20500);  
-        list.addValue(22, "z2", 20500);  
+        list.addValue(21, "z1", 20500);
+        list.addValue(22, "z2", 20500);
         list.addValue(23, "z3", 20501);
         assertEquals(4, list.getOlderVersions().size());
         tryInvalid(9);
@@ -144,15 +140,11 @@ public class TestVersionedValueList extends TestCase
         assertEquals("z3", list.getVersion(24));
     }
 
-    private void tryInvalid(int version)
-    {
-        try
-        {
+    private void tryInvalid(int version) {
+        try {
             list.getVersion(version);
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
         }
     }
 }

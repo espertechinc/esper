@@ -12,9 +12,10 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.util.ClassForNameProvider;
 
-import java.sql.Types;
 import java.math.BigDecimal;
+import java.sql.Types;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -154,7 +155,7 @@ public class SQLTypeMapUtil {
      * @return type sql type
      */
     public static int getSQLTypeByName(String type) {
-        Integer val = sqlTypeMap.get(type.toUpperCase());
+        Integer val = sqlTypeMap.get(type.toUpperCase(Locale.ENGLISH));
         if (val != null) {
             return val;
         }

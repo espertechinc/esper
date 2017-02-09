@@ -32,25 +32,21 @@ public class ExprNewInstanceNode extends ExprNodeBase implements ExprEvaluator {
         this.classIdent = classIdent;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         try {
             targetClass = validationContext.getEngineImportService().resolveClass(classIdent, false);
-        }
-        catch (EngineImportException e) {
+        } catch (EngineImportException e) {
             throw new ExprValidationException("Failed to resolve new-operator class name '" + classIdent + "'");
         }
         manufacturer = InstanceManufacturerFactory.getManufacturer(targetClass, validationContext.getEngineImportService(), this.getChildNodes());
         return null;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return manufacturer.make(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
@@ -66,8 +62,7 @@ public class ExprNewInstanceNode extends ExprNodeBase implements ExprEvaluator {
         return classIdent;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         if (!(node instanceof ExprNewInstanceNode)) {
             return false;
         }

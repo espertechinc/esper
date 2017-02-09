@@ -23,9 +23,10 @@ public class EPDataFlowOperatorProviderContext {
 
     /**
      * Ctor.
+     *
      * @param dataFlowName data flow name
      * @param operatorName operator name
-     * @param spec specification
+     * @param spec         specification
      */
     public EPDataFlowOperatorProviderContext(String dataFlowName, String operatorName, GraphOperatorSpec spec) {
         this.dataFlowName = dataFlowName;
@@ -35,6 +36,7 @@ public class EPDataFlowOperatorProviderContext {
 
     /**
      * Operator name.
+     *
      * @return name
      */
     public String getOperatorName() {
@@ -43,6 +45,7 @@ public class EPDataFlowOperatorProviderContext {
 
     /**
      * Data flow name
+     *
      * @return name
      */
     public String getDataFlowName() {
@@ -51,6 +54,7 @@ public class EPDataFlowOperatorProviderContext {
 
     /**
      * Operator specification
+     *
      * @return spec
      */
     public GraphOperatorSpec getSpec() {

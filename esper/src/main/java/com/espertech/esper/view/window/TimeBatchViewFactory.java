@@ -25,15 +25,13 @@ import java.util.List;
 /**
  * Factory for {@link TimeBatchView}.
  */
-public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory
-{
+public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory {
     /**
      * The reference point, or null if none supplied.
      */
     protected Long optionalReferencePoint;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         if ((expressionParameters.size() < 1) || (expressionParameters.size() > 3)) {
             throw new ViewParameterException(getViewParamMessage());
         }
@@ -46,11 +44,10 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
 
         if ((viewParamValues.length == 2) && (viewParamValues[1] instanceof String)) {
             processKeywords(viewParamValues[1], getViewParamMessage());
-        }
-        else {
+        } else {
             if (viewParamValues.length >= 2) {
                 Object paramRef = viewParamValues[1];
-                if ((!(paramRef instanceof Number)) || (JavaClassHelper.isFloatingPointNumber((Number)paramRef))) {
+                if ((!(paramRef instanceof Number)) || (JavaClassHelper.isFloatingPointNumber((Number) paramRef))) {
                     throw new ViewParameterException(getViewName() + " view requires a Long-typed reference point in msec as a second parameter");
                 }
                 optionalReferencePoint = ((Number) paramRef).longValue();
@@ -61,8 +58,7 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
         }
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -70,57 +66,47 @@ public class TimeBatchViewFactory extends TimeBatchViewFactoryParams implements 
         return new RelativeAccessByEventNIndexGetterImpl();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new TimeBatchViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation, optionalReferencePoint, isForceUpdate, isStartEager);
-        }
-        else {
+        } else {
             return new TimeBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, optionalReferencePoint, isForceUpdate, isStartEager, viewUpdatedCollection);
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof TimeBatchView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof TimeBatchView)) {
             return false;
         }
 
         TimeBatchView myView = (TimeBatchView) view;
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
-        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
-        {
+        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }
 
-        if ((myView.getInitialReferencePoint() != null) && (optionalReferencePoint != null))
-        {
-            if (!myView.getInitialReferencePoint().equals(optionalReferencePoint.longValue()))
-            {
+        if ((myView.getInitialReferencePoint() != null) && (optionalReferencePoint != null)) {
+            if (!myView.getInitialReferencePoint().equals(optionalReferencePoint.longValue())) {
                 return false;
             }
         }
-        if ( ((myView.getInitialReferencePoint() == null) && (optionalReferencePoint != null)) ||
-             ((myView.getInitialReferencePoint() != null) && (optionalReferencePoint == null)) )
-        {
+        if (((myView.getInitialReferencePoint() == null) && (optionalReferencePoint != null)) ||
+                ((myView.getInitialReferencePoint() != null) && (optionalReferencePoint == null))) {
             return false;
         }
 
-        if (myView.isForceOutput() != isForceUpdate)
-        {
+        if (myView.isForceOutput() != isForceUpdate) {
             return false;
         }
 
-        if (myView.isStartEager())  // since it's already started
-        {
+        if (myView.isStartEager()) {
+            // since it's already started
             return false;
         }
 

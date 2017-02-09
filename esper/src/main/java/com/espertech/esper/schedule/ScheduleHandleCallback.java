@@ -15,12 +15,12 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 /**
  * Interface for scheduled callbacks.
  */
-public interface ScheduleHandleCallback 
-{
+public interface ScheduleHandleCallback {
     /**
      * Callback that is invoked as indicated by a schedule added to the scheduling service.
+     *
      * @param engineLevelExtensionServicesContext is a marker interface for providing custom extension services
-     * passed to the triggered class
+     *                                            passed to the triggered class
      */
     public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext);
 }

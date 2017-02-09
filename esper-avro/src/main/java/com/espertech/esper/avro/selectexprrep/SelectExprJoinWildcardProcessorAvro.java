@@ -22,8 +22,7 @@ import org.apache.avro.generic.GenericData;
 /**
  * Processor for select-clause expressions that handles wildcards. Computes results based on matching events.
  */
-public class SelectExprJoinWildcardProcessorAvro implements SelectExprProcessor
-{
+public class SelectExprJoinWildcardProcessorAvro implements SelectExprProcessor {
     private final EventType resultEventType;
     private final Schema schema;
     private final EventAdapterService eventAdapterService;
@@ -34,8 +33,7 @@ public class SelectExprJoinWildcardProcessorAvro implements SelectExprProcessor
         this.eventAdapterService = eventAdapterService;
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         GenericData.Record event = new GenericData.Record(schema);
         for (int i = 0; i < eventsPerStream.length; i++) {
             EventBean streamEvent = eventsPerStream[i];
@@ -47,8 +45,7 @@ public class SelectExprJoinWildcardProcessorAvro implements SelectExprProcessor
         return eventAdapterService.adapterForTypedAvro(event, resultEventType);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 }

@@ -18,7 +18,10 @@ import java.util.Map;
 public interface CompositeIndexEnterRemove {
 
     public void enter(EventBean theEvent, Map parent);
+
     public void setNext(CompositeIndexEnterRemove next);
+
     public void remove(EventBean theEvent, Map parent);
+
     public void getAll(HashSet<EventBean> result, Map parent);
 }

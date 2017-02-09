@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Marker interface for different cache settings.
  */
-public interface ConfigurationDataCache extends Serializable
-{
+public interface ConfigurationDataCache extends Serializable {
 
 }
 

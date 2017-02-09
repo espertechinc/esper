@@ -39,8 +39,7 @@ import java.util.*;
 /**
  * Implementation for isolated runtime.
  */
-public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEventRouteDest, EPRuntimeEventSender
-{
+public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEventRouteDest, EPRuntimeEventSender {
     protected EPServicesContext unisolatedServices;
     protected EPIsolationUnitServices services;
     protected boolean isSubselectPreeval;
@@ -55,11 +54,11 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     /**
      * Ctor.
-     * @param svc isolated services
+     *
+     * @param svc           isolated services
      * @param unisolatedSvc engine services
      */
-    public EPRuntimeIsolatedImpl(EPIsolationUnitServices svc, EPServicesContext unisolatedSvc)
-    {
+    public EPRuntimeIsolatedImpl(EPIsolationUnitServices svc, EPServicesContext unisolatedSvc) {
         this.services = svc;
         this.unisolatedServices = unisolatedSvc;
         this.threadWorkQueue = new ThreadWorkQueue();
@@ -70,18 +69,14 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         initThreadLocals();
     }
 
-    public void sendEvent(Object theEvent) throws EPException
-    {
-        if (theEvent == null)
-        {
+    public void sendEvent(Object theEvent) throws EPException {
+        if (theEvent == null) {
             log.error(".sendEvent Null object supplied");
             return;
         }
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
-            if ((!(theEvent instanceof CurrentTimeEvent)) || (ExecutionPathDebugLog.isTimerDebugEnabled))
-            {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
+            if ((!(theEvent instanceof CurrentTimeEvent)) || (ExecutionPathDebugLog.isTimerDebugEnabled)) {
                 log.debug(".sendEvent Processing event " + theEvent);
             }
         }
@@ -90,16 +85,13 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         processEvent(theEvent);
     }
 
-    public void sendEvent(org.w3c.dom.Node document) throws EPException
-    {
-        if (document == null)
-        {
+    public void sendEvent(org.w3c.dom.Node document) throws EPException {
+        if (document == null) {
             log.error(".sendEvent Null object supplied");
             return;
         }
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".sendEvent Processing DOM node event " + document);
         }
 
@@ -110,19 +102,17 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     /**
      * Route a XML docment event
+     *
      * @param document to route
      * @throws EPException if routing failed
      */
-    public void route(org.w3c.dom.Node document) throws EPException
-    {
-        if (document == null)
-        {
+    public void route(org.w3c.dom.Node document) throws EPException {
+        if (document == null) {
             log.error(".sendEvent Null object supplied");
             return;
         }
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".sendEvent Processing DOM node event " + document);
         }
 
@@ -131,15 +121,12 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         threadWorkQueue.addBack(eventBean);
     }
 
-    public void sendEvent(Map map, String eventTypeName) throws EPException
-    {
-        if (map == null)
-        {
+    public void sendEvent(Map map, String eventTypeName) throws EPException {
+        if (map == null) {
             throw new IllegalArgumentException("Invalid null event object");
         }
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".sendMap Processing event " + map);
         }
 
@@ -149,13 +136,11 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     }
 
     public void sendEvent(Object[] objectarray, String objectArrayEventTypeName) {
-        if (objectarray == null)
-        {
+        if (objectarray == null) {
             throw new IllegalArgumentException("Invalid null event object");
         }
 
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".sendEvent Processing event " + Arrays.toString(objectarray));
         }
 
@@ -166,24 +151,20 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     /**
      * Process an unwrapped event.
+     *
      * @param theEvent to process.
      */
-    public void processEvent(Object theEvent)
-    {
-        if (theEvent instanceof TimerEvent)
-        {
+    public void processEvent(Object theEvent) {
+        if (theEvent instanceof TimerEvent) {
             processTimeEvent((TimerEvent) theEvent);
             return;
         }
 
         EventBean eventBean;
 
-        if (theEvent instanceof EventBean)
-        {
+        if (theEvent instanceof EventBean) {
             eventBean = (EventBean) theEvent;
-        }
-        else
-        {
+        } else {
             eventBean = unisolatedServices.getEventAdapterService().adapterForBean(theEvent);
         }
 
@@ -192,23 +173,18 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     /**
      * Process a wrapped event.
+     *
      * @param eventBean to process
      */
-    public void processWrappedEvent(EventBean eventBean)
-    {
+    public void processWrappedEvent(EventBean eventBean) {
         // Acquire main processing lock which locks out statement management
         unisolatedServices.getEventProcessingRWLock().acquireReadLock();
-        try
-        {
+        try {
             processMatches(eventBean);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             matchesArrayThreadLocal.get().clear();
             throw new EPException(ex);
-        }
-        finally
-        {
+        } finally {
             unisolatedServices.getEventProcessingRWLock().releaseReadLock();
         }
 
@@ -220,19 +196,17 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         processThreadWorkQueue();
     }
 
-    private void processTimeEvent(TimerEvent theEvent)
-    {
+    private void processTimeEvent(TimerEvent theEvent) {
         if (theEvent instanceof TimerControlEvent) {
             TimerControlEvent tce = (TimerControlEvent) theEvent;
             if (tce.getClockType() == TimerControlEvent.ClockType.CLOCK_INTERNAL) {
-                log.warn("Timer control events are not processed by the isolated runtime as the setting is always external timer.");                
+                log.warn("Timer control events are not processed by the isolated runtime as the setting is always external timer.");
             }
             return;
         }
 
         // Evaluation of all time events is protected from statement management
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) && (ExecutionPathDebugLog.isTimerDebugEnabled))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) && (ExecutionPathDebugLog.isTimerDebugEnabled)) {
             log.debug(".processTimeEvent Setting time and evaluating schedules");
         }
 
@@ -240,10 +214,8 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
             CurrentTimeEvent current = (CurrentTimeEvent) theEvent;
             long currentTime = current.getTime();
 
-            if (currentTime == services.getSchedulingService().getTime())
-            {
-                if (log.isWarnEnabled())
-                {
+            if (currentTime == services.getSchedulingService().getTime()) {
+                if (log.isWarnEnabled()) {
                     log.warn("Duplicate time event received for currentTime " + currentTime);
                 }
             }
@@ -266,31 +238,26 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         long currentTime = services.getSchedulingService().getTime();
         Long optionalResolution = span.getOptionalResolution();
 
-        if (targetTime < currentTime)
-        {
-            if (log.isWarnEnabled())
-            {
+        if (targetTime < currentTime) {
+            if (log.isWarnEnabled()) {
                 log.warn("Past or current time event received for currentTime " + targetTime);
             }
         }
 
         // Evaluation of all time events is protected from statement management
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) && (ExecutionPathDebugLog.isTimerDebugEnabled))
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) && (ExecutionPathDebugLog.isTimerDebugEnabled)) {
             log.debug(".processTimeEvent Setting time span and evaluating schedules for time " + targetTime + " optional resolution " + span.getOptionalResolution());
         }
 
-        while(currentTime < targetTime) {
+        while (currentTime < targetTime) {
 
             if ((optionalResolution != null) && (optionalResolution > 0)) {
                 currentTime += optionalResolution;
-            }
-            else {
+            } else {
                 Long nearest = services.getSchedulingService().getNearestTimeHandle();
                 if (nearest == null) {
                     currentTime = targetTime;
-                }
-                else {
+                } else {
                     currentTime = nearest;
                 }
             }
@@ -299,8 +266,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
             }
 
             // Evaluation of all time events is protected from statement management
-            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) && (ExecutionPathDebugLog.isTimerDebugEnabled))
-            {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()) && (ExecutionPathDebugLog.isTimerDebugEnabled)) {
                 log.debug(".processTimeEvent Setting time and evaluating schedules for time " + currentTime);
             }
 
@@ -316,58 +282,43 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
     }
 
-    private void processSchedule()
-    {
+    private void processSchedule() {
         ArrayBackedCollection<ScheduleHandle> handles = scheduleArrayThreadLocal.get();
 
         // Evaluation of schedules is protected by an optional scheduling service lock and then the engine lock
         // We want to stay in this order for allowing the engine lock as a second-order lock to the
         // services own lock, if it has one.
         unisolatedServices.getEventProcessingRWLock().acquireReadLock();
-        try
-        {
+        try {
             services.getSchedulingService().evaluate(handles);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             throw ex;
-        }
-        finally
-        {
+        } finally {
             unisolatedServices.getEventProcessingRWLock().releaseReadLock();
         }
 
         unisolatedServices.getEventProcessingRWLock().acquireReadLock();
-        try
-        {
+        try {
             processScheduleHandles(handles);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             handles.clear();
             throw ex;
-        }
-        finally
-        {
+        } finally {
             unisolatedServices.getEventProcessingRWLock().releaseReadLock();
         }
     }
 
-    protected void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles)
-    {
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+    protected void processScheduleHandles(ArrayBackedCollection<ScheduleHandle> handles) {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.trace("Found schedules for", handles.size());
         }
 
-        if (handles.size() == 0)
-        {
+        if (handles.size() == 0) {
             return;
         }
 
         // handle 1 result separatly for performance reasons
-        if (handles.size() == 1)
-        {
+        if (handles.size() == 1) {
             Object[] handleArray = handles.getArray();
             EPStatementHandleCallback handle = (EPStatementHandleCallback) handleArray[0];
 
@@ -383,8 +334,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         // sort multiple matches for the event into statements
         Map<EPStatementAgentInstanceHandle, Object> stmtCallbacks = schedulePerStmtThreadLocal.get();
         stmtCallbacks.clear();
-        for (int i = 0; i < entryCount; i++)    // need to use the size of the collection
-        {
+        for (int i = 0; i < entryCount; i++) {
             EPStatementHandleCallback handleCallback = (EPStatementHandleCallback) matchArray[i];
             EPStatementAgentInstanceHandle handle = handleCallback.getAgentInstanceHandle();
             ScheduleHandleCallback callback = handleCallback.getScheduleCallback();
@@ -392,15 +342,13 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
             Object entry = stmtCallbacks.get(handle);
 
             // This statement has not been encountered before
-            if (entry == null)
-            {
+            if (entry == null) {
                 stmtCallbacks.put(handle, callback);
                 continue;
             }
 
             // This statement has been encountered once before
-            if (entry instanceof ScheduleHandleCallback)
-            {
+            if (entry instanceof ScheduleHandleCallback) {
                 ScheduleHandleCallback existingCallback = (ScheduleHandleCallback) entry;
                 ArrayDeque<ScheduleHandleCallback> entries = new ArrayDeque<ScheduleHandleCallback>();
                 entries.add(existingCallback);
@@ -415,15 +363,13 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         }
         handles.clear();
 
-        for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : stmtCallbacks.entrySet())
-        {
+        for (Map.Entry<EPStatementAgentInstanceHandle, Object> entry : stmtCallbacks.entrySet()) {
             EPStatementAgentInstanceHandle handle = entry.getKey();
             Object callbackObject = entry.getValue();
 
             EPRuntimeImpl.processStatementScheduleMultiple(handle, callbackObject, unisolatedServices);
 
-            if ((isPrioritized) && (handle.isPreemptive()))
-            {
+            if (isPrioritized && handle.isPreemptive()) {
                 break;
             }
         }
@@ -432,44 +378,34 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     /**
      * Works off the thread's work queue.
      */
-    public void processThreadWorkQueue()
-    {
+    public void processThreadWorkQueue() {
         DualWorkQueue queues = threadWorkQueue.getThreadQueue();
 
         if (queues.getFrontQueue().isEmpty()) {
             boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
-            if (haveDispatched)
-            {
+            if (haveDispatched) {
                 // Dispatch results to listeners
                 dispatch();
                 if (!queues.getFrontQueue().isEmpty()) {
                     processThreadWorkQueueFront(queues);
                 }
             }
-        }
-        else {
+        } else {
             processThreadWorkQueueFront(queues);
         }
 
         Object item;
-        while ( (item = queues.getBackQueue().poll()) != null)
-        {
-            if (item instanceof InsertIntoLatchSpin)
-            {
+        while ((item = queues.getBackQueue().poll()) != null) {
+            if (item instanceof InsertIntoLatchSpin) {
                 processThreadWorkQueueLatchedSpin((InsertIntoLatchSpin) item);
-            }
-            else if (item instanceof InsertIntoLatchWait)
-            {
+            } else if (item instanceof InsertIntoLatchWait) {
                 processThreadWorkQueueLatchedWait((InsertIntoLatchWait) item);
-            }
-            else
-            {
+            } else {
                 processThreadWorkQueueUnlatched(item);
             }
 
             boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
-            if (haveDispatched)
-            {
+            if (haveDispatched) {
                 dispatch();
             }
 
@@ -481,46 +417,33 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     private void processThreadWorkQueueFront(DualWorkQueue queues) {
         Object item;
-        while ( (item = queues.getFrontQueue().poll()) != null)
-        {
-            if (item instanceof InsertIntoLatchSpin)
-            {
+        while ((item = queues.getFrontQueue().poll()) != null) {
+            if (item instanceof InsertIntoLatchSpin) {
                 processThreadWorkQueueLatchedSpin((InsertIntoLatchSpin) item);
-            }
-            else if (item instanceof InsertIntoLatchWait)
-            {
+            } else if (item instanceof InsertIntoLatchWait) {
                 processThreadWorkQueueLatchedWait((InsertIntoLatchWait) item);
-            }
-            else
-            {
+            } else {
                 processThreadWorkQueueUnlatched(item);
             }
 
             boolean haveDispatched = unisolatedServices.getNamedWindowDispatchService().dispatch();
-            if (haveDispatched)
-            {
+            if (haveDispatched) {
                 dispatch();
             }
         }
     }
 
-    private void processThreadWorkQueueLatchedWait(InsertIntoLatchWait insertIntoLatch)
-    {
+    private void processThreadWorkQueueLatchedWait(InsertIntoLatchWait insertIntoLatch) {
         // wait for the latch to complete
         EventBean eventBean = insertIntoLatch.await();
 
         unisolatedServices.getEventProcessingRWLock().acquireReadLock();
-        try
-        {
+        try {
             processMatches(eventBean);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             matchesArrayThreadLocal.get().clear();
             throw ex;
-        }
-        finally
-        {
+        } finally {
             insertIntoLatch.done();
             unisolatedServices.getEventProcessingRWLock().releaseReadLock();
         }
@@ -528,23 +451,17 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         dispatch();
     }
 
-    private void processThreadWorkQueueLatchedSpin(InsertIntoLatchSpin insertIntoLatch)
-    {
+    private void processThreadWorkQueueLatchedSpin(InsertIntoLatchSpin insertIntoLatch) {
         // wait for the latch to complete
         EventBean eventBean = insertIntoLatch.await();
 
         unisolatedServices.getEventProcessingRWLock().acquireReadLock();
-        try
-        {
+        try {
             processMatches(eventBean);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             matchesArrayThreadLocal.get().clear();
             throw ex;
-        }
-        finally
-        {
+        } finally {
             insertIntoLatch.done();
             unisolatedServices.getEventProcessingRWLock().releaseReadLock();
         }
@@ -552,49 +469,37 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         dispatch();
     }
 
-    private void processThreadWorkQueueUnlatched(Object item)
-    {
+    private void processThreadWorkQueueUnlatched(Object item) {
         EventBean eventBean;
-        if (item instanceof EventBean)
-        {
+        if (item instanceof EventBean) {
             eventBean = (EventBean) item;
-        }
-        else
-        {
+        } else {
             eventBean = unisolatedServices.getEventAdapterService().adapterForBean(item);
         }
 
         unisolatedServices.getEventProcessingRWLock().acquireReadLock();
-        try
-        {
+        try {
             processMatches(eventBean);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             matchesArrayThreadLocal.get().clear();
             throw ex;
-        }
-        finally
-        {
+        } finally {
             unisolatedServices.getEventProcessingRWLock().releaseReadLock();
         }
 
         dispatch();
     }
 
-    protected void processMatches(EventBean theEvent)
-    {
+    protected void processMatches(EventBean theEvent) {
         // get matching filters
         ArrayBackedCollection<FilterHandle> matches = matchesArrayThreadLocal.get();
         services.getFilterService().evaluate(theEvent, matches);
 
-        if (ThreadLogUtil.ENABLED_TRACE)
-        {
+        if (ThreadLogUtil.ENABLED_TRACE) {
             ThreadLogUtil.trace("Found matches for underlying ", matches.size(), theEvent.getUnderlying());
         }
 
-        if (matches.size() == 0)
-        {
+        if (matches.size() == 0) {
             return;
         }
 
@@ -602,18 +507,15 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
         Object[] matchArray = matches.getArray();
         int entryCount = matches.size();
 
-        for (int i = 0; i < entryCount; i++)
-        {
+        for (int i = 0; i < entryCount; i++) {
             EPStatementHandleCallback handleCallback = (EPStatementHandleCallback) matchArray[i];
             EPStatementAgentInstanceHandle handle = handleCallback.getAgentInstanceHandle();
 
             // Self-joins require that the internal dispatch happens after all streams are evaluated.
             // Priority or preemptive settings also require special ordering.
-            if (handle.isCanSelfJoin() || isPrioritized)
-            {
+            if (handle.isCanSelfJoin() || isPrioritized) {
                 ArrayDeque<FilterHandleCallback> callbacks = stmtCallbacks.get(handle);
-                if (callbacks == null)
-                {
+                if (callbacks == null) {
                     callbacks = new ArrayDeque<FilterHandleCallback>();
                     stmtCallbacks.put(handle, callbacks);
                 }
@@ -624,20 +526,17 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
             processStatementFilterSingle(handle, handleCallback, theEvent);
         }
         matches.clear();
-        if (stmtCallbacks.isEmpty())
-        {
+        if (stmtCallbacks.isEmpty()) {
             return;
         }
 
-        for (Map.Entry<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>> entry : stmtCallbacks.entrySet())
-        {
+        for (Map.Entry<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>> entry : stmtCallbacks.entrySet()) {
             EPStatementAgentInstanceHandle handle = entry.getKey();
             ArrayDeque<FilterHandleCallback> callbackList = entry.getValue();
 
             processStatementFilterMultiple(handle, callbackList, theEvent);
 
-            if ((isPrioritized) && (handle.isPreemptive()))
-            {
+            if (isPrioritized && handle.isPreemptive()) {
                 break;
             }
         }
@@ -646,15 +545,14 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     /**
      * Processing multiple filter matches for a statement.
-     * @param handle statement handle
+     *
+     * @param handle       statement handle
      * @param callbackList object containing callbacks
-     * @param theEvent to process
+     * @param theEvent     to process
      */
-    public void processStatementFilterMultiple(EPStatementAgentInstanceHandle handle, ArrayDeque<FilterHandleCallback> callbackList, EventBean theEvent)
-    {
+    public void processStatementFilterMultiple(EPStatementAgentInstanceHandle handle, ArrayDeque<FilterHandleCallback> callbackList, EventBean theEvent) {
         handle.getStatementAgentInstanceLock().acquireWriteLock();
-        try
-        {
+        try {
             if (handle.isHasVariables()) {
                 unisolatedServices.getVariableService().setLocalVersion();
             }
@@ -663,13 +561,9 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
             // internal join processing, if applicable
             handle.internalDispatch();
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, theEvent);
-        }
-        finally
-        {
+        } finally {
             if (handle.isHasTableAccess()) {
                 unisolatedServices.getTableService().getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
@@ -679,17 +573,15 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     /**
      * Process a single match.
-     * @param handle statement
+     *
+     * @param handle         statement
      * @param handleCallback callback
-     * @param theEvent event to indicate
+     * @param theEvent       event to indicate
      */
-    public void processStatementFilterSingle(EPStatementAgentInstanceHandle handle, EPStatementHandleCallback handleCallback, EventBean theEvent)
-    {
+    public void processStatementFilterSingle(EPStatementAgentInstanceHandle handle, EPStatementHandleCallback handleCallback, EventBean theEvent) {
         handle.getStatementAgentInstanceLock().acquireWriteLock();
-        try
-        {
-            if (handle.isHasVariables())
-            {
+        try {
+            if (handle.isHasVariables()) {
                 unisolatedServices.getVariableService().setLocalVersion();
             }
 
@@ -697,13 +589,9 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
             // internal join processing, if applicable
             handle.internalDispatch();
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             unisolatedServices.getExceptionHandlingService().handleException(ex, handle, ExceptionHandlerExceptionType.PROCESS, theEvent);
-        }
-        finally
-        {
+        } finally {
             if (handle.isHasTableAccess()) {
                 unisolatedServices.getTableService().getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
@@ -714,14 +602,10 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     /**
      * Dispatch events.
      */
-    public void dispatch()
-    {
-        try
-        {
+    public void dispatch() {
+        try {
             unisolatedServices.getDispatchService().dispatch();
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             throw new EPException(ex);
         }
     }
@@ -729,8 +613,7 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     /**
      * Destroy for destroying an engine instance: sets references to null and clears thread-locals
      */
-    public void destroy()
-    {
+    public void destroy() {
         services = null;
 
         if (matchesArrayThreadLocal != null) {
@@ -757,32 +640,25 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
     }
 
     // Internal route of events via insert-into, holds a statement lock
-    public void route(EventBean theEvent, EPStatementHandle epStatementHandle, boolean addToFront)
-    {
-        if (isLatchStatementInsertStream)
-        {
+    public void route(EventBean theEvent, EPStatementHandle epStatementHandle, boolean addToFront) {
+        if (isLatchStatementInsertStream) {
             if (addToFront) {
                 Object latch = epStatementHandle.getInsertIntoFrontLatchFactory().newLatch(theEvent);
                 threadWorkQueue.addFront(latch);
-            }
-            else {
+            } else {
                 Object latch = epStatementHandle.getInsertIntoBackLatchFactory().newLatch(theEvent);
                 threadWorkQueue.addBack(latch);
             }
-        }
-        else
-        {
+        } else {
             if (addToFront) {
-                  threadWorkQueue.addFront(theEvent);
-            }
-            else {
+                threadWorkQueue.addFront(theEvent);
+            } else {
                 threadWorkQueue.addBack(theEvent);
             }
         }
     }
 
-    public void setInternalEventRouter(InternalEventRouter internalEventRouter)
-    {
+    public void setInternalEventRouter(InternalEventRouter internalEventRouter) {
         throw new UnsupportedOperationException("Isolated runtime does not route itself");
     }
 
@@ -800,65 +676,48 @@ public class EPRuntimeIsolatedImpl implements EPRuntimeIsolatedSPI, InternalEven
 
     private void initThreadLocals() {
         matchesPerStmtThreadLocal =
-                new ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>>()
-                {
-                    protected synchronized Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>> initialValue()
-                    {
-                        if (isPrioritized)
-                        {
-                            return new TreeMap<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>(EPStatementAgentInstanceHandleComparator.INSTANCE);
-                        }
-                        else
-                        {
-                            return new HashMap<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>();
-                        }
+            new ThreadLocal<Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>>() {
+                protected synchronized Map<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>> initialValue() {
+                    if (isPrioritized) {
+                        return new TreeMap<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>(EPStatementAgentInstanceHandleComparator.INSTANCE);
+                    } else {
+                        return new HashMap<EPStatementAgentInstanceHandle, ArrayDeque<FilterHandleCallback>>();
                     }
-                };
-
-        schedulePerStmtThreadLocal = new ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>>()
-        {
-            protected synchronized Map<EPStatementAgentInstanceHandle, Object> initialValue()
-            {
-                if (isPrioritized)
-                {
-                    return new TreeMap<EPStatementAgentInstanceHandle, Object>(EPStatementAgentInstanceHandleComparator.INSTANCE);
                 }
-                else
-                {
+            };
+
+        schedulePerStmtThreadLocal = new ThreadLocal<Map<EPStatementAgentInstanceHandle, Object>>() {
+            protected synchronized Map<EPStatementAgentInstanceHandle, Object> initialValue() {
+                if (isPrioritized) {
+                    return new TreeMap<EPStatementAgentInstanceHandle, Object>(EPStatementAgentInstanceHandleComparator.INSTANCE);
+                } else {
                     return new HashMap<EPStatementAgentInstanceHandle, Object>();
                 }
             }
         };
 
-        matchesArrayThreadLocal = new ThreadLocal<ArrayBackedCollection<FilterHandle>>()
-        {
-            protected synchronized ArrayBackedCollection<FilterHandle> initialValue()
-            {
+        matchesArrayThreadLocal = new ThreadLocal<ArrayBackedCollection<FilterHandle>>() {
+            protected synchronized ArrayBackedCollection<FilterHandle> initialValue() {
                 return new ArrayBackedCollection<FilterHandle>(100);
             }
         };
 
-        scheduleArrayThreadLocal = new ThreadLocal<ArrayBackedCollection<ScheduleHandle>>()
-        {
-            protected synchronized ArrayBackedCollection<ScheduleHandle> initialValue()
-            {
+        scheduleArrayThreadLocal = new ThreadLocal<ArrayBackedCollection<ScheduleHandle>>() {
+            protected synchronized ArrayBackedCollection<ScheduleHandle> initialValue() {
                 return new ArrayBackedCollection<ScheduleHandle>(100);
             }
         };
     }
 
-    public EventSender getEventSender(String eventTypeName)
-    {
+    public EventSender getEventSender(String eventTypeName) {
         return unisolatedServices.getEventAdapterService().getStaticTypeEventSender(this, eventTypeName, unisolatedServices.getThreadingService());
     }
 
-    public EventSender getEventSender(URI uri[]) throws EventTypeException
-    {
+    public EventSender getEventSender(URI[] uri) throws EventTypeException {
         return unisolatedServices.getEventAdapterService().getDynamicTypeEventSender(this, uri, unisolatedServices.getThreadingService());
     }
 
-    public void routeEventBean(EventBean theEvent)
-    {
+    public void routeEventBean(EventBean theEvent) {
         threadWorkQueue.addBack(theEvent);
     }
 

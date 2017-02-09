@@ -21,18 +21,17 @@ import java.util.Set;
  * This class is always the root node in the evaluation state tree representing any activated event expression.
  * It hold the handle to a further state node with subnodes making up a whole evaluation state tree.
  */
-public class EvalRootStateNode extends EvalStateNode implements Evaluator, PatternStopCallback, EvalRootState
-{
+public class EvalRootStateNode extends EvalStateNode implements Evaluator, PatternStopCallback, EvalRootState {
     protected EvalNode rootSingleChildNode;
     protected EvalStateNode topStateNode;
     private PatternMatchCallback callback;
 
     /**
      * Constructor.
+     *
      * @param rootSingleChildNode is the root nodes single child node
      */
-    public EvalRootStateNode(EvalNode rootSingleChildNode)
-    {
+    public EvalRootStateNode(EvalNode rootSingleChildNode) {
         super(null);
         this.rootSingleChildNode = rootSingleChildNode;
     }
@@ -44,10 +43,10 @@ public class EvalRootStateNode extends EvalStateNode implements Evaluator, Patte
 
     /**
      * Hands the callback to use to indicate matching events.
+     *
      * @param callback is invoked when the event expressions turns true.
      */
-    public final void setCallback(PatternMatchCallback callback)
-    {
+    public final void setCallback(PatternMatchCallback callback) {
         this.callback = callback;
     }
 
@@ -55,29 +54,33 @@ public class EvalRootStateNode extends EvalStateNode implements Evaluator, Patte
         start(beginState);
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternRootStart(beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternRootStart(beginState);
+        }
         topStateNode = rootSingleChildNode.newState(this, null, 0L);
         topStateNode.start(beginState);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternRootStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternRootStart();
+        }
     }
 
-    public final void stop()
-    {
+    public final void stop() {
         quit();
     }
 
-    public void quit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternRootQuit();}
-        if (topStateNode != null)
-        {
+    public void quit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternRootQuit();
+        }
+        if (topStateNode != null) {
             topStateNode.quit();
             handleQuitEvent();
         }
         topStateNode = null;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternRootQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternRootQuit();
+        }
     }
 
     public void handleQuitEvent() {
@@ -92,33 +95,37 @@ public class EvalRootStateNode extends EvalStateNode implements Evaluator, Patte
         // no action
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternRootEvaluateTrue(matchEvent);}
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternRootEvaluateTrue(matchEvent);
+        }
 
-        if (isQuitted)
-        {
+        if (isQuitted) {
             topStateNode = null;
             handleChildQuitEvent();
         }
 
         callback.matchFound(matchEvent.getMatchingEventsAsMap());
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternRootEvaluateTrue(topStateNode == null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternRootEvaluateTrue(topStateNode == null);
+        }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternRootEvalFalse();}
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternRootEvalFalse();
+        }
         if (topStateNode != null) {
             topStateNode.quit();
             topStateNode = null;
             handleEvaluateFalseEvent();
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternRootEvalFalse();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternRootEvalFalse();
+        }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitRoot(this);
         if (topStateNode != null) {
             topStateNode.accept(visitor);
@@ -141,8 +148,7 @@ public class EvalRootStateNode extends EvalStateNode implements Evaluator, Patte
         return false;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalRootStateNode topStateNode=" + topStateNode;
     }
 

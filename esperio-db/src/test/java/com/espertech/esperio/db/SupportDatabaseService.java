@@ -11,17 +11,15 @@
 package com.espertech.esperio.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
-
-import java.util.Properties;
-import java.util.List;
-import java.util.ArrayList;
-import java.sql.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SupportDatabaseService
-{
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+public class SupportDatabaseService {
     private static final Logger log = LoggerFactory.getLogger(SupportDatabaseService.class);
 
     public final static String DBNAME_FULLURL = "mydb";
@@ -59,7 +57,7 @@ public class SupportDatabaseService
         ResultSet resultSet = stmt.executeQuery(sql);
 
         List<Object[]> rows = new ArrayList<Object[]>();
-        while(resultSet.next()) {
+        while (resultSet.next()) {
             List<Object> row = new ArrayList<Object>();
             for (int i = 0; i < resultSet.getMetaData().getColumnCount(); i++) {
                 row.add(resultSet.getObject(i + 1));
@@ -79,21 +77,20 @@ public class SupportDatabaseService
 
     /**
      * Strictly for use in regression testing, this method provides a connection via driver manager.
-     * @param url url
+     *
+     * @param url      url
      * @param username user
      * @param password password
      * @return connection
      */
-    public static Connection getConnection(String url, String username, String password)
-    {
+    public static Connection getConnection(String url, String username, String password) {
         log.info("Creating new connection instance for pool for url " + url);
 
         Driver d;
         try {
-            d = (Driver)Class.forName(DRIVER).newInstance();
+            d = (Driver) Class.forName(DRIVER).newInstance();
             DriverManager.registerDriver(d);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             String message = "Failed to load and register driver class:" + e.getMessage();
             log.error(message, e);
             throw new RuntimeException(message, e);
@@ -102,22 +99,18 @@ public class SupportDatabaseService
         Connection connection;
         try {
             connection = DriverManager.getConnection(url, username, password);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             String message = "Failed to obtain a database connection using url '" +
-                 url + "' and user '" + username + "' :" + e.getMessage();
+                    url + "' and user '" + username + "' :" + e.getMessage();
             log.error(message, e);
             throw new RuntimeException(message, e);
         }
 
-        try
-        {
+        try {
             connection.setAutoCommit(false);
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             String message = "Failed to set auto-commit on connection '" +
-                 url + "' and user '" + username + "' :" + e.getMessage();
+                    url + "' and user '" + username + "' :" + e.getMessage();
             log.error(message, e);
             throw new RuntimeException(message, e);
         }

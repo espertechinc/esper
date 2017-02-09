@@ -36,8 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class EPStatementStartMethodHelperAssignExpr
-{
+public class EPStatementStartMethodHelperAssignExpr {
     public static void assignExpressionStrategies(EPStatementStartMethodSelectDesc selectDesc, AggregationService aggregationService, Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategyInstances, Map<ExprPriorNode, ExprPriorEvalStrategy> priorStrategyInstances, Map<ExprPreviousNode, ExprPreviousEvalStrategy> previousStrategyInstances, Set<ExprPreviousMatchRecognizeNode> matchRecognizeNodes, RegexExprPreviousEvalStrategy matchRecognizePrevEvalStrategy, Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> tableAccessStrategyInstances) {
         // initialize aggregation expression nodes
         if (selectDesc.getResultSetProcessorPrototypeDesc().getAggregationServiceFactoryDesc() != null && aggregationService != null) {

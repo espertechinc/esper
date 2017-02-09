@@ -20,8 +20,7 @@ import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategyReceiver;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
 
-public class TableOnUpdateViewFactory implements TableOnViewFactory, TableUpdateStrategyReceiver
-{
+public class TableOnUpdateViewFactory implements TableOnViewFactory, TableUpdateStrategyReceiver {
     private final StatementResultService statementResultService;
     private final TableMetadata tableMetadata;
     private final EventBeanUpdateHelper updateHelper;

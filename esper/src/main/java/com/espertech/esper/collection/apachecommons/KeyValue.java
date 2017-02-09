@@ -20,10 +20,9 @@ package com.espertech.esper.collection.apachecommons;
  * key-value pair. This interface defines the minimum key value, with just the
  * two get methods.
  *
- * @since Commons Collections 3.0
- * @version $Revision$ $Date$
- *
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @since Commons Collections 3.0
  */
 public interface KeyValue {
 

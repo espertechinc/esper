@@ -10,29 +10,24 @@
  */
 package com.espertech.esper.example.marketdatafeed;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RateReportingListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        if (newEvents.length > 0)
-        {
+public class RateReportingListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (newEvents.length > 0) {
             logRate(newEvents[0]);
         }
-        if (newEvents.length > 1)
-        {
+        if (newEvents.length > 1) {
             logRate(newEvents[1]);
         }
     }
 
-    private void logRate(EventBean theEvent)
-    {
+    private void logRate(EventBean theEvent) {
         log.info("Current rate for feed " + theEvent.get("feed").toString() +
-                  " is " + theEvent.get("cnt"));
+                " is " + theEvent.get("cnt"));
     }
 
     private static final Logger log = LoggerFactory.getLogger(RateReportingListener.class);

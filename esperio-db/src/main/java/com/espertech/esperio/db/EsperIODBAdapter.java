@@ -27,8 +27,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EsperIODBAdapter
-{
+public class EsperIODBAdapter {
     private static Logger log = LoggerFactory.getLogger(EsperIODBAdapter.class);
 
     private final ConfigurationDBAdapter config;
@@ -39,11 +38,11 @@ public class EsperIODBAdapter
 
     /**
      * Quickstart constructor.
-     * @param config configuration
+     *
+     * @param config    configuration
      * @param engineURI engine uri
      */
-    public EsperIODBAdapter(ConfigurationDBAdapter config, String engineURI)
-    {
+    public EsperIODBAdapter(ConfigurationDBAdapter config, String engineURI) {
         this.config = config;
         this.engineURI = engineURI;
     }
@@ -51,17 +50,14 @@ public class EsperIODBAdapter
     /**
      * Re-initialize DDS endpoint.
      */
-    public void initialize()
-    {
+    public void initialize() {
     }
 
     /**
      * Start the DDS endpoint.
      */
-    public synchronized void start()
-    {
-        if (log.isInfoEnabled())
-        {
+    public synchronized void start() {
+        if (log.isInfoEnabled()) {
             log.info("Starting EsperIO DB Adapter for engine URI '" + engineURI + "'");
         }
 
@@ -79,8 +75,7 @@ public class EsperIODBAdapter
                 subs.seteventTypeName(upsert.getStream());
                 subs.setSubscriptionName(upsertFactory.getContext().getName());
                 subs.registerAdapter(engineSPI);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error("Error starting Upsert query '" + upsertFactory.getContext().getName() + "'" + t.getMessage(), t);
             }
         }
@@ -94,20 +89,17 @@ public class EsperIODBAdapter
                 subs.seteventTypeName(dml.getStream());
                 subs.setSubscriptionName(dmlFactory.getContext().getName());
                 subs.registerAdapter(engineSPI);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error("Error starting DML query '" + dmlFactory.getContext().getName() + "'" + t.getMessage(), t);
             }
         }
 
-        if (log.isInfoEnabled())
-        {
+        if (log.isInfoEnabled()) {
             log.info("Completed starting EsperIO DB Adapter for engine URI '" + engineURI + "'.");
         }
     }
 
-    private RunnableUpsertFactory getUpsertFactory(EPServiceProviderSPI engineSPI, UpsertQuery upsert, DatabaseConfigServiceImpl databaseConfigSvc)
-    {
+    private RunnableUpsertFactory getUpsertFactory(EPServiceProviderSPI engineSPI, UpsertQuery upsert, DatabaseConfigServiceImpl databaseConfigSvc) {
         String upsertName = upsert.getName();
         if (upsertName == null) {
             upsertName = "Upsert against table '" + upsert.getTableName() + "'";
@@ -154,8 +146,7 @@ public class EsperIODBAdapter
             }
 
             StoreExceptionHandler handler = new StoreExceptionHandler() {
-                public void handle(String message, SQLException ex)
-                {
+                public void handle(String message, SQLException ex) {
                     log.error("Error executing '" + finalUpsertName + "'");
                 }
             };
@@ -165,17 +156,14 @@ public class EsperIODBAdapter
 
             RunnableUpsertContext context = new RunnableUpsertContext(upsertName, connectionFactory, table, keyGetters, valueGetters, upsert.getRetry(), upsert.getRetryIntervalSec());
             return new RunnableUpsertFactory(context);
-        }
-        catch (ConfigurationException ex) {
+        } catch (ConfigurationException ex) {
             throw ex;
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new ConfigurationException("Error configuring " + upsertName + " :" + t.getMessage());
         }
     }
 
-    private RunnableDMLFactory getDMLFactory(EPServiceProviderSPI engineSPI, DMLQuery dmlQuery, DatabaseConfigServiceImpl databaseConfigSvc)
-    {
+    private RunnableDMLFactory getDMLFactory(EPServiceProviderSPI engineSPI, DMLQuery dmlQuery, DatabaseConfigServiceImpl databaseConfigSvc) {
         String dmlName = dmlQuery.getName();
         if (dmlName == null) {
             dmlName = "DML '" + dmlQuery.getSql();
@@ -197,8 +185,7 @@ public class EsperIODBAdapter
             }
 
             StoreExceptionHandler handler = new StoreExceptionHandler() {
-                public void handle(String message, SQLException ex)
-                {
+                public void handle(String message, SQLException ex) {
                     log.error("Error executing '" + finalDmlName + "'");
                 }
             };
@@ -207,11 +194,9 @@ public class EsperIODBAdapter
 
             RunnableDMLContext context = new RunnableDMLContext(dmlName, connectionFactory, dmlStmt, dmlQuery.getRetry(), dmlQuery.getRetryIntervalSec());
             return new RunnableDMLFactory(context);
-        }
-        catch (ConfigurationException ex) {
+        } catch (ConfigurationException ex) {
             throw ex;
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new ConfigurationException("Error configuring " + dmlName + " :" + t.getMessage());
         }
     }
@@ -219,10 +204,8 @@ public class EsperIODBAdapter
     /**
      * Destroy the adapter.
      */
-    public synchronized void destroy()
-    {
-        if (log.isDebugEnabled())
-        {
+    public synchronized void destroy() {
+        if (log.isDebugEnabled()) {
             log.debug("Destroying Esper DB Adapter");
         }
 

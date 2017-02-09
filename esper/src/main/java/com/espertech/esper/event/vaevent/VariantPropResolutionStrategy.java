@@ -15,12 +15,12 @@ import com.espertech.esper.client.EventType;
 /**
  * Strategy for resolving a property against any of the variant types.
  */
-public interface VariantPropResolutionStrategy
-{
+public interface VariantPropResolutionStrategy {
     /**
      * Resolve the property for each of the types.
+     *
      * @param propertyName to resolve
-     * @param variants the variants to resolve the property for
+     * @param variants     the variants to resolve the property for
      * @return property descriptor
      */
     public VariantPropertyDesc resolveProperty(String propertyName, EventType[] variants);

@@ -30,8 +30,7 @@ import java.util.Map;
 /**
  * Loader for Spring-configured input and output adapters.
  */
-public class SpringContextLoader implements PluginLoader
-{
+public class SpringContextLoader implements PluginLoader {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private AbstractXmlApplicationContext adapterSpringContext;
     private Map<String, Adapter> adapterMap = new HashMap<String, Adapter>();
@@ -39,37 +38,29 @@ public class SpringContextLoader implements PluginLoader
     /**
      * Default Ctor needed for reflection instantiation.
      */
-    public SpringContextLoader()
-    {
+    public SpringContextLoader() {
     }
 
-    public void destroy()
-    {
-        for (Adapter adapter : adapterMap.values())
-        {
+    public void destroy() {
+        for (Adapter adapter : adapterMap.values()) {
             adapterSpringContext.destroy();
-            if (adapter.getState() == AdapterState.STARTED)
-            {
+            if (adapter.getState() == AdapterState.STARTED) {
                 adapter.stop();
             }
-            if ((adapter.getState() == AdapterState.OPENED) || (adapter.getState() == AdapterState.PAUSED))
-            {
+            if ((adapter.getState() == AdapterState.OPENED) || (adapter.getState() == AdapterState.PAUSED)) {
                 adapter.destroy();
             }
         }
     }
 
-    public void init(PluginLoaderInitContext context)
-    {
+    public void init(PluginLoaderInitContext context) {
         boolean fromClassPath = true;
         String resource = context.getProperties().getProperty(SpringContext.CLASSPATH_CONTEXT);
-        if (resource == null)
-        {
+        if (resource == null) {
             fromClassPath = false;
             resource = context.getProperties().getProperty(SpringContext.FILE_APP_CONTEXT);
         }
-        if (resource == null)
-        {
+        if (resource == null) {
             throw new IllegalArgumentException("Required property not found: " + SpringContext.CLASSPATH_CONTEXT + " or " + SpringContext.FILE_APP_CONTEXT);
         }
 
@@ -77,21 +68,17 @@ public class SpringContextLoader implements PluginLoader
         log.debug(".Configuring from resource: " + resource);
         adapterSpringContext = createSpringApplicationContext(resource, fromClassPath);
         String[] beanNames = adapterSpringContext.getBeanDefinitionNames();
-        for (String beanName : beanNames)
-        {
+        for (String beanName : beanNames) {
             Object o = adapterSpringContext.getBean(beanName);
-            if (o instanceof Adapter)
-            {
+            if (o instanceof Adapter) {
                 adapterMap.put(beanName, (Adapter) o);
             }
         }
 
         // Initialize adapters
         Collection<Adapter> adapters = adapterMap.values();
-        for (Adapter adapter : adapters)
-        {
-            if (adapter instanceof AdapterSPI)
-            {
+        for (Adapter adapter : adapters) {
+            if (adapter instanceof AdapterSPI) {
                 AdapterSPI spi = (AdapterSPI) adapter;
                 spi.setEPServiceProvider(context.getEpServiceProvider());
             }
@@ -99,25 +86,19 @@ public class SpringContextLoader implements PluginLoader
         }
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         // no action required
     }
 
-    private AbstractXmlApplicationContext createSpringApplicationContext(String configuration, boolean fromClassPath)
-    {
-        if (fromClassPath)
-        {
+    private AbstractXmlApplicationContext createSpringApplicationContext(String configuration, boolean fromClassPath) {
+        if (fromClassPath) {
             log.debug("classpath configuration");
             return new ClassPathXmlApplicationContext(configuration);
         }
-        if (new File(configuration).exists())
-        {
+        if (new File(configuration).exists()) {
             log.debug("File configuration");
             return new FileSystemXmlApplicationContext(configuration);
-        }
-        else
-        {
+        } else {
             throw new EPException("Spring configuration file not found.");
         }
     }

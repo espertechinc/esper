@@ -50,8 +50,7 @@ public class EsperIOKafkaOutputAdapter {
             controller = (EsperIOKafkaOutputFlowController) JavaClassHelper.instantiate(EsperIOKafkaOutputFlowController.class, className, engine.getEngineImportService().getClassForNameProvider());
             EsperIOKafkaOutputFlowControllerContext context = new EsperIOKafkaOutputFlowControllerContext(engine, properties);
             controller.initialize(context);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new ConfigurationException("Unexpected exception invoking flow-controller initialize method on class " + className + " for engine URI '" + engineURI + "': " + t.getMessage(), t);
         }
 
@@ -68,8 +67,7 @@ public class EsperIOKafkaOutputAdapter {
         if (controller != null) {
             try {
                 controller.close();
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.warn("Unexpected exception invoking flow-controller close method: " + t.getMessage(), t);
             }
             controller = null;

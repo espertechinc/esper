@@ -18,8 +18,7 @@ import com.espertech.esper.event.EventAdapterService;
 /**
  * Processor for select-clause expressions that handles wildcards. Computes results based on matching events.
  */
-public class SelectExprJoinWildcardProcessorObjectArray implements SelectExprProcessor
-{
+public class SelectExprJoinWildcardProcessorObjectArray implements SelectExprProcessor {
     private final String[] streamNames;
     private final EventType resultEventType;
     private final EventAdapterService eventAdapterService;
@@ -30,15 +29,13 @@ public class SelectExprJoinWildcardProcessorObjectArray implements SelectExprPro
         this.eventAdapterService = eventAdapterService;
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         Object[] tuple = new Object[streamNames.length];
         System.arraycopy(eventsPerStream, 0, tuple, 0, streamNames.length);
         return eventAdapterService.adapterForTypedObjectArray(tuple, resultEventType);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 }

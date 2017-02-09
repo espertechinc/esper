@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.metrics.jmx;
 
+import javax.management.MBeanOperationInfo;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import javax.management.MBeanOperationInfo;
 
 /**
  * Mark the given method as accessible from JMX.

@@ -15,20 +15,19 @@ import java.util.Date;
 /**
  * Holds a version of a value and a timestamp when that version is taken.
  */
-public class VersionedValue<T>
-{
+public class VersionedValue<T> {
     private int version;
     private T value;
     private long timestamp;
 
     /**
      * Ctor.
-     * @param version version number
-     * @param value value at that version
+     *
+     * @param version   version number
+     * @param value     value at that version
      * @param timestamp time when version was taken
      */
-    public VersionedValue(int version, T value, long timestamp)
-    {
+    public VersionedValue(int version, T value, long timestamp) {
         this.version = version;
         this.value = value;
         this.timestamp = timestamp;
@@ -36,33 +35,32 @@ public class VersionedValue<T>
 
     /**
      * Returns the version.
-     * @return version 
+     *
+     * @return version
      */
-    public int getVersion()
-    {
+    public int getVersion() {
         return version;
     }
 
     /**
      * Returns the value.
+     *
      * @return value
      */
-    public T getValue()
-    {
+    public T getValue() {
         return value;
     }
 
     /**
      * Returns the time the version was taken.
+     *
      * @return time of version
      */
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return value + "@" + version + "@" + (new Date(timestamp));
     }
 }

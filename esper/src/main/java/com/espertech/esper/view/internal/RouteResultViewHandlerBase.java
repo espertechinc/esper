@@ -24,8 +24,7 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.AuditPath;
 
-public abstract class RouteResultViewHandlerBase implements RouteResultViewHandler
-{
+public abstract class RouteResultViewHandlerBase implements RouteResultViewHandler {
     protected final InternalEventRouter internalEventRouter;
     private final TableStateInstance[] tableStateInstances;
     protected final EPStatementStartMethodOnTriggerItem[] items;
@@ -36,8 +35,7 @@ public abstract class RouteResultViewHandlerBase implements RouteResultViewHandl
     protected final AgentInstanceContext agentInstanceContext;
     protected final boolean audit;
 
-    public RouteResultViewHandlerBase(EPStatementHandle epStatementHandle, InternalEventRouter internalEventRouter, TableStateInstance[] tableStateInstances, EPStatementStartMethodOnTriggerItem[] items, ResultSetProcessor[] processors, ExprEvaluator[] whereClauses, AgentInstanceContext agentInstanceContext)
-    {
+    public RouteResultViewHandlerBase(EPStatementHandle epStatementHandle, InternalEventRouter internalEventRouter, TableStateInstance[] tableStateInstances, EPStatementStartMethodOnTriggerItem[] items, ResultSetProcessor[] processors, ExprEvaluator[] whereClauses, AgentInstanceContext agentInstanceContext) {
         this.internalEventRouter = internalEventRouter;
         this.tableStateInstances = tableStateInstances;
         this.items = items;
@@ -52,26 +50,34 @@ public abstract class RouteResultViewHandlerBase implements RouteResultViewHandl
         boolean pass = true;
 
         if (whereClauses[index] != null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStreamWhere(index); }
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qSplitStreamWhere(index);
+            }
             Boolean passEvent = (Boolean) whereClauses[index].evaluate(eventsPerStream, true, exprEvaluatorContext);
             if ((passEvent == null) || (!passEvent)) {
                 pass = false;
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStreamWhere(pass); }
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aSplitStreamWhere(pass);
+            }
         }
 
         return pass;
     }
 
     boolean mayRouteCurrentEvent(int index, ExprEvaluatorContext exprEvaluatorContext) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStreamRoute(index);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qSplitStreamRoute(index);
+        }
         UniformPair<EventBean[]> result = processors[index].processViewResult(eventsPerStream, null, false);
         boolean routed = false;
         if ((result != null) && (result.getFirst() != null) && (result.getFirst().length > 0)) {
             route(result.getFirst()[0], index, exprEvaluatorContext);
             routed = true;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStreamRoute();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aSplitStreamRoute();
+        }
         return routed;
     }
 
@@ -82,8 +88,7 @@ public abstract class RouteResultViewHandlerBase implements RouteResultViewHandl
         TableStateInstance tableStateInstance = tableStateInstances[index];
         if (tableStateInstance != null) {
             tableStateInstance.addEventUnadorned(routed);
-        }
-        else {
+        } else {
             boolean isNamedWindowInsert = items[index].isNamedWindowInsert();
             internalEventRouter.route(routed, epStatementHandle, agentInstanceContext.getStatementContext().getInternalEventEngineRouteDest(), exprEvaluatorContext, isNamedWindowInsert);
         }

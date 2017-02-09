@@ -14,27 +14,22 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Visitor for getting a list of "prev" functions.
  */
-public class ExprNodePreviousVisitorWParent implements ExprNodeVisitorWithParent
-{
+public class ExprNodePreviousVisitorWParent implements ExprNodeVisitorWithParent {
     private List<Pair<ExprNode, ExprPreviousNode>> previous;
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 
-    public void visit(ExprNode exprNode, ExprNode parentExprNode)
-    {
-        if (exprNode instanceof ExprPreviousNode)
-        {
-            if (previous == null)
-            {
+    public void visit(ExprNode exprNode, ExprNode parentExprNode) {
+        if (exprNode instanceof ExprPreviousNode) {
+            if (previous == null) {
                 previous = new ArrayList<Pair<ExprNode, ExprPreviousNode>>();
             }
             previous.add(new Pair<ExprNode, ExprPreviousNode>(parentExprNode, (ExprPreviousNode) exprNode));
@@ -43,6 +38,7 @@ public class ExprNodePreviousVisitorWParent implements ExprNodeVisitorWithParent
 
     /**
      * Returns the pair of previous nodes and their parent expression.
+     *
      * @return nodes
      */
     public List<Pair<ExprNode, ExprPreviousNode>> getPrevious() {

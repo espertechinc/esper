@@ -31,9 +31,10 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Ctor.
-     * @param wildcard true for wildcard type
+     *
+     * @param wildcard        true for wildcard type
      * @param typeOrClassname type name
-     * @param typeParameters optional additional type parameters
+     * @param typeParameters  optional additional type parameters
      */
     public DataFlowOperatorOutputType(boolean wildcard, String typeOrClassname, List<DataFlowOperatorOutputType> typeParameters) {
         isWildcard = wildcard;
@@ -43,6 +44,7 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Returns true for wildcard type.
+     *
      * @return wildcard type indicator
      */
     public boolean isWildcard() {
@@ -51,6 +53,7 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Sets to true for wildcard type.
+     *
      * @param wildcard wildcard type indicator
      */
     public void setWildcard(boolean wildcard) {
@@ -59,6 +62,7 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Returns the type name or class name.
+     *
      * @return name
      */
     public String getTypeOrClassname() {
@@ -67,6 +71,7 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Sets the type name or class name.
+     *
      * @param typeOrClassname name
      */
     public void setTypeOrClassname(String typeOrClassname) {
@@ -75,6 +80,7 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Returns optional additional type parameters
+     *
      * @return type params
      */
     public List<DataFlowOperatorOutputType> getTypeParameters() {
@@ -83,6 +89,7 @@ public class DataFlowOperatorOutputType implements Serializable {
 
     /**
      * Sets optional additional type parameters
+     *
      * @param typeParameters type params
      */
     public void setTypeParameters(List<DataFlowOperatorOutputType> typeParameters) {

@@ -19,8 +19,7 @@ import java.util.Iterator;
  * Implements the safe iterator. The class is passed a lock that is locked already, to release
  * when the close method closes the iterator.
  */
-public class SafeIteratorWTableImpl<E> extends SafeIteratorImpl<E>
-{
+public class SafeIteratorWTableImpl<E> extends SafeIteratorImpl<E> {
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
 
     public SafeIteratorWTableImpl(StatementAgentInstanceLock iteratorLock, Iterator<E> underlying, TableExprEvaluatorContext tableExprEvaluatorContext) {
@@ -29,8 +28,7 @@ public class SafeIteratorWTableImpl<E> extends SafeIteratorImpl<E>
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         super.close();
         tableExprEvaluatorContext.releaseAcquiredLocks();
     }

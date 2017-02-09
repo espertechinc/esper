@@ -12,19 +12,17 @@ package com.espertech.esper.epl.agg.aggregator;
 
 import com.espertech.esper.collection.RefCountedSet;
 
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Standard deviation always generates double-types numbers.
  */
-public class AggregatorAvedev implements AggregationMethod
-{
+public class AggregatorAvedev implements AggregationMethod {
     private RefCountedSet<Double> valueSet;
     private double sum;
 
-    public void clear()
-    {
+    public void clear() {
         sum = 0;
         valueSet.clear();
     }
@@ -32,15 +30,12 @@ public class AggregatorAvedev implements AggregationMethod
     /**
      * Ctor.
      */
-    public AggregatorAvedev()
-    {
+    public AggregatorAvedev() {
         valueSet = new RefCountedSet<Double>();
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
 
@@ -49,10 +44,8 @@ public class AggregatorAvedev implements AggregationMethod
         sum += value;
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
 
@@ -61,20 +54,17 @@ public class AggregatorAvedev implements AggregationMethod
         sum -= value;
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         int datapoints = valueSet.size();
 
-        if (datapoints == 0)
-        {
+        if (datapoints == 0) {
             return null;
         }
 
         double total = 0;
         double avg = sum / datapoints;
 
-        for (Iterator<Map.Entry<Double, Integer>> it = valueSet.entryIterator(); it.hasNext();)
-        {
+        for (Iterator<Map.Entry<Double, Integer>> it = valueSet.entryIterator(); it.hasNext(); ) {
             Map.Entry<Double, Integer> entry = it.next();
             total += entry.getValue() * Math.abs(entry.getKey() - avg);
         }

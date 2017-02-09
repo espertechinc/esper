@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Thread factory for threading options.
  */
-public class EngineThreadFactory implements java.util.concurrent.ThreadFactory
-{
+public class EngineThreadFactory implements java.util.concurrent.ThreadFactory {
     private static final Logger log = LoggerFactory.getLogger(EngineThreadFactory.class);
     private final String engineURI;
     private final String prefix;
@@ -27,19 +26,16 @@ public class EngineThreadFactory implements java.util.concurrent.ThreadFactory
 
     /**
      * Ctor.
-     * @param engineURI engine URI
-     * @param prefix prefix for thread names
+     *
+     * @param engineURI   engine URI
+     * @param prefix      prefix for thread names
      * @param threadGroup thread group
-     * @param threadPrio priority to use
+     * @param threadPrio  priority to use
      */
-    public EngineThreadFactory(String engineURI, String prefix, ThreadGroup threadGroup, int threadPrio)
-    {
-        if (engineURI == null)
-        {
+    public EngineThreadFactory(String engineURI, String prefix, ThreadGroup threadGroup, int threadPrio) {
+        if (engineURI == null) {
             this.engineURI = "default";
-        }
-        else
-        {
+        } else {
             this.engineURI = engineURI;
         }
         this.prefix = prefix;
@@ -47,16 +43,14 @@ public class EngineThreadFactory implements java.util.concurrent.ThreadFactory
         this.threadPriority = threadPrio;
     }
 
-    public Thread newThread(Runnable runnable)
-    {
+    public Thread newThread(Runnable runnable) {
         String name = "com.espertech.esper." + prefix + "-" + engineURI + "-" + currThreadCount;
         currThreadCount++;
         Thread t = new Thread(threadGroup, runnable, name);
         t.setDaemon(true);
         t.setPriority(threadPriority);
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug("Creating thread '" + name + "' : " + t + " priority " + threadPriority);
         }
         return t;

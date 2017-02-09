@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-public class ExprDotNodeFilterAnalyzerInputProp implements ExprDotNodeFilterAnalyzerInput
-{
+public class ExprDotNodeFilterAnalyzerInputProp implements ExprDotNodeFilterAnalyzerInput {
     private final int streamNum;
     private final String propertyName;
 

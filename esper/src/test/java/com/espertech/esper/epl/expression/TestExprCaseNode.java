@@ -10,24 +10,21 @@
  */
 package com.espertech.esper.epl.expression;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCaseNode;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
-import junit.framework.TestCase;
-
+import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestExprCaseNode extends TestCase
-{
-    public void testGetType()  throws Exception
-    {
+public class TestExprCaseNode extends TestCase {
+    public void testGetType() throws Exception {
         // Template expression is:
         // case when (so.floatPrimitive>s1.shortBoxed) then count(5) when (so.LongPrimitive>s1.intPrimitive) then (25 + 130.5) else (3*3) end
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
@@ -39,8 +36,7 @@ public class TestExprCaseNode extends TestCase
         assertEquals(String.class, caseNode.getType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
         caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
@@ -68,8 +64,7 @@ public class TestExprCaseNode extends TestCase
         tryInvalidValidate(caseNode);
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
         caseNode.validate(SupportExprValidationContextFactory.makeEmpty());
 
@@ -85,8 +80,7 @@ public class TestExprCaseNode extends TestCase
         assertEquals("c", caseNode.evaluate(makeEvent(3), false, null));
     }
 
-    public void testEquals()  throws Exception
-    {
+    public void testEquals() throws Exception {
         ExprCaseNode caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
         ExprCaseNode otherCaseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
         ExprCaseNode caseNodeSyntax2 = SupportExprNodeFactory.makeCaseSyntax2Node();
@@ -99,8 +93,7 @@ public class TestExprCaseNode extends TestCase
         assertTrue(caseNodeSyntax2.equalsNode(otherCaseNodeSyntax2));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         ExprCaseNode _caseNode = SupportExprNodeFactory.makeCaseSyntax1Node();
         assertEquals("case when s0.intPrimitive=1 then \"a\" when s0.intPrimitive=2 then \"b\" else \"c\" end", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(_caseNode));
 
@@ -108,24 +101,20 @@ public class TestExprCaseNode extends TestCase
         assertEquals("case s0.intPrimitive when 1 then \"a\" when 2 then \"b\" else \"c\" end", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(_caseNode));
     }
 
-    private void tryInvalidValidate(ExprCaseNode exprCaseNode) throws Exception
-    {
+    private void tryInvalidValidate(ExprCaseNode exprCaseNode) throws Exception {
         try {
             exprCaseNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }
 
-    private EventBean[] makeEvent(int intPrimitive)
-    {
+    private EventBean[] makeEvent(int intPrimitive) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intPrimitive);
-        return new EventBean[] {SupportEventBeanFactory.createObject(theEvent)};
+        return new EventBean[]{SupportEventBeanFactory.createObject(theEvent)};
     }
 
-     private static final Logger log = LoggerFactory.getLogger(TestExprCaseNode.class);
+    private static final Logger log = LoggerFactory.getLogger(TestExprCaseNode.class);
 }

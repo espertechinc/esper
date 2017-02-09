@@ -21,8 +21,9 @@ public class VirtualDataWindowKeyRange {
 
     /**
      * Ctor.
+     *
      * @param start range start
-     * @param end range end
+     * @param end   range end
      */
     public VirtualDataWindowKeyRange(Object start, Object end) {
         this.start = start;
@@ -31,6 +32,7 @@ public class VirtualDataWindowKeyRange {
 
     /**
      * Returns the start value of the range.
+     *
      * @return start value
      */
     public Object getStart() {
@@ -39,6 +41,7 @@ public class VirtualDataWindowKeyRange {
 
     /**
      * Returns the end value of the range.
+     *
      * @return end value
      */
     public Object getEnd() {

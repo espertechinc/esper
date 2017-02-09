@@ -18,24 +18,22 @@ import com.espertech.esper.event.ObjectArrayBackedEventBean;
 /**
  * Copy method for Object array-underlying events.
  */
-public class ObjectArrayEventBeanCopyMethod implements EventBeanCopyMethod
-{
+public class ObjectArrayEventBeanCopyMethod implements EventBeanCopyMethod {
     private final ObjectArrayEventType objectArrayEventType;
     private final EventAdapterService eventAdapterService;
 
     /**
      * Ctor.
+     *
      * @param objectArrayEventType map event type
-     * @param eventAdapterService for copying events
+     * @param eventAdapterService  for copying events
      */
-    public ObjectArrayEventBeanCopyMethod(ObjectArrayEventType objectArrayEventType, EventAdapterService eventAdapterService)
-    {
+    public ObjectArrayEventBeanCopyMethod(ObjectArrayEventType objectArrayEventType, EventAdapterService eventAdapterService) {
         this.objectArrayEventType = objectArrayEventType;
         this.eventAdapterService = eventAdapterService;
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         Object[] array = ((ObjectArrayBackedEventBean) theEvent).getProperties();
         Object[] copy = new Object[array.length];
         System.arraycopy(array, 0, copy, 0, copy.length);

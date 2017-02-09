@@ -15,11 +15,9 @@ import com.espertech.esper.epl.agg.service.AggregatorUtil;
 /**
  * Sum for long values.
  */
-public class AggregatorSumLongFilter extends AggregatorSumLong
-{
+public class AggregatorSumLongFilter extends AggregatorSumLong {
     @Override
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;
@@ -28,8 +26,7 @@ public class AggregatorSumLongFilter extends AggregatorSumLong
     }
 
     @Override
-    public void leave(Object parameters)
-    {
+    public void leave(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

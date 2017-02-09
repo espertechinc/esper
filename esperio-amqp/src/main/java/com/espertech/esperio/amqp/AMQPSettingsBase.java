@@ -12,8 +12,7 @@ package com.espertech.esperio.amqp;
 
 import java.util.Map;
 
-public abstract class AMQPSettingsBase
-{
+public abstract class AMQPSettingsBase {
     private String host;
     private int port = -1;
     private String username;

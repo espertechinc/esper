@@ -10,43 +10,38 @@
  */
 package com.espertech.esper.example.stockticker;
 
-import java.util.List;
-
-import junit.framework.TestCase;
 import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
 import com.espertech.esper.example.stockticker.eventbean.StockTick;
+import junit.framework.TestCase;
 
-public class TestStockTickerGenerator extends TestCase implements StockTickerRegressionConstants
-{
+import java.util.List;
+
+public class TestStockTickerGenerator extends TestCase implements StockTickerRegressionConstants {
     public final static int NUM_STOCK_NAMES = 1000;
 
-    public void testFlow()
-    {
+    public void testFlow() {
         StockTickerEventGenerator generator = new StockTickerEventGenerator();
 
-        PriceLimit limitBeans[] = generator.makeLimits("junit",
+        PriceLimit[] limitBeans = generator.makeLimits("junit",
                 NUM_STOCK_NAMES, PRICE_LIMIT_PCT_LOWER_LIMIT, PRICE_LIMIT_PCT_UPPER_LIMIT);
 
         assertTrue(limitBeans.length == NUM_STOCK_NAMES);
         assertTrue(limitBeans[0].getUserId().equals("junit"));
-        for (int i = 0; i < limitBeans.length; i++)
-        {
+        for (int i = 0; i < limitBeans.length; i++) {
             assertTrue(limitBeans[i].getLimitPct() >= PRICE_LIMIT_PCT_LOWER_LIMIT);
             assertTrue(limitBeans[i].getLimitPct() <= PRICE_LIMIT_PCT_UPPER_LIMIT);
         }
 
-        StockTick initialPrices[] = generator.makeInitialPriceStockTicks(limitBeans,
-                 PRICE_LOWER_LIMIT, PRICE_LOWER_LIMIT);
+        StockTick[] initialPrices = generator.makeInitialPriceStockTicks(limitBeans,
+                PRICE_LOWER_LIMIT, PRICE_LOWER_LIMIT);
 
         assertTrue(initialPrices.length == NUM_STOCK_NAMES);
-        for (int i = 0; i < initialPrices.length; i++)
-        {
+        for (int i = 0; i < initialPrices.length; i++) {
             assertTrue(initialPrices[i].getPrice() >= PRICE_LOWER_LIMIT);
             assertTrue(initialPrices[i].getPrice() <= PRICE_UPPER_LIMIT);
         }
 
-        for (int i = 0; i < 100000; i++)
-        {
+        for (int i = 0; i < 100000; i++) {
             StockTick tick = generator.makeStockTick(limitBeans[0], initialPrices[0]);
 
             double initialPrice = initialPrices[0].getPrice();
@@ -57,8 +52,7 @@ public class TestStockTickerGenerator extends TestCase implements StockTickerReg
         }
     }
 
-    public void testMakeStream() throws Exception
-    {
+    public void testMakeStream() throws Exception {
         StockTickerEventGenerator generator = new StockTickerEventGenerator();
 
         final int NUM_EVENTS = 1000;

@@ -10,22 +10,19 @@
  */
 package com.espertech.esper.epl.join.base;
 
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.supportunit.bean.SupportBean;
-import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
-
-import java.util.Set;
-import java.util.HashSet;
-
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
-public class TestJoinSetFilter extends TestCase
-{
-    public void testFilter() throws Exception
-    {
+import java.util.HashSet;
+import java.util.Set;
+
+public class TestJoinSetFilter extends TestCase {
+    public void testFilter() throws Exception {
         ExprNode topNode = SupportExprNodeFactory.make2SubNodeAnd();
 
         EventBean[] pairOne = new EventBean[2];
@@ -46,8 +43,7 @@ public class TestJoinSetFilter extends TestCase
         assertSame(pairOne, eventSet.iterator().next().getArray());
     }
 
-    private EventBean makeEvent(int intPrimitive, int intBoxed, String theStringValue)
-    {
+    private EventBean makeEvent(int intPrimitive, int intBoxed, String theStringValue) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intPrimitive);
         theEvent.setIntBoxed(intBoxed);

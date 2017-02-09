@@ -15,8 +15,12 @@ import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 
 public interface NamedWindowConsumerMgmtService {
     void addConsumer(StatementContext statementContext, NamedWindowConsumerStreamSpec namedSpec);
+
     void start(String statementName);
+
     void stop(String statementName);
+
     void destroy(String statementName);
+
     void removeReferences(String statementName);
 }

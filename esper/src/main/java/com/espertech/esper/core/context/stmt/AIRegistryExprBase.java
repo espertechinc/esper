@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.core.context.stmt;
 
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +37,15 @@ public abstract class AIRegistryExprBase implements AIRegistryExpr {
     }
 
     public abstract AIRegistrySubselect allocateAIRegistrySubselect();
+
     public abstract AIRegistryPrevious allocateAIRegistryPrevious();
+
     public abstract AIRegistryPrior allocateAIRegistryPrior();
+
     public abstract AIRegistryAggregation allocateAIRegistrySubselectAggregation();
+
     public abstract AIRegistryMatchRecognizePrevious allocateAIRegistryMatchRecognizePrevious();
+
     public abstract AIRegistryTableAccess allocateAIRegistryTableAccess();
 
     public AIRegistrySubselect getSubselectService(ExprSubselectNode exprSubselectNode) {

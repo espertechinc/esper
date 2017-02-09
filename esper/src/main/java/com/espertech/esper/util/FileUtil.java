@@ -44,16 +44,14 @@ public class FileUtil {
             FileInputStream fis = new FileInputStream(filenameCp);
             Scanner scanner = new Scanner(fis);
             try {
-              while (scanner.hasNextLine()){
-                lines.add(scanner.nextLine());
-              }
-            }
-            finally{
+                while (scanner.hasNextLine()) {
+                    lines.add(scanner.nextLine());
+                }
+            } finally {
                 scanner.close();
                 fis.close();
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new RuntimeException("Failed to read file '" + filename + "': " + ex.getMessage(), ex);
         }
         return lines.toArray(new String[lines.size()]);
@@ -66,63 +64,48 @@ public class FileUtil {
             BufferedReader br = new BufferedReader(fr);
             StringWriter buffer = new StringWriter();
             String strLine;
-            while ((strLine = br.readLine()) != null)   {
+            while ((strLine = br.readLine()) != null) {
                 buffer.append(strLine);
                 buffer.append(newline);
             }
             return buffer.toString();
-        }
-        finally {
+        } finally {
             try {
                 fr.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
     }
 
-    public static List<String> readFile(InputStream is)
-    {
+    public static List<String> readFile(InputStream is) {
         InputStreamReader isr = new InputStreamReader(is);
         try {
             return readFile(isr);
-        }
-        finally {
+        } finally {
             try {
                 isr.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 // fine
             }
         }
     }
 
-    public static List<String> readFile(Reader reader)
-    {
+    public static List<String> readFile(Reader reader) {
         List<String> list = new ArrayList<String>();
         BufferedReader bufferedReader = null;
-        try
-        {
+        try {
             bufferedReader = new BufferedReader(reader);
             readFile(bufferedReader, list);
-        }
-        catch (FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             throw new RuntimeException("File not found: " + e.getMessage(), e);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException("IO Error reading file: " + e.getMessage(), e);
-        }
-        finally
-        {
-            try
-            {
-                if (bufferedReader != null)
-                {
+        } finally {
+            try {
+                if (bufferedReader != null) {
                     bufferedReader.close();
                 }
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
             }
         }
 
@@ -139,12 +122,10 @@ public class FileUtil {
         return writer.toString();
     }
 
-    private static void readFile(BufferedReader reader, List<String> list) throws IOException
-    {
+    private static void readFile(BufferedReader reader, List<String> list) throws IOException {
         String text;
         // repeat until all lines is read
-        while ((text = reader.readLine()) != null)
-        {
+        while ((text = reader.readLine()) != null) {
             list.add(text);
         }
     }

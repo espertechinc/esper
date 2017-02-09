@@ -13,14 +13,13 @@ package com.espertech.esper.rowregex;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * End state in the regex NFA states.
  */
-public class RegexNFAStateEnd extends RegexNFAStateBase
-{
+public class RegexNFAStateEnd extends RegexNFAStateBase {
     /**
      * Ctor.
      */
@@ -28,13 +27,11 @@ public class RegexNFAStateEnd extends RegexNFAStateBase
         super("endstate", null, -1, false, null);
     }
 
-    public boolean matches(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public boolean matches(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public List<RegexNFAState> getNextStates()
-    {
+    public List<RegexNFAState> getNextStates() {
         return Collections.EMPTY_LIST;
     }
 

@@ -14,8 +14,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.event.EventPropertyWriter;
 import com.espertech.esper.util.TypeWidener;
 
-public class EventBeanUpdateItem
-{
+public class EventBeanUpdateItem {
     private final ExprEvaluator expression;
     private final String optionalPropertyName;
     private final EventPropertyWriter optionalWriter;

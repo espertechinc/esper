@@ -12,8 +12,7 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.EventBean;
 
-public class EvalMatchUntilStateBounds
-{
+public class EvalMatchUntilStateBounds {
     private final Integer lowerbounds;
     private final Integer upperbounds;
 
@@ -29,7 +28,7 @@ public class EvalMatchUntilStateBounds
     public Integer getUpperbounds() {
         return upperbounds;
     }
-    
+
     public static EvalMatchUntilStateBounds initBounds(EvalMatchUntilFactoryNode factoryNode, MatchedEventMap beginState, PatternAgentInstanceContext context) {
         Integer lowerbounds = null;
         Integer upperbounds = null;
@@ -38,8 +37,7 @@ public class EvalMatchUntilStateBounds
             Integer bounds = (Integer) factoryNode.getSingleBound().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
             lowerbounds = bounds;
             upperbounds = bounds;
-        }
-        else {
+        } else {
             if (factoryNode.getLowerBounds() != null) {
                 lowerbounds = (Integer) factoryNode.getLowerBounds().getExprEvaluator().evaluate(eventsPerStream, true, context.getAgentInstanceContext());
             }
@@ -48,7 +46,7 @@ public class EvalMatchUntilStateBounds
             }
             if (upperbounds != null && lowerbounds != null) {
                 if (upperbounds < lowerbounds) {
-                    Integer lbounds =  lowerbounds;
+                    Integer lbounds = lowerbounds;
                     lowerbounds = upperbounds;
                     upperbounds = lbounds;
                 }

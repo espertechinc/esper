@@ -226,7 +226,7 @@ public class TestFilterInAndBetween extends TestCase
     private void tryReuse(String[] statements)
     {
         SupportUpdateListener testListener[] = new SupportUpdateListener[statements.length];
-        EPStatement stmt[] = new EPStatement[statements.length];
+        EPStatement[] stmt = new EPStatement[statements.length];
 
         // create all statements
         for (int i = 0; i < statements.length; i++)

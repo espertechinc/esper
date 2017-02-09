@@ -1,7 +1,7 @@
 package com.espertech.esperio.socket.core;
 
-import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 public class WStringTokenizer extends StringTokenizer {
     private String tbt;
@@ -21,8 +21,7 @@ public class WStringTokenizer extends StringTokenizer {
             try {
                 nextToken();
                 tokens++;
-            }
-            catch (NoSuchElementException e) {
+            } catch (NoSuchElementException e) {
                 break;
             }
         }
@@ -35,8 +34,7 @@ public class WStringTokenizer extends StringTokenizer {
     }
 
     public boolean hasMoreTokens() {
-        if (countTokens() > 0) return true;
-        else return false;
+        return countTokens() > 0;
     }
 
     public Object nextElement() {
@@ -47,7 +45,7 @@ public class WStringTokenizer extends StringTokenizer {
         int result = 0;
         String s;
 
-        if (startpos > tbt.length()) throw (new NoSuchElementException());
+        if (startpos > tbt.length()) throw new NoSuchElementException();
         result = tbt.indexOf(d, startpos);
         if (result < 0) result = tbt.length();
         s = new String(tbt.substring(startpos, result));

@@ -10,22 +10,20 @@
  */
 package com.espertech.esper.event.util;
 
+import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.FragmentEventType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Stack;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Renderer cache for event type metadata allows fast rendering of a given type of events.
  */
-public class RendererMeta
-{
+public class RendererMeta {
     private static final Logger log = LoggerFactory.getLogger(RendererMeta.class);
 
     private final GetterPair[] simpleProperties;
@@ -35,80 +33,69 @@ public class RendererMeta
 
     /**
      * Ctor.
+     *
      * @param eventType to render
-     * @param stack the stack of properties to avoid looping
-     * @param options rendering options
+     * @param stack     the stack of properties to avoid looping
+     * @param options   rendering options
      */
-    public RendererMeta(EventType eventType, Stack<EventTypePropertyPair> stack, RendererMetaOptions options)
-    {
+    public RendererMeta(EventType eventType, Stack<EventTypePropertyPair> stack, RendererMetaOptions options) {
         ArrayList<GetterPair> gettersSimple = new ArrayList<GetterPair>();
         ArrayList<GetterPair> gettersIndexed = new ArrayList<GetterPair>();
         ArrayList<GetterPair> gettersMapped = new ArrayList<GetterPair>();
         ArrayList<NestedGetterPair> gettersNested = new ArrayList<NestedGetterPair>();
 
         EventPropertyDescriptor[] descriptors = eventType.getPropertyDescriptors();
-        for (EventPropertyDescriptor desc : descriptors)
-        {
+        for (EventPropertyDescriptor desc : descriptors) {
             String propertyName = desc.getPropertyName();
 
-            if ((!desc.isIndexed()) && (!desc.isMapped()) && (!desc.isFragment()))
-            {
+            if ((!desc.isIndexed()) && (!desc.isMapped()) && (!desc.isFragment())) {
                 EventPropertyGetter getter = eventType.getGetter(propertyName);
-                if (getter == null)
-                {
+                if (getter == null) {
                     log.warn("No getter returned for event type '" + eventType.getName() + "' and property '" + propertyName + "'");
                     continue;
                 }
                 gettersSimple.add(new GetterPair(getter, propertyName, OutputValueRendererFactory.getOutputValueRenderer(desc.getPropertyType(), options)));
             }
 
-            if (desc.isIndexed() && !desc.isRequiresIndex() && (!desc.isFragment()))
-            {
+            if (desc.isIndexed() && !desc.isRequiresIndex() && (!desc.isFragment())) {
                 EventPropertyGetter getter = eventType.getGetter(propertyName);
-                if (getter == null)
-                {
+                if (getter == null) {
                     log.warn("No getter returned for event type '" + eventType.getName() + "' and property '" + propertyName + "'");
                     continue;
                 }
                 gettersIndexed.add(new GetterPair(getter, propertyName, OutputValueRendererFactory.getOutputValueRenderer(desc.getPropertyType(), options)));
             }
 
-            if (desc.isMapped() && !desc.isRequiresMapkey() && (!desc.isFragment()))
-            {
+            if (desc.isMapped() && !desc.isRequiresMapkey() && (!desc.isFragment())) {
                 EventPropertyGetter getter = eventType.getGetter(propertyName);
-                if (getter == null)
-                {
+                if (getter == null) {
                     log.warn("No getter returned for event type '" + eventType.getName() + "' and property '" + propertyName + "'");
                     continue;
                 }
                 gettersMapped.add(new GetterPair(getter, propertyName, OutputValueRendererFactory.getOutputValueRenderer(desc.getPropertyType(), options)));
             }
 
-            if (desc.isFragment())
-            {
+            if (desc.isFragment()) {
                 EventPropertyGetter getter = eventType.getGetter(propertyName);
                 FragmentEventType fragmentType = eventType.getFragmentType(propertyName);
-                if (getter == null)
-                {
+                if (getter == null) {
                     log.warn("No getter returned for event type '" + eventType.getName() + "' and property '" + propertyName + "'");
                     continue;
                 }
-                if (fragmentType == null)
-                {
+                if (fragmentType == null) {
                     log.warn("No fragment type returned for event type '" + eventType.getName() + "' and property '" + propertyName + "'");
                     continue;
                 }
 
                 EventTypePropertyPair pair = new EventTypePropertyPair(fragmentType.getFragmentType(), propertyName);
-                if ((options.isPreventLooping() && stack.contains(pair)))
-                {
+                if (options.isPreventLooping() && stack.contains(pair)) {
                     continue;   // prevent looping behavior on self-references
                 }
 
                 stack.push(pair);
                 RendererMeta fragmentMetaData = new RendererMeta(fragmentType.getFragmentType(), stack, options);
                 stack.pop();
-                
+
                 gettersNested.add(new NestedGetterPair(getter, propertyName, fragmentMetaData, fragmentType.isIndexed()));
             }
         }
@@ -121,37 +108,37 @@ public class RendererMeta
 
     /**
      * Returns simple properties.
+     *
      * @return properties
      */
-    public GetterPair[] getSimpleProperties()
-    {
+    public GetterPair[] getSimpleProperties() {
         return simpleProperties;
     }
 
     /**
      * Returns index properties.
+     *
      * @return properties
      */
-    public GetterPair[] getIndexProperties()
-    {
+    public GetterPair[] getIndexProperties() {
         return indexProperties;
     }
 
     /**
      * Returns nested properties.
+     *
      * @return properties
      */
-    public NestedGetterPair[] getNestedProperties()
-    {
+    public NestedGetterPair[] getNestedProperties() {
         return nestedProperties;
     }
 
     /**
      * Returns mapped properties.
+     *
      * @return mapped props
      */
-    public GetterPair[] getMappedProperties()
-    {
+    public GetterPair[] getMappedProperties() {
         return mappedProperties;
     }
 }

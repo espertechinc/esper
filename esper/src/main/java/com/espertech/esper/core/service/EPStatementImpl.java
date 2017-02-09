@@ -29,8 +29,7 @@ import java.util.Iterator;
 /**
  * Statement implementation for EPL statements.
  */
-public class EPStatementImpl implements EPStatementSPI
-{
+public class EPStatementImpl implements EPStatementSPI {
     private static Logger log = LoggerFactory.getLogger(EPStatementImpl.class);
 
     private final EPStatementListenerSet statementListenerSet;
@@ -51,61 +50,54 @@ public class EPStatementImpl implements EPStatementSPI
 
     /**
      * Ctor.
-     * @param isPattern is true to indicate this is a pure pattern expression
-     * @param dispatchService for dispatching events to listeners to the statement
-     * @param statementLifecycleSvc handles lifecycle transitions for the statement
-     * @param isBlockingDispatch is true if the dispatch to listeners should block to preserve event generation order
-     * @param isSpinBlockingDispatch true to use spin locks blocking to deliver results, as locks are usually uncontended
-     * @param msecBlockingTimeout is the max number of milliseconds of block time
-     * @param timeLastStateChange the timestamp the statement was created and started
-     * @param timeSourceService time source provider
-     * @param statementMetadata statement metadata
-     * @param userObject the application define user object associated to each statement, if supplied
-     * @param statementContext the statement service context
+     *
+     * @param isPattern               is true to indicate this is a pure pattern expression
+     * @param dispatchService         for dispatching events to listeners to the statement
+     * @param statementLifecycleSvc   handles lifecycle transitions for the statement
+     * @param isBlockingDispatch      is true if the dispatch to listeners should block to preserve event generation order
+     * @param isSpinBlockingDispatch  true to use spin locks blocking to deliver results, as locks are usually uncontended
+     * @param msecBlockingTimeout     is the max number of milliseconds of block time
+     * @param timeLastStateChange     the timestamp the statement was created and started
+     * @param timeSourceService       time source provider
+     * @param statementMetadata       statement metadata
+     * @param userObject              the application define user object associated to each statement, if supplied
+     * @param statementContext        the statement service context
      * @param expressionNoAnnotations expression text witout annotations
-     * @param isFailed indicator to start in failed state
-     * @param nameProvided true to indicate a statement name has been provided and is not a system-generated name
+     * @param isFailed                indicator to start in failed state
+     * @param nameProvided            true to indicate a statement name has been provided and is not a system-generated name
      */
     public EPStatementImpl(String expressionNoAnnotations,
-                              boolean isPattern,
-                              DispatchService dispatchService,
-                              StatementLifecycleSvc statementLifecycleSvc,
-                              long timeLastStateChange,
-                              boolean isBlockingDispatch,
-                              boolean isSpinBlockingDispatch,
-                              long msecBlockingTimeout,
-                              TimeSourceService timeSourceService,
-                              StatementMetadata statementMetadata,
-                              Object userObject,
-                              StatementContext statementContext,
-                              boolean isFailed,
-                              boolean nameProvided)
-    {
+                           boolean isPattern,
+                           DispatchService dispatchService,
+                           StatementLifecycleSvc statementLifecycleSvc,
+                           long timeLastStateChange,
+                           boolean isBlockingDispatch,
+                           boolean isSpinBlockingDispatch,
+                           long msecBlockingTimeout,
+                           TimeSourceService timeSourceService,
+                           StatementMetadata statementMetadata,
+                           Object userObject,
+                           StatementContext statementContext,
+                           boolean isFailed,
+                           boolean nameProvided) {
         this.isPattern = isPattern;
         this.expressionNoAnnotations = expressionNoAnnotations;
         this.statementLifecycleSvc = statementLifecycleSvc;
         this.statementContext = statementContext;
-        this.nameProvided = nameProvided; 
+        this.nameProvided = nameProvided;
         statementListenerSet = new EPStatementListenerSet();
-        if (isBlockingDispatch)
-        {
-            if (isSpinBlockingDispatch)
-            {
+        if (isBlockingDispatch) {
+            if (isSpinBlockingDispatch) {
                 this.dispatchChildView = new UpdateDispatchViewBlockingSpin(statementContext.getStatementResultService(), dispatchService, msecBlockingTimeout, timeSourceService);
-            }
-            else
-            {
+            } else {
                 this.dispatchChildView = new UpdateDispatchViewBlockingWait(statementContext.getStatementResultService(), dispatchService, msecBlockingTimeout);
             }
-        }
-        else
-        {
+        } else {
             this.dispatchChildView = new UpdateDispatchViewNonBlocking(statementContext.getStatementResultService(), dispatchService);
         }
         if (!isFailed) {
             this.currentState = EPStatementState.STOPPED;
-        }
-        else {
+        } else {
             this.currentState = EPStatementState.FAILED;
         }
         this.timeLastStateChange = timeLastStateChange;
@@ -114,24 +106,19 @@ public class EPStatementImpl implements EPStatementSPI
         statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
     }
 
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return statementContext.getStatementId();
     }
 
-    public void start()
-    {
-        if (statementLifecycleSvc == null)
-        {
+    public void start() {
+        if (statementLifecycleSvc == null) {
             throw new IllegalStateException("Cannot start statement, statement is in destroyed state");
         }
         statementLifecycleSvc.start(statementContext.getStatementId());
     }
 
-    public void stop()
-    {
-        if (statementLifecycleSvc == null)
-        {
+    public void stop() {
+        if (statementLifecycleSvc == null) {
             throw new IllegalStateException("Cannot stop statement, statement is in destroyed state");
         }
         statementLifecycleSvc.stop(statementContext.getStatementId());
@@ -142,10 +129,8 @@ public class EPStatementImpl implements EPStatementSPI
         dispatchChildView.clear();
     }
 
-    public void destroy()
-    {
-        if (currentState == EPStatementState.DESTROYED)
-        {
+    public void destroy() {
+        if (currentState == EPStatementState.DESTROYED) {
             throw new IllegalStateException("Statement already destroyed");
         }
         statementLifecycleSvc.destroy(statementContext.getStatementId());
@@ -155,13 +140,11 @@ public class EPStatementImpl implements EPStatementSPI
         statementLifecycleSvc = null;
     }
 
-    public EPStatementState getState()
-    {
+    public EPStatementState getState() {
         return currentState;
     }
 
-    public void setCurrentState(EPStatementState currentState, long timeLastStateChange)
-    {
+    public void setCurrentState(EPStatementState currentState, long timeLastStateChange) {
         this.currentState = currentState;
         this.timeLastStateChange = timeLastStateChange;
     }
@@ -170,31 +153,24 @@ public class EPStatementImpl implements EPStatementSPI
         return parentView;
     }
 
-    public void setParentView(Viewable viewable)
-    {
-        if (viewable == null)
-        {
-            if (parentView != null)
-            {
+    public void setParentView(Viewable viewable) {
+        if (viewable == null) {
+            if (parentView != null) {
                 parentView.removeView(dispatchChildView);
             }
             parentView = null;
-        }
-        else
-        {
+        } else {
             parentView = viewable;
             parentView.addView(dispatchChildView);
             eventType = parentView.getEventType();
         }
     }
 
-    public String getText()
-    {
+    public String getText() {
         return statementContext.getExpression();
     }
 
-    public String getName()
-    {
+    public String getName() {
         return statementContext.getStatementName();
     }
 
@@ -208,8 +184,7 @@ public class EPStatementImpl implements EPStatementSPI
 
         // Return null if not started
         statementContext.getVariableService().setLocalVersion();
-        if (parentView == null)
-        {
+        if (parentView == null) {
             return null;
         }
         return statementContext.getContextDescriptor().iterator(statementContext.getStatementId(), selector);
@@ -232,19 +207,16 @@ public class EPStatementImpl implements EPStatementSPI
         return statementContext.getContextDescriptor().safeIterator(statementContext.getStatementId(), selector);
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         // Return null if not started
         statementContext.getVariableService().setLocalVersion();
-        if (parentView == null)
-        {
+        if (parentView == null) {
             return null;
         }
         Iterator<EventBean> theIterator;
         if (statementContext.getContextDescriptor() != null) {
             theIterator = statementContext.getContextDescriptor().iterator(statementContext.getStatementId());
-        }
-        else {
+        } else {
             theIterator = parentView.iterator();
         }
         if (statementContext.getEpStatementHandle().isHasTableAccess()) {
@@ -253,11 +225,9 @@ public class EPStatementImpl implements EPStatementSPI
         return theIterator;
     }
 
-    public SafeIterator<EventBean> safeIterator()
-    {
+    public SafeIterator<EventBean> safeIterator() {
         // Return null if not started
-        if (parentView == null)
-        {
+        if (parentView == null) {
             return null;
         }
 
@@ -268,8 +238,7 @@ public class EPStatementImpl implements EPStatementSPI
 
         // Set variable version and acquire the lock first
         statementContext.getDefaultAgentInstanceLock().acquireReadLock();
-        try
-        {
+        try {
             statementContext.getVariableService().setLocalVersion();
 
             // Provide iterator - that iterator MUST be closed else the lock is not released
@@ -277,25 +246,22 @@ public class EPStatementImpl implements EPStatementSPI
                 return new SafeIteratorWTableImpl<EventBean>(statementContext.getDefaultAgentInstanceLock(), parentView.iterator(), statementContext.getTableExprEvaluatorContext());
             }
             return new SafeIteratorImpl<EventBean>(statementContext.getDefaultAgentInstanceLock(), parentView.iterator());
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             statementContext.getDefaultAgentInstanceLock().releaseReadLock();
             throw ex;
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
     /**
      * Returns the set of listeners to the statement.
+     *
      * @return statement listeners
      */
-    public EPStatementListenerSet getListenerSet()
-    {
+    public EPStatementListenerSet getListenerSet() {
         return statementListenerSet;
     }
 
@@ -306,16 +272,14 @@ public class EPStatementImpl implements EPStatementSPI
 
     /**
      * Add a listener to the statement.
+     *
      * @param listener to add
      */
-    public void addListener(UpdateListener listener)
-    {
-        if (listener == null)
-        {
+    public void addListener(UpdateListener listener) {
+        if (listener == null) {
             throw new IllegalArgumentException("Null listener reference supplied");
         }
-        if (isDestroyed())
-        {
+        if (isDestroyed()) {
             throw new IllegalStateException("Statement is in destroyed state");
         }
 
@@ -325,21 +289,17 @@ public class EPStatementImpl implements EPStatementSPI
                 new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_ADD, listener));
     }
 
-    public void addListenerWithReplay(UpdateListener listener)
-    {
-        if (listener == null)
-        {
+    public void addListenerWithReplay(UpdateListener listener) {
+        if (listener == null) {
             throw new IllegalArgumentException("Null listener reference supplied");
         }
 
-        if (isDestroyed())
-        {
+        if (isDestroyed()) {
             throw new IllegalStateException("Statement is in destroyed state");
         }
 
         statementContext.getDefaultAgentInstanceLock().acquireReadLock();
-        try
-        {
+        try {
             // Add listener - listener not receiving events from this statement, as the statement is locked
             statementListenerSet.addListener(listener);
             statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
@@ -347,14 +307,10 @@ public class EPStatementImpl implements EPStatementSPI
                     new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_ADD, listener));
 
             Iterator<EventBean> it = iterator();
-            if (it == null)
-            {
-                try
-                {
+            if (it == null) {
+                try {
                     listener.update(null, null);
-                }
-                catch (Throwable t)
-                {
+                } catch (Throwable t) {
                     String message = "Unexpected exception invoking listener update method for replay on listener class '" + listener.getClass().getSimpleName() +
                             "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
                     log.error(message, t);
@@ -363,41 +319,29 @@ public class EPStatementImpl implements EPStatementSPI
             }
 
             ArrayList<EventBean> events = new ArrayList<EventBean>();
-            for (; it.hasNext();)
-            {
+            for (; it.hasNext(); ) {
                 events.add(it.next());
             }
 
-            if (events.isEmpty())
-            {
-                try
-                {
+            if (events.isEmpty()) {
+                try {
                     listener.update(null, null);
-                }
-                catch (Throwable t)
-                {
+                } catch (Throwable t) {
                     String message = "Unexpected exception invoking listener update method for replay on listener class '" + listener.getClass().getSimpleName() +
                             "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
                     log.error(message, t);
                 }
-            }
-            else
-            {
+            } else {
                 EventBean[] iteratorResult = events.toArray(new EventBean[events.size()]);
-                try
-                {
+                try {
                     listener.update(iteratorResult, null);
-                }
-                catch (Throwable t)
-                {
+                } catch (Throwable t) {
                     String message = "Unexpected exception invoking listener update method for replay on listener class '" + listener.getClass().getSimpleName() +
                             "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
                     log.error(message, t);
                 }
             }
-        }
-        finally
-        {
+        } finally {
             if (statementContext.getEpStatementHandle().isHasTableAccess()) {
                 statementContext.getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
@@ -407,46 +351,39 @@ public class EPStatementImpl implements EPStatementSPI
 
     /**
      * Remove a listeners to a statement.
+     *
      * @param listener to remove
      */
-    public void removeListener(UpdateListener listener)
-    {
-        if (listener == null)
-        {
+    public void removeListener(UpdateListener listener) {
+        if (listener == null) {
             throw new IllegalArgumentException("Null listener reference supplied");
         }
 
         statementListenerSet.removeListener(listener);
         statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
-        if (statementLifecycleSvc != null)
-        {
+        if (statementLifecycleSvc != null) {
             statementLifecycleSvc.dispatchStatementLifecycleEvent(
-                new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_REMOVE, listener));
+                    new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_REMOVE, listener));
         }
     }
 
     /**
      * Remove all listeners to a statement.
      */
-    public void removeAllListeners()
-    {
+    public void removeAllListeners() {
         statementListenerSet.removeAllListeners();
         statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
-        if (statementLifecycleSvc != null)
-        {
+        if (statementLifecycleSvc != null) {
             statementLifecycleSvc.dispatchStatementLifecycleEvent(
-                new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_REMOVE_ALL));
+                    new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_REMOVE_ALL));
         }
     }
 
-    public void addListener(StatementAwareUpdateListener listener)
-    {
-        if (listener == null)
-        {
+    public void addListener(StatementAwareUpdateListener listener) {
+        if (listener == null) {
             throw new IllegalArgumentException("Null listener reference supplied");
         }
-        if (isDestroyed())
-        {
+        if (isDestroyed()) {
             throw new IllegalStateException("Statement is in destroyed state");
         }
 
@@ -456,65 +393,53 @@ public class EPStatementImpl implements EPStatementSPI
                 new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_ADD, listener));
     }
 
-    public void removeListener(StatementAwareUpdateListener listener)
-    {
-        if (listener == null)
-        {
+    public void removeListener(StatementAwareUpdateListener listener) {
+        if (listener == null) {
             throw new IllegalArgumentException("Null listener reference supplied");
         }
 
         statementListenerSet.removeListener(listener);
         statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
-        if (statementLifecycleSvc != null)
-        {
+        if (statementLifecycleSvc != null) {
             statementLifecycleSvc.dispatchStatementLifecycleEvent(
-                new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_REMOVE, listener));
+                    new StatementLifecycleEvent(this, StatementLifecycleEvent.LifecycleEventType.LISTENER_REMOVE, listener));
         }
     }
 
-    public Iterator<StatementAwareUpdateListener> getStatementAwareListeners()
-    {
+    public Iterator<StatementAwareUpdateListener> getStatementAwareListeners() {
         return Arrays.asList(statementListenerSet.getStmtAwareListeners()).iterator();
     }
 
-    public Iterator<UpdateListener> getUpdateListeners()
-    {
+    public Iterator<UpdateListener> getUpdateListeners() {
         return Arrays.asList(statementListenerSet.getListeners()).iterator();
     }
 
-    public long getTimeLastStateChange()
-    {
+    public long getTimeLastStateChange() {
         return timeLastStateChange;
     }
 
-    public boolean isStarted()
-    {
+    public boolean isStarted() {
         return currentState == EPStatementState.STARTED;
     }
 
-    public boolean isStopped()
-    {
+    public boolean isStopped() {
         return currentState == EPStatementState.STOPPED;
     }
 
-    public boolean isDestroyed()
-    {
+    public boolean isDestroyed() {
         return currentState == EPStatementState.DESTROYED;
     }
 
-    public void setSubscriber(Object subscriber)
-    {
+    public void setSubscriber(Object subscriber) {
         setSubscriber(subscriber, null);
     }
 
-    public void setSubscriber(Object subscriber, String methodName)
-    {
+    public void setSubscriber(Object subscriber, String methodName) {
         statementListenerSet.setSubscriber(subscriber, methodName);
         statementContext.getStatementResultService().setUpdateListeners(statementListenerSet, false);
     }
 
-    public Object getSubscriber()
-    {
+    public Object getSubscriber() {
         return statementListenerSet.getSubscriber();
     }
 
@@ -522,43 +447,35 @@ public class EPStatementImpl implements EPStatementSPI
         return isPattern;
     }
 
-    public StatementMetadata getStatementMetadata()
-    {
+    public StatementMetadata getStatementMetadata() {
         return statementMetadata;
     }
 
-    public Object getUserObject()
-    {
+    public Object getUserObject() {
         return userObject;
     }
 
-    public Annotation[] getAnnotations()
-    {
+    public Annotation[] getAnnotations() {
         return statementContext.getAnnotations();
     }
 
-    public StatementContext getStatementContext()
-    {
+    public StatementContext getStatementContext() {
         return statementContext;
     }
 
-    public String getExpressionNoAnnotations()
-    {
+    public String getExpressionNoAnnotations() {
         return expressionNoAnnotations;
     }
 
-    public String getServiceIsolated()
-    {
+    public String getServiceIsolated() {
         return serviceIsolated;
     }
 
-    public void setServiceIsolated(String serviceIsolated)
-    {
+    public void setServiceIsolated(String serviceIsolated) {
         this.serviceIsolated = serviceIsolated;
     }
 
-    public boolean isNameProvided()
-    {
+    public boolean isNameProvided() {
         return nameProvided;
     }
 

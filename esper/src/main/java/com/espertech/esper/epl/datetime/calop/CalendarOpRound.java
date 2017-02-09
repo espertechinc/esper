@@ -17,7 +17,6 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 
 public class CalendarOpRound implements CalendarOp {
@@ -29,14 +28,11 @@ public class CalendarOpRound implements CalendarOp {
         this.fieldName = fieldName;
         if (method == DatetimeMethodEnum.ROUNDCEILING) {
             code = ApacheCommonsDateUtils.MODIFY_CEILING;
-        }
-        else if (method == DatetimeMethodEnum.ROUNDFLOOR) {
+        } else if (method == DatetimeMethodEnum.ROUNDFLOOR) {
             code = ApacheCommonsDateUtils.MODIFY_TRUNCATE;
-        }
-        else if (method == DatetimeMethodEnum.ROUNDHALF) {
+        } else if (method == DatetimeMethodEnum.ROUNDHALF) {
             code = ApacheCommonsDateUtils.MODIFY_ROUND;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unrecognized method '" + method + "'");
         }
     }
@@ -48,11 +44,9 @@ public class CalendarOpRound implements CalendarOp {
     public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (code == ApacheCommonsDateUtils.MODIFY_TRUNCATE) {
             return ldt.truncatedTo(fieldName.getChronoUnit());
-        }
-        else if (code == ApacheCommonsDateUtils.MODIFY_CEILING) {
+        } else if (code == ApacheCommonsDateUtils.MODIFY_CEILING) {
             return ldt.plus(1, fieldName.getChronoUnit()).truncatedTo(fieldName.getChronoUnit());
-        }
-        else {
+        } else {
             throw new EPException("Round-half operation not supported for LocalDateTime");
         }
     }
@@ -60,11 +54,9 @@ public class CalendarOpRound implements CalendarOp {
     public ZonedDateTime evaluate(ZonedDateTime zdt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (code == ApacheCommonsDateUtils.MODIFY_TRUNCATE) {
             return zdt.truncatedTo(fieldName.getChronoUnit());
-        }
-        else if (code == ApacheCommonsDateUtils.MODIFY_CEILING) {
+        } else if (code == ApacheCommonsDateUtils.MODIFY_CEILING) {
             return zdt.plus(1, fieldName.getChronoUnit()).truncatedTo(fieldName.getChronoUnit());
-        }
-        else {
+        } else {
             throw new EPException("Round-half operation not supported for ZonedDateTime");
         }
     }

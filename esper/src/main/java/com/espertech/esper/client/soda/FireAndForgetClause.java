@@ -16,6 +16,5 @@ import java.io.Serializable;
  * Marker interface used for fire-and-forget (on-demand) queries such as "update...set" and "delete from..."
  * that can be executed via the API.
  */
-public interface FireAndForgetClause extends Serializable
-{
+public interface FireAndForgetClause extends Serializable {
 }

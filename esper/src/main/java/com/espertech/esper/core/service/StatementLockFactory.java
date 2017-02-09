@@ -11,20 +11,17 @@
 package com.espertech.esper.core.service;
 
 import java.lang.annotation.Annotation;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
 
 /**
  * Factory for the managed lock that provides statement resource protection.
  */
-public interface StatementLockFactory
-{
+public interface StatementLockFactory {
     /**
      * Create lock for statement
      *
      * @param statementName is the statement name
-     * @param annotations annotation
-     * @param stateless indicator whether stateless
+     * @param annotations   annotation
+     * @param stateless     indicator whether stateless
      * @return lock
      */
     public StatementAgentInstanceLock getStatementLock(String statementName, Annotation[] annotations, boolean stateless);

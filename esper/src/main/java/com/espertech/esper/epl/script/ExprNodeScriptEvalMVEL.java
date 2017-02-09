@@ -48,8 +48,7 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase {
             }
 
             return result;
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             Throwable mvelException = ex.getCause();
             String message = "Unexpected exception executing script '" + scriptName + "' for statement '" + statementName + "' : " + mvelException.getMessage();
             log.error(message, mvelException);

@@ -13,19 +13,16 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Average that generates double-typed numbers.
  */
-public class AggregatorAvg implements AggregationMethod
-{
+public class AggregatorAvg implements AggregationMethod {
     protected double sum;
     protected long numDataPoints;
 
-    public void clear()
-    {
+    public void clear() {
         sum = 0;
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
+    public void enter(Object object) {
         if (object == null) {
             return;
         }
@@ -33,22 +30,19 @@ public class AggregatorAvg implements AggregationMethod
         sum += ((Number) object).doubleValue();
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
         if (object == null) {
             return;
         }
         if (numDataPoints <= 1) {
             clear();
-        }
-        else {
+        } else {
             numDataPoints--;
             sum -= ((Number) object).doubleValue();
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         if (numDataPoints == 0) {
             return null;
         }

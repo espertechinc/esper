@@ -10,18 +10,17 @@
  */
 package com.espertech.esper.epl.expression.subquery;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.type.RelationalOpEnum;
-import com.espertech.esper.client.EventBean;
 
 import java.util.Collection;
 
 /**
  * Strategy for subselects with "&gt;/&lt;/&lt;=/&gt;= ANY".
  */
-public class SubselectEvalStrategyRelOpAny implements SubselectEvalStrategy
-{
+public class SubselectEvalStrategyRelOpAny implements SubselectEvalStrategy {
     private final RelationalOpEnum.Computer computer;
     private final ExprEvaluator valueExpr;
     private final ExprEvaluator selectClauseExpr;
@@ -29,30 +28,27 @@ public class SubselectEvalStrategyRelOpAny implements SubselectEvalStrategy
 
     /**
      * Ctor.
-     * @param computer operator
-     * @param valueExpr LHS
+     *
+     * @param computer     operator
+     * @param valueExpr    LHS
      * @param selectClause select or null
-     * @param filterExpr filter or null
+     * @param filterExpr   filter or null
      */
-    public SubselectEvalStrategyRelOpAny(RelationalOpEnum.Computer computer, ExprEvaluator valueExpr, ExprEvaluator selectClause, ExprEvaluator filterExpr)
-    {
+    public SubselectEvalStrategyRelOpAny(RelationalOpEnum.Computer computer, ExprEvaluator valueExpr, ExprEvaluator selectClause, ExprEvaluator filterExpr) {
         this.computer = computer;
         this.valueExpr = valueExpr;
         this.selectClauseExpr = selectClause;
         this.filterExpr = filterExpr;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
         // Evaluate the value expression
         Object valueLeft = valueExpr.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
 
-        if (matchingEvents == null)
-        {
+        if (matchingEvents == null) {
             return false;
         }
-        if (matchingEvents.size() == 0)
-        {
+        if (matchingEvents.size() == 0) {
             return false;
         }
 
@@ -63,52 +59,41 @@ public class SubselectEvalStrategyRelOpAny implements SubselectEvalStrategy
         // Filter and check each row.
         boolean hasNonNullRow = false;
         boolean hasRows = false;
-        for (EventBean subselectEvent : matchingEvents)
-        {
+        for (EventBean subselectEvent : matchingEvents) {
             // Prepare filter expression event list
             events[0] = subselectEvent;
 
             // Eval filter expression
-            if (filterExpr != null)
-            {
+            if (filterExpr != null) {
                 Boolean pass = (Boolean) filterExpr.evaluate(events, true, exprEvaluatorContext);
-                if ((pass == null) || (!pass))
-                {
+                if ((pass == null) || (!pass)) {
                     continue;
                 }
             }
             hasRows = true;
 
             Object valueRight;
-            if (selectClauseExpr != null)
-            {
+            if (selectClauseExpr != null) {
                 valueRight = selectClauseExpr.evaluate(events, true, exprEvaluatorContext);
-            }
-            else
-            {
+            } else {
                 valueRight = events[0].getUnderlying();
             }
 
-            if (valueRight != null)
-            {
+            if (valueRight != null) {
                 hasNonNullRow = true;
             }
 
-            if ((valueLeft != null) && (valueRight != null))
-            {
-                if (computer.compare(valueLeft, valueRight))
-                {
+            if ((valueLeft != null) && (valueRight != null)) {
+                if (computer.compare(valueLeft, valueRight)) {
                     return true;
                 }
             }
         }
 
-        if (!hasRows)
-        {
+        if (!hasRows) {
             return false;
         }
-        if ((!hasNonNullRow) || (valueLeft == null))
-        {
+        if ((!hasNonNullRow) || (valueLeft == null)) {
             return null;
         }
         return false;

@@ -12,5 +12,6 @@ package com.espertech.esper.view;
 
 public interface ViewDataVisitorContained {
     public void visitPrimary(String viewName, int numContained);
+
     public void visitContained(Object containedKey, View containedView);
 }

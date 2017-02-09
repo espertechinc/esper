@@ -46,8 +46,7 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvalu
 
         if (JavaClassHelper.isNumeric(returnType)) {
             coercer = SimpleNumberCoercerFactory.getCoercer(Number.class, JavaClassHelper.getBoxedType(returnType));
-        }
-        else {
+        } else {
             coercer = null;
         }
     }

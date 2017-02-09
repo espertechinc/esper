@@ -12,16 +12,14 @@ package com.espertech.esper.plugin;
 
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 
-import java.util.Map;
-
 /**
  * Context for use with {@link PlugInAggregationMultiFunctionFactory} provides
  * information about an aggregation function at the time of declaration.
  * <p>
- *     Declaration means when the aggregation function is discovered at the time
- *     of parsing an EPL statement. Or when using statement object model
- *     then at the time of mapping the object model to the
- *     internal statement representation.
+ * Declaration means when the aggregation function is discovered at the time
+ * of parsing an EPL statement. Or when using statement object model
+ * then at the time of mapping the object model to the
+ * internal statement representation.
  * </p>
  */
 public class PlugInAggregationMultiFunctionDeclarationContext {
@@ -33,9 +31,10 @@ public class PlugInAggregationMultiFunctionDeclarationContext {
 
     /**
      * Ctor.
-     * @param functionName provides the aggregation multi-function name
-     * @param distinct flag whether the "distinct" keyword was provided.
-     * @param engineURI the engine URI
+     *
+     * @param functionName  provides the aggregation multi-function name
+     * @param distinct      flag whether the "distinct" keyword was provided.
+     * @param engineURI     the engine URI
      * @param configuration the configuration provided when the aggregation multi-functions where registered
      */
     public PlugInAggregationMultiFunctionDeclarationContext(String functionName, boolean distinct, String engineURI, ConfigurationPlugInAggregationMultiFunction configuration) {
@@ -47,6 +46,7 @@ public class PlugInAggregationMultiFunctionDeclarationContext {
 
     /**
      * Returns a flag whether the "distinct" keyword was provided.
+     *
      * @return distinct flag
      */
     public boolean isDistinct() {
@@ -55,6 +55,7 @@ public class PlugInAggregationMultiFunctionDeclarationContext {
 
     /**
      * Returns the engine uri.
+     *
      * @return engine uri
      */
     public String getEngineURI() {
@@ -63,6 +64,7 @@ public class PlugInAggregationMultiFunctionDeclarationContext {
 
     /**
      * Returns the aggregation function name.
+     *
      * @return function name
      */
     public String getFunctionName() {
@@ -71,6 +73,7 @@ public class PlugInAggregationMultiFunctionDeclarationContext {
 
     /**
      * Returns the configuration provided when the aggregation multi-functions where registered.
+     *
      * @return configuration
      */
     public ConfigurationPlugInAggregationMultiFunction getConfiguration() {

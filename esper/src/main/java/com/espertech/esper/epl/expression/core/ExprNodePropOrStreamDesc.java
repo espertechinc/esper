@@ -12,6 +12,7 @@ package com.espertech.esper.epl.expression.core;
 
 public interface ExprNodePropOrStreamDesc {
     public int getStreamNum();
+
     public String getTextual();
 }
 

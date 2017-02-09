@@ -13,8 +13,7 @@ package com.espertech.esper.view.std;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.view.View;
 
-public interface MergeViewMarker extends View
-{
+public interface MergeViewMarker extends View {
     public ExprNode[] getGroupFieldNames();
 
     public void addParentView(View mergeDataView);

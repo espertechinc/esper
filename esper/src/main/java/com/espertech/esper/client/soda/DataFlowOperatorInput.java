@@ -30,8 +30,9 @@ public class DataFlowOperatorInput implements Serializable {
 
     /**
      * Ctor.
+     *
      * @param inputStreamNames names of input streams for the same port
-     * @param optionalAsName optional alias
+     * @param optionalAsName   optional alias
      */
     public DataFlowOperatorInput(List<String> inputStreamNames, String optionalAsName) {
         this.inputStreamNames = inputStreamNames;
@@ -40,6 +41,7 @@ public class DataFlowOperatorInput implements Serializable {
 
     /**
      * Returns the input stream names.
+     *
      * @return input stream names
      */
     public List<String> getInputStreamNames() {
@@ -48,6 +50,7 @@ public class DataFlowOperatorInput implements Serializable {
 
     /**
      * Sets the input stream names.
+     *
      * @param inputStreamNames input stream names
      */
     public void setInputStreamNames(List<String> inputStreamNames) {
@@ -56,6 +59,7 @@ public class DataFlowOperatorInput implements Serializable {
 
     /**
      * Returns the alias name.
+     *
      * @return alias
      */
     public String getOptionalAsName() {
@@ -64,6 +68,7 @@ public class DataFlowOperatorInput implements Serializable {
 
     /**
      * Sets the alias name.
+     *
      * @param optionalAsName alias to set
      */
     public void setOptionalAsName(String optionalAsName) {

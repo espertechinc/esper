@@ -15,8 +15,7 @@ import com.espertech.esper.client.metric.EngineMetric;
 /**
  * Metrics execution producing engine metric events.
  */
-public class MetricExecEngine implements MetricExec
-{
+public class MetricExecEngine implements MetricExec {
     private final MetricEventRouter metricEventRouter;
     private final String engineURI;
     private final MetricScheduleService metricScheduleService;
@@ -25,36 +24,35 @@ public class MetricExecEngine implements MetricExec
 
     /**
      * Ctor.
-     * @param metricEventRouter for routing metric events
-     * @param engineURI engine uri
+     *
+     * @param metricEventRouter     for routing metric events
+     * @param engineURI             engine uri
      * @param metricScheduleService for scheduling a new execution
-     * @param interval for rescheduling the execution
+     * @param interval              for rescheduling the execution
      */
-    public MetricExecEngine(MetricEventRouter metricEventRouter, String engineURI, MetricScheduleService metricScheduleService, long interval)
-    {
+    public MetricExecEngine(MetricEventRouter metricEventRouter, String engineURI, MetricScheduleService metricScheduleService, long interval) {
         this.metricEventRouter = metricEventRouter;
         this.engineURI = engineURI;
         this.metricScheduleService = metricScheduleService;
         this.interval = interval;
     }
 
-    public void execute(MetricExecutionContext context)
-    {
+    public void execute(MetricExecutionContext context) {
         long inputCount = context.getServices().getFilterService().getNumEventsEvaluated();
         long schedDepth = context.getServices().getSchedulingService().getScheduleHandleCount();
         long deltaInputCount = lastMetric == null ? inputCount : inputCount - lastMetric.getInputCount();
         EngineMetric metric = new EngineMetric(engineURI, metricScheduleService.getCurrentTime(), inputCount, deltaInputCount, schedDepth);
         lastMetric = metric;
         metricEventRouter.route(metric);
-        metricScheduleService.add(interval, this);        
+        metricScheduleService.add(interval, this);
     }
 
     /**
      * Returns reporting interval.
+     *
      * @return reporting interval
      */
-    public long getInterval()
-    {
+    public long getInterval() {
         return interval;
     }
 }

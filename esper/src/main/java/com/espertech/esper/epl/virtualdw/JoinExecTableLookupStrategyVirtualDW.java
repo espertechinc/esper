@@ -54,8 +54,7 @@ public class JoinExecTableLookupStrategyVirtualDW implements JoinExecTableLookup
                 ExprEvaluator evaluatorStart = range.getExprStart().getExprEvaluator();
                 ExprEvaluator evaluatorEnd = range.getExprEnd().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorBtreeRange(evaluatorStart, evaluatorEnd);
-            }
-            else {
+            } else {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeKey;
                 ExprEvaluator evaluator = relOp.getExpression().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorHashRelOp(evaluator);
@@ -66,7 +65,9 @@ public class JoinExecTableLookupStrategyVirtualDW implements JoinExecTableLookup
 
     public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext context) {
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexJoinLookup(this, null); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, null);
+        }
 
         eventsPerStream[lookupStream] = theEvent;
 
@@ -78,12 +79,13 @@ public class JoinExecTableLookupStrategyVirtualDW implements JoinExecTableLookup
         Set<EventBean> events = null;
         try {
             events = externalIndex.lookup(keys, eventsPerStream);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.warn("Exception encountered invoking virtual data window external index for window '" + namedWindowName + "': " + ex.getMessage(), ex);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexJoinLookup(events, null); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexJoinLookup(events, null);
+        }
         return events;
     }
 
@@ -95,8 +97,7 @@ public class JoinExecTableLookupStrategyVirtualDW implements JoinExecTableLookup
         return new LookupStrategyDesc(LookupStrategyType.VDW, null);
     }
 
-    private interface ExternalEvaluator
-    {
+    private interface ExternalEvaluator {
         public Object evaluate(EventBean[] events, ExprEvaluatorContext context);
     }
 

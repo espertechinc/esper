@@ -15,8 +15,8 @@ import com.espertech.esper.epl.join.exec.base.ExecNode;
 import com.espertech.esper.epl.join.exec.base.ExecNodeNoOp;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.HistoricalStreamIndexList;
-import com.espertech.esper.util.IndentWriter;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
+import com.espertech.esper.util.IndentWriter;
 import com.espertech.esper.view.Viewable;
 
 import java.lang.annotation.Annotation;

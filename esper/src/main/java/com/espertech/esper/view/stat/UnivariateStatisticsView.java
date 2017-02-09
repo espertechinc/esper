@@ -29,8 +29,7 @@ import java.util.Map;
  * View for computing statistics, which the view exposes via fields representing the sum, count, standard deviation
  * for sample and for population and variance.
  */
-public class UnivariateStatisticsView extends ViewSupport implements CloneableView, DerivedValueView
-{
+public class UnivariateStatisticsView extends ViewSupport implements CloneableView, DerivedValueView {
     private final UnivariateStatisticsViewFactory viewFactory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final ExprEvaluator fieldExpressionEvaluator;
@@ -40,46 +39,41 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
     private EventBean[] eventsPerStream = new EventBean[1];
     protected Object[] lastValuesEventNew;
 
-    public UnivariateStatisticsView(UnivariateStatisticsViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext)
-    {
+    public UnivariateStatisticsView(UnivariateStatisticsViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceContext) {
         this.viewFactory = viewFactory;
         this.agentInstanceContext = agentInstanceContext;
         this.fieldExpressionEvaluator = viewFactory.fieldExpression.getExprEvaluator();
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return viewFactory.makeView(agentInstanceContext);
     }
 
     /**
      * Returns field name of the field to report statistics on.
+     *
      * @return field name
      */
-    public final ExprNode getFieldExpression()
-    {
+    public final ExprNode getFieldExpression() {
         return viewFactory.fieldExpression;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, UnivariateStatisticsViewFactory.NAME, newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, UnivariateStatisticsViewFactory.NAME, newData, oldData);
+        }
 
         // If we have child views, keep a reference to the old values, so we can update them as old data event.
         EventBean oldDataMap = null;
-        if (lastNewEvent == null)
-        {
-            if (this.hasViews())
-            {
+        if (lastNewEvent == null) {
+            if (this.hasViews()) {
                 oldDataMap = populateMap(baseStatisticsBean, agentInstanceContext.getStatementContext().getEventAdapterService(), viewFactory.eventType, viewFactory.additionalProps, lastValuesEventNew);
             }
         }
 
         // add data points to the bean
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
                 Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null) {
@@ -99,10 +93,8 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
         }
 
         // remove data points from the bean
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
                 Number pointnum = (Number) fieldExpressionEvaluator.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (pointnum != null) {
@@ -113,53 +105,53 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
         }
 
         // If there are child view, call update method
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             EventBean newDataMap = populateMap(baseStatisticsBean, agentInstanceContext.getStatementContext().getEventAdapterService(), viewFactory.eventType, viewFactory.additionalProps, lastValuesEventNew);
 
             EventBean[] oldEvents;
-            EventBean[] newEvents = new EventBean[] {newDataMap};
+            EventBean[] newEvents = new EventBean[]{newDataMap};
             if (lastNewEvent == null) {
-                oldEvents = new EventBean[] {oldDataMap};
-            }
-            else {
-                oldEvents = new EventBean[] {lastNewEvent};
+                oldEvents = new EventBean[]{oldDataMap};
+            } else {
+                oldEvents = new EventBean[]{lastNewEvent};
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, UnivariateStatisticsViewFactory.NAME, newEvents, oldEvents);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, UnivariateStatisticsViewFactory.NAME, newEvents, oldEvents);
+            }
             updateChildren(newEvents, oldEvents);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
 
             lastNewEvent = newDataMap;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return viewFactory.eventType;
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new SingleEventIterator(populateMap(baseStatisticsBean,
                 agentInstanceContext.getStatementContext().getEventAdapterService(),
                 viewFactory.eventType,
                 viewFactory.additionalProps, lastValuesEventNew));
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " fieldExpression=" + viewFactory.fieldExpression;
     }
 
     public static EventBean populateMap(BaseStatisticsBean baseStatisticsBean,
-                                  EventAdapterService eventAdapterService,
-                                  EventType eventType,
-                                  StatViewAdditionalProps additionalProps,
-                                  Object[] lastNewValues)
-    {
+                                        EventAdapterService eventAdapterService,
+                                        EventType eventType,
+                                        StatViewAdditionalProps additionalProps,
+                                        Object[] lastNewValues) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put(ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS.getName(), baseStatisticsBean.getN());
         result.put(ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL.getName(), baseStatisticsBean.getXSum());
@@ -173,8 +165,7 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
-    {
+    public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum) {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__DATAPOINTS.getName(), Long.class);
         eventTypeMap.put(ViewFieldEnum.UNIVARIATE_STATISTICS__TOTAL.getName(), Double.class);
@@ -189,7 +180,7 @@ public class UnivariateStatisticsView extends ViewSupport implements CloneableVi
                 ViewFieldEnum.UNIVARIATE_STATISTICS__STDDEVPA,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__VARIANCE,
                 ViewFieldEnum.UNIVARIATE_STATISTICS__AVERAGE
-                );
+        );
         String outputEventTypeName = statementContext.getStatementId() + "_statview_" + streamNum;
         return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, eventTypeMap, false);
     }

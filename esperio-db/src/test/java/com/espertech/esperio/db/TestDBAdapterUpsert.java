@@ -21,8 +21,7 @@ import junit.framework.TestCase;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestDBAdapterUpsert extends TestCase
-{
+public class TestDBAdapterUpsert extends TestCase {
     private final static String ENGINE_URI = "TESTDBURI";
 
     private final static String TABLE_NAME = "mytestupsert";
@@ -31,8 +30,7 @@ public class TestDBAdapterUpsert extends TestCase
         SupportDatabaseService.truncateTable(TABLE_NAME);
     }
 
-    public void testUpsert() throws InterruptedException
-    {
+    public void testUpsert() throws InterruptedException {
         ConfigurationDBAdapter adapterConfig = new ConfigurationDBAdapter();
         ConfigurationDBRef conn = SupportDatabaseService.makeDBConfig();
         adapterConfig.getJdbcConnections().put("conn1", conn);

@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.event;
 
-import java.util.Map;
-
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+
+import java.util.Map;
 
 /**
  * An event that is carries multiple representations of event properties:
@@ -22,16 +22,16 @@ import com.espertech.esper.client.PropertyAccessException;
  * and a natural representation as a bunch of Object-type properties for fast delivery to client
  * subscriber objects via method call.
  */
-public class NaturalEventBean implements EventBean, DecoratingEventBean
-{
+public class NaturalEventBean implements EventBean, DecoratingEventBean {
     private final EventType eventBeanType;
     private final Object[] natural;
     private final EventBean optionalSynthetic;
 
     /**
      * Ctor.
-     * @param eventBeanType the event type of the synthetic event
-     * @param natural the properties of the event
+     *
+     * @param eventBeanType     the event type of the synthetic event
+     * @param natural           the properties of the event
      * @param optionalSynthetic the event bean that is the synthetic event, or null if no synthetic is packed in
      */
     public NaturalEventBean(EventType eventBeanType, Object[] natural, EventBean optionalSynthetic) {
@@ -45,8 +45,7 @@ public class NaturalEventBean implements EventBean, DecoratingEventBean
     }
 
     public Object get(String property) throws PropertyAccessException {
-        if (optionalSynthetic != null)
-        {
+        if (optionalSynthetic != null) {
             return optionalSynthetic.get(property);
         }
         throw new PropertyAccessException("Property access not allowed for natural events without the synthetic event present");
@@ -59,37 +58,34 @@ public class NaturalEventBean implements EventBean, DecoratingEventBean
         return natural;
     }
 
-    public EventBean getUnderlyingEvent()
-    {
+    public EventBean getUnderlyingEvent() {
         return ((DecoratingEventBean) optionalSynthetic).getUnderlyingEvent();
     }
 
-    public Map<String, Object> getDecoratingProperties()
-    {
+    public Map<String, Object> getDecoratingProperties() {
         return ((DecoratingEventBean) optionalSynthetic).getDecoratingProperties();
     }
 
     /**
      * Returns the column object result representation.
+     *
      * @return select column values
      */
-    public Object[] getNatural()
-    {
+    public Object[] getNatural() {
         return natural;
     }
 
     /**
      * Returns the synthetic event that can be attached.
+     *
      * @return synthetic if attached, or null if none attached
      */
     public EventBean getOptionalSynthetic() {
         return optionalSynthetic;
     }
 
-    public Object getFragment(String propertyExpression)
-    {
-        if (optionalSynthetic != null)
-        {
+    public Object getFragment(String propertyExpression) {
+        if (optionalSynthetic != null) {
             return optionalSynthetic.getFragment(propertyExpression);
         }
         throw new PropertyAccessException("Property access not allowed for natural events without the synthetic event present");

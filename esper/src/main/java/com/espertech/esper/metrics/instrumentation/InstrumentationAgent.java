@@ -12,5 +12,6 @@ package com.espertech.esper.metrics.instrumentation;
 
 public interface InstrumentationAgent {
     public void indicateQ();
+
     public void indicateA();
 }

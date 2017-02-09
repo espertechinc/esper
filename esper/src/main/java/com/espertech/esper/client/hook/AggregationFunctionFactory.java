@@ -20,6 +20,7 @@ public interface AggregationFunctionFactory {
 
     /**
      * Sets the EPL function name assigned to the factory.
+     *
      * @param functionName assigned
      */
     public void setFunctionName(String functionName);
@@ -28,18 +29,21 @@ public interface AggregationFunctionFactory {
      * Implemented by plug-in aggregation functions to allow such functions to validate the
      * type of values passed to the function at statement compile time and to generally
      * interrogate parameter expressions.
+     *
      * @param validationContext expression information
      */
     public void validate(AggregationValidationContext validationContext);
 
     /**
      * Make a new, initalized aggregation state.
+     *
      * @return initialized aggregator
      */
     public AggregationMethod newAggregator();
 
     /**
      * Returns the type of the current value.
+     *
      * @return type of value returned by the aggregation methods
      */
     public Class getValueType();

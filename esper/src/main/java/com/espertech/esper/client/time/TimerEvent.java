@@ -15,7 +15,6 @@ import java.io.Serializable;
 /**
  * Abstract base class marker for events that control time keeping by an event stream processor instance.
  */
-public abstract class TimerEvent implements Serializable
-{
+public abstract class TimerEvent implements Serializable {
     private static final long serialVersionUID = 7042146786401152079L;
 }

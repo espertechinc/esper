@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class FeedSimMain implements Runnable{
+public class FeedSimMain implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(FeedSimMain.class);
 
@@ -76,8 +76,7 @@ public class FeedSimMain implements Runnable{
     private String engineURI;
     private boolean continuousSimulation;
 
-    public FeedSimMain(int numberOfThreads, double dropProbability, int numSeconds, boolean isWaitKeypress, String engineURI, boolean continuousSimulation)
-    {
+    public FeedSimMain(int numberOfThreads, double dropProbability, int numSeconds, boolean isWaitKeypress, String engineURI, boolean continuousSimulation) {
         this.numberOfThreads = numberOfThreads;
         this.dropProbability = dropProbability;
         this.numSeconds = numSeconds;
@@ -86,10 +85,8 @@ public class FeedSimMain implements Runnable{
         this.continuousSimulation = continuousSimulation;
     }
 
-    public void run()
-    {
-        if (isWaitKeypress)
-        {
+    public void run() {
+        if (isWaitKeypress) {
             System.out.println("...press enter to start simulation...");
             try {
                 System.in.read();
@@ -116,20 +113,18 @@ public class FeedSimMain implements Runnable{
         // For continuous non-ending simulation
         if (continuousSimulation) {
             new MarketDataSendRunnable(epService, true).run();
-        }
-        else {
+        } else {
             // Send events
             ExecutorService threadPool = Executors.newFixedThreadPool(numberOfThreads);
-            MarketDataSendRunnable runnables[] = new MarketDataSendRunnable[numberOfThreads];
-            for (int i = 0; i < numberOfThreads; i++)
-            {
+            MarketDataSendRunnable[] runnables = new MarketDataSendRunnable[numberOfThreads];
+            for (int i = 0; i < numberOfThreads; i++) {
                 runnables[i] = new MarketDataSendRunnable(epService, false);
                 threadPool.submit(runnables[i]);
             }
 
             int seconds = 0;
             Random random = new Random();
-            while(seconds < numSeconds) {
+            while (seconds < numSeconds) {
                 seconds++;
                 try {
                     Thread.sleep(1000);
@@ -139,29 +134,23 @@ public class FeedSimMain implements Runnable{
                 }
 
                 FeedEnum feedToDropOff;
-                if (random.nextDouble() * 100 < dropProbability)
-                {
+                if (random.nextDouble() * 100 < dropProbability) {
                     feedToDropOff = FeedEnum.FEED_A;
-                    if (random.nextBoolean())
-                    {
+                    if (random.nextBoolean()) {
                         feedToDropOff = FeedEnum.FEED_B;
                     }
                     log.info("Setting drop-off for feed " + feedToDropOff);
 
-                }
-                else
-                {
+                } else {
                     feedToDropOff = null;
                 }
-                for (int i = 0; i < runnables.length; i++)
-                {
+                for (int i = 0; i < runnables.length; i++) {
                     runnables[i].setRateDropOffFeed(feedToDropOff);
                 }
             }
 
             log.info("Shutting down threadpool");
-            for (int i = 0; i < runnables.length; i++)
-            {
+            for (int i = 0; i < runnables.length; i++) {
                 runnables[i].setShutdown();
             }
             threadPool.shutdown();

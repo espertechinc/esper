@@ -10,48 +10,41 @@
  */
 package com.espertech.esperio.jms;
 
+import com.espertech.esper.adapter.InputAdapter;
+import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.event.EventAdapterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.EPException;
-import com.espertech.esper.adapter.InputAdapter;
 
-import javax.jms.Message;
-import javax.jms.MapMessage;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Enumeration;
 import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created for ESPER.
  */
-public class JMSDefaultAnyMessageUnmarshaller implements JMSMessageUnmarshaller
-{
+public class JMSDefaultAnyMessageUnmarshaller implements JMSMessageUnmarshaller {
     private static final Logger log = LoggerFactory.getLogger(JMSDefaultAnyMessageUnmarshaller.class);
 
     public EventBean unmarshal(EventAdapterService eventAdapterService,
-                               Message message) throws EPException
-    {
-        try
-        {
-            if (message instanceof ObjectMessage)
-            {
+                               Message message) throws EPException {
+        try {
+            if (message instanceof ObjectMessage) {
                 ObjectMessage objmsg = (ObjectMessage) message;
                 Serializable obj = objmsg.getObject();
                 return eventAdapterService.adapterForBean(obj);
-            }
-            else if (message instanceof MapMessage)
-            {
+            } else if (message instanceof MapMessage) {
                 Map<String, Object> properties = new HashMap<String, Object>();
                 MapMessage mapMsg = (MapMessage) message;
                 Enumeration en = mapMsg.getMapNames();
-                while (en.hasMoreElements())
-                {
+                while (en.hasMoreElements()) {
                     String property = (String) en.nextElement();
                     Object mapObject = mapMsg.getObject(property);
                     properties.put(property, mapObject);
@@ -59,8 +52,7 @@ public class JMSDefaultAnyMessageUnmarshaller implements JMSMessageUnmarshaller
 
                 // Get event type property
                 Object typeProperty = properties.get(InputAdapter.ESPERIO_MAP_EVENT_TYPE);
-                if (typeProperty == null)
-                {
+                if (typeProperty == null) {
                     log.warn(".unmarshal Failed to unmarshal map message, expected type property not found: '" + InputAdapter.ESPERIO_MAP_EVENT_TYPE + "'");
                     return null;
                 }
@@ -68,23 +60,18 @@ public class JMSDefaultAnyMessageUnmarshaller implements JMSMessageUnmarshaller
                 // Get event type
                 String name = typeProperty.toString();
                 EventType eventType = eventAdapterService.getExistsTypeByName(name);
-                if (eventType == null)
-                {
+                if (eventType == null) {
                     log.warn(".unmarshal Failed to unmarshal map message, event type name '" + name + "' is not a known type");
                     return null;
                 }
 
                 return eventAdapterService.adapterForTypedMap(properties, eventType);
-            }
-            else
-            {
+            } else {
                 String error = ".unmarshal Failed to unmarshal message of JMS type: " + message.getJMSType();
                 log.error(error);
                 throw new EPException(error);
             }
-        }
-        catch (JMSException ex)
-        {
+        } catch (JMSException ex) {
             throw new EPException("Error unmarshalling message", ex);
         }
     }

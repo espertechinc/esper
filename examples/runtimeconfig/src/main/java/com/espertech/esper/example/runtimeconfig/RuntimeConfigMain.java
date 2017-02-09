@@ -15,28 +15,22 @@ import java.util.Map;
  * Please see the OHLC view for an example of a custom view.
  * Please see the EsperIO Axiom event type for an example of a custom event type and resolution URI.
  */
-public class RuntimeConfigMain
-{
+public class RuntimeConfigMain {
     private static final Logger log = LoggerFactory.getLogger(RuntimeConfigMain.class);
 
     private EPServiceProvider provider;
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         RuntimeConfigMain main = new RuntimeConfigMain();
 
-        try
-        {
+        try {
             main.runExample();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.error("Unexpected error occured running example:" + ex.getMessage(), ex);
         }
     }
 
-    public void runExample()
-    {
+    public void runExample() {
         // Allocate default provider in default configuration
         provider = EPServiceProviderManager.getDefaultProvider();
 
@@ -133,7 +127,7 @@ public class RuntimeConfigMain
 
         // send an event
         Map<String, Object> eventData = new HashMap<String, Object>();
-        eventData.put("doubles", new double[] {5,1,2,3,4});
+        eventData.put("doubles", new double[]{5, 1, 2, 3, 4});
         provider.getEPRuntime().sendEvent(eventData, "MyMedianSampleEvent");
 
         // print results
@@ -143,7 +137,7 @@ public class RuntimeConfigMain
 
         // send a second event
         eventData = new HashMap<String, Object>();
-        eventData.put("doubles", new double[] {5,1,2,3,4,4});
+        eventData.put("doubles", new double[]{5, 1, 2, 3, 4, 4});
         provider.getEPRuntime().sendEvent(eventData, "MyMedianSampleEvent");
 
         // print results
@@ -248,7 +242,7 @@ public class RuntimeConfigMain
 
         // Define revision event type
         ConfigurationRevisionEventType config = new ConfigurationRevisionEventType();
-        config.setKeyPropertyNames(new String[] {"itemId"});
+        config.setKeyPropertyNames(new String[]{"itemId"});
         config.addNameBaseEventType("MyBaseEvent");
         config.addNameDeltaEventType("MyUpdateEvent");
         provider.getEPAdministrator().getConfiguration().addRevisionEventType("MyRevisionType", config);

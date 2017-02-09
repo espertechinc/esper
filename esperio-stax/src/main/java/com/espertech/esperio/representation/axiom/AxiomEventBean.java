@@ -10,11 +10,11 @@
  */
 package com.espertech.esperio.representation.axiom;
 
-import org.apache.axiom.om.OMNode;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.client.PropertyAccessException;
+import org.apache.axiom.om.OMNode;
 
 /**
  * EventBean wrapper for XML documents. Currently only instances of OMNode can

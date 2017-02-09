@@ -15,7 +15,10 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.EventBeanUtility;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class CompositeIndexEnterRemoveRange implements CompositeIndexEnterRemove {
 
@@ -39,8 +42,7 @@ public class CompositeIndexEnterRemoveRange implements CompositeIndexEnterRemove
             for (Map.Entry<Object, Set<EventBean>> entry : eventMap.entrySet()) {
                 result.addAll(entry.getValue());
             }
-        }
-        else {
+        } else {
             Map<Object, Map> eventMap = parent;
             for (Map.Entry<Object, Map> entry : eventMap.entrySet()) {
                 next.getAll(result, entry.getValue());
@@ -69,14 +71,12 @@ public class CompositeIndexEnterRemoveRange implements CompositeIndexEnterRemove
             Map<Object, Set<EventBean>> eventMap = (Map<Object, Set<EventBean>>) parent;
 
             Set<EventBean> events = eventMap.get(sortable);
-            if (events == null)
-            {
+            if (events == null) {
                 events = new HashSet<EventBean>();
                 eventMap.put(sortable, events);
             }
             events.add(theEvent);
-        }
-        else {
+        } else {
             Map innerIndex = (Map) parent.get(sortable);
             if (innerIndex == null) {
                 innerIndex = new TreeMap();
@@ -105,24 +105,20 @@ public class CompositeIndexEnterRemoveRange implements CompositeIndexEnterRemove
             if (eventMap == null) {
                 return;
             }
-            
+
             Set<EventBean> events = eventMap.get(sortable);
-            if (events == null)
-            {
+            if (events == null) {
                 return;
             }
 
-            if (!events.remove(theEvent))
-            {
+            if (!events.remove(theEvent)) {
                 return;
             }
 
-            if (events.isEmpty())
-            {
+            if (events.isEmpty()) {
                 parent.remove(sortable);
             }
-        }
-        else {
+        } else {
             Map innerIndex = (Map) parent.get(sortable);
             if (innerIndex == null) {
                 return;

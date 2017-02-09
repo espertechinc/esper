@@ -14,31 +14,26 @@ import com.espertech.esper.client.EventBean;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * Iterator for an iterator of events returning the underlying itself.
  */
-public class EventUnderlyingIterator implements Iterator<Object>
-{
+public class EventUnderlyingIterator implements Iterator<Object> {
     private final Iterator<EventBean> events;
 
     public EventUnderlyingIterator(Collection<EventBean> events) {
         this.events = events.iterator();
     }
 
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         return events.hasNext();
     }
 
-    public Object next()
-    {
+    public Object next() {
         return events.next().getUnderlying();
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

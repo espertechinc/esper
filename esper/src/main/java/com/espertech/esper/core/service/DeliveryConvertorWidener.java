@@ -15,8 +15,7 @@ import com.espertech.esper.util.TypeWidener;
 /**
  * Implementation of a convertor for column results that renders the result as an object array itself.
  */
-public class DeliveryConvertorWidener implements DeliveryConvertor
-{
+public class DeliveryConvertorWidener implements DeliveryConvertor {
     private final TypeWidener[] wideners;
 
     public DeliveryConvertorWidener(TypeWidener[] wideners) {

@@ -26,10 +26,9 @@ public class DeliveryConvertorMapWStatement implements DeliveryConvertor {
 
     public Object[] convertRow(Object[] columns) {
         Map<String, Object> map = new HashMap<String, Object>();
-        for (int i = 0; i < columns.length; i++)
-        {
+        for (int i = 0; i < columns.length; i++) {
             map.put(columnNames[i], columns[i]);
         }
-        return new Object[] {statement, map};
+        return new Object[]{statement, map};
     }
 }

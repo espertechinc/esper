@@ -23,11 +23,12 @@ public class EPDataFlowExceptionContext {
 
     /**
      * Ctor.
-     * @param dataFlowName data flow name
-     * @param operatorName operator name
-     * @param operatorNumber operator number
+     *
+     * @param dataFlowName        data flow name
+     * @param operatorName        operator name
+     * @param operatorNumber      operator number
      * @param operatorPrettyPrint pretty-print of operator
-     * @param throwable cause
+     * @param throwable           cause
      */
     public EPDataFlowExceptionContext(String dataFlowName, String operatorName, Object operatorNumber, Object operatorPrettyPrint, Throwable throwable) {
         this.dataFlowName = dataFlowName;
@@ -39,6 +40,7 @@ public class EPDataFlowExceptionContext {
 
     /**
      * Returns the data flow name.
+     *
      * @return data flow name
      */
     public String getDataFlowName() {
@@ -47,6 +49,7 @@ public class EPDataFlowExceptionContext {
 
     /**
      * Returns the operator name.
+     *
      * @return operator name
      */
     public String getOperatorName() {
@@ -55,6 +58,7 @@ public class EPDataFlowExceptionContext {
 
     /**
      * Returns the cause.
+     *
      * @return cause
      */
     public Throwable getThrowable() {
@@ -63,6 +67,7 @@ public class EPDataFlowExceptionContext {
 
     /**
      * Returns the operator number.
+     *
      * @return operator num
      */
     public Object getOperatorNumber() {
@@ -71,6 +76,7 @@ public class EPDataFlowExceptionContext {
 
     /**
      * Returns the pretty-print for the operator.
+     *
      * @return operator string
      */
     public Object getOperatorPrettyPrint() {

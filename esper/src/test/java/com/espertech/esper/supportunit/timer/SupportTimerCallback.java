@@ -16,23 +16,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SupportTimerCallback implements TimerCallback
-{
+public class SupportTimerCallback implements TimerCallback {
     private AtomicInteger numInvoked = new AtomicInteger();
 
-    public void timerCallback()
-    {
+    public void timerCallback() {
         int current = numInvoked.incrementAndGet();
         log.debug(".timerCallback numInvoked=" + current + " thread=" + Thread.currentThread());
     }
 
-    public int getCount()
-    {
+    public int getCount() {
         return numInvoked.get();
     }
 
-    public int getAndResetCount()
-    {
+    public int getAndResetCount() {
         int count = numInvoked.getAndSet(0);
         return count;
     }

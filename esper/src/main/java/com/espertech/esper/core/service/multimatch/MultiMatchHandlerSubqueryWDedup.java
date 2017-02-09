@@ -26,7 +26,7 @@ public class MultiMatchHandlerSubqueryWDedup implements MultiMatchHandler {
 
     public void handle(Collection<FilterHandleCallback> callbacks, EventBean theEvent) {
 
-        LinkedHashSet<FilterHandleCallback> dedup = MultiMatchHandlerNoSubqueryWDedup.dedups.get();
+        LinkedHashSet<FilterHandleCallback> dedup = MultiMatchHandlerNoSubqueryWDedup.DEDUPS.get();
         dedup.clear();
         dedup.addAll(callbacks);
 
@@ -43,8 +43,7 @@ public class MultiMatchHandlerSubqueryWDedup implements MultiMatchHandler {
                     callback.matchFound(theEvent, dedup);
                 }
             }
-        }
-        else {
+        } else {
             // sub-selects always go last
             for (FilterHandleCallback callback : dedup) {
                 if (!callback.isSubSelect()) {

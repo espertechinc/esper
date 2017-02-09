@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.view;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.client.EventBean;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -20,8 +20,7 @@ import java.util.NoSuchElementException;
 /**
  * Iterator for reading and filtering a source event iterator.
  */
-public class FilterExprViewIterator implements Iterator<EventBean>
-{
+public class FilterExprViewIterator implements Iterator<EventBean> {
     private final Iterator<EventBean> sourceIterator;
     private final ExprEvaluator filter;
     private final ExprEvaluatorContext exprEvaluatorContext;
@@ -31,43 +30,37 @@ public class FilterExprViewIterator implements Iterator<EventBean>
 
     /**
      * Ctor.
-     * @param sourceIterator is the iterator supplying events to filter out.
-     * @param filter is the filter expression
+     *
+     * @param sourceIterator       is the iterator supplying events to filter out.
+     * @param filter               is the filter expression
      * @param exprEvaluatorContext context for expression evalauation
      */
-    public FilterExprViewIterator(Iterator<EventBean> sourceIterator, ExprEvaluator filter, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public FilterExprViewIterator(Iterator<EventBean> sourceIterator, ExprEvaluator filter, ExprEvaluatorContext exprEvaluatorContext) {
         this.sourceIterator = sourceIterator;
         this.filter = filter;
         this.exprEvaluatorContext = exprEvaluatorContext;
         evalEventArr = new EventBean[1];
     }
 
-    public boolean hasNext()
-    {
-        if (nextResult != null)
-        {
+    public boolean hasNext() {
+        if (nextResult != null) {
             return true;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             return true;
         }
         return false;
     }
 
-    public EventBean next()
-    {
-        if (nextResult != null)
-        {
+    public EventBean next() {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
@@ -75,24 +68,20 @@ public class FilterExprViewIterator implements Iterator<EventBean>
         throw new NoSuchElementException();
     }
 
-    private void findNext()
-    {
-        while(sourceIterator.hasNext())
-        {
+    private void findNext() {
+        while (sourceIterator.hasNext()) {
             EventBean candidate = sourceIterator.next();
             evalEventArr[0] = candidate;
 
             Boolean pass = (Boolean) filter.evaluate(evalEventArr, true, exprEvaluatorContext);
-            if ((pass != null) && (pass))
-            {
+            if ((pass != null) && pass) {
                 nextResult = candidate;
                 break;
             }
         }
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

@@ -10,16 +10,14 @@
  */
 package com.espertech.esper.collection;
 
-import junit.framework.TestCase;
-
-import java.util.Set;
-import java.util.HashSet;
-
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
-public class TestMultiKeyUntyped extends TestCase
-{
+import java.util.HashSet;
+import java.util.Set;
+
+public class TestMultiKeyUntyped extends TestCase {
     MultiKeyUntyped keys1 = new MultiKeyUntyped("a", "b");
     MultiKeyUntyped keys2 = new MultiKeyUntyped("a", "b");
     MultiKeyUntyped keys3 = new MultiKeyUntyped("a", null);
@@ -31,9 +29,8 @@ public class TestMultiKeyUntyped extends TestCase
     MultiKeyUntyped keys9 = new MultiKeyUntyped("a", "b", "c", "d");
     MultiKeyUntyped keys10 = new MultiKeyUntyped("a", "b", "c", "d");
 
-    public void testHashCode()
-    {
-        assertTrue(keys1.hashCode() == ("a".hashCode()*31 ^ "b".hashCode()));
+    public void testHashCode() {
+        assertTrue(keys1.hashCode() == ("a".hashCode() * 31 ^ "b".hashCode()));
         assertTrue(keys3.hashCode() == "a".hashCode());
         assertTrue(keys4.hashCode() == "b".hashCode());
         assertTrue(keys5.hashCode() == 0);
@@ -48,8 +45,7 @@ public class TestMultiKeyUntyped extends TestCase
         assertTrue(keys9.hashCode() == keys10.hashCode());
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         assertEquals(keys2, keys1);
         assertEquals(keys1, keys2);
 
@@ -73,8 +69,7 @@ public class TestMultiKeyUntyped extends TestCase
         assertTrue(keys9.equals(keys10));
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         assertEquals(1, keys6.size());
         assertEquals(2, keys1.size());
         assertEquals(3, keys8.size());
@@ -86,13 +81,12 @@ public class TestMultiKeyUntyped extends TestCase
         assertTrue("d" == keys10.get(3));
     }
 
-    public void testWithSet()
-    {
-        EventBean[][] testEvents = new EventBean[][] {
-            SupportEventBeanFactory.makeEvents(new String[] {"a", "b"}),
-            SupportEventBeanFactory.makeEvents(new String[] {"a"}),
-            SupportEventBeanFactory.makeEvents(new String[] {"a", "b", "c"}),
-            SupportEventBeanFactory.makeEvents(new String[] {"a", "b"}),
+    public void testWithSet() {
+        EventBean[][] testEvents = new EventBean[][]{
+                SupportEventBeanFactory.makeEvents(new String[]{"a", "b"}),
+                SupportEventBeanFactory.makeEvents(new String[]{"a"}),
+                SupportEventBeanFactory.makeEvents(new String[]{"a", "b", "c"}),
+                SupportEventBeanFactory.makeEvents(new String[]{"a", "b"}),
         };
 
         Set<MultiKeyUntyped> mapSet = new HashSet<MultiKeyUntyped>();

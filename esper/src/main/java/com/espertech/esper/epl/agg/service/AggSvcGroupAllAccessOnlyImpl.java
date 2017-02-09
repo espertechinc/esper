@@ -21,8 +21,7 @@ import java.util.Collection;
 /**
  * Aggregation service for use when only first/last/window aggregation functions are used an none other.
  */
-public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, AggregationResultFuture
-{
+public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, AggregationResultFuture {
     private final AggregationAccessorSlotPair[] accessors;
     protected final AggregationState[] states;
     private final AggregationStateFactory[] accessAggSpecs;
@@ -33,35 +32,47 @@ public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, Aggrega
         this.accessAggSpecs = accessAggSpecs;
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(true, 0, accessAggSpecs.length);}
+    public void applyEnter(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(true, 0, accessAggSpecs.length);
+        }
         for (int i = 0; i < states.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, states[i], accessAggSpecs[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, states[i], accessAggSpecs[i].getAggregationExpression());
+            }
             states[i].applyEnter(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, states[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, states[i]);
+            }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(true);
+        }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(false, 0, accessAggSpecs.length);}
+    public void applyLeave(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(false, 0, accessAggSpecs.length);
+        }
         for (int i = 0; i < states.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, states[i], accessAggSpecs[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, states[i], accessAggSpecs[i].getAggregationExpression());
+            }
             states[i].applyLeave(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, states[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, states[i]);
+            }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(false);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(false);
+        }
     }
 
-    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         // no implementation required
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         AggregationAccessorSlotPair pair = accessors[column];
         return pair.getAccessor().getValue(states[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
     }
@@ -71,8 +82,7 @@ public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, Aggrega
         return pair.getAccessor().getEnumerableEvent(states[pair.getSlot()], eventsPerStream, isNewData, context);
     }
 
-    public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-    {
+    public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         AggregationAccessorSlotPair pair = accessors[column];
         return pair.getAccessor().getEnumerableEvents(states[pair.getSlot()], eventsPerStream, isNewData, context);
     }
@@ -82,8 +92,7 @@ public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, Aggrega
         return pair.getAccessor().getEnumerableScalar(states[pair.getSlot()], eventsPerStream, isNewData, context);
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         for (AggregationState state : states) {
             state.clear();
         }

@@ -40,6 +40,7 @@ public class RowLimitProcessor {
 
     /**
      * Determine the current limit and applies the limiting function to outgoing events.
+     *
      * @param outgoingEvents unlimited
      * @return limited
      */
@@ -52,36 +53,26 @@ public class RowLimitProcessor {
     }
 
     protected void determineCurrentLimit() {
-        if (numRowsVariableReader != null)
-        {
+        if (numRowsVariableReader != null) {
             Number varValue = (Number) numRowsVariableReader.getValue();
-            if (varValue != null)
-            {
+            if (varValue != null) {
                 currentRowLimit = varValue.intValue();
-            }
-            else
-            {
+            } else {
                 currentRowLimit = Integer.MAX_VALUE;
             }
-            if (currentRowLimit < 0)
-            {
+            if (currentRowLimit < 0) {
                 currentRowLimit = Integer.MAX_VALUE;
             }
         }
 
-        if (offsetVariableReader != null)
-        {
+        if (offsetVariableReader != null) {
             Number varValue = (Number) offsetVariableReader.getValue();
-            if (varValue != null)
-            {
+            if (varValue != null) {
                 currentOffset = varValue.intValue();
-            }
-            else
-            {
+            } else {
                 currentOffset = 0;
             }
-            if (currentOffset < 0)
-            {
+            if (currentOffset < 0) {
                 currentOffset = 0;
             }
         }
@@ -90,42 +81,34 @@ public class RowLimitProcessor {
     protected EventBean[] applyLimit(EventBean[] outgoingEvents) {
 
         // no offset
-        if (currentOffset == 0)
-        {
-            if ((outgoingEvents.length <= currentRowLimit))
-            {
+        if (currentOffset == 0) {
+            if (outgoingEvents.length <= currentRowLimit) {
                 return outgoingEvents;
             }
 
-            if (currentRowLimit == 0)
-            {
+            if (currentRowLimit == 0) {
                 return null;
             }
 
             EventBean[] limited = new EventBean[currentRowLimit];
             System.arraycopy(outgoingEvents, 0, limited, 0, currentRowLimit);
             return limited;
-        }
-        // with offset
-        else
-        {
+        } else {
+            // with offset
             int maxInterested = currentRowLimit + currentOffset;
-            if (currentRowLimit == Integer.MAX_VALUE)
-            {
+            if (currentRowLimit == Integer.MAX_VALUE) {
                 maxInterested = Integer.MAX_VALUE;
             }
 
             // more rows then requested
-            if (outgoingEvents.length > maxInterested)
-            {
+            if (outgoingEvents.length > maxInterested) {
                 EventBean[] limited = new EventBean[currentRowLimit];
                 System.arraycopy(outgoingEvents, currentOffset, limited, 0, currentRowLimit);
                 return limited;
             }
 
             // less or equal rows to offset
-            if (outgoingEvents.length <= currentOffset)
-            {
+            if (outgoingEvents.length <= currentOffset) {
                 return null;
             }
 

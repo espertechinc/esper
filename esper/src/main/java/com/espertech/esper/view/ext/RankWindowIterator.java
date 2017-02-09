@@ -17,16 +17,15 @@ import java.util.SortedMap;
 /**
  * Iterator for use by {@link com.espertech.esper.view.ext.RankWindowView}.
  */
-public final class RankWindowIterator extends MixedEventBeanAndCollectionIteratorBase
-{
+public final class RankWindowIterator extends MixedEventBeanAndCollectionIteratorBase {
     private final SortedMap<Object, Object> window;
 
     /**
      * Ctor.
+     *
      * @param window - sorted map with events
      */
-    public RankWindowIterator(SortedMap<Object, Object> window)
-    {
+    public RankWindowIterator(SortedMap<Object, Object> window) {
         super(window.keySet().iterator());
         this.window = window;
         init();

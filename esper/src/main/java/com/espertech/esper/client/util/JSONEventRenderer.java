@@ -20,11 +20,11 @@ import com.espertech.esper.client.EventBean;
  * <p>
  * For rendering events of different types, use a quick-access method in {@link EventRenderer}.
  */
-public interface JSONEventRenderer
-{
+public interface JSONEventRenderer {
     /**
      * Render a given event in the JSON format.
-     * @param title the JSON root title
+     *
+     * @param title    the JSON root title
      * @param theEvent the event to render
      * @return JSON formatted text
      */
@@ -32,6 +32,7 @@ public interface JSONEventRenderer
 
     /**
      * Render a given event in the JSON format.
+     *
      * @param theEvent the event to render
      * @return JSON formatted text
      */

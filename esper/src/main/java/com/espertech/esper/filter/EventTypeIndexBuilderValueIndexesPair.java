@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.filter;
 
-public class EventTypeIndexBuilderValueIndexesPair implements FilterServiceEntry
-{
+public class EventTypeIndexBuilderValueIndexesPair implements FilterServiceEntry {
     private final FilterValueSet filterValueSet;
     private final EventTypeIndexBuilderIndexLookupablePair[][] indexPairs;
 

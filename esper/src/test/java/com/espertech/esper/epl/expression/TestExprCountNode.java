@@ -17,12 +17,10 @@ import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 
-public class TestExprCountNode extends TestExprAggregateNodeAdapter
-{
+public class TestExprCountNode extends TestExprAggregateNodeAdapter {
     private ExprCountNode wildcardCount;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         super.validatedNodeToTest = makeNode(5, Integer.class);
 
         wildcardCount = new ExprCountNode(false);
@@ -30,27 +28,23 @@ public class TestExprCountNode extends TestExprAggregateNodeAdapter
         SupportExprNodeFactory.validate3Stream(wildcardCount);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(Long.class, validatedNodeToTest.getType());
         assertEquals(Long.class, wildcardCount.getType());
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("count(5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
         assertEquals("count(*)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(wildcardCount));
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest));
         assertFalse(validatedNodeToTest.equalsNode(new ExprSumNode(false)));
         assertTrue(wildcardCount.equalsNode(wildcardCount));
     }
 
-    private ExprCountNode makeNode(Object value, Class type) throws Exception
-    {
+    private ExprCountNode makeNode(Object value, Class type) throws Exception {
         ExprCountNode countNode = new ExprCountNode(false);
         countNode.addChildNode(new SupportExprNode(value, type));
         SupportExprNodeFactory.validate3Stream(countNode);

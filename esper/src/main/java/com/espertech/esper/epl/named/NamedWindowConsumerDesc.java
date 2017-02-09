@@ -16,8 +16,7 @@ import com.espertech.esper.epl.property.PropertyEvaluator;
 
 import java.util.List;
 
-public class NamedWindowConsumerDesc
-{
+public class NamedWindowConsumerDesc {
     private final List<ExprNode> filterList;
     private final PropertyEvaluator optPropertyEvaluator;
     private final AgentInstanceContext agentInstanceContext;

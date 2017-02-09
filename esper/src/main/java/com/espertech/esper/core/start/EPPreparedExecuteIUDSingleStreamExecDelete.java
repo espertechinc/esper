@@ -12,14 +12,13 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.lang.annotation.Annotation;
 
-public class EPPreparedExecuteIUDSingleStreamExecDelete implements EPPreparedExecuteIUDSingleStreamExec
-{
+public class EPPreparedExecuteIUDSingleStreamExecDelete implements EPPreparedExecuteIUDSingleStreamExec {
     private final FilterSpecCompiled filter;
     private final ExprNode optionalWhereClause;
     private final Annotation[] annotations;

@@ -27,18 +27,25 @@ import java.util.Map;
 /**
  * Builds an output limit spec from an output limit AST node.
  */
-public class ASTOutputLimitHelper
-{
-    public static OutputLimitSpec buildOutputLimitSpec(CommonTokenStream tokenStream, EsperEPL2GrammarParser.OutputLimitContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, String engineURI, TimeProvider timeProvider, ExprEvaluatorContext exprEvaluatorContext)
-    {
+public class ASTOutputLimitHelper {
+    public static OutputLimitSpec buildOutputLimitSpec(CommonTokenStream tokenStream, EsperEPL2GrammarParser.OutputLimitContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, String engineURI, TimeProvider timeProvider, ExprEvaluatorContext exprEvaluatorContext) {
         OutputLimitLimitType displayLimit = OutputLimitLimitType.DEFAULT;
         if (ctx.k != null) {
             switch (ctx.k.getType()) {
-                case EsperEPL2GrammarParser.FIRST : displayLimit = OutputLimitLimitType.FIRST; break;
-                case EsperEPL2GrammarParser.LAST  : displayLimit = OutputLimitLimitType.LAST; break;
-                case EsperEPL2GrammarParser.SNAPSHOT : displayLimit = OutputLimitLimitType.SNAPSHOT; break;
-                case EsperEPL2GrammarParser.ALL : displayLimit = OutputLimitLimitType.ALL; break;
-                default: throw ASTWalkException.from("Encountered unrecognized token " + ctx.k.getText(), tokenStream, ctx);
+                case EsperEPL2GrammarParser.FIRST:
+                    displayLimit = OutputLimitLimitType.FIRST;
+                    break;
+                case EsperEPL2GrammarParser.LAST:
+                    displayLimit = OutputLimitLimitType.LAST;
+                    break;
+                case EsperEPL2GrammarParser.SNAPSHOT:
+                    displayLimit = OutputLimitLimitType.SNAPSHOT;
+                    break;
+                case EsperEPL2GrammarParser.ALL:
+                    displayLimit = OutputLimitLimitType.ALL;
+                    break;
+                default:
+                    throw ASTWalkException.from("Encountered unrecognized token " + ctx.k.getText(), tokenStream, ctx);
             }
         }
 
@@ -61,33 +68,27 @@ public class ASTOutputLimitHelper
             if (ctx.onSetExpr() != null) {
                 andAfterTerminateSetExpressions = ASTExprHelper.getOnTriggerSetAssignments(ctx.onSetExpr().onSetAssignmentList(), astExprNodeMap);
             }
-        }
-        else if (ctx.wh != null) {
+        } else if (ctx.wh != null) {
             rateType = OutputLimitRateType.WHEN_EXPRESSION;
             whenExpression = ASTExprHelper.exprCollectSubNodes(ctx.expression(), 0, astExprNodeMap).get(0);
             if (ctx.onSetExpr() != null) {
                 thenExpressions = ASTExprHelper.getOnTriggerSetAssignments(ctx.onSetExpr().onSetAssignmentList(), astExprNodeMap);
             }
-        }
-        else if (ctx.at != null) {
+        } else if (ctx.at != null) {
             rateType = OutputLimitRateType.CRONTAB;
             crontabScheduleSpec = ASTExprHelper.exprCollectSubNodes(ctx.crontabLimitParameterSet(), 0, astExprNodeMap);
-        }
-        else {
+        } else {
             if (ctx.ev != null) {
                 rateType = ctx.e != null ? OutputLimitRateType.EVENTS : OutputLimitRateType.TIME_PERIOD;
                 if (ctx.i != null) {
                     variableName = ctx.i.getText();
-                }
-                else if (ctx.timePeriod() != null){
+                } else if (ctx.timePeriod() != null) {
                     timePeriodExpr = (ExprTimePeriod) ASTExprHelper.exprCollectSubNodes(ctx.timePeriod(), 0, astExprNodeMap).get(0);
-                }
-                else {
+                } else {
                     ASTExprHelper.exprCollectSubNodes(ctx.number(), 0, astExprNodeMap);  // remove
                     rate = Double.parseDouble(ctx.number().getText());
                 }
-            }
-            else {
+            } else {
                 rateType = OutputLimitRateType.AFTER;
             }
         }
@@ -99,8 +100,7 @@ public class ASTOutputLimitHelper
             if (ctx.outputLimitAfter().timePeriod() != null) {
                 ExprNode expression = ASTExprHelper.exprCollectSubNodes(ctx.outputLimitAfter(), 0, astExprNodeMap).get(0);
                 afterTimePeriodExpr = (ExprTimePeriod) expression;
-            }
-            else {
+            } else {
                 Object constant = ASTConstantHelper.parse(ctx.outputLimitAfter().number());
                 afterNumberOfEvents = ((Number) constant).intValue();
             }
@@ -120,19 +120,16 @@ public class ASTOutputLimitHelper
         return new OutputLimitSpec(rate, variableName, rateType, displayLimit, whenExpression, thenExpressions, crontabScheduleSpec, timePeriodExpr, afterTimePeriodExpr, afterNumberOfEvents, andAfterTerminate, andAfterTerminateExpr, andAfterTerminateSetExpressions);
     }
 
-    public static RowLimitSpec buildRowLimitSpec(EsperEPL2GrammarParser.RowLimitContext ctx)
-    {
+    public static RowLimitSpec buildRowLimitSpec(EsperEPL2GrammarParser.RowLimitContext ctx) {
         Object numRows;
         Object offset;
         if (ctx.o != null) {    // format "rows offset offsetcount"
             numRows = parseNumOrVariableIdent(ctx.n1, ctx.i1);
             offset = parseNumOrVariableIdent(ctx.n2, ctx.i2);
-        }
-        else if (ctx.c != null) {   // format "offsetcount, rows"
+        } else if (ctx.c != null) {   // format "offsetcount, rows"
             offset = parseNumOrVariableIdent(ctx.n1, ctx.i1);
             numRows = parseNumOrVariableIdent(ctx.n2, ctx.i2);
-        }
-        else {
+        } else {
             numRows = parseNumOrVariableIdent(ctx.n1, ctx.i1);
             offset = null;
         }
@@ -141,8 +138,7 @@ public class ASTOutputLimitHelper
         String numRowsVariable = null;
         if (numRows instanceof String) {
             numRowsVariable = (String) numRows;
-        }
-        else {
+        } else {
             numRowsInt = (Integer) numRows;
         }
 
@@ -150,20 +146,17 @@ public class ASTOutputLimitHelper
         String offsetVariable = null;
         if (offset instanceof String) {
             offsetVariable = (String) offset;
-        }
-        else {
+        } else {
             offsetInt = (Integer) offset;
         }
 
         return new RowLimitSpec(numRowsInt, offsetInt, numRowsVariable, offsetVariable);
     }
 
-    private static Object parseNumOrVariableIdent(EsperEPL2GrammarParser.NumberconstantContext num, Token ident)
-    {
+    private static Object parseNumOrVariableIdent(EsperEPL2GrammarParser.NumberconstantContext num, Token ident) {
         if (ident != null) {
             return ident.getText();
-        }
-        else {
+        } else {
             return ASTConstantHelper.parse(num);
         }
     }

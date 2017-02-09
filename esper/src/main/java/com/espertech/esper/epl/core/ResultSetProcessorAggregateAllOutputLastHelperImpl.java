@@ -16,8 +16,7 @@ import com.espertech.esper.collection.UniformPair;
 
 import java.util.Set;
 
-public class ResultSetProcessorAggregateAllOutputLastHelperImpl implements ResultSetProcessorAggregateAllOutputLastHelper
-{
+public class ResultSetProcessorAggregateAllOutputLastHelperImpl implements ResultSetProcessorAggregateAllOutputLastHelper {
     private final ResultSetProcessorAggregateAll processor;
 
     private EventBean lastEventIStreamForOutputLast;
@@ -40,15 +39,14 @@ public class ResultSetProcessorAggregateAllOutputLastHelperImpl implements Resul
     public UniformPair<EventBean[]> output() {
         UniformPair<EventBean[]> newOldEvents = null;
         if (lastEventIStreamForOutputLast != null) {
-            EventBean[] istream = new EventBean[] {lastEventIStreamForOutputLast};
+            EventBean[] istream = new EventBean[]{lastEventIStreamForOutputLast};
             newOldEvents = new UniformPair<EventBean[]>(istream, null);
         }
         if (lastEventRStreamForOutputLast != null) {
-            EventBean[] rstream = new EventBean[] {lastEventRStreamForOutputLast};
+            EventBean[] rstream = new EventBean[]{lastEventRStreamForOutputLast};
             if (newOldEvents == null) {
                 newOldEvents = new UniformPair<EventBean[]>(null, rstream);
-            }
-            else {
+            } else {
                 newOldEvents.setSecond(rstream);
             }
         }

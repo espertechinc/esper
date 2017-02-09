@@ -18,19 +18,17 @@ import java.util.TimeZone;
 /**
  * <p>A suite of utilities surrounding the use of the
  * {@link java.util.Calendar} and {@link java.util.Date} object.</p>
- * 
+ * <p>
  * <p>DateUtils contains a lot of common methods considering manipulations
  * of Dates or Calendars. Some methods require some extra explanation.
  * The truncate, ceiling and round methods could be considered the Math.floor(),
  * Math.ceil() or Math.round versions for dates
- * This way date-fields will be ignored in bottom-up order.
+ * This way date-FIELDS will be ignored in bottom-up order.
  * As a complement to these methods we've introduced some fragment-methods.
- * With these methods the Date-fields will be ignored in top-down order.
+ * With these methods the Date-FIELDS will be ignored in top-down order.
  * Since a date without a year is not a valid date, you have to decide in what
  * kind of date-field you want your result, for instance milliseconds or days.
  * </p>
- *   
- *   
  *
  * @author Apache Software Foundation
  * @author <a href="mailto:sergek@lokitech.com">Serge Knystautas</a>
@@ -38,32 +36,36 @@ import java.util.TimeZone;
  * @author <a href="mailto:ggregory@seagullsw.com">Gary Gregory</a>
  * @author Phil Steitz
  * @author Robert Scholte
- * @since 2.0
  * @version $Id: DateUtils.java 1056840 2011-01-09 00:12:23Z niallp $
+ * @since 2.0
  */
 public class ApacheCommonsDateUtils {
-    
+
     /**
      * The UTC time zone  (often referred to as GMT).
      */
     public static final TimeZone UTC_TIME_ZONE = TimeZone.getTimeZone("GMT");
     /**
      * Number of milliseconds in a standard second.
+     *
      * @since 2.1
      */
     public static final long MILLIS_PER_SECOND = 1000;
     /**
      * Number of milliseconds in a standard minute.
+     *
      * @since 2.1
      */
     public static final long MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
     /**
      * Number of milliseconds in a standard hour.
+     *
      * @since 2.1
      */
     public static final long MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE;
     /**
      * Number of milliseconds in a standard day.
+     *
      * @since 2.1
      */
     public static final long MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
@@ -74,7 +76,7 @@ public class ApacheCommonsDateUtils {
      */
     public final static int SEMI_MONTH = 1001;
 
-    private static final int[][] fields = {
+    private static final int[][] FIELDS = {
             {Calendar.MILLISECOND},
             {Calendar.SECOND},
             {Calendar.MINUTE},
@@ -87,7 +89,7 @@ public class ApacheCommonsDateUtils {
             {Calendar.ERA}};
 
     /**
-     * Constant marker for truncating 
+     * Constant marker for truncating
      */
     public final static int MODIFY_TRUNCATE = 0;
 
@@ -99,21 +101,21 @@ public class ApacheCommonsDateUtils {
     /**
      * Constant marker for ceiling
      */
-    public final static int MODIFY_CEILING= 2;
+    public final static int MODIFY_CEILING = 2;
 
     /**
      * <p>Internal calculation method.</p>
-     * 
-     * @param val  the calendar
-     * @param field  the field constant
-     * @param modType  type to truncate, round or ceiling
+     *
+     * @param val     the calendar
+     * @param field   the field constant
+     * @param modType type to truncate, round or ceiling
      * @throws ArithmeticException if the year is over 280 million
      */
     public static void modify(Calendar val, int field, int modType) {
         if (val.get(Calendar.YEAR) > 280000000) {
             throw new ArithmeticException("Calendar value too large for accurate calculations");
         }
-        
+
         if (field == Calendar.MILLISECOND) {
             return;
         }
@@ -160,9 +162,9 @@ public class ApacheCommonsDateUtils {
         // ----------------- Fix for LANG-59 ----------------------- END ----------------
 
         boolean roundUp = false;
-        for (int i = 0; i < fields.length; i++) {
-            for (int j = 0; j < fields[i].length; j++) {
-                if (fields[i][j] == field) {
+        for (int i = 0; i < FIELDS.length; i++) {
+            for (int j = 0; j < FIELDS[i].length; j++) {
+                if (FIELDS[i][j] == field) {
                     //This is our field... we stop looping
                     if (modType == MODIFY_CEILING || (modType == MODIFY_ROUND && roundUp)) {
                         if (field == ApacheCommonsDateUtils.SEMI_MONTH) {
@@ -190,19 +192,19 @@ public class ApacheCommonsDateUtils {
                         } else {
                             //We need at add one to this field since the
                             //  last number causes us to round up
-                            val.add(fields[i][0], 1);
+                            val.add(FIELDS[i][0], 1);
                         }
                     }
                     return;
                 }
             }
-            //We have various fields that are not easy roundings
+            //We have various FIELDS that are not easy roundings
             int offset = 0;
             boolean offsetSet = false;
-            //These are special types of fields that require different rounding rules
+            //These are special types of FIELDS that require different rounding rules
             switch (field) {
                 case ApacheCommonsDateUtils.SEMI_MONTH:
-                    if (fields[i][0] == Calendar.DATE) {
+                    if (FIELDS[i][0] == Calendar.DATE) {
                         //If we're going to drop the DATE field's value,
                         //  we want to do this our own way.
                         //We need to subtrace 1 since the date has a minimum of 1
@@ -218,7 +220,7 @@ public class ApacheCommonsDateUtils {
                     }
                     break;
                 case Calendar.AM_PM:
-                    if (fields[i][0] == Calendar.HOUR_OF_DAY) {
+                    if (FIELDS[i][0] == Calendar.HOUR_OF_DAY) {
                         //If we're going to drop the HOUR field's value,
                         //  we want to do this our own way.
                         offset = val.get(Calendar.HOUR_OF_DAY);
@@ -231,16 +233,16 @@ public class ApacheCommonsDateUtils {
                     break;
             }
             if (!offsetSet) {
-                int min = val.getActualMinimum(fields[i][0]);
-                int max = val.getActualMaximum(fields[i][0]);
+                int min = val.getActualMinimum(FIELDS[i][0]);
+                int max = val.getActualMaximum(FIELDS[i][0]);
                 //Calculate the offset from the minimum allowed value
-                offset = val.get(fields[i][0]) - min;
+                offset = val.get(FIELDS[i][0]) - min;
                 //Set roundUp if this is more than half way between the minimum and maximum
                 roundUp = offset > ((max - min) / 2);
             }
             //We need to remove this field
             if (offset != 0) {
-                val.set(fields[i][0], val.get(fields[i][0]) - offset);
+                val.set(FIELDS[i][0], val.get(FIELDS[i][0]) - offset);
             }
         }
         throw new IllegalArgumentException("The field " + field + " is not supported");

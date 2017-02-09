@@ -40,21 +40,20 @@ import org.slf4j.Logger;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class FireAndForgetQueryExec
-{
+public class FireAndForgetQueryExec {
     public static Collection<EventBean> snapshot(
-                                          FilterSpecCompiled optionalFilter,
-                                          Annotation[] annotations,
-                                          VirtualDWView virtualDataWindow,
-                                          EventTableIndexRepository indexRepository,
-                                          boolean queryPlanLogging,
-                                          Logger queryPlanLogDestination,
-                                          String objectName,
-                                          AgentInstanceContext agentInstanceContext) {
+            FilterSpecCompiled optionalFilter,
+            Annotation[] annotations,
+            VirtualDWView virtualDataWindow,
+            EventTableIndexRepository indexRepository,
+            boolean queryPlanLogging,
+            Logger queryPlanLogDestination,
+            String objectName,
+            AgentInstanceContext agentInstanceContext) {
 
         if (optionalFilter == null || optionalFilter.getParameters().length == 0) {
             if (virtualDataWindow != null) {
-                Pair<IndexMultiKey,EventTable> pair = virtualDataWindow.getFireAndForgetDesc(Collections.<String>emptySet(), Collections.<String>emptySet());
+                Pair<IndexMultiKey, EventTable> pair = virtualDataWindow.getFireAndForgetDesc(Collections.<String>emptySet(), Collections.<String>emptySet());
                 return virtualDataWindow.getFireAndForgetData(pair.getSecond(), new Object[0], new RangeIndexLookupValue[0], annotations);
             }
             return null;
@@ -75,13 +74,11 @@ public class FireAndForgetQueryExec
                         param.getFilterOperator() == FilterOperator.IS ||
                         param.getFilterOperator() == FilterOperator.IN_LIST_OF_VALUES) {
                     keysAvailable.add(param.getLookupable().getExpression());
-                }
-                else if (param.getFilterOperator().isRangeOperator() ||
+                } else if (param.getFilterOperator().isRangeOperator() ||
                         param.getFilterOperator().isInvertedRangeOperator() ||
                         param.getFilterOperator().isComparisonOperator()) {
                     rangesAvailable.add(param.getLookupable().getExpression());
-                }
-                else if (param.getFilterOperator().isRangeOperator()) {
+                } else if (param.getFilterOperator().isRangeOperator()) {
                     rangesAvailable.add(param.getLookupable().getExpression());
                 }
             }
@@ -92,8 +89,7 @@ public class FireAndForgetQueryExec
         if (virtualDataWindow != null) {
             Pair<IndexMultiKey, EventTable> tablePairNoName = virtualDataWindow.getFireAndForgetDesc(keysAvailable, rangesAvailable);
             tablePair = new Pair<IndexMultiKey, EventTableAndNamePair>(tablePairNoName.getFirst(), new EventTableAndNamePair(tablePairNoName.getSecond(), null));
-        }
-        else {
+        } else {
             IndexHint indexHint = IndexHint.getIndexHint(annotations);
             List<IndexHintInstruction> optionalIndexHintInstructions = null;
             if (indexHint != null) {
@@ -110,17 +106,16 @@ public class FireAndForgetQueryExec
             indexText += "(snapshot only, for join see separate query plan)";
             if (tablePair == null) {
                 queryPlanLogDestination.info(prefix + indexText);
-            }
-            else {
+            } else {
                 queryPlanLogDestination.info(prefix + indexText + tablePair.getSecond().getEventTable().toQueryPlan());
             }
 
             if (hook != null) {
                 hook.fireAndForget(new QueryPlanIndexDescFAF(
-                        new IndexNameAndDescPair[] {
-                                new IndexNameAndDescPair(indexName, tablePair != null ?
-                                        tablePair.getSecond().getEventTable().getProviderClass().getSimpleName() : null)
-                        }));
+                    new IndexNameAndDescPair[]{
+                        new IndexNameAndDescPair(indexName, tablePair != null ?
+                                tablePair.getSecond().getEventTable().getProviderClass().getSimpleName() : null)
+                    }));
             }
         }
 
@@ -139,16 +134,13 @@ public class FireAndForgetQueryExec
                         Object[] keyValuesList = ((MultiKeyUntyped) param.getFilterValue(null, agentInstanceContext)).getKeys();
                         if (keyValuesList.length == 0) {
                             continue;
-                        }
-                        else if (keyValuesList.length == 1) {
+                        } else if (keyValuesList.length == 1) {
                             keyValues[keyIndex] = keyValuesList[0];
-                        }
-                        else {
+                        } else {
                             keyValues[keyIndex] = keyValuesList;
                             hasKeyWithInClause = true;
                         }
-                    }
-                    else {
+                    } else {
                         keyValues[keyIndex] = param.getFilterValue(null, agentInstanceContext);
                     }
                     break;
@@ -161,8 +153,7 @@ public class FireAndForgetQueryExec
         RangeIndexLookupValue[] rangeValues;
         if (rangeIndexProps.length > 0) {
             rangeValues = compileRangeLookupValues(rangeIndexProps, optionalFilter.getParameters()[0], agentInstanceContext);
-        }
-        else {
+        } else {
             rangeValues = new RangeIndexLookupValue[0];
         }
 
@@ -179,16 +170,15 @@ public class FireAndForgetQueryExec
         for (int i = 0; i < keyValues.length; i++) {
             if (keyValues[i] instanceof Object[]) {
                 combinations[i] = (Object[]) keyValues[i];
-            }
-            else {
-                combinations[i] = new Object[] {keyValues[i]};
+            } else {
+                combinations[i] = new Object[]{keyValues[i]};
             }
         }
 
         // enumerate combinations
         CombinationEnumeration enumeration = new CombinationEnumeration(combinations);
         HashSet<EventBean> events = new HashSet<EventBean>();
-        for (;enumeration.hasMoreElements();) {
+        for (; enumeration.hasMoreElements(); ) {
             Object[] keys = enumeration.nextElement();
             Collection<EventBean> result = fafTableLookup(virtualDataWindow, indexMultiKey, eventTable, keys, rangeValues, annotations);
             events.addAll(result);
@@ -206,17 +196,14 @@ public class FireAndForgetQueryExec
             if (indexMultiKey.getHashIndexedProps().length == 1) {
                 PropertyIndexedEventTableSingle table = (PropertyIndexedEventTableSingle) eventTable;
                 result = table.lookup(keyValues[0]);
-            }
-            else {
+            } else {
                 PropertyIndexedEventTable table = (PropertyIndexedEventTable) eventTable;
                 result = table.lookup(keyValues);
             }
-        }
-        else if (indexMultiKey.getHashIndexedProps().length == 0 && indexMultiKey.getRangeIndexedProps().length == 1) {
+        } else if (indexMultiKey.getHashIndexedProps().length == 0 && indexMultiKey.getRangeIndexedProps().length == 1) {
             PropertySortedEventTable table = (PropertySortedEventTable) eventTable;
             result = table.lookupConstants(rangeValues[0]);
-        }
-        else {
+        } else {
             PropertyCompositeEventTable table = (PropertyCompositeEventTable) eventTable;
             Class[] rangeCoercion = table.getOptRangeCoercedTypes();
             CompositeIndexLookup lookup = CompositeIndexLookupFactory.make(keyValues, rangeValues, rangeCoercion);
@@ -240,19 +227,16 @@ public class FireAndForgetQueryExec
 
                 if (param.getFilterOperator() == FilterOperator.EQUAL || param.getFilterOperator() == FilterOperator.IS) {
                     result[rangeIndex] = new RangeIndexLookupValueEquals(param.getFilterValue(null, agentInstanceContext));
-                }
-                else if (param.getFilterOperator().isRangeOperator() || param.getFilterOperator().isInvertedRangeOperator()) {
+                } else if (param.getFilterOperator().isRangeOperator() || param.getFilterOperator().isInvertedRangeOperator()) {
                     QueryGraphRangeEnum opAdd = QueryGraphRangeEnum.mapFrom(param.getFilterOperator());
                     result[rangeIndex] = new RangeIndexLookupValueRange(param.getFilterValue(null, agentInstanceContext), opAdd, true);
-                }
-                else if (param.getFilterOperator().isComparisonOperator()) {
+                } else if (param.getFilterOperator().isComparisonOperator()) {
 
                     RangeIndexLookupValue existing = result[rangeIndex];
                     QueryGraphRangeEnum opAdd = QueryGraphRangeEnum.mapFrom(param.getFilterOperator());
                     if (existing == null) {
                         result[rangeIndex] = new RangeIndexLookupValueRange(param.getFilterValue(null, agentInstanceContext), opAdd, true);
-                    }
-                    else {
+                    } else {
                         if (!(existing instanceof RangeIndexLookupValueRange)) {
                             continue;
                         }
@@ -278,8 +262,7 @@ public class FireAndForgetQueryExec
         double endDbl = ((Number) end).doubleValue();
         if (reverse) {
             return new DoubleRange(startDbl, endDbl);
-        }
-        else {
+        } else {
             return new DoubleRange(endDbl, startDbl);
         }
     }

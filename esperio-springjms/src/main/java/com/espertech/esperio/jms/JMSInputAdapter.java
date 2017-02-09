@@ -10,21 +10,21 @@
  */
 package com.espertech.esperio.jms;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.adapter.AdapterSPI;
+import com.espertech.esper.adapter.AdapterState;
+import com.espertech.esper.adapter.AdapterStateManager;
+import com.espertech.esper.adapter.InputAdapter;
+import com.espertech.esper.client.EPException;
+import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.adapter.AdapterState;
-import com.espertech.esper.adapter.AdapterSPI;
-import com.espertech.esper.adapter.InputAdapter;
-import com.espertech.esper.adapter.AdapterStateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created for ESPER.
  */
-public abstract class JMSInputAdapter implements InputAdapter, AdapterSPI
-{
+public abstract class JMSInputAdapter implements InputAdapter, AdapterSPI {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -49,99 +49,82 @@ public abstract class JMSInputAdapter implements InputAdapter, AdapterSPI
 
     /**
      * Returns the unmarshaller.
+     *
      * @return unmarshaller
      */
-    public JMSMessageUnmarshaller getJmsMessageUnmarshaller()
-    {
+    public JMSMessageUnmarshaller getJmsMessageUnmarshaller() {
         return jmsMessageUnmarshaller;
     }
 
     /**
      * Sets the unmarshaller to use.
+     *
      * @param jmsMessageUnmarshaller is the unmarshaller to use
      */
     public void setJmsMessageUnmarshaller(
-            JMSMessageUnmarshaller jmsMessageUnmarshaller)
-    {
+            JMSMessageUnmarshaller jmsMessageUnmarshaller) {
         this.jmsMessageUnmarshaller = jmsMessageUnmarshaller;
     }
 
-    public EPServiceProvider getEPServiceProvider()
-    {
+    public EPServiceProvider getEPServiceProvider() {
         return epServiceProviderSPI;
     }
 
-    public void setEPServiceProvider(EPServiceProvider epService)
-    {
-        if (epService == null)
-        {
+    public void setEPServiceProvider(EPServiceProvider epService) {
+        if (epService == null) {
             throw new IllegalArgumentException("Null service provider");
         }
-        if (!(epService instanceof EPServiceProviderSPI))
-        {
+        if (!(epService instanceof EPServiceProviderSPI)) {
             throw new IllegalArgumentException("Cannot downcast service provider to SPI");
         }
         epServiceProviderSPI = (EPServiceProviderSPI) epService;
     }
 
-    public void start() throws EPException
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void start() throws EPException {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".start");
         }
-        if (epServiceProviderSPI.getEPRuntime() == null)
-        {
+        if (epServiceProviderSPI.getEPRuntime() == null) {
             throw new EPException(
                     "Attempting to start an Adapter that hasn't had the epService provided");
         }
 
         startTime = System.currentTimeMillis();
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".start startTime==" + startTime);
         }
         stateManager.start();
     }
 
-    public void pause() throws EPException
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void pause() throws EPException {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".pause");
         }
         stateManager.pause();
     }
 
-    public void resume() throws EPException
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void resume() throws EPException {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".resume");
         }
         stateManager.resume();
     }
 
-    public void stop() throws EPException
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void stop() throws EPException {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".stop");
         }
         stateManager.stop();
     }
 
-    public void destroy() throws EPException
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void destroy() throws EPException {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".destroy");
         }
         stateManager.destroy();
     }
 
-    public AdapterState getState()
-    {
+    public AdapterState getState() {
         return stateManager.getState();
     }
 }

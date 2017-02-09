@@ -12,8 +12,7 @@ package com.espertech.esper.epl.view;
 
 import java.util.LinkedHashMap;
 
-public class OutputConditionExpressionTypeUtil
-{
+public class OutputConditionExpressionTypeUtil {
     public final static LinkedHashMap<String, Object> TYPEINFO;
 
     static {

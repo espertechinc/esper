@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.core.context.util;
 
-import com.espertech.esper.core.service.*;
+import com.espertech.esper.core.service.EPStatementDispatch;
+import com.espertech.esper.core.service.EPStatementHandle;
+import com.espertech.esper.core.service.StatementAgentInstanceFilterVersion;
+import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandler;
 import com.espertech.esper.filter.FilterFaultHandler;
 import com.espertech.esper.filter.FilterFaultHandlerFactory;
@@ -79,6 +82,7 @@ public class EPStatementAgentInstanceHandle {
 
     /**
      * Tests filter version.
+     *
      * @param filterVersion to test
      * @return indicator whether version is up-to-date
      */
@@ -86,8 +90,7 @@ public class EPStatementAgentInstanceHandle {
         return statementFilterVersion.isCurrentFilter(filterVersion);
     }
 
-    public boolean equals(Object otherObj)
-    {
+    public boolean equals(Object otherObj) {
         if (this == otherObj) {
             return true;
         }
@@ -100,8 +103,7 @@ public class EPStatementAgentInstanceHandle {
         return other.getStatementHandle().getStatementId() == this.getStatementHandle().getStatementId() && other.agentInstanceId == this.agentInstanceId;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return hashCode;
     }
 
@@ -109,10 +111,10 @@ public class EPStatementAgentInstanceHandle {
      * Provides a callback for use when statement processing for filters and schedules is done,
      * for use by join statements that require an explicit indicator that all
      * joined streams results have been processed.
+     *
      * @param optionalDispatchable is the instance for calling onto after statement callback processing
      */
-    public void setOptionalDispatchable(EPStatementDispatch optionalDispatchable)
-    {
+    public void setOptionalDispatchable(EPStatementDispatch optionalDispatchable) {
         this.optionalDispatchable = optionalDispatchable;
     }
 
@@ -124,8 +126,7 @@ public class EPStatementAgentInstanceHandle {
      * Invoked by {@link com.espertech.esper.client.EPRuntime} to indicate that a statements's
      * filer and schedule processing is done, and now it's time to process join results.
      */
-    public void internalDispatch()
-    {
+    public void internalDispatch() {
         if (optionalDispatchable != null) {
             optionalDispatchable.execute();
         }

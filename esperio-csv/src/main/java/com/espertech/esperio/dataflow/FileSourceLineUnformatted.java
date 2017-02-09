@@ -69,14 +69,13 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             throw new IllegalArgumentException("No event type provided for output, please provide an event type name");
         }
         if ((outputEventType.getPropertyNames().length != 1 || outputEventType.getPropertyDescriptors()[0].getPropertyType() != String.class) &&
-            propertyNameLine == null) {
+                propertyNameLine == null) {
             throw new IllegalArgumentException("Expecting an output event type that has a single property that is of type string, or alternatively specify the 'propertyNameLine' parameter");
         }
 
         if (outputEventType instanceof ObjectArrayEventType && outputEventType.getPropertyDescriptors().length == 1) {
             lineProcessor = new LineProcessorObjectArray();
-        }
-        else {
+        } else {
             String propertyNameLineToUse = propertyNameLine;
             if (propertyNameLineToUse == null) {
                 propertyNameLineToUse = outputEventType.getPropertyDescriptors()[0].getPropertyName();
@@ -88,8 +87,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             Class propertyType;
             try {
                 propertyType = outputEventType.getPropertyType(propertyNameLineToUse);
-            }
-            catch (PropertyAccessException ex) {
+            } catch (PropertyAccessException ex) {
                 throw new EPException("Invalid property name '" + propertyNameLineToUse + "': " + ex.getMessage(), ex);
             }
             if (propertyType != String.class) {
@@ -117,8 +115,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             try {
                 WriteablePropertyDescriptor[] writables = writeableList.toArray(new WriteablePropertyDescriptor[writeableList.size()]);
                 manufacturer = context.getStatementContext().getEventAdapterService().getManufacturer(outputEventType, writables, context.getStatementContext().getEngineImportService(), false);
-            }
-            catch (EventBeanManufactureException e) {
+            } catch (EventBeanManufactureException e) {
                 throw new EPException("Event type '" + outputEventType.getName() + "' cannot be written to: " + e.getMessage(), e);
             }
 
@@ -127,12 +124,10 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
 
         if (context.getOutputPorts().size() == 2) {
             eofProcessor = getBeginEndProcessor(context, 1);
-        }
-        else if (context.getOutputPorts().size() == 3) {
+        } else if (context.getOutputPorts().size() == 3) {
             bofProcessor = getBeginEndProcessor(context, 1);
             eofProcessor = getBeginEndProcessor(context, 2);
-        }
-        else if (context.getOutputPorts().size() > 3) {
+        } else if (context.getOutputPorts().size() > 3) {
             throw new EPException("Operator only allows up to 3 output ports");
         }
 
@@ -143,8 +138,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
         if (inputSource.getAsReader() != null) {
             reader = inputSource.getAsReader();
             brd = new BufferedReader(reader);
-        }
-        else {
+        } else {
             inputStream = inputSource.getAsStream();
             bis = new BufferedInputStream(inputStream);
             brd = new BufferedReader(new InputStreamReader(bis));
@@ -166,8 +160,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             if (inputSource != null) {
                 inputSource.close();
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             log.error("Failed to close file: " + ex.getMessage(), ex);
         }
     }
@@ -182,8 +175,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
         String line;
         try {
             line = brd.readLine();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new EPException("Failed to read line: " + e.getMessage(), e);
         }
 
@@ -193,12 +185,10 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
             }
             if (eofProcessor != null) {
                 graphContext.submitPort(0, lineProcessor.process(line, filenameOrUri));
-            }
-            else {
+            } else {
                 graphContext.submit(lineProcessor.process(line, filenameOrUri));
             }
-        }
-        else {
+        } else {
             if (log.isDebugEnabled()) {
                 log.debug("Submitting punctuation");
             }
@@ -225,8 +215,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
         }
         try {
             manufacturer = context.getStatementContext().getEventAdapterService().getManufacturer(portEventType, writeableList.toArray(new WriteablePropertyDescriptor[writeableList.size()]), context.getStatementContext().getEngineImportService(), false);
-        }
-        catch (EventBeanManufactureException e) {
+        } catch (EventBeanManufactureException e) {
             throw new EPException("Event type '" + portEventType.getName() + "' cannot be written to: " + e.getMessage(), e);
         }
         return new FileBeginEndProcessorGeneralPurpose(manufacturer);
@@ -238,7 +227,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
 
     private static class LineProcessorObjectArray implements LineProcessor {
         public Object process(String line, String filename) {
-            return new Object[] {line};
+            return new Object[]{line};
         }
     }
 
@@ -250,7 +239,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
         }
 
         public Object process(String line, String filename) {
-            return manufacturer.makeUnderlying(new Object[] {line, filename});
+            return manufacturer.makeUnderlying(new Object[]{line, filename});
         }
     }
 
@@ -266,7 +255,7 @@ public class FileSourceLineUnformatted implements DataFlowSourceOperator {
         }
 
         public Object processXOF(String filename) {
-            return manufacturer.makeUnderlying(new Object[] {filename});
+            return manufacturer.makeUnderlying(new Object[]{filename});
         }
     }
 }

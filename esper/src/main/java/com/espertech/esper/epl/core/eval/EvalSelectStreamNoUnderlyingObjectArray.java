@@ -29,29 +29,24 @@ public class EvalSelectStreamNoUnderlyingObjectArray extends EvalSelectStreamBas
         return super.getSelectExprContext().getEventAdapterService().adapterForTypedObjectArray(props, super.getResultEventType());
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         // Evaluate all expressions and build a map of name-value pairs
         int size = (isUsingWildcard && eventsPerStream.length > 1) ? eventsPerStream.length : 0;
         size += selectExprContext.getExpressionNodes().length + namedStreams.size();
         Object[] props = new Object[size];
         int count = 0;
-        for (ExprEvaluator expressionNode : selectExprContext.getExpressionNodes())
-        {
+        for (ExprEvaluator expressionNode : selectExprContext.getExpressionNodes()) {
             Object evalResult = expressionNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             props[count] = evalResult;
             count++;
         }
-        for (SelectClauseStreamCompiledSpec element : namedStreams)
-        {
+        for (SelectClauseStreamCompiledSpec element : namedStreams) {
             EventBean theEvent = eventsPerStream[element.getStreamNumber()];
             props[count] = theEvent;
             count++;
         }
-        if (isUsingWildcard && eventsPerStream.length > 1)
-        {
-            for (EventBean anEventsPerStream : eventsPerStream)
-            {
+        if (isUsingWildcard && eventsPerStream.length > 1) {
+            for (EventBean anEventsPerStream : eventsPerStream) {
                 props[count] = anEventsPerStream;
                 count++;
             }

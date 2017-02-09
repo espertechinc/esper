@@ -55,8 +55,7 @@ import java.net.URI;
 /**
  * Contains handles to the implementation of the the scheduling service for use in view evaluation.
  */
-public final class StatementContext
-{
+public final class StatementContext {
     private final StatementContextEngineServices stmtEngineServices;
     private SchedulingService schedulingService;
     private final ScheduleBucket scheduleBucket;
@@ -93,32 +92,31 @@ public final class StatementContext
     private FilterFaultHandlerFactory filterFaultHandlerFactory;
 
     public StatementContext(StatementContextEngineServices stmtEngineServices,
-                              SchedulingService schedulingService,
-                              ScheduleBucket scheduleBucket,
-                              EPStatementHandle epStatementHandle,
-                              ViewResolutionService viewResultionService,
-                              PatternObjectResolutionService patternResolutionService,
-                              StatementExtensionSvcContext statementExtensionSvcContext,
-                              StatementStopService statementStopService,
-                              PatternContextFactory patternContextFactory,
-                              FilterService filterService,
-                              StatementResultService statementResultService,
-                              InternalEventRouteDest internalEventEngineRouteDest,
-                              Annotation[] annotations,
-                              StatementAIResourceRegistry statementAgentInstanceRegistry,
-                              StatementAgentInstanceLock defaultAgentInstanceLock,
-                              ContextDescriptor contextDescriptor,
-                              PatternSubexpressionPoolStmtSvc patternSubexpressionPoolSvc,
-                              MatchRecognizeStatePoolStmtSvc matchRecognizeStatePoolStmtSvc,
-                              boolean statelessSelect,
-                              ContextControllerFactoryService contextControllerFactoryService,
-                              AgentInstanceScriptContext defaultAgentInstanceScriptContext,
-                              AggregationServiceFactoryService aggregationServiceFactoryService,
-                              boolean writesToTables,
-                              Object statementUserObject,
-                              StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry,
-                              int priority)
-    {
+                            SchedulingService schedulingService,
+                            ScheduleBucket scheduleBucket,
+                            EPStatementHandle epStatementHandle,
+                            ViewResolutionService viewResultionService,
+                            PatternObjectResolutionService patternResolutionService,
+                            StatementExtensionSvcContext statementExtensionSvcContext,
+                            StatementStopService statementStopService,
+                            PatternContextFactory patternContextFactory,
+                            FilterService filterService,
+                            StatementResultService statementResultService,
+                            InternalEventRouteDest internalEventEngineRouteDest,
+                            Annotation[] annotations,
+                            StatementAIResourceRegistry statementAgentInstanceRegistry,
+                            StatementAgentInstanceLock defaultAgentInstanceLock,
+                            ContextDescriptor contextDescriptor,
+                            PatternSubexpressionPoolStmtSvc patternSubexpressionPoolSvc,
+                            MatchRecognizeStatePoolStmtSvc matchRecognizeStatePoolStmtSvc,
+                            boolean statelessSelect,
+                            ContextControllerFactoryService contextControllerFactoryService,
+                            AgentInstanceScriptContext defaultAgentInstanceScriptContext,
+                            AggregationServiceFactoryService aggregationServiceFactoryService,
+                            boolean writesToTables,
+                            Object statementUserObject,
+                            StatementSemiAnonymousTypeRegistry statementSemiAnonymousTypeRegistry,
+                            int priority) {
         this.stmtEngineServices = stmtEngineServices;
         this.schedulingService = schedulingService;
         this.scheduleBucket = scheduleBucket;
@@ -148,248 +146,248 @@ public final class StatementContext
         this.priority = priority;
     }
 
-    public StatementType getStatementType()
-    {
+    public StatementType getStatementType() {
         return epStatementHandle.getStatementType();
     }
 
 
     /**
      * Returns the statement id.
+     *
      * @return statement id
      */
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return epStatementHandle.getStatementId();
     }
 
     /**
      * Returns the statement name
+     *
      * @return statement name
      */
-    public String getStatementName()
-    {
+    public String getStatementName() {
         return epStatementHandle.getStatementName();
     }
 
     /**
      * Returns service to use for schedule evaluation.
+     *
      * @return schedule evaluation service implemetation
      */
-    public final SchedulingService getSchedulingService()
-    {
+    public final SchedulingService getSchedulingService() {
         return schedulingService;
     }
 
     /**
      * Returns service for generating events and handling event types.
+     *
      * @return event adapter service
      */
-    public EventAdapterService getEventAdapterService()
-    {
+    public EventAdapterService getEventAdapterService() {
         return stmtEngineServices.getEventAdapterService();
     }
 
     /**
      * Returns the schedule bucket for ordering schedule callbacks within this pattern.
+     *
      * @return schedule bucket
      */
-    public ScheduleBucket getScheduleBucket()
-    {
+    public ScheduleBucket getScheduleBucket() {
         return scheduleBucket;
     }
 
     /**
      * Returns the statement's resource locks.
+     *
      * @return statement resource lock/handle
      */
-    public EPStatementHandle getEpStatementHandle()
-    {
+    public EPStatementHandle getEpStatementHandle() {
         return epStatementHandle;
     }
 
     /**
      * Returns view resolution svc.
+     *
      * @return view resolution
      */
-    public ViewResolutionService getViewResolutionService()
-    {
+    public ViewResolutionService getViewResolutionService() {
         return viewResolutionService;
     }
 
     /**
      * Returns extension context for statements.
+     *
      * @return context
      */
-    public StatementExtensionSvcContext getStatementExtensionServicesContext()
-    {
+    public StatementExtensionSvcContext getStatementExtensionServicesContext() {
         return statementExtensionSvcContext;
     }
 
     /**
      * Returns statement stop subscription taker.
+     *
      * @return stop service
      */
-    public StatementStopService getStatementStopService()
-    {
+    public StatementStopService getStatementStopService() {
         return statementStopService;
     }
 
     /**
      * Returns the pattern context factory for the statement.
+     *
      * @return pattern context factory
      */
-    public PatternContextFactory getPatternContextFactory()
-    {
+    public PatternContextFactory getPatternContextFactory() {
         return patternContextFactory;
     }
 
     /**
      * Returns the statement expression text
+     *
      * @return expression text
      */
-    public String getExpression()
-    {
+    public String getExpression() {
         return epStatementHandle.getEPL();
     }
 
     /**
      * Returns the engine URI.
+     *
      * @return engine URI
      */
-    public String getEngineURI()
-    {
+    public String getEngineURI() {
         return stmtEngineServices.getEngineURI();
     }
 
     /**
      * Returns the filter service.
+     *
      * @return filter service
      */
-    public FilterService getFilterService()
-    {
+    public FilterService getFilterService() {
         return filterService;
     }
 
     /**
      * Returns the statement's resolution service for pattern objects.
+     *
      * @return service for resolving pattern objects
      */
-    public PatternObjectResolutionService getPatternResolutionService()
-    {
+    public PatternObjectResolutionService getPatternResolutionService() {
         return patternResolutionService;
     }
 
     /**
      * Returns the named window management service.
+     *
      * @return service for managing named windows
      */
-    public NamedWindowMgmtService getNamedWindowMgmtService()
-    {
+    public NamedWindowMgmtService getNamedWindowMgmtService() {
         return stmtEngineServices.getNamedWindowMgmtService();
     }
 
     /**
      * Returns variable service.
+     *
      * @return variable service
      */
-    public VariableService getVariableService()
-    {
+    public VariableService getVariableService() {
         return stmtEngineServices.getVariableService();
     }
 
     /**
      * Returns table service.
+     *
      * @return table service
      */
-    public TableService getTableService()
-    {
+    public TableService getTableService() {
         return stmtEngineServices.getTableService();
     }
 
     /**
      * Returns the service that handles awareness of listeners/subscriptions for a statement customizing output produced
+     *
      * @return statement result svc
      */
-    public StatementResultService getStatementResultService()
-    {
+    public StatementResultService getStatementResultService() {
         return statementResultService;
     }
 
     /**
      * Returns the URIs for resolving the event name against plug-inn event representations, if any
+     *
      * @return URIs
      */
-    public URI[] getPlugInTypeResolutionURIs()
-    {
+    public URI[] getPlugInTypeResolutionURIs() {
         return stmtEngineServices.getPlugInTypeResolutionURIs();
     }
 
     /**
      * Returns the update event service.
+     *
      * @return revision service
      */
-    public ValueAddEventService getValueAddEventService()
-    {
+    public ValueAddEventService getValueAddEventService() {
         return stmtEngineServices.getValueAddEventService();
     }
 
     /**
      * Returns the configuration.
+     *
      * @return configuration
      */
-    public ConfigurationInformation getConfigSnapshot()
-    {
+    public ConfigurationInformation getConfigSnapshot() {
         return stmtEngineServices.getConfigSnapshot();
     }
 
     /**
      * Sets the scheduling service
+     *
      * @param schedulingService service
      */
-    public void setSchedulingService(SchedulingService schedulingService)
-    {
+    public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
     }
 
     /**
      * Sets the filter service
+     *
      * @param filterService filter service
      */
-    public void setFilterService(FilterService filterService)
-    {
+    public void setFilterService(FilterService filterService) {
         this.filterService = filterService;
     }
 
     /**
      * Returns the internal event router.
+     *
      * @return router
      */
-    public InternalEventRouteDest getInternalEventEngineRouteDest()
-    {
+    public InternalEventRouteDest getInternalEventEngineRouteDest() {
         return internalEventEngineRouteDest;
     }
 
     /**
      * Sets the internal event router.
+     *
      * @param internalEventEngineRouteDest router
      */
-    public void setInternalEventEngineRouteDest(InternalEventRouteDest internalEventEngineRouteDest)
-    {
+    public void setInternalEventEngineRouteDest(InternalEventRouteDest internalEventEngineRouteDest) {
         this.internalEventEngineRouteDest = internalEventEngineRouteDest;
     }
 
     /**
      * Return the service for adjusting schedules.
+     *
      * @return service for adjusting schedules, or null if not applicable
      */
-    public ScheduleAdjustmentService getScheduleAdjustmentService()
-    {
+    public ScheduleAdjustmentService getScheduleAdjustmentService() {
         return scheduleAdjustmentService;
     }
 
     /**
      * Returns metrics svc.
+     *
      * @return metrics
      */
     public MetricReportingServiceSPI getMetricReportingService() {
@@ -398,15 +396,16 @@ public final class StatementContext
 
     /**
      * Returns the time provider.
+     *
      * @return time provider
      */
-    public TimeProvider getTimeProvider()
-    {
+    public TimeProvider getTimeProvider() {
         return schedulingService;
     }
 
     /**
      * Returns view svc.
+     *
      * @return svc
      */
     public ViewService getViewService() {
@@ -425,8 +424,7 @@ public final class StatementContext
         return stmtEngineServices.getContextManagementService();
     }
 
-    public Annotation[] getAnnotations()
-    {
+    public Annotation[] getAnnotations() {
         return annotations;
     }
 
@@ -434,9 +432,8 @@ public final class StatementContext
         return stmtEngineServices.getExpressionResultCacheService();
     }
 
-    public String toString()
-    {
-        return  " stmtId=" + epStatementHandle.getStatementId() +
+    public String toString() {
+        return " stmtId=" + epStatementHandle.getStatementId() +
                 " stmtName=" + epStatementHandle.getStatementName();
     }
 
@@ -552,8 +549,7 @@ public final class StatementContext
         return statementSemiAnonymousTypeRegistry;
     }
 
-    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory()
-    {
+    public FilterBooleanExpressionFactory getFilterBooleanExpressionFactory() {
         return stmtEngineServices.getFilterBooleanExpressionFactory();
     }
 
@@ -581,5 +577,7 @@ public final class StatementContext
         return stmtEngineServices.getEngineImportService();
     }
 
-    public TimeAbacus getTimeAbacus() { return stmtEngineServices.getEngineImportService().getTimeAbacus(); }
+    public TimeAbacus getTimeAbacus() {
+        return stmtEngineServices.getEngineImportService().getTimeAbacus();
+    }
 }

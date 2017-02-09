@@ -13,8 +13,7 @@ package com.espertech.esper.epl.expression.visitor;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 
-public class ExprNodeTableAccessFinderVisitor implements ExprNodeVisitor
-{
+public class ExprNodeTableAccessFinderVisitor implements ExprNodeVisitor {
     private boolean hasTableAccess;
 
     public ExprNodeTableAccessFinderVisitor() {

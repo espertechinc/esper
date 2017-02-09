@@ -20,8 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupAllLocalGroupBy extends AggSvcGroupLocalGroupByBase
-{
+public class AggSvcGroupAllLocalGroupBy extends AggSvcGroupLocalGroupByBase {
     public AggSvcGroupAllLocalGroupBy(boolean isJoin, AggregationLocalGroupByPlan localGroupByPlan) {
         super(isJoin, localGroupByPlan);
     }
@@ -30,12 +29,10 @@ public class AggSvcGroupAllLocalGroupBy extends AggSvcGroupLocalGroupByBase
         return AggSvcGroupLocalGroupByBase.computeGroupKey(partitionEval, eventsPerStream, newData, exprEvaluatorContext);
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         AggregationLocalGroupByColumn col = localGroupByPlan.getColumns()[column];
 
         if (col.getPartitionEvaluators().length == 0) {

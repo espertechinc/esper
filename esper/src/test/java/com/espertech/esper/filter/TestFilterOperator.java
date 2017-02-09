@@ -12,10 +12,8 @@ package com.espertech.esper.filter;
 
 import junit.framework.TestCase;
 
-public class TestFilterOperator extends TestCase
-{
-    public void testRanges()
-    {
+public class TestFilterOperator extends TestCase {
+    public void testRanges() {
         assertTrue(FilterOperator.parseRangeOperator(false, false, false) == FilterOperator.RANGE_OPEN);
         assertTrue(FilterOperator.parseRangeOperator(true, true, false) == FilterOperator.RANGE_CLOSED);
         assertTrue(FilterOperator.parseRangeOperator(true, false, false) == FilterOperator.RANGE_HALF_OPEN);
@@ -26,8 +24,7 @@ public class TestFilterOperator extends TestCase
         assertTrue(FilterOperator.parseRangeOperator(false, true, true) == FilterOperator.NOT_RANGE_HALF_CLOSED);
     }
 
-    public void testIsComparison()
-    {
+    public void testIsComparison() {
         assertTrue(FilterOperator.GREATER.isComparisonOperator());
         assertTrue(FilterOperator.GREATER_OR_EQUAL.isComparisonOperator());
         assertTrue(FilterOperator.LESS.isComparisonOperator());
@@ -37,8 +34,7 @@ public class TestFilterOperator extends TestCase
         assertFalse(FilterOperator.NOT_EQUAL.isComparisonOperator());
     }
 
-    public void testIsRange()
-    {
+    public void testIsRange() {
         assertTrue(FilterOperator.RANGE_OPEN.isRangeOperator());
         assertTrue(FilterOperator.RANGE_CLOSED.isRangeOperator());
         assertTrue(FilterOperator.RANGE_HALF_OPEN.isRangeOperator());
@@ -51,9 +47,8 @@ public class TestFilterOperator extends TestCase
         assertFalse(FilterOperator.EQUAL.isRangeOperator());
         assertFalse(FilterOperator.NOT_EQUAL.isRangeOperator());
     }
-    
-    public void testIsInvertedRange()
-    {
+
+    public void testIsInvertedRange() {
         assertFalse(FilterOperator.RANGE_OPEN.isInvertedRangeOperator());
         assertFalse(FilterOperator.RANGE_CLOSED.isInvertedRangeOperator());
         assertFalse(FilterOperator.RANGE_HALF_OPEN.isInvertedRangeOperator());

@@ -35,47 +35,37 @@ import java.util.Map;
  * and placed in the query graph model as navigable relationships (by key and index
  * properties as well as ranges) between streams.
  */
-public class FilterExprAnalyzer
-{
+public class FilterExprAnalyzer {
     /**
      * Analyzes filter expression to build query graph model.
-     * @param topNode - filter top node
-     * @param queryGraph - model containing relationships between streams, to be written to
+     *
+     * @param topNode     - filter top node
+     * @param queryGraph  - model containing relationships between streams, to be written to
      * @param isOuterJoin indicator for outer join
      */
-    public static void analyze(ExprNode topNode, QueryGraph queryGraph, boolean isOuterJoin)
-    {
+    public static void analyze(ExprNode topNode, QueryGraph queryGraph, boolean isOuterJoin) {
         // Analyze relationships between streams. Relationships are properties in AND and EQUALS nodes of joins.
-        if (topNode instanceof ExprEqualsNode)
-        {
+        if (topNode instanceof ExprEqualsNode) {
             ExprEqualsNode equalsNode = (ExprEqualsNode) topNode;
             if (!equalsNode.isNotEquals()) {
                 analyzeEqualsNode(equalsNode, queryGraph, isOuterJoin);
             }
-        }
-        else if (topNode instanceof ExprAndNode)
-        {
+        } else if (topNode instanceof ExprAndNode) {
             ExprAndNode andNode = (ExprAndNode) topNode;
             analyzeAndNode(andNode, queryGraph, isOuterJoin);
-        }
-        else if (topNode instanceof ExprBetweenNode) {
+        } else if (topNode instanceof ExprBetweenNode) {
             ExprBetweenNode betweenNode = (ExprBetweenNode) topNode;
             analyzeBetweenNode(betweenNode, queryGraph);
-        }
-        else if (topNode instanceof ExprRelationalOpNode) {
+        } else if (topNode instanceof ExprRelationalOpNode) {
             ExprRelationalOpNode relNode = (ExprRelationalOpNode) topNode;
             analyzeRelationalOpNode(relNode, queryGraph);
-        }
-        else if (topNode instanceof ExprDotNode && !isOuterJoin)
-        {
+        } else if (topNode instanceof ExprDotNode && !isOuterJoin) {
             ExprDotNode dotNode = (ExprDotNode) topNode;
             analyzeDotNode(dotNode, queryGraph);
-        }
-        else if (topNode instanceof ExprInNode) {
+        } else if (topNode instanceof ExprInNode) {
             ExprInNode inNode = (ExprInNode) topNode;
             analyzeInNode(inNode, queryGraph);
-        }
-        else if (topNode instanceof ExprOrNode) {
+        } else if (topNode instanceof ExprOrNode) {
             ExprNode rewritten = FilterSpecCompilerMakeParamUtil.rewriteOrToInIfApplicable(topNode);
             if (rewritten instanceof ExprInNode) {
                 ExprInNode inNode = (ExprInNode) rewritten;
@@ -98,7 +88,7 @@ public class FilterExprAnalyzer
 
     private static void analyzeInNodeMultiIndex(ExprInNode inNode, QueryGraph queryGraph) {
 
-        ExprNode setExpressions[] = getInNodeSetExpressions(inNode);
+        ExprNode[] setExpressions = getInNodeSetExpressions(inNode);
         if (setExpressions.length == 0) {
             return;
         }
@@ -140,15 +130,13 @@ public class FilterExprAnalyzer
                 return;
             }
             testStreamNum = eligibility.getStreamNum();
-        }
-        else {
+        } else {
             testStreamNum = ((ExprIdentNode) testExpr).getStreamId();
         }
 
         if (testStreamNum == null) {
             queryGraph.addInSetMultiIndexUnkeyed(testExpr, setStream, exprNodes);
-        }
-        else {
+        } else {
             if (testStreamNum.equals(entry.getKey())) {
                 return;
             }
@@ -165,7 +153,7 @@ public class FilterExprAnalyzer
         Class testIdentClass = JavaClassHelper.getBoxedType(testIdent.getExprEvaluator().getType());
         int indexedStream = testIdent.getStreamId();
 
-        ExprNode setExpressions[] = getInNodeSetExpressions(inNode);
+        ExprNode[] setExpressions = getInNodeSetExpressions(inNode);
         if (setExpressions.length == 0) {
             return;
         }
@@ -179,8 +167,7 @@ public class FilterExprAnalyzer
             if (exprNodeSet instanceof ExprIdentNode) {
                 ExprIdentNode setIdent = (ExprIdentNode) exprNodeSet;
                 addToList(setIdent.getStreamId(), setIdent, perStreamExprs);
-            }
-            else {
+            } else {
                 EligibilityDesc eligibility = EligibilityUtil.verifyInputStream(exprNodeSet, indexedStream);
                 if (!eligibility.getEligibility().isEligible()) {
                     continue;
@@ -211,7 +198,7 @@ public class FilterExprAnalyzer
     }
 
     private static ExprNode[] getInNodeSetExpressions(ExprInNode inNode) {
-        ExprNode setExpressions[] = new ExprNode[inNode.getChildNodes().length - 1];
+        ExprNode[] setExpressions = new ExprNode[inNode.getChildNodes().length - 1];
         int count = 0;
         for (int i = 1; i < inNode.getChildNodes().length; i++) {
             setExpressions[count++] = inNode.getChildNodes()[i];
@@ -228,14 +215,12 @@ public class FilterExprAnalyzer
     }
 
     private static void analyzeRelationalOpNode(ExprRelationalOpNode relNode, QueryGraph queryGraph) {
-        if ( ((relNode.getChildNodes()[0] instanceof ExprIdentNode)) &&
-             ((relNode.getChildNodes()[1] instanceof ExprIdentNode)))
-        {
+        if (((relNode.getChildNodes()[0] instanceof ExprIdentNode)) &&
+                ((relNode.getChildNodes()[1] instanceof ExprIdentNode))) {
             ExprIdentNode identNodeLeft = (ExprIdentNode) relNode.getChildNodes()[0];
             ExprIdentNode identNodeRight = (ExprIdentNode) relNode.getChildNodes()[1];
 
-            if (identNodeLeft.getStreamId() != identNodeRight.getStreamId())
-            {
+            if (identNodeLeft.getStreamId() != identNodeRight.getStreamId()) {
                 queryGraph.addRelationalOpStrict(identNodeLeft.getStreamId(), identNodeLeft,
                         identNodeRight.getStreamId(), identNodeRight, relNode.getRelationalOpEnum());
             }
@@ -251,8 +236,7 @@ public class FilterExprAnalyzer
             indexedPropExpr = (ExprIdentNode) relNode.getChildNodes()[0];
             indexedStream = indexedPropExpr.getStreamId();
             exprNodeNoIdent = relNode.getChildNodes()[1];
-        }
-        else if (relNode.getChildNodes()[1] instanceof ExprIdentNode) {
+        } else if (relNode.getChildNodes()[1] instanceof ExprIdentNode) {
             indexedPropExpr = (ExprIdentNode) relNode.getChildNodes()[1];
             indexedStream = indexedPropExpr.getStreamId();
             exprNodeNoIdent = relNode.getChildNodes()[0];
@@ -278,20 +262,18 @@ public class FilterExprAnalyzer
 
     /**
      * Analye EQUALS (=) node.
-     * @param equalsNode - node to analyze
-     * @param queryGraph - store relationships between stream properties
+     *
+     * @param equalsNode  - node to analyze
+     * @param queryGraph  - store relationships between stream properties
      * @param isOuterJoin indicator for outer join
      */
-    protected static void analyzeEqualsNode(ExprEqualsNode equalsNode, QueryGraph queryGraph, boolean isOuterJoin)
-    {
-        if ( (equalsNode.getChildNodes()[0] instanceof ExprIdentNode) &&
-             (equalsNode.getChildNodes()[1] instanceof ExprIdentNode))
-        {
+    protected static void analyzeEqualsNode(ExprEqualsNode equalsNode, QueryGraph queryGraph, boolean isOuterJoin) {
+        if ((equalsNode.getChildNodes()[0] instanceof ExprIdentNode) &&
+                (equalsNode.getChildNodes()[1] instanceof ExprIdentNode)) {
             ExprIdentNode identNodeLeft = (ExprIdentNode) equalsNode.getChildNodes()[0];
             ExprIdentNode identNodeRight = (ExprIdentNode) equalsNode.getChildNodes()[1];
 
-            if (identNodeLeft.getStreamId() != identNodeRight.getStreamId())
-            {
+            if (identNodeLeft.getStreamId() != identNodeRight.getStreamId()) {
                 queryGraph.addStrictEquals(identNodeLeft.getStreamId(), identNodeLeft.getResolvedPropertyName(), identNodeLeft,
                         identNodeRight.getStreamId(), identNodeRight.getResolvedPropertyName(), identNodeRight);
             }
@@ -311,8 +293,7 @@ public class FilterExprAnalyzer
             indexedPropExpr = (ExprIdentNode) equalsNode.getChildNodes()[0];
             indexedStream = indexedPropExpr.getStreamId();
             exprNodeNoIdent = equalsNode.getChildNodes()[1];
-        }
-        else if (equalsNode.getChildNodes()[1] instanceof ExprIdentNode) {
+        } else if (equalsNode.getChildNodes()[1] instanceof ExprIdentNode) {
             indexedPropExpr = (ExprIdentNode) equalsNode.getChildNodes()[1];
             indexedStream = indexedPropExpr.getStreamId();
             exprNodeNoIdent = equalsNode.getChildNodes()[0];
@@ -328,22 +309,20 @@ public class FilterExprAnalyzer
 
         if (eligibility.getEligibility() == Eligibility.REQUIRE_NONE) {
             queryGraph.addUnkeyedExpression(indexedStream, indexedPropExpr, exprNodeNoIdent);
-        }
-        else {
+        } else {
             queryGraph.addKeyedExpression(indexedStream, indexedPropExpr, eligibility.getStreamNum(), exprNodeNoIdent);
         }
     }
 
     /**
      * Analyze the AND-node.
-     * @param andNode - node to analyze
-     * @param queryGraph - to store relationships between stream properties
+     *
+     * @param andNode     - node to analyze
+     * @param queryGraph  - to store relationships between stream properties
      * @param isOuterJoin indicator for outer join
      */
-    protected static void analyzeAndNode(ExprAndNode andNode, QueryGraph queryGraph, boolean isOuterJoin)
-    {
-        for (ExprNode childNode : andNode.getChildNodes())
-        {
+    protected static void analyzeAndNode(ExprAndNode andNode, QueryGraph queryGraph, boolean isOuterJoin) {
+        for (ExprNode childNode : andNode.getChildNodes()) {
             analyze(childNode, queryGraph, isOuterJoin);
         }
     }

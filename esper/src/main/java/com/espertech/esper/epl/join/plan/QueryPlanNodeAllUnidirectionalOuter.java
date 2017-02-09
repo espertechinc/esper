@@ -13,7 +13,6 @@ package com.espertech.esper.epl.join.plan;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.join.exec.base.ExecNode;
 import com.espertech.esper.epl.join.exec.base.ExecNodeAllUnidirectionalOuter;
-import com.espertech.esper.epl.join.exec.base.ExecNodeNoOp;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.HistoricalStreamIndexList;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;

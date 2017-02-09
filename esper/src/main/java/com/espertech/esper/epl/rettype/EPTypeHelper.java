@@ -23,35 +23,35 @@ import java.util.Collection;
 /**
  * Carries return type information related to the return values returned by expressions.
  * <p>
- *     Use factory methods to initialize return type information according to the return values
- *     that your expression is going to provide.
+ * Use factory methods to initialize return type information according to the return values
+ * that your expression is going to provide.
  * </p>
- *  <ol>
- *      <li>
- *          Use {@link EPTypeHelper#collectionOfEvents(com.espertech.esper.client.EventType)}
- *          to indicate that the expression returns a collection of events.
- *      </li>
- *      <li>
- *          Use {@link EPTypeHelper#singleEvent(com.espertech.esper.client.EventType)}
- *          to indicate that the expression returns a single event.
- *      </li>
- *      <li>
- *          Use {@link EPTypeHelper#collectionOfSingleValue(Class)}
- *          to indicate that the expression returns a collection of single values.
- *          A single value can be any object including null.
- *      </li>
- *      <li>
- *          Use {@link EPTypeHelper#array(Class)}
- *          to indicate that the expression returns an array of single values.
- *          A single value can be any object including null.
- *      </li>
- *      <li>
- *          Use {@link EPTypeHelper#singleValue(Class)}
- *          to indicate that the expression returns a single value.
- *          A single value can be any object including null.
- *          Such expression results cannot be used as input to enumeration methods, for example.
- *      </li>
- *  </ol>
+ * <ol>
+ * <li>
+ * Use {@link EPTypeHelper#collectionOfEvents(com.espertech.esper.client.EventType)}
+ * to indicate that the expression returns a collection of events.
+ * </li>
+ * <li>
+ * Use {@link EPTypeHelper#singleEvent(com.espertech.esper.client.EventType)}
+ * to indicate that the expression returns a single event.
+ * </li>
+ * <li>
+ * Use {@link EPTypeHelper#collectionOfSingleValue(Class)}
+ * to indicate that the expression returns a collection of single values.
+ * A single value can be any object including null.
+ * </li>
+ * <li>
+ * Use {@link EPTypeHelper#array(Class)}
+ * to indicate that the expression returns an array of single values.
+ * A single value can be any object including null.
+ * </li>
+ * <li>
+ * Use {@link EPTypeHelper#singleValue(Class)}
+ * to indicate that the expression returns a single value.
+ * A single value can be any object including null.
+ * Such expression results cannot be used as input to enumeration methods, for example.
+ * </li>
+ * </ol>
  */
 public class EPTypeHelper {
 
@@ -99,6 +99,7 @@ public class EPTypeHelper {
 
     /**
      * Indicate that the expression return type is an array of a given component type.
+     *
      * @param arrayComponentType array component type
      * @return array of single value expression result type
      */
@@ -114,6 +115,7 @@ public class EPTypeHelper {
      * The expression can still return an array or collection or events however
      * since the engine would not know the type of such objects and may not use runtime reflection
      * it may not allow certain operations on expression results.
+     *
      * @param singleValueType type of single value returned, or null to indicate that the expression always returns null
      * @return single-value expression result type
      */
@@ -130,10 +132,11 @@ public class EPTypeHelper {
     }
 
     /**
-    * Indicate that the expression return type is a collection of a given component type.
-    * @param collectionComponentType collection component type
-    * @return collection of single value expression result type
-    */
+     * Indicate that the expression return type is a collection of a given component type.
+     *
+     * @param collectionComponentType collection component type
+     * @return collection of single value expression result type
+     */
     public static EPType collectionOfSingleValue(Class collectionComponentType) {
         if (collectionComponentType == null) {
             throw new IllegalArgumentException("Invalid null collection component type");
@@ -143,6 +146,7 @@ public class EPTypeHelper {
 
     /**
      * Indicate that the expression return type is a collection of a given type of events.
+     *
      * @param eventTypeOfCollectionEvents the event type of the events that are part of the collection
      * @return collection of events expression result type
      */
@@ -155,6 +159,7 @@ public class EPTypeHelper {
 
     /**
      * Indicate that the expression return type is single event of a given event type.
+     *
      * @param eventTypeOfSingleEvent the event type of the event returned
      * @return single-event expression result type
      */
@@ -169,6 +174,7 @@ public class EPTypeHelper {
      * Interrogate the provided method and determine whether it returns
      * single-value, array of single-value or collection of single-value and
      * their component type.
+     *
      * @param method the class methods
      * @return expression return type
      */
@@ -187,6 +193,7 @@ public class EPTypeHelper {
 
     /**
      * Returns a nice text detailing the expression result type.
+     *
      * @param epType type
      * @return descriptive text
      */
@@ -194,33 +201,26 @@ public class EPTypeHelper {
         if (epType instanceof EventEPType) {
             EventEPType type = (EventEPType) epType;
             return "event type '" + type.getType().getName() + "'";
-        }
-        else if (epType instanceof EventMultiValuedEPType) {
+        } else if (epType instanceof EventMultiValuedEPType) {
             EventMultiValuedEPType type = (EventMultiValuedEPType) epType;
             if (type.getContainer() == EventType[].class) {
                 return "array of events of type '" + type.getComponent().getName() + "'";
-            }
-            else {
+            } else {
                 return "collection of events of type '" + type.getComponent().getName() + "'";
             }
-        }
-        else if (epType instanceof ClassMultiValuedEPType) {
+        } else if (epType instanceof ClassMultiValuedEPType) {
             ClassMultiValuedEPType type = (ClassMultiValuedEPType) epType;
             if (type.getContainer().isArray()) {
                 return "array of " + type.getComponent().getSimpleName();
-            }
-            else {
+            } else {
                 return "collection of " + type.getComponent().getSimpleName();
             }
-        }
-        else if (epType instanceof ClassEPType) {
+        } else if (epType instanceof ClassEPType) {
             ClassEPType type = (ClassEPType) epType;
             return "class " + JavaClassHelper.getClassNameFullyQualPretty(type.getType());
-        }
-        else if (epType instanceof NullEPType) {
+        } else if (epType instanceof NullEPType) {
             return "null type";
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unrecognized type " + epType);
         }
     }
@@ -229,28 +229,23 @@ public class EPTypeHelper {
         if (theType instanceof EventMultiValuedEPType) {
             EventMultiValuedEPType type = (EventMultiValuedEPType) theType;
             return JavaClassHelper.getArrayType(type.getComponent().getUnderlyingType());
-        }
-        else if (theType instanceof EventEPType) {
+        } else if (theType instanceof EventEPType) {
             EventEPType type = (EventEPType) theType;
             return type.getType().getUnderlyingType();
-        }
-        else if (theType instanceof ClassMultiValuedEPType) {
+        } else if (theType instanceof ClassMultiValuedEPType) {
             ClassMultiValuedEPType type = (ClassMultiValuedEPType) theType;
             return type.getContainer();
-        }
-        else if (theType instanceof ClassEPType) {
+        } else if (theType instanceof ClassEPType) {
             ClassEPType type = (ClassEPType) theType;
             return type.getType();
-        }
-        else if (theType instanceof NullEPType) {
+        } else if (theType instanceof NullEPType) {
             return null;
         }
         throw new IllegalArgumentException("Unrecognized type " + theType);
     }
 
     public static EPType optionalFromEnumerationExpr(int statementId, EventAdapterService eventAdapterService, ExprNode exprNode)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!(exprNode instanceof ExprEvaluatorEnumeration)) {
             return null;
         }

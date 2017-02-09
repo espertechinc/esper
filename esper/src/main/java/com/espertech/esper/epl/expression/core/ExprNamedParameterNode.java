@@ -12,5 +12,6 @@ package com.espertech.esper.epl.expression.core;
 
 public interface ExprNamedParameterNode {
     public String getParameterName();
+
     public ExprNode[] getChildNodes();
 }

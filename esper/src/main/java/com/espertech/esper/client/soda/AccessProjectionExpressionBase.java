@@ -16,8 +16,7 @@ import java.util.List;
 /**
  * Represents the base expression for "first", "last" and "window" aggregation functions.
  */
-public abstract class AccessProjectionExpressionBase extends ExpressionBase
-{
+public abstract class AccessProjectionExpressionBase extends ExpressionBase {
     private static final long serialVersionUID = 6858302558659972064L;
 
     /**
@@ -28,35 +27,33 @@ public abstract class AccessProjectionExpressionBase extends ExpressionBase
 
     /**
      * Returns the function name of the aggregation function.
+     *
      * @return function name
      */
     public abstract String getAggregationFunctionName();
 
     /**
      * Ctor.
+     *
      * @param expression to aggregate
      */
-    public AccessProjectionExpressionBase(Expression expression)
-    {
+    public AccessProjectionExpressionBase(Expression expression) {
         this.getChildren().add(expression);
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write(getAggregationFunctionName());
         writer.write('(');
         String delimiter = "";
         List<Expression> children = this.getChildren();
-        if (children.size() > 0)
-        {
+        if (children.size() > 0) {
             writer.write(delimiter);
             children.get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-            for(int i=1; i<children.size(); i++) {
+            for (int i = 1; i < children.size(); i++) {
                 writer.write(",");
                 children.get(i).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             }

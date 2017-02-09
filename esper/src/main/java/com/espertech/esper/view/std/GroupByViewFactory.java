@@ -27,8 +27,7 @@ import java.util.List;
 /**
  * Factory for {@link GroupByView} instances.
  */
-public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
-{
+public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker {
     private static Logger log = LoggerFactory.getLogger(GroupByViewFactory.class);
 
     /**
@@ -47,8 +46,7 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
     protected double reclaimMaxAge;
     protected double reclaimFrequency;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
 
         Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(viewFactoryContext.getStatementContext().getAnnotations());
@@ -56,27 +54,22 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         if (reclaimGroupAged != null) {
             isReclaimAged = true;
             String hintValueMaxAge = HintEnum.RECLAIM_GROUP_AGED.getHintAssignedValue(reclaimGroupAged);
-            if (hintValueMaxAge == null)
-            {
+            if (hintValueMaxAge == null) {
                 throw new ViewParameterException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_AGED + "' has not been provided");
             }
             try {
                 reclaimMaxAge = Double.parseDouble(hintValueMaxAge);
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 throw new ViewParameterException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_AGED + "' value '" + hintValueMaxAge + "' could not be parsed as a double value");
             }
 
             String hintValueFrequency = HintEnum.RECLAIM_GROUP_FREQ.getHintAssignedValue(reclaimGroupAged);
-            if (hintValueFrequency == null)
-            {
+            if (hintValueFrequency == null) {
                 reclaimFrequency = reclaimMaxAge;
-            }
-            else {
+            } else {
                 try {
                     reclaimFrequency = Double.parseDouble(hintValueFrequency);
-                }
-                catch (RuntimeException ex) {
+                } catch (RuntimeException ex) {
                     throw new ViewParameterException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_FREQ + "' value '" + hintValueFrequency + "' could not be parsed as a double value");
                 }
             }
@@ -90,12 +83,10 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         }
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         criteriaExpressions = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, false);
 
-        if (criteriaExpressions.length == 0)
-        {
+        if (criteriaExpressions.length == 0) {
             String errorMessage = getViewName() + " view requires a one or more expressions provinding unique values as parameters";
             throw new ViewParameterException(errorMessage);
         }
@@ -105,30 +96,26 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
 
     /**
      * Returns the names of fields to group by
+     *
      * @return field names
      */
-    public ExprNode[] getCriteriaExpressions()
-    {
+    public ExprNode[] getCriteriaExpressions() {
         return criteriaExpressions;
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         if (isReclaimAged) {
             return new GroupByViewReclaimAged(agentInstanceViewFactoryContext, criteriaExpressions, ExprNodeUtility.getEvaluators(criteriaExpressions), reclaimMaxAge, reclaimFrequency);
         }
         return new GroupByViewImpl(agentInstanceViewFactoryContext, criteriaExpressions, ExprNodeUtility.getEvaluators(criteriaExpressions));
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof GroupByView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof GroupByView)) {
             return false;
         }
 
@@ -137,8 +124,7 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         }
 
         GroupByView myView = (GroupByView) view;
-        if (!ExprNodeUtility.deepEquals(myView.getCriteriaExpressions(), criteriaExpressions))
-        {
+        if (!ExprNodeUtility.deepEquals(myView.getCriteriaExpressions(), criteriaExpressions)) {
             return false;
         }
 

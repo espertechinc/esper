@@ -36,7 +36,7 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
         if (value == null || !(value instanceof GenericData.Record)) {
             return null;
         }
-        return nested[nested.length - 1].getAvroFieldValue((GenericData.Record)value);
+        return nested[nested.length - 1].getAvroFieldValue((GenericData.Record) value);
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -48,7 +48,7 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
         if (value == null || !(value instanceof GenericData.Record)) {
             return null;
         }
-        return nested[nested.length - 1].getAvroFragment((GenericData.Record)value);
+        return nested[nested.length - 1].getAvroFragment((GenericData.Record) value);
     }
 
     private Object navigate(EventBean eventBean) {
@@ -59,7 +59,7 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
             return null;
         }
         for (int i = 0; i < nested.length - 1; i++) {
-            value = nested[i].getAvroFieldValue((GenericData.Record)value);
+            value = nested[i].getAvroFieldValue((GenericData.Record) value);
             if (value == null || !(value instanceof GenericData.Record)) {
                 return null;
             }

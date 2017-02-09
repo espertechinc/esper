@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Table column in a create-table statement.
  */
-public class CreateTableColumn implements Serializable
-{
+public class CreateTableColumn implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String columnName;
@@ -31,13 +30,14 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Ctor.
-     * @param columnName the table column name
-     * @param optionalExpression an optional aggregation expression (exclusive of type name)
-     * @param optionalTypeName a type name (exclusive of aggregation expression)
-     * @param optionalTypeIsArray flag whether type is array
+     *
+     * @param columnName                   the table column name
+     * @param optionalExpression           an optional aggregation expression (exclusive of type name)
+     * @param optionalTypeName             a type name (exclusive of aggregation expression)
+     * @param optionalTypeIsArray          flag whether type is array
      * @param optionalTypeIsPrimitiveArray flag whether array of primitive (requires array flag)
-     * @param annotations optional annotations
-     * @param primaryKey flag indicating whether the column is a primary key
+     * @param annotations                  optional annotations
+     * @param primaryKey                   flag indicating whether the column is a primary key
      */
     public CreateTableColumn(String columnName, Expression optionalExpression, String optionalTypeName, Boolean optionalTypeIsArray, Boolean optionalTypeIsPrimitiveArray, List<AnnotationPart> annotations, Boolean primaryKey) {
         this.columnName = columnName;
@@ -57,6 +57,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Returns the table column name
+     *
      * @return column name
      */
     public String getColumnName() {
@@ -65,6 +66,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Sets the table column name
+     *
      * @param columnName column name
      */
     public void setColumnName(String columnName) {
@@ -73,6 +75,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Returns optional annotations, or null if there are none
+     *
      * @return annotations
      */
     public List<AnnotationPart> getAnnotations() {
@@ -81,6 +84,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Sets optional annotations, or null if there are none
+     *
      * @param annotations annotations
      */
     public void setAnnotations(List<AnnotationPart> annotations) {
@@ -90,6 +94,7 @@ public class CreateTableColumn implements Serializable
     /**
      * Returns the aggragtion expression, if the type of the column is aggregation,
      * or null if a type name is provided instead.
+     *
      * @return expression
      */
     public Expression getOptionalExpression() {
@@ -99,6 +104,7 @@ public class CreateTableColumn implements Serializable
     /**
      * Sets the aggragtion expression, if the type of the column is aggregation,
      * or null if a type name is provided instead.
+     *
      * @param optionalExpression expression
      */
     public void setOptionalExpression(Expression optionalExpression) {
@@ -108,6 +114,7 @@ public class CreateTableColumn implements Serializable
     /**
      * Returns the type name, or null if the column is an aggregation and an
      * aggregation expression is provided instead.
+     *
      * @return type name
      */
     public String getOptionalTypeName() {
@@ -117,6 +124,7 @@ public class CreateTableColumn implements Serializable
     /**
      * Sets the type name, or null if the column is an aggregation and an
      * aggregation expression is provided instead.
+     *
      * @param optionalTypeName type name
      */
     public void setOptionalTypeName(String optionalTypeName) {
@@ -125,6 +133,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Returns indicator whether type is an array type, applicable only if a type name is provided
+     *
      * @return array type indicator
      */
     public Boolean getOptionalTypeIsArray() {
@@ -133,6 +142,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Sets indicator whether type is an array type, applicable only if a type name is provided
+     *
      * @param optionalTypeIsArray array type indicator
      */
     public void setOptionalTypeIsArray(Boolean optionalTypeIsArray) {
@@ -141,6 +151,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Returns indicator whether the column is a primary key
+     *
      * @return primary key indicator
      */
     public Boolean getPrimaryKey() {
@@ -149,6 +160,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Sets indicator whether the column is a primary key
+     *
      * @param primaryKey primary key indicator
      */
     public void setPrimaryKey(Boolean primaryKey) {
@@ -157,6 +169,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Returns indicator whether the array is an array of primitives or boxed types (only when a type name is provided and array flag set)
+     *
      * @return primitive array indicator
      */
     public Boolean getOptionalTypeIsPrimitiveArray() {
@@ -165,6 +178,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Sets indicator whether the array is an array of primitives or boxed types (only when a type name is provided and array flag set)
+     *
      * @param optionalTypeIsPrimitiveArray primitive array indicator
      */
     public void setOptionalTypeIsPrimitiveArray(Boolean optionalTypeIsPrimitiveArray) {
@@ -173,6 +187,7 @@ public class CreateTableColumn implements Serializable
 
     /**
      * Render create-table column
+     *
      * @param writer to render to
      */
     public void toEPL(StringWriter writer) {
@@ -180,14 +195,12 @@ public class CreateTableColumn implements Serializable
         writer.append(" ");
         if (optionalExpression != null) {
             optionalExpression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-        }
-        else {
+        } else {
             writer.append(optionalTypeName);
             if (optionalTypeIsArray != null && optionalTypeIsArray) {
                 if (optionalTypeIsPrimitiveArray != null && optionalTypeIsPrimitiveArray) {
                     writer.append("[primitive]");
-                }
-                else {
+                } else {
                     writer.append("[]");
                 }
             }

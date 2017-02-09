@@ -3,18 +3,17 @@ package com.espertech.esperio.http;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.event.EventBeanManufactureException;
 import com.espertech.esper.event.EventBeanManufacturer;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -48,8 +47,7 @@ public class EsperHttpRequestHandler implements HttpRequestHandler {
         try {
             Map<String, String> parameters = parseTarget(target);
             handle(parameters);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error("Error processing Http GET request target '" + target + "' :" + t.getMessage(), t);
         }
     }
@@ -100,8 +98,7 @@ public class EsperHttpRequestHandler implements HttpRequestHandler {
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<SimpleTypeParser> parserList = new ArrayList<SimpleTypeParser>();
 
-        for (WriteablePropertyDescriptor writableDesc : writablesSet)
-        {
+        for (WriteablePropertyDescriptor writableDesc : writablesSet) {
             SimpleTypeParser parser = SimpleTypeParserFactory.getParser(writableDesc.getType());
             if (parser == null) {
                 log.debug("No parser found for type '" + writableDesc.getType() + "'");
@@ -118,8 +115,7 @@ public class EsperHttpRequestHandler implements HttpRequestHandler {
         EventBeanManufacturer eventBeanManufacturer;
         try {
             eventBeanManufacturer = engineSPI.getEventAdapterService().getManufacturer(eventType, writableProperties, engineSPI.getEngineImportService(), false);
-        }
-        catch (EventBeanManufactureException e) {
+        } catch (EventBeanManufactureException e) {
             log.info("Unable to create manufacturer for event type: " + e.getMessage(), e);
             return null;
         }
@@ -139,10 +135,10 @@ public class EsperHttpRequestHandler implements HttpRequestHandler {
 
     private HashMap<String, String> splitParams(String search) throws UnsupportedEncodingException {
         HashMap<String, String> map = new HashMap<String, String>();
-        String parameters[] = search.split("&");
+        String[] parameters = search.split("&");
 
         for (String param : parameters) {
-            String temp[] = param.split("=");
+            String[] temp = param.split("=");
             if (temp.length != 2) {
                 continue;
             }

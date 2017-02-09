@@ -26,25 +26,23 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class TestAxiom extends TestCase
-{
+public class TestAxiom extends TestCase {
     private static final String AXIOM_URI = "types://xml/apacheaxiom/OMNode";
 
     private SupportUpdateListener updateListener;
 
     private static String XML =
-        "<myevent>\n" +
-        "  <element1>VAL1</element1>\n" +
-        "  <element2>\n" +
-        "    <element21 id=\"e21_1\">VAL21-1</element21>\n" +
-        "    <element21 id=\"e21_2\">VAL21-2</element21>\n" +
-        "  </element2>\n" +
-        "  <element3 attrString=\"VAL3\" attrNum=\"5.6\" attrBool=\"true\"/>\n" +
-        "  <element4><element41>VAL4-1</element41></element4>\n" +
-        "</myevent>";
+            "<myevent>\n" +
+                    "  <element1>VAL1</element1>\n" +
+                    "  <element2>\n" +
+                    "    <element21 id=\"e21_1\">VAL21-1</element21>\n" +
+                    "    <element21 id=\"e21_2\">VAL21-2</element21>\n" +
+                    "  </element2>\n" +
+                    "  <element3 attrString=\"VAL3\" attrNum=\"5.6\" attrBool=\"true\"/>\n" +
+                    "  <element4><element41>VAL4-1</element41></element4>\n" +
+                    "</myevent>";
 
-    public void testSimpleXML() throws Exception
-    {
+    public void testSimpleXML() throws Exception {
         Configuration configuration = getConfiguration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
 
@@ -55,7 +53,7 @@ public class TestAxiom extends TestCase
         axiomType.addXPathProperty("xpathAttrString", "/myevent/element3/@attrString", XPathConstants.STRING);
         axiomType.addXPathProperty("xpathAttrNum", "/myevent/element3/@attrNum", XPathConstants.NUMBER);
         axiomType.addXPathProperty("xpathAttrBool", "/myevent/element3/@attrBool", XPathConstants.BOOLEAN);
-        configuration.addPlugInEventType("TestXMLNoSchemaType", new URI[] {new URI(AXIOM_URI)}, axiomType);
+        configuration.addPlugInEventType("TestXMLNoSchemaType", new URI[]{new URI(AXIOM_URI)}, axiomType);
 
         EPServiceProvider epService = EPServiceProviderManager.getProvider("TestNoSchemaXML", configuration);
         epService.initialize();
@@ -64,13 +62,13 @@ public class TestAxiom extends TestCase
 
         String stmt =
                 "select element1," +
-                       "element4.element41 as nestedElement," +
-                       "element2.element21('e21_2') as mappedElement," +
-                       "element2.element21[1] as indexedElement," +
-                       "xpathElement1, xpathCountE21, xpathAttrString, xpathAttrNum, xpathAttrBool, " +
-                       "invalidelement," +
-                       "element3.myattribute as invalidattr " +
-                      "from TestXMLNoSchemaType#length(100)";
+                        "element4.element41 as nestedElement," +
+                        "element2.element21('e21_2') as mappedElement," +
+                        "element2.element21[1] as indexedElement," +
+                        "xpathElement1, xpathCountE21, xpathAttrString, xpathAttrNum, xpathAttrBool, " +
+                        "invalidelement," +
+                        "element3.myattribute as invalidattr " +
+                        "from TestXMLNoSchemaType#length(100)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(stmt);
         joinView.addListener(updateListener);
@@ -82,7 +80,7 @@ public class TestAxiom extends TestCase
         sendEvent(epService, "TestXMLNoSchemaType", "EventB");
         assertData("EventB");
 
-        EventType eventType = ((EPServiceProviderSPI)epService).getEventAdapterService().getExistsTypeByName("TestXMLNoSchemaType");
+        EventType eventType = ((EPServiceProviderSPI) epService).getEventAdapterService().getExistsTypeByName("TestXMLNoSchemaType");
         assertEquals(5, eventType.getPropertyDescriptors().length);
         assertEquals(5, eventType.getPropertyNames().length);
 
@@ -95,12 +93,10 @@ public class TestAxiom extends TestCase
         }, eventType.getPropertyDescriptors());
     }
 
-    public void testConfigurationXML() throws Exception
-    {
+    public void testConfigurationXML() throws Exception {
         String sampleXML = "esper-axiom-sample-configuration.xml";
         URL url = this.getClass().getClassLoader().getResource(sampleXML);
-        if (url == null)
-        {
+        if (url == null) {
             throw new RuntimeException("Cannot find XML configuration: " + sampleXML);
         }
 
@@ -121,13 +117,12 @@ public class TestAxiom extends TestCase
         assertEquals(8374744L, theEvent.get("sensorId"));
     }
 
-    public void testNestedXML() throws Exception
-    {
+    public void testNestedXML() throws Exception {
         Configuration configuration = getConfiguration();
         ConfigurationEventTypeAxiom axiomType = new ConfigurationEventTypeAxiom();
         axiomType.setRootElementName("a");
         axiomType.addXPathProperty("element1", "/a/b/c", XPathConstants.STRING);
-        configuration.addPlugInEventType("AEvent", new URI[] {new URI(AXIOM_URI)}, axiomType);
+        configuration.addPlugInEventType("AEvent", new URI[]{new URI(AXIOM_URI)}, axiomType);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -154,7 +149,7 @@ public class TestAxiom extends TestCase
 
         // Use a URI sender list
         String xml = "<a><b><c>hype</c></b></a>";
-        EventSender sender = epService.getEPRuntime().getEventSender(new URI[] {new URI(AXIOM_URI)});
+        EventSender sender = epService.getEPRuntime().getEventSender(new URI[]{new URI(AXIOM_URI)});
         InputStream s = new ByteArrayInputStream(xml.getBytes());
         OMElement documentElement = new StAXOMBuilder(s).getDocumentElement();
         sender.sendEvent(documentElement);
@@ -163,12 +158,11 @@ public class TestAxiom extends TestCase
         assertEquals("hype", theEvent.get("element1"));
     }
 
-    public void testDotEscapeSyntax() throws Exception
-    {
+    public void testDotEscapeSyntax() throws Exception {
         Configuration configuration = getConfiguration();
         ConfigurationEventTypeAxiom axiomType = new ConfigurationEventTypeAxiom();
         axiomType.setRootElementName("myroot");
-        configuration.addPlugInEventType("AEvent", new URI[] {new URI(AXIOM_URI)}, axiomType);
+        configuration.addPlugInEventType("AEvent", new URI[]{new URI(AXIOM_URI)}, axiomType);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -183,14 +177,13 @@ public class TestAxiom extends TestCase
         assertEquals("value", theEvent.get("val"));
     }
 
-    public void testEventXML() throws Exception
-    {
+    public void testEventXML() throws Exception {
         Configuration configuration = getConfiguration();
         ConfigurationEventTypeAxiom desc = new ConfigurationEventTypeAxiom();
         desc.addXPathProperty("eventtype", "/event/@type", XPathConstants.STRING);
         desc.addXPathProperty("eventuid", "/event/@uid", XPathConstants.STRING);
         desc.setRootElementName("event");
-        configuration.addPlugInEventType("MyEvent", new URI[] {new URI(AXIOM_URI)}, desc);
+        configuration.addPlugInEventType("MyEvent", new URI[]{new URI(AXIOM_URI)}, desc);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -206,15 +199,14 @@ public class TestAxiom extends TestCase
         assertEquals("terminal.55", theEvent.get("uid"));
     }
 
-    public void testElementNode() throws Exception
-    {
+    public void testElementNode() throws Exception {
         // test for Esper-129
         Configuration configuration = getConfiguration();
         ConfigurationEventTypeAxiom desc = new ConfigurationEventTypeAxiom();
         desc.addXPathProperty("event.type", "//event/@type", XPathConstants.STRING);
         desc.addXPathProperty("event.uid", "//event/@uid", XPathConstants.STRING);
         desc.setRootElementName("batch-event");
-        configuration.addPlugInEventType("MyEvent", new URI[] {new URI(AXIOM_URI)}, desc);
+        configuration.addPlugInEventType("MyEvent", new URI[]{new URI(AXIOM_URI)}, desc);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -225,8 +217,8 @@ public class TestAxiom extends TestCase
         joinView.addListener(updateListener);
 
         String xml = "<batch-event>" +
-                     "<event type=\"a-f-G\" uid=\"terminal.55\" time=\"2007-04-19T13:05:20.22Z\" version=\"2.0\"/>" +
-                        "</batch-event>";
+                "<event type=\"a-f-G\" uid=\"terminal.55\" time=\"2007-04-19T13:05:20.22Z\" version=\"2.0\"/>" +
+                "</batch-event>";
 
         sendXMLEvent(epService, "MyEvent", xml);
 
@@ -235,8 +227,7 @@ public class TestAxiom extends TestCase
         assertEquals("terminal.55", theEvent.get("uid"));
     }
 
-    public void testNamespaceXPathRelative() throws Exception
-    {
+    public void testNamespaceXPathRelative() throws Exception {
         Configuration configuration = getConfiguration();
         ConfigurationEventTypeAxiom desc = new ConfigurationEventTypeAxiom();
         desc.setRootElementName("getQuote");
@@ -244,7 +235,7 @@ public class TestAxiom extends TestCase
         desc.setRootElementNamespace("http://services.samples/xsd");
         desc.addNamespacePrefix("m0", "http://services.samples/xsd");
         desc.setResolvePropertiesAbsolute(false);
-        configuration.addPlugInEventType("StockQuote", new URI[] {new URI(AXIOM_URI)}, desc);
+        configuration.addPlugInEventType("StockQuote", new URI[]{new URI(AXIOM_URI)}, desc);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -262,8 +253,7 @@ public class TestAxiom extends TestCase
         assertEquals("IBM", theEvent.get("symbol_b"));
     }
 
-    public void testNamespaceXPathAbsolute() throws Exception
-    {
+    public void testNamespaceXPathAbsolute() throws Exception {
         Configuration configuration = getConfiguration();
         ConfigurationEventTypeAxiom desc = new ConfigurationEventTypeAxiom();
         desc.addXPathProperty("symbol_a", "//m0:symbol", XPathConstants.STRING);
@@ -273,7 +263,7 @@ public class TestAxiom extends TestCase
         desc.setRootElementNamespace("http://services.samples/xsd");
         desc.addNamespacePrefix("m0", "http://services.samples/xsd");
         desc.setResolvePropertiesAbsolute(true);
-        configuration.addPlugInEventType("StockQuote", new URI[] {new URI(AXIOM_URI)}, desc);
+        configuration.addPlugInEventType("StockQuote", new URI[]{new URI(AXIOM_URI)}, desc);
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(configuration);
         epService.initialize();
@@ -293,8 +283,7 @@ public class TestAxiom extends TestCase
         assertEquals("", theEvent.get("symbol_e"));    // should be empty string as we are doing absolute XPath
     }
 
-    private void assertData(String element1)
-    {
+    private void assertData(String element1) {
         assertNotNull(updateListener.getLastNewData());
         EventBean theEvent = updateListener.getLastNewData()[0];
 
@@ -313,22 +302,19 @@ public class TestAxiom extends TestCase
         assertEquals("", theEvent.get("invalidattr"));     // attributes not supported when no schema supplied, use XPath
     }
 
-    private void sendEvent(EPServiceProvider engine, String alias, String value) throws Exception
-    {
+    private void sendEvent(EPServiceProvider engine, String alias, String value) throws Exception {
         String xml = XML.replaceAll("VAL1", value);
         sendXMLEvent(engine, alias, xml);
     }
 
-    private void sendXMLEvent(EPServiceProvider engine, String alias, String xml) throws Exception
-    {
+    private void sendXMLEvent(EPServiceProvider engine, String alias, String xml) throws Exception {
         InputStream s = new ByteArrayInputStream(xml.getBytes());
         OMElement documentElement = new StAXOMBuilder(s).getDocumentElement();
         EventSender sender = engine.getEPRuntime().getEventSender(alias);
         sender.sendEvent(documentElement);
     }
 
-    private Configuration getConfiguration() throws URISyntaxException
-    {
+    private Configuration getConfiguration() throws URISyntaxException {
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
 

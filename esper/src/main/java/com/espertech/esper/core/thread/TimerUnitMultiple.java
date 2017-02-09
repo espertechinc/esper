@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Timer unit for multiple callbacks for a statement.
  */
-public class TimerUnitMultiple implements TimerUnit
-{
+public class TimerUnitMultiple implements TimerUnit {
     private static final Logger log = LoggerFactory.getLogger(TimerUnitMultiple.class);
 
     private final EPServicesContext services;
@@ -30,23 +29,21 @@ public class TimerUnitMultiple implements TimerUnit
 
     /**
      * Ctor.
-     * @param services engine services
-     * @param runtime runtime to process
-     * @param handle statement handle
+     *
+     * @param services       engine services
+     * @param runtime        runtime to process
+     * @param handle         statement handle
      * @param callbackObject callback list
      */
-    public TimerUnitMultiple(EPServicesContext services, EPRuntimeImpl runtime, EPStatementAgentInstanceHandle handle, Object callbackObject)
-    {
+    public TimerUnitMultiple(EPServicesContext services, EPRuntimeImpl runtime, EPStatementAgentInstanceHandle handle, Object callbackObject) {
         this.services = services;
         this.handle = handle;
         this.runtime = runtime;
         this.callbackObject = callbackObject;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             EPRuntimeImpl.processStatementScheduleMultiple(handle, callbackObject, services);
 
             // Let listeners know of results
@@ -54,9 +51,7 @@ public class TimerUnitMultiple implements TimerUnit
 
             // Work off the event queue if any events accumulated in there via a route()
             runtime.processThreadWorkQueue();
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing multiple timer execution: " + e.getMessage(), e);
         }
     }

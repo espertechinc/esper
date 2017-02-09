@@ -34,8 +34,7 @@ public class TestCountMinSketchStateTopK extends TestCase {
             if (count == null) {
                 sent.put(bytes, 1L);
                 topk.updateExpectIncreasing(bytes.array(), 1);
-            }
-            else {
+            } else {
                 sent.put(bytes, count + 1);
                 topk.updateExpectIncreasing(bytes.array(), count + 1);
             }
@@ -51,8 +50,7 @@ public class TestCountMinSketchStateTopK extends TestCase {
         // assert filled
         if (sent.size() < topkMax) {
             assertEquals(sent.size(), top.size());
-        }
-        else {
+        } else {
             assertEquals(topkMax, top.size());
         }
 

@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 public class MatchRecognizeDefine implements Serializable {
     private static final long serialVersionUID = -2665038146328267165L;
-    
+
     private String name;
     private Expression expression;
 
@@ -29,7 +29,8 @@ public class MatchRecognizeDefine implements Serializable {
 
     /**
      * Ctor.
-     * @param name variable name
+     *
+     * @param name       variable name
      * @param expression expression
      */
     public MatchRecognizeDefine(String name, Expression expression) {
@@ -39,6 +40,7 @@ public class MatchRecognizeDefine implements Serializable {
 
     /**
      * Returns the variable name.
+     *
      * @return variable name
      */
     public String getName() {
@@ -47,6 +49,7 @@ public class MatchRecognizeDefine implements Serializable {
 
     /**
      * Sets the variable name.
+     *
      * @param name variable name
      */
     public void setName(String name) {
@@ -55,6 +58,7 @@ public class MatchRecognizeDefine implements Serializable {
 
     /**
      * Returns the expression.
+     *
      * @return expression
      */
     public Expression getExpression() {
@@ -63,6 +67,7 @@ public class MatchRecognizeDefine implements Serializable {
 
     /**
      * Sets the expression.
+     *
      * @param expression to set
      */
     public void setExpression(Expression expression) {

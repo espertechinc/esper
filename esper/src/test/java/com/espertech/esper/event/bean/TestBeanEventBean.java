@@ -22,18 +22,15 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-public class TestBeanEventBean extends TestCase
-{
+public class TestBeanEventBean extends TestCase {
     SupportBean testEvent;
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvent = new SupportBean();
         testEvent.setIntPrimitive(10);
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         BeanEventBean eventBean = new BeanEventBean(testEvent, eventType);
 
@@ -43,43 +40,35 @@ public class TestBeanEventBean extends TestCase
         assertEquals(10, eventBean.get("intPrimitive"));
 
         // Test wrong property name
-        try
-        {
+        try {
             eventBean.get("dummy");
             assertTrue(false);
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // Expected
             log.debug(".testGetter Expected exception, msg=" + ex.getMessage());
         }
 
         // Test wrong event type - not possible to happen under normal use
-        try
-        {
+        try {
             eventType = SupportEventTypeFactory.createBeanType(SupportBeanSimple.class);
             eventBean = new BeanEventBean(testEvent, eventType);
             eventBean.get("myString");
             assertTrue(false);
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // Expected
             log.debug(".testGetter Expected exception, msg=" + ex.getMessage());
         }
-        
+
         EventPropertyGetter getter = eventType.getGetter("myString");
         try {
             getter.get(new BeanEventBean(new SupportBean_A("id"), eventType));
             fail();
-        }
-        catch (PropertyAccessException ex) {
+        } catch (PropertyAccessException ex) {
             assertEquals("Mismatched getter instance to event bean type, expected com.espertech.esper.supportunit.bean.SupportBeanSimple but received com.espertech.esper.supportunit.bean.SupportBean_A", ex.getMessage());
         }
     }
 
-    public void testGetComplexProperty()
-    {
+    public void testGetComplexProperty() {
         SupportBeanCombinedProps eventCombined = SupportBeanCombinedProps.makeDefaultBean();
         EventBean eventBean = SupportEventBeanFactory.createObject(eventCombined);
 
@@ -103,8 +92,8 @@ public class TestBeanEventBean extends TestCase
         // indexed getter
         tryInvalidGetFragment(eventBean, "indexed");
         assertEquals(SupportBeanCombinedProps.NestedLevOne.class, ((EventBean) eventBean.getFragment("indexed[0]")).getEventType().getUnderlyingType());
-        assertEquals("abc", ((EventBean)eventBean.getFragment("array[0]")).get("nestLevOneVal"));
-        assertEquals("abc", ((EventBean)eventBean.getFragment("array[2]?")).get("nestLevOneVal"));
+        assertEquals("abc", ((EventBean) eventBean.getFragment("array[0]")).get("nestLevOneVal"));
+        assertEquals("abc", ((EventBean) eventBean.getFragment("array[2]?")).get("nestLevOneVal"));
         assertNull(eventBean.getFragment("array[3]?"));
         assertNull(eventBean.getFragment("array[4]?"));
         assertNull(eventBean.getFragment("array[5]?"));
@@ -114,11 +103,10 @@ public class TestBeanEventBean extends TestCase
 
         SupportBeanComplexProps eventComplex = SupportBeanComplexProps.makeDefaultBean();
         eventBean = SupportEventBeanFactory.createObject(eventComplex);
-        assertEquals("nestedValue", ((EventBean)eventBean.getFragment("nested")).get("nestedValue"));
+        assertEquals("nestedValue", ((EventBean) eventBean.getFragment("nested")).get("nestedValue"));
     }
 
-    public void testGetIterableListMap()
-    {
+    public void testGetIterableListMap() {
         SupportBeanIterableProps eventComplex = SupportBeanIterableProps.makeDefaultBean();
         EventBean eventBean = SupportEventBeanFactory.createObject(eventComplex);
         SupportEventTypeAssertionUtil.assertConsistency(eventBean);
@@ -167,8 +155,7 @@ public class TestBeanEventBean extends TestCase
         assertNull(eventBean.getEventType().getFragmentType("mapInteger"));
     }
 
-    public void testGetIterableListMapContained()
-    {
+    public void testGetIterableListMapContained() {
         SupportBeanIterablePropsContainer eventIterableContained = SupportBeanIterablePropsContainer.makeDefaultBean();
         EventBean eventBean = SupportEventBeanFactory.createObject(eventIterableContained);
 
@@ -202,8 +189,7 @@ public class TestBeanEventBean extends TestCase
         assertNull(eventBean.getEventType().getFragmentType("contained.mapInteger"));
     }
 
-    private void assertNestedElement(EventBean eventBean, String propertyName, String value)
-    {
+    private void assertNestedElement(EventBean eventBean, String propertyName, String value) {
         FragmentEventType fragmentTypeOne = eventBean.getEventType().getFragmentType(propertyName);
         assertEquals(true, fragmentTypeOne.isNative());
         assertEquals(false, fragmentTypeOne.isIndexed());
@@ -213,8 +199,7 @@ public class TestBeanEventBean extends TestCase
         assertEquals(value, theEvent.get("nestedValue"));
     }
 
-    private void assertNestedCollection(EventBean eventBean, String propertyName, String prefix)
-    {
+    private void assertNestedCollection(EventBean eventBean, String propertyName, String prefix) {
         FragmentEventType fragmentTypeTwo = eventBean.getEventType().getFragmentType(propertyName);
         assertEquals(true, fragmentTypeTwo.isNative());
         assertEquals(true, fragmentTypeTwo.isIndexed());
@@ -226,15 +211,11 @@ public class TestBeanEventBean extends TestCase
         assertEquals(prefix + "N2", events[1].get("nestedValue"));
     }
 
-    private static void tryInvalidGet(EventBean eventBean, String propName)
-    {
-        try
-        {
+    private static void tryInvalidGet(EventBean eventBean, String propName) {
+        try {
             eventBean.get(propName);
             fail();
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // expected
         }
 
@@ -242,15 +223,11 @@ public class TestBeanEventBean extends TestCase
         assertNull(eventBean.getEventType().getGetter(propName));
     }
 
-    private static void tryInvalidGetFragment(EventBean eventBean, String propName)
-    {
-        try
-        {
+    private static void tryInvalidGetFragment(EventBean eventBean, String propName) {
+        try {
             eventBean.getFragment(propName);
             fail();
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // expected
         }
     }

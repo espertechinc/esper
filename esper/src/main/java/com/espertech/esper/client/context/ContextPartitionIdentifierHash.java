@@ -25,6 +25,7 @@ public class ContextPartitionIdentifierHash extends ContextPartitionIdentifier {
 
     /**
      * Ctor.
+     *
      * @param hash code
      */
     public ContextPartitionIdentifierHash(int hash) {
@@ -33,6 +34,7 @@ public class ContextPartitionIdentifierHash extends ContextPartitionIdentifier {
 
     /**
      * Returns the hash code.
+     *
      * @return hash code
      */
     public int getHash() {
@@ -41,6 +43,7 @@ public class ContextPartitionIdentifierHash extends ContextPartitionIdentifier {
 
     /**
      * Sets the hash code.
+     *
      * @param hash hash code
      */
     public void setHash(int hash) {

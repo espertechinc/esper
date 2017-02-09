@@ -10,16 +10,14 @@
  */
 package com.espertech.esper.view;
 
-import junit.framework.*;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
+import junit.framework.TestCase;
 
-public class TestPropertyCheckHelper extends TestCase
-{
-    public void testCheckNumeric()
-    {
+public class TestPropertyCheckHelper extends TestCase {
+    public void testCheckNumeric() {
         EventType mySchema = SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class);
 
         assertTrue(PropertyCheckHelper.checkNumeric(mySchema, "dummy") != null);
@@ -39,8 +37,7 @@ public class TestPropertyCheckHelper extends TestCase
         assertTrue(PropertyCheckHelper.checkNumeric(mySchema, "volume", "price") == null);
     }
 
-    public void testCheckLong()
-    {
+    public void testCheckLong() {
         EventType mySchema = SupportEventTypeFactory.createBeanType(SupportBean.class);
 
         assertEquals(null, PropertyCheckHelper.checkLong(mySchema, "longPrimitive"));
@@ -51,16 +48,14 @@ public class TestPropertyCheckHelper extends TestCase
         assertTrue(PropertyCheckHelper.checkLong(mySchema, "doubleBoxed") != null);
     }
 
-    public void testFieldExist()
-    {
+    public void testFieldExist() {
         EventType mySchema = SupportEventTypeFactory.createBeanType(SupportBean.class);
 
         assertEquals(null, PropertyCheckHelper.exists(mySchema, "longPrimitive"));
         assertTrue(PropertyCheckHelper.exists(mySchema, "dummy") != null);
     }
 
-    public void test2FieldExist()
-    {
+    public void test2FieldExist() {
         EventType mySchema = SupportEventTypeFactory.createBeanType(SupportBean.class);
 
         assertEquals(null, PropertyCheckHelper.exists(mySchema, "longPrimitive", "longBoxed"));

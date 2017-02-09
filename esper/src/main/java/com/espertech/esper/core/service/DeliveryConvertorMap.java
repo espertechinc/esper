@@ -16,12 +16,12 @@ import java.util.Map;
 /**
  * Converts column results into a Map of key-value pairs.
  */
-public class DeliveryConvertorMap implements DeliveryConvertor
-{
+public class DeliveryConvertorMap implements DeliveryConvertor {
     private final String[] columnNames;
 
     /**
      * Ctor.
+     *
      * @param columnNames the names for columns
      */
     public DeliveryConvertorMap(String[] columnNames) {
@@ -30,10 +30,9 @@ public class DeliveryConvertorMap implements DeliveryConvertor
 
     public Object[] convertRow(Object[] columns) {
         Map<String, Object> map = new HashMap<String, Object>();
-        for (int i = 0; i < columns.length; i++)
-        {
+        for (int i = 0; i < columns.length; i++) {
             map.put(columnNames[i], columns[i]);
         }
-        return new Object[] {map};
+        return new Object[]{map};
     }
 }

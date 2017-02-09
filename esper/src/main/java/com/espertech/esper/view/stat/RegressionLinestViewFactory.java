@@ -10,24 +10,21 @@
  */
 package com.espertech.esper.view.stat;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.view.ViewFactory;
-import com.espertech.esper.view.ViewParameterException;
-import com.espertech.esper.view.*;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.view.*;
 
 import java.util.List;
 
 /**
  * Factory for {@link RegressionLinestView} instances.
  */
-public class RegressionLinestViewFactory implements ViewFactory
-{
+public class RegressionLinestViewFactory implements ViewFactory {
     private List<ExprNode> viewParameters;
     private int streamNumber;
 
@@ -45,21 +42,18 @@ public class RegressionLinestViewFactory implements ViewFactory
 
     protected EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
         this.streamNumber = viewFactoryContext.getStreamNum();
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
 
         if (validated.length < 2) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType())))
-        {
+        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType()))) {
             throw new ViewParameterException(getViewParamMessage());
         }
 
@@ -70,15 +64,12 @@ public class RegressionLinestViewFactory implements ViewFactory
         eventType = RegressionLinestView.createEventType(statementContext, additionalProps, streamNumber);
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new RegressionLinestView(this, agentInstanceViewFactoryContext.getAgentInstanceContext(), expressionX, expressionY, eventType, additionalProps);
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof RegressionLinestView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof RegressionLinestView)) {
             return false;
         }
 
@@ -88,15 +79,13 @@ public class RegressionLinestViewFactory implements ViewFactory
 
         RegressionLinestView myView = (RegressionLinestView) view;
         if ((!ExprNodeUtility.deepEquals(myView.getExpressionX(), expressionX)) ||
-            (!ExprNodeUtility.deepEquals(myView.getExpressionY(), expressionY)))
-        {
+                (!ExprNodeUtility.deepEquals(myView.getExpressionY(), expressionY))) {
             return false;
         }
         return true;
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 

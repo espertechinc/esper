@@ -15,8 +15,7 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 
-public abstract class ExprAggCountMinSketchNodeFactoryBase implements AggregationMethodFactory
-{
+public abstract class ExprAggCountMinSketchNodeFactoryBase implements AggregationMethodFactory {
     protected final ExprAggCountMinSketchNode parent;
 
     public ExprAggCountMinSketchNodeFactoryBase(ExprAggCountMinSketchNode parent) {

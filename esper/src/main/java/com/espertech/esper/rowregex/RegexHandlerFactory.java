@@ -21,9 +21,10 @@ import java.lang.annotation.Annotation;
 /**
  * Service for creating match-recognize factory and state services.
  */
-public interface RegexHandlerFactory
-{
+public interface RegexHandlerFactory {
     EventRowRegexNFAViewFactory makeViewFactory(ViewFactoryChain viewFactoryChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations, ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfigs) throws ExprValidationException;
+
     RegexPartitionStateRepo makeSingle(RegexPartitionStateRandomAccessGetter prevGetter, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view, boolean keepScheduleState, RegexPartitionTerminationStateComparator terminationStateCompare);
+
     RegexPartitionStateRepo makePartitioned(RegexPartitionStateRandomAccessGetter prevGetter, RegexPartitionStateRepoGroupMeta stateRepoGroupMeta, AgentInstanceContext agentInstanceContext, EventRowRegexNFAView view, boolean keepScheduleState, RegexPartitionTerminationStateComparator terminationStateCompare);
 }

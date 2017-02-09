@@ -26,8 +26,7 @@ import java.io.Serializable;
 /**
  * Interval specification within match_recognize.
  */
-public class MatchRecognizeInterval implements MetaDefItem, Serializable
-{
+public class MatchRecognizeInterval implements MetaDefItem, Serializable {
     private ExprTimePeriod timePeriodExpr;
     private boolean orTerminated;
     private ExprTimePeriodEvalDeltaConst timeDeltaComputation;
@@ -35,55 +34,63 @@ public class MatchRecognizeInterval implements MetaDefItem, Serializable
 
     /**
      * Ctor.
+     *
      * @param timePeriodExpr time period
-     * @param orTerminated or-terminated indicator
+     * @param orTerminated   or-terminated indicator
      */
-    public MatchRecognizeInterval(ExprTimePeriod timePeriodExpr, boolean orTerminated)
-    {
+    public MatchRecognizeInterval(ExprTimePeriod timePeriodExpr, boolean orTerminated) {
         this.timePeriodExpr = timePeriodExpr;
         this.orTerminated = orTerminated;
     }
 
     /**
      * Returns the time period.
+     *
      * @return time period
      */
-    public ExprTimePeriod getTimePeriodExpr()
-    {
+    public ExprTimePeriod getTimePeriodExpr() {
         return timePeriodExpr;
     }
 
     /**
      * Returns the number of milliseconds.
-     * @param fromTime from-time
+     *
+     * @param fromTime             from-time
      * @param agentInstanceContext context
      * @return msec
      */
-    public long getScheduleForwardDelta(long fromTime, AgentInstanceContext agentInstanceContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegIntervalValue(timePeriodExpr);}
+    public long getScheduleForwardDelta(long fromTime, AgentInstanceContext agentInstanceContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qRegIntervalValue(timePeriodExpr);
+        }
         if (timeDeltaComputation == null) {
             timeDeltaComputation = timePeriodExpr.constEvaluator(new ExprEvaluatorContextStatement(agentInstanceContext.getStatementContext(), false));
         }
         long result = timeDeltaComputation.deltaAdd(fromTime);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegIntervalValue(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aRegIntervalValue(result);
+        }
         return result;
     }
 
     /**
      * Returns the number of milliseconds.
-     * @param fromTime from-time
+     *
+     * @param fromTime             from-time
      * @param agentInstanceContext context
      * @return msec
      */
-    public long getScheduleBackwardDelta(long fromTime, AgentInstanceContext agentInstanceContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegIntervalValue(timePeriodExpr);}
+    public long getScheduleBackwardDelta(long fromTime, AgentInstanceContext agentInstanceContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qRegIntervalValue(timePeriodExpr);
+        }
         if (timeDeltaComputation == null) {
             timeDeltaComputation = timePeriodExpr.constEvaluator(new ExprEvaluatorContextStatement(agentInstanceContext.getStatementContext(), false));
         }
         long result = timeDeltaComputation.deltaSubtract(fromTime);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegIntervalValue(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aRegIntervalValue(result);
+        }
         return result;
     }
 

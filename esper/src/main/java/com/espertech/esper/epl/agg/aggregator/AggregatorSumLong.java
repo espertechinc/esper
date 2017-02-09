@@ -13,46 +13,37 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Sum for long values.
  */
-public class AggregatorSumLong implements AggregationMethod
-{
+public class AggregatorSumLong implements AggregationMethod {
     protected long sum;
     protected long numDataPoints;
 
-    public void clear()
-    {
+    public void clear() {
         sum = 0;
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         numDataPoints++;
         sum += (Long) object;
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
         if (numDataPoints <= 1) {
             clear();
-        }
-        else {
+        } else {
             numDataPoints--;
             sum -= (Long) object;
         }
     }
 
-    public Object getValue()
-    {
-        if (numDataPoints == 0)
-        {
+    public Object getValue() {
+        if (numDataPoints == 0) {
             return null;
         }
         return sum;

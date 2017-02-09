@@ -40,10 +40,10 @@ public class TestJsonParser extends TestCase {
         assertEquals(5.5d, parseLoadJson("5.5"));
 
         result = parseLoadJson("{\"name\":\"myname\",\"value\":5}");
-        EPAssertionUtil.assertPropsMap((Map)result, "name,value".split(","), "myname", 5);
+        EPAssertionUtil.assertPropsMap((Map) result, "name,value".split(","), "myname", 5);
 
         result = parseLoadJson("{name:\"myname\",value:5}");
-        EPAssertionUtil.assertPropsMap((Map)result, "name,value".split(","), "myname", 5);
+        EPAssertionUtil.assertPropsMap((Map) result, "name,value".split(","), "myname", 5);
 
         result = parseLoadJson("[\"one\",2]");
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{"one", 2}, (List) result);

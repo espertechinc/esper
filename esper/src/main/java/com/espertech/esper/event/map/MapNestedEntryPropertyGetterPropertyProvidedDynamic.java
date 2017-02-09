@@ -45,7 +45,7 @@ public class MapNestedEntryPropertyGetterPropertyProvidedDynamic extends MapNest
             return false;
         }
         if (nestedGetter instanceof MapEventPropertyGetter) {
-            return ((MapEventPropertyGetter) nestedGetter).isMapExistsProperty((Map)value);
+            return ((MapEventPropertyGetter) nestedGetter).isMapExistsProperty((Map) value);
         }
         return false;
     }

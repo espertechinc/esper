@@ -28,12 +28,13 @@ public class ExceptionHandlerContext {
 
     /**
      * Ctor.
-     * @param engineURI engine URI
-     * @param throwable exception
+     *
+     * @param engineURI     engine URI
+     * @param throwable     exception
      * @param statementName statement name
-     * @param epl statement EPL expression text
-     * @param type exception type
-     * @param currentEvent the event when applicable
+     * @param epl           statement EPL expression text
+     * @param type          exception type
+     * @param currentEvent  the event when applicable
      */
     public ExceptionHandlerContext(String engineURI, Throwable throwable, String statementName, String epl, ExceptionHandlerExceptionType type, EventBean currentEvent) {
         this.engineURI = engineURI;
@@ -46,6 +47,7 @@ public class ExceptionHandlerContext {
 
     /**
      * Returns the engine URI.
+     *
      * @return engine URI
      */
     public String getEngineURI() {
@@ -54,6 +56,7 @@ public class ExceptionHandlerContext {
 
     /**
      * Returns the exception.
+     *
      * @return exception
      */
     public Throwable getThrowable() {
@@ -62,6 +65,7 @@ public class ExceptionHandlerContext {
 
     /**
      * Returns the statement name, if provided, or the statement id assigned to the statement if no name was provided.
+     *
      * @return statement name or id
      */
     public String getStatementName() {
@@ -70,6 +74,7 @@ public class ExceptionHandlerContext {
 
     /**
      * Returns the expression text of the statement.
+     *
      * @return statement.
      */
     public String getEpl() {
@@ -78,6 +83,7 @@ public class ExceptionHandlerContext {
 
     /**
      * Returns exception type information
+     *
      * @return type
      */
     public ExceptionHandlerExceptionType getType() {
@@ -86,6 +92,7 @@ public class ExceptionHandlerContext {
 
     /**
      * Returns the current event, when available.
+     *
      * @return current event or null if not available
      */
     public EventBean getCurrentEvent() {

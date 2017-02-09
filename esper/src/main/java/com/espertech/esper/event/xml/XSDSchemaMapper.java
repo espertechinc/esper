@@ -10,6 +10,22 @@
  */
 package com.espertech.esper.event.xml;
 
+import com.espertech.esper.client.ConfigurationException;
+import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.util.FileUtil;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.ResourceLoader;
+import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
+import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
+import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
+import com.sun.org.apache.xerces.internal.xs.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMError;
+import org.w3c.dom.DOMErrorHandler;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.LSInput;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,38 +34,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.espertech.esper.epl.core.EngineImportService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMError;
-import org.w3c.dom.DOMErrorHandler;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.LSInput;
-
-import com.espertech.esper.client.ConfigurationException;
-import com.espertech.esper.util.FileUtil;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.ResourceLoader;
-import com.sun.org.apache.xerces.internal.dom.DOMXSImplementationSourceImpl;
-import com.sun.org.apache.xerces.internal.impl.dv.XSSimpleType;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.XSSimpleTypeDecl;
-import com.sun.org.apache.xerces.internal.xs.StringList;
-import com.sun.org.apache.xerces.internal.xs.XSAttributeUse;
-import com.sun.org.apache.xerces.internal.xs.XSComplexTypeDefinition;
-import com.sun.org.apache.xerces.internal.xs.XSConstants;
-import com.sun.org.apache.xerces.internal.xs.XSElementDeclaration;
-import com.sun.org.apache.xerces.internal.xs.XSFacet;
-import com.sun.org.apache.xerces.internal.xs.XSImplementation;
-import com.sun.org.apache.xerces.internal.xs.XSLoader;
-import com.sun.org.apache.xerces.internal.xs.XSModel;
-import com.sun.org.apache.xerces.internal.xs.XSModelGroup;
-import com.sun.org.apache.xerces.internal.xs.XSNamedMap;
-import com.sun.org.apache.xerces.internal.xs.XSObject;
-import com.sun.org.apache.xerces.internal.xs.XSObjectList;
-import com.sun.org.apache.xerces.internal.xs.XSParticle;
-import com.sun.org.apache.xerces.internal.xs.XSTerm;
-import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 
 /**
  * Helper class for mapping a XSD schema model to an internal representation.

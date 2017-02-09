@@ -28,8 +28,7 @@ import java.util.List;
 /**
  * Factory for views for time-ordering events.
  */
-public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     private List<ExprNode> viewParameters;
 
     /**
@@ -46,13 +45,11 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         viewParameters = expressionParameters;
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
 
         if (viewParameters.size() != 2) {
@@ -72,30 +69,25 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
         return new RandomAccessByIndexGetter();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         IStreamSortRankRandomAccess sortedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
         return new TimeOrderView(agentInstanceViewFactoryContext, this, timestampExpression, timestampExpression.getExprEvaluator(), timeDeltaComputation, sortedRandomAccess);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof TimeOrderView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof TimeOrderView)) {
             return false;
         }
 
         TimeOrderView other = (TimeOrderView) view;
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!timeDeltaComputation.equalsTimePeriod(other.getTimeDeltaComputation())) ||
-            (!ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression)))
-        {
+                (!ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression))) {
             return false;
         }
 

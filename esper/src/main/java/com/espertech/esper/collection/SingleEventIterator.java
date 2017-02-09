@@ -18,46 +18,38 @@ import java.util.NoSuchElementException;
 /**
  * A utility class for an iterator that has one element.
  */
-public class SingleEventIterator implements Iterator<EventBean>
-{
+public class SingleEventIterator implements Iterator<EventBean> {
     private EventBean eventBean;
     private boolean hasMore;
 
     /**
      * Constructor, takes the single event to iterate over as a parameter.
      * The single event can be null indicating that there are no more elements.
+     *
      * @param eventBean single bean that the iterator returns, or null for an empty iterator
      */
-    public SingleEventIterator(EventBean eventBean)
-    {
-        if (eventBean == null)
-        {
+    public SingleEventIterator(EventBean eventBean) {
+        if (eventBean == null) {
             hasMore = false;
-        }
-        else
-        {
+        } else {
             this.eventBean = eventBean;
             this.hasMore = true;
         }
     }
 
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         return hasMore;
     }
 
-    public EventBean next()
-    {
-        if (!hasMore)
-        {
+    public EventBean next() {
+        if (!hasMore) {
             throw new NoSuchElementException();
         }
         hasMore = false;
         return eventBean;
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

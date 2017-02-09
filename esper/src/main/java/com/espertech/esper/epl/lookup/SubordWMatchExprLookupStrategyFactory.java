@@ -15,9 +15,10 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 
-public interface SubordWMatchExprLookupStrategyFactory
-{
+public interface SubordWMatchExprLookupStrategyFactory {
     public SubordWMatchExprLookupStrategy realize(EventTable[] indexes, AgentInstanceContext agentInstanceContext, Iterable<EventBean> scanIterable, VirtualDWView virtualDataWindow);
+
     public String toQueryPlan();
+
     public SubordTableLookupStrategyFactory getOptionalInnerStrategy();
 }

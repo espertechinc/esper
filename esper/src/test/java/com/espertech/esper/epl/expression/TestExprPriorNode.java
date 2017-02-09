@@ -23,22 +23,18 @@ import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import com.espertech.esper.view.internal.PriorEventBufferUnbound;
 import junit.framework.TestCase;
 
-public class TestExprPriorNode extends TestCase
-{
+public class TestExprPriorNode extends TestCase {
     private ExprPriorNode priorNode;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         priorNode = SupportExprNodeFactory.makePriorNode();
     }
 
-    public void testGetType()  throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(double.class, priorNode.getType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         priorNode = new ExprPriorNode();
 
         // No subnodes: Exception is thrown.
@@ -49,42 +45,35 @@ public class TestExprPriorNode extends TestCase
         tryInvalidValidate(priorNode);
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         PriorEventBufferUnbound buffer = new PriorEventBufferUnbound(10);
         priorNode.setPriorStrategy(new ExprPriorEvalStrategyRandomAccess(buffer));
-        EventBean[] events = new EventBean[] {makeEvent(1d), makeEvent(10d)};
+        EventBean[] events = new EventBean[]{makeEvent(1d), makeEvent(10d)};
         buffer.update(events, null);
 
         assertEquals(1d, priorNode.evaluate(events, true, null));
     }
 
-    public void testEquals()  throws Exception
-    {
+    public void testEquals() throws Exception {
         ExprPriorNode node1 = new ExprPriorNode();
         assertTrue(node1.equalsNode(priorNode));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("prior(1,s0.doublePrimitive)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(priorNode));
     }
 
-    private EventBean makeEvent(double doublePrimitive)
-    {
+    private EventBean makeEvent(double doublePrimitive) {
         SupportBean theEvent = new SupportBean();
         theEvent.setDoublePrimitive(doublePrimitive);
         return SupportEventBeanFactory.createObject(theEvent);
     }
 
-    private void tryInvalidValidate(ExprPriorNode exprPriorNode) throws Exception
-    {
+    private void tryInvalidValidate(ExprPriorNode exprPriorNode) throws Exception {
         try {
             exprPriorNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }

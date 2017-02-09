@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * Descriptor for use in create-schema syntax to define property name and type of an event property.
  */
-public class SchemaColumnDesc implements Serializable
-{
+public class SchemaColumnDesc implements Serializable {
     private static final long serialVersionUID = 5068685531968720148L;
 
     private String name;
@@ -33,8 +32,9 @@ public class SchemaColumnDesc implements Serializable
 
     /**
      * Ctor.
-     * @param name column name
-     * @param type type name
+     *
+     * @param name  column name
+     * @param type  type name
      * @param array array flag
      */
     public SchemaColumnDesc(String name, String type, boolean array) {
@@ -45,13 +45,13 @@ public class SchemaColumnDesc implements Serializable
 
     /**
      * Ctor.
-     * @param name property name
-     * @param type property type, can be any simple class name or fully-qualified class name or existing event type name
-     * @param array true for array property
+     *
+     * @param name           property name
+     * @param type           property type, can be any simple class name or fully-qualified class name or existing event type name
+     * @param array          true for array property
      * @param primitiveArray true for array of primitive (requires array property to be set and a primitive type)
      */
-    public SchemaColumnDesc(String name, String type, boolean array, boolean primitiveArray)
-    {
+    public SchemaColumnDesc(String name, String type, boolean array, boolean primitiveArray) {
         this.name = name;
         this.type = type;
         this.array = array;
@@ -60,60 +60,61 @@ public class SchemaColumnDesc implements Serializable
 
     /**
      * Returns property name.
+     *
      * @return name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Returns property type.
+     *
      * @return type
      */
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     /**
      * Returns true for array properties.
+     *
      * @return indicator
      */
-    public boolean isArray()
-    {
+    public boolean isArray() {
         return array;
     }
 
     /**
      * Set property name.
+     *
      * @param name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Set property type.
+     *
      * @param type type
      */
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
     /**
      * Set array indicator.
+     *
      * @param array indicator
      */
-    public void setArray(boolean array)
-    {
+    public void setArray(boolean array) {
         this.array = array;
     }
 
     /**
      * Returns indicator whether array of primitives (requires array and a primitive type)
+     *
      * @return indicator
      */
     public boolean isPrimitiveArray() {
@@ -122,6 +123,7 @@ public class SchemaColumnDesc implements Serializable
 
     /**
      * Sets indicator whether array of primitives (requires array and a primitive type)
+     *
      * @param primitiveArray indicator
      */
     public void setPrimitiveArray(boolean primitiveArray) {
@@ -130,6 +132,7 @@ public class SchemaColumnDesc implements Serializable
 
     /**
      * Render to EPL.
+     *
      * @param writer to render to
      */
     public void toEPL(StringWriter writer) {
@@ -139,8 +142,7 @@ public class SchemaColumnDesc implements Serializable
         if (array) {
             if (primitiveArray) {
                 writer.write("[primitive]");
-            }
-            else {
+            } else {
                 writer.write("[]");
             }
         }

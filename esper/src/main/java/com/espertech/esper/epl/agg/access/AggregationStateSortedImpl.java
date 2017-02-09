@@ -20,14 +20,14 @@ import java.util.*;
 /**
  * Implementation of access function for single-stream (not joins).
  */
-public class AggregationStateSortedImpl implements AggregationStateWithSize, AggregationStateSorted
-{
+public class AggregationStateSortedImpl implements AggregationStateWithSize, AggregationStateSorted {
     protected final AggregationStateSortedSpec spec;
     protected final TreeMap<Object, Object> sorted;
     protected int size;
 
     /**
      * Ctor.
+     *
      * @param spec aggregation spec
      */
     public AggregationStateSortedImpl(AggregationStateSortedSpec spec) {
@@ -40,8 +40,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         size = 0;
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[spec.getStreamId()];
         if (theEvent == null) {
             return;
@@ -51,14 +50,12 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
             Object existing = sorted.get(comparable);
             if (existing == null) {
                 sorted.put(comparable, theEvent);
-            }
-            else if (existing instanceof EventBean) {
+            } else if (existing instanceof EventBean) {
                 ArrayDeque coll = new ArrayDeque(2);
                 coll.add(existing);
                 coll.add(theEvent);
                 sorted.put(comparable, coll);
-            }
-            else {
+            } else {
                 ArrayDeque q = (ArrayDeque) existing;
                 q.add(theEvent);
             }
@@ -76,8 +73,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         return true;
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[spec.getStreamId()];
         if (theEvent == null) {
             return;
@@ -89,8 +85,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
                 if (existing.equals(theEvent)) {
                     sorted.remove(comparable);
                     size--;
-                }
-                else if (existing instanceof ArrayDeque) {
+                } else if (existing instanceof ArrayDeque) {
                     ArrayDeque q = (ArrayDeque) existing;
                     q.remove(theEvent);
                     if (q.isEmpty()) {
@@ -110,8 +105,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         return checkedPayload(max.getValue());
     }
 
-    public EventBean getLastValue()
-    {
+    public EventBean getLastValue() {
         if (sorted.isEmpty()) {
             return null;
         }
@@ -131,19 +125,17 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         return new AggregationStateSortedWrappingCollection(sorted, size);
     }
 
-    public int size()
-    {
+    public int size() {
         return size;
     }
 
     public static Object getComparable(ExprEvaluator[] criteria, EventBean[] eventsPerStream, boolean istream, ExprEvaluatorContext exprEvaluatorContext) {
         if (criteria.length == 1) {
             return criteria[0].evaluate(eventsPerStream, istream, exprEvaluatorContext);
-        }
-        else {
+        } else {
             Object[] result = new Object[criteria.length];
             int count = 0;
-            for(ExprEvaluator expr : criteria) {
+            for (ExprEvaluator expr : criteria) {
                 result[count++] = expr.evaluate(eventsPerStream, true, exprEvaluatorContext);
             }
             return new MultiKeyUntyped(result);

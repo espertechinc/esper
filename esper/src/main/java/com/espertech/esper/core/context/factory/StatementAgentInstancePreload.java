@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.core.context.factory;
 
-public interface StatementAgentInstancePreload  {
+public interface StatementAgentInstancePreload {
 
     public void executePreload();
 }

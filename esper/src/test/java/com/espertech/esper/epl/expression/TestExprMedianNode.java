@@ -16,31 +16,25 @@ import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 
-public class TestExprMedianNode extends TestExprAggregateNodeAdapter
-{
-    public void setUp() throws Exception
-    {
+public class TestExprMedianNode extends TestExprAggregateNodeAdapter {
+    public void setUp() throws Exception {
         super.validatedNodeToTest = makeNode(5, Integer.class);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(Double.class, validatedNodeToTest.getType());
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("median(5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest));
         assertFalse(validatedNodeToTest.equalsNode(new ExprSumNode(false)));
     }
 
-    private ExprMedianNode makeNode(Object value, Class type) throws Exception
-    {
+    private ExprMedianNode makeNode(Object value, Class type) throws Exception {
         ExprMedianNode medianNode = new ExprMedianNode(false);
         medianNode.addChildNode(new SupportExprNode(value, type));
         SupportExprNodeFactory.validate3Stream(medianNode);

@@ -15,17 +15,14 @@ import com.espertech.esper.epl.join.table.EventTable;
 
 import java.util.Map;
 
-public class JoinSetComposerUtil
-{
-    private static EventTable[] EMPTY = new EventTable[0];
+public class JoinSetComposerUtil {
+    private final static EventTable[] EMPTY = new EventTable[0];
 
-    public static EventTable[][] toArray(Map<TableLookupIndexReqKey, EventTable>[] repositories)
-    {
+    public static EventTable[][] toArray(Map<TableLookupIndexReqKey, EventTable>[] repositories) {
         return toArray(repositories, repositories.length);
     }
 
-    public static EventTable[][] toArray(Map<TableLookupIndexReqKey, EventTable>[] repositories, int length)
-    {
+    public static EventTable[][] toArray(Map<TableLookupIndexReqKey, EventTable>[] repositories, int length) {
         if (repositories == null) {
             return getDefaultTablesArray(length);
         }

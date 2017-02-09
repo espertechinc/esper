@@ -17,12 +17,12 @@ import java.util.Collection;
 /**
  * Listener to filter activity.
  */
-public interface FilterServiceListener
-{
+public interface FilterServiceListener {
     /**
      * Indicates an event being filtered.
-     * @param theEvent event
-     * @param matches matches found
+     *
+     * @param theEvent    event
+     * @param matches     matches found
      * @param statementId optional statement id if for a statement
      */
     public void filtering(EventBean theEvent, Collection<FilterHandle> matches, Integer statementId);

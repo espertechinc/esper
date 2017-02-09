@@ -12,10 +12,8 @@ package com.espertech.esper.filter;
 
 import junit.framework.TestCase;
 
-public class TestDoubleRange extends TestCase
-{
-    public void testNew()
-    {
+public class TestDoubleRange extends TestCase {
+    public void testNew() {
         DoubleRange range = new DoubleRange(10d, 20d);
         assertEquals(20d, range.getMax());
         assertEquals(10d, range.getMin());
@@ -25,8 +23,7 @@ public class TestDoubleRange extends TestCase
         assertEquals(10d, range.getMin());
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         DoubleRange rangeOne = new DoubleRange(10d, 20d);
         DoubleRange rangeTwo = new DoubleRange(20d, 10d);
         DoubleRange rangeThree = new DoubleRange(20d, 11d);
@@ -39,8 +36,7 @@ public class TestDoubleRange extends TestCase
         assertFalse(rangeThree.equals(rangeFour));
     }
 
-    public void testHash()
-    {
+    public void testHash() {
         DoubleRange range = new DoubleRange(10d, 20d);
         int hashCode = 7;
         hashCode *= 31;
@@ -48,6 +44,6 @@ public class TestDoubleRange extends TestCase
         hashCode *= 31;
         hashCode ^= Double.valueOf(20).hashCode();
 
-        assertEquals(hashCode, range.hashCode());        
+        assertEquals(hashCode, range.hashCode());
     }
 }

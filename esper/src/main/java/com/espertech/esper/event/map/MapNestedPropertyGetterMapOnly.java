@@ -21,32 +21,29 @@ import java.util.Map;
 /**
  * Getter for one or more levels deep nested properties of maps.
  */
-public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
-{
+public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter {
     private final MapEventPropertyGetter[] mapGetterChain;
 
     /**
      * Ctor.
-     * @param getterChain is the chain of getters to retrieve each nested property
+     *
+     * @param getterChain        is the chain of getters to retrieve each nested property
      * @param eventAdaperService is a factory for POJO bean event types
      */
     public MapNestedPropertyGetterMapOnly(List<EventPropertyGetter> getterChain,
-                                          EventAdapterService eventAdaperService)
-    {
+                                          EventAdapterService eventAdaperService) {
         this.mapGetterChain = new MapEventPropertyGetter[getterChain.size()];
         for (int i = 0; i < getterChain.size(); i++) {
             mapGetterChain[i] = (MapEventPropertyGetter) getterChain.get(i);
         }
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         Object result = mapGetterChain[0].getMap(map);
         return handleGetterTrailingChain(result);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         if (!mapGetterChain[0].isMapExistsProperty(map)) {
             return false;
         }
@@ -54,14 +51,12 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
         return handleIsExistsTrailingChain(result);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         Object result = mapGetterChain[0].get(eventBean);
         return handleGetterTrailingChain(result);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         if (!mapGetterChain[0].isExistsProperty(eventBean)) {
             return false;
         }
@@ -69,14 +64,12 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
         return handleIsExistsTrailingChain(result);
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 
     private boolean handleIsExistsTrailingChain(Object result) {
-        for (int i = 1; i < mapGetterChain.length; i++)
-        {
+        for (int i = 1; i < mapGetterChain.length; i++) {
             if (result == null) {
                 return false;
             }
@@ -89,8 +82,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
                         return getter.isExistsProperty((EventBean) result);
                     }
                     return false;
-                }
-                else {
+                } else {
                     return getter.isMapExistsProperty((Map<String, Object>) result);
                 }
             }
@@ -98,12 +90,10 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
             if (!(result instanceof Map)) {
                 if (result instanceof EventBean) {
                     result = getter.get((EventBean) result);
-                }
-                else {
+                } else {
                     return false;
                 }
-            }
-            else {
+            } else {
                 result = getter.getMap((Map<String, Object>) result);
             }
         }
@@ -111,8 +101,7 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
     }
 
     private Object handleGetterTrailingChain(Object result) {
-        for (int i = 1; i < mapGetterChain.length; i++)
-        {
+        for (int i = 1; i < mapGetterChain.length; i++) {
             if (result == null) {
                 return null;
             }
@@ -121,12 +110,10 @@ public class MapNestedPropertyGetterMapOnly implements MapEventPropertyGetter
             if (!(result instanceof Map)) {
                 if (result instanceof EventBean) {
                     result = getter.get((EventBean) result);
-                }
-                else {
+                } else {
                     return null;
                 }
-            }
-            else {
+            } else {
                 result = getter.getMap((Map<String, Object>) result);
             }
         }

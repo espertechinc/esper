@@ -23,16 +23,14 @@ import java.util.List;
 /**
  * Output condition handling crontab-at schedule output.
  */
-public class OutputConditionCrontabFactory implements OutputConditionFactory
-{
+public class OutputConditionCrontabFactory implements OutputConditionFactory {
     private final ScheduleSpec scheduleSpec;
     protected final boolean isStartConditionOnCreation;
 
     public OutputConditionCrontabFactory(List<ExprNode> scheduleSpecExpressionList,
                                          StatementContext statementContext,
                                          boolean isStartConditionOnCreation)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         scheduleSpec = ExprNodeUtility.toCrontabSchedule(ExprNodeOrigin.OUTPUTLIMIT, scheduleSpecExpressionList, statementContext, false);
         this.isStartConditionOnCreation = isStartConditionOnCreation;
     }

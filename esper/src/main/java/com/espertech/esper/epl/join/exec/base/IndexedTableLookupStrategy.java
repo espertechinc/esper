@@ -27,8 +27,7 @@ import java.util.Set;
 /**
  * Lookup on an index using a set of properties as key values.
  */
-public class IndexedTableLookupStrategy implements JoinExecTableLookupStrategy
-{
+public class IndexedTableLookupStrategy implements JoinExecTableLookupStrategy {
     private final EventType eventType;
     private final String[] properties;
     private final PropertyIndexedEventTable index;
@@ -36,12 +35,12 @@ public class IndexedTableLookupStrategy implements JoinExecTableLookupStrategy
 
     /**
      * Ctor.
-     * @param eventType - event type to expect for lookup
+     *
+     * @param eventType  - event type to expect for lookup
      * @param properties - key properties
-     * @param index - index to look up in
+     * @param index      - index to look up in
      */
-    public IndexedTableLookupStrategy(EventType eventType, String[] properties, PropertyIndexedEventTable index)
-    {
+    public IndexedTableLookupStrategy(EventType eventType, String[] properties, PropertyIndexedEventTable index) {
         this.eventType = eventType;
         this.properties = properties;
         if (index == null) {
@@ -50,12 +49,10 @@ public class IndexedTableLookupStrategy implements JoinExecTableLookupStrategy
         this.index = index;
 
         propertyGetters = new EventPropertyGetter[properties.length];
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             propertyGetters[i] = eventType.getGetter(properties[i]);
 
-            if (propertyGetters[i] == null)
-            {
+            if (propertyGetters[i] == null) {
                 throw new IllegalArgumentException("Property named '" + properties[i] + "' is invalid for type " + eventType);
             }
         }
@@ -63,34 +60,35 @@ public class IndexedTableLookupStrategy implements JoinExecTableLookupStrategy
 
     /**
      * Returns event type of the lookup event.
+     *
      * @return event type of the lookup event
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
     /**
      * Returns properties to use from lookup event to look up in index.
+     *
      * @return properties to use from lookup event
      */
-    public String[] getProperties()
-    {
+    public String[] getProperties() {
         return properties;
     }
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTable getIndex()
-    {
+    public PropertyIndexedEventTable getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) {InstrumentationHelper.get().qIndexJoinLookup(this, index);}
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, index);
+        }
 
         Object[] keys = getKeys(theEvent);
 
@@ -102,13 +100,11 @@ public class IndexedTableLookupStrategy implements JoinExecTableLookupStrategy
         return index.lookup(keys);
     }
 
-    private Object[] getKeys(EventBean theEvent)
-    {
+    private Object[] getKeys(EventBean theEvent) {
         return EventBeanUtility.getPropertyArray(theEvent, propertyGetters);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IndexedTableLookupStrategy indexProps=" + Arrays.toString(properties) +
                 " index=(" + index + ')';
     }

@@ -11,37 +11,32 @@
 package com.espertech.esper.core.thread;
 
 import com.espertech.esper.core.service.EPRuntimeImpl;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inbound unit for unwrapped events.
  */
-public class InboundUnitSendEvent implements InboundUnitRunnable
-{
+public class InboundUnitSendEvent implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendEvent.class);
     private final Object theEvent;
     private final EPRuntimeImpl runtime;
 
     /**
      * Ctor.
+     *
      * @param theEvent to process
-     * @param runtime to process event
+     * @param runtime  to process event
      */
-    public InboundUnitSendEvent(Object theEvent, EPRuntimeImpl runtime)
-    {
+    public InboundUnitSendEvent(Object theEvent, EPRuntimeImpl runtime) {
         this.theEvent = theEvent;
         this.runtime = runtime;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             runtime.processEvent(theEvent);
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing unwrapped event: " + e.getMessage(), e);
         }
     }

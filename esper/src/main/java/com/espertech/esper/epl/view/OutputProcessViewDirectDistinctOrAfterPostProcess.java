@@ -21,8 +21,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
  * Output process view that does not enforce any output policies and may simply
  * hand over events to child views, but works with distinct and after-output policies
  */
-public class OutputProcessViewDirectDistinctOrAfterPostProcess extends OutputProcessViewDirectDistinctOrAfter
-{
+public class OutputProcessViewDirectDistinctOrAfterPostProcess extends OutputProcessViewDirectDistinctOrAfter {
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewDirectDistinctOrAfterPostProcess(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewDirectDistinctOrAfterFactory parent, OutputStrategyPostProcess postProcessor) {

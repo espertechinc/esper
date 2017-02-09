@@ -38,14 +38,13 @@ public class SignalHandlerDefaultWInvoke extends SignalHandlerDefault {
     public void handleSignal(EPDataFlowSignal signal) {
         try {
             handleSignalInternal(signal);
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             log.error("Failed to invoke signal handler: " + ex.getMessage(), ex);
         }
     }
 
     protected void handleSignalInternal(EPDataFlowSignal signal) throws InvocationTargetException {
-        fastMethod.invoke(target, new Object[] {signal});
+        fastMethod.invoke(target, new Object[]{signal});
     }
 
 }

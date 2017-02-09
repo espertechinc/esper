@@ -20,14 +20,15 @@ import java.util.List;
  */
 public class StatsHolder {
 
-    public static int[] DEFAULT_MS = new int[]{1, 5, 10, 50, 100, 250, 500, 1000};//ms
-    public static int[] DEFAULT_NS = new int[]{5, 10, 15, 20, 25, 50, 100, 500, 1000, 2500, 5000};//micro secs
+    public static final int[] DEFAULT_MS = new int[]{1, 5, 10, 50, 100, 250, 500, 1000}; //ms
+    public static final int[] DEFAULT_NS = new int[]{5, 10, 15, 20, 25, 50, 100, 500, 1000, 2500, 5000}; //micro secs
+
     static {
         for (int i = 0; i < DEFAULT_NS.length; i++)
-            DEFAULT_NS[i] *= 1000;//turn to ns
+            DEFAULT_NS[i] *= 1000; //turn to ns
     }
 
-    private static List<Stats> STATS = Collections.synchronizedList(new ArrayList<Stats>());
+    private final static List<Stats> STATS = Collections.synchronizedList(new ArrayList<Stats>());
 
     private static ThreadLocal<Stats> statsEngine = new ThreadLocal<Stats>() {
         protected synchronized Stats initialValue() {

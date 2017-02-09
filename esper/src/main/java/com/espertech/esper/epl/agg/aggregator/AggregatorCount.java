@@ -13,29 +13,24 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Counts all datapoints including null values.
  */
-public class AggregatorCount implements AggregationMethod
-{
+public class AggregatorCount implements AggregationMethod {
     protected long numDataPoints;
 
-    public void clear()
-    {
+    public void clear() {
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
+    public void enter(Object object) {
         numDataPoints++;
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
         if (numDataPoints > 0) {
             numDataPoints--;
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return numDataPoints;
     }
 

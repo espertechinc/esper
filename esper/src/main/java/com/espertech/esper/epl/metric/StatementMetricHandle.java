@@ -13,19 +13,18 @@ package com.espertech.esper.epl.metric;
 /**
  * Handle for statements metric reporting by runtime.
  */
-public class StatementMetricHandle
-{
+public class StatementMetricHandle {
     private final int groupNum;
     private final int index;
     private boolean isEnabled;
 
     /**
      * Ctor.
+     *
      * @param groupNum group number, zero for default group
-     * @param index index slot
+     * @param index    index slot
      */
-    public StatementMetricHandle(int groupNum, int index)
-    {
+    public StatementMetricHandle(int groupNum, int index) {
         this.groupNum = groupNum;
         this.index = index;
         this.isEnabled = true;
@@ -33,37 +32,37 @@ public class StatementMetricHandle
 
     /**
      * Returns group number for statement.
+     *
      * @return group number
      */
-    public int getGroupNum()
-    {
+    public int getGroupNum() {
         return groupNum;
     }
 
     /**
      * Returns slot number of metric.
+     *
      * @return metric index
      */
-    public int getIndex()
-    {
+    public int getIndex() {
         return index;
     }
 
     /**
      * Returns true if enabled for statement.
+     *
      * @return enabled flag
      */
-    public boolean isEnabled()
-    {
+    public boolean isEnabled() {
         return isEnabled;
     }
 
     /**
      * Set to true if statement metric reporting is enabled, false for disabled.
+     *
      * @param enabled flag
      */
-    public void setEnabled(boolean enabled)
-    {
+    public void setEnabled(boolean enabled) {
         isEnabled = enabled;
     }
 }

@@ -17,10 +17,7 @@ import com.espertech.esper.epl.spec.AnnotationDesc;
 import com.espertech.esper.epl.spec.CreateTableColumn;
 import org.antlr.v4.runtime.tree.Tree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ASTTableHelper {
 
@@ -53,17 +50,17 @@ public class ASTTableHelper {
 
         Boolean primaryKey = false;
         if (ctx.p != null) {
-            if (!ctx.p.getText().toLowerCase().equals("primary")) {
+            if (!ctx.p.getText().toLowerCase(Locale.ENGLISH).equals("primary")) {
                 throw ASTWalkException.from("Invalid keyword '" + ctx.p.getText() + "' encountered, expected 'primary key'");
             }
-            if (!ctx.k.getText().toLowerCase().equals("key")) {
+            if (!ctx.k.getText().toLowerCase(Locale.ENGLISH).equals("key")) {
                 throw ASTWalkException.from("Invalid keyword '" + ctx.k.getText() + "' encountered, expected 'primary key'");
             }
             primaryKey = true;
         }
 
         List<AnnotationDesc> annots = Collections.emptyList();
-        if (ctx.annotationEnum() != null)  {
+        if (ctx.annotationEnum() != null) {
             annots = new ArrayList<AnnotationDesc>(ctx.annotationEnum().size());
             for (EsperEPL2GrammarParser.AnnotationEnumContext anctx : ctx.annotationEnum()) {
                 annots.add(ASTAnnotationHelper.walk(anctx, engineImportService));

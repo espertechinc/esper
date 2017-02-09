@@ -19,19 +19,17 @@ import com.espertech.esper.client.EventBean;
  * Backed by a fixed-size array that is filled forward, then rolls back to the beginning
  * keeping track of the current position.
  */
-public class RollingEventBuffer
-{
+public class RollingEventBuffer {
     private EventBean[] buffer;
     private int nextFreeIndex;
 
     /**
      * Ctor.
+     *
      * @param size is the maximum number of events in buffer
      */
-    public RollingEventBuffer(int size)
-    {
-        if (size <= 0)
-        {
+    public RollingEventBuffer(int size) {
+        if (size <= 0) {
             throw new IllegalArgumentException("Minimum buffer size is 1");
         }
 
@@ -41,10 +39,10 @@ public class RollingEventBuffer
 
     /**
      * Add events to the buffer.
+     *
      * @param events to add
      */
-    public void add(EventBean[] events)
-    {
+    public void add(EventBean[] events) {
         if (events == null) {
             return;
         }
@@ -56,15 +54,14 @@ public class RollingEventBuffer
 
     /**
      * Add an event to the buffer.
+     *
      * @param theEvent to add
      */
-    public void add(EventBean theEvent)
-    {
+    public void add(EventBean theEvent) {
         buffer[nextFreeIndex] = theEvent;
         nextFreeIndex++;
 
-        if (nextFreeIndex == buffer.length)
-        {
+        if (nextFreeIndex == buffer.length) {
             nextFreeIndex = 0;
         }
     }
@@ -74,21 +71,19 @@ public class RollingEventBuffer
      * <p>
      * Thus index 0 returns the last event added, index 1 returns the prior to the last event added
      * up to the maximum buffer size.
+     *
      * @param index prior event index from zero to max size
      * @return prior event at given index
      */
-    public EventBean get(int index)
-    {
-        if (index >= buffer.length)
-        {
+    public EventBean get(int index) {
+        if (index >= buffer.length) {
             throw new IllegalArgumentException("Invalid index " + index + " for size " + buffer.length);
         }
 
         // The newest event is at (nextFreeIndex + 1)
         int newest = nextFreeIndex - 1;
         int relative = newest - index;
-        if (relative < 0)
-        {
+        if (relative < 0) {
             relative += buffer.length;
         }
         return buffer[relative];

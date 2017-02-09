@@ -27,8 +27,7 @@ import java.util.List;
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView
-{
+public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView {
     private final NamedWindowOnMergeViewFactory parent;
     private EventBean[] lastResult;
 
@@ -37,41 +36,51 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView
         this.parent = parent;
     }
 
-    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_MERGE, triggerEvents, matchingEvents);}
+    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_MERGE, triggerEvents, matchingEvents);
+        }
 
         OneEventCollection newData = new OneEventCollection();
         OneEventCollection oldData = null;
         EventBean[] eventsPerStream = new EventBean[3]; // first:named window, second: trigger, third:before-update (optional)
 
-        if ((matchingEvents == null) || (matchingEvents.length == 0)){
+        if ((matchingEvents == null) || (matchingEvents.length == 0)) {
 
             List<NamedWindowOnMergeMatch> unmatched = parent.getNamedWindowOnMergeHelper().getUnmatched();
 
             for (EventBean triggerEvent : triggerEvents) {
                 eventsPerStream[1] = triggerEvent;
 
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThens(false, triggerEvent, unmatched.size());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qInfraMergeWhenThens(false, triggerEvent, unmatched.size());
+                }
 
                 int count = -1;
                 for (NamedWindowOnMergeMatch action : unmatched) {
                     count++;
 
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThenItem(false, count);}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().qInfraMergeWhenThenItem(false, count);
+                    }
                     if (!action.isApplies(eventsPerStream, super.getExprEvaluatorContext())) {
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(false, false);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aInfraMergeWhenThenItem(false, false);
+                        }
                         continue;
                     }
                     action.apply(null, eventsPerStream, newData, oldData, super.getExprEvaluatorContext());
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(false, true);}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aInfraMergeWhenThenItem(false, true);
+                    }
                     break;  // apply no other actions
                 }
 
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThens(false);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aInfraMergeWhenThens(false);
+                }
             }
-        }
-        else {
+        } else {
 
             // handle update/
             oldData = new OneEventCollection();
@@ -80,7 +89,9 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView
 
             for (EventBean triggerEvent : triggerEvents) {
                 eventsPerStream[1] = triggerEvent;
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThens(true, triggerEvent, matched.size());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qInfraMergeWhenThens(true, triggerEvent, matched.size());
+                }
 
                 for (EventBean matchingEvent : matchingEvents) {
                     eventsPerStream[0] = matchingEvent;
@@ -89,26 +100,32 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView
                     for (NamedWindowOnMergeMatch action : matched) {
                         count++;
 
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThenItem(true, count);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().qInfraMergeWhenThenItem(true, count);
+                        }
                         if (!action.isApplies(eventsPerStream, super.getExprEvaluatorContext())) {
-                            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(true, false);}
+                            if (InstrumentationHelper.ENABLED) {
+                                InstrumentationHelper.get().aInfraMergeWhenThenItem(true, false);
+                            }
                             continue;
                         }
                         action.apply(matchingEvent, eventsPerStream, newData, oldData, super.getExprEvaluatorContext());
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(true, true);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aInfraMergeWhenThenItem(true, true);
+                        }
                         break;  // apply no other actions
                     }
                 }
 
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThens(true);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aInfraMergeWhenThens(true);
+                }
             }
 
         }
 
-        if (!newData.isEmpty() || (oldData != null && !oldData.isEmpty()))
-        {
-            if ((MetricReportingPath.isMetricsEnabled) && (parent.getCreateNamedWindowMetricHandle().isEnabled()) && !newData.isEmpty())
-            {
+        if (!newData.isEmpty() || (oldData != null && !oldData.isEmpty())) {
+            if ((MetricReportingPath.isMetricsEnabled) && (parent.getCreateNamedWindowMetricHandle().isEnabled()) && !newData.isEmpty()) {
                 parent.getMetricReportingService().accountTime(parent.getCreateNamedWindowMetricHandle(), 0, 0, newData.toArray().length);
             }
 
@@ -119,8 +136,7 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView
                 EventBean[] eventsPerStreamNaturalOld = (oldData == null || oldData.isEmpty()) ? null : oldData.toArray();
                 this.rootView.update(EventBeanUtility.denaturalize(eventsPerStreamNaturalNew), EventBeanUtility.denaturalize(eventsPerStreamNaturalOld));
                 updateChildren(eventsPerStreamNaturalNew, eventsPerStreamNaturalOld);
-            }
-            else {
+            } else {
                 EventBean[] eventsPerStreamNew = newData.isEmpty() ? null : newData.toArray();
                 EventBean[] eventsPerStreamOld = (oldData == null || oldData.isEmpty()) ? null : oldData.toArray();
                 this.rootView.update(eventsPerStreamNew, eventsPerStreamOld);
@@ -132,16 +148,16 @@ public class NamedWindowOnMergeView extends NamedWindowOnExprBaseView
 
         // Keep the last delete records
         lastResult = matchingEvents;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return rootView.getEventType();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new ArrayEventIterator(lastResult);
     }
 }

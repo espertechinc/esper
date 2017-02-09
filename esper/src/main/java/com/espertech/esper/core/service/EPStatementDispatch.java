@@ -15,8 +15,7 @@ package com.espertech.esper.core.service;
  * <p>
  * Relevant when a statements callbacks have completed and the join processing must take place.
  */
-public interface EPStatementDispatch
-{
+public interface EPStatementDispatch {
     /**
      * Execute dispatch.
      */

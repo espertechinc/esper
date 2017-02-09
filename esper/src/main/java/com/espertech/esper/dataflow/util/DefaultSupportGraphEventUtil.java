@@ -38,7 +38,7 @@ public class DefaultSupportGraphEventUtil {
         propertyTypes.put("myInt", Integer.class);
         propertyTypes.put("myString", String.class);
         epService.getEPAdministrator().getConfiguration().addEventType("MyMapEvent", propertyTypes);
-        epService.getEPAdministrator().getConfiguration().addEventType("MyOAEvent", "myDouble,myInt,myString".split(","), new Object[] {Double.class, Integer.class, String.class});
+        epService.getEPAdministrator().getConfiguration().addEventType("MyOAEvent", "myDouble,myInt,myString".split(","), new Object[]{Double.class, Integer.class, String.class});
         epService.getEPAdministrator().getConfiguration().addEventType(MyEvent.class);
         epService.getEPAdministrator().getConfiguration().addEventType("MyXMLEvent", getConfig());
     }
@@ -88,11 +88,11 @@ public class DefaultSupportGraphEventUtil {
     }
 
     public static Object[] getMapEvents() {
-        return new Object[] {makeMapEvent(1.1, 1, "one"), makeMapEvent(2.2d, 2, "two")};
+        return new Object[]{makeMapEvent(1.1, 1, "one"), makeMapEvent(2.2d, 2, "two")};
     }
 
     public static Object[] getPOJOEvents() {
-        return new Object[] {new MyEvent(1.1d, 1, "one"), new MyEvent(2.2d, 2, "two")};
+        return new Object[]{new MyEvent(1.1d, 1, "one"), new MyEvent(2.2d, 2, "two")};
     }
 
     private static ConfigurationEventTypeXMLDOM getConfig() {

@@ -16,8 +16,7 @@ import junit.framework.TestCase;
 
 public class TestExprTimePeriodEvalDeltaConstMsec extends TestCase {
 
-    public void testComputeDelta()
-    {
+    public void testComputeDelta() {
         ExprTimePeriodEvalDeltaConstGivenDelta delta500 = new ExprTimePeriodEvalDeltaConstGivenDelta(500);
         assertEquals(500, delta500.deltaAdd(0));
         assertEquals(500, delta500.deltaSubtract(0));

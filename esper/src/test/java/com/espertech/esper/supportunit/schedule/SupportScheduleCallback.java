@@ -16,21 +16,18 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SupportScheduleCallback implements ScheduleHandle, ScheduleHandleCallback 
-{
+public class SupportScheduleCallback implements ScheduleHandle, ScheduleHandleCallback {
     private static int orderAllCallbacks;
 
     private int orderTriggered = 0;
 
-    public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
-    {
+    public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext) {
         log.debug(".scheduledTrigger");
         orderAllCallbacks++;
         orderTriggered = orderAllCallbacks;
     }
 
-    public int clearAndGetOrderTriggered()
-    {
+    public int clearAndGetOrderTriggered() {
         int result = orderTriggered;
         orderTriggered = 0;
         return result;

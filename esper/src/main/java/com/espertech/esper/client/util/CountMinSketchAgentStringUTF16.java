@@ -19,7 +19,7 @@ import java.io.UnsupportedEncodingException;
 public class CountMinSketchAgentStringUTF16 implements CountMinSketchAgent {
 
     public Class[] getAcceptableValueTypes() {
-        return new Class[] {String.class};
+        return new Class[]{String.class};
     }
 
     public void add(CountMinSketchAgentContextAdd ctx) {
@@ -43,8 +43,7 @@ public class CountMinSketchAgentStringUTF16 implements CountMinSketchAgent {
     public Object fromBytes(CountMinSketchAgentContextFromBytes ctx) {
         try {
             return new String(ctx.getBytes(), "UTF-16");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -52,8 +51,7 @@ public class CountMinSketchAgentStringUTF16 implements CountMinSketchAgent {
     private byte[] toBytesUTF16(String text) {
         try {
             return text.getBytes("UTF-16");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }

@@ -17,8 +17,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import net.sf.cglib.reflect.FastMethod;
 
-public class MethodPollingExecStrategyOAArray extends MethodPollingExecStrategyBaseArray
-{
+public class MethodPollingExecStrategyOAArray extends MethodPollingExecStrategyBaseArray {
     public MethodPollingExecStrategyOAArray(EventAdapterService eventAdapterService, FastMethod method, EventType eventType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, VariableReader variableReader, String variableName, VariableService variableService) {
         super(eventAdapterService, method, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
     }

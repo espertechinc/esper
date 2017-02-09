@@ -17,6 +17,5 @@ import java.io.Serializable;
 /**
  * Marker interface for elements in a select clause that is in the raw (storable) form.
  */
-public interface SelectClauseElementRaw extends MetaDefItem, Serializable
-{
+public interface SelectClauseElementRaw extends MetaDefItem, Serializable {
 }

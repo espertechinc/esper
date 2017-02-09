@@ -14,10 +14,8 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.supportunit.epl.join.SupportJoinProcNode;
 import junit.framework.TestCase;
 
-public class TestBaseAssemblyNode extends TestCase
-{
-    public void testGetSubstreams()
-    {
+public class TestBaseAssemblyNode extends TestCase {
+    public void testGetSubstreams() {
         SupportJoinProcNode top = new SupportJoinProcNode(2, 3);
 
         SupportJoinProcNode child_1 = new SupportJoinProcNode(5, 3);

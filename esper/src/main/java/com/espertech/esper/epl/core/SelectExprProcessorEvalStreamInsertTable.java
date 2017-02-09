@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class SelectExprProcessorEvalStreamInsertTable implements ExprEvaluator
-{
+public class SelectExprProcessorEvalStreamInsertTable implements ExprEvaluator {
     private final int streamNum;
     private final ExprStreamUnderlyingNode undNode;
     private final TableMetadata tableMetadata;

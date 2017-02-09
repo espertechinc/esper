@@ -15,16 +15,17 @@ import com.espertech.esper.client.EventBean;
 import java.util.Collection;
 import java.util.Iterator;
 
-public interface AggregationStateLinear
-{
+public interface AggregationStateLinear {
     /**
      * Returns the first (oldest) value entered.
+     *
      * @return first value
      */
     public EventBean getFirstValue();
 
     /**
      * Returns the newest (last) value entered.
+     *
      * @return last value
      */
     public EventBean getLastValue();
@@ -32,6 +33,7 @@ public interface AggregationStateLinear
     /**
      * Counting from the first element to the last, returns the oldest (first) value entered for index zero
      * and the n-th oldest value for index N.
+     *
      * @param index index
      * @return last value
      */
@@ -40,6 +42,7 @@ public interface AggregationStateLinear
     /**
      * Counting from the last element to the first, returns the newest (last) value entered for index zero
      * and the n-th newest value for index N.
+     *
      * @param index index
      * @return last value
      */
@@ -47,18 +50,21 @@ public interface AggregationStateLinear
 
     /**
      * Returns all events for the group.
+     *
      * @return group event iterator
      */
     public Iterator<EventBean> iterator();
 
     /**
      * Returns all events for the group.
+     *
      * @return group event iterator
      */
     public Collection<EventBean> collectionReadOnly();
 
     /**
      * Returns the number of events in the group.
+     *
      * @return size
      */
     public int size();

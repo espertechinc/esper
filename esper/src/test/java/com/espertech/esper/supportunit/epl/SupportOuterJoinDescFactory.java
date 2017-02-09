@@ -17,10 +17,8 @@ import com.espertech.esper.epl.spec.OuterJoinDesc;
 import com.espertech.esper.type.OuterJoinType;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 
-public class SupportOuterJoinDescFactory
-{
-    public static OuterJoinDesc makeDesc(String propOne, String streamOne, String propTwo, String streamTwo, OuterJoinType type) throws Exception
-    {
+public class SupportOuterJoinDescFactory {
+    public static OuterJoinDesc makeDesc(String propOne, String streamOne, String propTwo, String streamTwo, OuterJoinType type) throws Exception {
         ExprIdentNode identNodeOne = new ExprIdentNodeImpl(propOne, streamOne);
         ExprIdentNode identNodeTwo = new ExprIdentNodeImpl(propTwo, streamTwo);
 

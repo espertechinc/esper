@@ -13,8 +13,7 @@ package com.espertech.esper.client.context;
 /**
  * State of a context partition.
  */
-public enum ContextPartitionState
-{
+public enum ContextPartitionState {
     /**
      * Started state.
      */

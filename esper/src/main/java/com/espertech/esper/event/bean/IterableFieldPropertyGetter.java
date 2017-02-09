@@ -22,25 +22,23 @@ import java.lang.reflect.Field;
 /**
  * Getter for an iterable property backed by a field, identified by a given index, using vanilla reflection.
  */
-public class IterableFieldPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed
-{
+public class IterableFieldPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed {
     private final Field field;
     private final int index;
 
     /**
      * Constructor.
-     * @param field is the field to use to retrieve a value from the object
-     * @param index is tge index within the array to get the property from
+     *
+     * @param field               is the field to use to retrieve a value from the object
+     * @param index               is tge index within the array to get the property from
      * @param eventAdapterService factory for event beans and event types
      */
-    public IterableFieldPropertyGetter(Field field, int index, EventAdapterService eventAdapterService)
-    {
+    public IterableFieldPropertyGetter(Field field, int index, EventAdapterService eventAdapterService) {
         super(eventAdapterService, JavaClassHelper.getGenericFieldType(field, false), null);
         this.index = index;
         this.field = field;
 
-        if (index < 0)
-        {
+        if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
     }
@@ -53,47 +51,35 @@ public class IterableFieldPropertyGetter extends BaseNativePropertyGetter implem
         return getBeanPropInternal(object, index);
     }
 
-    public Object getBeanPropInternal(Object object, int index) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
+        try {
             Object value = field.get(object);
             return IterableFastPropertyGetter.getIterable(value, index);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(field, object, e);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw PropertyUtility.getIllegalAccessException(field, e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(field, e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IterableFieldPropertyGetter " +
                 " field=" + field.toString() +
                 " index=" + index;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

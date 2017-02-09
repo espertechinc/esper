@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Specification for the merge statement insert-part.
  */
-public class OnTriggerMergeActionInsert extends OnTriggerMergeAction
-{
+public class OnTriggerMergeActionInsert extends OnTriggerMergeAction {
     private static final long serialVersionUID = -657179063417985357L;
 
     private final String optionalStreamName;

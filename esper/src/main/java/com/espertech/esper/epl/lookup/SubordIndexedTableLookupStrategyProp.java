@@ -23,8 +23,7 @@ import java.util.Set;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategyProp implements SubordTableLookupStrategy
-{
+public class SubordIndexedTableLookupStrategyProp implements SubordTableLookupStrategy {
     /**
      * Stream numbers to get key values from.
      */
@@ -51,16 +50,17 @@ public class SubordIndexedTableLookupStrategyProp implements SubordTableLookupSt
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTable getIndex()
-    {
+    public PropertyIndexedEventTable getIndex() {
         return index;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexSubordLookup(this, index, keyStreamNums);}
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexSubordLookup(this, index, keyStreamNums);
+        }
 
         Object[] keys = getKeys(eventsPerStream);
 
@@ -74,14 +74,13 @@ public class SubordIndexedTableLookupStrategyProp implements SubordTableLookupSt
 
     /**
      * Get the index lookup keys.
+     *
      * @param eventsPerStream is the events for each stream
      * @return key object
      */
-    protected Object[] getKeys(EventBean[] eventsPerStream)
-    {
+    protected Object[] getKeys(EventBean[] eventsPerStream) {
         Object[] keyValues = new Object[propertyGetters.length];
-        for (int i = 0; i < propertyGetters.length; i++)
-        {
+        for (int i = 0; i < propertyGetters.length; i++) {
             int streamNum = keyStreamNums[i];
             EventBean theEvent = eventsPerStream[streamNum];
             keyValues[i] = propertyGetters[i].get(theEvent);
@@ -89,8 +88,7 @@ public class SubordIndexedTableLookupStrategyProp implements SubordTableLookupSt
         return keyValues;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return toQueryPlan();
     }
 

@@ -20,26 +20,23 @@ import com.espertech.esper.plugin.PlugInEventTypeHandler;
  * <p>
  * See {@link AxiomEventRepresentation} for more details.
  */
-public class AxiomEventTypeHandler implements PlugInEventTypeHandler
-{
+public class AxiomEventTypeHandler implements PlugInEventTypeHandler {
     private final AxiomXMLEventType eventType;
 
     /**
      * Ctor.
+     *
      * @param eventType the event type
      */
-    public AxiomEventTypeHandler(AxiomXMLEventType eventType)
-    {
+    public AxiomEventTypeHandler(AxiomXMLEventType eventType) {
         this.eventType = eventType;
     }
 
-    public EventType getType()
-    {
+    public EventType getType() {
         return eventType;
     }
 
-    public EventSender getSender(EPRuntimeEventSender runtimeEventSender)
-    {
+    public EventSender getSender(EPRuntimeEventSender runtimeEventSender) {
         return new AxionEventSender(eventType, runtimeEventSender);
     }
 }

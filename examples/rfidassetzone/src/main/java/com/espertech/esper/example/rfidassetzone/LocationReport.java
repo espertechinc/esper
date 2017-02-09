@@ -10,24 +10,20 @@
  */
 package com.espertech.esper.example.rfidassetzone;
 
-public class LocationReport
-{
+public class LocationReport {
     private String assetId;
     private int zone;
 
-    public LocationReport(String assetId, int zone)
-    {
+    public LocationReport(String assetId, int zone) {
         this.assetId = assetId;
         this.zone = zone;
     }
 
-    public String getAssetId()
-    {
+    public String getAssetId() {
         return assetId;
     }
 
-    public int getZone()
-    {
+    public int getZone() {
         return zone;
     }
 }

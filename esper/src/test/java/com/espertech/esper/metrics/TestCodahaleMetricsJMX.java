@@ -70,8 +70,8 @@ public class TestCodahaleMetricsJMX extends TestCase {
         final long TESTINTERVAL = 300;
 
         long start = System.currentTimeMillis();
-        final long[] histogrammChoices = new long[] {100, 1000, 5000, 8000, 10000};
-        while(System.currentTimeMillis() - start < TESTINTERVAL) {
+        final long[] histogrammChoices = new long[]{100, 1000, 5000, 8000, 10000};
+        while (System.currentTimeMillis() - start < TESTINTERVAL) {
             TimerContext timerContext = timer.time();
             meter.mark();
             count.incrementAndGet();
@@ -96,8 +96,7 @@ public class TestCodahaleMetricsJMX extends TestCase {
         try {
             ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(name));
             fail();
-        }
-        catch (javax.management.InstanceNotFoundException ex) {
+        } catch (javax.management.InstanceNotFoundException ex) {
             // expected
         }
     }

@@ -18,36 +18,35 @@ import java.io.Serializable;
  * The presence of a reference indicates that a value exists, the absence of a reference to this object indicates
  * that there is no value (similar to a Pair&lt;Object, Boolean&gt;).
  */
-public class NullableObject<T> implements Serializable
-{
+public class NullableObject<T> implements Serializable {
     private static final long serialVersionUID = 4345362826746027878L;
 
     private T object;
 
     /**
      * Ctor.
+     *
      * @param object the object to contain
      */
-    public NullableObject(T object)
-    {
+    public NullableObject(T object) {
         this.object = object;
     }
 
     /**
      * Returns the contained value.
+     *
      * @return contained value
      */
-    public T getObject()
-    {
+    public T getObject() {
         return object;
     }
 
     /**
      * Sets a new contained value.
+     *
      * @param object value to set
      */
-    public void setObject(T object)
-    {
+    public void setObject(T object) {
         this.object = object;
     }
 }

@@ -15,16 +15,17 @@ import com.espertech.esper.client.EventBean;
 /**
  * For use by {@link com.espertech.esper.client.EventSender} for direct feed of wrapped events for processing.
  */
-public interface EPRuntimeEventSender
-{
+public interface EPRuntimeEventSender {
     /**
      * Equivalent to the sendEvent method of EPRuntime, for use to process an known event.
+     *
      * @param eventBean is the event object wrapped by an event bean providing the event metadata
      */
     public void processWrappedEvent(EventBean eventBean);
 
     /**
      * For processing a routed event.
+     *
      * @param theEvent routed event
      */
     public void routeEventBean(EventBean theEvent);

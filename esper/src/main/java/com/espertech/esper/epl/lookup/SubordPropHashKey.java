@@ -17,8 +17,7 @@ import java.io.Serializable;
 /**
  * Holds property information for joined properties in a lookup.
  */
-public class SubordPropHashKey implements Serializable
-{
+public class SubordPropHashKey implements Serializable {
     private static final long serialVersionUID = -8830134829029646585L;
 
     private final QueryGraphValueEntryHashKeyed hashKey;

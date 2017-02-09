@@ -18,6 +18,7 @@ import com.espertech.esper.client.EPStatement;
 public interface EPDataFlowEPStatementFilter {
     /**
      * Pass or skip the statement.
+     *
      * @param statement to test
      * @return indicator whether to include (true) or exclude (false) the statement.
      */

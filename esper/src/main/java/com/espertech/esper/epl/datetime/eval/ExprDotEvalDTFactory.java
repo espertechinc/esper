@@ -39,16 +39,14 @@ import java.util.TimeZone;
 public class ExprDotEvalDTFactory {
 
     public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeZone timeZone, TimeAbacus timeAbacus)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // verify input
         String message = "Date-time enumeration method '" + dtMethodName + "' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property";
         if (inputType instanceof EventEPType) {
             if (((EventEPType) inputType).getType().getStartTimestampPropertyName() == null) {
                 throw new ExprValidationException(message);
             }
-        }
-        else {
+        } else {
             if (!(inputType instanceof ClassEPType || inputType instanceof NullEPType)) {
                 throw new ExprValidationException(message + " but received " + EPTypeHelper.toTypeDescriptive(inputType));
             }
@@ -69,7 +67,7 @@ public class ExprDotEvalDTFactory {
 
         // drain all calendar ops
         ExprDotNodeFilterAnalyzerDesc filterAnalyzerDesc = null;
-        while(true) {
+        while (true) {
 
             // handle the first one only if its a calendar op
             ExprEvaluator[] evaluators = getEvaluators(currentParameters);
@@ -84,30 +82,25 @@ public class ExprDotEvalDTFactory {
             if (opFactory instanceof CalendarOpFactory) {
                 CalendarOp calendarOp = ((CalendarOpFactory) currentMethod.getOpFactory()).getOp(currentMethod, currentMethodName, currentParameters, evaluators);
                 calendarOps.add(calendarOp);
-            }
-            else if (opFactory instanceof ReformatOpFactory) {
+            } else if (opFactory instanceof ReformatOpFactory) {
                 reformatOp = ((ReformatOpFactory) opFactory).getOp(timeZone, timeAbacus, currentMethod, currentMethodName, currentParameters);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {
                     filterAnalyzerDesc = reformatOp.getFilterDesc(streamTypeService.getEventTypes(), currentMethod, currentParameters, inputDesc);
-                }
-                else {
+                } else {
                     filterAnalyzerDesc = null;
                 }
-            }
-            else if (opFactory instanceof IntervalOpFactory) {
+            } else if (opFactory instanceof IntervalOpFactory) {
                 intervalOp = ((IntervalOpFactory) opFactory).getOp(streamTypeService, currentMethod, currentMethodName, currentParameters, timeZone, timeAbacus);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {
                     filterAnalyzerDesc = intervalOp.getFilterDesc(streamTypeService.getEventTypes(), currentMethod, currentParameters, inputDesc);
-                }
-                else {
+                } else {
                     filterAnalyzerDesc = null;
                 }
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Invalid op factory class " + opFactory);
             }
 
@@ -122,7 +115,7 @@ public class ExprDotEvalDTFactory {
             currentParameters = next.getParameters();
             currentMethodName = next.getName();
 
-            if ((reformatOp != null || intervalOp != null)) {
+            if (reformatOp != null || intervalOp != null) {
                 throw new ExprValidationException("Invalid input for date-time method '" + next.getName() + "'");
             }
         }
@@ -156,8 +149,7 @@ public class ExprDotEvalDTFactory {
                         return TimePeriod.class;
                     }
                 };
-            }
-            else {
+            } else {
                 inputExpr[i] = inner;
             }
         }

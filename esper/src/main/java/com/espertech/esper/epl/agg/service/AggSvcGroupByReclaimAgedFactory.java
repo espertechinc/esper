@@ -27,8 +27,7 @@ import com.espertech.esper.util.JavaClassHelper;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBase
-{
+public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBase {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
@@ -38,20 +37,21 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
 
     /**
      * Ctor.
-     * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
-     * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
-     * @param reclaimGroupAged hint to reclaim
+     *
+     * @param evaluators            - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
+     * @param prototypes            - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
+     *                              aggregation states for each group
+     * @param reclaimGroupAged      hint to reclaim
      * @param reclaimGroupFrequency hint to reclaim
-     * @param variableService variables
-     * @param accessors accessor definitions
-     * @param accessAggregations access aggs
-     * @param isJoin true for join, false for single-stream
-     * @param optionalContextName context name
+     * @param variableService       variables
+     * @param accessors             accessor definitions
+     * @param accessAggregations    access aggs
+     * @param isJoin                true for join, false for single-stream
+     * @param optionalContextName   context name
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when validation fails
      */
-    public AggSvcGroupByReclaimAgedFactory(ExprEvaluator evaluators[],
-                                           AggregationMethodFactory prototypes[],
+    public AggSvcGroupByReclaimAgedFactory(ExprEvaluator[] evaluators,
+                                           AggregationMethodFactory[] prototypes,
                                            Hint reclaimGroupAged,
                                            Hint reclaimGroupFrequency,
                                            final VariableService variableService,
@@ -59,27 +59,22 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
                                            AggregationStateFactory[] accessAggregations,
                                            boolean isJoin,
                                            String optionalContextName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
         this.isJoin = isJoin;
 
         String hintValueMaxAge = HintEnum.RECLAIM_GROUP_AGED.getHintAssignedValue(reclaimGroupAged);
-        if (hintValueMaxAge == null)
-        {
+        if (hintValueMaxAge == null) {
             throw new ExprValidationException("Required hint value for hint '" + HintEnum.RECLAIM_GROUP_AGED + "' has not been provided");
         }
         evaluationFunctionMaxAge = getEvaluationFunction(variableService, hintValueMaxAge, optionalContextName);
 
         String hintValueFrequency = HintEnum.RECLAIM_GROUP_FREQ.getHintAssignedValue(reclaimGroupAged);
-        if ((reclaimGroupFrequency == null) || (hintValueFrequency == null))
-        {
+        if ((reclaimGroupFrequency == null) || (hintValueFrequency == null)) {
             evaluationFunctionFrequency = evaluationFunctionMaxAge;
-        }
-        else
-        {
+        } else {
             evaluationFunctionFrequency = getEvaluationFunction(variableService, hintValueFrequency, optionalContextName);
         }
     }
@@ -91,8 +86,7 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
     }
 
     private AggSvcGroupByReclaimAgedEvalFuncFactory getEvaluationFunction(final VariableService variableService, String hintValue, String optionalContextName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         final VariableMetaData variableMetaData = variableService.getVariableMetaData(hintValue);
         if (variableMetaData != null) {
             if (!JavaClassHelper.isNumeric(variableMetaData.getType())) {
@@ -108,14 +102,11 @@ public class AggSvcGroupByReclaimAgedFactory extends AggregationServiceFactoryBa
                     return new AggSvcGroupByReclaimAgedEvalFuncVariable(reader);
                 }
             };
-        }
-        else
-        {
+        } else {
             final Double valueDouble;
             try {
                 valueDouble = DoubleValue.parseString(hintValue);
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 throw new ExprValidationException("Failed to parse hint parameter value '" + hintValue + "' as a double-typed seconds value or variable name");
             }
             if (valueDouble <= 0) {

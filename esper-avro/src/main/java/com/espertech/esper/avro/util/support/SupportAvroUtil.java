@@ -14,7 +14,6 @@ import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
@@ -44,8 +43,7 @@ public class SupportAvroUtil {
             writer.write(datum, encoder);
             encoder.flush();
             return new String(bos.toByteArray());
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -61,8 +59,7 @@ public class SupportAvroUtil {
             Decoder decoder = DecoderFactory.get().jsonDecoder(schema, din);
             DatumReader<Object> reader = new GenericDatumReader<>(schema);
             return (GenericData.Record) reader.read(null, decoder);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new RuntimeException("Failed to parse json: " + ex.getMessage(), ex);
         }
     }
@@ -82,7 +79,7 @@ public class SupportAvroUtil {
                 return "Failed to find field '" + name + " in schema-one";
             }
             if (!fieldOne.schema().equals(fieldTwo.schema())) {
-                return  "\nSchema-One: " + fieldOne.schema() + "\n" +
+                return "\nSchema-One: " + fieldOne.schema() + "\n" +
                         "Schema-Two: " + fieldTwo.schema();
             }
         }

@@ -20,7 +20,7 @@ import java.util.Calendar;
 
 public class CalendarOpPlusFastAddHelper {
 
-    private static boolean DEBUG = false;
+    private final static boolean DEBUG = false;
     private static Logger log = LoggerFactory.getLogger(CalendarOpPlusFastAddHelper.class);
 
     public static CalendarOpPlusFastAddResult computeNextDue(long currentTime, TimePeriod timePeriod, Calendar reference, TimeAbacus timeAbacus, long remainder) {
@@ -53,7 +53,7 @@ public class CalendarOpPlusFastAddHelper {
         long multiplierRoundedLong = (long) multiplierDbl;
 
         // handle integer max
-        while(multiplierRoundedLong > Integer.MAX_VALUE) {
+        while (multiplierRoundedLong > Integer.MAX_VALUE) {
             CalendarOpPlusMinus.actionSafeOverflow(work, Integer.MAX_VALUE, timePeriod);
             factor += Integer.MAX_VALUE;
             multiplierRoundedLong -= Integer.MAX_VALUE;
@@ -69,7 +69,7 @@ public class CalendarOpPlusFastAddHelper {
 
         // if below, add more
         if (timeAbacus.calendarGet(work, remainder) <= currentTime) {
-            while(timeAbacus.calendarGet(work, remainder) <= currentTime) {
+            while (timeAbacus.calendarGet(work, remainder) <= currentTime) {
                 CalendarOpPlusMinus.actionSafeOverflow(work, 1, timePeriod);
                 factor += 1;
                 if (DEBUG && log.isDebugEnabled()) {
@@ -80,7 +80,7 @@ public class CalendarOpPlusFastAddHelper {
         }
 
         // we are over
-        while(timeAbacus.calendarGet(work, remainder) > currentTime) {
+        while (timeAbacus.calendarGet(work, remainder) > currentTime) {
             CalendarOpPlusMinus.actionSafeOverflow(work, -1, timePeriod);
             factor -= 1;
             if (DEBUG && log.isDebugEnabled()) {
@@ -91,6 +91,6 @@ public class CalendarOpPlusFastAddHelper {
         if (DEBUG && log.isDebugEnabled()) {
             log.debug("Work date is " + DateTime.print(work) + " factor " + factor);
         }
-        return new CalendarOpPlusFastAddResult(factor+1, work);
+        return new CalendarOpPlusFastAddResult(factor + 1, work);
     }
 }

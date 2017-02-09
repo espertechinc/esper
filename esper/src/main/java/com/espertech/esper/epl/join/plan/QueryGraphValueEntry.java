@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.join.plan;
 
-public interface QueryGraphValueEntry
-{
+public interface QueryGraphValueEntry {
 }
 

@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.event.bean;
 
-import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class BeanInstantiatorByFactoryReflection implements BeanInstantiator
-{
+public class BeanInstantiatorByFactoryReflection implements BeanInstantiator {
     private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByFactoryReflection.class);
 
     private final Method method;
@@ -28,17 +26,13 @@ public class BeanInstantiatorByFactoryReflection implements BeanInstantiator
     }
 
     public Object instantiate() {
-        try
-        {
+        try {
             return method.invoke(null, null);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = "Unexpected exception encountered invoking factory method '" + method.getName() + "' on class '" + method.getDeclaringClass().getName() + "': " + e.getTargetException().getMessage();
             log.error(message, e);
             return null;
-        }
-        catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException ex) {
             String message = "Unexpected exception encountered invoking factory method '" + method.getName() + "' on class '" + method.getDeclaringClass().getName() + "': " + ex.getMessage();
             log.error(message, ex);
             return null;

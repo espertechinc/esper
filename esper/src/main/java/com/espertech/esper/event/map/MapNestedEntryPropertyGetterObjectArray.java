@@ -28,8 +28,7 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
     }
 
     public Object handleNestedValue(Object value) {
-        if (!(value instanceof Object[]))
-        {
+        if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
                 return arrayGetter.get((EventBean) value);
             }
@@ -39,8 +38,7 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
     }
 
     public Object handleNestedValueFragment(Object value) {
-        if (!(value instanceof Object[]))
-        {
+        if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
                 return arrayGetter.getFragment((EventBean) value);
             }

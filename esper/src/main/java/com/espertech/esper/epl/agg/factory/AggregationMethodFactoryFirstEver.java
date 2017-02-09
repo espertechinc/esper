@@ -23,8 +23,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprFirstEverNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryFirstEver implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryFirstEver implements AggregationMethodFactory {
     protected final ExprFirstEverNode parent;
     protected final Class childType;
 
@@ -37,8 +36,7 @@ public class AggregationMethodFactoryFirstEver implements AggregationMethodFacto
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return childType;
     }
 

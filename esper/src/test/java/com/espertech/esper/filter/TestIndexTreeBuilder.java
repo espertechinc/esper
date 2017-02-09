@@ -23,16 +23,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestIndexTreeBuilder extends TestCase
-{
+public class TestIndexTreeBuilder extends TestCase {
     private List<FilterHandle> matches;
     private EventBean eventBean;
     private EventType eventType;
     private FilterHandle testFilterCallback[];
     private FilterServiceGranularLockFactory lockFactory = new FilterServiceGranularLockFactoryReentrant();
 
-    public void setUp()
-    {
+    public void setUp() {
         SupportBean testBean = new SupportBean();
         testBean.setIntPrimitive(50);
         testBean.setDoublePrimitive(0.5);
@@ -47,14 +45,12 @@ public class TestIndexTreeBuilder extends TestCase
 
         // Allocate a couple of callbacks
         testFilterCallback = new SupportFilterHandle[20];
-        for (int i = 0; i < testFilterCallback.length; i++)
-        {
+        for (int i = 0; i < testFilterCallback.length; i++) {
             testFilterCallback[i] = new SupportFilterHandle();
         }
     }
 
-    public void testBuildWithMatch()
-    {
+    public void testBuildWithMatch() {
         FilterHandleSetNode topNode = new FilterHandleSetNode(new ReentrantReadWriteLock());
 
         // Add some parameter-less expression
@@ -113,7 +109,7 @@ public class TestIndexTreeBuilder extends TestCase
 
         // Add an filterSpec against double and string
         filterSpec = makeFilterValues("doublePrimitive", FilterOperator.LESS, 1.1,
-                                    "theString", FilterOperator.EQUAL, "jack");
+                "theString", FilterOperator.EQUAL, "jack");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[5], topNode, lockFactory);
         assertTrue(topNode.getIndizes().size() == 3);
         assertTrue(topNode.getIndizes().get(0).size() == 2);
@@ -128,7 +124,7 @@ public class TestIndexTreeBuilder extends TestCase
         matches.clear();
 
         filterSpec = makeFilterValues("doublePrimitive", FilterOperator.LESS, 1.1,
-                                    "theString", FilterOperator.EQUAL, "beta");
+                "theString", FilterOperator.EQUAL, "beta");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[6], topNode, lockFactory);
 
         topNode.matchEvent(eventBean, matches);
@@ -136,7 +132,7 @@ public class TestIndexTreeBuilder extends TestCase
         matches.clear();
 
         filterSpec = makeFilterValues("doublePrimitive", FilterOperator.LESS, 1.1,
-                                    "theString", FilterOperator.EQUAL, "jack");
+                "theString", FilterOperator.EQUAL, "jack");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[7], topNode, lockFactory);
         assertTrue(nextLevelSetNode.getIndizes().size() == 1);
         FilterHandleSetNode nodeTwo = (FilterHandleSetNode) nextLevelSetNode.getIndizes().get(0).get("jack");
@@ -148,8 +144,8 @@ public class TestIndexTreeBuilder extends TestCase
 
         // Try depth first
         filterSpec = makeFilterValues("theString", FilterOperator.EQUAL, "jack",
-                                    "longPrimitive", FilterOperator.EQUAL, 10L,
-                                    "shortPrimitive", FilterOperator.EQUAL, (short) 20);
+                "longPrimitive", FilterOperator.EQUAL, 10L,
+                "shortPrimitive", FilterOperator.EQUAL, (short) 20);
         IndexTreeBuilder.add(filterSpec, testFilterCallback[8], topNode, lockFactory);
 
         topNode.matchEvent(eventBean, matches);
@@ -158,15 +154,15 @@ public class TestIndexTreeBuilder extends TestCase
 
         // Add an filterSpec in the middle
         filterSpec = makeFilterValues("longPrimitive", FilterOperator.EQUAL, 10L,
-                                    "theString", FilterOperator.EQUAL, "jack");
+                "theString", FilterOperator.EQUAL, "jack");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[9], topNode, lockFactory);
 
         filterSpec = makeFilterValues("longPrimitive", FilterOperator.EQUAL, 10L,
-                                    "theString", FilterOperator.EQUAL, "jim");
+                "theString", FilterOperator.EQUAL, "jim");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[10], topNode, lockFactory);
 
         filterSpec = makeFilterValues("longPrimitive", FilterOperator.EQUAL, 10L,
-                                    "theString", FilterOperator.EQUAL, "joe");
+                "theString", FilterOperator.EQUAL, "joe");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[11], topNode, lockFactory);
 
         topNode.matchEvent(eventBean, matches);
@@ -174,8 +170,7 @@ public class TestIndexTreeBuilder extends TestCase
         matches.clear();
     }
 
-    public void testBuildMatchRemove()
-    {
+    public void testBuildMatchRemove() {
         FilterHandleSetNode top = new FilterHandleSetNode(new ReentrantReadWriteLock());
 
         // Add a parameter-less filter
@@ -265,8 +260,7 @@ public class TestIndexTreeBuilder extends TestCase
         return path.toArray(new EventTypeIndexBuilderIndexLookupablePair[path.size()]);
     }
 
-    private FilterValueSet makeFilterValues(Object ... filterSpecArgs)
-    {
+    private FilterValueSet makeFilterValues(Object... filterSpecArgs) {
         FilterSpecCompiled spec = SupportFilterSpecBuilder.build(eventType, filterSpecArgs);
         FilterValueSet filterValues = spec.getValueSet(null, null, null);
         return filterValues;

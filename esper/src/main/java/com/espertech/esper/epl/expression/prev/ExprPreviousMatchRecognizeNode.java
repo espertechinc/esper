@@ -21,8 +21,7 @@ import java.io.StringWriter;
 /**
  * Represents the 'prev' previous event function in match-recognize "define" item.
  */
-public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = 0L;
 
     private Class resultType;
@@ -33,27 +32,22 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
     private transient ExprEvaluator evaluator;
     private int assignedIndex;
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 2)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("Match-Recognize Previous expression must have 2 parameters");
         }
 
-        if (!(this.getChildNodes()[0] instanceof ExprIdentNode))
-        {
+        if (!(this.getChildNodes()[0] instanceof ExprIdentNode)) {
             throw new ExprValidationException("Match-Recognize Previous expression requires an property identifier as the first parameter");
         }
 
-        if (!this.getChildNodes()[1].isConstantResult() || (!JavaClassHelper.isNumericNonFP(this.getChildNodes()[1].getExprEvaluator().getType())))
-        {
+        if (!this.getChildNodes()[1].isConstantResult() || (!JavaClassHelper.isNumericNonFP(this.getChildNodes()[1].getExprEvaluator().getType()))) {
             throw new ExprValidationException("Match-Recognize Previous expression requires an integer index parameter or expression as the second parameter");
         }
 
         ExprNode constantNode = this.getChildNodes()[1];
         Object value = constantNode.getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
-        if (!(value instanceof Number))
-        {
+        if (!(value instanceof Number)) {
             throw new ExprValidationException("Match-Recognize Previous expression requires an integer index parameter or expression as the second parameter");
         }
         constantIndexNumber = ((Number) value).intValue();
@@ -66,19 +60,17 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         return null;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
     /**
      * Returns the index number.
+     *
      * @return index number
      */
-    public Integer getConstantIndexNumber()
-    {
-        if (constantIndexNumber == null)
-        {
+    public Integer getConstantIndexNumber() {
+        if (constantIndexNumber == null) {
             ExprNode constantNode = this.getChildNodes()[1];
             Object value = constantNode.getExprEvaluator().evaluate(null, false, null);
             constantIndexNumber = ((Number) value).intValue();
@@ -86,23 +78,19 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         return constantIndexNumber;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         RegexPartitionStateRandomAccess access = strategy.getAccess(exprEvaluatorContext);
         EventBean substituteEvent = access.getPreviousEvent(assignedIndex);
 
-        if (substituteEvent == null)
-        {
+        if (substituteEvent == null) {
             return null;
         }
 
@@ -127,10 +115,8 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprPreviousMatchRecognizeNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprPreviousMatchRecognizeNode)) {
             return false;
         }
 
@@ -139,10 +125,10 @@ public class ExprPreviousMatchRecognizeNode extends ExprNodeBase implements Expr
 
     /**
      * Sets the index to use when accessing via getter
+     *
      * @param assignedIndex index
      */
-    public void setAssignedIndex(int assignedIndex)
-    {
+    public void setAssignedIndex(int assignedIndex) {
         this.assignedIndex = assignedIndex;
     }
 

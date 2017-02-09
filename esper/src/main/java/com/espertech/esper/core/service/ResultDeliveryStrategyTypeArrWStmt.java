@@ -35,17 +35,15 @@ public class ResultDeliveryStrategyTypeArrWStmt extends ResultDeliveryStrategyTy
         if (result == null) {
             newData = null;
             oldData = null;
-        }
-        else {
+        } else {
             newData = convert(result.getFirst());
             oldData = convert(result.getSecond());
         }
 
-        Object parameters[] = new Object[] {statement, newData, oldData};
+        Object[] parameters = new Object[]{statement, newData, oldData};
         try {
             fastMethod.invoke(subscriber, parameters);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             ResultDeliveryStrategyImpl.handle(statement.getName(), log, e, parameters, subscriber, fastMethod);
         }
     }

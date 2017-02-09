@@ -12,5 +12,6 @@ package com.espertech.esper.epl.enummethod.eval;
 
 public interface ExprDotEvalSumMethod {
     public void enter(Object o);
+
     public Object getValue();
 }

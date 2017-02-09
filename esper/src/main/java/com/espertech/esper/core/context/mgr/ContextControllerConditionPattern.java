@@ -83,8 +83,7 @@ public class ContextControllerConditionPattern implements ContextControllerCondi
         if (endpointPatternSpec.isInclusive()) {
             if (matchEvent.size() < 2) {
                 matchEventInclusive = matchEvent;
-            }
-            else {
+            } else {
                 // need to reorder according to tag order
                 LinkedHashMap<String, Object> ordered = new LinkedHashMap<String, Object>();
                 for (String key : endpointPatternSpec.getPatternCompiled().getTaggedEventTypes().keySet()) {

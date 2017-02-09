@@ -7,8 +7,8 @@
  **************************************************************************************/
 package com.espertech.esper.example.benchmark.client;
 
-import com.espertech.esper.example.benchmark.Symbols;
 import com.espertech.esper.example.benchmark.MarketData;
+import com.espertech.esper.example.benchmark.Symbols;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -23,7 +23,7 @@ import java.nio.channels.SocketChannel;
 public class MarketClient extends Thread {
 
     private Client client;
-    private MarketData market[];
+    private MarketData[] market;
 
     public MarketClient(Client client) {
         this.client = client;
@@ -43,7 +43,7 @@ public class MarketClient extends Thread {
             throw new RuntimeException(e);
         }
 
-        MarketData market[] = this.market;
+        MarketData[] market = this.market;
         int eventPer50ms = client.rate / 20;
         int tickerIndex = 0;
         int countLast5s = 0;
@@ -84,7 +84,7 @@ public class MarketClient extends Thread {
                 // rate adjust
                 if (System.currentTimeMillis() - ms < 50) {
                     // lets avoid sleeping if == 1ms, lets account 3ms for interrupts
-                    long sleep = Math.max(1, (50 - (System.currentTimeMillis() - ms) - 3));
+                    long sleep = Math.max(1, 50 - (System.currentTimeMillis() - ms) - 3);
                     sleepLast5s += sleep;
                     Thread.sleep(sleep);
                 }

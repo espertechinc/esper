@@ -18,18 +18,17 @@ import java.util.Iterator;
 /**
  * Iterator for iterating over an array of events up to a given max number of events.
  */
-public class ArrayMaxEventCollectionRO implements Collection<EventBean>
-{
+public class ArrayMaxEventCollectionRO implements Collection<EventBean> {
     private final EventBean[] events;
     private final int maxNumEvents;
 
     /**
      * Ctor.
-     * @param events to iterate
+     *
+     * @param events       to iterate
      * @param maxNumEvents max to iterate
      */
-    public ArrayMaxEventCollectionRO(EventBean[] events, int maxNumEvents)
-    {
+    public ArrayMaxEventCollectionRO(EventBean[] events, int maxNumEvents) {
         this.events = events;
         this.maxNumEvents = maxNumEvents;
     }

@@ -17,8 +17,7 @@ import com.espertech.esper.epl.core.EngineImportService;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupAllLocalGroupByFactory implements AggregationServiceFactory
-{
+public class AggSvcGroupAllLocalGroupByFactory implements AggregationServiceFactory {
     protected final boolean isJoin;
     private final AggregationLocalGroupByPlan localGroupByPlan;
 

@@ -16,8 +16,7 @@ import java.util.*;
  * Enumeration that first returns a round-shift-left of all numbers
  * and when that is exhausted it returns number sets using grouped algo until exhausted.
  */
-public class NumberSetShiftGroupEnumeration implements Enumeration<int[]>
-{
+public class NumberSetShiftGroupEnumeration implements Enumeration<int[]> {
     private final int[] numberSet;
     private boolean isShiftComplete;
     private int shiftCount;
@@ -26,18 +25,17 @@ public class NumberSetShiftGroupEnumeration implements Enumeration<int[]>
 
     /**
      * Ctor.
+     *
      * @param numberSet - set of integer numbers to permutate and provide each combination.
      */
-    public NumberSetShiftGroupEnumeration(int[] numberSet)
-    {
+    public NumberSetShiftGroupEnumeration(int[] numberSet) {
         if (numberSet.length < 6) {
             throw new IllegalArgumentException("Only supported for at least 6-number sets");
         }
         this.numberSet = numberSet;
     }
 
-    public boolean hasMoreElements()
-    {
+    public boolean hasMoreElements() {
         if (!isShiftComplete) {
             return true;
         }
@@ -45,8 +43,7 @@ public class NumberSetShiftGroupEnumeration implements Enumeration<int[]>
         return permutationEnumeration.hasMoreElements();
     }
 
-    public int[] nextElement()
-    {
+    public int[] nextElement() {
         if (!isShiftComplete) {
             int[] result = new int[numberSet.length];
             int count = shiftCount++;

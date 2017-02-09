@@ -15,24 +15,20 @@ import java.lang.reflect.Array;
 /**
  * Count all non-null values.
  */
-public class AggregatorCountNonNullFilter implements AggregationMethod
-{
+public class AggregatorCountNonNullFilter implements AggregationMethod {
     protected long numDataPoints;
 
-    public void clear()
-    {
+    public void clear() {
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
+    public void enter(Object object) {
         if (checkPass(object)) {
             numDataPoints++;
         }
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
         if (checkPass(object)) {
             if (numDataPoints > 0) {
                 numDataPoints--;
@@ -40,8 +36,7 @@ public class AggregatorCountNonNullFilter implements AggregationMethod
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return numDataPoints;
     }
 

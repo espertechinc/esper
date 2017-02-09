@@ -16,8 +16,7 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 
-public class EventRowRegexNFAViewSchedulerImpl implements EventRowRegexNFAViewScheduler
-{
+public class EventRowRegexNFAViewSchedulerImpl implements EventRowRegexNFAViewScheduler {
     private AgentInstanceContext agentInstanceContext;
     private long scheduleSlot;
     private EPStatementHandleCallback handle;
@@ -26,11 +25,14 @@ public class EventRowRegexNFAViewSchedulerImpl implements EventRowRegexNFAViewSc
         this.agentInstanceContext = agentInstanceContext;
         this.scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
         final ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qRegExScheduledEval();}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qRegExScheduledEval();
+                }
                 scheduleCallback.triggered();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aRegExScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aRegExScheduledEval();
+                }
             }
         };
         this.handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);

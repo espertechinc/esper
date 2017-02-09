@@ -21,24 +21,26 @@ import java.util.Set;
 /**
  * Interface for populating a join tuple result set from new data and old data for each stream.
  */
-public interface JoinSetComposer
-{
+public interface JoinSetComposer {
     /**
      * Returns true whether initialization events per stream to populate join indexes can be processed (init method).
+     *
      * @return whether init is supported
      */
     public boolean allowsInit();
 
     /**
      * Provides initialization events per stream to composer to populate join indexes, if required
+     *
      * @param eventsPerStream is an array of events for each stream, with null elements to indicate no events for a stream
      */
     public void init(EventBean[][] eventsPerStream);
 
     /**
      * Return join tuple result set from new data and old data for each stream.
-     * @param newDataPerStream - for each stream the event array (can be null).
-     * @param oldDataPerStream - for each stream the event array (can be null).
+     *
+     * @param newDataPerStream     - for each stream the event array (can be null).
+     * @param oldDataPerStream     - for each stream the event array (can be null).
      * @param exprEvaluatorContext expression evaluation context
      * @return join tuples
      */
@@ -47,6 +49,7 @@ public interface JoinSetComposer
     /**
      * For use in iteration over join statements, this must build a join tuple result set from
      * all events in indexes, executing query strategies for each.
+     *
      * @return static join result
      */
     public Set<MultiKey<EventBean>> staticJoin();

@@ -1,14 +1,12 @@
 package com.espertech.esperio.db;
 
-public class SupportDBBean
-{
+public class SupportDBBean {
     private String key1;
     private Integer key2;
     private String value1;
     private Double value2;
 
-    public SupportDBBean(String key1, Integer key2, String value1, Double value2)
-    {
+    public SupportDBBean(String key1, Integer key2, String value1, Double value2) {
         this.key1 = key1;
         this.key2 = key2;
         this.value1 = value1;
@@ -18,23 +16,19 @@ public class SupportDBBean
     public SupportDBBean() {
     }
 
-    public String getKey1()
-    {
+    public String getKey1() {
         return key1;
     }
 
-    public Integer getKey2()
-    {
+    public Integer getKey2() {
         return key2;
     }
 
-    public String getValue1()
-    {
+    public String getValue1() {
         return value1;
     }
 
-    public Double getValue2()
-    {
+    public Double getValue2() {
         return value2;
     }
 

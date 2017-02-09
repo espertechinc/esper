@@ -17,8 +17,7 @@ import java.util.Iterator;
 /**
  * Implements the iterator with table evaluation concern.
  */
-public class UnsafeIteratorWTableImpl<E> implements Iterator<E>
-{
+public class UnsafeIteratorWTableImpl<E> implements Iterator<E> {
     private final TableExprEvaluatorContext tableExprEvaluatorContext;
     private final Iterator<E> inner;
 

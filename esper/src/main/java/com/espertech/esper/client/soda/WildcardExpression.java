@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Represents "*" in for example "last(*)"
  */
-public class WildcardExpression extends ExpressionBase
-{
+public class WildcardExpression extends ExpressionBase {
     private static final long serialVersionUID = 4172089600513174722L;
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

@@ -13,10 +13,9 @@ package com.espertech.esper.client.soda;
 /**
  * Represents the "last" aggregation function.
  */
-public class LastProjectionExpression extends AccessProjectionExpressionBase
-{
+public class LastProjectionExpression extends AccessProjectionExpressionBase {
     private static final long serialVersionUID = -6851246065918661653L;
-    
+
     /**
      * Ctor.
      */
@@ -25,10 +24,10 @@ public class LastProjectionExpression extends AccessProjectionExpressionBase
 
     /**
      * Ctor.
+     *
      * @param expression to aggregate
      */
-    public LastProjectionExpression(Expression expression)
-    {
+    public LastProjectionExpression(Expression expression) {
         super(expression);
     }
 

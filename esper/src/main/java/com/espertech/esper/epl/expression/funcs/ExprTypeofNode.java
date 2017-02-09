@@ -25,20 +25,17 @@ import java.util.Map;
 /**
  * Represents the TYPEOF(a) function is an expression tree.
  */
-public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizableNode
-{
+public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizableNode {
     private static final long serialVersionUID = -612634538694877204L;
     private transient ExprEvaluator evaluator;
 
     /**
      * Ctor.
      */
-    public ExprTypeofNode()
-    {
+    public ExprTypeofNode() {
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return evaluator;
     }
 
@@ -46,10 +43,8 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return null;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 1)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 1) {
             throw new ExprValidationException("Typeof node must have 1 child expression node supplying the expression to test");
         }
 
@@ -78,13 +73,11 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return String.class;
     }
 
@@ -119,8 +112,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         return node instanceof ExprTypeofNode;
     }
 
@@ -133,15 +125,21 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
 
         @Override
         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprTypeof();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprTypeof();
+            }
             EventBean theEvent = eventsPerStream[streamNum];
             if (theEvent == null) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(null);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(null);
+                }
                 return null;
             }
             if (theEvent instanceof VariantEvent) {
                 String typeName = ((VariantEvent) theEvent).getUnderlyingEventBean().getEventType().getName();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(typeName);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(typeName);
+                }
                 return typeName;
             }
             if (InstrumentationHelper.ENABLED) {
@@ -172,28 +170,40 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
 
         @Override
         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprTypeof();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprTypeof();
+            }
             EventBean theEvent = eventsPerStream[streamId];
             if (theEvent == null) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(null);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(null);
+                }
                 return null;
             }
             Object fragment = getter.getFragment(theEvent);
             if (fragment == null) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(null);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(null);
+                }
                 return null;
             }
             if (fragment instanceof EventBean) {
-                EventBean bean = ((EventBean) fragment);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(bean.getEventType().getName());}
+                EventBean bean = (EventBean) fragment;
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(bean.getEventType().getName());
+                }
                 return bean.getEventType().getName();
             }
             if (fragment.getClass().isArray()) {
                 String type = fragmentType + "[]";
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(type);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(type);
+                }
                 return type;
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(null);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprTypeof(null);
+            }
             return null;
         }
 
@@ -218,14 +228,19 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
 
         @Override
         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprTypeof();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprTypeof();
+            }
             Object result = evaluator.evaluate(eventsPerStream, isNewData, context);
-            if (result == null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(null);}
+            if (result == null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprTypeof(null);
+                }
                 return null;
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprTypeof(result.getClass().getSimpleName());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprTypeof(result.getClass().getSimpleName());
+            }
             return result.getClass().getSimpleName();
         }
     }

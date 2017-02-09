@@ -12,8 +12,7 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class SupportBean_S5 implements Serializable
-{
+public class SupportBean_S5 implements Serializable {
     private static int idCounter;
 
     private int id;
@@ -22,68 +21,56 @@ public class SupportBean_S5 implements Serializable
     private String p52;
     private String p53;
 
-    public static Object[] makeS5(String propOne, String[] propTwo)
-    {
+    public static Object[] makeS5(String propOne, String[] propTwo) {
         idCounter++;
 
         Object[] events = new Object[propTwo.length];
-        for (int i = 0; i < propTwo.length; i++)
-        {
+        for (int i = 0; i < propTwo.length; i++) {
             events[i] = new SupportBean_S5(idCounter, propOne, propTwo[i]);
         }
         return events;
     }
 
-    public SupportBean_S5(int id)
-    {
+    public SupportBean_S5(int id) {
         this.id = id;
     }
 
-    public SupportBean_S5(int id, String p50)
-    {
+    public SupportBean_S5(int id, String p50) {
         this.id = id;
         this.p50 = p50;
     }
 
-    public SupportBean_S5(int id, String p50, String p51)
-    {
+    public SupportBean_S5(int id, String p50, String p51) {
         this.id = id;
         this.p50 = p50;
         this.p51 = p51;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getP50()
-    {
+    public String getP50() {
         return p50;
     }
 
-    public void setP50(String p50)
-    {
+    public void setP50(String p50) {
         this.p50 = p50;
     }
 
-    public String getP51()
-    {
+    public String getP51() {
         return p51;
     }
 
-    public String getP52()
-    {
+    public String getP52() {
         return p52;
     }
 
-    public String getP53()
-    {
+    public String getP53() {
         return p53;
     }
 }

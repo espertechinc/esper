@@ -20,8 +20,7 @@ import java.util.*;
  * Enumeration of hint values. Since hints may be a comma-separate list in a single @Hint annotation
  * they are listed as enumeration values here.
  */
-public enum HintEnum
-{
+public enum HintEnum {
     /**
      * For use with match_recognize, iterate-only matching.
      */
@@ -113,16 +112,12 @@ public enum HintEnum
     private final boolean requiresParameters;
     private final boolean requiresParentheses;
 
-    private HintEnum(String value, boolean acceptsParameters, boolean requiresParameters, boolean requiresParentheses)
-    {
-        this.value = value.toUpperCase();
+    private HintEnum(String value, boolean acceptsParameters, boolean requiresParameters, boolean requiresParentheses) {
+        this.value = value.toUpperCase(Locale.ENGLISH);
         this.acceptsParameters = acceptsParameters;
-        if (acceptsParameters)
-        {
+        if (acceptsParameters) {
             this.requiresParameters = true;
-        }
-        else
-        {
+        } else {
             this.requiresParameters = requiresParameters;
         }
         this.requiresParentheses = requiresParentheses;
@@ -130,47 +125,44 @@ public enum HintEnum
 
     /**
      * Returns the constant.
+     *
      * @return constant
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
      * True if the hint accepts params.
+     *
      * @return indicator
      */
-    public boolean isAcceptsParameters()
-    {
+    public boolean isAcceptsParameters() {
         return acceptsParameters;
     }
 
     /**
      * True if the hint requires params.
+     *
      * @return indicator
      */
-    public boolean isRequiresParameters()
-    {
+    public boolean isRequiresParameters() {
         return requiresParameters;
     }
 
     /**
      * Check if the hint is present in the annotations provided.
+     *
      * @param annotations the annotations to inspect
      * @return indicator
      */
-    public Hint getHint(Annotation[] annotations)
-    {
-        if (annotations == null)
-        {
+    public Hint getHint(Annotation[] annotations) {
+        if (annotations == null) {
             return null;
         }
 
-        for (Annotation annotation : annotations)
-        {
-            if (!(annotation instanceof Hint))
-            {
+        for (Annotation annotation : annotations) {
+            if (!(annotation instanceof Hint)) {
                 continue;
             }
 
@@ -180,8 +172,7 @@ public enum HintEnum
                 if (setOfHints.containsKey(this)) {
                     return hintAnnotation;
                 }
-            }
-            catch (AnnotationException e) {
+            } catch (AnnotationException e) {
                 throw new EPException("Invalid hint: " + e.getMessage(), e);
             }
         }
@@ -190,37 +181,32 @@ public enum HintEnum
 
     /**
      * Validate a hint annotation ensuring it contains only recognized hints.
+     *
      * @param annotation to validate
-     * @throws AnnotationException if an invalid text was found
      * @return validated hint enums and their parameter list
+     * @throws AnnotationException if an invalid text was found
      */
-    public static Map<HintEnum, List<String>> validateGetListed(Annotation annotation) throws AnnotationException
-    {
-        if (!(annotation instanceof Hint))
-        {
+    public static Map<HintEnum, List<String>> validateGetListed(Annotation annotation) throws AnnotationException {
+        if (!(annotation instanceof Hint)) {
             return Collections.emptyMap();
         }
 
         Hint hint = (Hint) annotation;
         String hintValueCaseNeutral = hint.value().trim();
-        String hintValueUppercase = hintValueCaseNeutral.toUpperCase();
+        String hintValueUppercase = hintValueCaseNeutral.toUpperCase(Locale.ENGLISH);
 
-        for (HintEnum val : HintEnum.values())
-        {
-            if (val.getValue().equals(hintValueUppercase) && !val.requiresParentheses)
-            {
+        for (HintEnum val : HintEnum.values()) {
+            if (val.getValue().equals(hintValueUppercase) && !val.requiresParentheses) {
                 validateParameters(val, hint.value().trim());
                 List<String> parameters;
                 if (val.acceptsParameters) {
                     String assignment = getAssignedValue(hint.value().trim(), val.value);
                     if (assignment == null) {
                         parameters = Collections.emptyList();
-                    }
-                    else {
+                    } else {
                         parameters = Collections.singletonList(assignment);
                     }
-                }
-                else {
+                } else {
                     parameters = Collections.emptyList();
                 }
                 return Collections.singletonMap(val, parameters);
@@ -229,17 +215,14 @@ public enum HintEnum
 
         String[] hints = splitCommaUnlessInParen(hint.value());
         Map<HintEnum, List<String>> listed = new HashMap<HintEnum, List<String>>();
-        for (int i = 0; i < hints.length; i++)
-        {
-            String hintValUppercase = hints[i].trim().toUpperCase();
+        for (int i = 0; i < hints.length; i++) {
+            String hintValUppercase = hints[i].trim().toUpperCase(Locale.ENGLISH);
             String hintValNeutralcase = hints[i].trim();
             HintEnum found = null;
             String parameter = null;
-            
-            for (HintEnum val : HintEnum.values())
-            {
-                if (val.getValue().equals(hintValUppercase) && !val.requiresParentheses)
-                {
+
+            for (HintEnum val : HintEnum.values()) {
+                if (val.getValue().equals(hintValUppercase) && !val.requiresParentheses) {
                     found = val;
                     parameter = getAssignedValue(hint.value().trim(), val.value);
                     break;
@@ -267,11 +250,9 @@ public enum HintEnum
                     }
                 }
 
-                if (hintValUppercase.indexOf('=') != -1)
-                {
+                if (hintValUppercase.indexOf('=') != -1) {
                     String hintName = hintValUppercase.substring(0, hintValUppercase.indexOf('='));
-                    if (val.getValue().equals(hintName.trim().toUpperCase()))
-                    {
+                    if (val.getValue().equals(hintName.trim().toUpperCase(Locale.ENGLISH))) {
                         found = val;
                         parameter = getAssignedValue(hint.value().trim(), val.value);
                         break;
@@ -279,17 +260,13 @@ public enum HintEnum
                 }
             }
 
-            if (found == null)
-            {
+            if (found == null) {
                 String hintName = hints[i].trim();
-                if (hintName.indexOf('=') != -1)
-                {
+                if (hintName.indexOf('=') != -1) {
                     hintName = hintName.substring(0, hintName.indexOf('='));
                 }
                 throw new AnnotationException("Hint annotation value '" + hintName.trim() + "' is not one of the known values");
-            }
-            else
-            {
+            } else {
                 if (!found.requiresParentheses) {
                     validateParameters(found, hintValUppercase);
                 }
@@ -306,19 +283,14 @@ public enum HintEnum
         return listed;
     }
 
-    private static void validateParameters(HintEnum val, String hintVal) throws AnnotationException
-    {
-        if (val.isRequiresParameters())
-        {
-            if (hintVal.indexOf('=') == -1)
-            {
+    private static void validateParameters(HintEnum val, String hintVal) throws AnnotationException {
+        if (val.isRequiresParameters()) {
+            if (hintVal.indexOf('=') == -1) {
                 throw new AnnotationException("Hint '" + val + "' requires a parameter value");
             }
         }
-        if (!val.isAcceptsParameters())
-        {
-            if (hintVal.indexOf('=') != -1)
-            {
+        if (!val.isAcceptsParameters()) {
+            if (hintVal.indexOf('=') != -1) {
                 throw new AnnotationException("Hint '" + val + "' does not accept a parameter value");
             }
         }
@@ -326,6 +298,7 @@ public enum HintEnum
 
     /**
      * Returns hint value.
+     *
      * @param annotation to look for
      * @return hint assigned first value provided
      */
@@ -336,14 +309,14 @@ public enum HintEnum
                 return null;
             }
             return hintValues.get(this).get(0);
-        }
-        catch (AnnotationException ex) {
+        } catch (AnnotationException ex) {
             throw new EPException("Failed to interpret hint annotation: " + ex.getMessage(), ex);
         }
     }
 
     /**
      * Returns all values assigned for a given hint, if any
+     *
      * @param annotations to be interogated
      * @return hint assigned values or null if none found
      */
@@ -357,13 +330,11 @@ public enum HintEnum
                 }
                 if (allHints == null) {
                     allHints = hintValues.get(this);
-                }
-                else {
+                } else {
                     allHints.addAll(hintValues.get(this));
                 }
             }
-        }
-        catch (AnnotationException ex) {
+        } catch (AnnotationException ex) {
             throw new EPException("Failed to interpret hint annotation: " + ex.getMessage(), ex);
         }
         return allHints;
@@ -372,41 +343,34 @@ public enum HintEnum
     private static String getAssignedValue(String value, String enumValue) {
 
         String valMixed = value.trim();
-        String val = valMixed.toUpperCase();
+        String val = valMixed.toUpperCase(Locale.ENGLISH);
 
-        if (!val.contains(","))
-        {
-            if (val.indexOf('=') == -1)
-            {
+        if (!val.contains(",")) {
+            if (val.indexOf('=') == -1) {
                 return null;
             }
 
             String hintName = val.substring(0, val.indexOf('='));
-            if (!hintName.equals(enumValue))
-            {
+            if (!hintName.equals(enumValue)) {
                 return null;
             }
             return valMixed.substring(val.indexOf('=') + 1, val.length());
         }
 
         String[] hints = valMixed.split(",");
-        for (String hint : hints)
-        {
+        for (String hint : hints) {
             int indexOfEquals = hint.indexOf('=');
-            if (indexOfEquals == -1)
-            {
+            if (indexOfEquals == -1) {
                 continue;
             }
 
-            val = hint.substring(0, indexOfEquals).trim().toUpperCase();
-            if (!val.equals(enumValue))
-            {
+            val = hint.substring(0, indexOfEquals).trim().toUpperCase(Locale.ENGLISH);
+            if (!val.equals(enumValue)) {
                 continue;
             }
 
             String strValue = hint.substring(indexOfEquals + 1).trim();
-            if (strValue.length() == 0)
-            {
+            if (strValue.length() == 0) {
                 return null;
             }
             return strValue;
@@ -416,6 +380,7 @@ public enum HintEnum
 
     /**
      * Split a line of comma-separated values allowing parenthesis.
+     *
      * @param line to split
      * @return parameters
      */

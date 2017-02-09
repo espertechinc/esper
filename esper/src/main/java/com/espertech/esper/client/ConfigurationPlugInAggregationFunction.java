@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Configuration information for plugging in a custom aggregation function.
  */
-public class ConfigurationPlugInAggregationFunction implements Serializable
-{
+public class ConfigurationPlugInAggregationFunction implements Serializable {
     private String name;
     private String factoryClassName;
 
@@ -25,13 +24,13 @@ public class ConfigurationPlugInAggregationFunction implements Serializable
     /**
      * Ctor.
      */
-    public ConfigurationPlugInAggregationFunction()
-    {
+    public ConfigurationPlugInAggregationFunction() {
     }
 
     /**
      * Ctor.
-     * @param name of the aggregation function
+     *
+     * @param name             of the aggregation function
      * @param factoryClassName the name of the aggregation function factory class
      */
     public ConfigurationPlugInAggregationFunction(String name, String factoryClassName) {
@@ -41,24 +40,25 @@ public class ConfigurationPlugInAggregationFunction implements Serializable
 
     /**
      * Returns the aggregation function name.
+     *
      * @return aggregation function name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Sets the aggregation function name.
+     *
      * @param name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Returns the class name of the aggregation function factory class.
+     *
      * @return class name
      */
     public String getFactoryClassName() {
@@ -67,6 +67,7 @@ public class ConfigurationPlugInAggregationFunction implements Serializable
 
     /**
      * Sets the class name of the aggregation function factory class.
+     *
      * @param factoryClassName class name to set
      */
     public void setFactoryClassName(String factoryClassName) {

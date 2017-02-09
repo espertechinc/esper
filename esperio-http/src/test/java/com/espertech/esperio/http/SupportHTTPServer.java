@@ -1,19 +1,18 @@
 package com.espertech.esperio.http;
 
+import com.espertech.esperio.http.core.EsperHttpServiceClassicRunnable;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-
-import com.espertech.esperio.http.core.EsperHttpServiceClassicRunnable;
 
 public class SupportHTTPServer {
     private static Logger log = LoggerFactory.getLogger(SupportHTTPServer.class);
@@ -37,11 +36,11 @@ public class SupportHTTPServer {
         this.serversocket = new ServerSocket(port);
         this.parameters = new BasicHttpParams();
         this.parameters
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
+                .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
+                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+                .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+                .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
 
         // Set up the HTTP protocol processor
         BasicHttpProcessor httpproc = new BasicHttpProcessor();

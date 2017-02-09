@@ -20,8 +20,7 @@ import java.math.MathContext;
 /**
  * Average that generates a BigDecimal numbers.
  */
-public class AggregatorAvgBigDecimal implements AggregationMethod
-{
+public class AggregatorAvgBigDecimal implements AggregationMethod {
     private static final Logger log = LoggerFactory.getLogger(AggregatorAvgBigDecimal.class);
     protected BigDecimal sum;
     protected long numDataPoints;
@@ -29,71 +28,58 @@ public class AggregatorAvgBigDecimal implements AggregationMethod
 
     /**
      * Ctor.
+     *
      * @param optionalMathContext math context
      */
-    public AggregatorAvgBigDecimal(MathContext optionalMathContext)
-    {
+    public AggregatorAvgBigDecimal(MathContext optionalMathContext) {
         sum = new BigDecimal(0.0);
         this.optionalMathContext = optionalMathContext;
     }
 
-    public void clear()
-    {
+    public void clear() {
         sum = new BigDecimal(0.0);
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         numDataPoints++;
-        if (object instanceof BigInteger)
-        {
+        if (object instanceof BigInteger) {
             sum = sum.add(new BigDecimal((BigInteger) object));
             return;
         }
         sum = sum.add((BigDecimal) object);
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
 
         if (numDataPoints <= 1) {
             clear();
-        }
-        else {
+        } else {
             numDataPoints--;
             if (object instanceof BigInteger) {
                 sum = sum.subtract(new BigDecimal((BigInteger) object));
-            }
-            else {
+            } else {
                 sum = sum.subtract((BigDecimal) object);
             }
         }
     }
 
-    public Object getValue()
-    {
-        if (numDataPoints == 0)
-        {
+    public Object getValue() {
+        if (numDataPoints == 0) {
             return null;
         }
-        try
-        {
+        try {
             if (optionalMathContext == null) {
                 return sum.divide(new BigDecimal(numDataPoints));
             }
             return sum.divide(new BigDecimal(numDataPoints), optionalMathContext);
-        }
-        catch (ArithmeticException ex)
-        {
+        } catch (ArithmeticException ex) {
             log.error("Error computing avg aggregation result: " + ex.getMessage(), ex);
             return new BigDecimal(0);
         }

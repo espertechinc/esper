@@ -25,8 +25,7 @@ import java.util.List;
  * Strategy for building an index out of poll-results knowing the properties to base the index on, and their
  * coercion types.
  */
-public class PollResultIndexingStrategyIndexCoerce implements PollResultIndexingStrategy
-{
+public class PollResultIndexingStrategyIndexCoerce implements PollResultIndexingStrategy {
     private final int streamNum;
     private final EventType eventType;
     private final String[] propertyNames;
@@ -34,24 +33,22 @@ public class PollResultIndexingStrategyIndexCoerce implements PollResultIndexing
 
     /**
      * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
+     *
+     * @param streamNum     is the stream number of the indexed stream
+     * @param eventType     is the event type of the indexed stream
      * @param propertyNames is the property names to be indexed
      * @param coercionTypes is the types to coerce to for keys and values
      */
-    public PollResultIndexingStrategyIndexCoerce(int streamNum, EventType eventType, String[] propertyNames, Class[] coercionTypes)
-    {
+    public PollResultIndexingStrategyIndexCoerce(int streamNum, EventType eventType, String[] propertyNames, Class[] coercionTypes) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyNames = propertyNames;
         this.coercionTypes = coercionTypes;
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
-    {
-        if (!isActiveCache)
-        {
-            return new EventTable[] {new UnindexedEventTableList(pollResult, streamNum)};
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {
+        if (!isActiveCache) {
+            return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
         PropertyIndexedEventTableCoerceAllFactory factory = new PropertyIndexedEventTableCoerceAllFactory(streamNum, eventType, propertyNames, coercionTypes);
         EventTable[] tables = factory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext));

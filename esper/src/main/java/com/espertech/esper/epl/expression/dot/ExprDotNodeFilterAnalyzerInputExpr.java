@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-public class ExprDotNodeFilterAnalyzerInputExpr implements ExprDotNodeFilterAnalyzerInput
-{
+public class ExprDotNodeFilterAnalyzerInputExpr implements ExprDotNodeFilterAnalyzerInput {
 }

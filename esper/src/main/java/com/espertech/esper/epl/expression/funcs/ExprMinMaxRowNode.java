@@ -26,8 +26,7 @@ import java.math.BigInteger;
 /**
  * Represents the MAX(a,b) and MIN(a,b) functions is an expression tree.
  */
-public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator {
     private MinMaxTypeEnum minMaxTypeEnum;
     private Class resultType;
     private transient MinMaxTypeEnum.Computer computer;
@@ -36,40 +35,35 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Ctor.
+     *
      * @param minMaxTypeEnum - type of compare
      */
-    public ExprMinMaxRowNode(MinMaxTypeEnum minMaxTypeEnum)
-    {
+    public ExprMinMaxRowNode(MinMaxTypeEnum minMaxTypeEnum) {
         this.minMaxTypeEnum = minMaxTypeEnum;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
     /**
      * Returns the indicator for minimum or maximum.
+     *
      * @return min/max indicator
      */
-    public MinMaxTypeEnum getMinMaxTypeEnum()
-    {
+    public MinMaxTypeEnum getMinMaxTypeEnum() {
         return minMaxTypeEnum;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length < 2)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length < 2) {
             throw new ExprValidationException("MinMax node must have at least 2 parameters");
         }
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Class childType = child.getType();
-            if (!JavaClassHelper.isNumeric(childType))
-            {
+            if (!JavaClassHelper.isNumeric(childType)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
                         childType.getSimpleName() +
                         "' to numeric is not allowed");
@@ -81,56 +75,45 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator
         Class childTypeTwo = evaluators[1].getType();
         resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
 
-        for (int i = 2; i < this.getChildNodes().length; i++)
-        {
+        for (int i = 2; i < this.getChildNodes().length; i++) {
             resultType = JavaClassHelper.getArithmaticCoercionType(resultType, evaluators[i].getType());
         }
 
         ExprNode[] childNodes = this.getChildNodes();
-        if (resultType == BigInteger.class)
-        {
+        if (resultType == BigInteger.class) {
             SimpleNumberBigIntegerCoercer[] convertors = new SimpleNumberBigIntegerCoercer[childNodes.length];
-            for (int i = 0; i < childNodes.length; i++)
-            {
+            for (int i = 0; i < childNodes.length; i++) {
                 convertors[i] = SimpleNumberCoercerFactory.getCoercerBigInteger(evaluators[i].getType());
             }
-            computer = new MinMaxTypeEnum.ComputerBigIntCoerce(evaluators, convertors, (minMaxTypeEnum == MinMaxTypeEnum.MAX));
-        }
-        else if (resultType == BigDecimal.class)
-        {
+            computer = new MinMaxTypeEnum.ComputerBigIntCoerce(evaluators, convertors, minMaxTypeEnum == MinMaxTypeEnum.MAX);
+        } else if (resultType == BigDecimal.class) {
             SimpleNumberBigDecimalCoercer[] convertors = new SimpleNumberBigDecimalCoercer[childNodes.length];
-            for (int i = 0; i < childNodes.length; i++)
-            {
+            for (int i = 0; i < childNodes.length; i++) {
                 convertors[i] = SimpleNumberCoercerFactory.getCoercerBigDecimal(evaluators[i].getType());
             }
-            computer = new MinMaxTypeEnum.ComputerBigDecCoerce(evaluators, convertors, (minMaxTypeEnum == MinMaxTypeEnum.MAX));
-        }
-        else {
-            if (minMaxTypeEnum == MinMaxTypeEnum.MAX)
-            {
+            computer = new MinMaxTypeEnum.ComputerBigDecCoerce(evaluators, convertors, minMaxTypeEnum == MinMaxTypeEnum.MAX);
+        } else {
+            if (minMaxTypeEnum == MinMaxTypeEnum.MAX) {
                 computer = new MinMaxTypeEnum.MaxComputerDoubleCoerce(evaluators);
-            }
-            else
-            {
+            } else {
                 computer = new MinMaxTypeEnum.MinComputerDoubleCoerce(evaluators);
             }
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprMinMaxRow(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprMinMaxRow(this);
+        }
         Number result = computer.execute(eventsPerStream, isNewData, exprEvaluatorContext);
 
         if (InstrumentationHelper.ENABLED) {
@@ -156,8 +139,7 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator
         writer.append(',');
         this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
 
-        for (int i = 2; i < this.getChildNodes().length; i++)
-        {
+        for (int i = 2; i < this.getChildNodes().length; i++) {
             writer.append(',');
             this.getChildNodes()[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
         }
@@ -169,17 +151,14 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprMinMaxRowNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprMinMaxRowNode)) {
             return false;
         }
 
         ExprMinMaxRowNode other = (ExprMinMaxRowNode) node;
 
-        if (other.minMaxTypeEnum != this.minMaxTypeEnum)
-        {
+        if (other.minMaxTypeEnum != this.minMaxTypeEnum) {
             return false;
         }
 

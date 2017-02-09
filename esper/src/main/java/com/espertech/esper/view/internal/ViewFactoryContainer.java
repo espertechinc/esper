@@ -14,7 +14,6 @@ import com.espertech.esper.view.ViewFactory;
 
 import java.util.Collection;
 
-public interface ViewFactoryContainer
-{
+public interface ViewFactoryContainer {
     public Collection<ViewFactory> getViewFactoriesContained();
 }

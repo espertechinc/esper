@@ -60,7 +60,7 @@ public class BeaconSource implements DataFlowSourceOperator {
     private ExprEvaluator[] evaluators;
     private EventBeanManufacturer manufacturer;
 
-    @DataFlowOpParameter(all=true)
+    @DataFlowOpParameter(all = true)
     public void setProperty(String name, Object value) {
         allProperties.put(name, value);
     }
@@ -103,30 +103,30 @@ public class BeaconSource implements DataFlowSourceOperator {
                                 Object value = exprEvaluator.evaluate(eventsPerStream, isNewData, context);
                                 return widener.widen(value);
                             }
+
                             public Class getType() {
                                 return null;
                             }
                         };
-                    }
-                    else {
+                    } else {
                         evaluators[index] = exprEvaluator;
                     }
-                }
-                else if (providedProperty == null) {
+                } else if (providedProperty == null) {
                     evaluators[index] = new ExprEvaluator() {
                         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                             return null;
                         }
+
                         public Class getType() {
                             return null;
                         }
                     };
-                }
-                else {
+                } else {
                     evaluators[index] = new ExprEvaluator() {
                         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                             return providedProperty;
                         }
+
                         public Class getType() {
                             return providedProperty.getClass();
                         }
@@ -152,32 +152,32 @@ public class BeaconSource implements DataFlowSourceOperator {
             final Object value = validated.getExprEvaluator().evaluate(null, true, context.getAgentInstanceContext());
             if (value == null) {
                 types.put(propertyName, null);
-            }
-            else {
+            } else {
                 types.put(propertyName, value.getClass());
             }
             evaluators[count] = new ExprEvaluator() {
                 public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                     return value;
                 }
+
                 public Class getType() {
                     return null;
                 }
             };
             count++;
         }
-        
+
         EventType type = context.getServicesContext().getEventAdapterService().createAnonymousObjectArrayType(anonymousTypeName, types);
-        return new DataFlowOpInitializeResult(new GraphTypeDesc[] {new GraphTypeDesc(false, true, type)});
+        return new DataFlowOpInitializeResult(new GraphTypeDesc[]{new GraphTypeDesc(false, true, type)});
     }
 
     public void next() {
         if (iterationNumber == 0 && initialDelayMSec > 0) {
             try {
                 Thread.sleep(initialDelayMSec, 0);
-            }
-            catch (InterruptedException e) {
-                graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {});
+            } catch (InterruptedException e) {
+                graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {
+                });
             }
         }
 
@@ -187,17 +187,17 @@ public class BeaconSource implements DataFlowSourceOperator {
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
-                }
-                catch (InterruptedException e) {
-                    graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {});
+                } catch (InterruptedException e) {
+                    graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {
+                    });
                 }
             }
         }
 
         if (iterations > 0 && iterationNumber >= iterations) {
-            graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {});
-        }
-        else {
+            graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {
+            });
+        } else {
             iterationNumber++;
             if (evaluators != null) {
                 Object[] row = new Object[evaluators.length];
@@ -214,14 +214,12 @@ public class BeaconSource implements DataFlowSourceOperator {
                 if (manufacturer != null) {
                     if (!produceEventBean) {
                         outputEvent = manufacturer.makeUnderlying(row);
-                    }
-                    else {
+                    } else {
                         outputEvent = manufacturer.make(row);
                     }
                 }
                 graphContext.submit(outputEvent);
-            }
-            else {
+            } else {
                 if (log.isDebugEnabled()) {
                     log.debug("BeaconSource submitting empty row");
                 }
@@ -243,8 +241,7 @@ public class BeaconSource implements DataFlowSourceOperator {
     }
 
     private static WriteablePropertyDescriptor[] setupProperties(String[] propertyNamesOffered, EventType outputEventType, StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Set<WriteablePropertyDescriptor> writeables = statementContext.getEventAdapterService().getWriteableProperties(outputEventType, false);
 
         List<WriteablePropertyDescriptor> writablesList = new ArrayList<WriteablePropertyDescriptor>();

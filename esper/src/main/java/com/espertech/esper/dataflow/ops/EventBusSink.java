@@ -36,7 +36,7 @@ public class EventBusSink implements DataFlowOpLifecycle {
     private EPDataFlowEventCollector collector;
 
     private EventBusCollector eventBusCollector;
-    private EventBeanAdapterFactory adapterFactories[];
+    private EventBeanAdapterFactory[] adapterFactories;
     private ThreadLocal<EPDataFlowEventCollectorContext> collectorDataTL = new ThreadLocal<EPDataFlowEventCollectorContext>() {
         protected synchronized EPDataFlowEventCollectorContext initialValue() {
             return null;
@@ -77,8 +77,7 @@ public class EventBusSink implements DataFlowOpLifecycle {
                     runtimeEventSender.processWrappedEvent(event);
                 }
             };
-        }
-        else {
+        } else {
             adapterFactories = new EventBeanAdapterFactory[eventTypes.length];
             for (int i = 0; i < eventTypes.length; i++) {
                 adapterFactories[i] = context.getServicesContext().getEventAdapterService().getAdapterFactoryForType(eventTypes[i]);
@@ -93,17 +92,14 @@ public class EventBusSink implements DataFlowOpLifecycle {
             if (holder == null) {
                 holder = new EPDataFlowEventCollectorContext(eventBusCollector, data);
                 collectorDataTL.set(holder);
-            }
-            else {
+            } else {
                 holder.setEvent(data);
             }
             collector.collect(holder);
-        }
-        else {
+        } else {
             if (data instanceof EventBean) {
-                runtimeEventSender.processWrappedEvent( (EventBean) data);
-            }
-            else {
+                runtimeEventSender.processWrappedEvent((EventBean) data);
+            } else {
                 EventBean event = adapterFactories[port].makeAdapter(data);
                 runtimeEventSender.processWrappedEvent(event);
             }

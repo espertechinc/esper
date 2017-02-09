@@ -12,11 +12,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A Stats instance gathers percentile based on a given histogram
  * This class is thread unsafe.
+ *
+ * @author Alexandre Vasseur http://avasseur.blogspot.com
  * @see com.espertech.esper.example.benchmark.server.StatsHolder for thread safe access
  * Use createAndMergeFrom(proto) for best effort merge of this instance into the proto instance
  * (no read / write lock is performed so the actual counts are a best effort)
- *
- * @author Alexandre Vasseur http://avasseur.blogspot.com
  */
 public class Stats {
 
@@ -30,10 +30,10 @@ public class Stats {
     private int[] histogram;
     private long[] counts;
 
-    public Stats(String name, String unit, int... hists) {//10, 20, (20+ implicit)
+    public Stats(String name, String unit, int... hists) { //10, 20, (20+ implicit)
         this.name = name;
         this.unit = unit;
-        histogram = new int[hists.length + 1];//we add one slot for the implicit 20+
+        histogram = new int[hists.length + 1]; //we add one slot for the implicit 20+
         System.arraycopy(hists, 0, histogram, 0, hists.length);
         histogram[histogram.length - 1] = hists[hists.length - 1] + 1;
         counts = new long[histogram.length];
@@ -59,7 +59,7 @@ public class Stats {
             internal_reset();
 
         count++;
-        avg = (avg*(count-1) + ns)/count;
+        avg = (avg * (count - 1) + ns) / count;
         if (ns >= histogram[histogram.length - 1]) {
             counts[counts.length - 1]++;
         } else {
@@ -85,10 +85,10 @@ public class Stats {
             if (index != counts.length - 1) {
                 System.out.printf("  %7d < %7d: %6.2f%% %6.2f%% #%d\n",
                         lastLevel, histogram[index], (float) occur / count * 100,
-                        (float) occurCumul  / count * 100, occur);
+                        (float) occurCumul / count * 100, occur);
                 lastLevel = histogram[index];
             } else {
-                System.out.printf("  %7d <    more: %6.2f%% %6.2f%% #%d\n", lastLevel, (float)occur /count * 100, 100f, occur);
+                System.out.printf("  %7d <    more: %6.2f%% %6.2f%% #%d\n", lastLevel, (float) occur / count * 100, 100f, occur);
             }
             index++;
         }
@@ -130,7 +130,7 @@ public class Stats {
 
         long l = 100;
         long l2 = 3;
-        System.out.println(""+ (float) l/l2);
-        System.out.printf("%15.4f", (float) l/l2);
+        System.out.println("" + (float) l / l2);
+        System.out.printf("%15.4f", (float) l / l2);
     }
 }

@@ -16,13 +16,13 @@ import java.util.List;
 /**
  * Represents the "grouping sets" keywords.
  */
-public class GroupByClauseExpressionGroupingSet implements GroupByClauseExpression
-{
+public class GroupByClauseExpressionGroupingSet implements GroupByClauseExpression {
     private static final long serialVersionUID = 6071844123689652600L;
     private List<GroupByClauseExpression> expressions;
 
     /**
      * Ctor.
+     *
      * @param expressions group-by expressions withing grouping set
      */
     public GroupByClauseExpressionGroupingSet(List<GroupByClauseExpression> expressions) {
@@ -37,6 +37,7 @@ public class GroupByClauseExpressionGroupingSet implements GroupByClauseExpressi
 
     /**
      * Returns list of expressions in grouping set.
+     *
      * @return group-by expressions
      */
     public List<GroupByClauseExpression> getExpressions() {
@@ -45,6 +46,7 @@ public class GroupByClauseExpressionGroupingSet implements GroupByClauseExpressi
 
     /**
      * Sets the list of expressions in grouping set.
+     *
      * @param expressions group-by expressions
      */
     public void setExpressions(List<GroupByClauseExpression> expressions) {
@@ -54,8 +56,7 @@ public class GroupByClauseExpressionGroupingSet implements GroupByClauseExpressi
     public void toEPL(StringWriter writer) {
         writer.write("grouping sets(");
         String delimiter = "";
-        for (GroupByClauseExpression child : expressions)
-        {
+        for (GroupByClauseExpression child : expressions) {
             writer.write(delimiter);
             child.toEPL(writer);
             delimiter = ", ";

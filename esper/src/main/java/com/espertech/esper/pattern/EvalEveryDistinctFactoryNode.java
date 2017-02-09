@@ -23,8 +23,7 @@ import java.util.List;
 /**
  * This class represents an 'every-distinct' operator in the evaluation tree representing an event expression.
  */
-public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase {
     protected List<ExprNode> expressions;
     protected transient ExprEvaluator[] distinctExpressionsArray;
     private transient MatchedEventConvertor convertor;
@@ -35,10 +34,10 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Ctor.
+     *
      * @param expressions distinct-value expressions
      */
-    protected EvalEveryDistinctFactoryNode(List<ExprNode> expressions)
-    {
+    protected EvalEveryDistinctFactoryNode(List<ExprNode> expressions) {
         this.expressions = expressions;
     }
 
@@ -58,22 +57,22 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
         return convertor;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalEveryNode children=" + this.getChildNodes().size();
     }
 
     /**
      * Returns all expressions.
+     *
      * @return expressions
      */
-    public List<ExprNode> getExpressions()
-    {
+    public List<ExprNode> getExpressions() {
         return expressions;
     }
 
     /**
      * Returns distinct expressions.
+     *
      * @return expressions
      */
     public List<ExprNode> getDistinctExpressions() {
@@ -82,15 +81,14 @@ public class EvalEveryDistinctFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Sets the convertor for matching events to events-per-stream.
+     *
      * @param convertor convertor
      */
-    public void setConvertor(MatchedEventConvertor convertor)
-    {
+    public void setConvertor(MatchedEventConvertor convertor) {
         this.convertor = convertor;
     }
 
-    public void setDistinctExpressions(List<ExprNode> distinctExpressions, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ExprNode expiryTimeExp)
-    {
+    public void setDistinctExpressions(List<ExprNode> distinctExpressions, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ExprNode expiryTimeExp) {
         this.distinctExpressions = distinctExpressions;
         this.timeDeltaComputation = timeDeltaComputation;
         this.expiryTimeExp = expiryTimeExp;

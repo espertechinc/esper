@@ -10,54 +10,49 @@
  */
 package com.espertech.esper.view.internal;
 
-import java.util.Iterator;
-
-import com.espertech.esper.view.ViewSupport;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.view.Viewable;
+
+import java.util.Iterator;
 
 /**
  * A view that retains the last update.
  */
-public final class LastPostObserverView implements View, CloneableView
-{
+public final class LastPostObserverView implements View, CloneableView {
     private Viewable parent;
     private final int streamId;
     private LastPostObserver observer;
 
     /**
      * Ctor.
+     *
      * @param streamId - number of the stream for which the view buffers the generated events.
      */
-    public LastPostObserverView(int streamId)
-    {
+    public LastPostObserverView(int streamId) {
         this.streamId = streamId;
     }
 
     /**
      * Set an observer.
+     *
      * @param observer to be called when results are available
      */
-    public void setObserver(LastPostObserver observer)
-    {
+    public void setObserver(LastPostObserver observer) {
         this.observer = observer;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new LastPostObserverView(streamId);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return parent.iterator();
     }
 
@@ -89,8 +84,7 @@ public final class LastPostObserverView implements View, CloneableView
         return false;
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public final void update(EventBean[] newData, EventBean[] oldData) {
         if (observer != null) {
             observer.newData(streamId, newData, oldData);
         }

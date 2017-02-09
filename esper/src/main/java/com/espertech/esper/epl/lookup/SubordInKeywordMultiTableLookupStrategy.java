@@ -22,8 +22,7 @@ import java.util.Collection;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordInKeywordMultiTableLookupStrategy implements SubordTableLookupStrategy
-{
+public class SubordInKeywordMultiTableLookupStrategy implements SubordTableLookupStrategy {
     /**
      * Index to look up in.
      */
@@ -33,8 +32,7 @@ public class SubordInKeywordMultiTableLookupStrategy implements SubordTableLooku
     private final LookupStrategyDesc strategyDesc;
     private EventBean[] events;
 
-    public SubordInKeywordMultiTableLookupStrategy(int numStreamsOuter, ExprEvaluator evaluator, EventTable[] tables, LookupStrategyDesc strategyDesc)
-    {
+    public SubordInKeywordMultiTableLookupStrategy(int numStreamsOuter, ExprEvaluator evaluator, EventTable[] tables, LookupStrategyDesc strategyDesc) {
         this.evaluator = evaluator;
         this.strategyDesc = strategyDesc;
         events = new EventBean[numStreamsOuter + 1];
@@ -44,8 +42,7 @@ public class SubordInKeywordMultiTableLookupStrategy implements SubordTableLooku
         }
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
         return InKeywordTableLookupUtil.multiIndexLookup(evaluator, events, context, indexes);
     }

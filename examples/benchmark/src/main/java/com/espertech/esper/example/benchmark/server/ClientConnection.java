@@ -7,6 +7,8 @@
  **************************************************************************************/
 package com.espertech.esper.example.benchmark.server;
 
+import com.espertech.esper.example.benchmark.MarketData;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
@@ -14,25 +16,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import com.espertech.esper.example.benchmark.MarketData;
-
 /**
  * The ClientConnection handles unmarshalling from the connected client socket and delegates the event to
  * the underlying ESP/CEP engine by using/or not the executor policy.
  * Each ClientConnection manages a throughput statistic (evt/10s) over a 10s batched window
  *
- * @See Server
  * @author Alexandre Vasseur http://avasseur.blogspot.com
+ * @See Server
  */
 public class ClientConnection extends Thread {
 
-    static Map<Integer, ClientConnection> CLIENT_CONNECTIONS = Collections.synchronizedMap(new HashMap<Integer, ClientConnection>());
+    final static Map<Integer, ClientConnection> CLIENTCONNECTIONS = Collections.synchronizedMap(new HashMap<Integer, ClientConnection>());
 
     public static void dumpStats(int statSec) {
         long totalCount = 0;
         int cnx = 0;
         ClientConnection any = null;
-        for (ClientConnection m : CLIENT_CONNECTIONS.values()) {
+        for (ClientConnection m : CLIENTCONNECTIONS.values()) {
             cnx++;
             totalCount += m.countForStatSecLast;
             any = m;
@@ -49,23 +49,23 @@ public class ClientConnection extends Thread {
 
     private SocketChannel socketChannel;
     private CEPProvider.ICEPProvider cepProvider;
-    private ThreadPoolExecutor executor;//this guy is shared
+    private ThreadPoolExecutor executor; //this guy is shared
     private final int statSec;
     private long countForStatSec = 0;
     private long countForStatSecLast = 0;
     private long lastThroughputTick = System.currentTimeMillis();
     private int myID;
-    private static int ID = 0;
+    private static int id = 0;
 
     public ClientConnection(SocketChannel socketChannel, ThreadPoolExecutor executor, CEPProvider.ICEPProvider cepProvider, int statSec) {
-        super("EsperServer-cnx-" + ID++);
+        super("EsperServer-cnx-" + id++);
         this.socketChannel = socketChannel;
         this.executor = executor;
         this.cepProvider = cepProvider;
         this.statSec = statSec;
-        myID = ID - 1;
+        myID = id - 1;
 
-        CLIENT_CONNECTIONS.put(myID, this);
+        CLIENTCONNECTIONS.put(myID, this);
     }
 
     public void run() {
@@ -77,7 +77,7 @@ public class ClientConnection extends Thread {
                     break;
                 }
                 if (packet.hasRemaining()) {
-                    ;//System.err.println("partial packet");
+                    // no action
                 } else {
                     packet.flip();
                     final MarketData theEvent = MarketData.fromByteBuffer(packet);
@@ -115,7 +115,7 @@ public class ClientConnection extends Thread {
             t.printStackTrace();
             System.err.println("Error receiving data from client. Did client disconnect?");
         } finally {
-            CLIENT_CONNECTIONS.remove(myID);
+            CLIENTCONNECTIONS.remove(myID);
             StatsHolder.remove(StatsHolder.getEngine());
             StatsHolder.remove(StatsHolder.getServer());
             StatsHolder.remove(StatsHolder.getEndToEnd());

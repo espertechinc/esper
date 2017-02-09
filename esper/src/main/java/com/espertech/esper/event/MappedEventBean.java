@@ -17,10 +17,10 @@ import java.util.Map;
 /**
  * For events that are maps of properties.
  */
-public interface MappedEventBean extends EventBean
-{
+public interface MappedEventBean extends EventBean {
     /**
      * Returns property map.
+     *
      * @return properties
      */
     public Map<String, Object> getProperties();

@@ -19,8 +19,7 @@ import com.espertech.esper.util.JavaClassHelper;
 /**
  * Index lookup strategy that coerces the key values before performing a lookup.
  */
-public class SubordIndexedTableLookupStrategyCoercingNW extends SubordIndexedTableLookupStrategyExprNW
-{
+public class SubordIndexedTableLookupStrategyCoercingNW extends SubordIndexedTableLookupStrategyExprNW {
     private Class[] coercionTypes;
 
     public SubordIndexedTableLookupStrategyCoercingNW(ExprEvaluator[] evaluators, PropertyIndexedEventTable index, Class[] coercionTypes, LookupStrategyDesc strategyDesc) {
@@ -30,15 +29,12 @@ public class SubordIndexedTableLookupStrategyCoercingNW extends SubordIndexedTab
 
     protected Object[] getKeys(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         Object[] keys = super.getKeys(eventsPerStream, context);
-        for (int i = 0; i < keys.length; i++)
-        {
+        for (int i = 0; i < keys.length; i++) {
             Object value = keys[i];
 
             Class coercionType = coercionTypes[i];
-            if ((value != null) && (!value.getClass().equals(coercionType)))
-            {
-                if (value instanceof Number)
-                {
+            if ((value != null) && (!value.getClass().equals(coercionType))) {
+                if (value instanceof Number) {
                     value = JavaClassHelper.coerceBoxed((Number) value, coercionTypes[i]);
                 }
                 keys[i] = value;

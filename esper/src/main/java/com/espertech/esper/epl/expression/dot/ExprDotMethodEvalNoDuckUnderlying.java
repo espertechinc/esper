@@ -17,8 +17,7 @@ import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExprDotMethodEvalNoDuckUnderlying extends ExprDotMethodEvalNoDuck
-{
+public class ExprDotMethodEvalNoDuckUnderlying extends ExprDotMethodEvalNoDuck {
     private static final Logger log = LoggerFactory.getLogger(ExprDotMethodEvalNoDuckUnderlying.class);
 
     public ExprDotMethodEvalNoDuckUnderlying(String statementName, FastMethod method, ExprEvaluator[] parameters) {

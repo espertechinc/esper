@@ -12,10 +12,8 @@ package com.espertech.esper.schedule;
 
 import junit.framework.TestCase;
 
-public class TestScheduleCallbackSlot extends TestCase
-{
-    public void testCompare()
-    {
+public class TestScheduleCallbackSlot extends TestCase {
+    public void testCompare() {
         long slots[] = new long[10];
         slots[0] = ScheduleBucket.toLong(1, 1);
         slots[1] = ScheduleBucket.toLong(1, 2);
@@ -33,6 +31,6 @@ public class TestScheduleCallbackSlot extends TestCase
     }
 
     private int compare(long first, long second) {
-        return ((Long) first).compareTo(second) ;
+        return ((Long) first).compareTo(second);
     }
 }

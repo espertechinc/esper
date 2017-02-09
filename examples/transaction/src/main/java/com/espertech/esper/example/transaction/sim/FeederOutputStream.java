@@ -10,32 +10,29 @@
  */
 package com.espertech.esper.example.transaction.sim;
 
-import com.espertech.esper.example.transaction.TxnEventBase;
-import com.espertech.esper.example.transaction.FindMissingEventStmt;
 import com.espertech.esper.client.EPRuntime;
-import java.util.List;
-import java.io.IOException;
-
+import com.espertech.esper.example.transaction.FindMissingEventStmt;
+import com.espertech.esper.example.transaction.TxnEventBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FeederOutputStream implements OutputStream
-{
+import java.io.IOException;
+import java.util.List;
+
+public class FeederOutputStream implements OutputStream {
     private final EPRuntime runtime;
     private final long startTimeMSec;
 
     // We keep increasing the current time to simulate a 30 minute window
     private long currentTimeMSec;
 
-    public FeederOutputStream(EPRuntime runtime)
-    {
+    public FeederOutputStream(EPRuntime runtime) {
         this.runtime = runtime;
         startTimeMSec = System.currentTimeMillis();
         currentTimeMSec = startTimeMSec;
     }
 
-    public void output(List<TxnEventBase> bucket) throws IOException
-    {
+    public void output(List<TxnEventBase> bucket) throws IOException {
         log.info(".output Feeding " + bucket.size() + " events");
 
         long startTimeMSec = currentTimeMSec;
@@ -44,20 +41,17 @@ public class FeederOutputStream implements OutputStream
         sendTimerEvent(startTimeMSec);
 
         int count = 0, total = 0;
-        for (TxnEventBase theEvent : bucket)
-        {
+        for (TxnEventBase theEvent : bucket) {
             runtime.sendEvent(theEvent);
             count++;
             total++;
 
-            if (count % 1000 == 0)
-            {
+            if (count % 1000 == 0) {
                 sendTimerEvent(startTimeMSec + timePeriodLength * total / bucket.size());
                 count = 0;
             }
 
-            if (count == 10000)
-            {
+            if (count == 10000) {
                 log.info(".output Completed " + total + " events");
                 count = 0;
             }
@@ -69,8 +63,7 @@ public class FeederOutputStream implements OutputStream
         log.info(".output Completed bucket");
     }
 
-    private void sendTimerEvent(long msec)
-    {
+    private void sendTimerEvent(long msec) {
         log.info(".sendTimerEvent Setting time to now + " + (msec - startTimeMSec));
     }
 

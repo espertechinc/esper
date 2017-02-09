@@ -30,8 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SubordinateQueryPlannerUtil
-{
+public class SubordinateQueryPlannerUtil {
     public static void queryPlanLogOnExpr(boolean queryPlanLogging, Logger queryPlanLog, SubordinateWMatchExprQueryPlanResult strategy, Annotation[] annotations, EngineImportService engineImportService) {
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, engineImportService);
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
@@ -39,8 +38,7 @@ public class SubordinateQueryPlannerUtil
             queryPlanLog.info(prefix + "strategy " + strategy.getFactory().toQueryPlan());
             if (strategy.getIndexDescs() == null) {
                 queryPlanLog.info(prefix + "full table scan");
-            }
-            else {
+            } else {
                 for (int i = 0; i < strategy.getIndexDescs().length; i++) {
                     String indexName = strategy.getIndexDescs()[i].getIndexName();
                     String indexText = indexName != null ? "index " + indexName + " " : "(implicit) (" + i + ")";
@@ -109,18 +107,19 @@ public class SubordinateQueryPlannerUtil
      * Given an index with a defined set of hash(equals) and range(btree) props and uniqueness flag,
      * and given a list of indexable properties and accessors for both hash and range,
      * return the ordered keys and coercion information.
-     * @param indexMultiKey index definition
-     * @param hashIndexPropsProvided hash indexable properties
-     * @param hashJoinedProps keys for hash indexable properties
+     *
+     * @param indexMultiKey           index definition
+     * @param hashIndexPropsProvided  hash indexable properties
+     * @param hashJoinedProps         keys for hash indexable properties
      * @param rangeIndexPropsProvided btree indexable properties
-     * @param rangeJoinedProps keys for btree indexable properties
+     * @param rangeJoinedProps        keys for btree indexable properties
      * @return ordered set of key information
      */
     public static IndexKeyInfo compileIndexKeyInfo(IndexMultiKey indexMultiKey,
-                                                    String[] hashIndexPropsProvided,
-                                                    SubordPropHashKey[] hashJoinedProps,
-                                                    String[] rangeIndexPropsProvided,
-                                                    SubordPropRangeKey[] rangeJoinedProps) {
+                                                   String[] hashIndexPropsProvided,
+                                                   SubordPropHashKey[] hashJoinedProps,
+                                                   String[] rangeIndexPropsProvided,
+                                                   SubordPropRangeKey[] rangeJoinedProps) {
 
         // map the order of indexed columns (key) to the key information available
         IndexedPropDesc[] indexedKeyProps = indexMultiKey.getHashIndexedProps();
@@ -208,8 +207,7 @@ public class SubordinateQueryPlannerUtil
         for (SubordinateQueryIndexDesc desc : indexDescs) {
             if (desc.getIndexName() != null) {
                 repo.addIndexReference(desc.getIndexName(), statementName);
-            }
-            else {
+            } else {
                 repo.addIndex(false, desc.getIndexMultiKey(), null, statementName, false, desc.getQueryPlanIndexItem());
                 repo.addIndexReference(desc.getIndexMultiKey(), statementName);
             }

@@ -17,10 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.chrono.ChronoPeriod;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 
 public class CalendarOpPlusMinus implements CalendarOp {
@@ -37,18 +34,16 @@ public class CalendarOpPlusMinus implements CalendarOp {
         Object value = param.evaluate(eventsPerStream, isNewData, context);
         if (value instanceof Number) {
             action(cal, factor, ((Number) value).longValue());
-        }
-        else {
+        } else {
             action(cal, factor, (TimePeriod) value);
-        }        
+        }
     }
 
     public LocalDateTime evaluate(LocalDateTime ldt, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Object value = param.evaluate(eventsPerStream, isNewData, context);
         if (value instanceof Number) {
             return action(ldt, factor, ((Number) value).longValue());
-        }
-        else {
+        } else {
             return action(ldt, factor, (TimePeriod) value);
         }
     }
@@ -57,8 +52,7 @@ public class CalendarOpPlusMinus implements CalendarOp {
         Object value = param.evaluate(eventsPerStream, isNewData, context);
         if (value instanceof Number) {
             return action(zdt, factor, ((Number) value).longValue());
-        }
-        else {
+        } else {
             return action(zdt, factor, (TimePeriod) value);
         }
     }
@@ -72,8 +66,8 @@ public class CalendarOpPlusMinus implements CalendarOp {
             return;
         }
 
-        int days = (int) (duration / (1000L*60*60*24));
-        int msec = (int) (duration - days * (1000L*60*60*24));
+        int days = (int) (duration / (1000L * 60 * 60 * 24));
+        int msec = (int) (duration - days * (1000L * 60 * 60 * 24));
         cal.add(Calendar.MILLISECOND, factor * msec);
         cal.add(Calendar.DATE, factor * days);
     }
@@ -86,8 +80,8 @@ public class CalendarOpPlusMinus implements CalendarOp {
             return ldt.plus(factor * duration, ChronoUnit.MILLIS);
         }
 
-        int days = (int) (duration / (1000L*60*60*24));
-        int msec = (int) (duration - days * (1000L*60*60*24));
+        int days = (int) (duration / (1000L * 60 * 60 * 24));
+        int msec = (int) (duration - days * (1000L * 60 * 60 * 24));
         ldt = ldt.plus(factor * msec, ChronoUnit.MILLIS);
         return ldt.plus(factor * days, ChronoUnit.DAYS);
     }
@@ -100,8 +94,8 @@ public class CalendarOpPlusMinus implements CalendarOp {
             return ldt.plus(factor * duration, ChronoUnit.MILLIS);
         }
 
-        int days = (int) (duration / (1000L*60*60*24));
-        int msec = (int) (duration - days * (1000L*60*60*24));
+        int days = (int) (duration / (1000L * 60 * 60 * 24));
+        int msec = (int) (duration - days * (1000L * 60 * 60 * 24));
         ldt = ldt.plus(factor * msec, ChronoUnit.MILLIS);
         return ldt.plus(factor * days, ChronoUnit.DAYS);
     }
@@ -217,8 +211,7 @@ public class CalendarOpPlusMinus implements CalendarOp {
             int second = (factor - first * 2) + first;
             actionHandleOverflow(cal, first, tp, max);
             actionHandleOverflow(cal, second, tp, max);
-        }
-        else {
+        } else {
             // no overflow
             action(cal, factor, tp);
         }

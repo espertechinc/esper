@@ -12,28 +12,22 @@ package com.espertech.esper.example.qos_sla.monitor;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
-import com.espertech.esper.client.EventBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ErrorRateMonitor
-{
-    private ErrorRateMonitor()
-    {
+public class ErrorRateMonitor {
+    private ErrorRateMonitor() {
     }
 
-    public static void start()
-    {
+    public static void start() {
         EPAdministrator admin = EPServiceProviderManager.getDefaultProvider().getEPAdministrator();
 
         EPStatement pattern = admin.createPattern("every timer:at(*, *, *, *, *, */10)");
         final EPStatement view = admin.createEPL("select count(*) as size from " + OperationMeasurement.class.getName() +
                 "(success=false)#time(10 min)");
 
-        pattern.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        pattern.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 long count = (Long) view.iterator().next().get("size");
 
                 log.info(".update Info, error rate in the last 10 minutes is " + count);

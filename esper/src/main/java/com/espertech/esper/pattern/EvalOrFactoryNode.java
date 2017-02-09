@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * This class represents an 'or' operator in the evaluation tree representing any event expressions.
  */
-public class EvalOrFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalOrFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = -771361274781500482L;
 
     protected EvalOrFactoryNode() {
@@ -27,9 +26,8 @@ public class EvalOrFactoryNode extends EvalNodeFactoryBase
         return new EvalOrNode(agentInstanceContext, this, children);
     }
 
-    public final String toString()
-    {
-        return ("EvalOrNode children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalOrNode children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {

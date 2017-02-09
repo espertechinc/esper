@@ -19,9 +19,10 @@ public interface StatementUserObjectResolver extends Serializable {
     /**
      * Returns the user object to assign to a newly-deployed statement.
      * <p>
-     *     Implementations would typically interrogate the context object EPL expression
-     *     or module and module item information and determine the right user object to assign.
+     * Implementations would typically interrogate the context object EPL expression
+     * or module and module item information and determine the right user object to assign.
      * </p>
+     *
      * @param context the statement's deployment context
      * @return user object or null if none needs to be assigned
      */

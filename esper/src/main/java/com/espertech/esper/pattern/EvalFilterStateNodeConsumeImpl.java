@@ -19,14 +19,12 @@ import java.util.Collection;
 /**
  * This class contains the state of a single filter expression in the evaluation state tree.
  */
-public final class EvalFilterStateNodeConsumeImpl extends EvalFilterStateNode implements EvalFilterStateNodeConsume
-{
+public final class EvalFilterStateNodeConsumeImpl extends EvalFilterStateNode implements EvalFilterStateNodeConsume {
     public EvalFilterStateNodeConsumeImpl(Evaluator parentNode, EvalFilterNode evalFilterNode) {
         super(parentNode, evalFilterNode);
     }
 
-    public final void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
-    {
+    public final void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
         // not receiving the remaining matches simply means we evaluate the event
         if (allStmtMatches == null) {
             super.matchFound(theEvent, null);

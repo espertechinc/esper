@@ -39,8 +39,7 @@ import java.util.Set;
 /**
  * Unvalided filter-based stream specification.
  */
-public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw, MetaDefItem, Serializable
-{
+public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw, MetaDefItem, Serializable {
     private static Logger log = LoggerFactory.getLogger(FilterStreamSpecRaw.class);
     private FilterSpecRaw rawFilterSpec;
     private static final long serialVersionUID = -7919060568262701953L;
@@ -48,13 +47,13 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
 
     /**
      * Ctor.
-     * @param rawFilterSpec is unvalidated filter specification
-     * @param viewSpecs is the view definition
+     *
+     * @param rawFilterSpec      is unvalidated filter specification
+     * @param viewSpecs          is the view definition
      * @param optionalStreamName is the stream name if supplied, or null if not supplied
-     * @param streamSpecOptions - additional options, such as unidirectional stream in a join
+     * @param streamSpecOptions  - additional options, such as unidirectional stream in a join
      */
-    public FilterStreamSpecRaw(FilterSpecRaw rawFilterSpec, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions)
-    {
+    public FilterStreamSpecRaw(FilterSpecRaw rawFilterSpec, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions) {
         super(optionalStreamName, viewSpecs, streamSpecOptions);
         this.rawFilterSpec = rawFilterSpec;
     }
@@ -62,22 +61,20 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
     /**
      * Default ctor.
      */
-    public FilterStreamSpecRaw()
-    {
+    public FilterStreamSpecRaw() {
     }
 
     /**
      * Returns the unvalided filter spec.
+     *
      * @return filter def
      */
-    public FilterSpecRaw getRawFilterSpec()
-    {
+    public FilterSpecRaw getRawFilterSpec() {
         return rawFilterSpec;
     }
 
     public StreamSpecCompiled compile(StatementContext context, Set<String> eventTypeReferences, boolean isInsertInto, Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Determine the event type
         String eventName = rawFilterSpec.getEventTypeName();
 
@@ -89,16 +86,15 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
                 throw new ExprValidationException("Contained-event expressions are not supported with tables");
             }
             TableMetadata tableMetadata = context.getTableService().getTableMetadata(eventName);
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {tableMetadata.getInternalEventType()}, new String[] {optionalStreamName}, new boolean[] {true}, context.getEngineURI(), false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{tableMetadata.getInternalEventType()}, new String[]{optionalStreamName}, new boolean[]{true}, context.getEngineURI(), false);
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
             return new TableQueryStreamSpec(this.getOptionalStreamName(), this.getViewSpecs(), this.getOptions(), eventName, validatedNodes);
         }
 
         // Could be a named window
-        if (context.getNamedWindowMgmtService().isNamedWindow(eventName))
-        {
+        if (context.getNamedWindowMgmtService().isNamedWindow(eventName)) {
             EventType namedWindowType = context.getNamedWindowMgmtService().getProcessor(eventName).getTailView().getEventType();
-            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {namedWindowType}, new String[] {optionalStreamName}, new boolean[] {true}, context.getEngineURI(), false);
+            StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{namedWindowType}, new String[]{optionalStreamName}, new boolean[]{true}, context.getEngineURI(), false);
 
             List<ExprNode> validatedNodes = FilterSpecCompiler.validateAllowSubquery(ExprNodeOrigin.FILTER, rawFilterSpec.getFilterExpressions(), streamTypeService, context, null, null);
 
@@ -112,14 +108,12 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
 
         EventType eventType = null;
 
-        if (context.getValueAddEventService().isRevisionTypeName(eventName))
-        {
+        if (context.getValueAddEventService().isRevisionTypeName(eventName)) {
             eventType = context.getValueAddEventService().getValueAddUnderlyingType(eventName);
             eventTypeReferences.add(((EventTypeSPI) eventType).getMetadata().getPrimaryName());
         }
 
-        if (eventType == null)
-        {
+        if (eventType == null) {
             eventType = resolveType(context.getEngineURI(), eventName, context.getEventAdapterService(), context.getPlugInTypeResolutionURIs());
             if (eventType instanceof EventTypeSPI) {
                 eventTypeReferences.add(((EventTypeSPI) eventType).getMetadata().getPrimaryName());
@@ -128,7 +122,7 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
 
         // Validate all nodes, make sure each returns a boolean and types are good;
         // Also decompose all AND super nodes into individual expressions
-        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {eventType}, new String[] {super.getOptionalStreamName()}, new boolean[] {true}, context.getEngineURI(), false);
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{super.getOptionalStreamName()}, new boolean[]{true}, context.getEngineURI(), false);
 
         FilterSpecCompiled spec = FilterSpecCompiler.makeFilterSpec(eventType, eventName, rawFilterSpec.getFilterExpressions(), rawFilterSpec.getOptionalPropertyEvalSpec(),
                 null, null,  // no tags
@@ -139,77 +133,64 @@ public class FilterStreamSpecRaw extends StreamSpecBase implements StreamSpecRaw
 
     /**
      * Resolves a given event name to an event type.
-     * @param eventName is the name to resolve
-     * @param eventAdapterService for resolving event types
-     * @param engineURI the provider URI
+     *
+     * @param eventName              is the name to resolve
+     * @param eventAdapterService    for resolving event types
+     * @param engineURI              the provider URI
      * @param optionalResolutionURIs is URIs for resolving the event name against plug-inn event representations, if any
      * @return event type
      * @throws ExprValidationException if the info cannot be resolved
      */
     public static EventType resolveType(String engineURI, String eventName, EventAdapterService eventAdapterService, URI[] optionalResolutionURIs)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         EventType eventType = eventAdapterService.getExistsTypeByName(eventName);
 
         // may already be known
-        if (eventType != null)
-        {
+        if (eventType != null) {
             return eventType;
         }
 
         String engineURIQualifier = engineURI;
-        if (engineURI == null || EPServiceProviderSPI.DEFAULT_ENGINE_URI.equals(engineURI))
-        {
-            engineURIQualifier = EPServiceProviderSPI.DEFAULT_ENGINE_URI__QUALIFIER;
+        if (engineURI == null || EPServiceProviderSPI.DEFAULT_ENGINE_URI.equals(engineURI)) {
+            engineURIQualifier = EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER;
         }
 
         // The event name can be prefixed by the engine URI, i.e. "select * from default.MyEvent"
-        if (eventName.startsWith(engineURIQualifier))
-        {
+        if (eventName.startsWith(engineURIQualifier)) {
             int indexDot = eventName.indexOf(".");
-            if (indexDot > 0)
-            {
+            if (indexDot > 0) {
                 String eventNameURI = eventName.substring(0, indexDot);
                 String eventNameRemainder = eventName.substring(indexDot + 1);
 
-                if (engineURIQualifier.equals(eventNameURI))
-                {
+                if (engineURIQualifier.equals(eventNameURI)) {
                     eventType = eventAdapterService.getExistsTypeByName(eventNameRemainder);
                 }
             }
         }
 
         // may now be known
-        if (eventType != null)
-        {
+        if (eventType != null) {
             return eventType;
         }
 
         // The type is not known yet, attempt to add as a JavaBean type with the same name
         String message = null;
-        try
-        {
+        try {
             eventType = eventAdapterService.addBeanType(eventName, eventName, true, false, false, false);
-        }
-        catch (EventAdapterException ex)
-        {
+        } catch (EventAdapterException ex) {
             log.debug(".resolveType Event type named '" + eventName + "' not resolved as Java-Class event");
             message = "Failed to resolve event type: " + ex.getMessage();
         }
 
         // Attempt to use plug-in event types
-        try
-        {
+        try {
             eventType = eventAdapterService.addPlugInEventType(eventName, optionalResolutionURIs, null);
-        }
-        catch (EventAdapterException ex)
-        {
+        } catch (EventAdapterException ex) {
             log.debug(".resolveType Event type named '" + eventName + "' not resolved by plug-in event representations");
             // remains unresolved
         }
 
-        if (eventType == null)
-        {
+        if (eventType == null) {
             throw new ExprValidationException(message);
         }
         return eventType;

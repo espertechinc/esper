@@ -11,10 +11,9 @@
 package com.espertech.esper.client;
 
 /**
- * Descriptor for event property names, property types and access metadata. 
+ * Descriptor for event property names, property types and access metadata.
  */
-public class EventPropertyDescriptor
-{
+public class EventPropertyDescriptor {
     private String propertyName;
     private Class propertyType;
     private Class propertyComponentType;
@@ -26,17 +25,17 @@ public class EventPropertyDescriptor
 
     /**
      * Ctor.
-     * @param propertyName name of the property
-     * @param propertyType the property type
+     *
+     * @param propertyName          name of the property
+     * @param propertyType          the property type
      * @param propertyComponentType is the component type if the property is an indexed property
-     * @param requiresIndex true if the access to property value access requires an integer index value
-     * @param requiresMapkey true if the access to property value access requires a string map key
-     * @param indexed true if the property is an indexed property, i.e. type is an array or the property value access requires an integer index value
-     * @param mapped true if the property is a mapped property, i.e. type is an Map or the property value access requires an string map key
-     * @param fragment true if the property value can be represented as an EventBean and property type can be represented as an EventType 
+     * @param requiresIndex         true if the access to property value access requires an integer index value
+     * @param requiresMapkey        true if the access to property value access requires a string map key
+     * @param indexed               true if the property is an indexed property, i.e. type is an array or the property value access requires an integer index value
+     * @param mapped                true if the property is a mapped property, i.e. type is an Map or the property value access requires an string map key
+     * @param fragment              true if the property value can be represented as an EventBean and property type can be represented as an EventType
      */
-    public EventPropertyDescriptor(String propertyName, Class propertyType, Class propertyComponentType, boolean requiresIndex, boolean requiresMapkey, boolean indexed, boolean mapped, boolean fragment)
-    {
+    public EventPropertyDescriptor(String propertyName, Class propertyType, Class propertyComponentType, boolean requiresIndex, boolean requiresMapkey, boolean indexed, boolean mapped, boolean fragment) {
         this.propertyName = propertyName;
         this.propertyType = propertyType;
         this.propertyComponentType = propertyComponentType;
@@ -49,10 +48,10 @@ public class EventPropertyDescriptor
 
     /**
      * Returns the property name.
+     *
      * @return property name
      */
-    public String getPropertyName()
-    {
+    public String getPropertyName() {
         return propertyName;
     }
 
@@ -60,19 +59,19 @@ public class EventPropertyDescriptor
      * Returns the property underlying type.
      * <p>
      * Note that a null values is possible as null values can be selected.
+     *
      * @return underlying property type
      */
-    public Class getPropertyType()
-    {
+    public Class getPropertyType() {
         return propertyType;
     }
 
     /**
      * Returns the component type.
+     *
      * @return component type
      */
-    public Class getPropertyComponentType()
-    {
+    public Class getPropertyComponentType() {
         return propertyComponentType;
     }
 
@@ -86,10 +85,10 @@ public class EventPropertyDescriptor
      * <p>
      * A getter-method that returns an array is considered an index property but does not
      * require an index for access.
+     *
      * @return true to indicate that property value access requires an index value
      */
-    public boolean isRequiresIndex()
-    {
+    public boolean isRequiresIndex() {
         return isRequiresIndex;
     }
 
@@ -103,10 +102,10 @@ public class EventPropertyDescriptor
      * <p>
      * A getter-method that returns a Map is considered a mapped property but does not
      * require a map key for access.
+     *
      * @return true to indicate that property value access requires an index value
      */
-    public boolean isRequiresMapkey()
-    {
+    public boolean isRequiresMapkey() {
         return isRequiresMapkey;
     }
 
@@ -114,10 +113,10 @@ public class EventPropertyDescriptor
      * Returns true for indexed properties, returns false for all other property styles.
      * <p>
      * An indexed property is a property returning an array value or a getter-method taking a single integer parameter.
+     *
      * @return indicator whether this property is an index property
      */
-    public boolean isIndexed()
-    {
+    public boolean isIndexed() {
         return isIndexed;
     }
 
@@ -125,26 +124,25 @@ public class EventPropertyDescriptor
      * Returns true for mapped properties, returns false for all other property styles.
      * <p>
      * A mapped property is a property returning a Map value or a getter-method taking a single string (key) parameter.
+     *
      * @return indicator whether this property is a mapped property
      */
-    public boolean isMapped()
-    {
+    public boolean isMapped() {
         return isMapped;
     }
 
     /**
      * Returns true to indicate that the property value can itself be represented as an {@link EventBean}
      * and that the property type can be represented as an {@link EventType}.
+     *
      * @return indicator whether property is itself a complex data structure representable as a nested {@link EventType}
      */
-    public boolean isFragment()
-    {
+    public boolean isFragment() {
         return isFragment;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -164,8 +162,7 @@ public class EventPropertyDescriptor
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = propertyName.hashCode();
         result = 31 * result + (propertyType != null ? propertyType.hashCode() : 0);
         result = 31 * result + (propertyComponentType != null ? propertyComponentType.hashCode() : 0);
@@ -177,15 +174,14 @@ public class EventPropertyDescriptor
         return result;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "name " + propertyName +
-               " propertyType " + propertyType +
-               " propertyComponentType " + propertyComponentType +
-               " isRequiresIndex " + isRequiresIndex +
-               " isRequiresMapkey " + isRequiresMapkey +
-               " isIndexed " + isIndexed +
-               " isMapped " + isMapped +
-               " isFragment " + isFragment;
+                " propertyType " + propertyType +
+                " propertyComponentType " + propertyComponentType +
+                " isRequiresIndex " + isRequiresIndex +
+                " isRequiresMapkey " + isRequiresMapkey +
+                " isIndexed " + isIndexed +
+                " isMapped " + isMapped +
+                " isFragment " + isFragment;
     }
 }

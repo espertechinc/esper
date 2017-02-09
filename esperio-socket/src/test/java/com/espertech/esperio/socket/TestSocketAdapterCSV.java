@@ -21,8 +21,7 @@ import com.espertech.esperio.socket.config.DataType;
 import com.espertech.esperio.socket.config.SocketConfig;
 import junit.framework.TestCase;
 
-public class TestSocketAdapterCSV extends TestCase
-{
+public class TestSocketAdapterCSV extends TestCase {
     public static String newline = System.getProperty("line.separator");
     private SupportUpdateListener listener;
 
@@ -30,8 +29,7 @@ public class TestSocketAdapterCSV extends TestCase
         listener = new SupportUpdateListener();
     }
 
-    public void testSendCSV() throws Exception
-    {
+    public void testSendCSV() throws Exception {
         ConfigurationSocketAdapter adapterConfig = new ConfigurationSocketAdapter();
 
         int port = 6801;
@@ -71,7 +69,7 @@ public class TestSocketAdapterCSV extends TestCase
 
         client.send("stream=SupportBean,stringProp=E1,intProp=20" + newline);
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", 20});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 20});
 
         client.send("stream=SupportBean,stringProp=E\\u002C2,intProp=20,xxxx,x=msdjdjdj,intProp=21" + newline);
         Thread.sleep(200);

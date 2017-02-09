@@ -26,9 +26,10 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
 
     /**
      * Ctor.
-     * @param propertyMap the property to look at
+     *
+     * @param propertyMap         the property to look at
      * @param eventAdapterService factory for event beans and event types
-     * @param fragmentType type of the entry returned
+     * @param fragmentType        type of the entry returned
      */
     public MapNestedEntryPropertyGetterBase(String propertyMap, EventType fragmentType, EventAdapterService eventAdapterService) {
         this.propertyMap = propertyMap;
@@ -37,39 +38,33 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     public abstract Object handleNestedValue(Object value);
+
     public abstract Object handleNestedValueFragment(Object value);
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         Object value = map.get(propertyMap);
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
         return handleNestedValue(value);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Map<String, Object> map = BaseNestableEventUtil.checkedCastUnderlyingMap(obj);
         Object value = map.get(propertyMap);
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
         return handleNestedValueFragment(value);

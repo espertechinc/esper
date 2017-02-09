@@ -13,8 +13,7 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Aggregator for count-ever value.
  */
-public class AggregatorCountEver implements AggregationMethod
-{
+public class AggregatorCountEver implements AggregationMethod {
     protected long count;
 
     /**
@@ -23,22 +22,18 @@ public class AggregatorCountEver implements AggregationMethod
     public AggregatorCountEver() {
     }
 
-    public void clear()
-    {
+    public void clear() {
         count = 0;
     }
 
-    public void enter(Object object)
-    {
+    public void enter(Object object) {
         count++;
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return count;
     }
 

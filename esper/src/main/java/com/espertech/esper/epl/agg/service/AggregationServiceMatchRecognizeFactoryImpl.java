@@ -20,35 +20,33 @@ import java.util.Map;
 /**
  * Implements an aggregation service for match recognize.
  */
-public class AggregationServiceMatchRecognizeFactoryImpl implements AggregationServiceMatchRecognizeFactory
-{
-    private ExprEvaluator evaluatorsEachStream[][];
-    private AggregationMethodFactory factoryEachStream[][];
+public class AggregationServiceMatchRecognizeFactoryImpl implements AggregationServiceMatchRecognizeFactory {
+    private ExprEvaluator[][] evaluatorsEachStream;
+    private AggregationMethodFactory[][] factoryEachStream;
 
     /**
      * Ctor.
-     * @param countStreams number of streams/variables
+     *
+     * @param countStreams         number of streams/variables
      * @param aggregatorsPerStream aggregation methods per stream
-     * @param evaluatorsPerStream evaluation functions per stream
+     * @param evaluatorsPerStream  evaluation functions per stream
      */
     public AggregationServiceMatchRecognizeFactoryImpl(int countStreams, LinkedHashMap<Integer, AggregationMethodFactory[]> aggregatorsPerStream, Map<Integer, ExprEvaluator[]> evaluatorsPerStream) {
         evaluatorsEachStream = new ExprEvaluator[countStreams][];
         factoryEachStream = new AggregationMethodFactory[countStreams][];
 
-        for (Map.Entry<Integer, AggregationMethodFactory[]> agg : aggregatorsPerStream.entrySet())
-        {
+        for (Map.Entry<Integer, AggregationMethodFactory[]> agg : aggregatorsPerStream.entrySet()) {
             factoryEachStream[agg.getKey()] = agg.getValue();
         }
 
-        for (Map.Entry<Integer, ExprEvaluator[]> eval : evaluatorsPerStream.entrySet())
-        {
+        for (Map.Entry<Integer, ExprEvaluator[]> eval : evaluatorsPerStream.entrySet()) {
             evaluatorsEachStream[eval.getKey()] = eval.getValue();
         }
     }
 
     public AggregationServiceMatchRecognize makeService(AgentInstanceContext agentInstanceContext) {
 
-        AggregationMethod aggregatorsEachStream[][] = new AggregationMethod[factoryEachStream.length][];
+        AggregationMethod[][] aggregatorsEachStream = new AggregationMethod[factoryEachStream.length][];
 
         int count = 0;
         for (int stream = 0; stream < factoryEachStream.length; stream++) {

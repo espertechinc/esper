@@ -22,9 +22,10 @@ public class StatementDeploymentContext {
 
     /**
      * Ctor.
-     * @param epl EPL expression
-     * @param module encapsulating module
-     * @param moduleItem item in module
+     *
+     * @param epl          EPL expression
+     * @param module       encapsulating module
+     * @param moduleItem   item in module
      * @param deploymentId deployment id
      */
     public StatementDeploymentContext(String epl, Module module, ModuleItem moduleItem, String deploymentId) {
@@ -36,6 +37,7 @@ public class StatementDeploymentContext {
 
     /**
      * Returns the EPL expression.
+     *
      * @return EPL
      */
     public String getEpl() {
@@ -44,6 +46,7 @@ public class StatementDeploymentContext {
 
     /**
      * Returns the module.
+     *
      * @return module
      */
     public Module getModule() {
@@ -52,6 +55,7 @@ public class StatementDeploymentContext {
 
     /**
      * Returns the deployment id.
+     *
      * @return deployment id
      */
     public String getDeploymentId() {
@@ -60,6 +64,7 @@ public class StatementDeploymentContext {
 
     /**
      * Returns the module item.
+     *
      * @return module item
      */
     public ModuleItem getModuleItem() {

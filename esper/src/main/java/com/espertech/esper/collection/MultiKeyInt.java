@@ -12,8 +12,7 @@ package com.espertech.esper.collection;
 
 import java.util.Arrays;
 
-public final class MultiKeyInt
-{
+public final class MultiKeyInt {
     private final int[] keys;
 
     public MultiKeyInt(int[] keys) {

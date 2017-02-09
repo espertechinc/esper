@@ -16,9 +16,11 @@ import java.util.Date;
 
 public interface TimeAbacus extends Serializable {
     long deltaForSecondsNumber(Number timeInSeconds);
+
     long deltaForSecondsDouble(double seconds);
 
     long calendarSet(long fromTime, Calendar cal);
+
     long calendarGet(Calendar cal, long remainder);
 
     long getOneSecond();

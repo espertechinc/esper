@@ -7,8 +7,7 @@ import com.espertech.esper.plugin.PluginLoaderInitContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionSamplePlugin implements PluginLoader
-{
+public class TransactionSamplePlugin implements PluginLoader {
     private static final Logger log = LoggerFactory.getLogger(TransactionSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
@@ -17,20 +16,15 @@ public class TransactionSamplePlugin implements PluginLoader
     private TxnGenMain main;
     private Thread simulationThread;
 
-    public void init(PluginLoaderInitContext context)
-    {
-        if (context.getProperties().getProperty(ENGINE_URI) != null)
-        {
+    public void init(PluginLoaderInitContext context) {
+        if (context.getProperties().getProperty(ENGINE_URI) != null) {
             engineURI = context.getProperties().getProperty(ENGINE_URI);
-        }
-        else
-        {
+        } else {
             engineURI = context.getEpServiceProvider().getURI();
         }
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         log.info("Starting Transaction-example for engine URI '" + engineURI + "'.");
 
         try {
@@ -38,16 +32,14 @@ public class TransactionSamplePlugin implements PluginLoader
             simulationThread = new Thread(main, this.getClass().getName() + "-simulator");
             simulationThread.setDaemon(true);
             simulationThread.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error starting Transaction example: " + e.getMessage());
         }
 
         log.info("Transaction-example started.");
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         if (main != null) {
             EPServiceProviderManager.getProvider(engineURI).getEPAdministrator().destroyAllStatements();
         }
@@ -55,8 +47,7 @@ public class TransactionSamplePlugin implements PluginLoader
         try {
             simulationThread.interrupt();
             simulationThread.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.info("Interrupted", e);
         }
         main = null;

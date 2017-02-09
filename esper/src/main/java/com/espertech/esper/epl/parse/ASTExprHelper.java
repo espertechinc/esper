@@ -48,8 +48,7 @@ public class ASTExprHelper {
                 throw ASTWalkException.from(message);
             }
             return exprNode;
-        }
-        else {
+        } else {
             return new ExprIdentNodeImpl(identifier);
         }
     }
@@ -63,7 +62,7 @@ public class ASTExprHelper {
 
     public static ExprTimePeriod timePeriodGetExprAllParams(EsperEPL2GrammarParser.TimePeriodContext ctx, Map<Tree, ExprNode> astExprNodeMap, VariableService variableService, StatementSpecRaw spec, ConfigurationInformation config, TimeAbacus timeAbacus) {
 
-        ExprNode nodes[] = new ExprNode[9];
+        ExprNode[] nodes = new ExprNode[9];
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree unitRoot = ctx.getChild(i);
 
@@ -71,8 +70,7 @@ public class ASTExprHelper {
             if (ASTUtil.isTerminatedOfType(unitRoot.getChild(0), EsperEPL2GrammarLexer.IDENT)) {
                 String ident = unitRoot.getChild(0).getText();
                 valueExpr = ASTExprHelper.resolvePropertyOrVariableIdentifier(ident, variableService, spec);
-            }
-            else {
+            } else {
                 final AtomicReference<ExprNode> ref = new AtomicReference<ExprNode>();
                 ExprAction action = new ExprAction() {
                     public void found(ExprNode exprNode, Map<Tree, ExprNode> astExprNodeMap, Tree node) {
@@ -114,7 +112,7 @@ public class ASTExprHelper {
         }
 
         ExprTimePeriod timeNode = new ExprTimePeriodImpl(config.getEngineDefaults().getExpression().getTimeZone(),
-                nodes[0] != null, nodes[1]!= null, nodes[2]!= null, nodes[3]!= null, nodes[4]!= null, nodes[5]!= null, nodes[6]!= null, nodes[7]!= null, nodes[8]!= null, timeAbacus);
+                nodes[0] != null, nodes[1] != null, nodes[2] != null, nodes[3] != null, nodes[4] != null, nodes[5] != null, nodes[6] != null, nodes[7] != null, nodes[8] != null, timeAbacus);
 
         for (ExprNode node : nodes) {
             if (node != null) timeNode.addChildNode(node);
@@ -130,8 +128,7 @@ public class ASTExprHelper {
         return timeNode;
     }
 
-    protected static List<OnTriggerSetAssignment> getOnTriggerSetAssignments(EsperEPL2GrammarParser.OnSetAssignmentListContext ctx, Map<Tree, ExprNode> astExprNodeMap)
-    {
+    protected static List<OnTriggerSetAssignment> getOnTriggerSetAssignments(EsperEPL2GrammarParser.OnSetAssignmentListContext ctx, Map<Tree, ExprNode> astExprNodeMap) {
         if (ctx == null || ctx.onSetAssignment().isEmpty()) {
             return Collections.emptyList();
         }
@@ -146,8 +143,7 @@ public class ASTExprHelper {
                 equals.addChildNode(prop);
                 equals.addChildNode(value);
                 childEvalNode = equals;
-            }
-            else {
+            } else {
                 childEvalNode = ASTExprHelper.exprCollectSubNodes(assign, 0, astExprNodeMap).get(0);
             }
             assignments.add(new OnTriggerSetAssignment(childEvalNode));
@@ -268,8 +264,7 @@ public class ASTExprHelper {
         }
     }
 
-    public static List<ExprNode> exprCollectSubNodes(Tree parentNode, int startIndex, Map<Tree, ExprNode> astExprNodeMap)
-    {
+    public static List<ExprNode> exprCollectSubNodes(Tree parentNode, int startIndex, Map<Tree, ExprNode> astExprNodeMap) {
         ExprNode selfNode = astExprNodeMap.remove(parentNode);
         if (selfNode != null) {
             return Collections.singletonList(selfNode);
@@ -319,7 +314,7 @@ public class ASTExprHelper {
         int count = 1;
         ExprNode base = ASTExprHelper.exprCollectSubNodes(ctx.getChild(0), 0, astExprNodeMap).get(0);
 
-        while(true) {
+        while (true) {
             int token = ASTUtil.getAssertTerminatedTokenType(ctx.getChild(count));
             MathArithTypeEnum mathArithTypeEnum = tokenToMathEnum(token);
 
@@ -342,17 +337,17 @@ public class ASTExprHelper {
 
     private static MathArithTypeEnum tokenToMathEnum(int token) {
         switch (token) {
-            case EsperEPL2GrammarLexer.DIV :
+            case EsperEPL2GrammarLexer.DIV:
                 return MathArithTypeEnum.DIVIDE;
-            case EsperEPL2GrammarLexer.STAR :
+            case EsperEPL2GrammarLexer.STAR:
                 return MathArithTypeEnum.MULTIPLY;
-            case EsperEPL2GrammarLexer.PLUS :
+            case EsperEPL2GrammarLexer.PLUS:
                 return MathArithTypeEnum.ADD;
-            case EsperEPL2GrammarLexer.MINUS :
+            case EsperEPL2GrammarLexer.MINUS:
                 return MathArithTypeEnum.SUBTRACT;
-            case EsperEPL2GrammarLexer.MOD :
+            case EsperEPL2GrammarLexer.MOD:
                 return MathArithTypeEnum.MODULO;
-            default :
+            default:
                 throw ASTWalkException.from("Encountered unrecognized math token type " + token);
         }
     }

@@ -20,23 +20,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base node for 
+ * Base node for
  */
-public abstract class RowRegexExprNode implements MetaDefItem, Serializable
-{
+public abstract class RowRegexExprNode implements MetaDefItem, Serializable {
     private static final Logger log = LoggerFactory.getLogger(RowRegexExprNode.class);
     private static final long serialVersionUID = 0L;
 
     private List<RowRegexExprNode> childNodes;
 
     public abstract RowRegexExprNodePrecedenceEnum getPrecedence();
+
     public abstract void toPrecedenceFreeEPL(StringWriter writer);
 
     /**
      * Constructor creates a list of child nodes.
      */
-    public RowRegexExprNode()
-    {
+    public RowRegexExprNode() {
         childNodes = new ArrayList<RowRegexExprNode>();
     }
 
@@ -45,54 +44,49 @@ public abstract class RowRegexExprNode implements MetaDefItem, Serializable
             writer.write("(");
             toPrecedenceFreeEPL(writer);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer);
         }
     }
 
     /**
      * Adds a child node.
+     *
      * @param childNode is the child evaluation tree node to add
      */
-    public final void addChildNode(RowRegexExprNode childNode)
-    {
+    public final void addChildNode(RowRegexExprNode childNode) {
         childNodes.add(childNode);
     }
 
     /**
      * Returns list of child nodes.
+     *
      * @return list of child nodes
      */
-    public final List<RowRegexExprNode> getChildNodes()
-    {
+    public final List<RowRegexExprNode> getChildNodes() {
         return childNodes;
     }
 
     /**
      * Recursively print out all nodes.
+     *
      * @param prefix is printed out for naming the printed info
      */
     @SuppressWarnings({"StringContatenationInLoop"})
-    public final void dumpDebug(String prefix)
-    {
-        if (log.isDebugEnabled())
-        {
+    public final void dumpDebug(String prefix) {
+        if (log.isDebugEnabled()) {
             log.debug(".dumpDebug " + prefix + this.toString());
         }
-        for (RowRegexExprNode node : childNodes)
-        {
+        for (RowRegexExprNode node : childNodes) {
             node.dumpDebug(prefix + "  ");
         }
     }
 
-    public void accept(RowRegexExprNodeVisitor visitor)
-    {
+    public void accept(RowRegexExprNodeVisitor visitor) {
         acceptChildnodes(visitor, null, 0);
     }
 
-    public void acceptChildnodes(RowRegexExprNodeVisitor visitor, RowRegexExprNode parent, int level)
-    {
+    public void acceptChildnodes(RowRegexExprNodeVisitor visitor, RowRegexExprNode parent, int level) {
         visitor.visit(this, parent, level);
         for (RowRegexExprNode childNode : childNodes) {
             childNode.acceptChildnodes(visitor, this, level + 1);
@@ -104,8 +98,7 @@ public abstract class RowRegexExprNode implements MetaDefItem, Serializable
         for (RowRegexExprNode node : childNodes) {
             if (node != nodeToReplace) {
                 newChildNodes.add(node);
-            }
-            else {
+            } else {
                 newChildNodes.addAll(replacementNodes);
             }
         }

@@ -16,8 +16,7 @@ import java.util.Map;
 /**
  * Configuration information for plugging in a custom aggregation multi-function.
  */
-public class ConfigurationPlugInAggregationMultiFunction implements Serializable
-{
+public class ConfigurationPlugInAggregationMultiFunction implements Serializable {
     private static final long serialVersionUID = -1126332072916978240L;
     private String[] functionNames;
     private String multiFunctionFactoryClassName;
@@ -31,7 +30,8 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Ctor.
-     * @param functionNames the aggregation function names
+     *
+     * @param functionNames                 the aggregation function names
      * @param multiFunctionFactoryClassName the factory class name
      */
     public ConfigurationPlugInAggregationMultiFunction(String[] functionNames, String multiFunctionFactoryClassName) {
@@ -41,6 +41,7 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Returns aggregation function names.
+     *
      * @return names
      */
     public String[] getFunctionNames() {
@@ -49,6 +50,7 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Sets aggregation function names.
+     *
      * @param functionNames names to set
      */
     public void setFunctionNames(String[] functionNames) {
@@ -57,6 +59,7 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Returns the factory class name.
+     *
      * @return class name
      */
     public String getMultiFunctionFactoryClassName() {
@@ -65,6 +68,7 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Sets the factory class name.
+     *
      * @param multiFunctionFactoryClassName class name
      */
     public void setMultiFunctionFactoryClassName(String multiFunctionFactoryClassName) {
@@ -73,6 +77,7 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Returns a map of optional configuration properties, or null if none provided.
+     *
      * @return additional optional properties
      */
     public Map<String, Object> getAdditionalConfiguredProperties() {
@@ -81,6 +86,7 @@ public class ConfigurationPlugInAggregationMultiFunction implements Serializable
 
     /**
      * Sets a map of optional configuration properties, or null if none provided.
+     *
      * @param additionalConfiguredProperties additional optional properties
      */
     public void setAdditionalConfiguredProperties(Map<String, Object> additionalConfiguredProperties) {

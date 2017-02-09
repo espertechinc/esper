@@ -16,28 +16,25 @@ import com.espertech.esper.pattern.MatchedEventMap;
 /**
  * A String-typed value as a filter parameter representing a range.
  */
-public class RangeValueString implements FilterSpecParamRangeValue
-{
+public class RangeValueString implements FilterSpecParamRangeValue {
     private static final long serialVersionUID = -2813440284912349247L;
 
     private final String theStringValue;
 
     /**
      * Ctor.
+     *
      * @param theStringValue is the value of the range endpoint
      */
-    public RangeValueString(String theStringValue)
-    {
+    public RangeValueString(String theStringValue) {
         this.theStringValue = theStringValue;
     }
 
-    public final String getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public final String getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
         return theStringValue;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return theStringValue;
     }
 
@@ -47,7 +44,8 @@ public class RangeValueString implements FilterSpecParamRangeValue
 
         RangeValueString that = (RangeValueString) o;
 
-        if (theStringValue != null ? !theStringValue.equals(that.theStringValue) : that.theStringValue != null) return false;
+        if (theStringValue != null ? !theStringValue.equals(that.theStringValue) : that.theStringValue != null)
+            return false;
 
         return true;
     }

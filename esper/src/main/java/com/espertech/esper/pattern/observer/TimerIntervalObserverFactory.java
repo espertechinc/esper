@@ -27,8 +27,7 @@ import java.util.List;
 /**
  * Factory for making observer instances.
  */
-public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefItem, Serializable
-{
+public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefItem, Serializable {
     private static final long serialVersionUID = -2808651894497586884L;
 
     private final static String NAME = "Timer-interval observer";
@@ -43,8 +42,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
      */
     protected transient MatchedEventConvertor convertor;
 
-    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
-    {
+    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException {
         ObserverParameterUtil.validateNoNamedParameters(NAME, parameters);
         String errorMessage = NAME + " requires a single numeric or time period parameter";
         if (parameters.size() != 1) {
@@ -65,8 +63,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
         if (parameter instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) parameter;
             return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
-        }
-        else {
+        } else {
             Object result = parameter.getExprEvaluator().evaluate(convertor.convert(beginState), true, context.getAgentInstanceContext());
             if (result == null) {
                 throw new EPException("Null value returned for guard expression");
@@ -75,8 +72,7 @@ public class TimerIntervalObserverFactory implements ObserverFactory, MetaDefIte
         }
     }
 
-    public EventObserver makeObserver(PatternAgentInstanceContext context, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, EvalStateNodeNumber stateNodeId, Object observerState, boolean isFilterChildNonQuitting)
-    {
+    public EventObserver makeObserver(PatternAgentInstanceContext context, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, EvalStateNodeNumber stateNodeId, Object observerState, boolean isFilterChildNonQuitting) {
         return new TimerIntervalObserver(computeDelta(beginState, context), beginState, observerEventEvaluator);
     }
 

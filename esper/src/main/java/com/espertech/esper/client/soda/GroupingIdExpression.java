@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Grouping_id-function for use with rollup, cube or grouping sets.
  */
-public class GroupingIdExpression extends ExpressionBase
-{
+public class GroupingIdExpression extends ExpressionBase {
     private static final long serialVersionUID = 4380882281898973262L;
 
     /**
@@ -24,17 +23,14 @@ public class GroupingIdExpression extends ExpressionBase
      * <p>
      * Use add methods to add child expressions to acts upon.
      */
-    public GroupingIdExpression()
-    {
+    public GroupingIdExpression() {
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         toPrecedenceFreeEPL("grouping_id", this.getChildren(), writer);
     }
 }

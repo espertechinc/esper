@@ -23,41 +23,46 @@ import java.util.List;
  * Certain types of nodes have certain requirements towards the number or types of nodes that
  * are expected as sub-expressions to an expression.
  */
-public interface Expression extends Serializable
-{
+public interface Expression extends Serializable {
     /**
      * Returns the list of sub-expressions (child expressions) to the current expression node.
+     *
      * @return child expressions or empty list if there are no child expressions
      */
     public List<Expression> getChildren();
 
     /**
      * Sets the list of sub-expressions (child expressions) to the current expression node.
+     *
      * @param children child expressions or empty list if there are no child expressions
      */
     public void setChildren(List<Expression> children);
 
     /**
      * Returns the tree of object name, for use by tools to assign an identifier to an expression.
+     *
      * @return tree object id
      */
     public String getTreeObjectName();
 
     /**
      * Sets the tree of object name, for use by tools to assign an identifier to an expression.
+     *
      * @param objectName tree object id
      */
     public void setTreeObjectName(String objectName);
 
     /**
      * Returns precedence.
+     *
      * @return precedence
      */
     public ExpressionPrecedenceEnum getPrecedence();
 
     /**
      * Write expression considering precedence.
-     * @param writer to use
+     *
+     * @param writer           to use
      * @param parentPrecedence precedence
      */
     public void toEPL(StringWriter writer, ExpressionPrecedenceEnum parentPrecedence);

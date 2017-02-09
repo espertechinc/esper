@@ -13,10 +13,8 @@ package com.espertech.esper.filter;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 import junit.framework.TestCase;
 
-public class TestFilterServiceProvider extends TestCase
-{
-    public void testGetService()
-    {
+public class TestFilterServiceProvider extends TestCase {
+    public void testGetService() {
         FilterService serviceOne = FilterServiceProvider.newService(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, false);
         FilterService serviceTwo = FilterServiceProvider.newService(ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY, false);
 

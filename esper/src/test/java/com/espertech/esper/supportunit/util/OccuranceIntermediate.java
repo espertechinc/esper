@@ -10,37 +10,32 @@
  */
 package com.espertech.esper.supportunit.util;
 
-import com.espertech.esper.collection.Pair;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.collection.Pair;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class OccuranceIntermediate
-{
+public class OccuranceIntermediate {
     private Long low;
     private Long high;
     private List<Pair<Long, EventBean[]>> items;
 
-    public OccuranceIntermediate(Long low, Long high)
-    {
+    public OccuranceIntermediate(Long low, Long high) {
         this.low = low;
         this.high = high;
         this.items = new ArrayList<Pair<Long, EventBean[]>>();
     }
 
-    public List<Pair<Long, EventBean[]>> getItems()
-    {
+    public List<Pair<Long, EventBean[]>> getItems() {
         return items;
     }
 
-    public Long getLow()
-    {
+    public Long getLow() {
         return low;
     }
 
-    public Long getHigh()
-    {
+    public Long getHigh() {
         return high;
     }
 }

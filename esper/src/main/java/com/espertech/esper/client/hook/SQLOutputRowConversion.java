@@ -19,10 +19,10 @@ package com.espertech.esper.client.hook;
  * An instance of the class implementating this interface exists typically per statement
  * that the callback has been registered for by means of EPL statement annotation.
  */
-public interface SQLOutputRowConversion
-{
+public interface SQLOutputRowConversion {
     /**
      * Return the POJO class that represents a row of the SQL query result.
+     *
      * @param context receives the context information such as database name, query fired and types returned by query
      * @return class that represents a result row
      */
@@ -30,6 +30,7 @@ public interface SQLOutputRowConversion
 
     /**
      * Returns the POJO object that represents a row of the SQL query result, or null to indicate to skip this row.
+     *
      * @param context receives row result information
      * @return POJO or null value to skip the row
      */

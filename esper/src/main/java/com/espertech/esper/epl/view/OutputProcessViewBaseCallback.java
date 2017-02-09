@@ -22,8 +22,7 @@ import java.util.Set;
 /**
  * Factory for output processing views.
  */
-public class OutputProcessViewBaseCallback extends OutputProcessViewBase
-{
+public class OutputProcessViewBaseCallback extends OutputProcessViewBase {
     private final OutputProcessViewCallback callback;
 
     public OutputProcessViewBaseCallback(ResultSetProcessor resultSetProcessor, OutputProcessViewCallback callback) {

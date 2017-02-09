@@ -24,8 +24,7 @@ public class MapEventBeanPropertyWriter implements EventPropertyWriter {
         this.propertyName = propertyName;
     }
 
-    public void write(Object value, EventBean target)
-    {
+    public void write(Object value, EventBean target) {
         MappedEventBean map = (MappedEventBean) target;
         write(value, map.getProperties());
     }

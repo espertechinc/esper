@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.epl.agg.aggregator;
 
-import com.espertech.esper.epl.expression.time.TimeAbacus;
-
 /**
  * Aggregation computing an event arrival rate for data windowed-events.
  */

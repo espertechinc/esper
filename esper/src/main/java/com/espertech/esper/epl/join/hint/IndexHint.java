@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class IndexHint {
 
@@ -38,17 +39,14 @@ public class IndexHint {
             List<IndexHintInstruction> instructions = new ArrayList<IndexHintInstruction>();
             for (int i = 0; i < hintAtoms.length; i++) {
                 String hintAtom = hintAtoms[i];
-                if (hintAtom.toLowerCase().trim().equals("bust")) {
+                if (hintAtom.toLowerCase(Locale.ENGLISH).trim().equals("bust")) {
                     instructions.add(new IndexHintInstructionBust());
-                }
-                else if (hintAtom.toLowerCase().trim().equals("explicit")) {
+                } else if (hintAtom.toLowerCase(Locale.ENGLISH).trim().equals("explicit")) {
                     instructions.add(new IndexHintInstructionExplicit());
-                }
-                else if (checkValueInParen("subquery", hintAtom.toLowerCase())) {
+                } else if (checkValueInParen("subquery", hintAtom.toLowerCase(Locale.ENGLISH))) {
                     int subqueryNum = extractValueParen(hintAtom);
                     selectors.add(new IndexHintSelectorSubquery(subqueryNum));
-                }
-                else {
+                } else {
                     instructions.add(new IndexHintInstructionIndexName(hintAtom.trim()));
                 }
             }
@@ -83,7 +81,7 @@ public class IndexHint {
     protected static boolean checkValueInParen(String type, String value) {
         int indexOpen = value.indexOf('(');
         if (indexOpen != -1) {
-            String noparen = value.substring(0, indexOpen).trim().toLowerCase();
+            String noparen = value.substring(0, indexOpen).trim().toLowerCase(Locale.ENGLISH);
             if (type.equals(noparen)) {
                 return true;
             }
@@ -94,7 +92,7 @@ public class IndexHint {
     protected static boolean checkValueAssignment(String type, String value) {
         int indexEquals = value.indexOf('=');
         if (indexEquals != -1) {
-            String noequals = value.substring(0, indexEquals).trim().toLowerCase();
+            String noequals = value.substring(0, indexEquals).trim().toLowerCase(Locale.ENGLISH);
             if (type.equals(noequals)) {
                 return true;
             }
@@ -109,8 +107,7 @@ public class IndexHint {
             String value = text.substring(indexOpen + 1, indexClosed).trim();
             try {
                 return Integer.parseInt(value);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 throw new EPException("Failed to parse '" + value + "' as an index hint integer value");
             }
         }
@@ -121,8 +118,7 @@ public class IndexHint {
         String value = extractValueEquals(text);
         try {
             return Integer.parseInt(value);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return value;
         }
     }

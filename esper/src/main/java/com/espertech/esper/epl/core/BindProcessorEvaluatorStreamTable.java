@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 
-public class BindProcessorEvaluatorStreamTable implements ExprEvaluator
-{
+public class BindProcessorEvaluatorStreamTable implements ExprEvaluator {
     private final int streamNum;
     private final Class returnType;
     private final TableMetadata tableMetadata;

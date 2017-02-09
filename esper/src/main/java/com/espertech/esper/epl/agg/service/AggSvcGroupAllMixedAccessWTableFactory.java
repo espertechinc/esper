@@ -21,8 +21,7 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstanceUngrouped;
 /**
  * Implementation for handling aggregation without any grouping (no group-by).
  */
-public class AggSvcGroupAllMixedAccessWTableFactory implements AggregationServiceFactory
-{
+public class AggSvcGroupAllMixedAccessWTableFactory implements AggregationServiceFactory {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final boolean isJoin;
     private final TableColumnMethodPair[] methodPairs;

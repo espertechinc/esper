@@ -15,8 +15,7 @@ import com.espertech.esper.epl.db.DatabaseConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RunnableUpsertContext
-{
+public class RunnableUpsertContext {
     private static Logger log = LoggerFactory.getLogger(RunnableUpsertContext.class);
 
     private final String name;
@@ -27,8 +26,7 @@ public class RunnableUpsertContext
     private final Integer retry;
     private final Double retryWait;
 
-    public RunnableUpsertContext(String name, DatabaseConnectionFactory connectionFactory, MultiKeyMultiValueTable table, EventPropertyGetter[] keyGetters, EventPropertyGetter[] valueGetters, Integer retry, Double retryWait)
-    {
+    public RunnableUpsertContext(String name, DatabaseConnectionFactory connectionFactory, MultiKeyMultiValueTable table, EventPropertyGetter[] keyGetters, EventPropertyGetter[] valueGetters, Integer retry, Double retryWait) {
         this.name = name;
         this.connectionFactory = connectionFactory;
         this.table = table;
@@ -38,38 +36,31 @@ public class RunnableUpsertContext
         this.retryWait = retryWait;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public DatabaseConnectionFactory getConnectionFactory()
-    {
+    public DatabaseConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
-    public MultiKeyMultiValueTable getTable()
-    {
+    public MultiKeyMultiValueTable getTable() {
         return table;
     }
 
-    public EventPropertyGetter[] getKeyGetters()
-    {
+    public EventPropertyGetter[] getKeyGetters() {
         return keyGetters;
     }
 
-    public EventPropertyGetter[] getValueGetters()
-    {
+    public EventPropertyGetter[] getValueGetters() {
         return valueGetters;
     }
 
-    public Integer getRetry()
-    {
+    public Integer getRetry() {
         return retry;
     }
 
-    public Double getRetryWait()
-    {
+    public Double getRetryWait() {
         return retryWait;
     }
 }

@@ -22,8 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestEventTypeIndex extends TestCase
-{
+public class TestEventTypeIndex extends TestCase {
     private EventTypeIndex testIndex;
 
     private EventBean testEventBean;
@@ -32,8 +31,7 @@ public class TestEventTypeIndex extends TestCase
     private FilterHandleSetNode handleSetNode;
     private FilterHandle filterCallback;
 
-    public void setUp()
-    {
+    public void setUp() {
         SupportBean testBean = new SupportBean();
         testEventBean = SupportEventBeanFactory.createObject(testBean);
         testEventType = testEventBean.getEventType();
@@ -46,8 +44,7 @@ public class TestEventTypeIndex extends TestCase
         testIndex.add(testEventType, handleSetNode);
     }
 
-    public void testMatch()
-    {
+    public void testMatch() {
         List<FilterHandle> matchesList = new LinkedList<FilterHandle>();
 
         // Invoke match
@@ -57,26 +54,20 @@ public class TestEventTypeIndex extends TestCase
         assertEquals(filterCallback, matchesList.get(0));
     }
 
-    public void testInvalidSecondAdd()
-    {
-        try
-        {
+    public void testInvalidSecondAdd() {
+        try {
             testIndex.add(testEventType, handleSetNode);
             assertTrue(false);
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected
         }
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         assertEquals(handleSetNode, testIndex.get(testEventType));
     }
 
-    public void testSuperclassMatch()
-    {
+    public void testSuperclassMatch() {
         testEventBean = SupportEventBeanFactory.createObject(new ISupportAImplSuperGImplPlus());
         testEventType = SupportEventTypeFactory.createBeanType(ISupportA.class);
 
@@ -90,8 +81,7 @@ public class TestEventTypeIndex extends TestCase
         assertEquals(filterCallback, matchesList.get(0));
     }
 
-    public void testInterfaceMatch()
-    {
+    public void testInterfaceMatch() {
         testEventBean = SupportEventBeanFactory.createObject(new ISupportABCImpl("a", "b", "ab", "c"));
         testEventType = SupportEventTypeFactory.createBeanType(ISupportBaseAB.class);
 

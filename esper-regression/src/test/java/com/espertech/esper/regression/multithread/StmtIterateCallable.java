@@ -28,10 +28,10 @@ public class StmtIterateCallable implements Callable
     private static final Logger log = LoggerFactory.getLogger(StmtIterateCallable.class);
     private final int threadNum;
     private final EPServiceProvider engine;
-    private final EPStatement stmt[];
+    private final EPStatement[] stmt;
     private final int numRepeats;
 
-    public StmtIterateCallable(int threadNum, EPServiceProvider engine, EPStatement stmt[], int numRepeats)
+    public StmtIterateCallable(int threadNum, EPServiceProvider engine, EPStatement[] stmt, int numRepeats)
     {
         this.threadNum = threadNum;
         this.engine = engine;

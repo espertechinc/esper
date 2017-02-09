@@ -10,33 +10,24 @@
  */
 package com.espertech.esper.view.std;
 
-import com.espertech.esper.view.View;
-
-import java.util.Collection;
-
-public class GroupByViewAgedEntry
-{
+public class GroupByViewAgedEntry {
     private final Object subviewHolder;
     private long lastUpdateTime;
 
-    public GroupByViewAgedEntry(Object subviewHolder, long lastUpdateTime)
-    {
+    public GroupByViewAgedEntry(Object subviewHolder, long lastUpdateTime) {
         this.subviewHolder = subviewHolder;
         this.lastUpdateTime = lastUpdateTime;
     }
 
-    public Object getSubviewHolder()
-    {
+    public Object getSubviewHolder() {
         return subviewHolder;
     }
 
-    public long getLastUpdateTime()
-    {
+    public long getLastUpdateTime() {
         return lastUpdateTime;
     }
 
-    public void setLastUpdateTime(long lastUpdateTime)
-    {
+    public void setLastUpdateTime(long lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
     }
 }

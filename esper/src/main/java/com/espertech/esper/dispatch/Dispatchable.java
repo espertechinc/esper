@@ -13,10 +13,9 @@ package com.espertech.esper.dispatch;
 /**
  * Implementations are executed when the DispatchService receives a dispatch invocation.
  */
-public interface Dispatchable
-{
+public interface Dispatchable {
     /**
-     * Execute dispatch. 
+     * Execute dispatch.
      */
     public void execute();
 }

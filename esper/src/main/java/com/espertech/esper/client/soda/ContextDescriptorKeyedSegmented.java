@@ -31,6 +31,7 @@ public class ContextDescriptorKeyedSegmented implements ContextDescriptor {
 
     /**
      * Ctor.
+     *
      * @param items key set descriptions
      */
     public ContextDescriptorKeyedSegmented(List<ContextDescriptorKeyedSegmentedItem> items) {
@@ -39,6 +40,7 @@ public class ContextDescriptorKeyedSegmented implements ContextDescriptor {
 
     /**
      * Returns the key set descriptions
+     *
      * @return list
      */
     public List<ContextDescriptorKeyedSegmentedItem> getItems() {
@@ -47,6 +49,7 @@ public class ContextDescriptorKeyedSegmented implements ContextDescriptor {
 
     /**
      * Sets the key set descriptions
+     *
      * @param items list
      */
     public void setItems(List<ContextDescriptorKeyedSegmentedItem> items) {

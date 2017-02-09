@@ -15,21 +15,18 @@ import java.io.StringWriter;
 /**
  * Or-condition in a regex expression tree.
  */
-public class RowRegexExprNodeAlteration extends RowRegexExprNode
-{
+public class RowRegexExprNodeAlteration extends RowRegexExprNode {
     private static final long serialVersionUID = 8383340732689436983L;
 
     /**
      * Ctor.
      */
-    public RowRegexExprNodeAlteration()
-    {        
+    public RowRegexExprNodeAlteration() {
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         String delimiter = "";
-        for (RowRegexExprNode node : this.getChildNodes())
-        {
+        for (RowRegexExprNode node : this.getChildNodes()) {
             writer.append(delimiter);
             node.toEPL(writer, getPrecedence());
             delimiter = "|";

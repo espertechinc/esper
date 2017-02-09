@@ -24,8 +24,7 @@ import java.util.Set;
  * Implements the function to determine a join result set using tables/indexes and query strategy
  * instances for each stream.
  */
-public class JoinSetComposerFAFImpl extends JoinSetComposerImpl
-{
+public class JoinSetComposerFAFImpl extends JoinSetComposerImpl {
     private final boolean isOuterJoins;
 
     public JoinSetComposerFAFImpl(Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, boolean isPureSelfJoin, ExprEvaluatorContext exprEvaluatorContext, boolean joinRemoveStream, boolean outerJoins) {
@@ -34,49 +33,42 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl
     }
 
     @Override
-    public void init(EventBean[][] eventsPerStream)
-    {
+    public void init(EventBean[][] eventsPerStream) {
         // no action
     }
 
     @Override
-    public void destroy()
-    {
+    public void destroy() {
         // no action
     }
 
     @Override
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         newResults.clear();
 
         // We add and remove data in one call to each index.
         // Most indexes will add first then remove as newdata and olddata may contain the same event.
         // Unique indexes may remove then add.
         for (int stream = 0; stream < newDataPerStream.length; stream++) {
-            for (int j = 0; j < repositories[stream].length; j++)
-            {
+            for (int j = 0; j < repositories[stream].length; j++) {
                 repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream]);
             }
         }
 
         // for outer joins, execute each query strategy
         if (isOuterJoins) {
-            for (int i = 0; i < newDataPerStream.length; i++)
-            {
-                if (newDataPerStream[i] != null)
-                {
+            for (int i = 0; i < newDataPerStream.length; i++) {
+                if (newDataPerStream[i] != null) {
                     queryStrategies[i].lookup(newDataPerStream[i], newResults, exprEvaluatorContext);
                 }
             }
-        }
-        // handle all-inner joins by executing the smallest number of event's query strategy
-        else {
+        } else {
+            // handle all-inner joins by executing the smallest number of event's query strategy
             int minStream = -1;
             int minStreamCount = -1;
             for (int i = 0; i < newDataPerStream.length; i++) {
                 if (newDataPerStream[i] != null) {
-                    if(newDataPerStream[i].length == 0) {
+                    if (newDataPerStream[i].length == 0) {
                         minStream = -1;
                         break;
                     }
@@ -95,8 +87,7 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl
     }
 
     @Override
-    public Set<MultiKey<EventBean>> staticJoin()
-    {
+    public Set<MultiKey<EventBean>> staticJoin() {
         // no action
         return null;
     }

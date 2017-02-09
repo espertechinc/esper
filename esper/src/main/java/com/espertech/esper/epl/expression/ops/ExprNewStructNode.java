@@ -33,18 +33,15 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
     private transient ExprEvaluator[] evaluators;
     private boolean isAllConstants;
 
-    public ExprNewStructNode(String[] columnNames)
-    {
+    public ExprNewStructNode(String[] columnNames) {
         this.columnNames = columnNames;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         eventType = new LinkedHashMap<String, Object>();
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
@@ -60,8 +57,7 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
             }
             if (eventTypeResult != null) {
                 eventType.put(columnNames[i], eventTypeResult);
-            }
-            else {
+            } else {
                 Class classResult = JavaClassHelper.getBoxedType(evaluators[i].getType());
                 eventType.put(columnNames[i], classResult);
             }
@@ -73,13 +69,11 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
         return columnNames;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return isAllConstants;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Map.class;
     }
 
@@ -87,14 +81,17 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
         return eventType;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprNew(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprNew(this);
+        }
         Map<String, Object> props = new HashMap<String, Object>();
         for (int i = 0; i < evaluators.length; i++) {
             props.put(columnNames[i], evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext));
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprNew(props);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprNew(props);
+        }
         return props;
     }
 
@@ -114,10 +111,8 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
         return null;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprNewStructNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprNewStructNode)) {
             return false;
         }
 
@@ -136,7 +131,7 @@ public class ExprNewStructNode extends ExprNodeBase implements ExprEvaluatorTypa
             boolean outputexpr = true;
             if (expr instanceof ExprIdentNode) {
                 ExprIdentNode prop = (ExprIdentNode) expr;
-                if (prop.getResolvedPropertyName().equals( columnNames[i])) {
+                if (prop.getResolvedPropertyName().equals(columnNames[i])) {
                     outputexpr = false;
                 }
             }

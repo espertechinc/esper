@@ -16,8 +16,7 @@ import java.util.List;
 /**
  * Fire-and-forget (on-demand) update DML.
  */
-public class FireAndForgetUpdate implements FireAndForgetClause
-{
+public class FireAndForgetUpdate implements FireAndForgetClause {
     private static final long serialVersionUID = 1335566236342281539L;
     private List<Assignment> assignments = new ArrayList<Assignment>();
 
@@ -29,6 +28,7 @@ public class FireAndForgetUpdate implements FireAndForgetClause
 
     /**
      * Returns the set-assignments.
+     *
      * @return assignments
      */
     public List<Assignment> getAssignments() {
@@ -37,6 +37,7 @@ public class FireAndForgetUpdate implements FireAndForgetClause
 
     /**
      * Add an assignment
+     *
      * @param assignment to add
      * @return assignment
      */
@@ -47,6 +48,7 @@ public class FireAndForgetUpdate implements FireAndForgetClause
 
     /**
      * Sets the assignments.
+     *
      * @param assignments to set
      */
     public void setAssignments(List<Assignment> assignments) {

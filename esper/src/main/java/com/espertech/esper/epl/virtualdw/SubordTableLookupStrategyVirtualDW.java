@@ -57,8 +57,7 @@ public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStra
                 ExprEvaluator evaluatorStart = range.getExprStart().getExprEvaluator();
                 ExprEvaluator evaluatorEnd = range.getExprEnd().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorBtreeRange(evaluatorStart, evaluatorEnd, rangeKeyCoercionTypes.getCoercionTypes()[i]);
-            }
-            else {
+            } else {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeKey.getRangeInfo();
                 ExprEvaluator evaluator = relOp.getExpression().getExprEvaluator();
                 evaluators[count] = new ExternalEvaluatorHashRelOp(evaluator, rangeKeyCoercionTypes.getCoercionTypes()[i]);
@@ -71,8 +70,7 @@ public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStra
         EventBean[] events;
         if (nwOnTrigger) {
             events = eventsPerStream;
-        }
-        else {
+        } else {
             System.arraycopy(eventsPerStream, 0, eventsLocal, 1, eventsPerStream.length);
             events = eventsLocal;
         }
@@ -84,8 +82,7 @@ public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStra
         Set<EventBean> data = null;
         try {
             data = externalIndex.lookup(keys, eventsPerStream);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.warn("Exception encountered invoking virtual data window external index for window '" + namedWindowName + "': " + ex.getMessage(), ex);
         }
         return data;
@@ -99,8 +96,7 @@ public class SubordTableLookupStrategyVirtualDW implements SubordTableLookupStra
         return new LookupStrategyDesc(LookupStrategyType.VDW, null);
     }
 
-    private interface ExternalEvaluator
-    {
+    private interface ExternalEvaluator {
         public Object evaluate(EventBean[] events, ExprEvaluatorContext context);
     }
 

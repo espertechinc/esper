@@ -16,10 +16,8 @@ import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import junit.framework.TestCase;
 
-public class TestFilterExprAnalyzer extends TestCase
-{
-    public void testAnalyzeEquals() throws Exception
-    {
+public class TestFilterExprAnalyzer extends TestCase {
+    public void testAnalyzeEquals() throws Exception {
         // s0.intPrimitive = s1.intBoxed
         ExprEqualsNode equalsNode = SupportExprNodeFactory.makeEqualsNode();
 
@@ -33,8 +31,7 @@ public class TestFilterExprAnalyzer extends TestCase
         EPAssertionUtil.assertEqualsExactOrder(new String[]{"intBoxed"}, QueryGraphTestUtil.getIndexProperties(graph, 0, 1));
     }
 
-    public void testAnalyzeAnd() throws Exception
-    {
+    public void testAnalyzeAnd() throws Exception {
         ExprAndNode andNode = SupportExprNodeFactory.make2SubNodeAnd();
 
         QueryGraph graph = new QueryGraph(2, null, false);

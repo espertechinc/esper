@@ -16,8 +16,7 @@ import com.espertech.esper.util.IndentWriter;
 
 import java.util.Collection;
 
-public class ExecNodeNoOp extends ExecNode
-{
+public class ExecNodeNoOp extends ExecNode {
     public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> result, ExprEvaluatorContext exprEvaluatorContext) {
     }
 

@@ -21,8 +21,7 @@ import java.util.NoSuchElementException;
  * An iterator that filters events suppied by another iterator,
  * using a list of one or more filter expressions as filter.
  */
-public class FilteredEventIterator implements Iterator<EventBean>
-{
+public class FilteredEventIterator implements Iterator<EventBean> {
     private final Iterator<EventBean> parent;
     private final ExprEvaluator[] filterList;
     private final EventBean[] eventPerStream = new EventBean[1];
@@ -31,27 +30,24 @@ public class FilteredEventIterator implements Iterator<EventBean>
 
     /**
      * Ctor.
-     * @param filters is a list of expression nodes for filtering
-     * @param parent is the iterator supplying the events to apply the filter on
+     *
+     * @param filters              is a list of expression nodes for filtering
+     * @param parent               is the iterator supplying the events to apply the filter on
      * @param exprEvaluatorContext context for expression evalauation
      */
-    public FilteredEventIterator(ExprEvaluator[] filters, Iterator<EventBean> parent, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public FilteredEventIterator(ExprEvaluator[] filters, Iterator<EventBean> parent, ExprEvaluatorContext exprEvaluatorContext) {
         this.parent = parent;
         this.filterList = filters;
         this.exprEvaluatorContext = exprEvaluatorContext;
         getNext();
     }
 
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         return next != null;
     }
 
-    public EventBean next()
-    {
-        if (next == null)
-        {
+    public EventBean next() {
+        if (next == null) {
             throw new NoSuchElementException();
         }
 
@@ -60,44 +56,34 @@ public class FilteredEventIterator implements Iterator<EventBean>
         return result;
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 
-    private void getNext()
-    {
-        if ((filterList == null) || (filterList.length == 0))
-        {
-            if (parent.hasNext())
-            {
+    private void getNext() {
+        if ((filterList == null) || (filterList.length == 0)) {
+            if (parent.hasNext()) {
                 next = parent.next();
-            }
-            else
-            {
+            } else {
                 next = null;
             }
             return;
         }
 
-        while(parent.hasNext())
-        {
+        while (parent.hasNext()) {
             next = parent.next();
 
             eventPerStream[0] = next;
             boolean pass = true;
-            for (ExprEvaluator filter : filterList)
-            {
+            for (ExprEvaluator filter : filterList) {
                 Boolean result = (Boolean) filter.evaluate(eventPerStream, true, exprEvaluatorContext);
-                if (result == null || !result)
-                {
+                if (result == null || !result) {
                     pass = false;
                     break;
                 }
             }
 
-            if (pass)
-            {
+            if (pass) {
                 return;
             }
         }

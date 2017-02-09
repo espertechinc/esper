@@ -21,8 +21,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.List;
 
-public class TableOnMergeView extends TableOnViewBase
-{
+public class TableOnMergeView extends TableOnViewBase {
     private final TableOnMergeViewFactory parent;
 
     public TableOnMergeView(SubordWMatchExprLookupStrategy lookupStrategy, TableStateInstance rootView, ExprEvaluatorContext exprEvaluatorContext, TableMetadata metadata, TableOnMergeViewFactory parent) {
@@ -31,7 +30,9 @@ public class TableOnMergeView extends TableOnViewBase
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_MERGE, triggerEvents, matchingEvents);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_MERGE, triggerEvents, matchingEvents);
+        }
 
         EventBean[] eventsPerStream = new EventBean[3]; // first:table, second: trigger, third:before-update (optional)
 
@@ -43,37 +44,48 @@ public class TableOnMergeView extends TableOnViewBase
             changeHandlerAdded = new TableOnMergeViewChangeHandler(parent.getTableMetadata());
         }
 
-        if ((matchingEvents == null) || (matchingEvents.length == 0)){
+        if ((matchingEvents == null) || (matchingEvents.length == 0)) {
 
             List<TableOnMergeMatch> unmatched = parent.getOnMergeHelper().getUnmatched();
 
             for (EventBean triggerEvent : triggerEvents) {
                 eventsPerStream[1] = triggerEvent;
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThens(false, triggerEvent, unmatched.size());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qInfraMergeWhenThens(false, triggerEvent, unmatched.size());
+                }
 
                 int count = -1;
                 for (TableOnMergeMatch action : unmatched) {
                     count++;
 
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThenItem(false, count);}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().qInfraMergeWhenThenItem(false, count);
+                    }
                     if (!action.isApplies(eventsPerStream, super.getExprEvaluatorContext())) {
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(false, false);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aInfraMergeWhenThenItem(false, false);
+                        }
                         continue;
                     }
                     action.apply(null, eventsPerStream, tableStateInstance, changeHandlerAdded, changeHandlerRemoved, super.getExprEvaluatorContext());
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(false, true);}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aInfraMergeWhenThenItem(false, true);
+                    }
                     break;  // apply no other actions
                 }
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThens(false);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aInfraMergeWhenThens(false);
+                }
             }
-        }
-        else {
+        } else {
 
             List<TableOnMergeMatch> matched = parent.getOnMergeHelper().getMatched();
 
             for (EventBean triggerEvent : triggerEvents) {
                 eventsPerStream[1] = triggerEvent;
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThens(true, triggerEvent, matched.size());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qInfraMergeWhenThens(true, triggerEvent, matched.size());
+                }
 
                 for (EventBean matchingEvent : matchingEvents) {
                     eventsPerStream[0] = matchingEvent;
@@ -82,17 +94,25 @@ public class TableOnMergeView extends TableOnViewBase
                     for (TableOnMergeMatch action : matched) {
                         count++;
 
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThenItem(true, count);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().qInfraMergeWhenThenItem(true, count);
+                        }
                         if (!action.isApplies(eventsPerStream, super.getExprEvaluatorContext())) {
-                            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(true, false);}
+                            if (InstrumentationHelper.ENABLED) {
+                                InstrumentationHelper.get().aInfraMergeWhenThenItem(true, false);
+                            }
                             continue;
                         }
                         action.apply(matchingEvent, eventsPerStream, tableStateInstance, changeHandlerAdded, changeHandlerRemoved, super.getExprEvaluatorContext());
-                        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenItem(true, true);}
+                        if (InstrumentationHelper.ENABLED) {
+                            InstrumentationHelper.get().aInfraMergeWhenThenItem(true, true);
+                        }
                         break;  // apply no other actions
                     }
                 }
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThens(true);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aInfraMergeWhenThens(true);
+                }
             }
         }
 
@@ -105,6 +125,8 @@ public class TableOnMergeView extends TableOnViewBase
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 }

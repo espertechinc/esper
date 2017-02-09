@@ -13,8 +13,7 @@ package com.espertech.esper.adapter;
 /**
  * The state of a Adapter.
  */
-public enum AdapterState
-{
+public enum AdapterState {
     /**
      * Opened state.
      */

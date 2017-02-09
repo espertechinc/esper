@@ -18,7 +18,6 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
  * Consolidates aggregation nodes such that result futures point to a single instance and
  * no re-evaluation of the same result occurs.
  */
-public interface AggregationServiceMatchRecognizeFactory
-{
+public interface AggregationServiceMatchRecognizeFactory {
     public AggregationServiceMatchRecognize makeService(AgentInstanceContext agentInstanceContext);
 }

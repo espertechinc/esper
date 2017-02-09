@@ -10,32 +10,30 @@
  */
 package com.espertech.esper.pattern.guard;
 
-import com.espertech.esper.pattern.PatternAgentInstanceContext;
-import com.espertech.esper.supportunit.pattern.SupportPatternContextFactory;
-import junit.framework.TestCase;
-
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
+import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.supportunit.guard.SupportQuitable;
-import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
+import com.espertech.esper.supportunit.pattern.SupportPatternContextFactory;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
+import junit.framework.TestCase;
 
 public class TestTimerWithinOrMaxCountGuard extends TestCase {
     private TimerWithinOrMaxCountGuard guard;
     private SchedulingService scheduleService;
     private SupportQuitable quitable;
 
-    public void setUp()
-    {
+    public void setUp() {
         StatementContext stmtContext = SupportStatementContextFactory.makeContext(new SchedulingServiceImpl(new TimeSourceServiceImpl()));
         scheduleService = stmtContext.getSchedulingService();
         PatternAgentInstanceContext agentInstanceContext = SupportPatternContextFactory.makePatternAgentInstanceContext(scheduleService);
 
         quitable = new SupportQuitable(agentInstanceContext);
 
-        guard =  new TimerWithinOrMaxCountGuard(1000, 2, quitable);
+        guard = new TimerWithinOrMaxCountGuard(1000, 2, quitable);
     }
 
     public void testInspect() {
@@ -108,8 +106,7 @@ public class TestTimerWithinOrMaxCountGuard extends TestCase {
             guard.startGuard();
             guard.startGuard();
             fail();
-        }
-        catch (IllegalStateException ex) {
+        } catch (IllegalStateException ex) {
             // Expected exception
         }
     }

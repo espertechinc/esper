@@ -12,18 +12,14 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.collection.MultiKeyUntyped;
 
-public class DataCacheUtil
-{
-    public static Object getLookupKey(Object[] lookupKeys)
-    {
+public class DataCacheUtil {
+    public static Object getLookupKey(Object[] lookupKeys) {
         Object key;
         if (lookupKeys.length == 0) {
             key = Object.class;
-        }
-        else if (lookupKeys.length > 1) {
+        } else if (lookupKeys.length > 1) {
             key = new MultiKeyUntyped(lookupKeys);
-        }
-        else {
+        } else {
             key = lookupKeys[0];
         }
         return key;

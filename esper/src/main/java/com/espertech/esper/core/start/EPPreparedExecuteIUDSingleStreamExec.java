@@ -12,7 +12,6 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventBean;
 
-public interface EPPreparedExecuteIUDSingleStreamExec
-{
+public interface EPPreparedExecuteIUDSingleStreamExec {
     public EventBean[] execute(FireAndForgetInstance instance);
 }

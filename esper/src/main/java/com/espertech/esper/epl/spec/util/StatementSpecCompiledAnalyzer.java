@@ -43,10 +43,9 @@ public class StatementSpecCompiledAnalyzer {
             }
             if (compiled instanceof PatternStreamSpecCompiled) {
                 PatternStreamSpecCompiled r = (PatternStreamSpecCompiled) compiled;
-                EvalNodeAnalysisResult evalNodeAnalysisResult = EvalNodeUtil.recursiveAnalyzeChildNodes((r.getEvalFactoryNode()));
+                EvalNodeAnalysisResult evalNodeAnalysisResult = EvalNodeUtil.recursiveAnalyzeChildNodes(r.getEvalFactoryNode());
                 List<EvalFilterFactoryNode> filterNodes = evalNodeAnalysisResult.getFilterNodes();
-                for (EvalFilterFactoryNode filterNode : filterNodes)
-                {
+                for (EvalFilterFactoryNode filterNode : filterNodes) {
                     filters.add(filterNode.getFilterSpec());
                 }
             }

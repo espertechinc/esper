@@ -34,8 +34,7 @@ import java.util.*;
 /**
  * Base factory for expression-based window and batch view.
  */
-public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory, DataWindowViewWithPrevious {
     private EventType eventType;
     protected ExprNode expiryExpression;
     protected Set<String> variableNames;
@@ -43,14 +42,13 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
     protected EventType builtinMapType;
     protected ExprEvaluator expiryExpressionEvaluator;
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
 
         // define built-in fields
         Map<String, Object> builtinTypeDef = ExpressionViewOAFieldEnum.asMapOfTypes(eventType);
         builtinMapType = statementContext.getEventAdapterService().createAnonymousObjectArrayType(statementContext.getStatementId() + "_exprview", builtinTypeDef);
-        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[] {eventType, builtinMapType}, new String[2], new boolean[2], statementContext.getEngineURI(), false);
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(new EventType[]{eventType, builtinMapType}, new String[2], new boolean[2], statementContext.getEngineURI(), false);
 
         // validate expression
         expiryExpression = ViewFactorySupport.validateExpr(getViewName(), statementContext, expiryExpression, streamTypeService, 0);
@@ -78,20 +76,17 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         if (!aggregateNodes.isEmpty()) {
             try {
                 aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(Collections.<ExprAggregateNode>emptyList(), Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), null, aggregateNodes, Collections.<ExprAggregateNode>emptyList(), Collections.<ExprAggregateNodeGroupKey>emptyList(), false, statementContext.getAnnotations(), statementContext.getVariableService(), false, false, null, null, statementContext.getAggregationServiceFactoryService(), streamTypeService.getEventTypes(), null, statementContext.getContextName(), null, null, false, false, false, statementContext.getEngineImportService());
-            }
-            catch (ExprValidationException ex) {
+            } catch (ExprValidationException ex) {
                 throw new ViewParameterException(ex.getMessage(), ex);
             }
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;
     }
 

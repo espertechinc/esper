@@ -21,13 +21,11 @@ import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import junit.framework.TestCase;
 
-public class TestExprVariableNode extends TestCase
-{
+public class TestExprVariableNode extends TestCase {
     private ExprVariableNodeImpl varNode;
     private VariableService variableService;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         EngineImportService engineImportService = SupportEngineImportServiceFactory.make();
         variableService = new VariableServiceImpl(100, null, null, null);
         variableService.createNewVariable(null, "var1", "string", true, false, false, null, engineImportService);
@@ -36,20 +34,17 @@ public class TestExprVariableNode extends TestCase
         varNode = new ExprVariableNodeImpl(variableService.getVariableMetaData("var1"), null);
     }
 
-    public void testGetType()  throws Exception
-    {
+    public void testGetType() throws Exception {
         SupportExprNodeFactory.validate3Stream(varNode);
         assertEquals(String.class, varNode.getConstantType());
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         SupportExprNodeFactory.validate3Stream(varNode);
         assertEquals("my_variable_value", varNode.evaluate(null, true, null));
     }
 
-    public void testEquals()  throws Exception
-    {
+    public void testEquals() throws Exception {
         ExprInNode otherInNode = SupportExprNodeFactory.makeInSetNode(false);
         ExprVariableNodeImpl otherVarOne = new ExprVariableNodeImpl(variableService.getVariableMetaData("dummy"), null);
         ExprVariableNodeImpl otherVarTwo = new ExprVariableNodeImpl(variableService.getVariableMetaData("var1"), null);
@@ -62,19 +57,15 @@ public class TestExprVariableNode extends TestCase
         assertFalse(otherVarTwo.equalsNode(otherVarThree));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("var1", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(varNode));
     }
 
-    private void tryInvalidValidate(ExprVariableNodeImpl varNode) throws Exception
-    {
+    private void tryInvalidValidate(ExprVariableNodeImpl varNode) throws Exception {
         try {
             SupportExprNodeFactory.validate3Stream(varNode);
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }

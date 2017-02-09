@@ -15,14 +15,14 @@ import java.util.Map;
 /**
  * Indicates that on the engine level the match-recognize has reached the configured engine-wide limit at runtime.
  */
-public class ConditionMatchRecognizeStatesMax implements BaseCondition
-{
+public class ConditionMatchRecognizeStatesMax implements BaseCondition {
     private final long max;
     private final Map<String, Long> counts;
 
     /**
      * Ctor.
-     * @param max limit reached
+     *
+     * @param max    limit reached
      * @param counts the number of state counts per statement
      */
     public ConditionMatchRecognizeStatesMax(long max, Map<String, Long> counts) {
@@ -32,6 +32,7 @@ public class ConditionMatchRecognizeStatesMax implements BaseCondition
 
     /**
      * Returns the limit reached.
+     *
      * @return limit
      */
     public long getMax() {
@@ -40,6 +41,7 @@ public class ConditionMatchRecognizeStatesMax implements BaseCondition
 
     /**
      * Returns the per-statement count.
+     *
      * @return count
      */
     public Map<String, Long> getCounts() {

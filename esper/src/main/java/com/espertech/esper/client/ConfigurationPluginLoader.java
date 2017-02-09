@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.client;
 
-import java.util.Properties;
 import java.io.Serializable;
+import java.util.Properties;
 
 /**
  * Holds configuration for a plugin such as an input/output adapter loader.
  */
-public class ConfigurationPluginLoader implements Serializable
-{
+public class ConfigurationPluginLoader implements Serializable {
     private String loaderName;
     private String className;
     private Properties configProperties;
@@ -27,84 +26,82 @@ public class ConfigurationPluginLoader implements Serializable
     /**
      * Ctor.
      */
-    public ConfigurationPluginLoader()
-    {
+    public ConfigurationPluginLoader() {
     }
 
     /**
      * Returns the loader class name.
+     *
      * @return class name of loader
      */
-    public String getClassName()
-    {
+    public String getClassName() {
         return className;
     }
 
     /**
      * Sets the loader classname.
+     *
      * @param className of loader
      */
-    public void setClassName(String className)
-    {
+    public void setClassName(String className) {
         this.className = className;
     }
 
     /**
      * Returns loader configuration properties.
+     *
      * @return config entries
      */
-    public Properties getConfigProperties()
-    {
+    public Properties getConfigProperties() {
         return configProperties;
     }
 
     /**
      * Sets the loader configuration.
+     *
      * @param configProperties is the configuration of the loader
      */
-    public void setConfigProperties(Properties configProperties)
-    {
+    public void setConfigProperties(Properties configProperties) {
         this.configProperties = configProperties;
     }
 
     /**
      * Returns the loader name.
+     *
      * @return loader name
      */
-    public String getLoaderName()
-    {
+    public String getLoaderName() {
         return loaderName;
     }
 
     /**
      * Sets the loader name.
+     *
      * @param loaderName is the loader name
      */
-    public void setLoaderName(String loaderName)
-    {
+    public void setLoaderName(String loaderName) {
         this.loaderName = loaderName;
     }
 
     /**
      * Returns configuration XML for the plugin.
+     *
      * @return xml
      */
-    public String getConfigurationXML()
-    {
+    public String getConfigurationXML() {
         return configurationXML;
     }
 
     /**
      * Sets configuration XML for the plugin.
+     *
      * @param configurationXML xml to set
      */
-    public void setConfigurationXML(String configurationXML)
-    {
+    public void setConfigurationXML(String configurationXML) {
         this.configurationXML = configurationXML;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "ConfigurationPluginLoader name '" + loaderName + "' class '" + className + " ' properties '" + configProperties + "'";
     }
 }

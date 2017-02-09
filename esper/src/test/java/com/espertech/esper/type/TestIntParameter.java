@@ -11,24 +11,20 @@
 package com.espertech.esper.type;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import junit.framework.TestCase;
 
 import java.util.Set;
 
-import junit.framework.TestCase;
-
-public class TestIntParameter extends TestCase
-{
-    public void testIsWildcard()
-    {
+public class TestIntParameter extends TestCase {
+    public void testIsWildcard() {
         IntParameter intParam = new IntParameter(5);
-        assertTrue(intParam.isWildcard(5,5));
-        assertFalse(intParam.isWildcard(4,5));
-        assertFalse(intParam.isWildcard(5,6));
-        assertFalse(intParam.isWildcard(4,6));
+        assertTrue(intParam.isWildcard(5, 5));
+        assertFalse(intParam.isWildcard(4, 5));
+        assertFalse(intParam.isWildcard(5, 6));
+        assertFalse(intParam.isWildcard(4, 6));
     }
 
-    public void testGetValues()
-    {
+    public void testGetValues() {
         IntParameter intParam = new IntParameter(3);
         Set<Integer> result = intParam.getValuesInRange(1, 8);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3}, result);

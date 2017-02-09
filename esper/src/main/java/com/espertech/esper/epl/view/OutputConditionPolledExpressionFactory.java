@@ -26,30 +26,28 @@ import java.util.List;
 /**
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
-public class OutputConditionPolledExpressionFactory implements OutputConditionPolledFactory
-{
+public class OutputConditionPolledExpressionFactory implements OutputConditionPolledFactory {
     private final ExprEvaluator whenExpressionNode;
     private final VariableReadWritePackage variableReadWritePackage;
     private final EventType oatypeBuiltinProperties;
 
     /**
      * Ctor.
+     *
      * @param whenExpressionNode the expression to evaluate, returning true when to output
-     * @param assignments is the optional then-clause variable assignments, or null or empty if none
-     * @param statementContext context
+     * @param assignments        is the optional then-clause variable assignments, or null or empty if none
+     * @param statementContext   context
      * @throws ExprValidationException when validation fails
      */
     public OutputConditionPolledExpressionFactory(ExprNode whenExpressionNode, List<OnTriggerSetAssignment> assignments, StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.whenExpressionNode = whenExpressionNode.getExprEvaluator();
 
         // determine if using properties
         boolean containsBuiltinProperties = false;
         if (containsBuiltinProperties(whenExpressionNode)) {
             containsBuiltinProperties = true;
-        }
-        else {
+        } else {
             if (assignments != null) {
                 for (OnTriggerSetAssignment assignment : assignments) {
                     if (containsBuiltinProperties(assignment.getExpression())) {
@@ -61,15 +59,13 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
 
         if (containsBuiltinProperties) {
             oatypeBuiltinProperties = statementContext.getEventAdapterService().createAnonymousObjectArrayType(OutputConditionPolledExpressionFactory.class.getName(), OutputConditionExpressionTypeUtil.TYPEINFO);
-        }
-        else {
+        } else {
             oatypeBuiltinProperties = null;
         }
 
         if (assignments != null) {
             variableReadWritePackage = new VariableReadWritePackage(assignments, statementContext.getVariableService(), statementContext.getEventAdapterService());
-        }
-        else {
+        } else {
             variableReadWritePackage = null;
         }
     }
@@ -102,8 +98,7 @@ public class OutputConditionPolledExpressionFactory implements OutputConditionPo
         return variableReadWritePackage;
     }
 
-    private boolean containsBuiltinProperties(ExprNode expr)
-    {
+    private boolean containsBuiltinProperties(ExprNode expr) {
         ExprNodeIdentifierVisitor propertyVisitor = new ExprNodeIdentifierVisitor(false);
         expr.accept(propertyVisitor);
         return !propertyVisitor.getExprProperties().isEmpty();

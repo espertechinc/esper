@@ -36,12 +36,12 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode     is the parent evaluator to call to indicate truth value
      * @param evalFilterNode is the factory node associated to the state
      */
     public EvalFilterStateNode(Evaluator parentNode,
-                                     EvalFilterNode evalFilterNode)
-    {
+                               EvalFilterNode evalFilterNode) {
         super(parentNode);
         this.evalFilterNode = evalFilterNode;
     }
@@ -51,36 +51,39 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         return evalFilterNode;
     }
 
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return evalFilterNode.getContext().getPatternContext().getStatementId();
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternFilterStart(evalFilterNode, beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternFilterStart(evalFilterNode, beginState);
+        }
         this.beginState = beginState;
-        if (isStarted)
-        {
+        if (isStarted) {
             throw new IllegalStateException("Filter state node already active");
         }
 
         // Start the filter
         isStarted = true;
         startFiltering();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternFilterStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternFilterStart();
+        }
     }
 
-    public final void quit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternFilterQuit(evalFilterNode, beginState);}
+    public final void quit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternFilterQuit(evalFilterNode, beginState);
+        }
         isStarted = false;
         stopFiltering();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternFilterQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternFilterQuit();
+        }
     }
 
-    private void evaluateTrue(MatchedEventMap theEvent, boolean isQuitted)
-    {
+    private void evaluateTrue(MatchedEventMap theEvent, boolean isQuitted) {
         this.getParentEvaluator().evaluateTrue(theEvent, this, isQuitted);
     }
 
@@ -88,36 +91,32 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         return evalFilterNode;
     }
 
-    public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternFilterMatch(evalFilterNode, theEvent);}
+    public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternFilterMatch(evalFilterNode, theEvent);
+        }
 
-        if (!isStarted)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternFilterMatch(true);}
+        if (!isStarted) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aPatternFilterMatch(true);
+            }
             return;
         }
 
         MatchedEventMap passUp = beginState.shallowCopy();
 
-        if (evalFilterNode.getFactoryNode().getFilterSpec().getOptionalPropertyEvaluator() != null)
-        {
+        if (evalFilterNode.getFactoryNode().getFilterSpec().getOptionalPropertyEvaluator() != null) {
             EventBean[] propertyEvents = evalFilterNode.getFactoryNode().getFilterSpec().getOptionalPropertyEvaluator().getProperty(theEvent, evalFilterNode.getContext().getAgentInstanceContext());
-            if (propertyEvents == null)
-            {
+            if (propertyEvents == null) {
                 return; // no results, ignore match
             }
             // Add event itself to the match event structure if a tag was provided
-            if (evalFilterNode.getFactoryNode().getEventAsName() != null)
-            {
+            if (evalFilterNode.getFactoryNode().getEventAsName() != null) {
                 passUp.add(evalFilterNode.getFactoryNode().getEventAsTagNumber(), propertyEvents);
             }
-        }
-        else
-        {
+        } else {
             // Add event itself to the match event structure if a tag was provided
-            if (evalFilterNode.getFactoryNode().getEventAsName() != null)
-            {
+            if (evalFilterNode.getFactoryNode().getEventAsName() != null) {
                 passUp.add(evalFilterNode.getFactoryNode().getEventAsTagNumber(), theEvent);
             }
         }
@@ -129,28 +128,27 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         // and the all node would newState a new listener. The remove operation and the add operation
         // therefore don't take place if the EvalEveryStateNode node sits on top of a EvalFilterStateNode node.
         boolean isQuitted = false;
-        if (!(this.getParentEvaluator().isFilterChildNonQuitting()))
-        {
+        if (!(this.getParentEvaluator().isFilterChildNonQuitting())) {
             stopFiltering();
             isQuitted = true;
         }
 
         this.evaluateTrue(passUp, isQuitted);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternFilterMatch(isQuitted);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternFilterMatch(isQuitted);
+        }
     }
 
     public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitFilter(evalFilterNode.getFactoryNode(), this, handle, beginState);
     }
 
-    public boolean isSubSelect()
-    {
+    public boolean isSubSelect() {
         return false;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("EvalFilterStateNode");
         buffer.append(" tag=");
@@ -182,8 +180,7 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         }
     }
 
-    protected void startFiltering()
-    {
+    protected void startFiltering() {
         FilterService filterService = evalFilterNode.getContext().getPatternContext().getFilterService();
         handle = new EPStatementHandleCallback(evalFilterNode.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
         FilterValueSet filterValues = evalFilterNode.getFactoryNode().getFilterSpec().getValueSet(beginState, evalFilterNode.getContext().getAgentInstanceContext(), evalFilterNode.getAddendumFilters());
@@ -192,8 +189,7 @@ public class EvalFilterStateNode extends EvalStateNode implements FilterHandleCa
         evalFilterNode.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filtersVersion);
     }
 
-    private void stopFiltering()
-    {
+    private void stopFiltering() {
         PatternContext context = evalFilterNode.getContext().getPatternContext();
         if (handle != null) {
             context.getFilterService().remove(handle, filterServiceEntry);

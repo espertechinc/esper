@@ -12,17 +12,16 @@ package com.espertech.esper.epl.spec;
 
 import java.io.StringWriter;
 
-public class SubstitutionParameterExpressionIndexed extends SubstitutionParameterExpressionBase
-{
+public class SubstitutionParameterExpressionIndexed extends SubstitutionParameterExpressionBase {
     private static final long serialVersionUID = -8795823095298045304L;
     private final int index;
 
     /**
      * Ctor.
+     *
      * @param index is the index of the substitution parameter
      */
-    public SubstitutionParameterExpressionIndexed(int index)
-    {
+    public SubstitutionParameterExpressionIndexed(int index) {
         this.index = index;
     }
 

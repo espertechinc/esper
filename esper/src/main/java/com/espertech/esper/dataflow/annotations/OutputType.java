@@ -18,6 +18,8 @@ import java.lang.annotation.Target;
 @Target({})
 public @interface OutputType {
     public String name();
+
     public Class type() default OutputType.class;
+
     public String typeName() default "";
 }

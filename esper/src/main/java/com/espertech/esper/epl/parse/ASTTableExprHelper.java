@@ -71,6 +71,7 @@ public class ASTTableExprHelper {
 
     /**
      * Resolve "table" and "table.property" when nested-property, not chainable
+     *
      * @param tableService tables
      * @param propertyName property name
      * @return table access node
@@ -113,12 +114,11 @@ public class ASTTableExprHelper {
                 return null; // not a table
             }
             String funcName = chain.get(1).getName();
-            if (funcName.toLowerCase().equals("keys")) {
+            if (funcName.toLowerCase(Locale.ENGLISH).equals("keys")) {
                 List<ExprChainedSpec> subchain = chain.subList(2, chain.size());
                 ExprTableAccessNodeKeys node = new ExprTableAccessNodeKeys(classIdent);
                 return new Pair<ExprTableAccessNode, List<ExprChainedSpec>>(node, subchain);
-            }
-            else {
+            } else {
                 throw ASTWalkException.from("Invalid use of variable '" + classIdent + "', unrecognized use of function '" + funcName + "', expected 'keys()'");
             }
         }

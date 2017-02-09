@@ -17,16 +17,17 @@ import java.util.Map;
 /**
  * Interface for event types that provide decorating event properties as a name-value map.
  */
-public interface DecoratingEventBean
-{
+public interface DecoratingEventBean {
     /**
      * Returns decorating properties.
+     *
      * @return property name and values
      */
     public Map<String, Object> getDecoratingProperties();
 
     /**
      * Returns the underlying event to the decorated event.
+     *
      * @return underlying
      */
     public EventBean getUnderlyingEvent();

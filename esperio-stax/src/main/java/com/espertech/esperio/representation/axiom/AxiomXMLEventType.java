@@ -122,7 +122,7 @@ public class AxiomXMLEventType implements EventTypeSPI {
     }
 
     public boolean isProperty(String property) {
-        return (getGetter(property) != null);
+        return getGetter(property) != null;
     }
 
     public EventType[] getSuperTypes() {

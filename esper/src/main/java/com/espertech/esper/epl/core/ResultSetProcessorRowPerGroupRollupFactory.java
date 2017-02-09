@@ -26,8 +26,7 @@ import com.espertech.esper.epl.view.OutputConditionPolledFactory;
  * there is a group-by and all non-aggregation event properties in the select clause are listed in the group by,
  * and there are aggregation functions.
  */
-public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProcessorFactory
-{
+public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProcessorFactory {
     private final GroupByRollupPerLevelExpression perLevelExpression;
     private final ExprNode[] groupKeyNodeExpressions;
     private final ExprEvaluator groupKeyNode;
@@ -60,15 +59,13 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
                                                       OutputConditionPolledFactory optionalOutputFirstConditionFactory,
                                                       ResultSetProcessorHelperFactory resultSetProcessorHelperFactory,
                                                       boolean enableOutputLimitOpt,
-                                                      int numStreams)
-    {
+                                                      int numStreams) {
         this.groupKeyNodeExpressions = groupKeyNodeExpressions;
         this.perLevelExpression = perLevelExpression;
         this.groupKeyNodes = groupKeyNodes;
         if (groupKeyNodes.length == 1) {
             this.groupKeyNode = groupKeyNodes[0];
-        }
-        else {
+        } else {
             this.groupKeyNode = null;
         }
         this.isSorting = isSorting;
@@ -92,8 +89,7 @@ public class ResultSetProcessorRowPerGroupRollupFactory implements ResultSetProc
         return new ResultSetProcessorRowPerGroupRollup(this, orderByProcessor, aggregationService, agentInstanceContext);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return perLevelExpression.getSelectExprProcessor()[0].getResultEventType();
     }
 

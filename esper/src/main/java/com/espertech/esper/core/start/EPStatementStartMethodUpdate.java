@@ -40,8 +40,7 @@ import java.util.Map;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase {
     public EPStatementStartMethodUpdate(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }
@@ -64,50 +63,41 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
         final UpdateDesc updateSpec = statementSpec.getUpdateSpec();
         String triggereventTypeName;
 
-        if (streamSpec instanceof FilterStreamSpecCompiled)
-        {
+        if (streamSpec instanceof FilterStreamSpecCompiled) {
             FilterStreamSpecCompiled filterStreamSpec = (FilterStreamSpecCompiled) streamSpec;
             triggereventTypeName = filterStreamSpec.getFilterSpec().getFilterForEventTypeName();
-        }
-        else if (streamSpec instanceof NamedWindowConsumerStreamSpec)
-        {
+        } else if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
             triggereventTypeName = namedSpec.getWindowName();
-        }
-        else if (streamSpec instanceof TableQueryStreamSpec) {
+        } else if (streamSpec instanceof TableQueryStreamSpec) {
             throw new ExprValidationException("Tables cannot be used in an update-istream statement");
-        }
-        else
-        {
+        } else {
             throw new ExprValidationException("Unknown stream specification streamEventType: " + streamSpec);
         }
 
         // determine a stream name
         String streamName = triggereventTypeName;
-        if (updateSpec.getOptionalStreamName() != null)
-        {
+        if (updateSpec.getOptionalStreamName() != null) {
             streamName = updateSpec.getOptionalStreamName();
         }
 
         final EventType streamEventType = services.getEventAdapterService().getExistsTypeByName(triggereventTypeName);
-        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {streamEventType}, new String[] {streamName}, new boolean[] {true}, services.getEngineURI(), false);
+        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{streamEventType}, new String[]{streamName}, new boolean[]{true}, services.getEngineURI(), false);
 
         // determine subscriber result types
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-        statementContext.getStatementResultService().setSelectClause(new Class[] {streamEventType.getUnderlyingType()}, new String[] {"*"}, false, null, evaluatorContextStmt);
+        statementContext.getStatementResultService().setSelectClause(new Class[]{streamEventType.getUnderlyingType()}, new String[]{"*"}, false, null, evaluatorContextStmt);
 
         // Materialize sub-select views
         SubSelectStrategyCollection subSelectStrategyCollection = EPStatementStartMethodHelperSubselect.planSubSelect(services, statementContext, isQueryPlanLogging(services), subSelectStreamDesc, new String[]{streamName}, new EventType[]{streamEventType}, new String[]{triggereventTypeName}, statementSpec.getDeclaredExpressions(), null);
 
         ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
-        for (OnTriggerSetAssignment assignment : updateSpec.getAssignments())
-        {
+        for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
             ExprNode validated = ExprNodeUtility.getValidatedAssignment(assignment, validationContext);
             assignment.setExpression(validated);
             EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an update-clause");
         }
-        if (updateSpec.getOptionalWhereClause() != null)
-        {
+        if (updateSpec.getOptionalWhereClause() != null) {
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.WHERE, updateSpec.getOptionalWhereClause(), validationContext);
             updateSpec.setOptionalWhereClause(validated);
             EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an update-clause");
@@ -146,18 +136,16 @@ public class EPStatementStartMethodUpdate extends EPStatementStartMethodBase
 
             ContextManagedStatementOnTriggerDesc statement = new ContextManagedStatementOnTriggerDesc(statementSpec, statementContext, mergeView, contextFactory);
             services.getContextManagementService().addStatement(statementSpec.getOptionalContextName(), statement, isRecoveringResilient);
-            stopStatementMethod = new EPStatementStopMethod(){
-                public void stop()
-                {
+            stopStatementMethod = new EPStatementStopMethod() {
+                public void stop() {
                     services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                     stopMethod.stop();
                 }
             };
 
             destroyCallbacks.addCallback(new EPStatementDestroyCallbackContext(services.getContextManagementService(), statementSpec.getOptionalContextName(), statementContext.getStatementName(), statementContext.getStatementId()));
-        }
-        // Without context - start here
-        else {
+        } else {
+            // Without context - start here
             AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             final StatementAgentInstanceFactoryUpdateResult resultOfStart = (StatementAgentInstanceFactoryUpdateResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
             finalViewable = resultOfStart.getFinalView();

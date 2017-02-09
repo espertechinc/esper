@@ -23,19 +23,19 @@ import java.io.StringWriter;
  */
 public class AuditPath {
 
-    private static final Logger auditLogDestination = LoggerFactory.getLogger(AuditPath.AUDIT_LOG);
+    private static final Logger AUDIT_LOG_DESTINATION = LoggerFactory.getLogger(AuditPath.AUDIT_LOG);
 
     private volatile static AuditCallback auditCallback;
 
     /**
      * Logger destination for the query plan logging.
      */
-    public static final String QUERYPLAN_LOG = "com.espertech.esper.queryplan"; 
+    public static final String QUERYPLAN_LOG = "com.espertech.esper.queryplan";
 
     /**
      * Logger destination for the JDBC logging.
      */
-    public static final String JDBC_LOG = "com.espertech.esper.jdbc"; 
+    public static final String JDBC_LOG = "com.espertech.esper.jdbc";
 
     /**
      * Logger destination for the audit logging.
@@ -68,11 +68,10 @@ public class AuditPath {
     public static void auditLog(String engineURI, String statementName, AuditEnum category, String message) {
         if (auditPattern == null) {
             String text = AuditContext.defaultFormat(statementName, category, message);
-            auditLogDestination.info(text);
-        }
-        else {
+            AUDIT_LOG_DESTINATION.info(text);
+        } else {
             String result = auditPattern.replace("%s", statementName).replace("%u", engineURI).replace("%c", category.getValue()).replace("%m", message);
-            auditLogDestination.info(result);
+            AUDIT_LOG_DESTINATION.info(result);
         }
         if (auditCallback != null) {
             auditCallback.audit(new AuditContext(engineURI, statementName, category, message));
@@ -80,7 +79,7 @@ public class AuditPath {
     }
 
     public static boolean isInfoEnabled() {
-        return (auditLogDestination.isInfoEnabled() || auditCallback != null);
+        return AUDIT_LOG_DESTINATION.isInfoEnabled() || auditCallback != null;
     }
 
     public static void setAuditCallback(AuditCallback auditCallback) {

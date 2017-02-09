@@ -21,8 +21,7 @@ public abstract class IntervalComputerConstantBase {
         if (startVal > endVal && allowSwitch) {
             start = endVal;
             end = startVal;
-        }
-        else {
+        } else {
             start = startVal;
             end = endVal;
         }

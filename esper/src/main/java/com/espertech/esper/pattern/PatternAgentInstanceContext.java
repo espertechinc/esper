@@ -16,8 +16,7 @@ import com.espertech.esper.core.service.StatementContext;
 /**
  * Contains handles to implementations of services needed by evaluation nodes.
  */
-public class PatternAgentInstanceContext
-{
+public class PatternAgentInstanceContext {
     private final PatternContext patternContext;
     private final AgentInstanceContext agentInstanceContext;
     private final EvalFilterConsumptionHandler consumptionHandler;
@@ -28,8 +27,7 @@ public class PatternAgentInstanceContext
 
         if (hasConsumingFilter) {
             consumptionHandler = new EvalFilterConsumptionHandler();
-        }
-        else {
+        } else {
             consumptionHandler = null;
         }
     }

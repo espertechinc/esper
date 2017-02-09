@@ -23,8 +23,7 @@ import java.util.List;
 /**
  * Factory for {@link SizeView} instances.
  */
-public class SizeViewFactory implements ViewFactory
-{
+public class SizeViewFactory implements ViewFactory {
     protected final static String NAME = "Size";
 
     private List<ExprNode> viewParameters;
@@ -34,33 +33,27 @@ public class SizeViewFactory implements ViewFactory
 
     protected EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
         this.streamNumber = viewFactoryContext.getStreamNum();
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
         additionalProps = StatViewAdditionalProps.make(validated, 0, parentEventType);
         eventType = SizeView.createEventType(statementContext, additionalProps, streamNumber);
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new SizeView(agentInstanceViewFactoryContext.getAgentInstanceContext(), eventType, additionalProps);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof SizeView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof SizeView)) {
             return false;
         }
         if (additionalProps != null) {

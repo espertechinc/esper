@@ -85,41 +85,29 @@ public enum QueryGraphRangeEnum {
     public static QueryGraphRangeEnum mapFrom(FilterOperator op) {
         if (op == FilterOperator.GREATER) {
             return GREATER;
-        }
-        else if (op == FilterOperator.GREATER_OR_EQUAL) {
+        } else if (op == FilterOperator.GREATER_OR_EQUAL) {
             return GREATER_OR_EQUAL;
-        }
-        else if (op == FilterOperator.LESS) {
+        } else if (op == FilterOperator.LESS) {
             return LESS;
-        }
-        else if (op == FilterOperator.LESS_OR_EQUAL) {
+        } else if (op == FilterOperator.LESS_OR_EQUAL) {
             return LESS_OR_EQUAL;
-        }
-        else if (op == FilterOperator.RANGE_OPEN) {
+        } else if (op == FilterOperator.RANGE_OPEN) {
             return RANGE_OPEN;
-        }
-        else if (op == FilterOperator.RANGE_HALF_CLOSED) {
+        } else if (op == FilterOperator.RANGE_HALF_CLOSED) {
             return RANGE_HALF_CLOSED;
-        }
-        else if (op == FilterOperator.RANGE_HALF_OPEN) {
+        } else if (op == FilterOperator.RANGE_HALF_OPEN) {
             return RANGE_HALF_OPEN;
-        }
-        else if (op == FilterOperator.RANGE_CLOSED) {
+        } else if (op == FilterOperator.RANGE_CLOSED) {
             return RANGE_CLOSED;
-        }
-        else if (op == FilterOperator.NOT_RANGE_OPEN) {
+        } else if (op == FilterOperator.NOT_RANGE_OPEN) {
             return NOT_RANGE_OPEN;
-        }
-        else if (op == FilterOperator.NOT_RANGE_HALF_CLOSED) {
+        } else if (op == FilterOperator.NOT_RANGE_HALF_CLOSED) {
             return NOT_RANGE_HALF_CLOSED;
-        }
-        else if (op == FilterOperator.NOT_RANGE_HALF_OPEN) {
+        } else if (op == FilterOperator.NOT_RANGE_HALF_OPEN) {
             return NOT_RANGE_HALF_OPEN;
-        }
-        else if (op == FilterOperator.NOT_RANGE_CLOSED) {
+        } else if (op == FilterOperator.NOT_RANGE_CLOSED) {
             return NOT_RANGE_CLOSED;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -127,17 +115,13 @@ public enum QueryGraphRangeEnum {
     public static QueryGraphRangeEnum mapFrom(RelationalOpEnum relationalOpEnum) {
         if (relationalOpEnum == RelationalOpEnum.GE) {
             return GREATER_OR_EQUAL;
-        }
-        else if (relationalOpEnum == RelationalOpEnum.GT) {
+        } else if (relationalOpEnum == RelationalOpEnum.GT) {
             return GREATER;
-        }
-        else if (relationalOpEnum == RelationalOpEnum.LT) {
+        } else if (relationalOpEnum == RelationalOpEnum.LT) {
             return LESS;
-        }
-        else if (relationalOpEnum == RelationalOpEnum.LE) {
+        } else if (relationalOpEnum == RelationalOpEnum.LE) {
             return LESS_OR_EQUAL;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Failed to map code " + relationalOpEnum);
         }
     }
@@ -169,22 +153,19 @@ public enum QueryGraphRangeEnum {
                     return RANGE_CLOSED;
                 }
                 return RANGE_HALF_OPEN;
-            }
-            else {
+            } else {
                 if (includeEnd) {
                     return RANGE_HALF_CLOSED;
                 }
                 return RANGE_OPEN;
             }
-        }
-        else {
+        } else {
             if (includeStart) {
                 if (includeEnd) {
                     return NOT_RANGE_CLOSED;
                 }
                 return NOT_RANGE_HALF_OPEN;
-            }
-            else {
+            } else {
                 if (includeEnd) {
                     return NOT_RANGE_HALF_CLOSED;
                 }

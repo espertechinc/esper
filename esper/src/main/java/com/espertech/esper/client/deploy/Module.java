@@ -11,9 +11,9 @@
 package com.espertech.esper.client.deploy;
 
 import java.io.Serializable;
-import java.util.Set;
-import java.util.List;
 import java.io.StringWriter;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represent a deployment unit consisting of deployment declarative information (module name, uses and imports)
@@ -39,11 +39,12 @@ public class Module implements Serializable {
 
     /**
      * Ctor.
-     * @param name module name
-     * @param uri module uri
-     * @param uses names of modules that this module depends on
-     * @param imports the Java class imports
-     * @param items EPL statements
+     *
+     * @param name       module name
+     * @param uri        module uri
+     * @param uses       names of modules that this module depends on
+     * @param imports    the Java class imports
+     * @param items      EPL statements
      * @param moduleText text of module
      */
     public Module(String name, String uri, Set<String> uses, Set<String> imports, List<ModuleItem> items, String moduleText) {
@@ -57,6 +58,7 @@ public class Module implements Serializable {
 
     /**
      * Returns the name of the archive this module originated from, or null if not applicable.
+     *
      * @return archive name
      */
     public String getArchiveName() {
@@ -65,6 +67,7 @@ public class Module implements Serializable {
 
     /**
      * Set the name of the archive this module originated from, or null if not applicable.
+     *
      * @param archiveName archive name
      */
     public void setArchiveName(String archiveName) {
@@ -73,6 +76,7 @@ public class Module implements Serializable {
 
     /**
      * Returns the optional user object that may be attached to the module.
+     *
      * @return user object
      */
     public Object getUserObject() {
@@ -81,6 +85,7 @@ public class Module implements Serializable {
 
     /**
      * Sets an optional user object that may be attached to the module.
+     *
      * @param userObject user object
      */
     public void setUserObject(Object userObject) {
@@ -89,6 +94,7 @@ public class Module implements Serializable {
 
     /**
      * Returns the module name, if provided.
+     *
      * @return module name
      */
     public String getName() {
@@ -97,6 +103,7 @@ public class Module implements Serializable {
 
     /**
      * Sets the module name or null if none provided.
+     *
      * @param name module name
      */
     public void setName(String name) {
@@ -105,24 +112,25 @@ public class Module implements Serializable {
 
     /**
      * Returns the module URI if provided.
+     *
      * @return module URI
      */
-    public String getUri()
-    {
+    public String getUri() {
         return uri;
     }
 
     /**
      * Sets the module URI or null if none provided.
+     *
      * @param uri of module
      */
-    public void setUri(String uri)
-    {
+    public void setUri(String uri) {
         this.uri = uri;
     }
 
     /**
      * Returns the dependencies the module may have on other modules.
+     *
      * @return module dependencies
      */
     public Set<String> getUses() {
@@ -131,6 +139,7 @@ public class Module implements Serializable {
 
     /**
      * Sets the dependencies the module may have on other modules.
+     *
      * @param uses module dependencies
      */
     public void setUses(Set<String> uses) {
@@ -139,6 +148,7 @@ public class Module implements Serializable {
 
     /**
      * Returns a list of statements (some may be comments only) that make up the module.
+     *
      * @return statements
      */
     public List<ModuleItem> getItems() {
@@ -147,6 +157,7 @@ public class Module implements Serializable {
 
     /**
      * Sets a list of statements (some may be comments only) that make up the module.
+     *
      * @param items statements
      */
     public void setItems(List<ModuleItem> items) {
@@ -155,37 +166,37 @@ public class Module implements Serializable {
 
     /**
      * Returns the imports defined by the module.
+     *
      * @return module imports
      */
-    public Set<String> getImports()
-    {
+    public Set<String> getImports() {
         return imports;
     }
 
     /**
      * Sets the imports defined by the module.
+     *
      * @param imports module imports
      */
-    public void setImports(Set<String> imports)
-    {
+    public void setImports(Set<String> imports) {
         this.imports = imports;
     }
 
     /**
      * Returns module text.
+     *
      * @return text
      */
-    public String getModuleText()
-    {
+    public String getModuleText() {
         return moduleText;
     }
 
     /**
      * Sets module text.
+     *
      * @param moduleText text to set
      */
-    public void setModuleText(String moduleText)
-    {
+    public void setModuleText(String moduleText) {
         this.moduleText = moduleText;
     }
 
@@ -193,8 +204,7 @@ public class Module implements Serializable {
         StringWriter buf = new StringWriter();
         if (name == null) {
             buf.append("(unnamed)");
-        }
-        else {
+        } else {
             buf.append("'" + name + "'");
         }
         if (uri != null) {

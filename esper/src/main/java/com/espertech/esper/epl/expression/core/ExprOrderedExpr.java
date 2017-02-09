@@ -18,18 +18,17 @@ import java.io.StringWriter;
  * A placeholder expression for view/pattern object parameters that allow
  * sorting expression values ascending or descending.
  */
-public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator {
     private final boolean isDescending;
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -3140402807682771591L;
 
     /**
      * Ctor.
+     *
      * @param descending is true for descending sorts
      */
-    public ExprOrderedExpr(boolean descending)
-    {
+    public ExprOrderedExpr(boolean descending) {
         isDescending = descending;
     }
 
@@ -44,49 +43,42 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return getChildNodes()[0].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprOrderedExpr))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprOrderedExpr)) {
             return false;
         }
         ExprOrderedExpr other = (ExprOrderedExpr) node;
         return other.isDescending == this.isDescending;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluator = getChildNodes()[0].getExprEvaluator();
         // always valid
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return getChildNodes()[0].getExprEvaluator().getType();
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
     /**
      * Returns true for descending sort.
+     *
      * @return indicator for ascending or descending sort
      */
-    public boolean isDescending()
-    {
+    public boolean isDescending() {
         return isDescending;
     }
 }

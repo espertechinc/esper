@@ -17,13 +17,22 @@ import java.util.Collection;
 
 public abstract class FireAndForgetProcessor {
     public abstract EventType getEventTypeResultSetProcessor();
+
     public abstract String getContextName();
+
     public abstract FireAndForgetInstance getProcessorInstance(AgentInstanceContext agentInstanceContext);
+
     public abstract FireAndForgetInstance getProcessorInstanceContextById(int agentInstanceId);
+
     public abstract FireAndForgetInstance getProcessorInstanceNoContext();
+
     public abstract Collection<Integer> getProcessorInstancesAll();
+
     public abstract String getNamedWindowOrTableName();
+
     public abstract boolean isVirtualDataWindow();
+
     public abstract String[][] getUniqueIndexes(FireAndForgetInstance processorInstance);
+
     public abstract EventType getEventTypePublic();
 }

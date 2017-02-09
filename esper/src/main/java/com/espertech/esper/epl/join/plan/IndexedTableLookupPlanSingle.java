@@ -25,20 +25,19 @@ import java.util.Collections;
 /**
  * Plan to perform an indexed table lookup.
  */
-public class IndexedTableLookupPlanSingle extends TableLookupPlan
-{
+public class IndexedTableLookupPlanSingle extends TableLookupPlan {
     private QueryGraphValueEntryHashKeyed hashKey;
 
     /**
      * Ctor.
-     * @param lookupStream - stream that generates event to look up for
+     *
+     * @param lookupStream  - stream that generates event to look up for
      * @param indexedStream - stream to index table lookup
-     * @param indexNum - index number for the table containing the full unindexed contents
-     * @param hashKey - properties to use in lookup event to access index
+     * @param indexNum      - index number for the table containing the full unindexed contents
+     * @param hashKey       - properties to use in lookup event to access index
      */
-    public IndexedTableLookupPlanSingle(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryHashKeyed hashKey)
-    {
-        super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});
+    public IndexedTableLookupPlanSingle(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryHashKeyed hashKey) {
+        super(lookupStream, indexedStream, new TableLookupIndexReqKey[]{indexNum});
         this.hashKey = hashKey;
     }
 
@@ -46,19 +45,16 @@ public class IndexedTableLookupPlanSingle extends TableLookupPlan
         return new TableLookupKeyDesc(Collections.singletonList(hashKey), Collections.<QueryGraphValueEntryRange>emptyList());
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         PropertyIndexedEventTableSingle index = (PropertyIndexedEventTableSingle) eventTable[0];
         if (hashKey instanceof QueryGraphValueEntryHashKeyedExpr) {
             QueryGraphValueEntryHashKeyedExpr expr = (QueryGraphValueEntryHashKeyedExpr) hashKey;
             return new IndexedTableLookupStrategySingleExpr(expr.getKeyExpr(), super.getLookupStream(), index,
-                    new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[] {ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr.getKeyExpr())}));
-        }
-        else if (hashKey instanceof QueryGraphValueEntryHashKeyedProp) {
+                    new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr.getKeyExpr())}));
+        } else if (hashKey instanceof QueryGraphValueEntryHashKeyedProp) {
             QueryGraphValueEntryHashKeyedProp prop = (QueryGraphValueEntryHashKeyedProp) hashKey;
             return new IndexedTableLookupStrategySingle(eventTypes[this.getLookupStream()], prop.getKeyProperty(), index);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Invalid hashkey instance " + hashKey);
         }
     }
@@ -67,10 +63,9 @@ public class IndexedTableLookupPlanSingle extends TableLookupPlan
         return hashKey;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IndexedTableLookupPlan " +
                 super.toString() +
-               " keyProperty=" + getKeyDescriptor();
+                " keyProperty=" + getKeyDescriptor();
     }
 }

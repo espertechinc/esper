@@ -18,14 +18,14 @@ import java.io.Serializable;
 /**
  * Specification for a "define" construct within a match_recognize.
  */
-public class MatchRecognizeDefineItem implements MetaDefItem, Serializable
-{
+public class MatchRecognizeDefineItem implements MetaDefItem, Serializable {
     private String identifier;
     private ExprNode expression;
     private static final long serialVersionUID = -7736241770279336651L;
 
     /**
      * Ctor.
+     *
      * @param identifier variable name
      * @param expression expression
      */
@@ -36,6 +36,7 @@ public class MatchRecognizeDefineItem implements MetaDefItem, Serializable
 
     /**
      * Returns the variable name.
+     *
      * @return name
      */
     public String getIdentifier() {
@@ -44,6 +45,7 @@ public class MatchRecognizeDefineItem implements MetaDefItem, Serializable
 
     /**
      * Returns the expression.
+     *
      * @return expression
      */
     public ExprNode getExpression() {
@@ -52,10 +54,10 @@ public class MatchRecognizeDefineItem implements MetaDefItem, Serializable
 
     /**
      * Sets the validated expression
+     *
      * @param validated to set
      */
-    public void setExpression(ExprNode validated)
-    {
+    public void setExpression(ExprNode validated) {
         this.expression = validated;
     }
 }

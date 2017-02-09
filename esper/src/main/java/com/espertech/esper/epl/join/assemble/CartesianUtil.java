@@ -12,40 +12,36 @@ package com.espertech.esper.epl.join.assemble;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Helper class to compute the cartesian product of the events from two streams.
  */
-public class CartesianUtil
-{
+public class CartesianUtil {
     /**
      * Form the 2-ary cartesian product between zero or more events from 2 streams.
-     * @param streamOne is the events from stream one
+     *
+     * @param streamOne        is the events from stream one
      * @param subStreamNumsOne is the list of substream numbers to stream one to include in the product
-     * @param streamTwo is the events from stream two
+     * @param streamTwo        is the events from stream two
      * @param subStreamNumsTwo is the list of substream numbers to stream two to include in the product
-     * @param resultList is where the result of the cartesian product is added to
+     * @param resultList       is where the result of the cartesian product is added to
      */
 
     protected static void computeCartesian(List<EventBean[]> streamOne, int[] subStreamNumsOne,
                                            List<EventBean[]> streamTwo, int[] subStreamNumsTwo,
-                                           List<EventBean[]> resultList)
-    {
+                                           List<EventBean[]> resultList) {
 
-        if ((streamTwo == null) || (streamTwo.isEmpty()))
-        {
-            if ((streamOne == null) || (streamOne.isEmpty()))
-            {
+        if ((streamTwo == null) || (streamTwo.isEmpty())) {
+            if ((streamOne == null) || (streamOne.isEmpty())) {
                 return;
             }
             resultList.addAll(streamOne);
             return;
         }
 
-        if ((streamOne == null) || (streamOne.isEmpty()))
-        {
+        if ((streamOne == null) || (streamOne.isEmpty())) {
             resultList.addAll(streamTwo);
             return;
         }
@@ -53,16 +49,14 @@ public class CartesianUtil
         int streamOneSize = streamOne.size();
         int streamTwoSize = streamTwo.size();
 
-        if (streamOneSize == 1)
-        {
+        if (streamOneSize == 1) {
             // Yes we are re-using the results of stream two, same row reference
             copyToEach(subStreamNumsOne, streamOne.get(0), streamTwo);
             resultList.addAll(streamTwo);
             return;
         }
 
-        if (streamTwoSize == 1)
-        {
+        if (streamTwoSize == 1) {
             // Yes we are re-using the results of stream one, same row reference
             copyToEach(subStreamNumsTwo, streamTwo.get(0), streamOne);
             resultList.addAll(streamOne);
@@ -73,8 +67,7 @@ public class CartesianUtil
 
         // Exchange streams if one is smaller then two
         // Since if one has 100 rows the other has 2 then we can re-use the 100 event rows.
-        if (streamTwoSize > streamOneSize)
-        {
+        if (streamTwoSize > streamOneSize) {
             List<EventBean[]> holdRows = streamOne;
             int holdSize = streamOneSize;
 
@@ -93,14 +86,12 @@ public class CartesianUtil
 
         // Allocate and pre-populate copies of stream 1
         int streamOneCount = 0;
-        for (EventBean[] row : streamOne)
-        {
+        for (EventBean[] row : streamOne) {
             // first use all events in stream 1
             results[streamOneCount] = row;
 
             // then allocate copies for each in stream 2
-            for (int i = 1; i < streamTwoSize; i++)
-            {
+            for (int i = 1; i < streamTwoSize; i++) {
                 EventBean[] dupRow = new EventBean[numColumns];
                 System.arraycopy(row, 0, dupRow, 0, numColumns);
 
@@ -113,10 +104,8 @@ public class CartesianUtil
 
         // Copy stream 2 rows into rows of stream 1
         int streamTwoCount = 0;
-        for (EventBean[] row : streamTwo)
-        {
-            for (int i = 0; i < streamOneSize; i++)
-            {
+        for (EventBean[] row : streamTwo) {
+            for (int i = 0; i < streamOneSize; i++) {
                 int index = streamTwoCount * streamOneSize + i;
                 copy(subStreamNumsTwo, row, results[index]);
             }
@@ -127,18 +116,14 @@ public class CartesianUtil
         resultList.addAll(Arrays.asList(results));
     }
 
-    private static void copyToEach(int[] subStreamNums, EventBean[] sourceRow, List<EventBean[]> destRows)
-    {
-        for (EventBean[] destRow : destRows)
-        {
+    private static void copyToEach(int[] subStreamNums, EventBean[] sourceRow, List<EventBean[]> destRows) {
+        for (EventBean[] destRow : destRows) {
             copy(subStreamNums, sourceRow, destRow);
         }
     }
 
-    private static void copy(int[] subStreamsFrom, EventBean[] from, EventBean[] to)
-    {
-        for (int index : subStreamsFrom)
-        {
+    private static void copy(int[] subStreamsFrom, EventBean[] from, EventBean[] to) {
+        for (int index : subStreamsFrom) {
             to[index] = from[index];
         }
     }

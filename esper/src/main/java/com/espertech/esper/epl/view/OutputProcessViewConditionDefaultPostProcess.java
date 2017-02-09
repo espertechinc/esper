@@ -22,8 +22,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
  * <p>
  * Handles output rate limiting or stabilizing.
  */
-public class OutputProcessViewConditionDefaultPostProcess extends OutputProcessViewConditionDefault
-{
+public class OutputProcessViewConditionDefaultPostProcess extends OutputProcessViewConditionDefault {
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewConditionDefaultPostProcess(ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor, boolean isJoin, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
@@ -32,11 +31,9 @@ public class OutputProcessViewConditionDefaultPostProcess extends OutputProcessV
     }
 
     @Override
-    public void output(boolean forceUpdate, UniformPair<EventBean[]> results)
-    {
+    public void output(boolean forceUpdate, UniformPair<EventBean[]> results) {
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcessor.output(forceUpdate, results, childView);
         }
     }

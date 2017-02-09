@@ -54,7 +54,7 @@ public class TestMTStmtSharedView extends TestCase
     private void trySend(int numThreads, int numRepeats, int numStatements) throws Exception
     {
         // Create same statement X times
-        EPStatement stmt[] = new EPStatement[numStatements];
+        EPStatement[] stmt = new EPStatement[numStatements];
         SupportMTUpdateListener listeners[] = new SupportMTUpdateListener[stmt.length];
         for (int i = 0; i < stmt.length; i++)
         {

@@ -36,7 +36,7 @@ public class StatementAgentInstanceFactoryCreateWindowResult extends StatementAg
 
     public StatementAgentInstanceFactoryCreateWindowResult(Viewable finalView, StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable eventStreamParentViewable, StatementAgentInstancePostLoad postLoad, Viewable topView, NamedWindowProcessorInstance processorInstance, ViewableActivationResult viewableActivationResult) {
         super(finalView, stopCallback, agentInstanceContext,
-                    null, Collections.<ExprSubselectNode, SubSelectStrategyHolder>emptyMap(),
+                null, Collections.<ExprSubselectNode, SubSelectStrategyHolder>emptyMap(),
                 Collections.<ExprPriorNode, ExprPriorEvalStrategy>emptyMap(),
                 Collections.<ExprPreviousNode, ExprPreviousEvalStrategy>emptyMap(),
                 null,

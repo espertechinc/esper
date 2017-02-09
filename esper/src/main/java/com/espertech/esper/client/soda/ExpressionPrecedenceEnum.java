@@ -73,6 +73,7 @@ public enum ExpressionPrecedenceEnum {
 
     /**
      * Level.
+     *
      * @return level
      */
     public int getLevel() {

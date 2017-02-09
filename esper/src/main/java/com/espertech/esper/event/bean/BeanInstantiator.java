@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.event.bean;
 
-public interface BeanInstantiator
-{
+public interface BeanInstantiator {
     public Object instantiate();
 }

@@ -21,19 +21,20 @@ import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
-import com.espertech.esper.supportunit.view.*;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.view.SupportMapView;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportViewDataChecker;
 import com.espertech.esper.view.EventStream;
 import junit.framework.TestCase;
 
-public class TestGroupByView extends TestCase
-{
+public class TestGroupByView extends TestCase {
     private GroupByView myGroupByView;
     private SupportBeanClassView ultimateChildView;
     private StatementContext statementContext;
     private AgentInstanceViewFactoryChainContext agentInstanceContext;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         statementContext = SupportStatementContextFactory.makeContext();
         agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceViewFactoryContext();
 
@@ -54,8 +55,7 @@ public class TestGroupByView extends TestCase
         SupportBeanClassView.getInstances().clear();
     }
 
-    public void testViewPush()
-    {
+    public void testViewPush() {
         // Reset instance lists of child views
         SupportBeanClassView.getInstances().clear();
         SupportMapView.getInstances().clear();
@@ -74,85 +74,73 @@ public class TestGroupByView extends TestCase
         assertEquals(1, SupportBeanClassView.getInstances().size());
         SupportBeanClassView child_1 = SupportBeanClassView.getInstances().get(0);
         SupportViewDataChecker.checkOldData(child_1, null);
-        SupportViewDataChecker.checkNewData(child_1, new EventBean[] { tradeBeans[0] });
+        SupportViewDataChecker.checkNewData(child_1, new EventBean[]{tradeBeans[0]});
 
         // Check the data of the ultimate receiver
         SupportViewDataChecker.checkOldData(ultimateChildView, null);
-        SupportViewDataChecker.checkNewData(ultimateChildView, new EventBean[] {tradeBeans[0]});
+        SupportViewDataChecker.checkNewData(ultimateChildView, new EventBean[]{tradeBeans[0]});
     }
 
-    public void testUpdate()
-    {
+    public void testUpdate() {
         // Set up a feed for the view under test - it will have a depth of 3 trades
         SupportStreamImpl stream = new SupportStreamImpl(SupportMarketDataBean.class, 3);
         stream.addView(myGroupByView);
 
         // Send old a new events
-        EventBean[] newEvents = new EventBean[] { makeTradeBean("IBM", 70), makeTradeBean("GE", 10) };
-        EventBean[] oldEvents = new EventBean[] { makeTradeBean("IBM", 65), makeTradeBean("GE", 9) };
+        EventBean[] newEvents = new EventBean[]{makeTradeBean("IBM", 70), makeTradeBean("GE", 10)};
+        EventBean[] oldEvents = new EventBean[]{makeTradeBean("IBM", 65), makeTradeBean("GE", 9)};
         myGroupByView.update(newEvents, oldEvents);
 
         assertEquals(2, SupportBeanClassView.getInstances().size());
         SupportBeanClassView child_1 = SupportBeanClassView.getInstances().get(0);
         SupportBeanClassView child_2 = SupportBeanClassView.getInstances().get(1);
-        SupportViewDataChecker.checkOldData(child_1, new EventBean[] { oldEvents[0] });
-        SupportViewDataChecker.checkNewData(child_1, new EventBean[] { newEvents[0] });
-        SupportViewDataChecker.checkOldData(child_2, new EventBean[] { oldEvents[1] });
-        SupportViewDataChecker.checkNewData(child_2, new EventBean[] { newEvents[1] });
+        SupportViewDataChecker.checkOldData(child_1, new EventBean[]{oldEvents[0]});
+        SupportViewDataChecker.checkNewData(child_1, new EventBean[]{newEvents[0]});
+        SupportViewDataChecker.checkOldData(child_2, new EventBean[]{oldEvents[1]});
+        SupportViewDataChecker.checkNewData(child_2, new EventBean[]{newEvents[1]});
 
-        newEvents = new EventBean[] { makeTradeBean("IBM", 71), makeTradeBean("GE", 11) };
-        oldEvents = new EventBean[] { makeTradeBean("IBM", 70), makeTradeBean("GE", 10) };
+        newEvents = new EventBean[]{makeTradeBean("IBM", 71), makeTradeBean("GE", 11)};
+        oldEvents = new EventBean[]{makeTradeBean("IBM", 70), makeTradeBean("GE", 10)};
         myGroupByView.update(newEvents, oldEvents);
 
-        SupportViewDataChecker.checkOldData(child_1, new EventBean[] { oldEvents[0] });
-        SupportViewDataChecker.checkNewData(child_1, new EventBean[] { newEvents[0] });
-        SupportViewDataChecker.checkOldData(child_2, new EventBean[] { oldEvents[1] });
-        SupportViewDataChecker.checkNewData(child_2, new EventBean[] { newEvents[1] });
+        SupportViewDataChecker.checkOldData(child_1, new EventBean[]{oldEvents[0]});
+        SupportViewDataChecker.checkNewData(child_1, new EventBean[]{newEvents[0]});
+        SupportViewDataChecker.checkOldData(child_2, new EventBean[]{oldEvents[1]});
+        SupportViewDataChecker.checkNewData(child_2, new EventBean[]{newEvents[1]});
     }
 
-    public void testInvalid()
-    {
-        try
-        {
+    public void testInvalid() {
+        try {
             myGroupByView.iterator();
             assertTrue(false);
-        }
-        catch (UnsupportedOperationException ex)
-        {
+        } catch (UnsupportedOperationException ex) {
             // Expected exception
         }
     }
 
-    public void testMakeSubviews() throws Exception
-    {
+    public void testMakeSubviews() throws Exception {
         EventStream eventStream = new SupportStreamImpl(SupportMarketDataBean.class, 4);
         ExprNode[] expressions = SupportExprNodeFactory.makeIdentNodesMD("symbol");
         GroupByView groupView = new GroupByViewImpl(agentInstanceContext, expressions, ExprNodeUtility.getEvaluators(expressions));
         eventStream.addView(groupView);
 
-        Object[] groupByValue = new Object[] {"IBM"};
+        Object[] groupByValue = new Object[]{"IBM"};
 
         // Invalid for no child nodes
-        try
-        {
+        try {
             GroupByViewImpl.makeSubViews(groupView, "symbol".split(","), groupByValue, agentInstanceContext);
             assertTrue(false);
-        }
-        catch (EPException ex)
-        {
+        } catch (EPException ex) {
             // Expected exception
         }
 
         // Invalid for child node is a merge node - doesn't make sense to group and merge only
         MergeView mergeViewOne = new MergeView(agentInstanceContext, SupportExprNodeFactory.makeIdentNodesMD("symbol"), null, false);
         groupView.addView(mergeViewOne);
-        try
-        {
+        try {
             GroupByViewImpl.makeSubViews(groupView, "symbol".split(","), groupByValue, agentInstanceContext);
             assertTrue(false);
-        }
-        catch (EPException ex)
-        {
+        } catch (EPException ex) {
             // Expected exception
         }
 
@@ -180,8 +168,7 @@ public class TestGroupByView extends TestCase
         assertTrue(md.getViews()[0] == mergeViewOne);
     }
 
-    private EventBean makeTradeBean(String symbol, int price)
-    {
+    private EventBean makeTradeBean(String symbol, int price) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, 0L, "");
         return SupportEventBeanFactory.createObject(bean);
     }

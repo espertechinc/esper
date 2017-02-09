@@ -19,7 +19,7 @@ import java.io.Serializable;
  */
 public class Assignment implements Serializable {
     private static final long serialVersionUID = -2713092091207302856L;
-    
+
     private Expression value;
 
     /**
@@ -30,6 +30,7 @@ public class Assignment implements Serializable {
 
     /**
      * Ctor.
+     *
      * @param value value to assign
      */
     public Assignment(Expression value) {
@@ -38,6 +39,7 @@ public class Assignment implements Serializable {
 
     /**
      * Returns expression to eval.
+     *
      * @return eval expression
      */
     public Expression getValue() {
@@ -46,6 +48,7 @@ public class Assignment implements Serializable {
 
     /**
      * Sets expression to eval.
+     *
      * @param value expression
      */
     public void setValue(Expression value) {

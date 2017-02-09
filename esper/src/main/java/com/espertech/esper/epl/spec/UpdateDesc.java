@@ -13,14 +13,13 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.MetaDefItem;
 
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Specification for the update statement.
  */
-public class UpdateDesc implements MetaDefItem, Serializable
-{
+public class UpdateDesc implements MetaDefItem, Serializable {
     private final String optionalStreamName;
     private final List<OnTriggerSetAssignment> assignments;
     private ExprNode optionalWhereClause;
@@ -28,8 +27,9 @@ public class UpdateDesc implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param optionalStreamName a stream name if provided for the update
-     * @param assignments the individual assignments made
+     *
+     * @param optionalStreamName  a stream name if provided for the update
+     * @param assignments         the individual assignments made
      * @param optionalWhereClause the where-clause expression if provided
      */
     public UpdateDesc(String optionalStreamName, List<OnTriggerSetAssignment> assignments, ExprNode optionalWhereClause) {
@@ -40,15 +40,16 @@ public class UpdateDesc implements MetaDefItem, Serializable
 
     /**
      * Returns a list of all assignment
+     *
      * @return list of assignments
      */
-    public List<OnTriggerSetAssignment> getAssignments()
-    {
+    public List<OnTriggerSetAssignment> getAssignments() {
         return assignments;
     }
 
     /**
      * Returns the stream name if defined.
+     *
      * @return stream name
      */
     public String getOptionalStreamName() {
@@ -57,6 +58,7 @@ public class UpdateDesc implements MetaDefItem, Serializable
 
     /**
      * Returns the where-clause if defined.
+     *
      * @return where clause
      */
     public ExprNode getOptionalWhereClause() {
@@ -65,6 +67,7 @@ public class UpdateDesc implements MetaDefItem, Serializable
 
     /**
      * Sets the where-clause if defined.
+     *
      * @param optionalWhereClause where clause to set or null
      */
     public void setOptionalWhereClause(ExprNode optionalWhereClause) {

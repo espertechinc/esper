@@ -18,11 +18,11 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperPrevious;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperPrior;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.core.ViewResourceDelegateVerifiedStream;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.DataWindowViewFactory;
@@ -34,8 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 
-public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContext
-{
+public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContext {
     private final AgentInstanceContext agentInstanceContext;
     private boolean isRemoveStream;
     private final Object previousNodeGetter;

@@ -30,28 +30,24 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class BaseNestableEventUtil
-{
+public class BaseNestableEventUtil {
     public static Map<String, Object> checkedCastUnderlyingMap(EventBean theEvent) throws PropertyAccessException {
         return (Map<String, Object>) theEvent.getUnderlying();
     }
-    
+
     public static Object[] checkedCastUnderlyingObjectArray(EventBean theEvent) throws PropertyAccessException {
         return (Object[]) theEvent.getUnderlying();
     }
 
     public static Object handleNestedValueArrayWithMap(Object value, int index, MapEventPropertyGetter getter) {
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return null;
         }
-        if (Array.getLength(value) <= index)
-        {
+        if (Array.getLength(value) <= index) {
             return null;
         }
         Object valueMap = Array.get(value, index);
-        if (!(valueMap instanceof Map))
-        {
+        if (!(valueMap instanceof Map)) {
             if (valueMap instanceof EventBean) {
                 return getter.get((EventBean) valueMap);
             }
@@ -61,17 +57,14 @@ public class BaseNestableEventUtil
     }
 
     public static boolean handleNestedValueArrayWithMapExists(Object value, int index, MapEventPropertyGetter getter) {
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return false;
         }
-        if (Array.getLength(value) <= index)
-        {
+        if (Array.getLength(value) <= index) {
             return false;
         }
         Object valueMap = Array.get(value, index);
-        if (!(valueMap instanceof Map))
-        {
+        if (!(valueMap instanceof Map)) {
             if (valueMap instanceof EventBean) {
                 return getter.isExistsProperty((EventBean) valueMap);
             }
@@ -81,17 +74,14 @@ public class BaseNestableEventUtil
     }
 
     public static Object handleNestedValueArrayWithMapFragment(Object value, int index, MapEventPropertyGetter getter, EventAdapterService eventAdapterService, EventType fragmentType) {
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return null;
         }
-        if (Array.getLength(value) <= index)
-        {
+        if (Array.getLength(value) <= index) {
             return null;
         }
         Object valueMap = Array.get(value, index);
-        if (!(valueMap instanceof Map))
-        {
+        if (!(valueMap instanceof Map)) {
             if (value instanceof EventBean) {
                 return getter.getFragment((EventBean) value);
             }
@@ -104,17 +94,14 @@ public class BaseNestableEventUtil
     }
 
     public static Object handleNestedValueArrayWithObjectArray(Object value, int index, ObjectArrayEventPropertyGetter getter) {
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return null;
         }
-        if (Array.getLength(value) <= index)
-        {
+        if (Array.getLength(value) <= index) {
             return null;
         }
         Object valueArray = Array.get(value, index);
-        if (!(valueArray instanceof Object[]))
-        {
+        if (!(valueArray instanceof Object[])) {
             if (valueArray instanceof EventBean) {
                 return getter.get((EventBean) valueArray);
             }
@@ -131,8 +118,7 @@ public class BaseNestableEventUtil
             return false;
         }
         Object valueArray = Array.get(value, index);
-        if (!(valueArray instanceof Object[]))
-        {
+        if (!(valueArray instanceof Object[])) {
             if (valueArray instanceof EventBean) {
                 return getter.isExistsProperty((EventBean) valueArray);
             }
@@ -142,17 +128,14 @@ public class BaseNestableEventUtil
     }
 
     public static Object handleNestedValueArrayWithObjectArrayFragment(Object value, int index, ObjectArrayEventPropertyGetter getter, EventType fragmentType, EventAdapterService eventAdapterService) {
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return null;
         }
-        if (Array.getLength(value) <= index)
-        {
+        if (Array.getLength(value) <= index) {
             return null;
         }
         Object valueArray = Array.get(value, index);
-        if (!(valueArray instanceof Object[]))
-        {
+        if (!(valueArray instanceof Object[])) {
             if (value instanceof EventBean) {
                 return getter.getFragment((EventBean) value);
             }
@@ -165,8 +148,7 @@ public class BaseNestableEventUtil
     }
 
     public static Object handleCreateFragmentMap(Object value, EventType fragmentEventType, EventAdapterService eventAdapterService) {
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             if (value instanceof EventBean) {
                 return value;
             }
@@ -177,8 +159,7 @@ public class BaseNestableEventUtil
     }
 
     public static Object handleCreateFragmentObjectArray(Object value, EventType fragmentEventType, EventAdapterService eventAdapterService) {
-        if (!(value instanceof Object[]))
-        {
+        if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
                 return value;
             }
@@ -189,12 +170,10 @@ public class BaseNestableEventUtil
     }
 
     public static Object getMappedPropertyValue(Object value, String key) {
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             return null;
         }
         Map innerMap = (Map) value;
@@ -202,12 +181,10 @@ public class BaseNestableEventUtil
     }
 
     public static boolean getMappedPropertyExists(Object value, String key) {
-        if (value == null)
-        {
+        if (value == null) {
             return false;
         }
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             return false;
         }
         Map innerMap = (Map) value;
@@ -232,32 +209,26 @@ public class BaseNestableEventUtil
     }
 
     public static Object getIndexedValue(Object value, int index) {
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return null;
         }
-        if (index >= Array.getLength(value))
-        {
+        if (index >= Array.getLength(value)) {
             return null;
         }
         return Array.get(value, index);
     }
 
     public static boolean isExistsIndexedValue(Object value, int index) {
-        if (value == null)
-        {
+        if (value == null) {
             return false;
         }
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return false;
         }
-        if (index >= Array.getLength(value))
-        {
+        if (index >= Array.getLength(value)) {
             return false;
         }
         return true;
@@ -278,20 +249,16 @@ public class BaseNestableEventUtil
             Object[] subEvents = (Object[]) value;
 
             int countNull = 0;
-            for (Object subEvent : subEvents)
-            {
-                if (subEvent != null)
-                {
+            for (Object subEvent : subEvents) {
+                if (subEvent != null) {
                     countNull++;
                 }
             }
 
             EventBean[] outEvents = new EventBean[countNull];
             int count = 0;
-            for (Object item : subEvents)
-            {
-                if (item != null)
-                {
+            for (Object item : subEvents) {
+                if (item != null) {
                     outEvents[count++] = BaseNestableEventUtil.getFragmentNonPojo(eventAdapterService, item, fragmentEventType);
                 }
             }
@@ -299,27 +266,22 @@ public class BaseNestableEventUtil
             return outEvents;
         }
 
-        if (!(value instanceof Map[]))
-        {
+        if (!(value instanceof Map[])) {
             return null;
         }
         Map[] mapTypedSubEvents = (Map[]) value;
 
         int countNull = 0;
-        for (Map map : mapTypedSubEvents)
-        {
-            if (map != null)
-            {
+        for (Map map : mapTypedSubEvents) {
+            if (map != null) {
                 countNull++;
             }
         }
 
         EventBean[] mapEvents = new EventBean[countNull];
         int count = 0;
-        for (Map map : mapTypedSubEvents)
-        {
-            if (map != null)
-            {
+        for (Map map : mapTypedSubEvents) {
+            if (map != null) {
                 mapEvents[count++] = eventAdapterService.adapterForTypedMap(map, fragmentEventType);
             }
         }
@@ -329,21 +291,17 @@ public class BaseNestableEventUtil
 
     public static Object getBeanArrayValue(BeanEventPropertyGetter nestedGetter, Object value, int index) {
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             return null;
         }
-        if (Array.getLength(value) <= index)
-        {
+        if (Array.getLength(value) <= index) {
             return null;
         }
         Object arrayItem = Array.get(value, index);
-        if (arrayItem == null)
-        {
+        if (arrayItem == null) {
             return null;
         }
 
@@ -351,8 +309,7 @@ public class BaseNestableEventUtil
     }
 
     public static Object getFragmentPojo(Object result, BeanEventType eventType, EventAdapterService eventAdapterService) {
-        if (result == null)
-        {
+        if (result == null) {
             return null;
         }
         if (result instanceof EventBean[]) {
@@ -361,8 +318,7 @@ public class BaseNestableEventUtil
         if (result instanceof EventBean) {
             return result;
         }
-        if (result.getClass().isArray())
-        {
+        if (result.getClass().isArray()) {
             int len = Array.getLength(result);
             EventBean[] events = new EventBean[len];
             for (int i = 0; i < events.length; i++) {
@@ -374,12 +330,10 @@ public class BaseNestableEventUtil
     }
 
     public static Object getArrayPropertyValue(EventBean[] wrapper, int index, EventPropertyGetter nestedGetter) {
-        if (wrapper == null)
-        {
+        if (wrapper == null) {
             return null;
         }
-        if (wrapper.length <= index)
-        {
+        if (wrapper.length <= index) {
             return null;
         }
         EventBean innerArrayEvent = wrapper[index];
@@ -387,12 +341,10 @@ public class BaseNestableEventUtil
     }
 
     public static Object getArrayPropertyFragment(EventBean[] wrapper, int index, EventPropertyGetter nestedGetter) {
-        if (wrapper == null)
-        {
+        if (wrapper == null) {
             return null;
         }
-        if (wrapper.length <= index)
-        {
+        if (wrapper.length <= index) {
             return null;
         }
         EventBean innerArrayEvent = wrapper[index];
@@ -400,12 +352,10 @@ public class BaseNestableEventUtil
     }
 
     public static Object getArrayPropertyUnderlying(EventBean[] wrapper, int index) {
-        if (wrapper == null)
-        {
+        if (wrapper == null) {
             return null;
         }
-        if (wrapper.length <= index)
-        {
+        if (wrapper.length <= index) {
             return null;
         }
 
@@ -413,12 +363,10 @@ public class BaseNestableEventUtil
     }
 
     public static Object getArrayPropertyBean(EventBean[] wrapper, int index) {
-        if (wrapper == null)
-        {
+        if (wrapper == null) {
             return null;
         }
-        if (wrapper.length <= index)
-        {
+        if (wrapper.length <= index) {
             return null;
         }
 
@@ -426,11 +374,9 @@ public class BaseNestableEventUtil
     }
 
     public static Object getArrayPropertyAsUnderlyingsArray(Class underlyingType, EventBean[] wrapper) {
-        if (wrapper !=  null)
-        {
+        if (wrapper != null) {
             Object array = Array.newInstance(underlyingType, wrapper.length);
-            for (int i = 0; i < wrapper.length; i++)
-            {
+            for (int i = 0; i < wrapper.length; i++) {
                 Array.set(array, i, wrapper[i].getUnderlying());
             }
             return array;
@@ -450,59 +396,43 @@ public class BaseNestableEventUtil
         if (!setTwoTypeFound) {
             return "The property '" + propName + "' is not provided but required";
         }
-        if (setTwoType == null)
-        {
+        if (setTwoType == null) {
             return null;
         }
-        if (setOneType == null)
-        {
+        if (setOneType == null) {
             return "Type by name '" + otherName + "' in property '" + propName + "' incompatible with null-type or property name not found in target";
         }
 
-        if ((setTwoType instanceof Class) && (setOneType instanceof Class))
-        {
+        if ((setTwoType instanceof Class) && (setOneType instanceof Class)) {
             Class boxedOther = JavaClassHelper.getBoxedType((Class) setTwoType);
-            Class boxedThis = JavaClassHelper.getBoxedType((Class)setOneType);
-            if (!boxedOther.equals(boxedThis))
-            {
+            Class boxedThis = JavaClassHelper.getBoxedType((Class) setOneType);
+            if (!boxedOther.equals(boxedThis)) {
                 if (!JavaClassHelper.isSubclassOrImplementsInterface(boxedOther, boxedThis)) {
                     return "Type by name '" + otherName + "' in property '" + propName + "' expected " + boxedThis + " but receives " + boxedOther;
                 }
             }
-        }
-        else if ((setTwoType instanceof BeanEventType) && (setOneType instanceof Class))
-        {
-            Class boxedOther = JavaClassHelper.getBoxedType(((BeanEventType)setTwoType).getUnderlyingType());
-            Class boxedThis = JavaClassHelper.getBoxedType((Class)setOneType);
-            if (!boxedOther.equals(boxedThis))
-            {
+        } else if ((setTwoType instanceof BeanEventType) && (setOneType instanceof Class)) {
+            Class boxedOther = JavaClassHelper.getBoxedType(((BeanEventType) setTwoType).getUnderlyingType());
+            Class boxedThis = JavaClassHelper.getBoxedType((Class) setOneType);
+            if (!boxedOther.equals(boxedThis)) {
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected " + boxedThis + " but receives " + boxedOther;
             }
-        }
-        else if (setTwoType instanceof EventType[] && ((EventType[])setTwoType)[0] instanceof BeanEventType && setOneType instanceof Class && ((Class) setOneType).isArray())
-        {
-            Class boxedOther = JavaClassHelper.getBoxedType((((EventType[])setTwoType)[0]).getUnderlyingType());
-            Class boxedThis = JavaClassHelper.getBoxedType(((Class)setOneType).getComponentType());
-            if (!boxedOther.equals(boxedThis))
-            {
+        } else if (setTwoType instanceof EventType[] && ((EventType[]) setTwoType)[0] instanceof BeanEventType && setOneType instanceof Class && ((Class) setOneType).isArray()) {
+            Class boxedOther = JavaClassHelper.getBoxedType((((EventType[]) setTwoType)[0]).getUnderlyingType());
+            Class boxedThis = JavaClassHelper.getBoxedType(((Class) setOneType).getComponentType());
+            if (!boxedOther.equals(boxedThis)) {
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected " + boxedThis + " but receives " + boxedOther;
             }
-        }
-        else if ((setTwoType instanceof Map) && (setOneType instanceof Map))
-        {
-            String messageIsDeepEquals = BaseNestableEventType.isDeepEqualsProperties(propName, (Map<String, Object>)setOneType, (Map<String, Object>)setTwoType);
-            if (messageIsDeepEquals != null)
-            {
+        } else if ((setTwoType instanceof Map) && (setOneType instanceof Map)) {
+            String messageIsDeepEquals = BaseNestableEventType.isDeepEqualsProperties(propName, (Map<String, Object>) setOneType, (Map<String, Object>) setTwoType);
+            if (messageIsDeepEquals != null) {
                 return messageIsDeepEquals;
             }
-        }
-        else if ((setTwoType instanceof EventType) && (setOneType instanceof EventType))
-        {
+        } else if ((setTwoType instanceof EventType) && (setOneType instanceof EventType)) {
             boolean mismatch;
             if (setTwoType instanceof EventTypeSPI && setOneType instanceof EventTypeSPI) {
                 mismatch = !((EventTypeSPI) setOneType).equalsCompareType((EventTypeSPI) setTwoType);
-            }
-            else {
+            } else {
                 mismatch = !setOneType.equals(setTwoType);
             }
             if (mismatch) {
@@ -510,50 +440,36 @@ public class BaseNestableEventUtil
                 EventType setTwoEventType = (EventType) setTwoType;
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneEventType.getName() + "' but receives event type '" + setTwoEventType.getName() + "'";
             }
-        }
-        else if ((setTwoType instanceof String) && (setOneType instanceof EventType))
-        {
+        } else if ((setTwoType instanceof String) && (setOneType instanceof EventType)) {
             EventType setOneEventType = (EventType) setOneType;
             String setTwoEventType = (String) setTwoType;
-            if (!EventTypeUtility.isTypeOrSubTypeOf(setTwoEventType, setOneEventType))
-            {
+            if (!EventTypeUtility.isTypeOrSubTypeOf(setTwoEventType, setOneEventType)) {
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneEventType.getName() + "' but receives event type '" + setTwoEventType + "'";
             }
-        }
-        else if ((setTwoType instanceof EventType) && (setOneType instanceof String))
-        {
+        } else if ((setTwoType instanceof EventType) && (setOneType instanceof String)) {
             EventType setTwoEventType = (EventType) setTwoType;
             String setOneEventType = (String) setOneType;
-            if (!EventTypeUtility.isTypeOrSubTypeOf(setOneEventType, setTwoEventType))
-            {
+            if (!EventTypeUtility.isTypeOrSubTypeOf(setOneEventType, setTwoEventType)) {
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneEventType + "' but receives event type '" + setTwoEventType.getName() + "'";
             }
-        }
-        else if ((setTwoType instanceof String) && (setOneType instanceof String))
-        {
-            if (!setTwoType.equals(setOneType))
-            {
+        } else if ((setTwoType instanceof String) && (setOneType instanceof String)) {
+            if (!setTwoType.equals(setOneType)) {
                 String setOneEventType = (String) setOneType;
                 String setTwoEventType = (String) setTwoType;
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneEventType + "' but receives event type '" + setTwoEventType + "'";
             }
-        }
-        else if ((setTwoType instanceof EventType[]) && (setOneType instanceof String))
-        {
+        } else if ((setTwoType instanceof EventType[]) && (setOneType instanceof String)) {
             EventType[] setTwoTypeArr = (EventType[]) setTwoType;
             EventType setTwoFragmentType = setTwoTypeArr[0];
-            String setOneTypeString = (String)setOneType;
+            String setOneTypeString = (String) setOneType;
             if (!(setOneTypeString.endsWith("[]"))) {
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneType + "' but receives event type '" + setTwoFragmentType.getName() + "[]'";
             }
-            String setOneTypeNoArray = (setOneTypeString).replaceAll("\\[\\]", "");
-            if (!(setTwoFragmentType.getName().equals(setOneTypeNoArray)))
-            {
+            String setOneTypeNoArray = setOneTypeString.replaceAll("\\[\\]", "");
+            if (!(setTwoFragmentType.getName().equals(setOneTypeNoArray))) {
                 return "Type by name '" + otherName + "' in property '" + propName + "' expected event type '" + setOneTypeNoArray + "[]' but receives event type '" + setTwoFragmentType.getName() + "'";
             }
-        }
-        else
-        {
+        } else {
             String typeOne = getTypeName(setOneType);
             String typeTwo = getTypeName(setTwoType);
             if (typeOne.equals(typeTwo)) {
@@ -565,22 +481,18 @@ public class BaseNestableEventUtil
         return null;
     }
 
-    private static String getTypeName(Object type)
-    {
-        if (type == null)
-        {
+    private static String getTypeName(Object type) {
+        if (type == null) {
             return "null";
         }
-        if (type instanceof Class)
-        {
+        if (type instanceof Class) {
             return ((Class) type).getName();
         }
-        if (type instanceof EventType)
-        {
-            return "event type '" + ((EventType)type).getName() + "'";
+        if (type instanceof EventType) {
+            return "event type '" + ((EventType) type).getName() + "'";
         }
         if (type instanceof String) {
-            Class boxedType = JavaClassHelper.getBoxedType(JavaClassHelper.getPrimitiveClassForName((String)type));
+            Class boxedType = JavaClassHelper.getBoxedType(JavaClassHelper.getPrimitiveClassForName((String) type));
             if (boxedType != null) {
                 return boxedType.getName();
             }

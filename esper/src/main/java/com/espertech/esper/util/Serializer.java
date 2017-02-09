@@ -16,6 +16,8 @@ import java.io.IOException;
 
 public interface Serializer<T> {
     public boolean accepts(Class c);
+
     public void serialize(T object, DataOutputStream stream) throws IOException;
+
     public T deserialize(DataInputStream stream) throws IOException;
 }

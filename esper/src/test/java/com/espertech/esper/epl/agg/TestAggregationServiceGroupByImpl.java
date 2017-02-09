@@ -12,37 +12,33 @@ package com.espertech.esper.epl.agg;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.agg.service.AggSvcGroupByNoAccessImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.supportunit.epl.SupportAggregatorFactory;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
-public class TestAggregationServiceGroupByImpl extends TestCase
-{
+public class TestAggregationServiceGroupByImpl extends TestCase {
     private AggSvcGroupByNoAccessImpl service;
     private MultiKeyUntyped groupOneKey;
     private MultiKeyUntyped groupTwoKey;
 
-    public void setUp()
-    {
+    public void setUp() {
         SupportAggregatorFactory aggregators[] = new SupportAggregatorFactory[2];
-        for (int i = 0; i < aggregators.length; i++)
-        {
+        for (int i = 0; i < aggregators.length; i++) {
             aggregators[i] = new SupportAggregatorFactory();
         }
-        ExprEvaluator evaluators[] = new ExprEvaluator[] { new SupportExprNode(5).getExprEvaluator(), new SupportExprNode(2).getExprEvaluator() };
+        ExprEvaluator[] evaluators = new ExprEvaluator[]{new SupportExprNode(5).getExprEvaluator(), new SupportExprNode(2).getExprEvaluator()};
 
         service = new AggSvcGroupByNoAccessImpl(evaluators, aggregators);
 
-        groupOneKey = new MultiKeyUntyped(new Object[] {"x", "y1"});
-        groupTwoKey = new MultiKeyUntyped(new Object[] {"x", "y2"});
+        groupOneKey = new MultiKeyUntyped(new Object[]{"x", "y1"});
+        groupTwoKey = new MultiKeyUntyped(new Object[]{"x", "y2"});
     }
 
-    public void testGetValue()
-    {
+    public void testGetValue() {
         ExprEvaluatorContext exprEvaluatorContext = SupportStatementContextFactory.makeEvaluatorContext();
         // apply 3 rows to group key 1, all aggregators evaluated their sub-expressions(constants 5 and 2)
         service.applyEnter(new EventBean[1], groupOneKey, exprEvaluatorContext);

@@ -25,7 +25,8 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
 
     /**
      * Ctor.
-     * @param propertyIndex the property to look at
+     *
+     * @param propertyIndex        the property to look at
      * @param eventBeanEntryGetter the getter for the map entry
      */
     public ObjectArrayEventBeanEntryPropertyGetter(int propertyIndex, EventPropertyGetter eventBeanEntryGetter) {
@@ -33,13 +34,11 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
         this.eventBeanEntryGetter = eventBeanEntryGetter;
     }
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = array[propertyIndex];
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
 
@@ -48,28 +47,23 @@ public class ObjectArrayEventBeanEntryPropertyGetter implements ObjectArrayEvent
         return eventBeanEntryGetter.get(theEvent);
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getObjectArray(BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj)[propertyIndex];
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
 

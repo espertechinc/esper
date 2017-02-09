@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.example.cycledetect;
 
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
-import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateContext;
+import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 
 public class CycleDetectorAggregationStateFactory implements PlugInAggregationMultiFunctionStateFactory {
 

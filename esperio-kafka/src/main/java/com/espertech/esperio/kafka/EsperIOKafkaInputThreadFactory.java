@@ -8,7 +8,9 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio.kafka;import java.util.concurrent.ThreadFactory;
+package com.espertech.esperio.kafka;
+
+import java.util.concurrent.ThreadFactory;
 
 public class EsperIOKafkaInputThreadFactory implements ThreadFactory {
     private final ThreadGroup threadGroup;
@@ -17,8 +19,7 @@ public class EsperIOKafkaInputThreadFactory implements ThreadFactory {
         this.threadGroup = new ThreadGroup("esperio__kafkainput__" + engineURI);
     }
 
-    public Thread newThread(Runnable runnable)
-    {
+    public Thread newThread(Runnable runnable) {
         String name = threadGroup.getName();
         Thread t = new Thread(threadGroup, runnable, name);
         t.setDaemon(true);

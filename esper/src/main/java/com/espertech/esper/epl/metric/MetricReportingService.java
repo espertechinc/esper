@@ -14,19 +14,20 @@ import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.core.service.EPServicesContext;
 
 /**
- * Metrics reporting service for instrumentation data publishing, if enabled. 
+ * Metrics reporting service for instrumentation data publishing, if enabled.
  */
-public interface MetricReportingService
-{
+public interface MetricReportingService {
     /**
      * Sets runtime and services.
-     * @param runtime runtime
+     *
+     * @param runtime         runtime
      * @param servicesContext services
      */
     public void setContext(EPRuntime runtime, EPServicesContext servicesContext);
 
     /**
      * Indicates current engine time.
+     *
      * @param currentTime engine time
      */
     public void processTimeEvent(long currentTime);
@@ -38,16 +39,18 @@ public interface MetricReportingService
 
     /**
      * Account for statement CPU and wall time.
+     *
      * @param metricsHandle statement handle
-     * @param deltaCPU cpu time nsec
-     * @param deltaWall wall time nsec
-     * @param numInput number of input rows
+     * @param deltaCPU      cpu time nsec
+     * @param deltaWall     wall time nsec
+     * @param numInput      number of input rows
      */
     public void accountTime(StatementMetricHandle metricsHandle, long deltaCPU, long deltaWall, int numInput);
 
     /**
      * Account for statement output row counting.
-     * @param handle statement handle
+     *
+     * @param handle     statement handle
      * @param numIStream number of insert stream rows
      * @param numRStream number of remove stream rows
      */
@@ -55,7 +58,8 @@ public interface MetricReportingService
 
     /**
      * Returns for a new statement a handle for later accounting.
-     * @param statementId statement id
+     *
+     * @param statementId   statement id
      * @param statementName statement name
      * @return handle
      */
@@ -63,19 +67,22 @@ public interface MetricReportingService
 
     /**
      * Change the reporting interval for the given statement group name.
+     *
      * @param stmtGroupName group name
-     * @param newInterval new interval, or zero or negative value to disable reporting
+     * @param newInterval   new interval, or zero or negative value to disable reporting
      */
     public void setMetricsReportingInterval(String stmtGroupName, long newInterval);
 
     /**
      * Disable metrics reporting for statement.
+     *
      * @param statementName statement name
      */
     public void setMetricsReportingStmtDisabled(String statementName);
 
     /**
      * Enable metrics reporting for statement.
+     *
      * @param statementName statement name
      */
     public void setMetricsReportingStmtEnabled(String statementName);

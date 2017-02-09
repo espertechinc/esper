@@ -22,8 +22,7 @@ import java.util.Arrays;
  * Index factory that organizes events by the event property values into hash buckets. Based on a HashMap
  * with {@link com.espertech.esper.collection.MultiKeyUntyped} keys that store the property values.
  */
-public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFactory
-{
+public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String[] propertyNames;
     protected final boolean unique;
@@ -31,8 +30,7 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
 
     protected final EventPropertyGetter[] propertyGetters;
 
-    public PropertyIndexedEventTableSingleArrayFactory(int streamNum, EventType eventType, String[] propertyNames, boolean unique, String optionalIndexName)
-    {
+    public PropertyIndexedEventTableSingleArrayFactory(int streamNum, EventType eventType, String[] propertyNames, boolean unique, String optionalIndexName) {
         this.streamNum = streamNum;
         this.propertyNames = propertyNames;
         this.unique = unique;
@@ -49,13 +47,12 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
         EventTable[] tables = new EventTable[propertyGetters.length];
         if (unique) {
             for (int i = 0; i < tables.length; i++) {
-                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganizationType.HASH);
+                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[]{propertyNames[i]}, EventTableOrganizationType.HASH);
                 tables[i] = new PropertyIndexedEventTableSingleUnique(propertyGetters[i], organization);
             }
-        }
-        else {
+        } else {
             for (int i = 0; i < tables.length; i++) {
-                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyNames[i]}, EventTableOrganizationType.HASH);
+                EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[]{propertyNames[i]}, EventTableOrganizationType.HASH);
                 tables[i] = new PropertyIndexedEventTableSingleUnadorned(propertyGetters[i], organization);
             }
         }
@@ -65,8 +62,7 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
     public Class getEventTableClass() {
         if (unique) {
             return PropertyIndexedEventTableSingleUnique.class;
-        }
-        else {
+        } else {
             return PropertyIndexedEventTableSingle.class;
         }
     }

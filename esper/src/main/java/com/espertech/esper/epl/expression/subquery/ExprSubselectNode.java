@@ -27,11 +27,10 @@ import java.util.List;
 /**
  * Represents a subselect in an expression tree.
  */
-public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration, ExprEvaluatorTypableReturn
-{
+public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration, ExprEvaluatorTypableReturn {
     public static final ExprSubselectNode[] EMPTY_SUBSELECT_ARRAY = new ExprSubselectNode[0];
     private static final long serialVersionUID = -2469169635913155764L;
-    
+
     /**
      * The validated select clause.
      */
@@ -63,15 +62,19 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     /**
      * Evaluate the lookup expression returning an evaluation result object.
-     * @param eventsPerStream is the events for each stream in a join
-     * @param isNewData is true for new data, or false for old data
-     * @param matchingEvents is filtered results from the table of stored lookup events
+     *
+     * @param eventsPerStream      is the events for each stream in a join
+     * @param isNewData            is true for new data, or false for old data
+     * @param matchingEvents       is filtered results from the table of stored lookup events
      * @param exprEvaluatorContext context for expression evalauation
      * @return evaluation result
      */
     public abstract Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract Collection<EventBean> evaluateGetCollEvents(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract Collection evaluateGetCollScalar(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext);
 
     public abstract boolean isAllowMultiColumnSelect();
@@ -79,25 +82,25 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
     public abstract void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException;
 
     public abstract LinkedHashMap<String, Object> typableGetRowProperties() throws ExprValidationException;
+
     public abstract Object[] evaluateTypableSingle(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract Object[][] evaluateTypableMulti(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Ctor.
+     *
      * @param statementSpec is the lookup statement spec from the parser, unvalidated
      */
-    public ExprSubselectNode(StatementSpecRaw statementSpec)
-    {
+    public ExprSubselectNode(StatementSpecRaw statementSpec) {
         this.statementSpecRaw = statementSpec;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
@@ -109,36 +112,35 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     /**
      * Supplies a compiled statement spec.
+     *
      * @param statementSpecCompiled compiled validated filters
-     * @param subselectNumber subselect assigned number
+     * @param subselectNumber       subselect assigned number
      */
-    public void setStatementSpecCompiled(StatementSpecCompiled statementSpecCompiled, int subselectNumber)
-    {
+    public void setStatementSpecCompiled(StatementSpecCompiled statementSpecCompiled, int subselectNumber) {
         this.statementSpecCompiled = statementSpecCompiled;
         this.subselectNumber = subselectNumber;
     }
 
     /**
      * Returns the compiled statement spec.
+     *
      * @return compiled statement
      */
-    public StatementSpecCompiled getStatementSpecCompiled()
-    {
+    public StatementSpecCompiled getStatementSpecCompiled() {
         return statementSpecCompiled;
     }
 
     /**
      * Sets the validate select clause
+     *
      * @param selectClause is the expression representing the select clause
      */
-    public void setSelectClause(ExprNode[] selectClause)
-    {
+    public void setSelectClause(ExprNode[] selectClause) {
         this.selectClause = selectClause;
         this.selectClauseEvaluator = ExprNodeUtility.getEvaluators(selectClause);
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprSubselect(this);
             Collection<EventBean> matchingEvents = evaluateMatching(eventsPerStream, exprEvaluatorContext);
@@ -189,34 +191,33 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     /**
      * Returns the uncompiled statement spec.
+     *
      * @return statement spec uncompiled
      */
-    public StatementSpecRaw getStatementSpecRaw()
-    {
+    public StatementSpecRaw getStatementSpecRaw() {
         return statementSpecRaw;
     }
 
     /**
      * Supplies the name of the select expression as-tag
+     *
      * @param selectAsNames is the as-name(s)
      */
-    public void setSelectAsNames(String[] selectAsNames)
-    {
+    public void setSelectAsNames(String[] selectAsNames) {
         this.selectAsNames = selectAsNames;
     }
 
     /**
      * Sets the validated filter expression, or null if there is none.
+     *
      * @param filterExpr is the filter
      */
-    public void setFilterExpr(ExprEvaluator filterExpr)
-    {
+    public void setFilterExpr(ExprEvaluator filterExpr) {
         this.filterExpr = filterExpr;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        if ((selectAsNames != null) && (selectAsNames[0] != null))
-        {
+        if ((selectAsNames != null) && (selectAsNames[0] != null)) {
             writer.append(selectAsNames[0]);
             return;
         }
@@ -228,71 +229,70 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         return false;   // 2 subselects are never equivalent
     }
 
     /**
      * Sets the strategy for boiling down the table of lookup events into a subset against which to run the filter.
+     *
      * @param strategy is the looking strategy (full table scan or indexed)
      */
-    public void setStrategy(ExprSubselectStrategy strategy)
-    {
+    public void setStrategy(ExprSubselectStrategy strategy) {
         this.strategy = strategy;
     }
 
     /**
      * Sets the event type generated for wildcard selects.
+     *
      * @param rawEventType is the wildcard type (parent view)
      */
-    public void setRawEventType(EventType rawEventType)
-    {
+    public void setRawEventType(EventType rawEventType) {
         this.rawEventType = rawEventType;
     }
 
     /**
      * Returns the select clause or null if none.
+     *
      * @return clause
      */
-    public ExprNode[] getSelectClause()
-    {
+    public ExprNode[] getSelectClause() {
         return selectClause;
     }
 
     /**
      * Returns filter expr or null if none.
+     *
      * @return filter
      */
-    public ExprEvaluator getFilterExpr()
-    {
+    public ExprEvaluator getFilterExpr() {
         return filterExpr;
     }
 
     /**
      * Returns the event type.
+     *
      * @return type
      */
-    public EventType getRawEventType()
-    {
+    public EventType getRawEventType() {
         return rawEventType;
     }
 
     /**
      * Return stream types.
+     *
      * @return types
      */
-    public StreamTypeService getFilterSubqueryStreamTypes()
-    {
+    public StreamTypeService getFilterSubqueryStreamTypes() {
         return filterSubqueryStreamTypes;
     }
 
     /**
      * Set stream types.
+     *
      * @param filterSubqueryStreamTypes types
      */
-    public void setFilterSubqueryStreamTypes(StreamTypeService filterSubqueryStreamTypes)
-    {
+    public void setFilterSubqueryStreamTypes(StreamTypeService filterSubqueryStreamTypes) {
         this.filterSubqueryStreamTypes = filterSubqueryStreamTypes;
     }
 

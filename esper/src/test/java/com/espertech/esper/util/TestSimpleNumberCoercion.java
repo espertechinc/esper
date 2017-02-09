@@ -12,13 +12,11 @@ package com.espertech.esper.util;
 
 import junit.framework.TestCase;
 
-import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
-public class TestSimpleNumberCoercion extends TestCase
-{
-    public void testGetCoercer()
-    {
+public class TestSimpleNumberCoercion extends TestCase {
+    public void testGetCoercer() {
         assertEquals(1d, SimpleNumberCoercerFactory.getCoercer(null, Double.class).coerceBoxed(1d));
         assertEquals(1d, SimpleNumberCoercerFactory.getCoercer(Double.class, Double.class).coerceBoxed(1d));
         assertEquals(5d, SimpleNumberCoercerFactory.getCoercer(Integer.class, Double.class).coerceBoxed(5));
@@ -39,13 +37,10 @@ public class TestSimpleNumberCoercion extends TestCase
         assertEquals(BigInteger.valueOf(9), SimpleNumberCoercerFactory.getCoercerBigInteger(long.class).coerceBoxedBigInt(9));
         assertEquals(BigInteger.TEN, SimpleNumberCoercerFactory.getCoercerBigInteger(BigInteger.class).coerceBoxedBigInt(BigInteger.TEN));
 
-        try
-        {
+        try {
             JavaClassHelper.coerceBoxed(10, int.class);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected
         }
     }

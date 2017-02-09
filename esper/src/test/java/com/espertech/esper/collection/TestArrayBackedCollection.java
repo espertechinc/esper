@@ -13,17 +13,14 @@ package com.espertech.esper.collection;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
 
-public class TestArrayBackedCollection extends TestCase
-{
+public class TestArrayBackedCollection extends TestCase {
     private ArrayBackedCollection<Integer> coll;
 
-    public void setUp()
-    {
+    public void setUp() {
         coll = new ArrayBackedCollection<Integer>(5);
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         assertEquals(0, coll.size());
         assertEquals(5, coll.getArray().length);
 

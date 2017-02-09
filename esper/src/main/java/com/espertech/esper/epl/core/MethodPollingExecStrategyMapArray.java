@@ -19,8 +19,7 @@ import net.sf.cglib.reflect.FastMethod;
 
 import java.util.Map;
 
-public class MethodPollingExecStrategyMapArray extends MethodPollingExecStrategyBaseArray
-{
+public class MethodPollingExecStrategyMapArray extends MethodPollingExecStrategyBaseArray {
     public MethodPollingExecStrategyMapArray(EventAdapterService eventAdapterService, FastMethod method, EventType eventType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, VariableReader variableReader, String variableName, VariableService variableService) {
         super(eventAdapterService, method, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
     }

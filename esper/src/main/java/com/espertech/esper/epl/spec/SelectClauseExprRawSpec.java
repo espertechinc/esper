@@ -19,8 +19,7 @@ import com.espertech.esper.epl.parse.ASTConstantHelper;
  * <p>
  * Compare to {@link SelectClauseExprCompiledSpec} which carries a determined name.
  */
-public class SelectClauseExprRawSpec implements SelectClauseElementRaw
-{
+public class SelectClauseExprRawSpec implements SelectClauseElementRaw {
     private ExprNode selectExpression;
     private String optionalAsName;
     private boolean isEvents;
@@ -28,12 +27,12 @@ public class SelectClauseExprRawSpec implements SelectClauseElementRaw
 
     /**
      * Ctor.
+     *
      * @param selectExpression - the expression node to evaluate for matching events
-     * @param optionalAsName - the name of the item, null if not name supplied
-     * @param isEvents - whether event selected
+     * @param optionalAsName   - the name of the item, null if not name supplied
+     * @param isEvents         - whether event selected
      */
-    public SelectClauseExprRawSpec(ExprNode selectExpression, String optionalAsName, boolean isEvents)
-    {
+    public SelectClauseExprRawSpec(ExprNode selectExpression, String optionalAsName, boolean isEvents) {
         this.selectExpression = selectExpression;
         this.optionalAsName = optionalAsName == null ? null : ASTConstantHelper.removeTicks(optionalAsName);
         this.isEvents = isEvents;
@@ -41,19 +40,19 @@ public class SelectClauseExprRawSpec implements SelectClauseElementRaw
 
     /**
      * Returns the expression node representing the item in the select clause.
+     *
      * @return expression node for item
      */
-    public ExprNode getSelectExpression()
-    {
+    public ExprNode getSelectExpression() {
         return selectExpression;
     }
 
     /**
      * Returns the name of the item in the select clause.
+     *
      * @return name of item
      */
-    public String getOptionalAsName()
-    {
+    public String getOptionalAsName() {
         return optionalAsName;
     }
 

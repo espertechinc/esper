@@ -39,10 +39,10 @@ import com.espertech.esper.dataflow.util.GraphTypeDesc;
 import com.espertech.esper.epl.agg.rollup.GroupByExpressionHelper;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.spec.util.StatementSpecRawAnalyzer;
@@ -194,7 +194,10 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
                 final EPLSelectViewable viewable = found;
                 return new ViewableActivator() {
                     public ViewableActivationResult activate(AgentInstanceContext agentInstanceContext, boolean isSubselect, boolean isRecoveringResilient) {
-                        return new ViewableActivationResult(viewable, new StopCallback() {public void stop() {}}, null, null, null, false, false, null);
+                        return new ViewableActivationResult(viewable, new StopCallback() {
+                            public void stop() {
+                            }
+                        }, null, null, null, false, false, null);
                     }
                 };
             }
@@ -251,7 +254,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
 
         EventType outputEventType = selectDesc.getResultSetProcessorPrototypeDesc().getResultSetProcessorFactory().getResultEventType();
         this.agentInstanceContext = agentInstanceContext;
-        return new DataFlowOpInitializeResult(new GraphTypeDesc[] {new GraphTypeDesc(false, true, outputEventType)});
+        return new DataFlowOpInitializeResult(new GraphTypeDesc[]{new GraphTypeDesc(false, true, outputEventType)});
     }
 
     private String[] getInputPortNames(Map<Integer, DataFlowOpInputPort> inputPorts) {
@@ -293,8 +296,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
             if (viewablesPerPort.length > 1) {
                 agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable().execute();
             }
-        }
-        finally {
+        } finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {
                 agentInstanceContext.getStatementContext().getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
@@ -306,12 +308,11 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
         if (iterate && signal instanceof EPDataFlowSignalFinalMarker) {
             Iterator<EventBean> it = selectResult.getFinalView().iterator();
             if (it != null) {
-                for (;it.hasNext();) {
+                for (; it.hasNext(); ) {
                     EventBean event = it.next();
                     if (submitEventBean) {
                         graphContext.submit(event);
-                    }
-                    else {
+                    } else {
                         graphContext.submit(event.getUnderlying());
                     }
                 }
@@ -345,8 +346,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
         for (EventBean item : result.getFirst()) {
             if (submitEventBean) {
                 graphContext.submit(item);
-            }
-            else {
+            } else {
                 graphContext.submit(item.getUnderlying());
             }
         }

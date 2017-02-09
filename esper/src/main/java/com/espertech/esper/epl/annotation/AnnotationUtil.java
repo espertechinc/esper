@@ -26,20 +26,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 /**
  * Utility to handle EPL statement annotations.
  */
-public class AnnotationUtil
-{
+public class AnnotationUtil {
     private static final Logger log = LoggerFactory.getLogger(AnnotationUtil.class);
 
     public static Map<String, List<AnnotationDesc>> mapByNameLowerCase(List<AnnotationDesc> annotations) {
         Map<String, List<AnnotationDesc>> map = new HashMap<String, List<AnnotationDesc>>();
         for (AnnotationDesc desc : annotations) {
-            String key = desc.getName().toLowerCase();
+            String key = desc.getName().toLowerCase(Locale.ENGLISH);
 
             if (map.containsKey(key)) {
                 map.get(key).add(desc);
@@ -55,7 +57,7 @@ public class AnnotationUtil
 
     public static Object getValue(AnnotationDesc desc) {
         for (Pair<String, Object> pair : desc.getAttributes()) {
-            if (pair.getFirst().toLowerCase().equals("value")) {
+            if (pair.getFirst().toLowerCase(Locale.ENGLISH).equals("value")) {
                 return pair.getSecond();
             }
         }
@@ -64,24 +66,19 @@ public class AnnotationUtil
 
     /**
      * Compile annotation objects from descriptors.
-     * @param annotationSpec spec for annotations
+     *
+     * @param annotationSpec      spec for annotations
      * @param engineImportService engine imports
-     * @param eplStatement statement expression
+     * @param eplStatement        statement expression
      * @return annotations
      */
-    public static Annotation[] compileAnnotations(List<AnnotationDesc> annotationSpec, EngineImportService engineImportService, String eplStatement)
-    {
+    public static Annotation[] compileAnnotations(List<AnnotationDesc> annotationSpec, EngineImportService engineImportService, String eplStatement) {
         Annotation[] annotations;
-        try
-        {
+        try {
             annotations = AnnotationUtil.compileAnnotations(annotationSpec, engineImportService);
-        }
-        catch (AnnotationException e)
-        {
+        } catch (AnnotationException e) {
             throw new EPStatementException("Failed to process statement annotations: " + e.getMessage(), e, eplStatement);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             String message = "Unexpected exception compiling annotations in statement, please consult the log file and report the exception: " + ex.getMessage();
             log.error(message, ex);
             throw new EPStatementException(message, ex, eplStatement);
@@ -91,20 +88,18 @@ public class AnnotationUtil
 
     /**
      * Compiles annotations to an annotation array.
-     * @param desc a list of descriptors
+     *
+     * @param desc                a list of descriptors
      * @param engineImportService for resolving the annotation class
      * @return annotations or empty array if none
      * @throws AnnotationException if annotations could not be created
      */
     private static Annotation[] compileAnnotations(List<AnnotationDesc> desc, EngineImportService engineImportService)
-            throws AnnotationException
-    {
+            throws AnnotationException {
         Annotation[] annotations = new Annotation[desc.size()];
-        for (int i = 0; i < desc.size(); i++)
-        {
+        for (int i = 0; i < desc.size(); i++) {
             annotations[i] = createProxy(desc.get(i), engineImportService);
-            if (annotations[i] instanceof Hint)
-            {
+            if (annotations[i] instanceof Hint) {
                 HintEnum.validateGetListed(annotations[i]);
             }
         }
@@ -113,16 +108,12 @@ public class AnnotationUtil
     }
 
     private static Annotation createProxy(AnnotationDesc desc, EngineImportService engineImportService)
-            throws AnnotationException
-    {
+            throws AnnotationException {
         // resolve class
         final Class annotationClass;
-        try
-        {
+        try {
             annotationClass = engineImportService.resolveAnnotation(desc.getName());
-        }
-        catch (EngineImportException e)
-        {
+        } catch (EngineImportException e) {
             throw new AnnotationException("Failed to resolve @-annotation class: " + e.getMessage());
         }
 
@@ -130,33 +121,27 @@ public class AnnotationUtil
         List<AnnotationAttribute> annotationAttributeLists = getAttributes(annotationClass);
         Set<String> allAttributes = new HashSet<String>();
         Set<String> requiredAttributes = new LinkedHashSet<String>();
-        for (AnnotationAttribute annotationAttribute : annotationAttributeLists)
-        {
+        for (AnnotationAttribute annotationAttribute : annotationAttributeLists) {
             allAttributes.add(annotationAttribute.getName());
-            if (annotationAttribute.getDefaultValue() != null)
-            {
+            if (annotationAttribute.getDefaultValue() != null) {
                 requiredAttributes.add(annotationAttribute.getName());
             }
         }
 
         // get attribute values
         List<String> providedValues = new ArrayList<String>();
-        for (Pair<String, Object> annotationValuePair : desc.getAttributes())
-        {
+        for (Pair<String, Object> annotationValuePair : desc.getAttributes()) {
             providedValues.add(annotationValuePair.getFirst());
         }
 
         // for all attributes determine value
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-        for (AnnotationAttribute annotationAttribute : annotationAttributeLists)
-        {
+        for (AnnotationAttribute annotationAttribute : annotationAttributeLists) {
             // find value pair for this attribute
             String attributeName = annotationAttribute.getName();
             Pair<String, Object> pairFound = null;
-            for (Pair<String, Object> annotationValuePair : desc.getAttributes())
-            {
-                if (annotationValuePair.getFirst().equals(attributeName))
-                {
+            for (Pair<String, Object> annotationValuePair : desc.getAttributes()) {
+                if (annotationValuePair.getFirst().equals(attributeName)) {
                     pairFound = annotationValuePair;
                 }
             }
@@ -168,49 +153,39 @@ public class AnnotationUtil
             requiredAttributes.remove(attributeName);
         }
 
-        if (requiredAttributes.size() > 0)
-        {
+        if (requiredAttributes.size() > 0) {
             List<String> required = new ArrayList<String>(requiredAttributes);
             Collections.sort(required);
             throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a value for attribute '" + required.iterator().next() + "'");
         }
 
-        if (providedValues.size() > 0)
-        {
+        if (providedValues.size() > 0) {
             List<String> provided = new ArrayList<String>(providedValues);
             Collections.sort(provided);
-            if (allAttributes.contains(provided.get(0)))
-            {
+            if (allAttributes.contains(provided.get(0))) {
                 throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' has duplicate attribute values for attribute '" + provided.get(0) + "'");
-            }
-            else
-            {
+            } else {
                 throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' does not have an attribute '" + provided.get(0) + "'");
             }
         }
 
         // return handler
         InvocationHandler handler = new EPLAnnotationInvocationHandler(annotationClass, properties);
-        return (Annotation) Proxy.newProxyInstance(engineImportService.getClassLoader(), new Class[] {annotationClass}, handler);
+        return (Annotation) Proxy.newProxyInstance(engineImportService.getClassLoader(), new Class[]{annotationClass}, handler);
     }
 
-    private static Object getFinalValue(Class annotationClass, AnnotationAttribute annotationAttribute, Object value, EngineImportService engineImportService) throws AnnotationException
-    {
-        if (value == null)
-        {
-            if (annotationAttribute.getDefaultValue() == null)
-            {
+    private static Object getFinalValue(Class annotationClass, AnnotationAttribute annotationAttribute, Object value, EngineImportService engineImportService) throws AnnotationException {
+        if (value == null) {
+            if (annotationAttribute.getDefaultValue() == null) {
                 throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a value for attribute '" + annotationAttribute.getName() + "'");
             }
             return annotationAttribute.getDefaultValue();
         }
 
         // handle non-array
-        if (!annotationAttribute.getType().isArray())
-        {
+        if (!annotationAttribute.getType().isArray()) {
             // handle primitive value
-            if (!annotationAttribute.getType().isAnnotation())
-            {
+            if (!annotationAttribute.getType().isAnnotation()) {
                 // if expecting an enumeration type, allow string value
                 if (annotationAttribute.getType().isEnum() && JavaClassHelper.isImplementsInterface(value.getClass(), CharSequence.class)) {
                     String valueString = value.toString().trim();
@@ -224,10 +199,10 @@ public class AnnotationUtil
                     }
 
                     // find case-insensitive match
-                    String valueUppercase = valueString.toUpperCase();
+                    String valueUppercase = valueString.toUpperCase(Locale.ENGLISH);
                     for (Object constant : annotationAttribute.getType().getEnumConstants()) {
                         Enum e = (Enum) constant;
-                        if (e.name().toUpperCase().equals(valueUppercase)) {
+                        if (e.name().toUpperCase(Locale.ENGLISH).equals(valueUppercase)) {
                             return constant;
                         }
                     }
@@ -240,19 +215,15 @@ public class AnnotationUtil
                 // cast as required
                 SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(value.getClass(), annotationAttribute.getType());
                 Object finalValue = caster.cast(value);
-                if (finalValue == null)
-                {
+                if (finalValue == null) {
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
                             annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
                             "a " + value.getClass().getSimpleName() + "-typed value");
                 }
                 return finalValue;
-            }
-            else
-            {
+            } else {
                 // nested annotation
-                if (!(value instanceof AnnotationDesc))
-                {
+                if (!(value instanceof AnnotationDesc)) {
                     throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
                             annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
                             "a " + value.getClass().getSimpleName() + "-typed value");
@@ -261,26 +232,22 @@ public class AnnotationUtil
             }
         }
 
-        if (!value.getClass().isArray())
-        {
+        if (!value.getClass().isArray()) {
             throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
                     annotationAttribute.getType().getSimpleName() + "-typed value for attribute '" + annotationAttribute.getName() + "' but received " +
                     "a " + value.getClass().getSimpleName() + "-typed value");
         }
 
         Object array = Array.newInstance(annotationAttribute.getType().getComponentType(), Array.getLength(value));
-        for (int i = 0; i < Array.getLength(value); i++)
-        {
+        for (int i = 0; i < Array.getLength(value); i++) {
             Object arrayValue = Array.get(value, i);
-            if (arrayValue == null)
-            {
+            if (arrayValue == null) {
                 throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
                         "non-null value for array elements for attribute '" + annotationAttribute.getName() + "'");
             }
             SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(arrayValue.getClass(), annotationAttribute.getType().getComponentType());
             Object finalValue = caster.cast(arrayValue);
-            if (finalValue == null)
-            {
+            if (finalValue == null) {
                 throw new AnnotationException("Annotation '" + annotationClass.getSimpleName() + "' requires a " +
                         annotationAttribute.getType().getComponentType().getSimpleName() + "-typed value for array elements for attribute '" + annotationAttribute.getName() + "' but received " +
                         "a " + arrayValue.getClass().getSimpleName() + "-typed value");
@@ -290,41 +257,33 @@ public class AnnotationUtil
         return array;
     }
 
-    private static List<AnnotationAttribute> getAttributes(Class annotationClass)
-    {
+    private static List<AnnotationAttribute> getAttributes(Class annotationClass) {
         List<AnnotationAttribute> props = new ArrayList<AnnotationAttribute>();
         Method[] methods = annotationClass.getMethods();
-        if (methods == null)
-        {
+        if (methods == null) {
             return Collections.EMPTY_LIST;
         }
 
-        for (int i = 0; i < methods.length; i++)
-        {
-            if (methods[i].getReturnType() == void.class)
-            {
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].getReturnType() == void.class) {
                 continue;
             }
-            if (methods[i].getParameterTypes().length > 0)
-            {
+            if (methods[i].getParameterTypes().length > 0) {
                 continue;
             }
             if ((methods[i].getName().equals("class")) ||
-                (methods[i].getName().equals("getClass")) ||
-                (methods[i].getName().equals("toString")) ||
-                (methods[i].getName().equals("annotationType")) ||
-                (methods[i].getName().equals("hashCode")))
-            {
+                    (methods[i].getName().equals("getClass")) ||
+                    (methods[i].getName().equals("toString")) ||
+                    (methods[i].getName().equals("annotationType")) ||
+                    (methods[i].getName().equals("hashCode"))) {
                 continue;
             }
 
             props.add(new AnnotationAttribute(methods[i].getName(), methods[i].getReturnType(), methods[i].getDefaultValue()));
         }
 
-        Collections.sort(props, new Comparator<AnnotationAttribute>()
-        {
-            public int compare(AnnotationAttribute o1, AnnotationAttribute o2)
-            {
+        Collections.sort(props, new Comparator<AnnotationAttribute>() {
+            public int compare(AnnotationAttribute o1, AnnotationAttribute o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });

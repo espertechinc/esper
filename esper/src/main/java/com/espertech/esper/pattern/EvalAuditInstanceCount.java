@@ -12,8 +12,6 @@ package com.espertech.esper.pattern;
 
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.util.AuditPath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -48,8 +46,7 @@ public class EvalAuditInstanceCount {
         Integer count = counts.get(evalNode);
         if (count == null) {
             count = 1;
-        }
-        else {
+        } else {
             count++;
         }
         counts.put(evalNode, count);
@@ -66,8 +63,7 @@ public class EvalAuditInstanceCount {
 
         if (added) {
             writer.write(" increased to " + count);
-        }
-        else {
+        } else {
             writer.write(" decreased to " + count);
         }
 

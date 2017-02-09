@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Factory for union-views.
  */
-public class UnionViewFactory implements ViewFactory, DataWindowViewFactory, ViewFactoryContainer
-{
+public class UnionViewFactory implements ViewFactory, DataWindowViewFactory, ViewFactoryContainer {
     /**
      * The event type.
      */
@@ -40,42 +39,37 @@ public class UnionViewFactory implements ViewFactory, DataWindowViewFactory, Vie
      * Ctor.
      * Dependencies injected after reflective instantiation.
      */
-    public UnionViewFactory()
-    {
+    public UnionViewFactory() {
     }
 
     /**
      * Sets the parent event type.
+     *
      * @param parentEventType type
      */
-    public void setParentEventType(EventType parentEventType)
-    {
+    public void setParentEventType(EventType parentEventType) {
         this.parentEventType = parentEventType;
     }
 
     /**
      * Sets the view factories.
+     *
      * @param viewFactories factories
      */
-    public void setViewFactories(List<ViewFactory> viewFactories)
-    {
+    public void setViewFactories(List<ViewFactory> viewFactories) {
         this.viewFactories = viewFactories;
     }
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParameters) throws ViewParameterException {
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         boolean hasAsymetric = false;
         List<View> views = new ArrayList<View>();
-        for (ViewFactory viewFactory : viewFactories)
-        {
+        for (ViewFactory viewFactory : viewFactories) {
             views.add(viewFactory.makeView(agentInstanceViewFactoryContext));
             hasAsymetric |= viewFactory instanceof AsymetricDataWindowViewFactory;
         }
@@ -85,13 +79,11 @@ public class UnionViewFactory implements ViewFactory, DataWindowViewFactory, Vie
         return new UnionView(agentInstanceViewFactoryContext, this, parentEventType, views);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return parentEventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;
     }
 

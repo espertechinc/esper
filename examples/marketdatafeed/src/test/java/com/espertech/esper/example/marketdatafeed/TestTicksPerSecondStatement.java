@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.example.marketdatafeed;
 
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.client.time.TimerControlEvent;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
@@ -88,11 +88,10 @@ public class TestTicksPerSecondStatement extends TestCase {
         assertCounts(0, 2);
     }
 
-    private void assertCounts(long countFeedA, long countFeedB)
-    {
+    private void assertCounts(long countFeedA, long countFeedB) {
         HashMap<FeedEnum, Long> countPerFeed = new HashMap<FeedEnum, Long>();
-        countPerFeed.put((FeedEnum)listener.getLastNewData()[0].get("feed"), (Long)listener.getLastNewData()[0].get("cnt"));
-        countPerFeed.put((FeedEnum)listener.getLastNewData()[1].get("feed"), (Long)listener.getLastNewData()[1].get("cnt"));
+        countPerFeed.put((FeedEnum) listener.getLastNewData()[0].get("feed"), (Long) listener.getLastNewData()[0].get("cnt"));
+        countPerFeed.put((FeedEnum) listener.getLastNewData()[1].get("feed"), (Long) listener.getLastNewData()[1].get("cnt"));
         assertEquals(2, listener.getLastNewData().length);
         listener.reset();
 

@@ -15,26 +15,24 @@ import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
 
-public class PropertyIndexedEventTableSingleCoerceAddFactory extends PropertyIndexedEventTableSingleFactory
-{
+public class PropertyIndexedEventTableSingleCoerceAddFactory extends PropertyIndexedEventTableSingleFactory {
     protected final SimpleNumberCoercer coercer;
     protected final Class coercionType;
 
     /**
      * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
+     *
+     * @param streamNum    is the stream number of the indexed stream
+     * @param eventType    is the event type of the indexed stream
      * @param propertyName are the property names to get property values
      * @param coercionType are the classes to coerce indexed values to
      */
-    public PropertyIndexedEventTableSingleCoerceAddFactory(int streamNum, EventType eventType, String propertyName, Class coercionType)
-    {
+    public PropertyIndexedEventTableSingleCoerceAddFactory(int streamNum, EventType eventType, String propertyName, Class coercionType) {
         super(streamNum, eventType, propertyName, false, null);
         this.coercionType = coercionType;
         if (JavaClassHelper.isNumeric(coercionType)) {
             coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionType);
-        }
-        else {
+        } else {
             coercer = null;
         }
     }
@@ -42,10 +40,10 @@ public class PropertyIndexedEventTableSingleCoerceAddFactory extends PropertyInd
     @Override
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
-        return new EventTable[] {new PropertyIndexedEventTableSingleCoerceAdd(propertyGetter, organization, coercer, coercionType)};
+        return new EventTable[]{new PropertyIndexedEventTableSingleCoerceAdd(propertyGetter, organization, coercer, coercionType)};
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[] {propertyName}, EventTableOrganizationType.HASH);
+        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[]{propertyName}, EventTableOrganizationType.HASH);
     }
 }

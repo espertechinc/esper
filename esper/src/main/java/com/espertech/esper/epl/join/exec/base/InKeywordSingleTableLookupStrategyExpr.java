@@ -24,16 +24,14 @@ import java.util.Set;
 /**
  * Lookup on an index using a set of expression results as key values.
  */
-public class InKeywordSingleTableLookupStrategyExpr implements JoinExecTableLookupStrategy
-{
+public class InKeywordSingleTableLookupStrategyExpr implements JoinExecTableLookupStrategy {
     private final PropertyIndexedEventTableSingle index;
     private final int streamNum;
     private final EventBean[] eventsPerStream;
     private final ExprEvaluator[] evaluators;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    public InKeywordSingleTableLookupStrategyExpr(ExprEvaluator[] evaluators, int streamNum, PropertyIndexedEventTableSingle index, LookupStrategyDesc lookupStrategyDesc)
-    {
+    public InKeywordSingleTableLookupStrategyExpr(ExprEvaluator[] evaluators, int streamNum, PropertyIndexedEventTableSingle index, LookupStrategyDesc lookupStrategyDesc) {
         if (index == null) {
             throw new IllegalArgumentException("Unexpected null index received");
         }
@@ -46,26 +44,28 @@ public class InKeywordSingleTableLookupStrategyExpr implements JoinExecTableLook
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) {InstrumentationHelper.get().qIndexJoinLookup(this, index); }
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, index);
+        }
 
         eventsPerStream[streamNum] = theEvent;
         Set<EventBean> result = InKeywordTableLookupUtil.singleIndexLookup(evaluators, eventsPerStream, exprEvaluatorContext, index);
 
-        if (InstrumentationHelper.ENABLED) {InstrumentationHelper.get().aIndexJoinLookup(result, null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexJoinLookup(result, null);
+        }
         return result;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IndexedTableLookupStrategyExpr expressions" +
                 " index=(" + index + ')';
     }

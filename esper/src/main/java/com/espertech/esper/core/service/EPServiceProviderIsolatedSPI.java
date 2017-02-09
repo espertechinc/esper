@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.EPServiceProviderIsolated;
 
 /**
  * SPU for isolated service provider.
  */
-public interface EPServiceProviderIsolatedSPI extends EPServiceProviderIsolated
-{
+public interface EPServiceProviderIsolatedSPI extends EPServiceProviderIsolated {
     /**
      * Return isolated services.
+     *
      * @return isolated services
      */
     public EPIsolationUnitServices getIsolatedServices();

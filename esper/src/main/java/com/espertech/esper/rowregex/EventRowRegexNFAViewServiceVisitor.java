@@ -12,8 +12,8 @@ package com.espertech.esper.rowregex;
 
 import java.util.Map;
 
-public interface EventRowRegexNFAViewServiceVisitor
-{
+public interface EventRowRegexNFAViewServiceVisitor {
     public void visitUnpartitioned(RegexPartitionState state);
+
     public void visitPartitioned(Map<Object, RegexPartitionState> states);
 }

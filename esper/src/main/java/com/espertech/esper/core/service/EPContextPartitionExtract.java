@@ -14,8 +14,7 @@ import com.espertech.esper.client.context.ContextPartitionCollection;
 
 import java.io.Serializable;
 
-public class EPContextPartitionExtract implements Serializable
-{
+public class EPContextPartitionExtract implements Serializable {
     private static final long serialVersionUID = 5200820792354147769L;
     private final ContextPartitionCollection collection;
     private final EPContextPartitionImportable importable;

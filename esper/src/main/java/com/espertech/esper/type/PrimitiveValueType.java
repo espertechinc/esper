@@ -13,8 +13,7 @@ package com.espertech.esper.type;
 /**
  * Enumeration of types of primitive values.
  */
-public enum PrimitiveValueType
-{
+public enum PrimitiveValueType {
     /**
      * Byte.
      */
@@ -57,22 +56,20 @@ public enum PrimitiveValueType
 
     private String typeName;
 
-    private PrimitiveValueType(String typeName)
-    {
+    private PrimitiveValueType(String typeName) {
         this.typeName = typeName;
     }
 
     /**
      * Returns the name of the type.
+     *
      * @return type name
      */
-    public String getTypeName()
-    {
+    public String getTypeName() {
         return typeName;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return typeName;
     }
 }

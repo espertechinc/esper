@@ -26,8 +26,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class TestConfigurationParser extends TestCase
-{
+public class TestConfigurationParser extends TestCase {
     public void testRegressionFileConfig() throws Exception {
         Configuration config = new Configuration();
         URL url = this.getClass().getClassLoader().getResource(TestConfiguration.ESPER_TEST_CONFIG);
@@ -35,8 +34,7 @@ public class TestConfigurationParser extends TestCase
         assertFileConfig(config);
     }
 
-    public void testEngineDefaults()
-    {
+    public void testEngineDefaults() {
         Configuration config = new Configuration();
 
         assertTrue(config.getEngineDefaults().getThreading().isInsertIntoDispatchPreserveOrder());
@@ -120,8 +118,7 @@ public class TestConfigurationParser extends TestCase
         assertTrue(domType.isAutoFragment());
     }
 
-    protected static void assertFileConfig(Configuration config) throws Exception
-    {
+    protected static void assertFileConfig(Configuration config) throws Exception {
         // assert name for class
         assertEquals(2, config.getEventTypeAutoNamePackages().size());
         assertEquals("com.mycompany.eventsone", config.getEventTypeAutoNamePackages().toArray()[0]);
@@ -293,8 +290,7 @@ public class TestConfigurationParser extends TestCase
         // assert custom view implementations
         List<ConfigurationPlugInView> configViews = config.getPlugInViews();
         assertEquals(2, configViews.size());
-        for (int i = 0; i < configViews.size(); i++)
-        {
+        for (int i = 0; i < configViews.size(); i++) {
             ConfigurationPlugInView entry = configViews.get(i);
             assertEquals("ext" + i, entry.getNamespace());
             assertEquals("myview" + i, entry.getName());
@@ -304,8 +300,7 @@ public class TestConfigurationParser extends TestCase
         // assert custom virtual data window implementations
         List<ConfigurationPlugInVirtualDataWindow> configVDW = config.getPlugInVirtualDataWindows();
         assertEquals(2, configVDW.size());
-        for (int i = 0; i < configVDW.size(); i++)
-        {
+        for (int i = 0; i < configVDW.size(); i++) {
             ConfigurationPlugInVirtualDataWindow entry = configVDW.get(i);
             assertEquals("vdw" + i, entry.getNamespace());
             assertEquals("myvdw" + i, entry.getName());
@@ -343,7 +338,7 @@ public class TestConfigurationParser extends TestCase
         // assert plug-in aggregation multi-function loaded
         assertEquals(1, config.getPlugInAggregationMultiFunctions().size());
         ConfigurationPlugInAggregationMultiFunction pluginMultiAgg = config.getPlugInAggregationMultiFunctions().get(0);
-        EPAssertionUtil.assertEqualsExactOrder(new String[] {"func1", "func2"}, pluginMultiAgg.getFunctionNames());
+        EPAssertionUtil.assertEqualsExactOrder(new String[]{"func1", "func2"}, pluginMultiAgg.getFunctionNames());
         assertEquals("com.mycompany.MyAggregationMultiFunctionFactory", pluginMultiAgg.getMultiFunctionFactoryClassName());
         assertEquals(1, pluginMultiAgg.getAdditionalConfiguredProperties().size());
         assertEquals("value1", pluginMultiAgg.getAdditionalConfiguredProperties().get("prop1"));

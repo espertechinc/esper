@@ -18,10 +18,9 @@ import java.io.StringWriter;
  * <p>
  * Event row regular expressions are organized into a tree-like structure with nodes representing sub-expressions.
  */
-public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Serializable
-{
+public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Serializable {
     private static final long serialVersionUID = -7673341936779816149L;
-    
+
     private String name;
     private MatchRecogizePatternElementType type;
     private MatchRecognizeRegExRepeat optionalRepeat;
@@ -34,6 +33,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Ctor.
+     *
      * @param name of variable
      * @param type multiplicity
      */
@@ -44,8 +44,9 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Ctor.
-     * @param name of variable
-     * @param type multiplicity
+     *
+     * @param name           of variable
+     * @param type           multiplicity
      * @param optionalRepeat repetition
      */
     public MatchRecognizeRegExAtom(String name, MatchRecogizePatternElementType type, MatchRecognizeRegExRepeat optionalRepeat) {
@@ -56,6 +57,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Returns variable name.
+     *
      * @return name
      */
     public String getName() {
@@ -64,6 +66,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Sets variable name.
+     *
      * @param name variable name to set
      */
     public void setName(String name) {
@@ -72,6 +75,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Returns multiplicity.
+     *
      * @return multiplicity
      */
     public MatchRecogizePatternElementType getType() {
@@ -80,6 +84,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Sets multiplicity.
+     *
      * @param type multiplicity
      */
     public void setType(MatchRecogizePatternElementType type) {
@@ -88,6 +93,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Returns the repetition if any is defined
+     *
      * @return repetition
      */
     public MatchRecognizeRegExRepeat getOptionalRepeat() {
@@ -96,6 +102,7 @@ public class MatchRecognizeRegExAtom extends MatchRecognizeRegEx implements Seri
 
     /**
      * Sets the repetition.
+     *
      * @param optionalRepeat repetition to set
      */
     public void setOptionalRepeat(MatchRecognizeRegExRepeat optionalRepeat) {

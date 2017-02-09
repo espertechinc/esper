@@ -16,7 +16,7 @@ import java.util.List;
 
 public class SerializerFactory {
 
-    private static final List<Serializer> serializers;
+    private static final List<Serializer> SERIALIZERS;
     private static final Serializer NULL_SERIALIZER = new Serializer() {
         public boolean accepts(Class c) {
             throw new UnsupportedOperationException("Not supported for null serializer");
@@ -49,9 +49,9 @@ public class SerializerFactory {
     };
 
     static {
-        serializers = new ArrayList<Serializer>();
+        SERIALIZERS = new ArrayList<Serializer>();
 
-        serializers.add(new Serializer<Integer>() {
+        SERIALIZERS.add(new Serializer<Integer>() {
             public boolean accepts(Class c) {
                 return Integer.class.equals(c);
             }
@@ -64,7 +64,7 @@ public class SerializerFactory {
                 return stream.readInt();
             }
         });
-        serializers.add(new Serializer<Long>() {
+        SERIALIZERS.add(new Serializer<Long>() {
             public boolean accepts(Class c) {
                 return Long.class.equals(c);
             }
@@ -77,7 +77,7 @@ public class SerializerFactory {
                 return stream.readLong();
             }
         });
-        serializers.add(new Serializer<Float>() {
+        SERIALIZERS.add(new Serializer<Float>() {
             public boolean accepts(Class c) {
                 return Float.class.equals(c);
             }
@@ -90,7 +90,7 @@ public class SerializerFactory {
                 return stream.readFloat();
             }
         });
-        serializers.add(new Serializer<Double>() {
+        SERIALIZERS.add(new Serializer<Double>() {
             public boolean accepts(Class c) {
                 return Double.class.equals(c);
             }
@@ -103,7 +103,7 @@ public class SerializerFactory {
                 return stream.readDouble();
             }
         });
-        serializers.add(new Serializer<Byte>() {
+        SERIALIZERS.add(new Serializer<Byte>() {
             public boolean accepts(Class c) {
                 return Byte.class.equals(c);
             }
@@ -116,7 +116,7 @@ public class SerializerFactory {
                 return stream.readByte();
             }
         });
-        serializers.add(new Serializer<Short>() {
+        SERIALIZERS.add(new Serializer<Short>() {
             public boolean accepts(Class c) {
                 return Short.class.equals(c);
             }
@@ -129,7 +129,7 @@ public class SerializerFactory {
                 return stream.readShort();
             }
         });
-        serializers.add(new Serializer<String>() {
+        SERIALIZERS.add(new Serializer<String>() {
             public boolean accepts(Class c) {
                 return String.class.equals(c);
             }
@@ -142,7 +142,7 @@ public class SerializerFactory {
                 return stream.readUTF();
             }
         });
-        serializers.add(new Serializer<Boolean>() {
+        SERIALIZERS.add(new Serializer<Boolean>() {
             public boolean accepts(Class c) {
                 return Boolean.class.equals(c);
             }
@@ -169,7 +169,7 @@ public class SerializerFactory {
         if (clazz == null) {
             return NULL_SERIALIZER;
         }
-        for (Serializer serializer : serializers) {
+        for (Serializer serializer : SERIALIZERS) {
             if (serializer.accepts(JavaClassHelper.getBoxedType(clazz))) {
                 return serializer;
             }

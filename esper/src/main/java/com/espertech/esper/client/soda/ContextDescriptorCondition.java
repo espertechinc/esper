@@ -12,8 +12,6 @@ package com.espertech.esper.client.soda;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * For use with overlapping or non-overlapping contexts, implementations represents a condition for starting/initiating
@@ -23,7 +21,8 @@ public interface ContextDescriptorCondition extends Serializable {
 
     /**
      * Populate the EPL.
-     * @param writer output
+     *
+     * @param writer    output
      * @param formatter formatter
      */
     public void toEPL(StringWriter writer, EPStatementFormatter formatter);

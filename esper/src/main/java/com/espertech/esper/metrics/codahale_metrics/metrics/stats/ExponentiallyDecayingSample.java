@@ -40,8 +40,8 @@ import static java.lang.Math.min;
  * exponentially biased towards newer entries.
  *
  * @see <a href="http://www.research.att.com/people/Cormode_Graham/library/publications/CormodeShkapenyukSrivastavaXu09.pdf">
- *      Cormode et al. Forward Decay: A Practical Time Decay Model for Streaming Systems. ICDE '09:
- *      Proceedings of the 2009 IEEE International Conference on Data Engineering (2009)</a>
+ * Cormode et al. Forward Decay: A Practical Time Decay Model for Streaming Systems. ICDE '09:
+ * Proceedings of the 2009 IEEE International Conference on Data Engineering (2009)</a>
  */
 public class ExponentiallyDecayingSample implements Sample {
     private static final long RESCALE_THRESHOLD = TimeUnit.HOURS.toNanos(1);
@@ -71,7 +71,7 @@ public class ExponentiallyDecayingSample implements Sample {
      * @param reservoirSize the number of samples to keep in the sampling reservoir
      * @param alpha         the exponential decay factor; the higher this is, the more biased the
      *                      sample will be towards newer values
-     * @param clock clock
+     * @param clock         clock
      */
     public ExponentiallyDecayingSample(int reservoirSize, double alpha, Clock clock) {
         this.values = new ConcurrentSkipListMap<Double, Long>();
@@ -118,7 +118,7 @@ public class ExponentiallyDecayingSample implements Sample {
         lockForRegularUsage();
         try {
             final double priority = weight(timestamp - startTime) / ThreadLocalRandom.current()
-                                                                                     .nextDouble();
+                    .nextDouble();
             final long newCount = count.incrementAndGet();
             if (newCount <= reservoirSize) {
                 values.put(priority, value);

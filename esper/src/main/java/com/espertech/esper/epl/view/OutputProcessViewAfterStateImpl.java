@@ -17,8 +17,7 @@ import com.espertech.esper.core.service.StatementContext;
 
 import java.util.Set;
 
-public class OutputProcessViewAfterStateImpl implements OutputProcessViewAfterState
-{
+public class OutputProcessViewAfterStateImpl implements OutputProcessViewAfterState {
     private final Long afterConditionTime;
     private final Integer afterConditionNumberOfEvents;
     protected boolean isAfterConditionSatisfied;
@@ -31,31 +30,31 @@ public class OutputProcessViewAfterStateImpl implements OutputProcessViewAfterSt
 
     /**
      * Returns true if the after-condition is satisfied.
+     *
      * @param newEvents is the view new events
      * @return indicator for output condition
      */
-    public boolean checkUpdateAfterCondition(EventBean[] newEvents, StatementContext statementContext)
-    {
+    public boolean checkUpdateAfterCondition(EventBean[] newEvents, StatementContext statementContext) {
         return isAfterConditionSatisfied || checkAfterCondition(newEvents == null ? 0 : newEvents.length, statementContext);
     }
 
     /**
      * Returns true if the after-condition is satisfied.
+     *
      * @param newEvents is the join new events
      * @return indicator for output condition
      */
-    public boolean checkUpdateAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext)
-    {
+    public boolean checkUpdateAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext) {
         return isAfterConditionSatisfied || checkAfterCondition(newEvents == null ? 0 : newEvents.size(), statementContext);
     }
 
     /**
      * Returns true if the after-condition is satisfied.
+     *
      * @param newOldEvents is the new and old events pair
      * @return indicator for output condition
      */
-    public boolean checkUpdateAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext)
-    {
+    public boolean checkUpdateAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext) {
         return isAfterConditionSatisfied || checkAfterCondition(newOldEvents == null ? 0 : (newOldEvents.getFirst() == null ? 0 : newOldEvents.getFirst().length), statementContext);
     }
 
@@ -63,32 +62,24 @@ public class OutputProcessViewAfterStateImpl implements OutputProcessViewAfterSt
         // no action required
     }
 
-    private boolean checkAfterCondition(int numOutputEvents, StatementContext statementContext)
-    {
-        if (afterConditionTime != null)
-        {
+    private boolean checkAfterCondition(int numOutputEvents, StatementContext statementContext) {
+        if (afterConditionTime != null) {
             long time = statementContext.getTimeProvider().getTime();
-            if (time < afterConditionTime)
-            {
+            if (time < afterConditionTime) {
                 return false;
             }
 
             isAfterConditionSatisfied = true;
             return true;
-        }
-        else if (afterConditionNumberOfEvents != null)
-        {
+        } else if (afterConditionNumberOfEvents != null) {
             afterConditionEventsFound += numOutputEvents;
-            if (afterConditionEventsFound <= afterConditionNumberOfEvents)
-            {
+            if (afterConditionEventsFound <= afterConditionNumberOfEvents) {
                 return false;
             }
 
             isAfterConditionSatisfied = true;
             return true;
-        }
-        else
-        {
+        } else {
             isAfterConditionSatisfied = true;
             return true;
         }

@@ -23,8 +23,7 @@ import java.util.Map;
 /**
  * Builds a filter specification from filter AST nodes.
  */
-public class ASTFilterSpecHelper
-{
+public class ASTFilterSpecHelper {
     public static FilterSpecRaw walkFilterSpec(EsperEPL2GrammarParser.EventFilterExpressionContext ctx, PropertyEvalSpec propertyEvalSpec, Map<Tree, ExprNode> astExprNodeMap) {
         String eventName = ASTUtil.unescapeClassIdent(ctx.classIdentifier());
         List<ExprNode> exprNodes = ctx.expressionList() != null ? ASTExprHelper.exprCollectSubNodes(ctx.expressionList(), 0, astExprNodeMap) : new ArrayList<ExprNode>(1);

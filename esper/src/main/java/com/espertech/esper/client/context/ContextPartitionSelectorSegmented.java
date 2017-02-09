@@ -18,6 +18,7 @@ import java.util.List;
 public interface ContextPartitionSelectorSegmented extends ContextPartitionSelector {
     /**
      * Returns the partition keys.
+     *
      * @return key set
      */
     public List<Object[]> getPartitionKeys();

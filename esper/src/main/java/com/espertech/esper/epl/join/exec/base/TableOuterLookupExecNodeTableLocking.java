@@ -17,8 +17,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
-public class TableOuterLookupExecNodeTableLocking extends TableOuterLookupExecNode
-{
+public class TableOuterLookupExecNodeTableLocking extends TableOuterLookupExecNode {
     private final Lock lock;
 
     public TableOuterLookupExecNodeTableLocking(int indexedStream, JoinExecTableLookupStrategy lookupStrategy, Lock lock) {

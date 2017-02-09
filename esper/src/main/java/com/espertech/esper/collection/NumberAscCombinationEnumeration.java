@@ -20,9 +20,9 @@ import java.util.NoSuchElementException;
  * with each combination at least one element,
  * with the longest combination gets returned first and the least long combination of the highest N-1 value last.
  * <p>
- *     For example, for N=3:
+ * For example, for N=3:
  * </p>
- *     <pre>
+ * <pre>
  *         {0, 1, 2}
  *         {0, 1}
  *         {0, 2}
@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
  *         {2}
  *     </pre>
  */
-public class NumberAscCombinationEnumeration implements Enumeration<int[]>{
+public class NumberAscCombinationEnumeration implements Enumeration<int[]> {
     private final int n;
     private int level;
     private int[] current;
@@ -62,20 +62,20 @@ public class NumberAscCombinationEnumeration implements Enumeration<int[]>{
     private void computeNext() {
 
         // determine whether there is a next for the outermost
-        int last = current.length-1;
+        int last = current.length - 1;
         if (current[last] + 1 < n) {
             current[last]++;
             return;
         }
 
         // overflow
-        int currOverflowedLevel = last-1;
-        while(currOverflowedLevel >= 0) {
+        int currOverflowedLevel = last - 1;
+        while (currOverflowedLevel >= 0) {
             int maxAtPosition = n - level + currOverflowedLevel;
             if (current[currOverflowedLevel] < maxAtPosition) {
                 current[currOverflowedLevel]++;
                 for (int i = currOverflowedLevel + 1; i < current.length; i++) {
-                    current[i] = current[i-1] + 1;
+                    current[i] = current[i - 1] + 1;
                 }
                 return;
             }
@@ -86,8 +86,7 @@ public class NumberAscCombinationEnumeration implements Enumeration<int[]>{
         level--;
         if (level == 0) {
             current = null;
-        }
-        else {
+        } else {
             this.current = levelCurrent(level);
         }
     }

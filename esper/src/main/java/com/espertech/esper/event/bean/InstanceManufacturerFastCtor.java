@@ -40,8 +40,7 @@ public class InstanceManufacturerFastCtor implements InstanceManufacturer {
     public static Object makeUnderlyingFromFastCtor(Object[] properties, FastConstructor ctor, Class target) {
         try {
             return ctor.newInstance(properties);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             throw new EPException("InvocationTargetException received invoking constructor for type '" + target.getName() + "': " + e.getTargetException().getMessage(), e.getTargetException());
         }
     }

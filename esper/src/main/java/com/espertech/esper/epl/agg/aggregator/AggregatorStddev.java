@@ -13,23 +13,19 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Standard deviation always generates double-typed numbers.
  */
-public class AggregatorStddev implements AggregationMethod
-{
+public class AggregatorStddev implements AggregationMethod {
     protected double mean;
     protected double qn;
     protected long numDataPoints;
 
-    public void clear()
-    {
+    public void clear() {
         mean = 0;
         numDataPoints = 0;
         qn = 0;
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
 
@@ -40,19 +36,16 @@ public class AggregatorStddev implements AggregationMethod
             mean = p;
             qn = 0;
             numDataPoints = 1;
-        }
-        else {
+        } else {
             numDataPoints++;
             double oldmean = mean;
-            mean += (p - mean)/numDataPoints;
-            qn += (p - oldmean)*(p - mean);
+            mean += (p - mean) / numDataPoints;
+            qn += (p - oldmean) * (p - mean);
         }
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
 
@@ -61,17 +54,15 @@ public class AggregatorStddev implements AggregationMethod
         // compute running variance per Knuth's method
         if (numDataPoints <= 1) {
             clear();
-        }
-        else {
+        } else {
             numDataPoints--;
             double oldmean = mean;
-            mean -= (p - mean)/numDataPoints;
-            qn -= (p - oldmean)*(p - mean);
+            mean -= (p - mean) / numDataPoints;
+            qn -= (p - oldmean) * (p - mean);
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         if (numDataPoints < 2) {
             return null;
         }

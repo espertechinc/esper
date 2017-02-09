@@ -25,31 +25,28 @@ import junit.framework.TestCase;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestTableLookupExecNode extends TestCase
-{
+public class TestTableLookupExecNode extends TestCase {
     private TableLookupExecNode exec;
     private PropertyIndexedEventTable index;
 
-    public void setUp()
-    {
+    public void setUp() {
         EventType eventTypeIndex = SupportEventTypeFactory.createBeanType(SupportBean.class);
-        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(0, eventTypeIndex, new String[] {"theString"}, false, null);
+        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(0, eventTypeIndex, new String[]{"theString"}, false, null);
         index = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
 
         EventType eventTypeKeyGen = SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class);
 
-        exec = new TableLookupExecNode(1, new IndexedTableLookupStrategy(eventTypeKeyGen, new String[] {"symbol"}, index));
+        exec = new TableLookupExecNode(1, new IndexedTableLookupStrategy(eventTypeKeyGen, new String[]{"symbol"}, index));
     }
 
-    public void testFlow()
-    {
-        EventBean[] indexEvents = SupportEventBeanFactory.makeEvents(new String[] {"a1", "a2"});
+    public void testFlow() {
+        EventBean[] indexEvents = SupportEventBeanFactory.makeEvents(new String[]{"a1", "a2"});
         index.add(indexEvents);
 
-        EventBean[] lookupEvents = SupportEventBeanFactory.makeMarketDataEvents(new String[] {"a2", "a3"});
+        EventBean[] lookupEvents = SupportEventBeanFactory.makeMarketDataEvents(new String[]{"a2", "a3"});
 
         List<EventBean[]> result = new LinkedList<EventBean[]>();
-        EventBean[] prefill = new EventBean[] {lookupEvents[0], null};
+        EventBean[] prefill = new EventBean[]{lookupEvents[0], null};
         exec.process(lookupEvents[0], prefill, result, null);
 
         // Test lookup found 1 row

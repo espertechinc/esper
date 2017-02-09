@@ -23,8 +23,7 @@ import java.util.List;
 /**
  * Factory for {@link TimerWithinGuard} instances.
  */
-public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Serializable
-{
+public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Serializable {
     private static final long serialVersionUID = -1026320055174163611L;
 
     /**
@@ -37,16 +36,13 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
      */
     protected transient MatchedEventConvertor convertor;
 
-    public void setGuardParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws GuardParameterException
-    {
+    public void setGuardParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws GuardParameterException {
         String errorMessage = "Timer-within guard requires a single numeric or time period parameter";
-        if (parameters.size() != 1)
-        {
+        if (parameters.size() != 1) {
             throw new GuardParameterException(errorMessage);
         }
 
-        if (!JavaClassHelper.isNumeric(parameters.get(0).getExprEvaluator().getType()))
-        {
+        if (!JavaClassHelper.isNumeric(parameters.get(0).getExprEvaluator().getType())) {
             throw new GuardParameterException(errorMessage);
         }
 
@@ -58,8 +54,7 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
         if (timeExpr instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) timeExpr;
             return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
-        }
-        else {
+        } else {
             Object time = PatternExpressionUtil.evaluate("Timer-within guard", beginState, timeExpr, convertor, context.getAgentInstanceContext());
             if (time == null) {
                 throw new EPException("Timer-within guard expression returned a null-value");
@@ -68,8 +63,7 @@ public class TimerWithinGuardFactory implements GuardFactory, MetaDefItem, Seria
         }
     }
 
-    public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap matchedEventMap, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState)
-    {
+    public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap matchedEventMap, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState) {
         return new TimerWithinGuard(computeTime(matchedEventMap, context), quitable);
     }
 }

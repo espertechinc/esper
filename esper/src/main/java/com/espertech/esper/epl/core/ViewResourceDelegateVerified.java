@@ -14,8 +14,7 @@ package com.espertech.esper.epl.core;
  * Coordinates between view factories and requested resource (by expressions) the
  * availability of view resources to expressions.
  */
-public class ViewResourceDelegateVerified
-{
+public class ViewResourceDelegateVerified {
     private final boolean hasPrior;
     private final boolean hasPrevious;
     private final ViewResourceDelegateVerifiedStream[] perStream;

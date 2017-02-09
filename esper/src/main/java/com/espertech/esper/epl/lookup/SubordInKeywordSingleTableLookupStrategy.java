@@ -23,8 +23,7 @@ import java.util.Set;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordInKeywordSingleTableLookupStrategy implements SubordTableLookupStrategy
-{
+public class SubordInKeywordSingleTableLookupStrategy implements SubordTableLookupStrategy {
     /**
      * Stream numbers to get key values from.
      */
@@ -42,27 +41,30 @@ public class SubordInKeywordSingleTableLookupStrategy implements SubordTableLook
     public SubordInKeywordSingleTableLookupStrategy(int streamCountOuter, ExprEvaluator[] evaluators, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc) {
         this.evaluators = evaluators;
         this.index = index;
-        this.events = new EventBean[streamCountOuter+1];
+        this.events = new EventBean[streamCountOuter + 1];
         this.strategyDesc = strategyDesc;
     }
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexSubordLookup(this, index, null);}
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
+        }
 
         System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
         Set<EventBean> result = InKeywordTableLookupUtil.singleIndexLookup(evaluators, events, context, index);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexSubordLookup(result, null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexSubordLookup(result, null);
+        }
         return result;
     }
 

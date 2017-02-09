@@ -18,10 +18,10 @@ import com.espertech.esper.epl.agg.service.AggregationService;
  * Processor prototype for result sets for instances that apply the select-clause, group-by-clause and having-clauses
  * as supplied.
  */
-public interface ResultSetProcessorFactory
-{
+public interface ResultSetProcessorFactory {
     /**
      * Returns the event type of processed results.
+     *
      * @return event type of the resulting events posted by the processor.
      */
     public EventType getResultEventType();
@@ -32,6 +32,7 @@ public interface ResultSetProcessorFactory
 
     /**
      * Returns the type of result set processor.
+     *
      * @return result set processor type
      */
     public ResultSetProcessorType getResultSetProcessorType();

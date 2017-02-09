@@ -28,7 +28,7 @@ public final class TimerServiceImpl implements TimerService {
     private TimerCallback timerCallback;
     private ScheduledThreadPoolExecutor timer;
     private EPLTimerTask timerTask;
-    private static AtomicInteger NEXT_ID = new AtomicInteger(0);
+    private final static AtomicInteger NEXT_ID = new AtomicInteger(0);
     private final int id;
 
     /**
@@ -107,32 +107,32 @@ public final class TimerServiceImpl implements TimerService {
 
     public void enableStats() {
         if (timerTask != null) {
-            timerTask._enableStats = true;
+            timerTask.enableStats = true;
         }
     }
 
     public void disableStats() {
         if (timerTask != null) {
-            timerTask._enableStats = false;
+            timerTask.enableStats = false;
             // now it is safe to reset stats without any synchronization
             timerTask.resetStats();
         }
     }
 
     public long getMaxDrift() {
-        return timerTask._maxDrift;
+        return timerTask.maxDrift;
     }
 
     public long getLastDrift() {
-        return timerTask._lastDrift;
+        return timerTask.lastDrift;
     }
 
     public long getTotalDrift() {
-        return timerTask._totalDrift;
+        return timerTask.totalDrift;
     }
 
     public long getInvocationCount() {
-        return timerTask._invocationCount;
+        return timerTask.invocationCount;
     }
 
     private void getScheduledThreadPoolExecutorDaemonThread() {

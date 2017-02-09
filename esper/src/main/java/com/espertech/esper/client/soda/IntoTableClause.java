@@ -24,6 +24,7 @@ public class IntoTableClause implements Serializable {
 
     /**
      * Ctor.
+     *
      * @param tableName table name
      */
     public IntoTableClause(String tableName) {
@@ -38,6 +39,7 @@ public class IntoTableClause implements Serializable {
 
     /**
      * Returns the table name.
+     *
      * @return table name
      */
     public String getTableName() {
@@ -46,6 +48,7 @@ public class IntoTableClause implements Serializable {
 
     /**
      * Sets the table name.
+     *
      * @param tableName table name
      */
     public void setTableName(String tableName) {
@@ -54,6 +57,7 @@ public class IntoTableClause implements Serializable {
 
     /**
      * Renders the clause.
+     *
      * @param writer to write to
      */
     public void toEPL(StringWriter writer) {

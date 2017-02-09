@@ -25,10 +25,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public abstract class EPStatementStartMethodBase implements EPStatementStartMethod
-{
+public abstract class EPStatementStartMethodBase implements EPStatementStartMethod {
     private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodBase.class);
-    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+    private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     protected final StatementSpecCompiled statementSpec;
 
@@ -41,16 +40,16 @@ public abstract class EPStatementStartMethodBase implements EPStatementStartMeth
     }
 
     public abstract EPStatementStartResult startInternal(EPServicesContext services, StatementContext statementContext, boolean isNewStatement, boolean isRecoveringStatement, boolean isRecoveringResilient)
-        throws ExprValidationException, ViewProcessingException;
+            throws ExprValidationException, ViewProcessingException;
 
     public EPStatementStartResult start(EPServicesContext services, StatementContext statementContext, boolean isNewStatement, boolean isRecoveringStatement, boolean isRecoveringResilient) throws ExprValidationException, ViewProcessingException {
         statementContext.getVariableService().setLocalVersion();    // get current version of variables
 
         boolean queryPlanLogging = services.getConfigSnapshot().getEngineDefaults().getLogging().isEnableQueryPlan();
-        if (queryPlanLogging && queryPlanLog.isInfoEnabled()) {
-            queryPlanLog.info("Query plans for statement '" + statementContext.getStatementName() + "' expression '" + statementContext.getExpression() + "'");
+        if (queryPlanLogging && QUERY_PLAN_LOG.isInfoEnabled()) {
+            QUERY_PLAN_LOG.info("Query plans for statement '" + statementContext.getStatementName() + "' expression '" + statementContext.getExpression() + "'");
         }
-        
+
         // validate context - may not exist
         if (statementSpec.getOptionalContextName() != null && statementContext.getContextDescriptor() == null) {
             throw new ExprValidationException("Context by name '" + statementSpec.getOptionalContextName() + "' has not been declared");
@@ -60,14 +59,12 @@ public abstract class EPStatementStartMethodBase implements EPStatementStartMeth
     }
 
     protected EPStatementAgentInstanceHandle getDefaultAgentInstanceHandle(StatementContext statementContext)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         return new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
     }
 
     protected AgentInstanceContext getDefaultAgentInstanceContext(StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         EPStatementAgentInstanceHandle handle = getDefaultAgentInstanceHandle(statementContext);
         return new AgentInstanceContext(statementContext, handle, DEFAULT_AGENT_INSTANCE_ID, null, null, statementContext.getDefaultAgentInstanceScriptContext());
     }

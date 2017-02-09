@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.example.transaction;
 
-import com.espertech.esper.client.*;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CombinedEventListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        if (newEvents == null)
-        {
+public class CombinedEventListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (newEvents == null) {
             // we don't care about events leaving the window (old events)
             return;
         }
@@ -33,7 +30,7 @@ public class CombinedEventListener implements UpdateListener
                 " latencyAC=" + theEvent.get("latencyAC") +
                 " latencyAB=" + theEvent.get("latencyAB") +
                 " latencyBC=" + theEvent.get("latencyBC")
-                );
+        );
     }
 
     private static final Logger log = LoggerFactory.getLogger(CombinedEventListener.class);

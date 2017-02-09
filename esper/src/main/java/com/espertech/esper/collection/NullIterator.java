@@ -10,28 +10,22 @@
  */
 package com.espertech.esper.collection;
 
-import com.espertech.esper.client.EventBean;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * Iterator that never returns an elements.
  */
-public class NullIterator<T> implements Iterator<T>
-{
-    public boolean hasNext()
-    {
+public class NullIterator<T> implements Iterator<T> {
+    public boolean hasNext() {
         return false;
     }
 
-    public T next()
-    {
+    public T next() {
         throw new NoSuchElementException();
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

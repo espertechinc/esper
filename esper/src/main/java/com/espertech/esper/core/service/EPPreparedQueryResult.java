@@ -10,43 +10,42 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 
 /**
  * The result of executing a prepared query.
  */
-public class EPPreparedQueryResult
-{
+public class EPPreparedQueryResult {
     private final EventType eventType;
     private final EventBean[] result;
 
     /**
      * Ctor.
+     *
      * @param eventType is the type of event produced by the query
-     * @param result the result rows
+     * @param result    the result rows
      */
-    public EPPreparedQueryResult(EventType eventType, EventBean[] result)
-    {
+    public EPPreparedQueryResult(EventType eventType, EventBean[] result) {
         this.eventType = eventType;
         this.result = result;
     }
 
     /**
      * Returs the event type representing the selected columns.
+     *
      * @return metadata
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
     /**
      * Returns the query result.
+     *
      * @return result rows
      */
-    public EventBean[] getResult()
-    {
+    public EventBean[] getResult() {
         return result;
     }
 }

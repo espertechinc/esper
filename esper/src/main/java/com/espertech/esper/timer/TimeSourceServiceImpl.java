@@ -25,7 +25,7 @@ public class TimeSourceServiceImpl implements TimeSourceService {
      * A public variable indicating whether to use the System millisecond time or
      * nano time, to be configured through the engine settings.
      */
-    public static boolean IS_SYSTEM_CURRENT_TIME = true;
+    public static boolean isSystemCurrentTime = true;
 
     private final long wallClockOffset;
     private final String description;
@@ -45,7 +45,7 @@ public class TimeSourceServiceImpl implements TimeSourceService {
      * @return wall-clock time in milliseconds
      */
     public long getTimeMillis() {
-        if (IS_SYSTEM_CURRENT_TIME) {
+        if (isSystemCurrentTime) {
             return System.currentTimeMillis();
         }
         return getTimeMicros() / MICROS_TO_MILLIS;
@@ -63,17 +63,17 @@ public class TimeSourceServiceImpl implements TimeSourceService {
      * @return timer resolution
      */
     protected long calculateResolution() {
-        final int LOOPS = 5;
+        final int loops = 5;
         long totalResolution = 0;
         long time = this.getTimeMicros(), prevTime = time;
-        for (int i = 0; i < LOOPS; i++) {
+        for (int i = 0; i < loops; i++) {
             // wait until time changes
             while (time == prevTime)
                 time = this.getTimeMicros();
-            totalResolution += (time - prevTime);
+            totalResolution += time - prevTime;
             prevTime = time;
         }
-        return totalResolution / LOOPS;
+        return totalResolution / loops;
     }
 
     @Override

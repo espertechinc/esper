@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.expression.prev;
 
-public enum ExprPreviousNodePreviousType
-{
+public enum ExprPreviousNodePreviousType {
     PREV,
     PREVTAIL,
     PREVWINDOW,

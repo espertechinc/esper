@@ -12,18 +12,15 @@ package com.espertech.esper.example.rfidassetzone;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.time.TimerControlEvent;
 import junit.framework.TestCase;
 
-public class TestAssetZoneMoveStmt extends TestCase
-{
+public class TestAssetZoneMoveStmt extends TestCase {
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
 
-    public void setUp()
-    {
+    public void setUp() {
         Configuration config = new Configuration();
         config.addEventType("LocationReport", LocationReport.class);
 
@@ -34,12 +31,11 @@ public class TestAssetZoneMoveStmt extends TestCase
         listener = new SupportUpdateListener();
     }
 
-    public void testStmt()
-    {
+    public void testStmt() {
         LRMovingZoneStmt.createStmt(epService, 60, listener);
 
         sendTimer(0);   // time in seconds
-        sendEvents(new String[] {"A1", "A2", "A3"}, new int[] {1, 1, 1});
+        sendEvents(new String[]{"A1", "A2", "A3"}, new int[]{1, 1, 1});
         sendTimer(60);
         assertFalse(listener.isInvoked());
 
@@ -66,34 +62,30 @@ public class TestAssetZoneMoveStmt extends TestCase
         assertEquals(3, events[1].get("Part.zone"));
         listener.reset();
 
-        sendEvents(new String[] {"A2", "A3"}, new int[] {3, 3});
+        sendEvents(new String[]{"A2", "A3"}, new int[]{3, 3});
         sendTimer(300);
         assertFalse(listener.isInvoked());
 
-        sendEvents(new String[] {"A2", "A3"}, new int[] {4, 4});
+        sendEvents(new String[]{"A2", "A3"}, new int[]{4, 4});
         sendTimer(350);
-        sendEvents(new String[] {"A1"}, new int[] {4});
+        sendEvents(new String[]{"A1"}, new int[]{4});
         sendTimer(360);
         assertFalse(listener.isInvoked());
     }
 
-    private void sendEvents(String[] assetId, int[] zone)
-    {
+    private void sendEvents(String[] assetId, int[] zone) {
         assertEquals(assetId.length, zone.length);
-        for (int i = 0; i < assetId.length; i++)
-        {
+        for (int i = 0; i < assetId.length; i++) {
             sendEvent(assetId[i], zone[i]);
         }
     }
 
-    private void sendEvent(String assetId, int zone)
-    {
+    private void sendEvent(String assetId, int zone) {
         LocationReport report = new LocationReport(assetId, zone);
         epService.getEPRuntime().sendEvent(report);
     }
 
-    private void sendTimer(long timeInSeconds)
-    {
+    private void sendTimer(long timeInSeconds) {
         CurrentTimeEvent theEvent = new CurrentTimeEvent(timeInSeconds * 1000);
         EPRuntime runtime = epService.getEPRuntime();
         runtime.sendEvent(theEvent);

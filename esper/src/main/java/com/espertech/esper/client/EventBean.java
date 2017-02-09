@@ -10,18 +10,15 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.PropertyAccessException;
-
 /**
  * Interface for event representation. All events have an {@link EventType}. Events also
  * usually have one or more event properties. This interface allows the querying of event type,
  * event property values and the underlying event object.
  */
-public interface EventBean
-{
+public interface EventBean {
     /**
      * Return the {@link EventType} instance that describes the set of properties available for this event.
+     *
      * @return event type
      */
     public EventType getEventType();
@@ -38,6 +35,7 @@ public interface EventBean
      * mapped properties via the syntax "name('key')",
      * nested properties via the syntax "outer.inner"
      * or combinations thereof.
+     *
      * @param propertyExpression - name or expression of the property whose value is to be retrieved
      * @return the value of a property with the specified name.
      * @throws PropertyAccessException - if there is no property of the specified name, or the property cannot be accessed
@@ -46,6 +44,7 @@ public interface EventBean
 
     /**
      * Get the underlying data object to this event wrapper.
+     *
      * @return underlying data object, usually either a Map or a Java bean instance.
      */
     public Object getUnderlying();
@@ -69,6 +68,7 @@ public interface EventBean
      * mapped properties via the syntax "name('key')",
      * nested properties via the syntax "outer.inner"
      * or combinations thereof.
+     *
      * @param propertyExpression - name or expression of the property whose value is to be presented as an EventBean or array of EventBean
      * @return the value of a property as an EventBean or array of EventBean
      * @throws PropertyAccessException - if there is no property of the specified name, or the property cannot be accessed

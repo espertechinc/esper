@@ -56,7 +56,7 @@ public abstract class HealthCheck {
         /**
          * Returns a healthy {@link Result} with an additional message.
          *
-         * @param message    an informative message
+         * @param message an informative message
          * @return a healthy {@link Result} with an additional message
          */
         public static Result healthy(String message) {
@@ -65,7 +65,7 @@ public abstract class HealthCheck {
 
         /**
          * Returns a healthy {@link Result} with a formatted message.
-         *
+         * <p>
          * Message formatting follows the same rules as
          * {@link String#format(String, Object...)}.
          *
@@ -81,7 +81,7 @@ public abstract class HealthCheck {
         /**
          * Returns an unhealthy {@link Result} with the given message.
          *
-         * @param message    an informative message describing how the health check failed
+         * @param message an informative message describing how the health check failed
          * @return an unhealthy {@link Result} with the given message
          */
         public static Result unhealthy(String message) {
@@ -90,7 +90,7 @@ public abstract class HealthCheck {
 
         /**
          * Returns an unhealthy {@link Result} with a formatted message.
-         *
+         * <p>
          * Message formatting follows the same rules as
          * {@link String#format(String, Object...)}.
          *
@@ -106,7 +106,7 @@ public abstract class HealthCheck {
         /**
          * Returns an unhealthy {@link Result} with the given error.
          *
-         * @param error    an exception thrown during the health check
+         * @param error an exception thrown during the health check
          * @return an unhealthy {@link Result} with the given error
          */
         public static Result unhealthy(Throwable error) {
@@ -126,6 +126,7 @@ public abstract class HealthCheck {
         /**
          * Returns {@code true} if the result indicates the component is healthy; {@code false}
          * otherwise.
+         *
          * @return {@code true} if the result indicates the component is healthy
          */
         public boolean isHealthy() {
@@ -153,8 +154,12 @@ public abstract class HealthCheck {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) { return true; }
-            if (o == null || getClass() != o.getClass()) { return false; }
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             final Result result = (Result) o;
             return healthy == result.healthy &&
                     !(error != null ? !error.equals(result.error) : result.error != null) &&
@@ -163,7 +168,7 @@ public abstract class HealthCheck {
 
         @Override
         public int hashCode() {
-            int result = (healthy ? 1 : 0);
+            int result = healthy ? 1 : 0;
             result = PRIME * result + (message != null ? message.hashCode() : 0);
             result = PRIME * result + (error != null ? error.hashCode() : 0);
             return result;
@@ -189,8 +194,8 @@ public abstract class HealthCheck {
     /**
      * Create a new {@link HealthCheck} instance with the given name.
      *
-     * @param name    the name of the health check (and, ideally, the name of the underlying
-     *                component the health check tests)
+     * @param name the name of the health check (and, ideally, the name of the underlying
+     *             component the health check tests)
      */
     protected HealthCheck(String name) {
         this.name = name;
@@ -209,8 +214,7 @@ public abstract class HealthCheck {
      * Perform a check of the application component.
      *
      * @return if the component is healthy, a healthy {@link Result}; otherwise, an unhealthy
-     *         {@link Result} with a descriptive error message or exception
-     *
+     * {@link Result} with a descriptive error message or exception
      * @throws Exception if there is an unhandled error during the health check; this will result in
      *                   a failed health check
      */
@@ -220,7 +224,7 @@ public abstract class HealthCheck {
      * Executes the health check, catching and handling any exceptions raised by {@link #check()}.
      *
      * @return if the component is healthy, a healthy {@link Result}; otherwise, an unhealthy
-     *         {@link Result} with a descriptive error message or exception
+     * {@link Result} with a descriptive error message or exception
      */
     public Result execute() {
         try {

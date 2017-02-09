@@ -10,26 +10,22 @@
  */
 package com.espertech.esper.epl.db;
 
-import com.espertech.esper.client.util.ClassForNameProviderDefault;
-import junit.framework.TestCase;
-
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-import java.sql.Types;
-
-import com.espertech.esper.supportunit.epl.SupportDatabaseService;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.supportunit.epl.SupportDatabaseService;
+import junit.framework.TestCase;
 
-public class TestPollExecStrategyDBQuery extends TestCase
-{
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+public class TestPollExecStrategyDBQuery extends TestCase {
     private PollExecStrategyDBQuery dbPollExecStrategy;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         String sql = "select myvarchar from mytesttable where mynumeric = ? order by mybigint asc";
 
         DatabaseConnectionFactory databaseConnectionFactory = SupportDatabaseService.makeService().getConnectionFactory("mydb");
@@ -46,14 +42,13 @@ public class TestPollExecStrategyDBQuery extends TestCase
                 resultEventType, connectionCache, sql, propertiesOut, null, null, false);
     }
 
-    public void testPoll()
-    {
+    public void testPoll() {
         dbPollExecStrategy.start();
 
         List<EventBean>[] resultRows = new LinkedList[3];
-        resultRows[0] = dbPollExecStrategy.poll(new Object[] { -1 }, null);
-        resultRows[1] = dbPollExecStrategy.poll(new Object[] { 500 }, null);
-        resultRows[2] = dbPollExecStrategy.poll(new Object[] { 200 }, null);
+        resultRows[0] = dbPollExecStrategy.poll(new Object[]{-1}, null);
+        resultRows[1] = dbPollExecStrategy.poll(new Object[]{500}, null);
+        resultRows[2] = dbPollExecStrategy.poll(new Object[]{200}, null);
 
         // should have joined to two rows
         assertEquals(0, resultRows[0].size());

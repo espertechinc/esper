@@ -29,14 +29,21 @@ public interface ContextControllerFactory {
     public ContextControllerFactoryContext getFactoryContext();
 
     public Map<String, Object> getContextBuiltinProps();
+
     public boolean isSingleInstanceContext();
+
     public ContextDetail getContextDetail();
+
     public List<ContextDetailPartitionItem> getContextDetailPartitionItems();
+
     public StatementAIResourceRegistryFactory getStatementAIResourceRegistryFactory();
 
     public void validateFactory() throws ExprValidationException;
+
     public ContextControllerStatementCtxCache validateStatement(ContextControllerStatementBase statement) throws ExprValidationException;
+
     public ContextController createNoCallback(int pathId, ContextControllerLifecycleCallback callback);
+
     public void populateFilterAddendums(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum, ContextControllerStatementDesc statement, Object key, int contextId);
 
     public FilterSpecLookupable getFilterLookupable(EventType eventType);

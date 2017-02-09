@@ -10,15 +10,12 @@
  */
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 
 /**
  * Getter for map entry.
  */
-public class MapPropertyGetterDefaultNoFragment extends MapPropertyGetterDefaultBase
-{
+public class MapPropertyGetterDefaultNoFragment extends MapPropertyGetterDefaultBase {
     public MapPropertyGetterDefaultNoFragment(String propertyName, EventAdapterService eventAdapterService) {
         super(propertyName, null, eventAdapterService);
     }

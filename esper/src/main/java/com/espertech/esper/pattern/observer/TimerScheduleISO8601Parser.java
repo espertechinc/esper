@@ -23,8 +23,7 @@ import java.util.regex.Pattern;
 /**
  * Factory for ISO8601 repeating interval observers that indicate truth when a time point was reached.
  */
-public class TimerScheduleISO8601Parser
-{
+public class TimerScheduleISO8601Parser {
     private static final Logger log = LoggerFactory.getLogger(TimerScheduleISO8601Parser.class);
 
     public static TimerScheduleSpec parse(String iso) throws ScheduleParameterException {
@@ -54,8 +53,7 @@ public class TimerScheduleISO8601Parser
                 optionalRepeats = parseRepeat(split[0]);
                 optionalDate = parseDate(split[1]);
                 optionalTimePeriod = parsePeriod(split[2]);
-            }
-            else if (split.length == 2) {
+            } else if (split.length == 2) {
                 // there are two forms:
                 // partial-form-1: "R<?>/P<period>"
                 // partial-form-2: "<date>/P<period>"
@@ -64,25 +62,21 @@ public class TimerScheduleISO8601Parser
                 }
                 if (split[0].charAt(0) == 'R') {
                     optionalRepeats = parseRepeat(split[0]);
-                }
-                else {
+                } else {
                     optionalDate = parseDate(split[0]);
                 }
                 optionalTimePeriod = parsePeriod(split[1]);
-            }
-            else if (split.length == 1) {
+            } else if (split.length == 1) {
                 // there are two forms:
                 // just date: "<date>"
                 // just period: "P<period>"
                 if (split[0].charAt(0) == 'P') {
                     optionalTimePeriod = parsePeriod(split[0]);
-                }
-                else {
+                } else {
                     optionalDate = parseDate(split[0]);
                 }
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new ScheduleParameterException("Failed to parse '" + iso + "': " + ex.getMessage(), ex);
         }
 
@@ -93,13 +87,11 @@ public class TimerScheduleISO8601Parser
     public static Calendar parseDate(String dateText) throws ScheduleParameterException {
         try {
             return javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar(dateText).toGregorianCalendar();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             String message = "Exception parsing date '" + dateText + "', the date is not a supported ISO 8601 date";
             log.debug(message, e);
             throw new ScheduleParameterException(message);
-        }
-        catch (DatatypeConfigurationException e) {
+        } catch (DatatypeConfigurationException e) {
             throw new ScheduleParameterException("Exception parsing date '" + dateText + "': " + e.getMessage(), e);
         }
     }
@@ -112,8 +104,7 @@ public class TimerScheduleISO8601Parser
         if (repeat.length() > 1) {
             try {
                 numRepeats = Long.parseLong(repeat.substring(1));
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 String message = "Invalid repeat '" + repeat + "', expecting an long-typed value but received '" + repeat.substring(1) + "'";
                 log.debug(message, ex);
                 throw new ScheduleParameterException(message);
@@ -122,8 +113,7 @@ public class TimerScheduleISO8601Parser
         return numRepeats;
     }
 
-    private static TimePeriod parsePeriod(String period) throws ScheduleParameterException
-    {
+    private static TimePeriod parsePeriod(String period) throws ScheduleParameterException {
         Pattern p = Pattern.compile("P((\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?");
         Matcher matcher = p.matcher(period);
         if (!matcher.matches()) {
@@ -134,8 +124,7 @@ public class TimerScheduleISO8601Parser
         int indexOfT = period.indexOf("T");
         if (indexOfT < 1) {
             parsePeriodDatePart(period.substring(1), timePeriod);
-        }
-        else {
+        } else {
             parsePeriodDatePart(period.substring(1, indexOfT), timePeriod);
             parsePeriodTimePart(period.substring(indexOfT + 1), timePeriod);
         }
@@ -154,19 +143,15 @@ public class TimerScheduleISO8601Parser
             throw new IllegalStateException();
         }
         for (int i = 0; i < matcher.groupCount(); i++) {
-            String group = matcher.group(i+1);
+            String group = matcher.group(i + 1);
             if (group == null) {
-            }
-            else if (group.endsWith("Y")) {
+            } else if (group.endsWith("Y")) {
                 timePeriod.setYears(safeParsePrefixedInt(group));
-            }
-            else if (group.endsWith("M")) {
+            } else if (group.endsWith("M")) {
                 timePeriod.setMonths(safeParsePrefixedInt(group));
-            }
-            else if (group.endsWith("D")) {
+            } else if (group.endsWith("D")) {
                 timePeriod.setDays(safeParsePrefixedInt(group));
-            }
-            else if (group.endsWith("W")) {
+            } else if (group.endsWith("W")) {
                 timePeriod.setWeeks(safeParsePrefixedInt(group));
             }
         }
@@ -183,16 +168,13 @@ public class TimerScheduleISO8601Parser
             throw new IllegalStateException();
         }
         for (int i = 0; i < matcher.groupCount(); i++) {
-            String group = matcher.group(i+1);
+            String group = matcher.group(i + 1);
             if (group == null) {
-            }
-            else if (group.endsWith("H")) {
+            } else if (group.endsWith("H")) {
                 timePeriod.setHours(safeParsePrefixedInt(group));
-            }
-            else if (group.endsWith("M")) {
+            } else if (group.endsWith("M")) {
                 timePeriod.setMinutes(safeParsePrefixedInt(group));
-            }
-            else if (group.endsWith("S")) {
+            } else if (group.endsWith("S")) {
                 timePeriod.setSeconds(safeParsePrefixedInt(group));
             }
         }

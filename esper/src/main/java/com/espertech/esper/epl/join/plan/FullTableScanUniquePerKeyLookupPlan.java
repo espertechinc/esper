@@ -21,30 +21,27 @@ import java.util.Collections;
 /**
  * Plan for a full table scan.
  */
-public class FullTableScanUniquePerKeyLookupPlan extends TableLookupPlan
-{
+public class FullTableScanUniquePerKeyLookupPlan extends TableLookupPlan {
     /**
      * Ctor.
-     * @param lookupStream - stream that generates event to look up for
+     *
+     * @param lookupStream  - stream that generates event to look up for
      * @param indexedStream - stream to full table scan
-     * @param indexNum - index number for the table containing the full unindexed contents
+     * @param indexNum      - index number for the table containing the full unindexed contents
      */
-    public FullTableScanUniquePerKeyLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum)
-    {
-        super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});
+    public FullTableScanUniquePerKeyLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum) {
+        super(lookupStream, indexedStream, new TableLookupIndexReqKey[]{indexNum});
     }
 
     public TableLookupKeyDesc getKeyDescriptor() {
         return new TableLookupKeyDesc(Collections.<QueryGraphValueEntryHashKeyed>emptyList(), Collections.<QueryGraphValueEntryRange>emptyList());
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         return new FullTableScanUniqueValueLookupStrategy((EventTableAsSet) eventTable[0]);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "FullTableScanLookupPlan " +
                 super.toString();
     }

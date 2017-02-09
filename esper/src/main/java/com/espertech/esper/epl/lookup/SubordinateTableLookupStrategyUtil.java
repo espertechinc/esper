@@ -40,45 +40,35 @@ public class SubordinateTableLookupStrategyUtil {
         SubordTableLookupStrategyFactory lookupStrategy;
         if (inKeywordSingleIdxKeys != null) {
             lookupStrategy = new SubordInKeywordSingleTableLookupStrategyFactory(isNWOnTrigger, numStreamsTotal, inKeywordSingleIdxKeys);
-        }
-        else if (inKeywordMultiIdxKey != null) {
+        } else if (inKeywordMultiIdxKey != null) {
             lookupStrategy = new SubordInKeywordMultiTableLookupStrategyFactory(isNWOnTrigger, numStreamsTotal, inKeywordMultiIdxKey);
-        }
-        else if (hashKeys.isEmpty() && rangeKeys.isEmpty()) {
+        } else if (hashKeys.isEmpty() && rangeKeys.isEmpty()) {
             lookupStrategy = new SubordFullTableScanLookupStrategyFactory();
-        }
-        else if (hashKeys.size() > 0 && rangeKeys.isEmpty()) {
+        } else if (hashKeys.size() > 0 && rangeKeys.isEmpty()) {
             if (hashKeys.size() == 1) {
                 if (!hashKeyCoercionTypes.isCoerce()) {
                     if (isStrictKeys) {
                         lookupStrategy = new SubordIndexedTableLookupStrategySinglePropFactory(isNWOnTrigger, outerStreamTypesZeroIndexed, hashStrictKeyStreams[0], hashStrictKeys[0]);
-                    }
-                    else {
+                    } else {
                         lookupStrategy = new SubordIndexedTableLookupStrategySingleExprFactory(isNWOnTrigger, numStreamsTotal, hashKeys.get(0));
                     }
-                }
-                else {
+                } else {
                     lookupStrategy = new SubordIndexedTableLookupStrategySingleCoercingFactory(isNWOnTrigger, numStreamsTotal, hashKeys.get(0), hashKeyCoercionTypes.getCoercionTypes()[0]);
                 }
-            }
-            else {
+            } else {
                 if (!hashKeyCoercionTypes.isCoerce()) {
                     if (isStrictKeys) {
                         lookupStrategy = new SubordIndexedTableLookupStrategyPropFactory(isNWOnTrigger, outerStreamTypesZeroIndexed, hashStrictKeyStreams, hashStrictKeys);
-                    }
-                    else {
+                    } else {
                         lookupStrategy = new SubordIndexedTableLookupStrategyExprFactory(isNWOnTrigger, numStreamsTotal, hashKeys);
                     }
-                }
-                else {
+                } else {
                     lookupStrategy = new SubordIndexedTableLookupStrategyCoercingFactory(isNWOnTrigger, numStreamsTotal, hashKeys, hashKeyCoercionTypes.getCoercionTypes());
                 }
             }
-        }
-        else if (hashKeys.size() == 0 && rangeKeys.size() == 1) {
+        } else if (hashKeys.size() == 0 && rangeKeys.size() == 1) {
             lookupStrategy = new SubordSortedTableLookupStrategyFactory(isNWOnTrigger, numStreamsTotal, rangeKeys.get(0));
-        }
-        else {
+        } else {
             lookupStrategy = new SubordCompositeTableLookupStrategyFactory(isNWOnTrigger, numStreamsTotal, hashKeys, hashKeyCoercionTypes.getCoercionTypes(),
                     rangeKeys, rangeKeyCoercionTypes.getCoercionTypes());
         }

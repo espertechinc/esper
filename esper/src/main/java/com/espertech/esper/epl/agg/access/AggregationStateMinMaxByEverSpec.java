@@ -14,8 +14,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 import java.util.Comparator;
 
-public class AggregationStateMinMaxByEverSpec
-{
+public class AggregationStateMinMaxByEverSpec {
     protected final int streamId;
     private final ExprEvaluator[] criteria;
     private final boolean max;

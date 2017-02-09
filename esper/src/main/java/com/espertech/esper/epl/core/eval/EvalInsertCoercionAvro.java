@@ -15,7 +15,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.MappedEventBean;
 
 public class EvalInsertCoercionAvro implements SelectExprProcessor {
 

@@ -25,24 +25,24 @@ import java.util.concurrent.locks.ReadWriteLock;
  * The implementation is based on the SortedMap implementation of TreeMap and stores only expression
  * parameter values of type DoubleRange.
  */
-public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRangeBase
-{
+public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRangeBase {
     public FilterParamIndexDoubleRange(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(lookupable, readWriteLock, filterOperator);
-        if (!(filterOperator.isRangeOperator()))
-        {
+        if (!(filterOperator.isRangeOperator())) {
             throw new IllegalArgumentException("Invalid filter operator " + filterOperator);
         }
     }
-    
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
-        Object objAttributeValue = lookupable.getGetter().get(theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterReverseIndex(this, objAttributeValue);}
 
-        if (objAttributeValue == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(false);}
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
+        Object objAttributeValue = lookupable.getGetter().get(theEvent);
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilterReverseIndex(this, objAttributeValue);
+        }
+
+        if (objAttributeValue == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aFilterReverseIndex(false);
+            }
             return;
         }
 
@@ -56,55 +56,44 @@ public final class FilterParamIndexDoubleRange extends FilterParamIndexDoubleRan
         // For not including either endpoint
         // A bit awkward to duplicate the loop code, however better than checking the boolean many times over
         // This may be a bit of an early performance optimization - the optimizer after all may do this better
-        if (this.getFilterOperator() == FilterOperator.RANGE_OPEN)  // include neither endpoint
-        {
-            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet())
-            {
+        if (this.getFilterOperator() == FilterOperator.RANGE_OPEN) {
+            // include neither endpoint
+            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue > entry.getKey().getMin()) &&
-                    (attributeValue < entry.getKey().getMax()))
-                {
+                        (attributeValue < entry.getKey().getMax())) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else if (this.getFilterOperator() == FilterOperator.RANGE_CLOSED)   // include all endpoints
-        {
-            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet())
-            {
+        } else if (this.getFilterOperator() == FilterOperator.RANGE_CLOSED) {
+            // include all endpoints
+            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue >= entry.getKey().getMin()) &&
-                    (attributeValue <= entry.getKey().getMax()))
-                {
+                        (attributeValue <= entry.getKey().getMax())) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else if (this.getFilterOperator() == FilterOperator.RANGE_HALF_CLOSED) // include high endpoint not low endpoint
-        {
-            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet())
-            {
+        } else if (this.getFilterOperator() == FilterOperator.RANGE_HALF_CLOSED) {
+            // include high endpoint not low endpoint
+            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue > entry.getKey().getMin()) &&
-                    (attributeValue <= entry.getKey().getMax()))
-                {
+                        (attributeValue <= entry.getKey().getMax())) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else if (this.getFilterOperator() == FilterOperator.RANGE_HALF_OPEN) // include low endpoint not high endpoint
-        {
-            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet())
-            {
+        } else if (this.getFilterOperator() == FilterOperator.RANGE_HALF_OPEN) {
+            // include low endpoint not high endpoint
+            for (Map.Entry<DoubleRange, EventEvaluator> entry : subMap.entrySet()) {
                 if ((attributeValue >= entry.getKey().getMin()) &&
-                    (attributeValue < entry.getKey().getMax()))
-                {
+                        (attributeValue < entry.getKey().getMax())) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else
-        {
+        } else {
             throw new IllegalStateException("Invalid filter operator " + this.getFilterOperator());
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilterReverseIndex(null);
+        }
     }
 
     private static final Logger log = LoggerFactory.getLogger(FilterParamIndexDoubleRange.class);

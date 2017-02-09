@@ -89,16 +89,13 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
             if (holder == null) {
                 holder = new EPDataFlowEventBeanCollectorContext(graphContext, submitEventBean, theEvent);
                 collectorDataTL.set(holder);
-            }
-            else {
+            } else {
                 holder.setEvent(theEvent);
             }
             collector.collect(holder);
-        }
-        else if (submitEventBean) {
+        } else if (submitEventBean) {
             emittables.add(theEvent);
-        }
-        else {
+        } else {
             emittables.add(theEvent.getUnderlying());
         }
     }
@@ -116,13 +113,12 @@ public class EventBusSource implements DataFlowSourceOperator, DataFlowOpLifecyc
         try {
             List<ExprNode> filters = Collections.emptyList();
             if (filter != null) {
-                 filters = Collections.singletonList(filter);
+                filters = Collections.singletonList(filter);
             }
             FilterSpecCompiled spec = FilterSpecCompiler.makeFilterSpec(eventType, eventType.getName(), filters, null,
-                        null, null, new StreamTypeServiceImpl(eventType, eventType.getName(), true, agentInstanceContext.getEngineURI()), null, agentInstanceContext.getStatementContext(), new ArrayList<Integer>());
+                    null, null, new StreamTypeServiceImpl(eventType, eventType.getName(), true, agentInstanceContext.getEngineURI()), null, agentInstanceContext.getStatementContext(), new ArrayList<Integer>());
             valueSet = spec.getValueSet(null, agentInstanceContext, null);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             throw new EPException("Failed to open filter: " + ex.getMessage(), ex);
         }
 

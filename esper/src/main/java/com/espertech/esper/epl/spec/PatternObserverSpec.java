@@ -17,18 +17,17 @@ import java.util.List;
 /**
  * Specification for a pattern observer object consists of a namespace, name and object parameters.
  */
-public final class PatternObserverSpec extends ObjectSpec
-{
+public final class PatternObserverSpec extends ObjectSpec {
     private static final long serialVersionUID = 4146597759173320714L;
 
     /**
      * Constructor.
-     * @param namespace if the namespace the object is in
-     * @param objectName is the name of the object
+     *
+     * @param namespace        if the namespace the object is in
+     * @param objectName       is the name of the object
      * @param objectParameters is a list of values representing the object parameters
      */
-    public PatternObserverSpec(String namespace, String objectName, List<ExprNode> objectParameters)
-    {
+    public PatternObserverSpec(String namespace, String objectName, List<ExprNode> objectParameters) {
         super(namespace, objectName, objectParameters);
     }
 }

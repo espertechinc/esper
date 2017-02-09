@@ -13,8 +13,8 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.MetaDefItem;
 
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Filter definition in an un-validated and un-resolved form.
@@ -22,8 +22,7 @@ import java.io.Serializable;
  * Event type and expression nodes in this filter specification are not yet validated, optimized for resolved
  * against actual streams.
  */
-public class FilterSpecRaw implements MetaDefItem, Serializable
-{
+public class FilterSpecRaw implements MetaDefItem, Serializable {
     private String eventTypeName;
     private List<ExprNode> filterExpressions;
     private PropertyEvalSpec optionalPropertyEvalSpec;
@@ -31,12 +30,12 @@ public class FilterSpecRaw implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param eventTypeName is the name of the event type
-     * @param filterExpressions is a list of expression nodes representing individual filter expressions
+     *
+     * @param eventTypeName            is the name of the event type
+     * @param filterExpressions        is a list of expression nodes representing individual filter expressions
      * @param optionalPropertyEvalSpec specification for a property select
      */
-    public FilterSpecRaw(String eventTypeName, List<ExprNode> filterExpressions, PropertyEvalSpec optionalPropertyEvalSpec)
-    {
+    public FilterSpecRaw(String eventTypeName, List<ExprNode> filterExpressions, PropertyEvalSpec optionalPropertyEvalSpec) {
         this.eventTypeName = eventTypeName;
         this.filterExpressions = filterExpressions;
         this.optionalPropertyEvalSpec = optionalPropertyEvalSpec;
@@ -45,34 +44,33 @@ public class FilterSpecRaw implements MetaDefItem, Serializable
     /**
      * Default ctor.
      */
-    public FilterSpecRaw()
-    {
+    public FilterSpecRaw() {
     }
 
     /**
      * Returns the event type name of the events we are looking for.
+     *
      * @return event name
      */
-    public String getEventTypeName()
-    {
+    public String getEventTypeName() {
         return eventTypeName;
     }
 
     /**
      * Returns the list of filter expressions.
+     *
      * @return filter expression list
      */
-    public List<ExprNode> getFilterExpressions()
-    {
+    public List<ExprNode> getFilterExpressions() {
         return filterExpressions;
     }
 
     /**
      * Returns the property evaluation specification, if any, or null if no properties evaluated.
+     *
      * @return property eval spec
      */
-    public PropertyEvalSpec getOptionalPropertyEvalSpec()
-    {
+    public PropertyEvalSpec getOptionalPropertyEvalSpec() {
         return optionalPropertyEvalSpec;
     }
 }

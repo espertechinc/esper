@@ -16,15 +16,15 @@ import java.util.List;
 /**
  * Represents a rollup or cube in a group-by clause.
  */
-public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpression
-{
+public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpression {
     private static final long serialVersionUID = 2632212485394913696L;
     private boolean cube;
     private List<GroupByClauseExpression> expressions;
 
     /**
      * Ctor.
-     * @param cube true for cube, false for rollup
+     *
+     * @param cube        true for cube, false for rollup
      * @param expressions group-by expressions as part of rollup or cube
      */
     public GroupByClauseExpressionRollupOrCube(boolean cube, List<GroupByClauseExpression> expressions) {
@@ -40,6 +40,7 @@ public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpress
 
     /**
      * Returns the rollup or cube group-by expressions.
+     *
      * @return expressions
      */
     public List<GroupByClauseExpression> getExpressions() {
@@ -48,6 +49,7 @@ public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpress
 
     /**
      * Sets the rollup or cube group-by expressions.
+     *
      * @param expressions expressions to set
      */
     public void setExpressions(List<GroupByClauseExpression> expressions) {
@@ -56,6 +58,7 @@ public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpress
 
     /**
      * Returns true for cube, false for rollup.
+     *
      * @return cube
      */
     public boolean isCube() {
@@ -64,6 +67,7 @@ public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpress
 
     /**
      * Set to true for cube, false for rollup.
+     *
      * @param cube cube indicator
      */
     public void setCube(boolean cube) {
@@ -73,13 +77,11 @@ public class GroupByClauseExpressionRollupOrCube implements GroupByClauseExpress
     public void toEPL(StringWriter writer) {
         if (cube) {
             writer.append("cube(");
-        }
-        else {
+        } else {
             writer.append("rollup(");
         }
         String delimiter = "";
-        for (GroupByClauseExpression child : expressions)
-        {
+        for (GroupByClauseExpression child : expressions) {
             writer.write(delimiter);
             child.toEPL(writer);
             delimiter = ", ";

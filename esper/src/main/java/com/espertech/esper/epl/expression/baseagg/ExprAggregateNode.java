@@ -19,12 +19,16 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 /**
  * Base expression node that represents an aggregation function such as 'sum' or 'count'.
  */
-public interface ExprAggregateNode extends ExprEvaluator, ExprNode
-{
+public interface ExprAggregateNode extends ExprEvaluator, ExprNode {
     public AggregationMethodFactory getFactory();
+
     public void setAggregationResultFuture(AggregationResultFuture aggregationResultFuture, int column);
+
     public boolean isDistinct();
+
     public ExprAggregateLocalGroupByDesc getOptionalLocalGroupBy();
+
     public void validatePositionals() throws ExprValidationException;
+
     public ExprNode[] getPositionalParams();
 }

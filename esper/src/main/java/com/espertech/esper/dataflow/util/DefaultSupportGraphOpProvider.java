@@ -17,7 +17,7 @@ public class DefaultSupportGraphOpProvider implements EPDataFlowOperatorProvider
     private final Object[] ops;
 
     public DefaultSupportGraphOpProvider(Object op) {
-        this.ops = new Object[] {op};
+        this.ops = new Object[]{op};
     }
 
     public DefaultSupportGraphOpProvider(Object... ops) {

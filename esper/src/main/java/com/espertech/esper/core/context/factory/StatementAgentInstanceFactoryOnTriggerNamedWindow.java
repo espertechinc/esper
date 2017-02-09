@@ -50,8 +50,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
     private final SubordinateWMatchExprQueryPlanResult queryPlan;
 
     public StatementAgentInstanceFactoryOnTriggerNamedWindow(final StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, ExprNode validatedJoin, ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype, NamedWindowOnExprFactory onExprFactory, OutputProcessViewFactory outputProcessViewFactory, EventType activatorResultEventType, final NamedWindowProcessor processor, List<StopCallback> stopCallbacks)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         super(statementContext, statementSpec, services, activator, subSelectStrategyCollection);
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
         this.outputResultSetProcessorPrototype = outputResultSetProcessorPrototype;
@@ -112,8 +111,8 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
     public View determineFinalOutputView(AgentInstanceContext agentInstanceContext, View onExprView) {
 
         if ((statementSpec.getOnTriggerDesc().getOnTriggerType() == OnTriggerType.ON_DELETE) ||
-            (statementSpec.getOnTriggerDesc().getOnTriggerType() == OnTriggerType.ON_UPDATE) ||
-            (statementSpec.getOnTriggerDesc().getOnTriggerType() == OnTriggerType.ON_MERGE)) {
+                (statementSpec.getOnTriggerDesc().getOnTriggerType() == OnTriggerType.ON_UPDATE) ||
+                (statementSpec.getOnTriggerDesc().getOnTriggerType() == OnTriggerType.ON_MERGE)) {
 
             ResultSetProcessor outputResultSetProcessor = outputResultSetProcessorPrototype.getResultSetProcessorFactory().instantiate(null, null, agentInstanceContext);
             View outputView = outputProcessViewFactory.makeView(outputResultSetProcessor, agentInstanceContext);
@@ -125,8 +124,7 @@ public class StatementAgentInstanceFactoryOnTriggerNamedWindow extends Statement
     }
 
     protected static IndexHintPair getIndexHintPair(StatementContext statementContext, StatementSpecCompiled statementSpec)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         IndexHint indexHint = IndexHint.getIndexHint(statementContext.getAnnotations());
         ExcludePlanHint excludePlanHint = null;
         if (statementSpec.getOnTriggerDesc() instanceof OnTriggerWindowDesc) {

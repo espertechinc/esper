@@ -33,8 +33,7 @@ public class EvalSelectStreamNoUndWEventBeanToObj extends EvalSelectStreamBaseMa
         this.eventBeanToObjectProps = eventBeanToObjectProps;
     }
 
-    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         for (String property : eventBeanToObjectProps) {
             Object value = props.get(property);
             if (value instanceof EventBean) {

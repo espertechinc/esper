@@ -10,36 +10,30 @@
  */
 package com.espertech.esper.example.stockticker.eventbean;
 
-public class LimitAlert
-{
+public class LimitAlert {
     private StockTick tick;
     private PriceLimit limit;
     double initialPrice;
 
-    public LimitAlert(StockTick tick, PriceLimit limit, double initialPrice)
-    {
+    public LimitAlert(StockTick tick, PriceLimit limit, double initialPrice) {
         this.tick = tick;
         this.limit = limit;
         this.initialPrice = initialPrice;
     }
 
-    public StockTick getTick()
-    {
+    public StockTick getTick() {
         return tick;
     }
 
-    public PriceLimit getPriceLimit()
-    {
+    public PriceLimit getPriceLimit() {
         return limit;
     }
 
-    public double getInitialPrice()
-    {
+    public double getInitialPrice() {
         return initialPrice;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return tick.toString() +
                 "  " + limit.toString() +
                 "  initialPrice=" + initialPrice;

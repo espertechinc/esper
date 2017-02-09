@@ -26,22 +26,24 @@ import java.util.Set;
 /**
  * Service to manage named window dispatches, locks and processors on an engine level.
  */
-public interface NamedWindowDispatchService
-{
+public interface NamedWindowDispatchService {
     NamedWindowProcessor createProcessor(String name, NamedWindowMgmtServiceImpl namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow);
+
     NamedWindowTailView createTailView(EventType eventType, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, boolean prioritized, boolean parentBatchWindow, String contextName, TimeSourceService timeSourceService, ConfigurationEngineDefaults.Threading threadingConfig);
 
     /**
      * Dispatch events of the insert and remove stream of named windows to consumers, as part of the
      * main event processing or dispatch loop.
+     *
      * @return send events to consuming statements
      */
     boolean dispatch();
 
     /**
      * For use to add a result of a named window that must be dispatched to consuming views.
-     * @param delta is the result to dispatch
-     * @param consumers is the destination of the dispatch, a map of statements to one or more consuming views
+     *
+     * @param delta        is the result to dispatch
+     * @param consumers    is the destination of the dispatch, a map of statements to one or more consuming views
      * @param latchFactory latch factory
      */
     void addDispatch(NamedWindowConsumerLatchFactory latchFactory, NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers);

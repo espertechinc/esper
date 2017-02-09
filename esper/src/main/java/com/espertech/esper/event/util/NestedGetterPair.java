@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 /**
  * Value-object for rendering support of a nested property value.
  */
-public class NestedGetterPair
-{
+public class NestedGetterPair {
     private String name;
     private EventPropertyGetter getter;
     private RendererMeta metadata;
@@ -24,13 +23,13 @@ public class NestedGetterPair
 
     /**
      * Ctor.
-     * @param getter for retrieving the value
-     * @param name property name
+     *
+     * @param getter   for retrieving the value
+     * @param name     property name
      * @param metadata the nested properties metadata
-     * @param isArray indicates whether this is an indexed property
+     * @param isArray  indicates whether this is an indexed property
      */
-    public NestedGetterPair(EventPropertyGetter getter, String name, RendererMeta metadata, boolean isArray)
-    {
+    public NestedGetterPair(EventPropertyGetter getter, String name, RendererMeta metadata, boolean isArray) {
         this.getter = getter;
         this.name = name;
         this.metadata = metadata;
@@ -39,37 +38,37 @@ public class NestedGetterPair
 
     /**
      * Returns the getter.
+     *
      * @return getter
      */
-    public EventPropertyGetter getGetter()
-    {
+    public EventPropertyGetter getGetter() {
         return getter;
     }
 
     /**
      * Returns the property name.
+     *
      * @return property name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Returns the nested property's metadata.
+     *
      * @return metadata
      */
-    public RendererMeta getMetadata()
-    {
+    public RendererMeta getMetadata() {
         return metadata;
     }
 
     /**
      * Returns true if an indexed nested property.
+     *
      * @return indicator whether indexed
      */
-    public boolean isArray()
-    {
+    public boolean isArray() {
         return isArray;
     }
 }

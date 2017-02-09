@@ -48,8 +48,7 @@ import java.util.Set;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBase {
     public EPStatementStartMethodCreateWindow(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }
@@ -72,6 +71,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                 public void indicateQ() {
                     InstrumentationHelper.get().qFilterActivationNamedWindowInsert(eventTypeName);
                 }
+
                 public void indicateA() {
                     InstrumentationHelper.get().aFilterActivationNamedWindowInsert();
                 }
@@ -122,7 +122,7 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
             statementSpec.setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
 
             // obtain result set processor factory
-            StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {processor.getNamedWindowType()}, new String[] {windowName}, new boolean[] {true}, services.getEngineURI(), false);
+            StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{processor.getNamedWindowType()}, new String[]{windowName}, new boolean[]{true}, services.getEngineURI(), false);
             ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
                     statementSpec, statementContext, typeService, null, new boolean[0], true, null, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), false, false);
 
@@ -143,28 +143,25 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
 
                 final ContextManagedStatementCreateWindowDesc statement = new ContextManagedStatementCreateWindowDesc(statementSpec, statementContext, mergeView, contextFactory);
                 services.getContextManagementService().addStatement(contextName, statement, isRecoveringResilient);
-                stopStatementMethod = new EPStatementStopMethod(){
-                    public void stop()
-                    {
+                stopStatementMethod = new EPStatementStopMethod() {
+                    public void stop() {
                         services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                         stopMethod.stop();
                     }
                 };
 
-                destroyStatementMethod = new EPStatementDestroyMethod(){
+                destroyStatementMethod = new EPStatementDestroyMethod() {
                     public void destroy() {
                         services.getContextManagementService().destroyedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
                     }
                 };
-            }
-            // Without context - start here
-            else {
+            } else {
+                // Without context - start here
                 AgentInstanceContext agentInstanceContext = getDefaultAgentInstanceContext(statementContext);
                 final StatementAgentInstanceFactoryCreateWindowResult resultOfStart;
                 try {
                     resultOfStart = (StatementAgentInstanceFactoryCreateWindowResult) contextFactory.newContext(agentInstanceContext, isRecoveringResilient);
-                }
-                catch (RuntimeException ex) {
+                } catch (RuntimeException ex) {
                     services.getNamedWindowMgmtService().removeProcessor(windowName);
                     throw ex;
                 }
@@ -184,12 +181,10 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
                     statementContext.getStatementExtensionServicesContext().postProcessStart(resultOfStart, isRecoveringResilient);
                 }
             }
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             services.getNamedWindowMgmtService().removeProcessor(windowName);
             throw ex;
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             services.getNamedWindowMgmtService().removeProcessor(windowName);
             throw ex;
         }
@@ -219,10 +214,8 @@ public class EPStatementStartMethodCreateWindow extends EPStatementStartMethodBa
 
     private void verifyDataWindowViewFactoryChain(List<ViewFactory> viewFactories) throws ExprValidationException {
 
-        for (ViewFactory viewFactory : viewFactories)
-        {
-            if (viewFactory instanceof DataWindowViewFactory)
-            {
+        for (ViewFactory viewFactory : viewFactories) {
+            if (viewFactory instanceof DataWindowViewFactory) {
                 return;
             }
         }

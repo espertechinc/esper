@@ -15,15 +15,12 @@ import com.espertech.esper.util.IndentWriter;
 /**
  * Assembly factory node for an event stream that is a root with a one optional child node below it.
  */
-public class RootOptionalAssemblyNodeFactory extends BaseAssemblyNodeFactory
-{
-    public RootOptionalAssemblyNodeFactory(int streamNum, int numStreams)
-    {
+public class RootOptionalAssemblyNodeFactory extends BaseAssemblyNodeFactory {
+    public RootOptionalAssemblyNodeFactory(int streamNum, int numStreams) {
         super(streamNum, numStreams);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("RootOptionalAssemblyNode streamNum=" + streamNum);
     }
 

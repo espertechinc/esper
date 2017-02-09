@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 /**
  * Interface for reading all event properties of an event.
  */
-public interface EventBeanReader
-{
+public interface EventBeanReader {
     /**
      * Returns all event properties in the exact order they appear as properties.
+     *
      * @param theEvent to read
      * @return property values
      */

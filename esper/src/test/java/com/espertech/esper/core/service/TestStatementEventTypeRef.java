@@ -16,17 +16,14 @@ import junit.framework.TestCase;
 
 import java.util.HashSet;
 
-public class TestStatementEventTypeRef extends TestCase
-{
+public class TestStatementEventTypeRef extends TestCase {
     private StatementEventTypeRefImpl service;
 
-    public void setUp()
-    {
+    public void setUp() {
         service = new StatementEventTypeRefImpl();
     }
 
-    public void testFlowNoRemoveType()
-    {
+    public void testFlowNoRemoveType() {
         addReference("s0", "e1");
         assertTrue(service.isInUse("e1"));
         EPAssertionUtil.assertEqualsAnyOrder(service.getStatementNamesForType("e1").toArray(), new Object[]{"s0"});
@@ -79,8 +76,7 @@ public class TestStatementEventTypeRef extends TestCase
         assertEquals(0, service.getTypeToStmt().size());
     }
 
-    public void testFlowRemoveType()
-    {
+    public void testFlowRemoveType() {
         addReference("s0", "e1");
         addReference("s1", "e1");
         addReference("s2", "e2");
@@ -100,8 +96,7 @@ public class TestStatementEventTypeRef extends TestCase
         assertEquals(0, service.getTypeToStmt().size());
     }
 
-    public void testInvalid()
-    {
+    public void testInvalid() {
         service.removeReferencesStatement("s1");
 
         addReference("s2", "e2");
@@ -123,8 +118,7 @@ public class TestStatementEventTypeRef extends TestCase
         assertEquals(0, service.getTypeToStmt().size());
     }
 
-    private void addReference(String stmtName, String typeName)
-    {
+    private void addReference(String stmtName, String typeName) {
         HashSet<String> set = new HashSet<String>();
         set.add(typeName);
         service.addReferences(stmtName, CollectionUtil.toArray(set));

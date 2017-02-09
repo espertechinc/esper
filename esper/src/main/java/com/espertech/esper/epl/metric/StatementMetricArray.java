@@ -20,12 +20,12 @@ import java.util.Set;
  * Holder for statement group's statement metrics.
  * <p>
  * Changes to StatementMetric instances must be done in a read-lock:
-<pre>
-getRwLock.readLock.lock()
-metric = getAddMetric(index)
-metric.accountFor(cpu, wall, etc)
-getRwLock.readLock.unlock()
-</pre>
+ * <pre>
+ * getRwLock.readLock.lock()
+ * metric = getAddMetric(index)
+ * metric.accountFor(cpu, wall, etc)
+ * getRwLock.readLock.unlock()
+ * </pre>
  * <p>
  * All other changes are done under write lock for this class.
  * <p>
@@ -34,8 +34,7 @@ getRwLock.readLock.unlock()
  * <p>
  * The flush operaton copies the complete array, thereby keeping array size. Statement names are only removed on the next flush.
  */
-public class StatementMetricArray
-{
+public class StatementMetricArray {
     private final String engineURI;
 
     // Lock
@@ -58,16 +57,16 @@ public class StatementMetricArray
 
     /**
      * Ctor.
-     * @param engineURI engine URI
-     * @param name name of statement group
-     * @param initialSize initial size of array
+     *
+     * @param engineURI        engine URI
+     * @param name             name of statement group
+     * @param initialSize      initial size of array
      * @param isReportInactive true to indicate to report on inactive statements
      */
-    public StatementMetricArray(String engineURI, String name, int initialSize, boolean isReportInactive)
-    {
+    public StatementMetricArray(String engineURI, String name, int initialSize, boolean isReportInactive) {
         this.engineURI = engineURI;
         this.isReportInactive = isReportInactive;
-        
+
         metrics = new StatementMetric[initialSize];
         statementNames = new String[initialSize];
         currentLastElement = -1;
@@ -79,28 +78,23 @@ public class StatementMetricArray
      * Remove a statement.
      * <p>
      * Next flush actually frees the slot that this statement occupied.
+     *
      * @param statementName to remove
      */
-    public void removeStatement(String statementName)
-    {
+    public void removeStatement(String statementName) {
         rwLock.acquireWriteLock();
-        try
-        {
+        try {
             removedStatementNames.add(statementName);
 
             if (removedStatementNames.size() > 1000) {
-                for (int i = 0; i <= currentLastElement; i++)
-                {
-                    if (removedStatementNames.contains(statementNames[i]))
-                    {
+                for (int i = 0; i <= currentLastElement; i++) {
+                    if (removedStatementNames.contains(statementNames[i])) {
                         statementNames[i] = null;
                     }
                 }
                 removedStatementNames.clear();
             }
-        }
-        finally
-        {
+        } finally {
             rwLock.releaseWriteLock();
         }
     }
@@ -109,30 +103,25 @@ public class StatementMetricArray
      * Adds a statement and returns the index added at.
      * <p>
      * May reuse an empty slot, grow the underlying array, or append to the end.
+     *
      * @param statementName to add
      * @return index added to
      */
-    public int addStatementGetIndex(String statementName)
-    {
+    public int addStatementGetIndex(String statementName) {
         rwLock.acquireWriteLock();
-        try
-        {
+        try {
             // see if there is room
-            if ((currentLastElement + 1) < metrics.length)
-            {
+            if ((currentLastElement + 1) < metrics.length) {
                 currentLastElement++;
                 statementNames[currentLastElement] = statementName;
                 return currentLastElement;
             }
 
             // no room, try to use an existing slot of a removed statement
-            for (int i = 0; i < statementNames.length; i++)
-            {
-                if (statementNames[i] == null)
-                {
+            for (int i = 0; i < statementNames.length; i++) {
+                if (statementNames[i] == null) {
                     statementNames[i] = statementName;
-                    if ((i + 1) > currentLastElement)
-                    {
+                    if ((i + 1) > currentLastElement) {
                         currentLastElement = i;
                     }
                     return i;
@@ -153,9 +142,7 @@ public class StatementMetricArray
             statementNames[currentLastElement] = statementName;
 
             return currentLastElement;
-        }
-        finally
-        {
+        } finally {
             rwLock.releaseWriteLock();
         }
     }
@@ -166,51 +153,41 @@ public class StatementMetricArray
      * May report all statements (empty and non-empty slots) and thereby null values.
      * <p>
      * Returns null to indicate no reports to do.
+     *
      * @return metrics
      */
-    public StatementMetric[] flushMetrics()
-    {
+    public StatementMetric[] flushMetrics() {
         rwLock.acquireWriteLock();
-        try
-        {
+        try {
             boolean isEmpty = false;
-            if (currentLastElement == -1)
-            {
+            if (currentLastElement == -1) {
                 isEmpty = true;
             }
 
             // first fill in the blanks if there are no reports and we report inactive statements
-            if (isReportInactive)
-            {
-                for (int i = 0; i <= currentLastElement; i++)
-                {
-                    if (statementNames[i] != null)
-                    {
+            if (isReportInactive) {
+                for (int i = 0; i <= currentLastElement; i++) {
+                    if (statementNames[i] != null) {
                         metrics[i] = new StatementMetric(engineURI, statementNames[i]);
                     }
                 }
             }
 
             // remove statement ids that disappeared during the interval
-            if ((currentLastElement > -1) && (!removedStatementNames.isEmpty()))
-            {
-                for (int i = 0; i <= currentLastElement; i++)
-                {
-                    if (removedStatementNames.contains(statementNames[i]))
-                    {
+            if ((currentLastElement > -1) && (!removedStatementNames.isEmpty())) {
+                for (int i = 0; i <= currentLastElement; i++) {
+                    if (removedStatementNames.contains(statementNames[i])) {
                         statementNames[i] = null;
                     }
                 }
             }
 
             // adjust last used element
-            while ((currentLastElement != -1) && (statementNames[currentLastElement] == null))
-            {
+            while ((currentLastElement != -1) && (statementNames[currentLastElement] == null)) {
                 currentLastElement--;
             }
 
-            if (isEmpty)
-            {
+            if (isEmpty) {
                 return null;    // no copies made if empty collection
             }
 
@@ -219,32 +196,29 @@ public class StatementMetricArray
             StatementMetric[] oldMetrics = metrics;
             metrics = newMetrics;
             return oldMetrics;
-        }
-        finally
-        {
+        } finally {
             rwLock.releaseWriteLock();
         }
     }
 
     /**
      * Returns the read-write lock, for read-lock when modifications are made.
+     *
      * @return lock
      */
-    public ManagedReadWriteLock getRwLock()
-    {
+    public ManagedReadWriteLock getRwLock() {
         return rwLock;
     }
 
     /**
      * Returns an existing or creates a new statement metric for the index.
+     *
      * @param index of statement
      * @return metric to modify under read lock
      */
-    public StatementMetric getAddMetric(int index)
-    {
+    public StatementMetric getAddMetric(int index) {
         StatementMetric metric = metrics[index];
-        if (metric == null)
-        {
+        if (metric == null) {
             metric = new StatementMetric(engineURI, statementNames[index]);
             metrics[index] = metric;
         }
@@ -254,10 +228,10 @@ public class StatementMetricArray
     /**
      * Returns maximum collection size (last used element), which may not truely reflect the number
      * of actual statements held as some slots may empty up when statements are removed.
+     *
      * @return known maximum size
      */
-    public int sizeLastElement()
-    {
+    public int sizeLastElement() {
         return currentLastElement + 1;
     }
 }

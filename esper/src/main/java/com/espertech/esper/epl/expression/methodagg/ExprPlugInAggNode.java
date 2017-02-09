@@ -22,28 +22,26 @@ import com.espertech.esper.epl.expression.core.*;
 /**
  * Represents a custom aggregation function in an expresson tree.
  */
-public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggregationPlugInNodeMarker
-{
+public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggregationPlugInNodeMarker {
     private static final long serialVersionUID = 65459875362787079L;
     private transient AggregationFunctionFactory aggregationFunctionFactory;
     private final String functionName;
 
     /**
      * Ctor.
-     * @param distinct - flag indicating unique or non-unique value aggregation
+     *
+     * @param distinct                   - flag indicating unique or non-unique value aggregation
      * @param aggregationFunctionFactory - is the base class for plug-in aggregation functions
-     * @param functionName is the aggregation function name
+     * @param functionName               is the aggregation function name
      */
-    public ExprPlugInAggNode(boolean distinct, AggregationFunctionFactory aggregationFunctionFactory, String functionName)
-    {
+    public ExprPlugInAggNode(boolean distinct, AggregationFunctionFactory aggregationFunctionFactory, String functionName) {
         super(distinct);
         this.aggregationFunctionFactory = aggregationFunctionFactory;
         this.functionName = functionName;
         aggregationFunctionFactory.setFunctionName(functionName);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         Class[] parameterTypes = new Class[positionalParams.length];
         Object[] constant = new Object[positionalParams.length];
         boolean[] isConstant = new boolean[positionalParams.length];
@@ -51,10 +49,8 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
 
         int count = 0;
         boolean hasDataWindows = true;
-        for (ExprNode child : positionalParams)
-        {
-            if (child.isConstantResult())
-            {
+        for (ExprNode child : positionalParams) {
+            if (child.isConstantResult()) {
                 isConstant[count] = true;
                 constant[count] = child.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
             }
@@ -76,38 +72,31 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
         }
 
         AggregationValidationContext context = new AggregationValidationContext(parameterTypes, isConstant, constant, super.isDistinct(), hasDataWindows, expressions);
-        try
-        {
+        try {
             // the aggregation function factory is transient, obtain if not provided
             if (aggregationFunctionFactory == null) {
                 aggregationFunctionFactory = validationContext.getEngineImportService().resolveAggregationFactory(functionName);
             }
 
             aggregationFunctionFactory.validate(context);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             throw new ExprValidationException("Plug-in aggregation function '" + functionName + "' failed validation: " + ex.getMessage(), ex);
         }
 
         Class childType = null;
-        if (positionalParams.length > 0)
-        {
+        if (positionalParams.length > 0) {
             childType = positionalParams[0].getExprEvaluator().getType();
         }
 
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makePlugInMethod(validationContext.getStatementExtensionSvcContext(), this, aggregationFunctionFactory, childType);
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return functionName;
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprPlugInAggNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprPlugInAggNode)) {
             return false;
         }
 

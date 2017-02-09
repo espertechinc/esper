@@ -20,33 +20,29 @@ import java.util.Map;
  * decrements the reference count for the key, and removes the key if the reference count reached zero.
  * Null values are not allowed as keys.
  */
-public class RefCountedMap<K,V>
-{
+public class RefCountedMap<K, V> {
     private Map<K, Pair<V, Integer>> refMap;
 
     /**
      * Constructor.
      */
-    public RefCountedMap()
-    {
+    public RefCountedMap() {
         refMap = new HashMap<K, Pair<V, Integer>>();
     }
 
     /**
      * Add and key and value with a reference count as one. If the key already exists, throw an exception.
      * Clients should use the "get" method first to check if the key exists.
-     * @param key to add
+     *
+     * @param key   to add
      * @param value to add
      * @return value added
      */
-    public V put(K key, V value)
-    {
-        if (key == null)
-        {
+    public V put(K key, V value) {
+        if (key == null) {
             throw new IllegalArgumentException("Collection does not allow null key values");
         }
-        if (refMap.containsKey(key))
-        {
+        if (refMap.containsKey(key)) {
             throw new IllegalStateException("Key value already in collection");
         }
 
@@ -58,14 +54,13 @@ public class RefCountedMap<K,V>
 
     /**
      * Get the value for a given key, returning null if the key was not found.
+     *
      * @param key is the key to look up and return the value for
      * @return value for key, or null if key was not found
      */
-    public V get(K key)
-    {
+    public V get(K key) {
         Pair<V, Integer> refValue = refMap.get(key);
-        if (refValue == null)
-        {
+        if (refValue == null) {
             return null;
         }
         return refValue.getFirst();
@@ -74,13 +69,12 @@ public class RefCountedMap<K,V>
     /**
      * Increase the reference count for a given key by one.
      * Throws an IllegalArgumentException if the key was not found.
+     *
      * @param key is the key to increase the ref count for
      */
-    public void reference(K key)
-    {
+    public void reference(K key) {
         Pair<V, Integer> refValue = refMap.get(key);
-        if (refValue == null)
-        {
+        if (refValue == null) {
             throw new IllegalStateException("Key value not found in collection");
         }
         refValue.setSecond(refValue.getSecond() + 1);
@@ -90,27 +84,24 @@ public class RefCountedMap<K,V>
      * Decreases the reference count for a given key by one. Returns true if the reference count reaches zero.
      * Removes the key from the collection when the reference count reaches zero.
      * Throw an IllegalArgumentException if the key is not found.
+     *
      * @param key to de-reference
      * @return true to indicate the reference count reached zero, false to indicate more references to the key exist.
      */
-    public boolean dereference(K key)
-    {
+    public boolean dereference(K key) {
         Pair<V, Integer> refValue = refMap.get(key);
-        if (refValue == null)
-        {
+        if (refValue == null) {
             throw new IllegalStateException("Key value not found in collection");
         }
 
         int refCounter = refValue.getSecond();
-        if (refCounter < 1)
-        {
+        if (refCounter < 1) {
             throw new IllegalStateException("Unexpected reference counter value " + refValue.getSecond() +
                     " encountered for key " + key);
         }
 
         // Remove key on dereference of last reference
-        if (refCounter == 1)
-        {
+        if (refCounter == 1) {
             refMap.remove(key);
             return true;
         }
@@ -122,8 +113,7 @@ public class RefCountedMap<K,V>
     /**
      * Clear out the collection.
      */
-    public void clear()
-    {
+    public void clear() {
         refMap.clear();
     }
 }

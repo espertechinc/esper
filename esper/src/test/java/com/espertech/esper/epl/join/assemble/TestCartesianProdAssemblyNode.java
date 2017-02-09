@@ -10,27 +10,24 @@
  */
 package com.espertech.esper.epl.join.assemble;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.supportunit.epl.join.SupportJoinProcNode;
 import com.espertech.esper.supportunit.epl.join.SupportJoinResultNodeFactory;
-import com.espertech.esper.epl.join.rep.Node;
-import com.espertech.esper.client.EventBean;
+import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-public class TestCartesianProdAssemblyNode extends TestCase
-{
+public class TestCartesianProdAssemblyNode extends TestCase {
     private SupportJoinProcNode parentNode;
     private CartesianProdAssemblyNode optCartNode;
     private List<Node>[] resultMultipleEvents;
     private List<Node>[] resultSingleEvent;
 
-    public void setUp()
-    {
-        optCartNode = new CartesianProdAssemblyNode(1, 4, true, new int[] {0,0,0,1});
+    public void setUp() {
+        optCartNode = new CartesianProdAssemblyNode(1, 4, true, new int[]{0, 0, 0, 1});
 
         parentNode = new SupportJoinProcNode(-1, 4);
         parentNode.addChild(optCartNode);
@@ -43,8 +40,7 @@ public class TestCartesianProdAssemblyNode extends TestCase
         resultSingleEvent = SupportJoinResultNodeFactory.makeOneStreamResult(4, 1, 1, 1); // 1 nodes 1 event each for (1)
     }
 
-    public void testFlow()
-    {
+    public void testFlow() {
         optCartNode.init(resultMultipleEvents);
 
         EventBean[] stream2Events = SupportJoinResultNodeFactory.makeEvents(2); // for identifying rows in cartesian product
@@ -80,17 +76,16 @@ public class TestCartesianProdAssemblyNode extends TestCase
 
         EventBean[][] rowArr = SupportJoinResultNodeFactory.convertTo2DimArr(parentNode.getRowsList());
         EPAssertionUtil.assertEqualsAnyOrder(new EventBean[][]{
-                new EventBean[]{null, eventOneStreamOne, stream2Events[0], stream3Events[0]},
-                new EventBean[]{null, eventOneStreamOne, stream2Events[0], stream3Events[1]},
-                new EventBean[]{null, eventOneStreamOne, stream2Events[1], stream3Events[0]},
-                new EventBean[]{null, eventOneStreamOne, stream2Events[1], stream3Events[1]},
-                new EventBean[]{null, eventTwoStreamOne, null, null},
-        }
+                        new EventBean[]{null, eventOneStreamOne, stream2Events[0], stream3Events[0]},
+                        new EventBean[]{null, eventOneStreamOne, stream2Events[0], stream3Events[1]},
+                        new EventBean[]{null, eventOneStreamOne, stream2Events[1], stream3Events[0]},
+                        new EventBean[]{null, eventOneStreamOne, stream2Events[1], stream3Events[1]},
+                        new EventBean[]{null, eventTwoStreamOne, null, null},
+                }
                 , rowArr);
     }
 
-    public void testProcessSingleEvent()
-    {
+    public void testProcessSingleEvent() {
         optCartNode.init(resultSingleEvent);
 
         // test that the node indeed manufactures event rows for any event not received from a child

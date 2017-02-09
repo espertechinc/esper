@@ -19,8 +19,7 @@ import com.espertech.esper.util.TypeWidener;
 /**
  * Pre-Processing entry for routing an event internally.
  */
-public class InternalEventRouterEntry
-{
+public class InternalEventRouterEntry {
     private final int priority;
     private final boolean isDrop;
     private final ExprEvaluator optionalWhereClause;
@@ -33,18 +32,18 @@ public class InternalEventRouterEntry
 
     /**
      * Ctor.
-     * @param priority priority of statement
-     * @param drop whether to drop the event if matched
+     *
+     * @param priority            priority of statement
+     * @param drop                whether to drop the event if matched
      * @param optionalWhereClause where clause, or null if none provided
-     * @param assignments event property assignments
-     * @param writer writes values to an event
-     * @param wideners for widening types to write
-     * @param outputView for indicating output
-     * @param agentInstanceLock agent instance lock
-     * @param hasSubselect indicator whether there are subselects
+     * @param assignments         event property assignments
+     * @param writer              writes values to an event
+     * @param wideners            for widening types to write
+     * @param outputView          for indicating output
+     * @param agentInstanceLock   agent instance lock
+     * @param hasSubselect        indicator whether there are subselects
      */
-    public InternalEventRouterEntry(int priority, boolean drop, ExprNode optionalWhereClause, ExprNode[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect)
-    {
+    public InternalEventRouterEntry(int priority, boolean drop, ExprNode optionalWhereClause, ExprNode[] assignments, EventBeanWriter writer, TypeWidener[] wideners, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
         this.priority = priority;
         this.isDrop = drop;
         this.optionalWhereClause = optionalWhereClause == null ? null : optionalWhereClause.getExprEvaluator();
@@ -58,60 +57,61 @@ public class InternalEventRouterEntry
 
     /**
      * Returns the execution priority.
+     *
      * @return priority
      */
-    public int getPriority()
-    {
+    public int getPriority() {
         return priority;
     }
 
     /**
      * Returns indicator whether dropping events if the where-clause matches.
+     *
      * @return drop events
      */
-    public boolean isDrop()
-    {
+    public boolean isDrop() {
         return isDrop;
     }
 
     /**
      * Returns the where-clause or null if none defined
+     *
      * @return where-clause
      */
-    public ExprEvaluator getOptionalWhereClause()
-    {
+    public ExprEvaluator getOptionalWhereClause() {
         return optionalWhereClause;
     }
 
     /**
      * Returns the expressions providing values for assignment.
+     *
      * @return assignment expressions
      */
-    public ExprEvaluator[] getAssignments()
-    {
+    public ExprEvaluator[] getAssignments() {
         return assignments;
     }
 
     /**
      * Returns the writer to the event for writing property values.
+     *
      * @return writer
      */
-    public EventBeanWriter getWriter()
-    {
+    public EventBeanWriter getWriter() {
         return writer;
     }
 
     /**
      * Returns the type wideners to use or null if none required.
+     *
      * @return wideners.
      */
-    public TypeWidener[] getWideners()
-    {
+    public TypeWidener[] getWideners() {
         return wideners;
     }
 
     /**
      * Returns the output view.
+     *
      * @return output view
      */
     public InternalRoutePreprocessView getOutputView() {

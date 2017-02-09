@@ -14,8 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public class ExprConcatNodeEvalThreadLocal implements ExprEvaluator
-{
+public class ExprConcatNodeEvalThreadLocal implements ExprEvaluator {
     private final ExprConcatNode parent;
     private final ExprEvaluator[] evaluators;
 

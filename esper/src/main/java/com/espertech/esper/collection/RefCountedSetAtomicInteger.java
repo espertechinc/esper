@@ -14,8 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RefCountedSetAtomicInteger<K>
-{
+public class RefCountedSetAtomicInteger<K> {
     private Map<K, Object> refs;
 
     public RefCountedSetAtomicInteger() {
@@ -25,8 +24,7 @@ public class RefCountedSetAtomicInteger<K>
     /**
      * Clear out the collection.
      */
-    public void clear()
-    {
+    public void clear() {
         refs.clear();
     }
 
@@ -35,12 +33,10 @@ public class RefCountedSetAtomicInteger<K>
         if (count == null) {
             refs.put(key, 1);
             return true;
-        }
-        else if (count instanceof AtomicInteger) {
-            ((AtomicInteger)count).incrementAndGet();
+        } else if (count instanceof AtomicInteger) {
+            ((AtomicInteger) count).incrementAndGet();
             return false;
-        }
-        else {
+        } else {
             refs.put(key, new AtomicInteger(2));
             return false;
         }
@@ -50,16 +46,14 @@ public class RefCountedSetAtomicInteger<K>
         Object count = refs.get(key);
         if (count == null) {
             return false;
-        }
-        else if (count instanceof AtomicInteger) {
-            int val = ((AtomicInteger)count).decrementAndGet();
+        } else if (count instanceof AtomicInteger) {
+            int val = ((AtomicInteger) count).decrementAndGet();
             if (val == 0) {
                 refs.remove(key);
                 return true;
             }
             return false;
-        }
-        else {
+        } else {
             refs.remove(key);
             return true;
         }

@@ -14,17 +14,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventBeanCopyMethod;
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
  * Copy method for Map-underlying events.
  */
-public class AvroEventBeanCopyMethod implements EventBeanCopyMethod
-{
+public class AvroEventBeanCopyMethod implements EventBeanCopyMethod {
     private final AvroEventType avroEventType;
     private final EventAdapterService eventAdapterService;
 
@@ -33,8 +30,7 @@ public class AvroEventBeanCopyMethod implements EventBeanCopyMethod
         this.eventAdapterService = eventAdapterService;
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         GenericData.Record original = (GenericData.Record) theEvent.getUnderlying();
         GenericData.Record copy = new GenericData.Record(avroEventType.getSchemaAvro());
         List<Schema.Field> fields = avroEventType.getSchemaAvro().getFields();
@@ -44,14 +40,12 @@ public class AvroEventBeanCopyMethod implements EventBeanCopyMethod
                 if (originalColl != null) {
                     copy.put(field.pos(), new ArrayList<>(originalColl));
                 }
-            }
-            else if (field.schema().getType() == Schema.Type.MAP) {
+            } else if (field.schema().getType() == Schema.Type.MAP) {
                 Map originalMap = (Map) original.get(field.pos());
                 if (originalMap != null) {
                     copy.put(field.pos(), new HashMap<>(originalMap));
                 }
-            }
-            else {
+            } else {
                 copy.put(field.pos(), original.get(field.pos()));
             }
         }

@@ -11,24 +11,22 @@
 package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.supportunit.view.SupportBeanClassView;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
 import com.espertech.esper.supportunit.view.SupportViewDataChecker;
 import junit.framework.TestCase;
 
-public class TestMergeView extends TestCase
-{
+public class TestMergeView extends TestCase {
     private MergeView myView;
     private SupportBeanClassView childView;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         // Set up length window view and a test child view
         myView = new MergeView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(),
                 SupportExprNodeFactory.makeIdentNodesMD("symbol"),
@@ -38,8 +36,7 @@ public class TestMergeView extends TestCase
         myView.addView(childView);
     }
 
-    public void testViewPush()
-    {
+    public void testViewPush() {
         SupportStreamImpl stream = new SupportStreamImpl(SupportMarketDataBean.class, 2);
         stream.addView(myView);
 
@@ -50,19 +47,18 @@ public class TestMergeView extends TestCase
         stream.insert(tradeBeans[0]);
 
         SupportViewDataChecker.checkOldData(childView, null);
-        SupportViewDataChecker.checkNewData(childView, new EventBean[] { tradeBeans[0] });
+        SupportViewDataChecker.checkNewData(childView, new EventBean[]{tradeBeans[0]});
 
         // Send some more events, expect forwarded
         tradeBeans[1] = makeTradeBean("GE", 90);
         tradeBeans[2] = makeTradeBean("CSCO", 20);
-        stream.insert(new EventBean[] { tradeBeans[1], tradeBeans[2] });
+        stream.insert(new EventBean[]{tradeBeans[1], tradeBeans[2]});
 
-        SupportViewDataChecker.checkOldData(childView, new EventBean[] { tradeBeans[0] });
-        SupportViewDataChecker.checkNewData(childView, new EventBean[] { tradeBeans[1], tradeBeans[2] });
+        SupportViewDataChecker.checkOldData(childView, new EventBean[]{tradeBeans[0]});
+        SupportViewDataChecker.checkNewData(childView, new EventBean[]{tradeBeans[1], tradeBeans[2]});
     }
 
-    public void testCopyView() throws Exception
-    {
+    public void testCopyView() throws Exception {
         SupportBeanClassView parent = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.setParent(parent);
 
@@ -71,8 +67,7 @@ public class TestMergeView extends TestCase
         assertEquals(myView.getEventType(), SupportEventTypeFactory.createBeanType(SupportBean.class));
     }
 
-    private EventBean makeTradeBean(String symbol, int price)
-    {
+    private EventBean makeTradeBean(String symbol, int price) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, 0L, "");
         return SupportEventBeanFactory.createObject(bean);
     }

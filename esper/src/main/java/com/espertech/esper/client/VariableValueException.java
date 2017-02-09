@@ -13,16 +13,15 @@ package com.espertech.esper.client;
 /**
  * Indicates that a variable value could not be assigned.
  */
-public class VariableValueException extends EPException
-{
+public class VariableValueException extends EPException {
     private static final long serialVersionUID = 68805851988328832L;
 
     /**
      * Ctor.
+     *
      * @param message supplies exception details
      */
-    public VariableValueException(final String message)
-    {
+    public VariableValueException(final String message) {
         super(message);
     }
 }

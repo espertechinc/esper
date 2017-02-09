@@ -11,14 +11,13 @@
 package com.espertech.esper.supportunit.pattern;
 
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.pattern.MatchedEventMapMeta;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.pattern.PatternContext;
 import com.espertech.esper.schedule.SchedulingService;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 
-public class SupportPatternContextFactory
-{
+public class SupportPatternContextFactory {
     public static PatternAgentInstanceContext makePatternAgentInstanceContext() {
         return makePatternAgentInstanceContext(null);
     }
@@ -27,16 +26,14 @@ public class SupportPatternContextFactory
         StatementContext stmtContext;
         if (scheduleService == null) {
             stmtContext = SupportStatementContextFactory.makeContext();
-        }
-        else {
+        } else {
             stmtContext = SupportStatementContextFactory.makeContext(scheduleService);
         }
         PatternContext context = new PatternContext(stmtContext, 1, new MatchedEventMapMeta(new String[0], false), false);
         return new PatternAgentInstanceContext(context, SupportStatementContextFactory.makeAgentInstanceContext(), false);
     }
 
-    public static PatternContext makeContext()
-    {
+    public static PatternContext makeContext() {
         StatementContext stmtContext = SupportStatementContextFactory.makeContext();
         return new PatternContext(stmtContext, 1, new MatchedEventMapMeta(new String[0], false), false);
     }

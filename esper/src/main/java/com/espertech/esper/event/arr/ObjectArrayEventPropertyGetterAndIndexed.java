@@ -15,6 +15,5 @@ import com.espertech.esper.client.EventPropertyGetterIndexed;
 /**
  * Property getter for Object-array-underlying events.
  */
-public interface ObjectArrayEventPropertyGetterAndIndexed extends ObjectArrayEventPropertyGetter, EventPropertyGetterIndexed
-{
+public interface ObjectArrayEventPropertyGetterAndIndexed extends ObjectArrayEventPropertyGetter, EventPropertyGetterIndexed {
 }

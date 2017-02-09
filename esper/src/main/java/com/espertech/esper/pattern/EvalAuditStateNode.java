@@ -25,16 +25,14 @@ import java.util.Set;
 /**
  * This class represents the state of a followed-by operator in the evaluation state tree.
  */
-public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
-{
+public final class EvalAuditStateNode extends EvalStateNode implements Evaluator {
     private final EvalAuditNode evalAuditNode;
     private EvalStateNode childState;
 
     public EvalAuditStateNode(Evaluator parentNode,
                               EvalAuditNode evalAuditNode,
                               EvalStateNodeNumber stateNodeNumber,
-                              long stateNodeId)
-    {
+                              long stateNodeId) {
         super(parentNode);
 
         this.evalAuditNode = evalAuditNode;
@@ -51,14 +49,12 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
         return evalAuditNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
+    public final void start(MatchedEventMap beginState) {
         childState.start(beginState);
         evalAuditNode.getFactoryNode().increaseRefCount(this, evalAuditNode.getContext().getPatternContext());
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
         if (evalAuditNode.getFactoryNode().isAuditPattern() && AuditPath.isInfoEnabled()) {
             String message = toStringEvaluateTrue(this, evalAuditNode.getFactoryNode().getPatternExpr(), matchEvent, fromNode, isQuitted);
             AuditPath.auditLog(evalAuditNode.getContext().getStatementContext().getEngineURI(), evalAuditNode.getContext().getPatternContext().getStatementName(), AuditEnum.PATTERN, message);
@@ -66,14 +62,12 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
 
         this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted);
 
-        if (isQuitted)
-        {
+        if (isQuitted) {
             evalAuditNode.getFactoryNode().decreaseRefCount(this, evalAuditNode.getContext().getPatternContext());
         }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
         if (evalAuditNode.getFactoryNode().isAuditPattern() && AuditPath.isInfoEnabled()) {
             String message = toStringEvaluateFalse(this, evalAuditNode.getFactoryNode().getPatternExpr(), fromNode);
             AuditPath.auditLog(evalAuditNode.getContext().getStatementContext().getEngineURI(), evalAuditNode.getContext().getPatternContext().getStatementName(), AuditEnum.PATTERN, message);
@@ -83,16 +77,14 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
         this.getParentEvaluator().evaluateFalse(this, restartable);
     }
 
-    public final void quit()
-    {
+    public final void quit() {
         if (childState != null) {
             childState.quit();
         }
         evalAuditNode.getFactoryNode().decreaseRefCount(this, evalAuditNode.getContext().getPatternContext());
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitAudit();
         if (childState != null) {
             childState.accept(visitor);
@@ -103,8 +95,7 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
         return childState;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalAuditStateNode";
     }
 
@@ -149,8 +140,7 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
             writer.write("=");
             if (value instanceof EventBean) {
                 writer.write(((EventBean) value).getUnderlying().toString());
-            }
-            else if (value instanceof EventBean[]) {
+            } else if (value instanceof EventBean[]) {
                 writer.write(EventBeanUtility.summarize((EventBean[]) value));
             }
             delimiter = ", ";
@@ -181,8 +171,7 @@ public final class EvalAuditStateNode extends EvalStateNode implements Evaluator
             writer.write('(');
             writer.write(patternExpression);
             writer.write(')');
-        }
-        else {
+        } else {
             JavaClassHelper.writeInstance(writer, "subexr", current);
         }
     }

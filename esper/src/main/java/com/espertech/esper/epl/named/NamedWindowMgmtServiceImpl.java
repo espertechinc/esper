@@ -14,10 +14,8 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
-import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.metric.MetricReportingService;
-import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.view.ViewProcessingException;
 
@@ -30,8 +28,7 @@ import java.util.Set;
  * This service hold for each named window a dedicated processor and a lock to the named window.
  * This lock is shrared between the named window and on-delete statements.
  */
-public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
-{
+public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService {
     private final Map<String, NamedWindowProcessor> processors;
     private final Map<String, NamedWindowLockPair> windowStatementLocks;
     private final Set<NamedWindowLifecycleObserver> observers;
@@ -39,8 +36,7 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
     private final MetricReportingService metricReportingService;
 
     public NamedWindowMgmtServiceImpl(boolean enableQueryPlanLog,
-                                      MetricReportingService metricReportingService)
-    {
+                                      MetricReportingService metricReportingService) {
         this.processors = new HashMap<String, NamedWindowProcessor>();
         this.windowStatementLocks = new HashMap<String, NamedWindowLockPair>();
         this.observers = new HashSet<NamedWindowLifecycleObserver>();
@@ -48,19 +44,16 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
         this.metricReportingService = metricReportingService;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         processors.clear();
     }
 
-    public String[] getNamedWindows()
-    {
+    public String[] getNamedWindows() {
         Set<String> names = processors.keySet();
         return names.toArray(new String[names.size()]);
     }
 
-    public StatementAgentInstanceLock getNamedWindowLock(String windowName)
-    {
+    public StatementAgentInstanceLock getNamedWindowLock(String windowName) {
         NamedWindowLockPair pair = windowStatementLocks.get(windowName);
         if (pair == null) {
             return null;
@@ -68,8 +61,7 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
         return pair.getLock();
     }
 
-    public void addNamedWindowLock(String windowName, StatementAgentInstanceLock statementResourceLock, String statementName)
-    {
+    public void addNamedWindowLock(String windowName, StatementAgentInstanceLock statementResourceLock, String statementName) {
         windowStatementLocks.put(windowName, new NamedWindowLockPair(statementName, statementResourceLock));
     }
 
@@ -82,20 +74,17 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
         }
     }
 
-    public boolean isNamedWindow(String name)
-    {
+    public boolean isNamedWindow(String name) {
         return processors.containsKey(name);
     }
 
-    public NamedWindowProcessor getProcessor(String name)
-    {
+    public NamedWindowProcessor getProcessor(String name) {
         return processors.get(name);
     }
 
     public IndexMultiKey[] getNamedWindowIndexes(String windowName) {
         NamedWindowProcessor processor = processors.get(windowName);
-        if (processor == null)
-        {
+        if (processor == null) {
             return null;
         }
         return processor.getProcessorInstance(null).getIndexDescriptors();
@@ -116,21 +105,17 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
                                              boolean isVirtualDataWindow,
                                              Set<String> optionalUniqueKeyProps, String eventTypeAsName,
                                              StatementContext statementContextCreateWindow,
-                                             NamedWindowDispatchService namedWindowDispatchService) throws ViewProcessingException
-    {
-        if (processors.containsKey(name))
-        {
+                                             NamedWindowDispatchService namedWindowDispatchService) throws ViewProcessingException {
+        if (processors.containsKey(name)) {
             throw new ViewProcessingException("A named window by name '" + name + "' has already been created");
         }
 
         NamedWindowProcessor processor = namedWindowDispatchService.createProcessor(name, this, namedWindowDispatchService, contextName, eventType, statementResultService, revisionProcessor, eplExpression, statementName, isPrioritized, isEnableSubqueryIndexShare, enableQueryPlanLog, metricReportingService, isBatchingDataWindow, isVirtualDataWindow, optionalUniqueKeyProps, eventTypeAsName, statementContextCreateWindow);
         processors.put(name, processor);
 
-        if (!observers.isEmpty())
-        {
+        if (!observers.isEmpty()) {
             NamedWindowLifecycleEvent theEvent = new NamedWindowLifecycleEvent(name, processor, NamedWindowLifecycleEvent.LifecycleEventType.CREATE);
-            for (NamedWindowLifecycleObserver observer : observers)
-            {
+            for (NamedWindowLifecycleObserver observer : observers) {
                 observer.observe(theEvent);
             }
         }
@@ -138,32 +123,26 @@ public class NamedWindowMgmtServiceImpl implements NamedWindowMgmtService
         return processor;
     }
 
-    public void removeProcessor(String name)
-    {
+    public void removeProcessor(String name) {
         NamedWindowProcessor processor = processors.get(name);
-        if (processor != null)
-        {
+        if (processor != null) {
             processor.destroy();
             processors.remove(name);
 
-            if (!observers.isEmpty())
-            {
+            if (!observers.isEmpty()) {
                 NamedWindowLifecycleEvent theEvent = new NamedWindowLifecycleEvent(name, processor, NamedWindowLifecycleEvent.LifecycleEventType.DESTROY);
-                for (NamedWindowLifecycleObserver observer : observers)
-                {
+                for (NamedWindowLifecycleObserver observer : observers) {
                     observer.observe(theEvent);
                 }
             }
         }
     }
 
-    public void addObserver(NamedWindowLifecycleObserver observer)
-    {
+    public void addObserver(NamedWindowLifecycleObserver observer) {
         observers.add(observer);
     }
 
-    public void removeObserver(NamedWindowLifecycleObserver observer)
-    {
+    public void removeObserver(NamedWindowLifecycleObserver observer) {
         observers.remove(observer);
     }
 

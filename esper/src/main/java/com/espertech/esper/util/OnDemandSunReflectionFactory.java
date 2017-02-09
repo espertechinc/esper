@@ -14,12 +14,12 @@ import java.lang.reflect.Constructor;
 
 public class OnDemandSunReflectionFactory {
 
-    private OnDemandSunReflectionFactory() {}
+    private OnDemandSunReflectionFactory() {
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> Constructor<T> getConstructor(Class<T> clazz,
-                                             Constructor<Object> constructor)
-    {
+                                                    Constructor<Object> constructor) {
         return (Constructor<T>) sun.reflect.ReflectionFactory.getReflectionFactory()
                 .newConstructorForSerialization(clazz, constructor);
     }

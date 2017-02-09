@@ -31,15 +31,13 @@ public class EvalSelectNoWildcardObjectArray implements SelectExprProcessor {
         this.resultEventType = resultEventType;
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         ExprEvaluator[] expressionNodes = selectExprContext.getExpressionNodes();
         EventAdapterService eventAdapterService = selectExprContext.getEventAdapterService();
 
         // Evaluate all expressions and build a map of name-value pairs
         Object[] props = new Object[expressionNodes.length];
-        for (int i = 0; i < expressionNodes.length; i++)
-        {
+        for (int i = 0; i < expressionNodes.length; i++) {
             Object evalResult = expressionNodes[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             props[i] = evalResult;
         }
@@ -47,8 +45,7 @@ public class EvalSelectNoWildcardObjectArray implements SelectExprProcessor {
         return eventAdapterService.adapterForTypedObjectArray(props, resultEventType);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 }

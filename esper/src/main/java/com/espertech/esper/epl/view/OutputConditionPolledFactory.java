@@ -12,8 +12,8 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public interface OutputConditionPolledFactory
-{
+public interface OutputConditionPolledFactory {
     OutputConditionPolled makeNew(AgentInstanceContext agentInstanceContext);
+
     OutputConditionPolled makeFromState(AgentInstanceContext agentInstanceContext, OutputConditionPolledState state);
 }

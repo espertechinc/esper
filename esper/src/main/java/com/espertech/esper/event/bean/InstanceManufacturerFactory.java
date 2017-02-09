@@ -20,8 +20,7 @@ import net.sf.cglib.reflect.FastConstructor;
 
 public class InstanceManufacturerFactory {
     public static InstanceManufacturer getManufacturer(Class targetClass, EngineImportService engineImportService, ExprNode[] childNodes)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprEvaluator[] evalsUnmodified = ExprNodeUtility.getEvaluators(childNodes);
         Object[] returnTypes = new Object[evalsUnmodified.length];
         for (int i = 0; i < evalsUnmodified.length; i++) {

@@ -13,30 +13,25 @@ package com.espertech.esperio.socket.config;
 import junit.framework.TestCase;
 
 import java.net.URL;
-import java.util.Arrays;
 
 public class TestConfig extends TestCase {
     private ConfigurationSocketAdapter config;
 
-    public void setUp()
-    {
+    public void setUp() {
         config = new ConfigurationSocketAdapter();
     }
 
-    public void testConfigureFromStream() throws Exception
-    {
+    public void testConfigureFromStream() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("esperio-socket-sample-config.xml");
         ConfigurationSocketAdapterParser.doConfigure(config, url.openStream(), url.toString());
         assertFileConfig(config);
     }
 
-    public void testEngineDefaults()
-    {
+    public void testEngineDefaults() {
         config = new ConfigurationSocketAdapter();
     }
 
-    protected static void assertFileConfig(ConfigurationSocketAdapter config) throws Exception
-    {
+    protected static void assertFileConfig(ConfigurationSocketAdapter config) throws Exception {
         assertEquals(3, config.getSockets().size());
 
         SocketConfig socket = config.getSockets().get("mysocketOne");

@@ -18,6 +18,7 @@ import java.util.Set;
 public interface ContextPartitionSelectorHash extends ContextPartitionSelector {
     /**
      * Returns a set of hashes.
+     *
      * @return hashes
      */
     public Set<Integer> getHashes();

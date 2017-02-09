@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class represents a guard in the evaluation tree representing an event expressions.
  */
-public class EvalGuardNode extends EvalNodeBase
-{
+public class EvalGuardNode extends EvalNodeBase {
     protected final EvalGuardFactoryNode factoryNode;
     private final EvalNode childNode;
 
@@ -36,8 +35,7 @@ public class EvalGuardNode extends EvalNodeBase
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalGuardStateNode(parentNode, this);
     }
 

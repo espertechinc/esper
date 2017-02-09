@@ -16,15 +16,15 @@ import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
  * Specification for creating an event type/schema.
  */
-public class CreateSchemaDesc implements MetaDefItem, Serializable
-{
+public class CreateSchemaDesc implements MetaDefItem, Serializable {
     private static final long serialVersionUID = 8400789369907593190L;
-    
+
     private final String schemaName;
     private final Set<String> types;
     private final List<ColumnDesc> columns;
@@ -36,14 +36,15 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param schemaName name
-     * @param types event type name(s)
-     * @param columns column definition
-     * @param inherits supertypes
-     * @param assignedType any type assignment such as Map, Object-array or variant or none-specified
+     *
+     * @param schemaName             name
+     * @param types                  event type name(s)
+     * @param columns                column definition
+     * @param inherits               supertypes
+     * @param assignedType           any type assignment such as Map, Object-array or variant or none-specified
      * @param startTimestampProperty name of start-interval prop
-     * @param endTimestampProperty name of end-interval prop
-     * @param copyFrom copy-from
+     * @param endTimestampProperty   name of end-interval prop
+     * @param copyFrom               copy-from
      */
     public CreateSchemaDesc(String schemaName, Set<String> types, List<ColumnDesc> columns, Set<String> inherits, AssignedType assignedType, String startTimestampProperty, String endTimestampProperty, Set<String> copyFrom) {
         this.schemaName = schemaName;
@@ -58,37 +59,37 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
 
     /**
      * Returns schema name.
+     *
      * @return schema name
      */
-    public String getSchemaName()
-    {
+    public String getSchemaName() {
         return schemaName;
     }
 
     /**
      * Returns column definitions.
+     *
      * @return column defs
      */
-    public List<ColumnDesc> getColumns()
-    {
+    public List<ColumnDesc> getColumns() {
         return columns;
     }
 
     /**
      * Returns supertypes.
+     *
      * @return supertypes
      */
-    public Set<String> getInherits()
-    {
+    public Set<String> getInherits() {
         return inherits;
     }
 
     /**
      * Returns type name(s).
+     *
      * @return types
      */
-    public Set<String> getTypes()
-    {
+    public Set<String> getTypes() {
         return types;
     }
 
@@ -118,23 +119,19 @@ public class CreateSchemaDesc implements MetaDefItem, Serializable
         public CreateSchemaClauseTypeDef mapToSoda() {
             if (this == VARIANT) {
                 return CreateSchemaClauseTypeDef.VARIANT;
-            }
-            else if (this == MAP) {
+            } else if (this == MAP) {
                 return CreateSchemaClauseTypeDef.MAP;
-            }
-            else if (this == OBJECTARRAY) {
+            } else if (this == OBJECTARRAY) {
                 return CreateSchemaClauseTypeDef.OBJECTARRAY;
-            }
-            else if (this == AVRO) {
+            } else if (this == AVRO) {
                 return CreateSchemaClauseTypeDef.AVRO;
-            }
-            else {
+            } else {
                 return CreateSchemaClauseTypeDef.NONE;
             }
         }
 
         public static AssignedType parseKeyword(String keywordNodeText) {
-            String lower = keywordNodeText.toLowerCase();
+            String lower = keywordNodeText.toLowerCase(Locale.ENGLISH);
             if (lower.equals("variant")) {
                 return VARIANT;
             }

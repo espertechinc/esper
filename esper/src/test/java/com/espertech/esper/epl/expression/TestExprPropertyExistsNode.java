@@ -10,22 +10,20 @@
  */
 package com.espertech.esper.epl.expression;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprPropertyExistsNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
-import junit.framework.TestCase;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
+import junit.framework.TestCase;
 
-public class TestExprPropertyExistsNode extends TestCase
-{
+public class TestExprPropertyExistsNode extends TestCase {
     private ExprPropertyExistsNode[] existsNodes;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         existsNodes = new ExprPropertyExistsNode[2];
 
         existsNodes[0] = new ExprPropertyExistsNode();
@@ -35,65 +33,52 @@ public class TestExprPropertyExistsNode extends TestCase
         existsNodes[1].addChildNode(SupportExprNodeFactory.makeIdentNode("boolPrimitive?", "s0"));
     }
 
-    public void testGetType() throws Exception
-    {
-        for (int i = 0; i < existsNodes.length; i++)
-        {
+    public void testGetType() throws Exception {
+        for (int i = 0; i < existsNodes.length; i++) {
             existsNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
             assertEquals(Boolean.class, existsNodes[i].getType());
         }
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         ExprPropertyExistsNode castNode = new ExprPropertyExistsNode();
 
         // Test too few nodes under this node
-        try
-        {
+        try {
             castNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
 
         castNode.addChildNode(new SupportExprNode(1));
-        try
-        {
+        try {
             castNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEvaluate() throws Exception
-    {
-        for (int i = 0; i < existsNodes.length; i++)
-        {
+    public void testEvaluate() throws Exception {
+        for (int i = 0; i < existsNodes.length; i++) {
             existsNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
         assertEquals(false, existsNodes[0].evaluate(new EventBean[3], false, null));
         assertEquals(false, existsNodes[1].evaluate(new EventBean[3], false, null));
 
-        EventBean[] events = new EventBean[] {TestExprIdentNode.makeEvent(10)};
+        EventBean[] events = new EventBean[]{TestExprIdentNode.makeEvent(10)};
         assertEquals(false, existsNodes[0].evaluate(events, false, null));
         assertEquals(true, existsNodes[1].evaluate(events, false, null));
     }
 
-    public void testEquals() throws Exception
-    {
+    public void testEquals() throws Exception {
         assertFalse(existsNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false)));
         assertTrue(existsNodes[0].equalsNode(existsNodes[1]));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         existsNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals("exists(s0.dummy?)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(existsNodes[0]));
     }

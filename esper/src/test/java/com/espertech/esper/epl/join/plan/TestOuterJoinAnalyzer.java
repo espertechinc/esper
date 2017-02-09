@@ -15,10 +15,8 @@ import com.espertech.esper.supportunit.epl.SupportOuterJoinDescFactory;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;
 
-public class TestOuterJoinAnalyzer extends TestCase
-{
-    public void testAnalyze() throws Exception
-    {
+public class TestOuterJoinAnalyzer extends TestCase {
+    public void testAnalyze() throws Exception {
         OuterJoinDesc[] descList = new OuterJoinDesc[2];
         descList[0] = SupportOuterJoinDescFactory.makeDesc("intPrimitive", "s0", "intBoxed", "s1", OuterJoinType.LEFT);
         descList[1] = SupportOuterJoinDescFactory.makeDesc("simpleProperty", "s2", "theString", "s1", OuterJoinType.LEFT);

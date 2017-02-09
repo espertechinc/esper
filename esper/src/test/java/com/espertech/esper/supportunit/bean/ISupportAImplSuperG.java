@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public abstract class ISupportAImplSuperG implements ISupportA
-{
+public abstract class ISupportAImplSuperG implements ISupportA {
     public abstract String getG();
 }

@@ -13,35 +13,34 @@ package com.espertech.esper.schedule;
 /**
  * This exception is thrown to indicate a problem with scheduling.
  */
-public class ScheduleServiceException extends RuntimeException
-{
+public class ScheduleServiceException extends RuntimeException {
     private static final long serialVersionUID = 941833133771185390L;
 
     /**
      * Constructor.
+     *
      * @param message is the error message
      */
-    public ScheduleServiceException(final String message)
-    {
+    public ScheduleServiceException(final String message) {
         super(message);
     }
 
     /**
      * Constructor for an inner exception and message.
+     *
      * @param message is the error message
-     * @param cause is the inner exception
+     * @param cause   is the inner exception
      */
-    public ScheduleServiceException(final String message, final Throwable cause)
-    {
+    public ScheduleServiceException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     /**
      * Constructor.
+     *
      * @param cause is the inner exception
      */
-    public ScheduleServiceException(final Throwable cause)
-    {
+    public ScheduleServiceException(final Throwable cause) {
         super(cause);
     }
 }

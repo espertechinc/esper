@@ -24,8 +24,7 @@ import java.util.Set;
  * <p>
  * Caches properties after having resolved a property via a resolution strategy.
  */
-public class VariantEventType implements EventTypeSPI
-{
+public class VariantEventType implements EventTypeSPI {
     private final EventTypeMetadata metadata;
     private final EventType[] variants;
     private final VariantPropResolutionStrategy propertyResStrategy;
@@ -38,30 +37,27 @@ public class VariantEventType implements EventTypeSPI
 
     /**
      * Ctor.
-     * @param variantSpec the variant specification
+     *
+     * @param variantSpec         the variant specification
      * @param propertyResStrategy stragegy for resolving properties
-     * @param metadata event type metadata
-     * @param eventTypeId type id
-     * @param config configs
+     * @param metadata            event type metadata
+     * @param eventTypeId         type id
+     * @param config              configs
      */
-    public VariantEventType(EventTypeMetadata metadata, int eventTypeId, VariantSpec variantSpec, VariantPropResolutionStrategy propertyResStrategy, ConfigurationVariantStream config)
-    {
+    public VariantEventType(EventTypeMetadata metadata, int eventTypeId, VariantSpec variantSpec, VariantPropResolutionStrategy propertyResStrategy, ConfigurationVariantStream config) {
         this.metadata = metadata;
         this.eventTypeId = eventTypeId;
         this.variants = variantSpec.getEventTypes();
         this.propertyResStrategy = propertyResStrategy;
         this.config = config;
-        
+
         propertyDesc = new HashMap<String, VariantPropertyDesc>();
 
-        for (EventType type : variants)
-        {
+        for (EventType type : variants) {
             String[] properties = type.getPropertyNames();
             properties = PropertyUtility.copyAndSort(properties);
-            for (String property : properties)
-            {
-                if (!propertyDesc.containsKey(property))
-                {
+            for (String property : properties) {
+                if (!propertyDesc.containsKey(property)) {
                     findProperty(property);
                 }
             }
@@ -74,8 +70,7 @@ public class VariantEventType implements EventTypeSPI
         propertyDescriptors = new EventPropertyDescriptor[propertyDesc.size()];
         propertyDescriptorMap = new HashMap<String, EventPropertyDescriptor>();
         int count = 0;
-        for (Map.Entry<String, VariantPropertyDesc> desc : propertyDesc.entrySet())
-        {
+        for (Map.Entry<String, VariantPropertyDesc> desc : propertyDesc.entrySet()) {
             Class type = desc.getValue().getPropertyType();
             EventPropertyDescriptor descriptor = new EventPropertyDescriptor(desc.getKey(), type, null, false, false, false, false, JavaClassHelper.isFragmentableType(desc.getValue().getPropertyType()));
             propertyDescriptors[count++] = descriptor;
@@ -91,28 +86,23 @@ public class VariantEventType implements EventTypeSPI
         return null;
     }
 
-    public Class getPropertyType(String property)
-    {
+    public Class getPropertyType(String property) {
         VariantPropertyDesc entry = propertyDesc.get(property);
-        if (entry != null)
-        {
+        if (entry != null) {
             return entry.getPropertyType();
         }
         entry = findProperty(property);
-        if (entry != null)
-        {
+        if (entry != null) {
             return entry.getPropertyType();
         }
         return null;
     }
 
-    public Class getUnderlyingType()
-    {
+    public Class getUnderlyingType() {
         return Object.class;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return metadata.getPublicName();
     }
 
@@ -124,108 +114,87 @@ public class VariantEventType implements EventTypeSPI
         return config;
     }
 
-    public EventPropertyGetter getGetter(String property)
-    {
+    public EventPropertyGetter getGetter(String property) {
         VariantPropertyDesc entry = propertyDesc.get(property);
-        if (entry != null)
-        {
+        if (entry != null) {
             return entry.getGetter();
         }
         entry = findProperty(property);
-        if (entry != null)
-        {
+        if (entry != null) {
             return entry.getGetter();
         }
         return null;
     }
 
-    public String[] getPropertyNames()
-    {
+    public String[] getPropertyNames() {
         return propertyNames;
     }
 
-    public boolean isProperty(String property)
-    {
+    public boolean isProperty(String property) {
         VariantPropertyDesc entry = propertyDesc.get(property);
-        if (entry != null)
-        {
+        if (entry != null) {
             return entry.isProperty();
         }
         entry = findProperty(property);
-        if (entry != null)
-        {
+        if (entry != null) {
             return entry.isProperty();
         }
         return false;
     }
 
-    public EventType[] getSuperTypes()
-    {
+    public EventType[] getSuperTypes() {
         return null;
     }
 
-    public Iterator<EventType> getDeepSuperTypes()
-    {
+    public Iterator<EventType> getDeepSuperTypes() {
         return null;
     }
 
-    private VariantPropertyDesc findProperty(String propertyName)
-    {
+    private VariantPropertyDesc findProperty(String propertyName) {
         VariantPropertyDesc desc = propertyResStrategy.resolveProperty(propertyName, variants);
-        if (desc != null)
-        {
+        if (desc != null) {
             propertyDesc.put(propertyName, desc);
         }
         return desc;
     }
 
-    public EventTypeMetadata getMetadata()
-    {
+    public EventTypeMetadata getMetadata() {
         return metadata;
     }
 
-    public EventPropertyDescriptor[] getPropertyDescriptors()
-    {
-        return propertyDescriptors; 
+    public EventPropertyDescriptor[] getPropertyDescriptors() {
+        return propertyDescriptors;
     }
 
-    public EventPropertyDescriptor getPropertyDescriptor(String propertyName)
-    {
+    public EventPropertyDescriptor getPropertyDescriptor(String propertyName) {
         return propertyDescriptorMap.get(propertyName);
-    }    
+    }
 
-    public FragmentEventType getFragmentType(String property)
-    {
+    public FragmentEventType getFragmentType(String property) {
         return null;
     }
 
-    public EventPropertyWriter getWriter(String propertyName)
-    {
+    public EventPropertyWriter getWriter(String propertyName) {
         return null;
     }
 
-    public EventPropertyDescriptor getWritableProperty(String propertyName)
-    {
+    public EventPropertyDescriptor getWritableProperty(String propertyName) {
         return null;
     }
 
-    public EventPropertyDescriptor[] getWriteableProperties()
-    {
+    public EventPropertyDescriptor[] getWriteableProperties() {
         return new EventPropertyDescriptor[0];
     }
 
-    public EventBeanCopyMethod getCopyMethod(String[] properties)
-    {
+    public EventBeanCopyMethod getCopyMethod(String[] properties) {
         return null;
     }
 
-    public EventBeanWriter getWriter(String[] properties)
-    {
+    public EventBeanWriter getWriter(String[] properties) {
         return null;
     }
 
-    public EventBeanReader getReader()
-    {
+    public EventBeanReader getReader() {
         return null;
     }
 

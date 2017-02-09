@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
-public class MarketDataSendRunnable implements Runnable
-{
+public class MarketDataSendRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MarketDataSendRunnable.class);
     private final EPServiceProvider engine;
     private final boolean continuousSimulation;
@@ -26,24 +25,19 @@ public class MarketDataSendRunnable implements Runnable
     private volatile boolean isShutdown;
     private Random random = new Random();
 
-    public MarketDataSendRunnable(EPServiceProvider engine, boolean continuousSimulation)
-    {
+    public MarketDataSendRunnable(EPServiceProvider engine, boolean continuousSimulation) {
         this.engine = engine;
         this.continuousSimulation = continuousSimulation;
     }
 
-    public void run()
-    {
+    public void run() {
         log.info(".call Thread " + Thread.currentThread() + " starting");
 
-        try
-        {
-            while(!isShutdown)
-            {
+        try {
+            while (!isShutdown) {
                 int nextFeed = Math.abs(random.nextInt() % 2);
                 FeedEnum feed = FeedEnum.values()[nextFeed];
-                if (rateDropOffFeed != feed)
-                {
+                if (rateDropOffFeed != feed) {
                     engine.getEPRuntime().sendEvent(new MarketDataEvent("SYM", feed));
                 }
 
@@ -51,25 +45,20 @@ public class MarketDataSendRunnable implements Runnable
                     Thread.sleep(200);
                 }
             }
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             log.error("Error in send loop", ex);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.debug("Interruped", e);
         }
 
         log.info(".call Thread " + Thread.currentThread() + " done");
     }
 
-    public void setRateDropOffFeed(FeedEnum feedToDrop)
-    {
+    public void setRateDropOffFeed(FeedEnum feedToDrop) {
         rateDropOffFeed = feedToDrop;
     }
 
-    public void setShutdown()
-    {
+    public void setShutdown() {
         isShutdown = true;
     }
 }

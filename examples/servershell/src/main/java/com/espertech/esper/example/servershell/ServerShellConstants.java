@@ -11,8 +11,7 @@
 package com.espertech.esper.example.servershell;
 
 
-public class ServerShellConstants
-{
+public class ServerShellConstants {
     public static final String CONFIG_FILENAME = "servershell_config.properties";
 
     public static final String JMS_CONTEXT_FACTORY = "jms-context-factory";

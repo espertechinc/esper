@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * For use with on-merge clauses, inserts into a named window if matching rows are not found.
  */
-public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
-{
+public class OnMergeMatchedInsertAction implements OnMergeMatchedAction {
     private static final long serialVersionUID = 0L;
 
     private List<String> columnNames = Collections.emptyList();
@@ -28,9 +27,10 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Ctor.
-     * @param columnNames insert-into column names, or empty list if none provided
-     * @param selectList select expression list
-     * @param whereClause optional condition or null
+     *
+     * @param columnNames        insert-into column names, or empty list if none provided
+     * @param selectList         select expression list
+     * @param whereClause        optional condition or null
      * @param optionalStreamName optionally a stream name for insert-into
      */
     public OnMergeMatchedInsertAction(List<String> columnNames, List<SelectClauseElement> selectList, Expression whereClause, String optionalStreamName) {
@@ -48,6 +48,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Returns the action condition, or null if undefined.
+     *
      * @return condition
      */
     public Expression getWhereClause() {
@@ -56,6 +57,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Sets the action condition, or null if undefined.
+     *
      * @param whereClause to set, or null to remove the condition
      */
     public void setWhereClause(Expression whereClause) {
@@ -64,6 +66,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Returns the insert-into column names, if provided.
+     *
      * @return column names
      */
     public List<String> getColumnNames() {
@@ -72,6 +75,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Sets the insert-into column names, can be empty list.
+     *
      * @param columnNames column names to set
      */
     public void setColumnNames(List<String> columnNames) {
@@ -80,6 +84,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Returns the select expressions.
+     *
      * @return expression list
      */
     public List<SelectClauseElement> getSelectList() {
@@ -88,6 +93,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Sets the select expressions.
+     *
      * @param selectList expression list
      */
     public void setSelectList(List<SelectClauseElement> selectList) {
@@ -96,6 +102,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Returns the insert-into stream name.
+     *
      * @return stream name
      */
     public String getOptionalStreamName() {
@@ -104,6 +111,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
 
     /**
      * Sets the insert-into stream name.
+     *
      * @param optionalStreamName stream name to insert into
      */
     public void setOptionalStreamName(String optionalStreamName) {
@@ -118,12 +126,10 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
             writer.write(optionalStreamName);
         }
 
-        if (columnNames.size() > 0)
-        {
+        if (columnNames.size() > 0) {
             writer.write("(");
             String delimiter = "";
-            for (String name : columnNames)
-            {
+            for (String name : columnNames) {
                 writer.write(delimiter);
                 writer.write(name);
                 delimiter = ", ";
@@ -132,8 +138,7 @@ public class OnMergeMatchedInsertAction implements OnMergeMatchedAction
         }
         writer.write(" select ");
         String delimiter = "";
-        for (SelectClauseElement element : selectList)
-        {
+        for (SelectClauseElement element : selectList) {
             writer.write(delimiter);
             element.toEPLElement(writer);
             delimiter = ", ";

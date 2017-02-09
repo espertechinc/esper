@@ -18,7 +18,10 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.*;
 import com.espertech.esper.event.avro.AvroSchemaEventType;
-import com.espertech.esper.event.property.*;
+import com.espertech.esper.event.property.IndexedProperty;
+import com.espertech.esper.event.property.MappedProperty;
+import com.espertech.esper.event.property.Property;
+import com.espertech.esper.event.property.PropertyParser;
 import com.espertech.esper.util.CollectionUtil;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -229,14 +232,12 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         AvroEventBeanPropertyWriter[] writers = new AvroEventBeanPropertyWriter[properties.length];
         List<Integer> indexes = new ArrayList<Integer>();
 
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             AvroEventBeanPropertyWriter writer = getWriter(properties[i]);
             if (propertyItems.containsKey(properties[i])) {
                 writers[i] = writer;
                 indexes.add(avroSchema.getField(properties[i]).pos());
-            }
-            else {
+            } else {
                 writers[i] = getWriter(properties[i]);
                 if (writers[i] == null) {
                     return null;
@@ -294,12 +295,10 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
                 if (field.schema().getElementType().getType() == Schema.Type.RECORD) {
                     fragmentEventType = getFragmentEventTypeForField(field.schema(), eventAdapterService);
                 }
-            }
-            else if (field.schema().getType() == Schema.Type.MAP) {
+            } else if (field.schema().getType() == Schema.Type.MAP) {
                 mapped = true;
                 componentType = AvroTypeUtil.propertyType(field.schema().getValueType());
-            }
-            else {
+            } else {
                 fragmentEventType = getFragmentEventTypeForField(field.schema(), eventAdapterService);
             }
             AvroEventBeanGetterSimple getter = new AvroEventBeanGetterSimple(field.pos(), fragmentEventType == null ? null : fragmentEventType.getFragmentType(), eventAdapterService);

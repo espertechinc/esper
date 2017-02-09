@@ -10,24 +10,20 @@
  */
 package com.espertech.esper.example.transaction;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RealtimeSummaryGroupListener implements UpdateListener
-{
+public class RealtimeSummaryGroupListener implements UpdateListener {
     private String groupIdentifier;
 
-    public RealtimeSummaryGroupListener(String groupIdentifier)
-    {
+    public RealtimeSummaryGroupListener(String groupIdentifier) {
         this.groupIdentifier = groupIdentifier;
     }
 
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        if (newEvents == null)
-        {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (newEvents == null) {
             // we don't care about events leaving the window (old events)
             return;
         }
@@ -35,10 +31,10 @@ public class RealtimeSummaryGroupListener implements UpdateListener
         EventBean theEvent = newEvents[0];
         log.debug(
                 groupIdentifier + "=" + theEvent.get(groupIdentifier) +
-                " minAC=" + theEvent.get("minLatency") +
-                " maxAC=" + theEvent.get("maxLatency") +
-                " avgAC=" + theEvent.get("avgLatency")
-                );
+                        " minAC=" + theEvent.get("minLatency") +
+                        " maxAC=" + theEvent.get("maxLatency") +
+                        " avgAC=" + theEvent.get("avgLatency")
+        );
     }
 
     private static final Logger log = LoggerFactory.getLogger(RealtimeSummaryGroupListener.class);

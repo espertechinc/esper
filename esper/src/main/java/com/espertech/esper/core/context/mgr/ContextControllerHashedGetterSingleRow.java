@@ -37,8 +37,7 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
     private final int granularity;
 
     public ContextControllerHashedGetterSingleRow(String statementName, String functionName, Pair<Class, EngineImportSingleRowDesc> func, List<ExprNode> parameters, int granularity, EngineImportService engineImportService, EventType eventType, EventAdapterService eventAdapterService, int statementId, TableService tableService)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprNodeUtilMethodDesc staticMethodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(func.getFirst().getName(), null, func.getSecond().getMethodName(), parameters, engineImportService, eventAdapterService, statementId, true, eventType, new ExprNodeUtilResolveExceptionHandlerDefault(func.getSecond().getMethodName(), true), func.getSecond().getMethodName(), tableService);
         this.statementName = statementName;
         this.evaluators = staticMethodDesc.getChildEvals();
@@ -47,15 +46,14 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        EventBean[] events = new EventBean[] {eventBean};
+        EventBean[] events = new EventBean[]{eventBean};
 
         Object[] parameters = new Object[evaluators.length];
         for (int i = 0; i < evaluators.length; i++) {
             parameters[i] = evaluators[i].evaluate(events, true, null);
         }
 
-        try
-        {
+        try {
             Object result = fastMethod.invoke(null, parameters);
             if (result == null) {
                 return 0;
@@ -65,9 +63,7 @@ public class ContextControllerHashedGetterSingleRow implements EventPropertyGett
                 return value % granularity;
             }
             return -value % granularity;
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = JavaClassHelper.getMessageInvocationTarget(statementName, fastMethod.getJavaMethod(), fastMethod.getDeclaringClass().getName(), parameters, e);
             log.error(message, e.getTargetException());
         }

@@ -12,22 +12,20 @@ package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.ConfigurationDataCache;
-import com.espertech.esper.client.util.ClassForNameProvider;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.ScheduleBucket;
+import com.espertech.esper.schedule.SchedulingService;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementation provides database instance services such as connection factory and
  * connection settings.
  */
-public class DatabaseConfigServiceImpl implements DatabaseConfigService
-{
+public class DatabaseConfigServiceImpl implements DatabaseConfigService {
     private final Map<String, ConfigurationDBRef> mapDatabaseRef;
     private final Map<String, DatabaseConnectionFactory> connectionFactories;
     private final SchedulingService schedulingService;
@@ -36,15 +34,15 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
 
     /**
      * Ctor.
-     * @param mapDatabaseRef is a map of database name and database configuration entries
+     *
+     * @param mapDatabaseRef    is a map of database name and database configuration entries
      * @param schedulingService is for scheduling callbacks for a cache
-     * @param scheduleBucket is a system bucket for all scheduling callbacks for caches
+     * @param scheduleBucket    is a system bucket for all scheduling callbacks for caches
      */
     public DatabaseConfigServiceImpl(Map<String, ConfigurationDBRef> mapDatabaseRef,
                                      SchedulingService schedulingService,
                                      ScheduleBucket scheduleBucket,
-                                     EngineImportService engineImportService)
-    {
+                                     EngineImportService engineImportService) {
         this.mapDatabaseRef = mapDatabaseRef;
         this.connectionFactories = new HashMap<String, DatabaseConnectionFactory>();
         this.schedulingService = schedulingService;
@@ -52,64 +50,47 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
         this.engineImportService = engineImportService;
     }
 
-    public ConnectionCache getConnectionCache(String databaseName, String preparedStatementText) throws DatabaseConfigException
-    {
+    public ConnectionCache getConnectionCache(String databaseName, String preparedStatementText) throws DatabaseConfigException {
         ConfigurationDBRef config = mapDatabaseRef.get(databaseName);
-        if (config == null)
-        {
+        if (config == null) {
             throw new DatabaseConfigException("Cannot locate configuration information for database '" + databaseName + '\'');
         }
 
         DatabaseConnectionFactory connectionFactory = getConnectionFactory(databaseName);
 
         boolean retain = config.getConnectionLifecycleEnum().equals(ConfigurationDBRef.ConnectionLifecycleEnum.RETAIN);
-        if (retain)
-        {
+        if (retain) {
             return new ConnectionCacheImpl(connectionFactory, preparedStatementText);
-        }
-        else
-        {
+        } else {
             return new ConnectionNoCacheImpl(connectionFactory, preparedStatementText);
         }
     }
 
-    public DatabaseConnectionFactory getConnectionFactory(String databaseName) throws DatabaseConfigException
-    {
+    public DatabaseConnectionFactory getConnectionFactory(String databaseName) throws DatabaseConfigException {
         // check if we already have a reference
         DatabaseConnectionFactory factory = connectionFactories.get(databaseName);
-        if (factory != null)
-        {
+        if (factory != null) {
             return factory;
         }
 
         ConfigurationDBRef config = mapDatabaseRef.get(databaseName);
-        if (config == null)
-        {
+        if (config == null) {
             throw new DatabaseConfigException("Cannot locate configuration information for database '" + databaseName + '\'');
         }
 
         ConfigurationDBRef.ConnectionSettings settings = config.getConnectionSettings();
-        if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DriverManagerConnection)
-        {
+        if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DriverManagerConnection) {
             ConfigurationDBRef.DriverManagerConnection dmConfig = (ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc();
             factory = new DatabaseDMConnFactory(dmConfig, settings, engineImportService);
-        }
-        else if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DataSourceConnection)
-        {
+        } else if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DataSourceConnection) {
             ConfigurationDBRef.DataSourceConnection dsConfig = (ConfigurationDBRef.DataSourceConnection) config.getConnectionFactoryDesc();
             factory = new DatabaseDSConnFactory(dsConfig, settings);
-        }
-        else if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DataSourceFactory)
-        {
+        } else if (config.getConnectionFactoryDesc() instanceof ConfigurationDBRef.DataSourceFactory) {
             ConfigurationDBRef.DataSourceFactory dsConfig = (ConfigurationDBRef.DataSourceFactory) config.getConnectionFactoryDesc();
             factory = new DatabaseDSFactoryConnFactory(dsConfig, settings, engineImportService);
-        }
-        else if (config.getConnectionFactoryDesc() == null)
-        {
+        } else if (config.getConnectionFactoryDesc() == null) {
             throw new DatabaseConfigException("No connection factory setting provided in configuration");
-        }
-        else
-        {
+        } else {
             throw new DatabaseConfigException("Unknown connection factory setting provided in configuration");
         }
 
@@ -120,8 +101,7 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
 
     public DataCache getDataCache(String databaseName, StatementContext statementContext, EPStatementAgentInstanceHandle epStatementAgentInstanceHandle, DataCacheFactory dataCacheFactory, int streamNumber) throws DatabaseConfigException {
         ConfigurationDBRef config = mapDatabaseRef.get(databaseName);
-        if (config == null)
-        {
+        if (config == null) {
             throw new DatabaseConfigException("Cannot locate configuration information for database '" + databaseName + '\'');
         }
 
@@ -129,11 +109,9 @@ public class DatabaseConfigServiceImpl implements DatabaseConfigService
         return dataCacheFactory.getDataCache(dataCacheDesc, statementContext, epStatementAgentInstanceHandle, schedulingService, scheduleBucket, streamNumber);
     }
 
-    public ColumnSettings getQuerySetting(String databaseName) throws DatabaseConfigException
-    {
+    public ColumnSettings getQuerySetting(String databaseName) throws DatabaseConfigException {
         ConfigurationDBRef config = mapDatabaseRef.get(databaseName);
-        if (config == null)
-        {
+        if (config == null) {
             throw new DatabaseConfigException("Cannot locate configuration information for database '" + databaseName + '\'');
         }
         return new ColumnSettings(config.getMetadataRetrievalEnum(), config.getColumnChangeCase(), config.getSqlTypesMapping());

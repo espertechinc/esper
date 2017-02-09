@@ -18,22 +18,19 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprNodeGroupingVisitorWParent implements ExprNodeVisitorWithParent
-{
+public class ExprNodeGroupingVisitorWParent implements ExprNodeVisitorWithParent {
     private final List<Pair<ExprNode, ExprGroupingIdNode>> groupingIdNodes;
     private final List<Pair<ExprNode, ExprGroupingNode>> groupingNodes;
 
     /**
      * Ctor.
      */
-    public ExprNodeGroupingVisitorWParent()
-    {
+    public ExprNodeGroupingVisitorWParent() {
         this.groupingIdNodes = new ArrayList<Pair<ExprNode, ExprGroupingIdNode>>(2);
         this.groupingNodes = new ArrayList<Pair<ExprNode, ExprGroupingNode>>(2);
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 

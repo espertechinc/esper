@@ -18,8 +18,7 @@ import java.util.Map;
 /**
  * Descriptor of a property set.
  */
-public class PropertySetDescriptor
-{
+public class PropertySetDescriptor {
     private final List<String> propertyNameList;
     private final List<EventPropertyDescriptor> propertyDescriptors;
     private final Map<String, PropertySetDescriptorItem> propertyItems;
@@ -38,19 +37,19 @@ public class PropertySetDescriptor
 
     /**
      * Returns property name list.
+     *
      * @return property name list
      */
-    public List<String> getPropertyNameList()
-    {
+    public List<String> getPropertyNameList() {
         return propertyNameList;
     }
 
     /**
      * Returns the property descriptors.
+     *
      * @return property descriptors
      */
-    public List<EventPropertyDescriptor> getPropertyDescriptors()
-    {
+    public List<EventPropertyDescriptor> getPropertyDescriptors() {
         return propertyDescriptors;
     }
 

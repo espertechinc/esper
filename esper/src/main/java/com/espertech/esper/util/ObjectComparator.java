@@ -10,31 +10,26 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.collection.MultiKeyUntyped;
-
 import java.io.Serializable;
-import java.text.Collator;
 import java.util.Comparator;
 
 /**
  * A comparator on objects that takes a boolean array for ascending/descending.
  */
-public final class ObjectComparator implements Comparator<Object>, MetaDefItem, Serializable
-{
+public final class ObjectComparator implements Comparator<Object>, MetaDefItem, Serializable {
     private static final long serialVersionUID = -2139033245746311007L;
     private final boolean isDescendingValue;
 
     /**
      * Ctor.
+     *
      * @param isDescendingValue ascending or descending
      */
-    public ObjectComparator(boolean isDescendingValue)
-    {
+    public ObjectComparator(boolean isDescendingValue) {
         this.isDescendingValue = isDescendingValue;
     }
 
-    public final int compare(Object firstValue, Object secondValue)
-    {
+    public final int compare(Object firstValue, Object secondValue) {
         return MultiKeyComparator.compareValues(firstValue, secondValue, isDescendingValue);
     }
 }

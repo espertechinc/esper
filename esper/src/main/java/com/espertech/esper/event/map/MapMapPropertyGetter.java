@@ -19,58 +19,49 @@ import java.util.Map;
 /**
  * A getter that interrogates a given property in a map which may itself contain nested maps or indexed entries.
  */
-public class MapMapPropertyGetter implements MapEventPropertyGetter
-{
+public class MapMapPropertyGetter implements MapEventPropertyGetter {
     private final String propertyMap;
     private final MapEventPropertyGetter getter;
 
     /**
      * Ctor.
+     *
      * @param propertyMap is the property returning the map to interrogate
-     * @param getter is the getter to use to interrogate the property in the map
+     * @param getter      is the getter to use to interrogate the property in the map
      */
-    public MapMapPropertyGetter(String propertyMap, MapEventPropertyGetter getter)
-    {
-        if (getter == null)
-        {
+    public MapMapPropertyGetter(String propertyMap, MapEventPropertyGetter getter) {
+        if (getter == null) {
             throw new IllegalArgumentException("Getter is a required parameter");
         }
         this.propertyMap = propertyMap;
         this.getter = getter;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         Object valueTopObj = map.get(propertyMap);
-        if (!(valueTopObj instanceof Map))
-        {
+        if (!(valueTopObj instanceof Map)) {
             return null;
         }
-        return getter.getMap((Map)valueTopObj);
+        return getter.getMap((Map) valueTopObj);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         Object valueTopObj = map.get(propertyMap);
-        if (!(valueTopObj instanceof Map))
-        {
+        if (!(valueTopObj instanceof Map)) {
             return false;
         }
         return getter.isMapExistsProperty((Map) valueTopObj);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return isMapExistsProperty(BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean));
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 }

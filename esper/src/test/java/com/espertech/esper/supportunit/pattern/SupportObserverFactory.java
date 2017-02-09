@@ -10,24 +10,24 @@
  */
 package com.espertech.esper.supportunit.pattern;
 
+import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.pattern.*;
-import com.espertech.esper.pattern.observer.ObserverFactory;
+import com.espertech.esper.pattern.EvalStateNodeNumber;
+import com.espertech.esper.pattern.MatchedEventConvertor;
+import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.pattern.observer.EventObserver;
 import com.espertech.esper.pattern.observer.ObserverEventEvaluator;
+import com.espertech.esper.pattern.observer.ObserverFactory;
 import com.espertech.esper.pattern.observer.ObserverParameterException;
-import com.espertech.esper.epl.expression.core.ExprNode;
 
 import java.util.List;
 
-public class SupportObserverFactory implements ObserverFactory
-{
-    public void setObserverParameters(List<ExprNode> observerParameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
-    {
+public class SupportObserverFactory implements ObserverFactory {
+    public void setObserverParameters(List<ExprNode> observerParameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException {
     }
 
-    public EventObserver makeObserver(PatternAgentInstanceContext context, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, EvalStateNodeNumber stateNodeId, Object observerState, boolean isFilterChildNonQuitting)
-    {
+    public EventObserver makeObserver(PatternAgentInstanceContext context, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, EvalStateNodeNumber stateNodeId, Object observerState, boolean isFilterChildNonQuitting) {
         return null;
     }
 

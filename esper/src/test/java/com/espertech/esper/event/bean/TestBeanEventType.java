@@ -12,16 +12,15 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.supportunit.bean.*;
 import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.supportunit.bean.*;
 import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
 import junit.framework.TestCase;
 
 import java.io.Serializable;
 import java.util.*;
 
-public class TestBeanEventType extends TestCase
-{
+public class TestBeanEventType extends TestCase {
     private BeanEventType eventTypeSimple;
     private BeanEventType eventTypeComplex;
     private BeanEventType eventTypeNested;
@@ -34,8 +33,7 @@ public class TestBeanEventType extends TestCase
     private SupportBeanComplexProps objComplex;
     private SupportBeanCombinedProps objCombined;
 
-    public void setUp()
-    {
+    public void setUp() {
         eventTypeSimple = new BeanEventType(null, 0, SupportBeanSimple.class, SupportEventAdapterService.getService(), null);
         eventTypeComplex = new BeanEventType(null, 0, SupportBeanComplexProps.class, SupportEventAdapterService.getService(), null);
         eventTypeNested = new BeanEventType(null, 0, SupportBeanCombinedProps.class, SupportEventAdapterService.getService(), null);
@@ -55,18 +53,17 @@ public class TestBeanEventType extends TestCase
 
         BeanEventType nonSerializable = new BeanEventType(null, 0, NonSerializableNonCopyable.class, SupportEventAdapterService.getService(), null);
         assertNull(nonSerializable.getCopyMethod(copyFields));
-        
+
         ConfigurationEventTypeLegacy config = new ConfigurationEventTypeLegacy();
         config.setCopyMethod("myCopyMethod");
         nonSerializable = new BeanEventType(null, 0, NonSerializableNonCopyable.class, SupportEventAdapterService.getService(), config);
         try {
             nonSerializable.getCopyMethod(copyFields);   // also logs error
             fail();
-        }
-        catch (EPException ex) {
+        } catch (EPException ex) {
             // expected
         }
-        
+
         BeanEventType myCopyable = new BeanEventType(null, 0, MyCopyable.class, SupportEventAdapterService.getService(), config);
         assertTrue(myCopyable.getCopyMethod(copyFields) instanceof BeanEventBeanConfiguredCopyMethod);   // also logs error
 
@@ -74,8 +71,7 @@ public class TestBeanEventType extends TestCase
         assertTrue(myCopyableAndSer.getCopyMethod(copyFields) instanceof BeanEventBeanConfiguredCopyMethod);   // also logs error
     }
 
-    public void testFragments()
-    {
+    public void testFragments() {
         FragmentEventType nestedTypeFragment = eventTypeComplex.getFragmentType("nested");
         EventType nestedType = nestedTypeFragment.getFragmentType();
         assertEquals(SupportBeanComplexProps.SupportBeanSpecialGetterNested.class.getName(), nestedType.getName());
@@ -93,8 +89,7 @@ public class TestBeanEventType extends TestCase
         SupportEventTypeAssertionUtil.assertConsistency(eventTypeNested);
     }
 
-    public void testGetPropertyNames()
-    {
+    public void testGetPropertyNames() {
         String[] properties = eventTypeSimple.getPropertyNames();
         assertTrue(properties.length == 2);
         assertTrue(properties[0].equals("myInt"));
@@ -121,25 +116,21 @@ public class TestBeanEventType extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(SupportBeanCombinedProps.PROPERTIES, properties);
     }
 
-    public void testGetUnderlyingType()
-    {
+    public void testGetUnderlyingType() {
         assertEquals(SupportBeanSimple.class, eventTypeSimple.getUnderlyingType());
     }
 
-    public void testGetPropertyType()
-    {
+    public void testGetPropertyType() {
         assertEquals(String.class, eventTypeSimple.getPropertyType("myString"));
         assertNull(null, eventTypeSimple.getPropertyType("dummy"));
     }
 
-    public void testIsValidProperty()
-    {
+    public void testIsValidProperty() {
         assertTrue(eventTypeSimple.isProperty("myString"));
         assertFalse(eventTypeSimple.isProperty("dummy"));
     }
 
-    public void testGetGetter()
-    {
+    public void testGetGetter() {
         assertEquals(null, eventTypeSimple.getGetter("dummy"));
 
         EventPropertyGetter getter = eventTypeSimple.getGetter("myInt");
@@ -147,22 +138,18 @@ public class TestBeanEventType extends TestCase
         getter = eventTypeSimple.getGetter("myString");
         assertEquals("a", getter.get(eventSimple));
 
-        try
-        {
+        try {
             // test mismatch between bean and object
             EventType type = SupportEventAdapterService.getService().getBeanEventTypeFactory().createBeanType(Object.class.getName(), Object.class, false, false, false);
             EventBean eventBean = new BeanEventBean(new Object(), type);
             getter.get(eventBean);
             fail();
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // Expected
         }
     }
 
-    public void testProperties()
-    {
+    public void testProperties() {
         Class nestedOne = SupportBeanCombinedProps.NestedLevOne.class;
         Class nestedOneArr = SupportBeanCombinedProps.NestedLevOne[].class;
         Class nestedTwo = SupportBeanCombinedProps.NestedLevTwo.class;
@@ -229,13 +216,11 @@ public class TestBeanEventType extends TestCase
         tryInvalidIsProperty(eventTypeNested, "array[1].mapprop[x].value");
     }
 
-    public void testGetDeepSuperTypes()
-    {
+    public void testGetDeepSuperTypes() {
         BeanEventType type = new BeanEventType(null, 1, ISupportAImplSuperGImplPlus.class, SupportEventAdapterService.getService(), null);
 
         List<EventType> deepSuperTypes = new LinkedList<EventType>();
-        for (Iterator<EventType> it = type.getDeepSuperTypes(); it.hasNext();)
-        {
+        for (Iterator<EventType> it = type.getDeepSuperTypes(); it.hasNext(); ) {
             deepSuperTypes.add(it.next());
         }
 
@@ -253,8 +238,7 @@ public class TestBeanEventType extends TestCase
                 });
     }
 
-    public void testGetSuper()
-    {
+    public void testGetSuper() {
         LinkedHashSet<Class> classes = new LinkedHashSet<Class>();
         BeanEventType.getSuper(ISupportAImplSuperGImplPlus.class, classes);
 
@@ -273,8 +257,7 @@ public class TestBeanEventType extends TestCase
         assertEquals(0, classes.size());
     }
 
-    public void testGetSuperTypes()
-    {
+    public void testGetSuperTypes() {
         eventTypeSimple = new BeanEventType(null, 1, ISupportAImplSuperGImplPlus.class, SupportEventAdapterService.getService(), null);
 
         EventType[] superTypes = eventTypeSimple.getSuperTypes();
@@ -294,65 +277,50 @@ public class TestBeanEventType extends TestCase
                 new String[]{"d", "baseD", "baseDBase"});
     }
 
-    private static void tryInvalidIsProperty(BeanEventType type, String property)
-    {
+    private static void tryInvalidIsProperty(BeanEventType type, String property) {
         assertEquals(null, type.getPropertyType(property));
         assertEquals(false, type.isProperty(property));
     }
 
-    private static void runTest(List<PropTestDesc> tests, BeanEventType eventType, EventBean eventBean)
-    {
-        for (PropTestDesc desc : tests)
-        {
+    private static void runTest(List<PropTestDesc> tests, BeanEventType eventType, EventBean eventBean) {
+        for (PropTestDesc desc : tests) {
             runTest(desc, eventType, eventBean);
         }
     }
 
-    private static void runTest(PropTestDesc test, BeanEventType eventType, EventBean eventBean)
-    {
+    private static void runTest(PropTestDesc test, BeanEventType eventType, EventBean eventBean) {
         String propertyName = test.getPropertyName();
 
         assertEquals("isProperty mismatch on '" + propertyName + "',", test.isProperty(), eventType.isProperty(propertyName));
         assertEquals("getPropertyType mismatch on '" + propertyName + "',", test.getClazz(), eventType.getPropertyType(propertyName));
 
         EventPropertyGetter getter = eventType.getGetter(propertyName);
-        if (getter == null)
-        {
+        if (getter == null) {
             assertFalse("getGetter null on '" + propertyName + "',", test.isHasGetter());
-        }
-        else
-        {
+        } else {
             assertTrue("getGetter not null on '" + propertyName + "',", test.isHasGetter());
-            if (test.getGetterReturnValue() == NullPointerException.class)
-            {
-                try
-                {
+            if (test.getGetterReturnValue() == NullPointerException.class) {
+                try {
                     getter.get(eventBean);
                     fail("getGetter not throwing null pointer on '" + propertyName);
-                }
-                catch (NullPointerException ex)
-                {
+                } catch (NullPointerException ex) {
                     // expected
                 }
-            }
-            else
-            {
+            } else {
                 Object value = getter.get(eventBean);
                 assertEquals("getter value mismatch on '" + propertyName + "',", test.getGetterReturnValue(), value);
             }
         }
     }
 
-    public static class PropTestDesc
-    {
+    public static class PropTestDesc {
         private String propertyName;
         private boolean isProperty;
         private Class clazz;
         private boolean hasGetter;
         private Object getterReturnValue;
 
-        public PropTestDesc(String propertyName, boolean property, Class clazz, boolean hasGetter, Object getterReturnValue)
-        {
+        public PropTestDesc(String propertyName, boolean property, Class clazz, boolean hasGetter, Object getterReturnValue) {
             this.propertyName = propertyName;
             isProperty = property;
             this.clazz = clazz;
@@ -360,28 +328,23 @@ public class TestBeanEventType extends TestCase
             this.getterReturnValue = getterReturnValue;
         }
 
-        public String getPropertyName()
-        {
+        public String getPropertyName() {
             return propertyName;
         }
 
-        public boolean isProperty()
-        {
+        public boolean isProperty() {
             return isProperty;
         }
 
-        public Class getClazz()
-        {
+        public Class getClazz() {
             return clazz;
         }
 
-        public boolean isHasGetter()
-        {
+        public boolean isHasGetter() {
             return hasGetter;
         }
 
-        public Object getGetterReturnValue()
-        {
+        public Object getGetterReturnValue() {
             return getterReturnValue;
         }
     }

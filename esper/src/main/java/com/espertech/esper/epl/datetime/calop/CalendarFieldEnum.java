@@ -13,8 +13,8 @@ package com.espertech.esper.epl.datetime.calop;
 import java.io.StringWriter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
 import java.util.Calendar;
+import java.util.Locale;
 
 public enum CalendarFieldEnum {
     MILLISEC(Calendar.MILLISECOND, "msec,millisecond,milliseconds", ChronoField.MILLI_OF_SECOND, ChronoUnit.MILLIS),
@@ -24,8 +24,7 @@ public enum CalendarFieldEnum {
     DAY(Calendar.DATE, "day,days", ChronoField.DAY_OF_MONTH, ChronoUnit.DAYS),
     MONTH(Calendar.MONTH, "month,months", ChronoField.MONTH_OF_YEAR, ChronoUnit.MONTHS),
     WEEK(Calendar.WEEK_OF_YEAR, "week,weeks", ChronoField.ALIGNED_WEEK_OF_YEAR, ChronoUnit.WEEKS),
-    YEAR(Calendar.YEAR, "year,years", ChronoField.YEAR, ChronoUnit.YEARS)
-    ;
+    YEAR(Calendar.YEAR, "year,years", ChronoField.YEAR, ChronoUnit.YEARS);
 
     private final int calendarField;
     private final String[] names;
@@ -65,7 +64,7 @@ public enum CalendarFieldEnum {
     }
 
     public static CalendarFieldEnum fromString(String field) {
-        String compareTo = field.trim().toLowerCase();
+        String compareTo = field.trim().toLowerCase(Locale.ENGLISH);
         for (CalendarFieldEnum v : CalendarFieldEnum.values()) {
             for (String name : v.names) {
                 if (name.equals(compareTo)) {

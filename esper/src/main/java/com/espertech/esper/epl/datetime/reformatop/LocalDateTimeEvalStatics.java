@@ -15,69 +15,69 @@ import java.time.temporal.ChronoField;
 
 public class LocalDateTimeEvalStatics {
 
-    public final static LocalDateTimeEval MinuteOfHour = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getMinute();
-            }
-        };
+    public final static LocalDateTimeEval MINUTE_OF_HOUR = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getMinute();
+        }
+    };
 
-    public final static LocalDateTimeEval MonthOfYear = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getMonth();
-            }
-        };
+    public final static LocalDateTimeEval MONTH_OF_YEAR = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getMonth();
+        }
+    };
 
-    public final static LocalDateTimeEval DayOfMonth = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getDayOfMonth();
-            }
-        };
+    public final static LocalDateTimeEval DAY_OF_MONTH = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getDayOfMonth();
+        }
+    };
 
-    public final static LocalDateTimeEval DayOfWeek = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getDayOfWeek();
-            }
-        };
+    public final static LocalDateTimeEval DAY_OF_WEEK = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getDayOfWeek();
+        }
+    };
 
-    public final static LocalDateTimeEval DayOfYear = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getDayOfYear();
-            }
-        };    
+    public final static LocalDateTimeEval DAY_OF_YEAR = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getDayOfYear();
+        }
+    };
 
-    public final static LocalDateTimeEval Era = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.get(ChronoField.ERA);
-            }
-        };
+    public final static LocalDateTimeEval ERA = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.get(ChronoField.ERA);
+        }
+    };
 
-    public final static LocalDateTimeEval HourOfDay = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getHour();
-            }
-        };
+    public final static LocalDateTimeEval HOUR_OF_DAY = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getHour();
+        }
+    };
 
-    public final static LocalDateTimeEval MillisOfSecond = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.get(ChronoField.MILLI_OF_SECOND);
-            }
-        };
+    public final static LocalDateTimeEval MILLIS_OF_SECOND = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.get(ChronoField.MILLI_OF_SECOND);
+        }
+    };
 
-    public final static LocalDateTimeEval SecondOfMinute = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getSecond();
-            }
-        };
+    public final static LocalDateTimeEval SECOND_OF_MINUTE = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getSecond();
+        }
+    };
 
-    public final static LocalDateTimeEval Weekyear = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-            }
-        };
+    public final static LocalDateTimeEval WEEKYEAR = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+        }
+    };
 
-    public final static LocalDateTimeEval Year = new LocalDateTimeEval() {
-            public Object evaluateInternal(LocalDateTime ldt) {
-                return ldt.getYear();
-            }
-        };
+    public final static LocalDateTimeEval YEAR = new LocalDateTimeEval() {
+        public Object evaluateInternal(LocalDateTime ldt) {
+            return ldt.getYear();
+        }
+    };
 }

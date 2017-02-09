@@ -17,8 +17,7 @@ import com.espertech.esper.core.service.StatementContext;
 
 import java.util.Set;
 
-public class OutputProcessViewAfterStateNone implements OutputProcessViewAfterState
-{
+public class OutputProcessViewAfterStateNone implements OutputProcessViewAfterState {
     public final static OutputProcessViewAfterStateNone INSTANCE = new OutputProcessViewAfterStateNone();
 
     private OutputProcessViewAfterStateNone() {

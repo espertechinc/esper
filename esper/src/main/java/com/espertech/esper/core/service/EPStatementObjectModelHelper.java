@@ -15,39 +15,31 @@ import java.io.StringWriter;
 /**
  * Helper methods for use by the statement object model.
  */
-public class EPStatementObjectModelHelper
-{
+public class EPStatementObjectModelHelper {
     /**
      * Renders a constant as an EPL.
-     * @param writer to output to
+     *
+     * @param writer   to output to
      * @param constant to render
      */
-    public static void renderEPL(StringWriter writer, Object constant)
-    {
-        if (constant == null)
-        {
+    public static void renderEPL(StringWriter writer, Object constant) {
+        if (constant == null) {
             writer.write("null");
             return;
         }
 
         if ((constant instanceof String) ||
-            (constant instanceof Character))
-        {
+                (constant instanceof Character)) {
             writer.write('\"');
             writer.write(constant.toString());
             writer.write('\"');
-        }
-        else if (constant instanceof Long) {
+        } else if (constant instanceof Long) {
             writer.write(constant.toString() + "L");
-        }
-        else if (constant instanceof Double) {
+        } else if (constant instanceof Double) {
             writer.write(constant.toString() + "d");
-        }
-        else if (constant instanceof Float) {
+        } else if (constant instanceof Float) {
             writer.write(constant.toString() + "f");
-        }
-        else
-        {
+        } else {
             writer.write(constant.toString());
         }
     }

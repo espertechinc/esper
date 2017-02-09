@@ -99,7 +99,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
 
         agentInstanceContext.getStatementContext().getVariableService().setLocalVersion();
         boolean isOutput = evaluate(parent.getWhenExpressionNodeEval());
-        if ((isOutput) && (!isCallbackScheduled)) {
+        if (isOutput && (!isCallbackScheduled)) {
             scheduleCallback();
         }
     }
@@ -143,7 +143,7 @@ public class OutputConditionExpression extends OutputConditionBase implements Ou
 
         boolean result = false;
         Boolean output = (Boolean) evaluator.evaluate(eventsPerStream, true, agentInstanceContext);
-        if ((output != null) && (output)) {
+        if ((output != null) && output) {
             result = true;
         }
 

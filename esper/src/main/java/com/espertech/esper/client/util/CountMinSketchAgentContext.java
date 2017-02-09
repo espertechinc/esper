@@ -20,6 +20,7 @@ public abstract class CountMinSketchAgentContext {
 
     /**
      * Ctor.
+     *
      * @param state the state
      */
     protected CountMinSketchAgentContext(CountMinSketchState state) {
@@ -28,6 +29,7 @@ public abstract class CountMinSketchAgentContext {
 
     /**
      * Returns state
+     *
      * @return state
      */
     public CountMinSketchState getState() {

@@ -10,35 +10,31 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import junit.framework.TestCase;
 import com.espertech.esper.client.ConfigurationEventTypeLegacy;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.supportunit.bean.SupportLegacyBean;
-
-import java.util.List;
-import java.util.LinkedList;
-
+import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestPropertyListBuilderPublic extends TestCase
-{
+import java.util.LinkedList;
+import java.util.List;
+
+public class TestPropertyListBuilderPublic extends TestCase {
     private PropertyListBuilderPublic builder;
 
-    public void setUp()
-    {
+    public void setUp() {
         ConfigurationEventTypeLegacy config = new ConfigurationEventTypeLegacy();
 
         // add 2 explicit properties, also supported
         config.addFieldProperty("x", "fieldNested");
         config.addMethodProperty("y", "readLegacyBeanVal");
-        
+
         builder = new PropertyListBuilderPublic(config);
     }
 
-    public void testBuildPropList() throws Exception
-    {
+    public void testBuildPropList() throws Exception {
         List<InternalEventPropDescriptor> descList = builder.assessProperties(SupportLegacyBean.class);
 
         List<InternalEventPropDescriptor> expected = new LinkedList<InternalEventPropDescriptor>();
@@ -49,8 +45,8 @@ public class TestPropertyListBuilderPublic extends TestCase
 
         expected.add(new InternalEventPropDescriptor("readLegacyBeanVal", SupportLegacyBean.class.getMethod("readLegacyBeanVal"), EventPropertyType.SIMPLE));
         expected.add(new InternalEventPropDescriptor("readStringArray", SupportLegacyBean.class.getMethod("readStringArray"), EventPropertyType.SIMPLE));
-        expected.add(new InternalEventPropDescriptor("readStringIndexed", SupportLegacyBean.class.getMethod("readStringIndexed", new Class[] {int.class}), EventPropertyType.INDEXED));
-        expected.add(new InternalEventPropDescriptor("readMapByKey", SupportLegacyBean.class.getMethod("readMapByKey", new Class[] {String.class}), EventPropertyType.MAPPED));
+        expected.add(new InternalEventPropDescriptor("readStringIndexed", SupportLegacyBean.class.getMethod("readStringIndexed", new Class[]{int.class}), EventPropertyType.INDEXED));
+        expected.add(new InternalEventPropDescriptor("readMapByKey", SupportLegacyBean.class.getMethod("readMapByKey", new Class[]{String.class}), EventPropertyType.MAPPED));
         expected.add(new InternalEventPropDescriptor("readMap", SupportLegacyBean.class.getMethod("readMap"), EventPropertyType.SIMPLE));
         expected.add(new InternalEventPropDescriptor("readLegacyNested", SupportLegacyBean.class.getMethod("readLegacyNested"), EventPropertyType.SIMPLE));
 

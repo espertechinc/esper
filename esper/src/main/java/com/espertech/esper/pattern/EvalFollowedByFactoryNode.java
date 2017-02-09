@@ -20,8 +20,7 @@ import java.util.List;
 /**
  * This class represents a followed-by operator in the evaluation tree representing any event expressions.
  */
-public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = 6255755581326049894L;
     private List<ExprNode> optionalMaxExpressions;
     private boolean hasEngineWidePatternCount;
@@ -52,9 +51,8 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase
         this.optionalMaxExpressions = optionalMaxExpressions;
     }
 
-    public final String toString()
-    {
-        return ("EvalFollowedByNode children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalFollowedByNode children=" + this.getChildNodes().size();
     }
 
     protected void initOpType() {
@@ -80,8 +78,7 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase
                 if (result != null) {
                     cachedMaxPerChild[i] = result.intValue();
                 }
-            }
-            else {
+            } else {
                 cachedMaxEvaluatorPerChild[i] = optionalMaxExpressions.get(i).getExprEvaluator();
             }
         }
@@ -122,8 +119,7 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if (optionalMaxExpressions == null || optionalMaxExpressions.isEmpty()) {
             PatternExpressionUtil.toPrecedenceFreeEPL(writer, "->", getChildNodes(), getPrecedence());
-        }
-        else {
+        } else {
             getChildNodes().get(0).toEPL(writer, PatternExpressionPrecedenceEnum.MINIMUM);
             for (int i = 1; i < getChildNodes().size(); i++) {
                 ExprNode optionalMaxExpression = null;
@@ -132,8 +128,7 @@ public class EvalFollowedByFactoryNode extends EvalNodeFactoryBase
                 }
                 if (optionalMaxExpression == null) {
                     writer.append(" -> ");
-                }
-                else {
+                } else {
                     writer.append(" -[");
                     writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(optionalMaxExpression));
                     writer.append("]> ");

@@ -56,8 +56,7 @@ public class EnumEvalOrderByAscDescEvents extends EnumEvalBase implements EnumEv
         Map<Comparable, Object> sorted;
         if (descending) {
             sorted = sort.descendingMap();
-        }
-        else {
+        } else {
             sorted = sort;
         }
 
@@ -69,8 +68,7 @@ public class EnumEvalOrderByAscDescEvents extends EnumEvalBase implements EnumEv
         for (Map.Entry<Comparable, Object> entry : sorted.entrySet()) {
             if (entry.getValue() instanceof Collection) {
                 coll.addAll((Collection) entry.getValue());
-            }
-            else {
+            } else {
                 coll.add(entry.getValue());
             }
         }

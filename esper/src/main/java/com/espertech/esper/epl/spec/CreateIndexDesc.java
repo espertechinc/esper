@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * Specification for creating a named window.
  */
-public class CreateIndexDesc implements MetaDefItem, Serializable
-{
+public class CreateIndexDesc implements MetaDefItem, Serializable {
     private static final long serialVersionUID = -6758785746637089810L;
 
     private final boolean unique;
@@ -29,10 +28,11 @@ public class CreateIndexDesc implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param unique indicator whether unique or not
-     * @param indexName index name
+     *
+     * @param unique     indicator whether unique or not
+     * @param indexName  index name
      * @param windowName window name
-     * @param columns properties to index
+     * @param columns    properties to index
      */
     public CreateIndexDesc(boolean unique, String indexName, String windowName, List<CreateIndexItem> columns) {
         this.unique = unique;
@@ -43,28 +43,28 @@ public class CreateIndexDesc implements MetaDefItem, Serializable
 
     /**
      * Returns index name.
+     *
      * @return index name
      */
-    public String getIndexName()
-    {
+    public String getIndexName() {
         return indexName;
     }
 
     /**
      * Returns window name.
+     *
      * @return window name
      */
-    public String getWindowName()
-    {
+    public String getWindowName() {
         return windowName;
     }
 
     /**
      * Returns columns.
+     *
      * @return columns
      */
-    public List<CreateIndexItem> getColumns()
-    {
+    public List<CreateIndexItem> getColumns() {
         return columns;
     }
 

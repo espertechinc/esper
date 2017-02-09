@@ -35,13 +35,11 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
         Object[] oldDataMultiKey = processor.generateGroupKeys(oldData, false);
         Set<Object> keysSeenRemoved = new HashSet<Object>();
 
-        if (newData != null)
-        {
+        if (newData != null) {
             // apply new data to aggregates
             int count = 0;
-            for (EventBean aNewData : newData)
-            {
-                EventBean[] eventsPerStream = new EventBean[] {aNewData};
+            for (EventBean aNewData : newData) {
+                EventBean[] eventsPerStream = new EventBean[]{aNewData};
                 Object mk = newDataMultiKey[count];
                 repsPerGroup.put(mk, eventsPerStream);
                 lastSeenKeys.add(mk);
@@ -50,12 +48,10 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
                 count++;
             }
         }
-        if (oldData != null)
-        {
+        if (oldData != null) {
             // apply old data to aggregates
             int count = 0;
-            for (EventBean anOldData : oldData)
-            {
+            for (EventBean anOldData : oldData) {
                 Object mk = oldDataMultiKey[count];
                 lastSeenKeys.add(mk);
                 keysSeenRemoved.add(mk);
@@ -86,8 +82,7 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
         if (newData != null) {
             // apply new data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> aNewData : newData)
-            {
+            for (MultiKey<EventBean> aNewData : newData) {
                 Object mk = newDataMultiKey[count];
                 repsPerGroup.put(mk, aNewData.getArray());
                 lastSeenKeys.add(mk);
@@ -95,12 +90,10 @@ public class ResultSetProcessorAggregateGroupedOutputAllHelperImpl implements Re
                 count++;
             }
         }
-        if (oldData != null)
-        {
+        if (oldData != null) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> anOldData : oldData)
-            {
+            for (MultiKey<EventBean> anOldData : oldData) {
                 Object mk = oldDataMultiKey[count];
                 lastSeenKeys.add(mk);
                 keysSeenRemoved.add(mk);

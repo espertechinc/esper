@@ -19,22 +19,19 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.*;
 import com.espertech.esper.util.JavaClassHelper;
 
-public class ViewFactoryTimePeriodHelper
-{
+public class ViewFactoryTimePeriodHelper {
     public static ExprTimePeriodEvalDeltaConstFactory validateAndEvaluateTimeDeltaFactory(String viewName,
-                                                                                      StatementContext statementContext,
-                                                                                      ExprNode expression,
-                                                                                      String expectedMessage,
-                                                                                      int expressionNumber)
-            throws ViewParameterException
-    {
+                                                                                          StatementContext statementContext,
+                                                                                          ExprNode expression,
+                                                                                          String expectedMessage,
+                                                                                          int expressionNumber)
+            throws ViewParameterException {
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(statementContext.getEngineURI(), false);
         ExprTimePeriodEvalDeltaConstFactory factory;
         if (expression instanceof ExprTimePeriod) {
             ExprTimePeriod validated = (ExprTimePeriod) ViewFactorySupport.validateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
             factory = validated.constEvaluator(new ExprEvaluatorContextStatement(statementContext, false));
-        }
-        else {
+        } else {
             ExprNode validated = ViewFactorySupport.validateExpr(viewName, statementContext, expression, streamTypeService, expressionNumber);
             ExprEvaluator secondsEvaluator = validated.getExprEvaluator();
             Class returnType = JavaClassHelper.getBoxedType(secondsEvaluator.getType());
@@ -48,8 +45,7 @@ public class ViewFactoryTimePeriodHelper
                 }
                 long msec = statementContext.getTimeAbacus().deltaForSecondsNumber(time);
                 factory = new ExprTimePeriodEvalDeltaConstGivenDelta(msec);
-            }
-            else {
+            } else {
                 factory = new ExprTimePeriodEvalDeltaConstFactoryMsec(secondsEvaluator, statementContext.getTimeAbacus());
             }
         }

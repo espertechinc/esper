@@ -16,46 +16,37 @@ import com.espertech.esper.collection.ArrayEventIterator;
 
 import java.util.Iterator;
 
-public class ViewableDefaultImpl implements Viewable
-{
+public class ViewableDefaultImpl implements Viewable {
     private final EventType eventType;
 
-    public ViewableDefaultImpl(EventType eventType)
-    {
+    public ViewableDefaultImpl(EventType eventType) {
         this.eventType = eventType;
     }
 
-    public View addView(View view)
-    {
+    public View addView(View view) {
         return null;
     }
 
-    public View[] getViews()
-    {
+    public View[] getViews() {
         return ViewSupport.EMPTY_VIEW_ARRAY;
     }
 
-    public boolean removeView(View view)
-    {
+    public boolean removeView(View view) {
         return false;
     }
 
-    public void removeAllViews()
-    {
+    public void removeAllViews() {
     }
 
-    public boolean hasViews()
-    {
+    public boolean hasViews() {
         return false;
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new ArrayEventIterator(null);
     }
 }

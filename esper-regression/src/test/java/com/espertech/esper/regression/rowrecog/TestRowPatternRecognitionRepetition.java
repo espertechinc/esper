@@ -28,10 +28,7 @@ import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TestRowPatternRecognitionRepetition extends TestCase {
 
@@ -488,7 +485,7 @@ public class TestRowPatternRecognitionRepetition extends TestCase {
         for (String anEvent : events) {
             String type = new String(new char[]{anEvent.charAt(0)});
             SupportBean bean = sendEvent(anEvent, sequenceNum);
-            String propName = type.toLowerCase();
+            String propName = type.toLowerCase(Locale.ENGLISH);
             if (!sent.containsKey(propName)) {
                 sent.put(propName, new ArrayList<SupportBean>());
             }
@@ -525,11 +522,11 @@ public class TestRowPatternRecognitionRepetition extends TestCase {
         for (String prop : props) {
             buf.append(delimiter);
             delimiter = ", ";
-            buf.append(prop.toUpperCase());
+            buf.append(prop.toUpperCase(Locale.ENGLISH));
             buf.append(" as ");
-            buf.append(prop.toUpperCase());
+            buf.append(prop.toUpperCase(Locale.ENGLISH));
             buf.append(".theString like \"");
-            buf.append(prop.toUpperCase());
+            buf.append(prop.toUpperCase(Locale.ENGLISH));
             buf.append("%\"");
         }
         return buf.toString();
@@ -541,7 +538,7 @@ public class TestRowPatternRecognitionRepetition extends TestCase {
         for (String prop : props) {
             buf.append(delimiter);
             delimiter = ", ";
-            buf.append(prop.toUpperCase());
+            buf.append(prop.toUpperCase(Locale.ENGLISH));
             buf.append(" as ");
             buf.append(prop);
         }

@@ -8,7 +8,6 @@
 package com.espertech.esper.example.benchmark.server;
 
 import com.espertech.esper.client.*;
-
 import com.espertech.esper.example.benchmark.MarketData;
 
 /**
@@ -53,8 +52,8 @@ public class CEPProvider {
         public EsperCEPProvider() {
         }
 
-        public void init(final int _sleepListenerMillis) {
-            sleepListenerMillis = _sleepListenerMillis;
+        public void init(final int sleepListenerMillisConfig) {
+            sleepListenerMillis = sleepListenerMillisConfig;
             Configuration configuration;
 
             // EsperHA enablement - if available
@@ -78,10 +77,9 @@ public class CEPProvider {
                 configuration.addPluginLoader(
                         "EsperJMX",
                         "com.espertech.esper.jmx.client.EsperJMXPlugin",
-                        null);// will use platform mbean - should enable platform mbean connector in startup command line
+                        null); // will use platform mbean - should enable platform mbean connector in startup command line
                 System.out.println("=== EsperJMX is available, using platform mbean ===");
             } catch (ClassNotFoundException e) {
-                ;
             }
 
 
@@ -113,7 +111,6 @@ public class CEPProvider {
                     try {
                         Thread.sleep(EsperCEPProvider.sleepListenerMillis);
                     } catch (InterruptedException ie) {
-                        ;
                     }
                 }
             }
@@ -126,7 +123,6 @@ public class CEPProvider {
                 try {
                     Thread.sleep(EsperCEPProvider.sleepListenerMillis);
                 } catch (InterruptedException ie) {
-                    ;
                 }
             }
         }
@@ -136,7 +132,6 @@ public class CEPProvider {
                 try {
                     Thread.sleep(EsperCEPProvider.sleepListenerMillis);
                 } catch (InterruptedException ie) {
-                    ;
                 }
             }
         }
@@ -146,7 +141,6 @@ public class CEPProvider {
                 try {
                     Thread.sleep(EsperCEPProvider.sleepListenerMillis);
                 } catch (InterruptedException ie) {
-                    ;
                 }
             }
         }

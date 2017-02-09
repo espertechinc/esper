@@ -20,36 +20,31 @@ import java.util.List;
 /**
  * Visitor that collects expression nodes that require view resources.
  */
-public class ExprNodeViewResourceVisitor implements ExprNodeVisitor
-{
+public class ExprNodeViewResourceVisitor implements ExprNodeVisitor {
     private final List<ExprNode> exprNodes;
 
     /**
      * Ctor.
      */
-    public ExprNodeViewResourceVisitor()
-    {
+    public ExprNodeViewResourceVisitor() {
         exprNodes = new ArrayList<ExprNode>();
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 
     /**
      * Returns the list of expression nodes requiring view resources.
+     *
      * @return expr nodes such as 'prior' or 'prev'
      */
-    public List<ExprNode> getExprNodes()
-    {
+    public List<ExprNode> getExprNodes() {
         return exprNodes;
     }
 
-    public void visit(ExprNode exprNode)
-    {
-        if (exprNode instanceof ExprPreviousNode || exprNode instanceof ExprPriorNode)
-        {
+    public void visit(ExprNode exprNode) {
+        if (exprNode instanceof ExprPreviousNode || exprNode instanceof ExprPriorNode) {
             exprNodes.add(exprNode);
         }
     }

@@ -17,8 +17,7 @@ import com.espertech.esper.client.FragmentEventType;
  * Encapsulates the result of resolving a property and optional stream name against a supplied list of streams
  * {@link com.espertech.esper.epl.core.StreamTypeService}.
  */
-public class PropertyResolutionDescriptor
-{
+public class PropertyResolutionDescriptor {
     private String streamName;
     private EventType streamEventType;
     private String propertyName;
@@ -28,15 +27,15 @@ public class PropertyResolutionDescriptor
 
     /**
      * Ctor.
-     * @param streamName is the stream name
-     * @param streamEventType is the event type of the stream where the property was found
-     * @param propertyName is the regular name of property
-     * @param streamNum is the number offset of the stream
-     * @param propertyType is the type of the property
+     *
+     * @param streamName        is the stream name
+     * @param streamEventType   is the event type of the stream where the property was found
+     * @param propertyName      is the regular name of property
+     * @param streamNum         is the number offset of the stream
+     * @param propertyType      is the type of the property
      * @param fragmentEventType fragment type
      */
-    public PropertyResolutionDescriptor(String streamName, EventType streamEventType, String propertyName, int streamNum, Class propertyType, FragmentEventType fragmentEventType)
-    {
+    public PropertyResolutionDescriptor(String streamName, EventType streamEventType, String propertyName, int streamNum, Class propertyType, FragmentEventType fragmentEventType) {
         this.streamName = streamName;
         this.streamEventType = streamEventType;
         this.propertyName = propertyName;
@@ -47,46 +46,46 @@ public class PropertyResolutionDescriptor
 
     /**
      * Returns stream name.
+     *
      * @return stream name
      */
-    public String getStreamName()
-    {
+    public String getStreamName() {
         return streamName;
     }
 
     /**
      * Returns event type of the stream that the property was found in.
+     *
      * @return stream's event type
      */
-    public EventType getStreamEventType()
-    {
+    public EventType getStreamEventType() {
         return streamEventType;
     }
 
     /**
      * Returns resolved property name of the property as it exists in a stream.
+     *
      * @return property name as resolved in a stream
      */
-    public String getPropertyName()
-    {
+    public String getPropertyName() {
         return propertyName;
     }
 
     /**
      * Returns the number of the stream the property was found in.
+     *
      * @return stream offset number starting at zero to N-1 where N is the number of streams
      */
-    public int getStreamNum()
-    {
+    public int getStreamNum() {
         return streamNum;
     }
 
     /**
      * Returns the property type of the resolved property.
+     *
      * @return class of property
      */
-    public Class getPropertyType()
-    {
+    public Class getPropertyType() {
         return propertyType;
     }
 

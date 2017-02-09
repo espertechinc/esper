@@ -14,8 +14,7 @@ import com.espertech.esper.epl.expression.core.ExprSubstitutionNode;
 
 import java.util.List;
 
-public class ASTSubstitutionHelper
-{
+public class ASTSubstitutionHelper {
     public static void validateNewSubstitution(List<ExprSubstitutionNode> substitutionParamNodes, ExprSubstitutionNode substitutionNode) {
         if (substitutionParamNodes.isEmpty()) {
             return;

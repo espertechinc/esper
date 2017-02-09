@@ -70,12 +70,10 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
         Schema schema;
         if (avroSchemaObj != null) {
             schema = (Schema) avroSchemaObj;
-        }
-        else {
+        } else {
             try {
                 schema = new Schema.Parser().parse(avroSchemaText);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 throw new EPException("Failed for parse avro schema: " + t.getMessage(), t);
             }
         }
@@ -136,8 +134,8 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
     public void validateExistingType(EventType existingType, AvroSchemaEventType proposedType) {
         if (!(existingType instanceof AvroSchemaEventType)) {
             throw new EventAdapterException("Type by name '" + proposedType.getName() + "' is not a compatible type " +
-                "(target type underlying is '" + existingType.getUnderlyingType().getName() + "', " +
-                "source type underlying is '" + proposedType.getUnderlyingType().getName() + "')");
+                    "(target type underlying is '" + existingType.getUnderlyingType().getName() + "', " +
+                    "source type underlying is '" + proposedType.getUnderlyingType().getName() + "')");
         }
 
         Schema proposed = (Schema) proposedType.getSchema();
@@ -158,7 +156,7 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
             Schema.Field targetField = schema.getField(selected.getKey());
 
             if (targetField == null) {
-                throw new ExprValidationException("Property '" + propertyName + "' is not found among the fields for event type '" +  existingType.getName() + "'");
+                throw new ExprValidationException("Property '" + propertyName + "' is not found among the fields for event type '" + existingType.getName() + "'");
             }
 
             if (selected.getValue() instanceof EventType) {
@@ -167,8 +165,7 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
                 if (targetField.schema().getType() != Schema.Type.RECORD || !targetField.schema().equals(targetAvro.getSchemaAvro())) {
                     throw new ExprValidationException("Property '" + propertyName + "' is incompatible, expecting a compatible schema '" + targetField.schema().getName() + "' but received schema '" + targetAvro.getSchemaAvro().getName() + "'");
                 }
-            }
-            else if (selected.getValue() instanceof EventType[]) {
+            } else if (selected.getValue() instanceof EventType[]) {
                 EventType targetEventType = ((EventType[]) selected.getValue())[0];
                 AvroEventType targetAvro = checkAvroEventTpe(selected.getKey(), targetEventType);
                 if (targetField.schema().getType() != Schema.Type.ARRAY ||
@@ -198,14 +195,12 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
                 if (originalColl != null) {
                     target.put(targetField.pos(), new ArrayList<>(originalColl));
                 }
-            }
-            else if (field.schema().getType() == Schema.Type.MAP) {
+            } else if (field.schema().getType() == Schema.Type.MAP) {
                 Map originalMap = (Map) original.get(field.pos());
                 if (originalMap != null) {
                     target.put(targetField.pos(), new HashMap<>(originalMap));
                 }
-            }
-            else {
+            } else {
                 target.put(targetField.pos(), original.get(field.pos()));
             }
         }

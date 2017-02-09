@@ -50,8 +50,7 @@ import java.util.*;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBase {
     private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateTable.class);
 
     public EPStatementStartMethodCreateTable(StatementSpecCompiled statementSpec) {
@@ -90,8 +89,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             boolean queryPlanLogging = services.getConfigSnapshot().getEngineDefaults().getLogging().isEnableQueryPlan();
             metadata = services.getTableService().addTable(createDesc.getTableName(), statementContext.getExpression(), statementContext.getStatementName(), keyTypes, plan.getTableColumns(), tableStateRowFactory, plan.getNumberMethodAggregations(), statementContext, plan.getInternalEventType(),
                     plan.getPublicEventType(), plan.getEventToPublic(), queryPlanLogging);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             services.getEventAdapterService().removeType(internalTypeName);
             services.getEventAdapterService().removeType(publicTypeName);
             throw ex;
@@ -111,20 +109,19 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             ContextManagedStatementCreateAggregationVariableDesc statement = new ContextManagedStatementCreateAggregationVariableDesc(statementSpec, statementContext, mergeView, contextFactory);
             services.getContextManagementService().addStatement(statementSpec.getOptionalContextName(), statement, isRecoveringResilient);
 
-            stopStatementMethod = new EPStatementStopMethod(){
+            stopStatementMethod = new EPStatementStopMethod() {
                 public void stop() {
                     services.getContextManagementService().stoppedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getExpression(), statementContext.getExceptionHandlingService());
                 }
             };
 
-            destroyStatementMethod = new EPStatementDestroyMethod(){
+            destroyStatementMethod = new EPStatementDestroyMethod() {
                 public void destroy() {
                     services.getContextManagementService().destroyedStatement(contextName, statementContext.getStatementName(), statementContext.getStatementId());
                     services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
                 }
             };
-        }
-        else {
+        } else {
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             StatementAgentInstanceFactoryCreateTableResult result = contextFactory.newContext(defaultAgentInstanceContext, false);
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {
@@ -137,7 +134,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
                 public void stop() {
                 }
             };
-            destroyStatementMethod = new EPStatementDestroyMethod(){
+            destroyStatementMethod = new EPStatementDestroyMethod() {
                 public void destroy() {
                     services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
                 }
@@ -150,8 +147,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
     }
 
     private Class[] getKeyTypes(List<CreateTableColumn> columns, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<Class> keys = new ArrayList<Class>();
         for (CreateTableColumn col : columns) {
             if (col.getPrimaryKey() == null || !col.getPrimaryKey()) {
@@ -174,18 +170,16 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
     }
 
     private ExprAggregateNode validateAggregationExpr(ExprNode columnExpressionType, EventType optionalProvidedType, EPServicesContext services, StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // determine validation context types and istream/irstream
         EventType[] types;
         String[] streamNames;
         boolean[] istreamOnly;
         if (optionalProvidedType != null) {
-            types = new EventType[] {optionalProvidedType};
-            streamNames = new String[] {types[0].getName()};
-            istreamOnly = new boolean[] {false}; // always false (expected to be bound by data window), use "ever"-aggregation functions otherwise
-        }
-        else {
+            types = new EventType[]{optionalProvidedType};
+            streamNames = new String[]{types[0].getName()};
+            istreamOnly = new boolean[]{false}; // always false (expected to be bound by data window), use "ever"-aggregation functions otherwise
+        } else {
             types = new EventType[0];
             streamNames = new String[0];
             istreamOnly = new boolean[0];
@@ -200,23 +194,21 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
                 ExprIdentNode identNode = (ExprIdentNode) childNode;
                 String propname = identNode.getFullUnresolvedName().trim();
                 Class clazz = JavaClassHelper.getClassForSimpleName(propname, services.getEngineImportService().getClassForNameProvider());
-                if (propname.toLowerCase().trim().equals("object")) {
+                if (propname.toLowerCase(Locale.ENGLISH).trim().equals("object")) {
                     clazz = Object.class;
                 }
                 EngineImportException ex = null;
                 if (clazz == null) {
                     try {
                         clazz = services.getEngineImportService().resolveClass(propname, false);
-                    }
-                    catch (EngineImportException e) {
+                    } catch (EngineImportException e) {
                         ex = e;
                     }
                 }
                 if (clazz != null) {
                     ExprTypedNoEvalNode typeNode = new ExprTypedNoEvalNode(propname, clazz);
                     ExprNodeUtility.replaceChildNode(columnExpressionType, identNode, typeNode);
-                }
-                else {
+                } else {
                     if (optionalProvidedType == null) {
                         if (ex != null) {
                             throw new ExprValidationException("Failed to resolve type '" + propname + "': " + ex.getMessage(), ex);
@@ -237,8 +229,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
     }
 
     private List<TableColumnDesc> validateExpressions(List<CreateTableColumn> columns, EPServicesContext services, StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Set<String> columnNames = new HashSet<String>();
         List<TableColumnDesc> descriptors = new ArrayList<TableColumnDesc>();
 
@@ -260,8 +251,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             if (column.getOptExpression() != null) {
                 ExprAggregateNode validated = validateAggregationExpr(column.getOptExpression(), optionalEventType, services, statementContext);
                 descriptor = new TableColumnDescAgg(positionInDeclaration, column.getColumnName(), validated, optionalEventType);
-            }
-            else {
+            } else {
                 Object unresolvedType = EventTypeUtility.buildType(new ColumnDesc(column.getColumnName(), column.getOptTypeName(), column.getOptTypeIsArray() == null ? false : column.getOptTypeIsArray(), column.getOptTypeIsPrimitiveArray() == null ? false : column.getOptTypeIsPrimitiveArray()),
                         services.getEngineImportService());
                 descriptor = new TableColumnDescTyped(positionInDeclaration, column.getColumnName(), unresolvedType, column.getPrimaryKey() == null ? false : column.getPrimaryKey());
@@ -274,8 +264,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
     }
 
     private static EventType validateExpressionGetEventType(String msgprefix, List<AnnotationDesc> annotations, EventAdapterService eventAdapterService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<String, List<AnnotationDesc>> annos = AnnotationUtil.mapByNameLowerCase(annotations);
 
         // check annotations used
@@ -298,8 +287,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
     }
 
     private TableAccessAnalysisResult analyzePlanAggregations(String tableName, StatementContext statementContext, List<TableColumnDesc> columns, EPServicesContext services, String internalTypeName, String publicTypeName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // once upfront: obtains aggregation factories for each aggregation
         // we do this once as a factory may be a heavier object
         Map<TableColumnDesc, AggregationMethodFactory> aggregationFactories = new HashMap<TableColumnDesc, AggregationMethodFactory>();
@@ -333,8 +321,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             AggregationMethodFactory aggFactory = aggregationFactories.get(agg);
             if (aggFactory.isAccessAggregation()) {
                 accessAggColumns.add(agg);
-            }
-            else {
+            } else {
                 methodAggColumns.add(agg);
             }
             allColumnsPublicTypes.put(column.getColumnName(), agg.getAggregation().getType());
@@ -356,7 +343,7 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
             if (typedColumn.isKey()) {
                 groupKeyIndexes.add(indexPlain);
             }
-            assignPairsPlain[indexPlain-1] = new TableMetadataColumnPairPlainCol(typedColumn.getPositionInDeclaration(), indexPlain);
+            assignPairsPlain[indexPlain - 1] = new TableMetadataColumnPairPlainCol(typedColumn.getPositionInDeclaration(), indexPlain);
             indexPlain++;
         }
 
@@ -367,11 +354,10 @@ public class EPStatementStartMethodCreateTable extends EPStatementStartMethodBas
         try {
             internalEventType = (ObjectArrayEventType) services.getEventAdapterService().addNestableObjectArrayType(internalTypeName, allColumnsInternalTypes, null, false, false, false, false, false, true, tableName);
             publicEventType = (ObjectArrayEventType) services.getEventAdapterService().addNestableObjectArrayType(publicTypeName, allColumnsPublicTypes, null, false, false, false, false, false, false, null);
-        }
-        catch (EPException ex) {
+        } catch (EPException ex) {
             throw new ExprValidationException("Invalid type information: " + ex.getMessage(), ex);
         }
-        services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), new String[] {internalTypeName, publicTypeName});
+        services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), new String[]{internalTypeName, publicTypeName});
 
         // handle aggregation-methods single-func first.
         AggregationMethodFactory[] methodFactories = new AggregationMethodFactory[methodAggColumns.size()];

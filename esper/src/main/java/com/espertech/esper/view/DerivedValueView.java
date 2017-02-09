@@ -23,6 +23,5 @@ package com.espertech.esper.view;
  * They typically change event type compared to their parent view, since they derive new information
  * or add information to events.
  */
-public interface DerivedValueView extends View, GroupableView
-{
+public interface DerivedValueView extends View, GroupableView {
 }

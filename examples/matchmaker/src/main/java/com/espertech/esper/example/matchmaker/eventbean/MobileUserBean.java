@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.example.matchmaker.eventbean;
 
-public class MobileUserBean
-{
+public class MobileUserBean {
     private int userId;
     private double locationX;
     private double locationY;
@@ -22,8 +21,7 @@ public class MobileUserBean
     private HairColor preferredHairColor;
     private AgeRange preferredAgeRange;
 
-    public MobileUserBean(int userId, double locationX, double locationY, Gender myGender, HairColor myHairColor, AgeRange myAgeRange, Gender preferredGender, HairColor preferredHairColor, AgeRange preferredAgeRange)
-    {
+    public MobileUserBean(int userId, double locationX, double locationY, Gender myGender, HairColor myHairColor, AgeRange myAgeRange, Gender preferredGender, HairColor preferredHairColor, AgeRange preferredAgeRange) {
         this.userId = userId;
         this.locationX = locationX;
         this.locationY = locationY;
@@ -35,59 +33,48 @@ public class MobileUserBean
         this.preferredAgeRange = preferredAgeRange;
     }
 
-    public int getUserId()
-    {
+    public int getUserId() {
         return userId;
     }
 
-    public double getLocationX()
-    {
+    public double getLocationX() {
         return locationX;
     }
 
-    public double getLocationY()
-    {
+    public double getLocationY() {
         return locationY;
     }
 
-    public void setLocation(double locationX, double locationY)
-    {
+    public void setLocation(double locationX, double locationY) {
         this.locationX = locationX;
         this.locationY = locationY;
     }
 
-    public void setLocationY(double locationY)
-    {
+    public void setLocationY(double locationY) {
         this.locationY = locationY;
     }
 
-    public String getMyGender()
-    {
+    public String getMyGender() {
         return myGender.toString();
     }
 
-    public String getMyHairColor()
-    {
+    public String getMyHairColor() {
         return myHairColor.toString();
     }
 
-    public String getMyAgeRange()
-    {
+    public String getMyAgeRange() {
         return myAgeRange.toString();
     }
 
-    public String getPreferredGender()
-    {
+    public String getPreferredGender() {
         return preferredGender.toString();
     }
 
-    public String getPreferredHairColor()
-    {
+    public String getPreferredHairColor() {
         return preferredHairColor.toString();
     }
 
-    public String getPreferredAgeRange()
-    {
+    public String getPreferredAgeRange() {
         return preferredAgeRange.toString();
     }
 }

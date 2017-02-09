@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.prev;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public interface ExprPreviousMatchRecognizeEvalStrategy
-{
+public interface ExprPreviousMatchRecognizeEvalStrategy {
     public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 }

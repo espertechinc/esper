@@ -13,10 +13,10 @@ package com.espertech.esper.epl.datetime.reformatop;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.datetime.eval.*;
-import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -40,8 +40,7 @@ public class ReformatOpBetweenConstantParams implements ReformatOp {
         if (paramFirst > paramSecond) {
             this.second = paramFirst;
             this.first = paramSecond;
-        }
-        else {
+        } else {
             this.first = paramFirst;
             this.second = paramSecond;
         }
@@ -56,8 +55,7 @@ public class ReformatOpBetweenConstantParams implements ReformatOp {
     }
 
     private long getLongValue(ExprNode exprNode)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Object value = exprNode.getExprEvaluator().evaluate(null, true, null);
         if (value == null) {
             throw new ExprValidationException("Date-time method 'between' requires non-null parameter values");
@@ -66,8 +64,7 @@ public class ReformatOpBetweenConstantParams implements ReformatOp {
     }
 
     private boolean getBooleanValue(ExprNode exprNode)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Object value = exprNode.getExprEvaluator().evaluate(null, true, null);
         if (value == null) {
             throw new ExprValidationException("Date-time method 'between' requires non-null parameter values");

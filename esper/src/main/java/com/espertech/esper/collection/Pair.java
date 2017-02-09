@@ -14,24 +14,23 @@ import java.io.Serializable;
 
 /**
  * General-purpose pair of values of any type. The pair only equals another pair if
- * the objects that form the pair equal, ie. first pair first object equals (.equals) the second pair first object,
- * and the first pair second object equals the second pair second object.
+ * the objects that form the pair equal, ie. f pair f object equals (.equals) the s pair f object,
+ * and the f pair s object equals the s pair s object.
  */
-public class Pair<First,Second> implements Serializable
-{
-    private First first;
-    private Second second;
+public class Pair<F, S> implements Serializable {
+    private F f;
+    private S s;
     private static final long serialVersionUID = -4168417618011472714L;
 
     /**
      * Construct pair of values.
-     * @param first is the first value
-     * @param second is the second value
+     *
+     * @param f  is the f value
+     * @param s is the s value
      */
-    public Pair(final First first, final Second second)
-    {
-        this.first = first;
-        this.second = second;
+    public Pair(final F f, final S s) {
+        this.f = f;
+        this.s = s;
     }
 
     public static <K, V> Pair<K, V> createPair(K key, V value) {
@@ -39,69 +38,64 @@ public class Pair<First,Second> implements Serializable
     }
 
     /**
-     * Returns first value within pair.
-     * @return first value within pair
+     * Returns f value within pair.
+     *
+     * @return f value within pair
      */
-    public First getFirst()
-    {
-        return first;
+    public F getFirst() {
+        return f;
     }
 
     /**
-     * Returns second value within pair.
-     * @return second value within pair
+     * Returns s value within pair.
+     *
+     * @return s value within pair
      */
-    public Second getSecond()
-    {
-        return second;
+    public S getSecond() {
+        return s;
     }
 
     /**
-     * Set the first value of the pair to a new value.
-     * @param first value to be set
+     * Set the f value of the pair to a new value.
+     *
+     * @param f value to be set
      */
-    public void setFirst(First first)
-    {
-        this.first = first;
+    public void setFirst(F f) {
+        this.f = f;
     }
 
     /**
-     * Set the second value of the pair to a new value.
-     * @param second value to be set
+     * Set the s value of the pair to a new value.
+     *
+     * @param s value to be set
      */
-    public void setSecond(Second second)
-    {
-        this.second = second;
+    public void setSecond(S s) {
+        this.s = s;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof Pair))
-        {
+        if (!(obj instanceof Pair)) {
             return false;
         }
 
         Pair other = (Pair) obj;
 
-        return  (first == null ?
-                other.first == null : first.equals(other.first)) &&
-                (second == null ?
-                other.second == null : second.equals(other.second));
+        return (f == null ?
+                other.f == null : f.equals(other.f)) &&
+                (s == null ?
+                        other.s == null : s.equals(other.s));
     }
 
-    public int hashCode()
-    {
-        return (first == null ? 0 : first.hashCode()) ^
-                (second == null ? 0 : second.hashCode());
+    public int hashCode() {
+        return (f == null ? 0 : f.hashCode()) ^
+                (s == null ? 0 : s.hashCode());
     }
 
-    public String toString()
-    {
-        return "Pair [" + first + ':' + second + ']';
+    public String toString() {
+        return "Pair [" + f + ':' + s + ']';
     }
 }

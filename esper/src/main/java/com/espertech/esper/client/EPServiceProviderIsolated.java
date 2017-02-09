@@ -13,22 +13,24 @@ package com.espertech.esper.client;
 /**
  * Isolated service provider for controlling event visibility and scheduling on a statement level.
  */
-public interface EPServiceProviderIsolated
-{
+public interface EPServiceProviderIsolated {
     /**
      * Returns a class instance of EPRuntime.
+     *
      * @return an instance of EPRuntime
      */
     public EPRuntimeIsolated getEPRuntime();
 
     /**
      * Returns a class instance of EPAdministrator.
+     *
      * @return an instance of EPAdministrator
      */
     public EPAdministratorIsolated getEPAdministrator();
 
     /**
      * Name of isolated service.
+     *
      * @return isolated service name
      */
     public String getName();

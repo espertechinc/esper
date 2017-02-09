@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * Represents a create-variable syntax for creating a new variable.
  */
-public class CreateVariableClause implements Serializable
-{
+public class CreateVariableClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String variableType;
@@ -35,6 +34,7 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param variableName variable name
      */
     public CreateVariableClause(String variableName) {
@@ -43,37 +43,37 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Creates a create-variable syntax for declaring a variable.
+     *
      * @param variableType is the variable type name
      * @param variableName is the name of the variable
      * @return create-variable clause
      */
-    public static CreateVariableClause create(String variableType, String variableName)
-    {
+    public static CreateVariableClause create(String variableType, String variableName) {
         return new CreateVariableClause(variableType, variableName, null, false);
     }
 
     /**
      * Creates a create-variable syntax for declaring a variable.
+     *
      * @param variableType is the variable type name
      * @param variableName is the name of the variable
-     * @param expression is the assignment expression supplying the initial value
+     * @param expression   is the assignment expression supplying the initial value
      * @return create-variable clause
      */
-    public static CreateVariableClause create(String variableType, String variableName, Expression expression)
-    {
+    public static CreateVariableClause create(String variableType, String variableName, Expression expression) {
         return new CreateVariableClause(variableType, variableName, expression, false);
     }
 
     /**
      * Ctor.
-     * @param variableType is the variable type name
-     * @param variableName is the name of the variable
+     *
+     * @param variableType       is the variable type name
+     * @param variableName       is the name of the variable
      * @param optionalAssignment is the optional assignment expression supplying the initial value, or null if the
-     * initial value is null
-     * @param constant true for constant, false for regular variable
+     *                           initial value is null
+     * @param constant           true for constant, false for regular variable
      */
-    public CreateVariableClause(String variableType, String variableName, Expression optionalAssignment, boolean constant)
-    {
+    public CreateVariableClause(String variableType, String variableName, Expression optionalAssignment, boolean constant) {
         this.variableType = variableType;
         this.variableName = variableName;
         this.optionalAssignment = optionalAssignment;
@@ -82,60 +82,61 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Returns the variable type name.
+     *
      * @return type of the variable
      */
-    public String getVariableType()
-    {
+    public String getVariableType() {
         return variableType;
     }
 
     /**
      * Sets the variable type name.
+     *
      * @param variableType type of the variable
      */
-    public void setVariableType(String variableType)
-    {
+    public void setVariableType(String variableType) {
         this.variableType = variableType;
     }
 
     /**
      * Returns the variable name.
+     *
      * @return name of the variable
      */
-    public String getVariableName()
-    {
+    public String getVariableName() {
         return variableName;
     }
 
     /**
      * Sets the variable name
+     *
      * @param variableName name of the variable
      */
-    public void setVariableName(String variableName)
-    {
+    public void setVariableName(String variableName) {
         this.variableName = variableName;
     }
 
     /**
      * Returns the optional assignment expression, or null to initialize to a null value
+     *
      * @return assignment expression, if present
      */
-    public Expression getOptionalAssignment()
-    {
+    public Expression getOptionalAssignment() {
         return optionalAssignment;
     }
 
     /**
      * Sets the optional assignment expression, or null to initialize to a null value
+     *
      * @param optionalAssignment assignment expression, if present
      */
-    public void setOptionalAssignment(Expression optionalAssignment)
-    {
+    public void setOptionalAssignment(Expression optionalAssignment) {
         this.optionalAssignment = optionalAssignment;
     }
 
     /**
      * Returns indicator whether the variable is a constant.
+     *
      * @return constant false
      */
     public boolean isConstant() {
@@ -144,6 +145,7 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Sets the indicator whether the variable is a constant.
+     *
      * @param constant constant false
      */
     public void setConstant(boolean constant) {
@@ -152,6 +154,7 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Returns indictor whether array or not array.
+     *
      * @return array indicator
      */
     public boolean isArray() {
@@ -160,6 +163,7 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Sets indictor whether array or not array.
+     *
      * @param array array indicator
      */
     public void setArray(boolean array) {
@@ -168,6 +172,7 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Returns true for array of primitive values (also set the array flag)
+     *
      * @return indicator
      */
     public boolean isArrayOfPrimitive() {
@@ -176,6 +181,7 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Set true for array of primitive values  (also set the array flag)
+     *
      * @param arrayOfPrimitive indicator
      */
     public void setArrayOfPrimitive(boolean arrayOfPrimitive) {
@@ -184,10 +190,10 @@ public class CreateVariableClause implements Serializable
 
     /**
      * Render as EPL.
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         writer.append("create");
         if (constant) {
             writer.append(" constant");
@@ -198,16 +204,14 @@ public class CreateVariableClause implements Serializable
             if (array) {
                 if (arrayOfPrimitive) {
                     writer.append("[primitive]");
-                }
-                else {
+                } else {
                     writer.append("[]");
                 }
             }
             writer.append(" ");
         }
         writer.append(variableName);
-        if (optionalAssignment != null)
-        {
+        if (optionalAssignment != null) {
             writer.append(" = ");
             optionalAssignment.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }

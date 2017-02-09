@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.core.service;
 
-public class EPRuntimeIsolatedFactoryImpl implements EPRuntimeIsolatedFactory
-{
+public class EPRuntimeIsolatedFactoryImpl implements EPRuntimeIsolatedFactory {
     public EPRuntimeIsolatedSPI make(EPIsolationUnitServices isolatedServices, EPServicesContext unisolatedSvc) {
         return new EPRuntimeIsolatedImpl(isolatedServices, unisolatedSvc);
     }

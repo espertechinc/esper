@@ -15,14 +15,14 @@ package com.espertech.esper.client;
  * Instances that implement this interface are usually bound to a particular {@link com.espertech.esper.client.EventType} and cannot
  * be used to access {@link EventBean} instances of a different type.
  */
-public interface EventPropertyGetterIndexed
-{
+public interface EventPropertyGetterIndexed {
     /**
      * Return the value for the property in the event object specified when the instance was obtained.
      * Useful for fast access to event properties. Throws a PropertyAccessException if the getter instance
      * doesn't match the EventType it was obtained from, and to indicate other property access problems.
+     *
      * @param eventBean is the event to get the value of a property from
-     * @param index the index value
+     * @param index     the index value
      * @return value of indexed property in event
      * @throws PropertyAccessException to indicate that property access failed
      */

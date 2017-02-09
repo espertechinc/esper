@@ -18,10 +18,10 @@ import java.util.Map;
 /**
  * Property getter for Map-underlying events.
  */
-public interface MapEventPropertyGetter extends EventPropertyGetter
-{
+public interface MapEventPropertyGetter extends EventPropertyGetter {
     /**
      * Returns a property of an event.
+     *
      * @param map to interrogate
      * @return property value
      * @throws PropertyAccessException for property access errors
@@ -30,6 +30,7 @@ public interface MapEventPropertyGetter extends EventPropertyGetter
 
     /**
      * Exists-function for properties in a map-type event.
+     *
      * @param map to interrogate
      * @return indicator
      */

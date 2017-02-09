@@ -20,19 +20,18 @@ import java.util.Collections;
 /**
  * Represents the aggregation accessor that provides the result for the "last" aggregation function without index.
  */
-public class AggregationAccessorLastWEval implements AggregationAccessor
-{
+public class AggregationAccessorLastWEval implements AggregationAccessor {
     private final int streamNum;
     private final ExprEvaluator childNode;
     private final EventBean[] eventsPerStream;
 
     /**
      * Ctor.
+     *
      * @param streamNum stream id
      * @param childNode expression
      */
-    public AggregationAccessorLastWEval(int streamNum, ExprEvaluator childNode)
-    {
+    public AggregationAccessorLastWEval(int streamNum, ExprEvaluator childNode) {
         this.streamNum = streamNum;
         this.childNode = childNode;
         this.eventsPerStream = new EventBean[streamNum + 1];

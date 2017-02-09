@@ -31,8 +31,7 @@ import java.util.Set;
  * Implements the function to determine a join result set using tables/indexes and query strategy
  * instances for each stream.
  */
-public class JoinSetComposerHistoricalImpl implements JoinSetComposer
-{
+public class JoinSetComposerHistoricalImpl implements JoinSetComposer {
     private final boolean allowInitIndex;
     private final EventTable[][] repositories;
     private final QueryStrategy[] queryStrategies;
@@ -45,8 +44,7 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer
     private ExprEvaluatorContext staticEvalExprEvaluatorContext;
 
     public JoinSetComposerHistoricalImpl(boolean allowInitIndex, Map<TableLookupIndexReqKey, EventTable>[] repositories, QueryStrategy[] queryStrategies, Viewable[] streamViews,
-                                         ExprEvaluatorContext staticEvalExprEvaluatorContext)
-    {
+                                         ExprEvaluatorContext staticEvalExprEvaluatorContext) {
         this.allowInitIndex = allowInitIndex;
         this.repositories = JoinSetComposerUtil.toArray(repositories, streamViews.length);
         this.queryStrategies = queryStrategies;
@@ -58,163 +56,150 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer
         return allowInitIndex;
     }
 
-    public void init(EventBean[][] eventsPerStream)
-    {
+    public void init(EventBean[][] eventsPerStream) {
         if (!allowInitIndex) {
             throw new IllegalStateException("Initialization by events not supported");
         }
 
-        if (repositories == null)
-        {
+        if (repositories == null) {
             return;
         }
 
-        for (int i = 0; i < eventsPerStream.length; i++)
-        {
-            if ((eventsPerStream[i] != null) && (repositories[i] != null))
-            {
-                for (int j = 0; j < repositories[i].length; j++)
-                {
-                    repositories[i][j].add((eventsPerStream[i]));
+        for (int i = 0; i < eventsPerStream.length; i++) {
+            if ((eventsPerStream[i] != null) && (repositories[i] != null)) {
+                for (int j = 0; j < repositories[i].length; j++) {
+                    repositories[i][j].add(eventsPerStream[i]);
                 }
             }
         }
     }
 
-    public void destroy()
-    {
-        if (repositories == null)
-        {
+    public void destroy() {
+        if (repositories == null) {
             return;
         }
 
-        for (int i = 0; i < repositories.length; i++)
-        {
-            if (repositories[i] != null)
-            {
-                for (EventTable table : repositories[i])
-                {
+        for (int i = 0; i < repositories.length; i++) {
+            if (repositories[i] != null) {
+                for (EventTable table : repositories[i]) {
                     table.destroy();
                 }
             }
         }
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionHistorical();}
+    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qJoinCompositionHistorical();
+        }
 
         oldResults.clear();
         newResults.clear();
 
         // join old data
-        for (int i = 0; i < oldDataPerStream.length; i++)
-        {
-            if (oldDataPerStream[i] != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionQueryStrategy(false, i, oldDataPerStream[i]);}
+        for (int i = 0; i < oldDataPerStream.length; i++) {
+            if (oldDataPerStream[i] != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qJoinCompositionQueryStrategy(false, i, oldDataPerStream[i]);
+                }
                 queryStrategies[i].lookup(oldDataPerStream[i], oldResults, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionQueryStrategy();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aJoinCompositionQueryStrategy();
+                }
             }
         }
 
-        if (repositories != null)
-        {
+        if (repositories != null) {
             // We add and remove data in one call to each index.
             // Most indexes will add first then remove as newdata and olddata may contain the same event.
             // Unique indexes may remove then add.
             for (int stream = 0; stream < newDataPerStream.length; stream++) {
-                for (int j = 0; j < repositories[stream].length; j++)
-                {
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionStepUpdIndex(stream, newDataPerStream[stream], oldDataPerStream[stream]);}
+                for (int j = 0; j < repositories[stream].length; j++) {
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().qJoinCompositionStepUpdIndex(stream, newDataPerStream[stream], oldDataPerStream[stream]);
+                    }
                     repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream]);
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionStepUpdIndex();}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aJoinCompositionStepUpdIndex();
+                    }
                 }
             }
         }
 
         // join new data
-        for (int i = 0; i < newDataPerStream.length; i++)
-        {
-            if (newDataPerStream[i] != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionQueryStrategy(true, i, newDataPerStream[i]);}
+        for (int i = 0; i < newDataPerStream.length; i++) {
+            if (newDataPerStream[i] != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qJoinCompositionQueryStrategy(true, i, newDataPerStream[i]);
+                }
                 queryStrategies[i].lookup(newDataPerStream[i], newResults, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionQueryStrategy();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aJoinCompositionQueryStrategy();
+                }
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionHistorical(newResults, oldResults);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aJoinCompositionHistorical(newResults, oldResults);
+        }
         return new UniformPair<Set<MultiKey<EventBean>>>(newResults, oldResults);
     }
 
     /**
      * Returns tables.
+     *
      * @return tables for stream.
      */
-    protected EventTable[][] getTables()
-    {
+    protected EventTable[][] getTables() {
         return tables;
     }
 
     /**
      * Returns query strategies.
+     *
      * @return query strategies
      */
-    protected QueryStrategy[] getQueryStrategies()
-    {
+    protected QueryStrategy[] getQueryStrategies() {
         return queryStrategies;
     }
 
-    public Set<MultiKey<EventBean>> staticJoin()
-    {
+    public Set<MultiKey<EventBean>> staticJoin() {
         Set<MultiKey<EventBean>> result = new LinkedHashSet<MultiKey<EventBean>>();
         EventBean[] lookupEvents = new EventBean[1];
 
         // Assign a local cache for the thread's evaluation of the join
         // This ensures that if a SQL/method generates a row for a result set based on an input parameter, the event instance is the same
         // in the join, and thus the same row does not appear twice.
-        DataCacheClearableMap caches[] = new DataCacheClearableMap[queryStrategies.length];
+        DataCacheClearableMap[] caches = new DataCacheClearableMap[queryStrategies.length];
         assignThreadLocalCache(streamViews, caches);
 
         // perform join
-        try
-        {
+        try {
             // for each stream, perform query strategy
-            for (int stream = 0; stream < queryStrategies.length; stream++)
-            {
-                if (streamViews[stream] instanceof HistoricalEventViewable)
-                {
+            for (int stream = 0; stream < queryStrategies.length; stream++) {
+                if (streamViews[stream] instanceof HistoricalEventViewable) {
                     HistoricalEventViewable historicalViewable = (HistoricalEventViewable) streamViews[stream];
-                    if (historicalViewable.hasRequiredStreams())
-                    {
+                    if (historicalViewable.hasRequiredStreams()) {
                         continue;
                     }
 
                     // there may not be a query strategy since only a full outer join may need to consider all rows
-                    if (queryStrategies[stream] != null)
-                    {
+                    if (queryStrategies[stream] != null) {
                         Iterator<EventBean> streamEvents = historicalViewable.iterator();
-                        for (;streamEvents.hasNext();)
-                        {
+                        for (; streamEvents.hasNext(); ) {
                             lookupEvents[0] = streamEvents.next();
                             queryStrategies[stream].lookup(lookupEvents, result, staticEvalExprEvaluatorContext);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     Iterator<EventBean> streamEvents = streamViews[stream].iterator();
-                    for (;streamEvents.hasNext();)
-                    {
+                    for (; streamEvents.hasNext(); ) {
                         lookupEvents[0] = streamEvents.next();
-                        queryStrategies[stream].lookup(lookupEvents, result,staticEvalExprEvaluatorContext);
+                        queryStrategies[stream].lookup(lookupEvents, result, staticEvalExprEvaluatorContext);
                     }
                 }
             }
-        }
-        finally
-        {
+        } finally {
             deassignThreadLocalCache(streamViews, caches);
         }
 
@@ -225,12 +210,9 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer
         visitor.visit(repositories);
     }
 
-    private void assignThreadLocalCache(Viewable[] streamViews, DataCacheClearableMap[] caches)
-    {
-        for (int stream = 0; stream < streamViews.length; stream++)
-        {
-            if (streamViews[stream] instanceof HistoricalEventViewable)
-            {
+    private void assignThreadLocalCache(Viewable[] streamViews, DataCacheClearableMap[] caches) {
+        for (int stream = 0; stream < streamViews.length; stream++) {
+            if (streamViews[stream] instanceof HistoricalEventViewable) {
                 HistoricalEventViewable historicalViewable = (HistoricalEventViewable) streamViews[stream];
                 caches[stream] = new DataCacheClearableMap();
                 historicalViewable.getDataCacheThreadLocal().set(caches[stream]);
@@ -238,12 +220,9 @@ public class JoinSetComposerHistoricalImpl implements JoinSetComposer
         }
     }
 
-    private void deassignThreadLocalCache(Viewable[] streamViews, DataCacheClearableMap[] caches)
-    {
-        for (int stream = 0; stream < streamViews.length; stream++)
-        {
-            if (streamViews[stream] instanceof HistoricalEventViewable)
-            {
+    private void deassignThreadLocalCache(Viewable[] streamViews, DataCacheClearableMap[] caches) {
+        for (int stream = 0; stream < streamViews.length; stream++) {
+            if (streamViews[stream] instanceof HistoricalEventViewable) {
                 HistoricalEventViewable historicalViewable = (HistoricalEventViewable) streamViews[stream];
                 historicalViewable.getDataCacheThreadLocal().set(null);
                 caches[stream].clear();

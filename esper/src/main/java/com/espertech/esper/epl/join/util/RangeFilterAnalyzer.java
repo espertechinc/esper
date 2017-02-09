@@ -19,10 +19,9 @@ public class RangeFilterAnalyzer {
     public static void apply(ExprNode target, ExprNode start, ExprNode end,
                              boolean includeStart, boolean includeEnd, boolean isNot,
                              QueryGraph queryGraph) {
-        if ( ((target instanceof ExprIdentNode)) &&
-             ((start instanceof ExprIdentNode)) &&
-             ((end instanceof ExprIdentNode)) )
-        {
+        if (((target instanceof ExprIdentNode)) &&
+                ((start instanceof ExprIdentNode)) &&
+                ((end instanceof ExprIdentNode))) {
             ExprIdentNode identNodeValue = (ExprIdentNode) target;
             ExprIdentNode identNodeStart = (ExprIdentNode) start;
             ExprIdentNode identNodeEnd = (ExprIdentNode) end;

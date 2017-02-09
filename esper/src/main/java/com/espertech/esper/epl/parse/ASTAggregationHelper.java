@@ -15,31 +15,28 @@ import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportUndefinedException;
+import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
-import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNode;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionDeclarationContext;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.LazyAllocatedMap;
 
+import java.util.Locale;
+
 public class ASTAggregationHelper {
     public static ExprNode tryResolveAsAggregation(EngineImportService engineImportService,
-                                             boolean distinct,
-                                             String functionName,
-                                             LazyAllocatedMap<ConfigurationPlugInAggregationMultiFunction, PlugInAggregationMultiFunctionFactory> plugInAggregations,
-                                             String engineURI) {
-        try
-        {
+                                                   boolean distinct,
+                                                   String functionName,
+                                                   LazyAllocatedMap<ConfigurationPlugInAggregationMultiFunction, PlugInAggregationMultiFunctionFactory> plugInAggregations,
+                                                   String engineURI) {
+        try {
             AggregationFunctionFactory aggregationFactory = engineImportService.resolveAggregationFactory(functionName);
             return new ExprPlugInAggNode(distinct, aggregationFactory, functionName);
-        }
-        catch (EngineImportUndefinedException e)
-        {
+        } catch (EngineImportUndefinedException e) {
             // Not an aggregation function
-        }
-        catch (EngineImportException e)
-        {
+        } catch (EngineImportException e) {
             throw new IllegalStateException("Error resolving aggregation: " + e.getMessage(), e);
         }
 
@@ -51,7 +48,7 @@ public class ASTAggregationHelper {
                 factory = (PlugInAggregationMultiFunctionFactory) JavaClassHelper.instantiate(PlugInAggregationMultiFunctionFactory.class, config.getMultiFunctionFactoryClassName(), engineImportService.getClassForNameProvider());
                 plugInAggregations.getMap().put(config, factory);
             }
-            factory.addAggregationFunction(new PlugInAggregationMultiFunctionDeclarationContext(functionName.toLowerCase(), distinct, engineURI, config));
+            factory.addAggregationFunction(new PlugInAggregationMultiFunctionDeclarationContext(functionName.toLowerCase(Locale.ENGLISH), distinct, engineURI, config));
             return new ExprPlugInAggMultiFunctionNode(distinct, config, factory, functionName);
         }
 

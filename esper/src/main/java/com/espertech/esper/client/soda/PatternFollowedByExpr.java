@@ -14,10 +14,9 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- * Followed-by for use in pattern expressions. 
+ * Followed-by for use in pattern expressions.
  */
-public class PatternFollowedByExpr extends PatternExprBase
-{
+public class PatternFollowedByExpr extends PatternExprBase {
     private static final long serialVersionUID = 1480442602208180240L;
 
     private List<Expression> optionalMaxPerSubexpression;
@@ -25,12 +24,12 @@ public class PatternFollowedByExpr extends PatternExprBase
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
      */
-    public PatternFollowedByExpr()
-    {
+    public PatternFollowedByExpr() {
     }
 
     /**
      * Ctor.
+     *
      * @param optionalMaxPerSubexpression if parameterized by a max-limits for each pattern sub-expressions
      */
     public PatternFollowedByExpr(List<Expression> optionalMaxPerSubexpression) {
@@ -39,27 +38,26 @@ public class PatternFollowedByExpr extends PatternExprBase
 
     /**
      * Ctor.
-     * @param first a first pattern expression in the followed-by relationship
-     * @param second a second pattern expression in the followed-by relationship
+     *
+     * @param first        a first pattern expression in the followed-by relationship
+     * @param second       a second pattern expression in the followed-by relationship
      * @param patternExprs further optional pattern expressions in the followed-by relationship
      */
-    public PatternFollowedByExpr(PatternExpr first, PatternExpr second, PatternExpr ...patternExprs)
-    {
+    public PatternFollowedByExpr(PatternExpr first, PatternExpr second, PatternExpr... patternExprs) {
         this.addChild(first);
         this.addChild(second);
-        for (int i = 0; i < patternExprs.length; i++)
-        {
+        for (int i = 0; i < patternExprs.length; i++) {
             this.addChild(patternExprs[i]);
         }
     }
 
     /**
      * Adds a pattern expression to the followed-by relationship between patterns.
+     *
      * @param expr to add
      * @return pattern expression
      */
-    public PatternFollowedByExpr add(PatternExpr expr)
-    {
+    public PatternFollowedByExpr add(PatternExpr expr) {
         this.getChildren().add(expr);
         return this;
     }
@@ -70,6 +68,7 @@ public class PatternFollowedByExpr extends PatternExprBase
 
     /**
      * Returns the instance limits, if any, for pattern-subexpressions.
+     *
      * @return list of max-limit or null
      */
     public List<Expression> getOptionalMaxPerSubexpression() {
@@ -78,18 +77,17 @@ public class PatternFollowedByExpr extends PatternExprBase
 
     /**
      * Sets the instance limits, if any, for pattern-subexpressions.
+     *
      * @param optionalMaxPerSubexpression list of max-limit or null
      */
     public void setOptionalMaxPerSubexpression(List<Expression> optionalMaxPerSubexpression) {
         this.optionalMaxPerSubexpression = optionalMaxPerSubexpression;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {
         String delimiter = "";
         int childNum = 0;
-        for (PatternExpr child : this.getChildren())
-        {
+        for (PatternExpr child : this.getChildren()) {
             writer.write(delimiter);
             child.toEPL(writer, getPrecedence(), formatter);
 

@@ -91,15 +91,16 @@ public class StatementAgentInstanceUtil {
     public static void stopSafe(StopCallback stopMethod, StatementContext statementContext) {
         try {
             stopMethod.stop();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             statementContext.getExceptionHandlingService().handleException(e, statementContext.getStatementName(), statementContext.getExpression(), ExceptionHandlerExceptionType.STOP, null);
         }
     }
 
     public static void stop(StopCallback stopCallback, AgentInstanceContext agentInstanceContext, Viewable finalView, EPServicesContext servicesContext, boolean isStatementStop, boolean leaveLocksAcquired, boolean removedStatementResources) {
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextPartitionDestroy(agentInstanceContext);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qContextPartitionDestroy(agentInstanceContext);
+        }
         // obtain statement lock
         StatementAgentInstanceLock lock = agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock();
         lock.acquireWriteLock();
@@ -125,26 +126,26 @@ public class StatementAgentInstanceUtil {
                     agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources() != null) {
                 agentInstanceContext.getStatementContext().getStatementExtensionServicesContext().getStmtResources().deallocatePartitioned(agentInstanceContext.getAgentInstanceId());
             }
-        }
-        finally {
+        } finally {
             if (!leaveLocksAcquired) {
                 if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {
                     agentInstanceContext.getTableExprEvaluatorContext().releaseAcquiredLocks();
                 }
                 lock.releaseWriteLock();
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextPartitionDestroy();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aContextPartitionDestroy();
+            }
         }
     }
 
     public static StatementAgentInstanceFactoryResult start(EPServicesContext servicesContext,
-                                                     ContextControllerStatementBase statement,
-                                                     boolean isSingleInstanceContext,
-                                                     int agentInstanceId,
-                                                     MappedEventBean agentInstanceProperties,
-                                                     AgentInstanceFilterProxy agentInstanceFilterProxy,
-                                                     boolean isRecoveringResilient)
-    {
+                                                            ContextControllerStatementBase statement,
+                                                            boolean isSingleInstanceContext,
+                                                            int agentInstanceId,
+                                                            MappedEventBean agentInstanceProperties,
+                                                            AgentInstanceFilterProxy agentInstanceFilterProxy,
+                                                            boolean isRecoveringResilient) {
         StatementContext statementContext = statement.getStatementContext();
 
         // for on-trigger statements against named windows we must use the named window lock
@@ -163,12 +164,10 @@ public class StatementAgentInstanceUtil {
             NamedWindowProcessor processor = servicesContext.getNamedWindowMgmtService().getProcessor(namedWindowName);
             NamedWindowProcessorInstance instance = processor.getProcessorInstance(agentInstanceId);
             agentInstanceLock = instance.getRootViewInstance().getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock();
-        }
-        else {
+        } else {
             if (isSingleInstanceContext) {
                 agentInstanceLock = statementContext.getDefaultAgentInstanceLock();
-            }
-            else {
+            } else {
                 agentInstanceLock = servicesContext.getStatementLockFactory().getStatementLock(statementContext.getStatementName(), statementContext.getAnnotations(), statementContext.isStatelessSelect());
             }
         }
@@ -187,7 +186,9 @@ public class StatementAgentInstanceUtil {
         AgentInstanceContext agentInstanceContext = new AgentInstanceContext(statementContext, agentInstanceHandle, agentInstanceId, agentInstanceFilterProxy, agentInstanceProperties, agentInstanceScriptContext);
         StatementAgentInstanceLock statementAgentInstanceLock = agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock();
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextPartitionAllocate(agentInstanceContext);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qContextPartitionAllocate(agentInstanceContext);
+        }
         statementAgentInstanceLock.acquireWriteLock();
 
         try {
@@ -256,13 +257,14 @@ public class StatementAgentInstanceUtil {
 
             // instantiate
             return startResult;
-        }
-        finally {
+        } finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {
                 agentInstanceContext.getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
             statementAgentInstanceLock.releaseWriteLock();
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextPartitionAllocate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aContextPartitionAllocate();
+            }
         }
     }
 
@@ -275,8 +277,7 @@ public class StatementAgentInstanceUtil {
             for (Map.Entry<String, Object> entry : optionalTriggeringPattern.entrySet()) {
                 if (entry.getValue() instanceof EventBean) {
                     evaluateEventForStatementInternal(servicesContext, (EventBean) entry.getValue(), agentInstances);
-                }
-                else if (entry.getValue() instanceof EventBean[]) {
+                } else if (entry.getValue() instanceof EventBean[]) {
                     EventBean[] eventsArray = (EventBean[]) entry.getValue();
                     for (EventBean eventElement : eventsArray) {
                         evaluateEventForStatementInternal(servicesContext, eventElement, agentInstances);
@@ -308,14 +309,12 @@ public class StatementAgentInstanceUtil {
         Map<AgentInstance, Object> stmtCallbacks;
         if (!isPrioritized) {
             stmtCallbacks = new HashMap<AgentInstance, Object>();
-        }
-        else {
+        } else {
             stmtCallbacks = new TreeMap<AgentInstance, Object>(AgentInstanceComparator.INSTANCE);
         }
 
         // process all callbacks
-        for (FilterHandle filterHandle : callbacks)
-        {
+        for (FilterHandle filterHandle : callbacks) {
             // determine if this filter entry applies to any of the affected agent instances
             int statementId = filterHandle.getStatementId();
             AgentInstance agentInstanceFound = null;
@@ -334,17 +333,14 @@ public class StatementAgentInstanceUtil {
 
             // Self-joins require that the internal dispatch happens after all streams are evaluated.
             // Priority or preemptive settings also require special ordering.
-            if (handle.isCanSelfJoin() || isPrioritized)
-            {
+            if (handle.isCanSelfJoin() || isPrioritized) {
                 Object stmtCallback = stmtCallbacks.get(agentInstanceFound);
                 if (stmtCallback == null) {
                     stmtCallbacks.put(agentInstanceFound, handleCallback);
-                }
-                else if (stmtCallback instanceof ArrayDeque) {
+                } else if (stmtCallback instanceof ArrayDeque) {
                     ArrayDeque<EPStatementHandleCallback> q = (ArrayDeque<EPStatementHandleCallback>) stmtCallback;
                     q.add(handleCallback);
-                }
-                else {
+                } else {
                     ArrayDeque<EPStatementHandleCallback> q = new ArrayDeque<EPStatementHandleCallback>(4);
                     q.add((EPStatementHandleCallback) stmtCallback);
                     q.add(handleCallback);
@@ -362,14 +358,12 @@ public class StatementAgentInstanceUtil {
         }
 
         // Process self-join or sorted prioritized callbacks
-        for (Map.Entry<AgentInstance, Object> entry : stmtCallbacks.entrySet())
-        {
+        for (Map.Entry<AgentInstance, Object> entry : stmtCallbacks.entrySet()) {
             AgentInstance agentInstance = entry.getKey();
             Object callbackList = entry.getValue();
             if (callbackList instanceof ArrayDeque) {
                 process(agentInstance, servicesContext, (Collection<FilterHandle>) callbackList, theEvent);
-            }
-            else {
+            } else {
                 process(agentInstance, servicesContext, Collections.<FilterHandle>singletonList((FilterHandle) callbackList), theEvent);
             }
             if (agentInstance.getAgentInstanceContext().getEpStatementAgentInstanceHandle().isPreemptive()) {
@@ -383,13 +377,11 @@ public class StatementAgentInstanceUtil {
         ArrayDeque<FilterHandle> callbacks = new ArrayDeque<FilterHandle>();
         servicesContext.getFilterService().evaluate(theEvent, callbacks, agentInstanceContext.getStatementContext().getStatementId());
 
-        try
-        {
+        try {
             servicesContext.getVariableService().setLocalVersion();
 
             // sub-selects always go first
-            for (FilterHandle handle : callbacks)
-            {
+            for (FilterHandle handle : callbacks) {
                 if (handle.equals(filterHandle)) {
                     return true;
                 }
@@ -397,8 +389,7 @@ public class StatementAgentInstanceUtil {
 
             agentInstanceContext.getEpStatementAgentInstanceHandle().internalDispatch();
 
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS, theEvent);
         }
 
@@ -424,8 +415,7 @@ public class StatementAgentInstanceUtil {
             servicesContext.getVariableService().setLocalVersion();
 
             // sub-selects always go first
-            for (FilterHandle handle : callbacks)
-            {
+            for (FilterHandle handle : callbacks) {
                 EPStatementHandleCallback callback = (EPStatementHandleCallback) handle;
                 if (callback.getAgentInstanceHandle() != agentInstanceContext.getEpStatementAgentInstanceHandle()) {
                     continue;
@@ -434,11 +424,9 @@ public class StatementAgentInstanceUtil {
             }
 
             agentInstanceContext.getEpStatementAgentInstanceHandle().internalDispatch();
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             servicesContext.getExceptionHandlingService().handleException(ex, agentInstanceContext.getEpStatementAgentInstanceHandle(), ExceptionHandlerExceptionType.PROCESS, theEvent);
-        }
-        finally {
+        } finally {
             if (agentInstanceContext.getStatementContext().getEpStatementHandle().isHasTableAccess()) {
                 agentInstanceContext.getTableExprEvaluatorContext().releaseAcquiredLocks();
             }

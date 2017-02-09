@@ -13,41 +13,37 @@ package com.espertech.esper.type;
 /**
  * Placeholder for an integer value in an event expression.
  */
-public final class IntValue extends PrimitiveValueBase
-{
+public final class IntValue extends PrimitiveValueBase {
     private Integer intValue;
 
     /**
      * Constructor.
      */
-    public IntValue()
-    {
+    public IntValue() {
     }
 
     /**
      * Constructor.
+     *
      * @param intValue is the value to set to
      */
-    public IntValue(Integer intValue)
-    {
+    public IntValue(Integer intValue) {
         this.intValue = intValue;
     }
 
-    public PrimitiveValueType getType()
-    {
+    public PrimitiveValueType getType() {
         return PrimitiveValueType.INTEGER;
     }
 
     /**
      * Parse the string array returning a int array.
+     *
      * @param values - string array
      * @return typed array
      */
-    public static int[] parseString(String[] values)
-    {
+    public static int[] parseString(String[] values) {
         int[] result = new int[values.length];
-        for (int i = 0; i < result.length; i++)
-        {
+        for (int i = 0; i < result.length; i++) {
             result[i] = parseString(values[i]);
         }
         return result;
@@ -55,33 +51,28 @@ public final class IntValue extends PrimitiveValueBase
 
     /**
      * Parse string value returning a int.
+     *
      * @param value to parse
      * @return parsed value
      */
-    public static int parseString(String value)
-    {
+    public static int parseString(String value) {
         return Integer.parseInt(value);
     }
 
-    public final void parse(String value)
-    {
+    public final void parse(String value) {
         intValue = Integer.parseInt(value);
     }
 
-    public final Object getValueObject()
-    {
+    public final Object getValueObject() {
         return intValue;
     }
 
-    public final void setInt(int x)
-    {
+    public final void setInt(int x) {
         this.intValue = x;
     }
 
-    public final String toString()
-    {
-        if (intValue == null)
-        {
+    public final String toString() {
+        if (intValue == null) {
             return "null";
         }
         return intValue.toString();

@@ -13,19 +13,16 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import junit.framework.TestCase;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.sql.Types;
-import java.math.BigDecimal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestSQLTypeMapUtil extends TestCase
-{
-    public void testMapping()
-    {
+import java.math.BigDecimal;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestSQLTypeMapUtil extends TestCase {
+    public void testMapping() {
         Map<Integer, Class> testData = new HashMap<Integer, Class>();
         testData.put(Types.CHAR, String.class);
         testData.put(Types.VARCHAR, String.class);
@@ -41,21 +38,20 @@ public class TestSQLTypeMapUtil extends TestCase
         testData.put(Types.REAL, Float.class);
         testData.put(Types.FLOAT, Double.class);
         testData.put(Types.DOUBLE, Double.class);
-        testData.put(Types.BINARY, byte[].class );
+        testData.put(Types.BINARY, byte[].class);
         testData.put(Types.VARBINARY, byte[].class);
         testData.put(Types.LONGVARBINARY, byte[].class);
         testData.put(Types.DATE, java.sql.Date.class);
         testData.put(Types.TIMESTAMP, java.sql.Timestamp.class);
         testData.put(Types.TIME, java.sql.Time.class);
         testData.put(Types.CLOB, java.sql.Clob.class);
-        testData.put(Types.BLOB, java.sql.Blob.class );
+        testData.put(Types.BLOB, java.sql.Blob.class);
         testData.put(Types.ARRAY, java.sql.Array.class);
         testData.put(Types.STRUCT, java.sql.Struct.class);
         testData.put(Types.REF, java.sql.Ref.class);
         testData.put(Types.DATALINK, java.net.URL.class);
 
-        for (int type : testData.keySet())
-        {
+        for (int type : testData.keySet()) {
             Class result = SQLTypeMapUtil.sqlTypeToClass(type, null, ClassForNameProviderDefault.INSTANCE);
             log.debug(".testMapping Mapping " + type + " to " + result.getSimpleName());
             assertEquals(testData.get(type), result);
@@ -65,23 +61,18 @@ public class TestSQLTypeMapUtil extends TestCase
         assertEquals(String.class, SQLTypeMapUtil.sqlTypeToClass(Types.DISTINCT, "java.lang.String", ClassForNameProviderDefault.INSTANCE));
     }
 
-    public void testMappingInvalid()
-    {
+    public void testMappingInvalid() {
         tryInvalid(Types.JAVA_OBJECT, null);
         tryInvalid(Types.JAVA_OBJECT, "xx");
         tryInvalid(Types.DISTINCT, null);
         tryInvalid(Integer.MAX_VALUE, "yy");
     }
 
-    private void tryInvalid(int type, String classname)
-    {
-        try
-        {
+    private void tryInvalid(int type, String classname) {
+        try {
             SQLTypeMapUtil.sqlTypeToClass(type, classname, ClassForNameProviderDefault.INSTANCE);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }

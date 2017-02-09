@@ -21,8 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MethodPollingExecStrategyMapPlain extends MethodPollingExecStrategyBase
-{
+public class MethodPollingExecStrategyMapPlain extends MethodPollingExecStrategyBase {
     public MethodPollingExecStrategyMapPlain(EventAdapterService eventAdapterService, FastMethod method, EventType eventType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, VariableReader variableReader, String variableName, VariableService variableService) {
         super(eventAdapterService, method, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
     }

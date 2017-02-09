@@ -106,8 +106,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream = new HashMap[indexSpecs.length];
         Lock[] tableSecondaryIndexLocks = new Lock[indexSpecs.length];
         boolean hasTable = false;
-        for (int streamNo = 0; streamNo < indexSpecs.length; streamNo++)
-        {
+        for (int streamNo = 0; streamNo < indexSpecs.length; streamNo++) {
             if (indexSpecs[streamNo] == null) {
                 continue;
             }
@@ -128,16 +127,14 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
                 hasTable = true;
                 tableSecondaryIndexLocks[streamNo] = agentInstanceContext.getStatementContext().isWritesToTables() ?
                         state.getTableLevelRWLock().writeLock() : state.getTableLevelRWLock().readLock();
-            }
-            else {
+            } else {
                 // build tables for implicit indexes
                 for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
                     EventTable index;
                     if (streamJoinAnalysisResult.getViewExternal()[streamNo] != null) {
                         VirtualDWView view = streamJoinAnalysisResult.getViewExternal()[streamNo].getView(agentInstanceContext);
                         index = view.getJoinIndexTable(items.get(entry.getKey()));
-                    }
-                    else {
+                    } else {
                         index = EventTableUtil.buildIndex(agentInstanceContext, streamNo, items.get(entry.getKey()), streamTypes[streamNo], false, entry.getValue().isUnique(), null, null, isFireAndForget);
                     }
                     indexesPerStream[streamNo].put(entry.getKey(), index);
@@ -157,21 +154,18 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         // Build strategies
         QueryPlanNode[] queryExecSpecs = queryPlan.getExecNodeSpecs();
         QueryStrategy[] queryStrategies = new QueryStrategy[queryExecSpecs.length];
-        for (int i = 0; i < queryExecSpecs.length; i++)
-        {
+        for (int i = 0; i < queryExecSpecs.length; i++) {
             QueryPlanNode planNode = queryExecSpecs[i];
-            if (planNode == null)
-            {
+            if (planNode == null) {
                 log.debug(".makeComposer No execution node for stream " + i + " '" + streamNames[i] + "'");
                 continue;
             }
 
             ExecNode executionNode = planNode.makeExec(statementName, statementId, annotations, indexesPerStream, streamTypes, streamViews, historicalStreamIndexLists, externalViews, tableSecondaryIndexLocks);
 
-            if (log.isDebugEnabled())
-            {
+            if (log.isDebugEnabled()) {
                 log.debug(".makeComposer Execution nodes for stream " + i + " '" + streamNames[i] +
-                    "' : \n" + ExecNode.print(executionNode));
+                        "' : \n" + ExecNode.print(executionNode));
             }
 
             queryStrategies[i] = new ExecNodeQueryStrategy(i, streamTypes.length, executionNode);
@@ -185,19 +179,14 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         // If this is not unidirectional and not a self-join (excluding self-outer-join)
         JoinSetComposerDesc joinSetComposerDesc;
         if ((!streamJoinAnalysisResult.isUnidirectional()) &&
-            (!streamJoinAnalysisResult.isPureSelfJoin() || outerJoinDescList.length > 0))
-        {
+                (!streamJoinAnalysisResult.isPureSelfJoin() || outerJoinDescList.length > 0)) {
             JoinSetComposer composer;
-            if (historicalViewableDesc.isHasHistorical())
-            {
+            if (historicalViewableDesc.isHasHistorical()) {
                 composer = new JoinSetComposerHistoricalImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamViews, exprEvaluatorContext);
-            }
-            else
-            {
+            } else {
                 if (isFireAndForget) {
                     composer = new JoinSetComposerFAFImpl(indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream, isOuterJoins);
-                }
-                else {
+                } else {
                     composer = new JoinSetComposerImpl(eventTableIndexService.allowInitIndex(isRecoveringResilient), indexesPerStream, queryStrategies, streamJoinAnalysisResult.isPureSelfJoin(), exprEvaluatorContext, joinRemoveStream);
                 }
             }
@@ -207,23 +196,19 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
 
             ExprEvaluator postJoinEval = filterExpression == null ? null : filterExpression.getExprEvaluator();
             joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
-        }
-        else
-        {
+        } else {
             ExprEvaluator postJoinEval = optionalFilterNode == null ? null : optionalFilterNode.getExprEvaluator();
 
             if (streamJoinAnalysisResult.isUnidirectionalAll()) {
                 JoinSetComposer composer = new JoinSetComposerAllUnidirectionalOuter(queryStrategies);
                 joinSetComposerDesc = new JoinSetComposerDesc(composer, postJoinEval);
-            }
-            else {
+            } else {
                 QueryStrategy driver;
                 int unidirectionalStream;
                 if (streamJoinAnalysisResult.isUnidirectional()) {
                     unidirectionalStream = streamJoinAnalysisResult.getUnidirectionalStreamNumberFirst();
                     driver = queryStrategies[unidirectionalStream];
-                }
-                else {
+                } else {
                     unidirectionalStream = 0;
                     driver = queryStrategies[0];
                 }
@@ -285,8 +270,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         return result;
     }
 
-    private ExprNode getFilterExpressionInclOnClause(ExprNode optionalFilterNode, OuterJoinDesc[] outerJoinDescList)
-    {
+    private ExprNode getFilterExpressionInclOnClause(ExprNode optionalFilterNode, OuterJoinDesc[] outerJoinDescList) {
         if (optionalFilterNode == null) {   // no need to add as query planning is fully based on on-clause
             return null;
         }
@@ -303,8 +287,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         }
         try {
             andNode.validate(null);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             throw new RuntimeException("Unexpected exception validating expression: " + ex.getMessage(), ex);
         }
         return andNode;

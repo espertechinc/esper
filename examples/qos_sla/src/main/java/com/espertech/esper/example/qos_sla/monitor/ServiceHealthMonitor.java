@@ -12,18 +12,14 @@ package com.espertech.esper.example.qos_sla.monitor;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
-import com.espertech.esper.client.EventBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServiceHealthMonitor
-{
-    private ServiceHealthMonitor()
-    {
+public class ServiceHealthMonitor {
+    private ServiceHealthMonitor() {
     }
 
-    public static void start()
-    {
+    public static void start() {
         EPAdministrator admin = EPServiceProviderManager.getDefaultProvider().getEPAdministrator();
 
         String theEvent = OperationMeasurement.class.getName();
@@ -33,10 +29,8 @@ public class ServiceHealthMonitor
                 theEvent + "(success=false)->" +
                 theEvent + "(success=false))");
 
-        statView.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        statView.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 log.debug(".update Alert, detected 3 erros in a row");
             }
         });

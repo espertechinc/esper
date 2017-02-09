@@ -16,7 +16,6 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.view.*;
 
 import java.util.List;
@@ -24,8 +23,7 @@ import java.util.List;
 /**
  * Factory for {@link FirstLengthWindowView}.
  */
-public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFactory
-{
+public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFactory {
     /**
      * Size of length first window.
      */
@@ -33,31 +31,25 @@ public class FirstLengthWindowViewFactory implements AsymetricDataWindowViewFact
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         sizeEvaluator = ViewFactorySupport.validateSizeSingleParam(getViewName(), viewFactoryContext, expressionParameters);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         return new FirstLengthWindowView(agentInstanceViewFactoryContext, this, size);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof FirstLengthWindowView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof FirstLengthWindowView)) {
             return false;
         }
 

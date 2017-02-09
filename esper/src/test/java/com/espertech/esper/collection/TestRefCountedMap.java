@@ -12,41 +12,31 @@ package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
 
-public class TestRefCountedMap extends TestCase
-{
+public class TestRefCountedMap extends TestCase {
     private RefCountedMap<String, Integer> refMap;
 
-    public void setUp()
-    {
+    public void setUp() {
         refMap = new RefCountedMap<String, Integer>();
         refMap.put("a", 100);
     }
 
-    public void testPut()
-    {
-        try
-        {
+    public void testPut() {
+        try {
             refMap.put("a", 10);
             TestCase.fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected exception
         }
 
-        try
-        {
+        try {
             refMap.put(null, 10);
             TestCase.fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected exception
         }
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         Integer val = refMap.get("b");
         assertNull(val);
 
@@ -54,23 +44,18 @@ public class TestRefCountedMap extends TestCase
         assertEquals(100, (int) val);
     }
 
-    public void testReference()
-    {
+    public void testReference() {
         refMap.reference("a");
 
-        try
-        {
+        try {
             refMap.reference("b");
             TestCase.fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected exception
         }
     }
 
-    public void testDereference()
-    {
+    public void testDereference() {
         boolean isLast = refMap.dereference("a");
         assertTrue(isLast);
 
@@ -79,19 +64,15 @@ public class TestRefCountedMap extends TestCase
         assertFalse(refMap.dereference("b"));
         assertTrue(refMap.dereference("b"));
 
-        try
-        {
+        try {
             refMap.dereference("b");
             TestCase.fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected exception
         }
     }
 
-    public void testFlow()
-    {
+    public void testFlow() {
         refMap.put("b", -1);
         refMap.reference("b");
 

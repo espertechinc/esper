@@ -52,7 +52,7 @@ public class TableServiceUtil {
         for (Map.Entry<String, TableMetadataColumn> entry : items.entrySet()) {
             if (entry.getValue().isKey()) {
                 indexFields.add(new IndexedPropDesc(entry.getKey(), eventType.getPropertyType(entry.getKey())));
-                keyIndexes.add(count+1);
+                keyIndexes.add(count + 1);
             }
             count++;
         }

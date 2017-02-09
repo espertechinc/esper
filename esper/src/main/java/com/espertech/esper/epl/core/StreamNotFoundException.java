@@ -13,8 +13,7 @@ package com.espertech.esper.epl.core;
 /**
  * Exception to indicate that a stream name could not be resolved.
  */
-public class StreamNotFoundException extends StreamTypesException
-{
+public class StreamNotFoundException extends StreamTypesException {
     private static final long serialVersionUID = -665030219652415977L;
 
     public StreamNotFoundException(String message, StreamTypesExceptionSuggestionGen msgGen) {

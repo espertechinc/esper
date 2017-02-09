@@ -20,8 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServiceFactoryBase
-{
+public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServiceFactoryBase {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
@@ -29,21 +28,21 @@ public class AggSvcGroupByRefcountedWAccessRollupFactory extends AggregationServ
 
     /**
      * Ctor.
-     * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
-     * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
-     * @param accessors accessor definitions
+     *
+     * @param evaluators         - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
+     * @param prototypes         - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
+     *                           aggregation states for each group
+     * @param accessors          accessor definitions
      * @param accessAggregations access aggs
-     * @param isJoin true for join, false for single-stream
-     * @param groupByRollupDesc rollups if any
+     * @param isJoin             true for join, false for single-stream
+     * @param groupByRollupDesc  rollups if any
      */
-    public AggSvcGroupByRefcountedWAccessRollupFactory(ExprEvaluator evaluators[],
-                                                       AggregationMethodFactory prototypes[],
+    public AggSvcGroupByRefcountedWAccessRollupFactory(ExprEvaluator[] evaluators,
+                                                       AggregationMethodFactory[] prototypes,
                                                        AggregationAccessorSlotPair[] accessors,
                                                        AggregationStateFactory[] accessAggregations,
                                                        boolean isJoin,
-                                                       AggregationGroupByRollupDesc groupByRollupDesc)
-    {
+                                                       AggregationGroupByRollupDesc groupByRollupDesc) {
         super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;

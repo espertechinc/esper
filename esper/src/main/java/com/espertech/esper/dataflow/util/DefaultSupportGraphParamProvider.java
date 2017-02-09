@@ -15,8 +15,7 @@ import com.espertech.esper.client.dataflow.EPDataFlowOperatorParameterProviderCo
 
 import java.util.Map;
 
-public class DefaultSupportGraphParamProvider implements EPDataFlowOperatorParameterProvider
-{
+public class DefaultSupportGraphParamProvider implements EPDataFlowOperatorParameterProvider {
     private final Map<String, Object> params;
 
     public DefaultSupportGraphParamProvider(Map<String, Object> params) {

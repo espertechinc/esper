@@ -18,7 +18,6 @@ package com.espertech.esper.view;
  * <p>
  * Please {@link com.espertech.esper.view.DataWindowView} for details on views that meet data window requirements.
  */
-public interface AsymetricDataWindowViewFactory extends DataWindowViewFactory
-{
+public interface AsymetricDataWindowViewFactory extends DataWindowViewFactory {
 
 }

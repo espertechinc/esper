@@ -17,8 +17,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventBeanUpdateHelper
-{
+public class EventBeanUpdateHelper {
     private static final Logger log = LoggerFactory.getLogger(EventBeanUpdateHelper.class);
 
     private final EventBeanCopyMethod copyMethod;
@@ -29,9 +28,10 @@ public class EventBeanUpdateHelper
         this.updateItems = updateItems;
     }
 
-    public EventBean updateWCopy(EventBean matchingEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraUpdate(matchingEvent, eventsPerStream, updateItems.length, true);}
+    public EventBean updateWCopy(EventBean matchingEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraUpdate(matchingEvent, eventsPerStream, updateItems.length, true);
+        }
 
         EventBean copy = copyMethod.copy(matchingEvent);
         eventsPerStream[0] = copy;
@@ -39,17 +39,22 @@ public class EventBeanUpdateHelper
 
         updateInternal(eventsPerStream, exprEvaluatorContext, copy);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraUpdate(copy);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraUpdate(copy);
+        }
         return copy;
     }
 
-    public void updateNoCopy(EventBean matchingEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraUpdate(matchingEvent, eventsPerStream, updateItems.length, false);}
+    public void updateNoCopy(EventBean matchingEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraUpdate(matchingEvent, eventsPerStream, updateItems.length, false);
+        }
 
         updateInternal(eventsPerStream, exprEvaluatorContext, matchingEvent);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraUpdate(matchingEvent);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraUpdate(matchingEvent);
+        }
     }
 
     public EventBeanUpdateItem[] getUpdateItems() {
@@ -64,9 +69,13 @@ public class EventBeanUpdateHelper
         for (int i = 0; i < updateItems.length; i++) {
             EventBeanUpdateItem updateItem = updateItems[i];
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraUpdateRHSExpr(i, updateItem);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qInfraUpdateRHSExpr(i, updateItem);
+            }
             Object result = updateItem.getExpression().evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraUpdateRHSExpr(result);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aInfraUpdateRHSExpr(result);
+            }
 
             if (updateItem.getOptionalWriter() != null) {
                 if (result == null && updateItem.isNotNullableField()) {

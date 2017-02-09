@@ -24,8 +24,7 @@ import java.util.List;
  * Follows the Composite pattern. Child nodes do not carry references to parent nodes, the tree
  * is unidirectional.
  */
-public abstract class EvalNodeFactoryBase implements EvalFactoryNode, Serializable
-{
+public abstract class EvalNodeFactoryBase implements EvalFactoryNode, Serializable {
     private static final Logger log = LoggerFactory.getLogger(EvalNodeFactoryBase.class);
     private static final long serialVersionUID = 0L;
 
@@ -33,22 +32,22 @@ public abstract class EvalNodeFactoryBase implements EvalFactoryNode, Serializab
     private short factoryNodeId;
 
     public abstract EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode);
+
     public abstract void toPrecedenceFreeEPL(StringWriter writer);
 
     /**
      * Constructor creates a list of child nodes.
      */
-    EvalNodeFactoryBase()
-    {
+    EvalNodeFactoryBase() {
         childNodes = new ArrayList<EvalFactoryNode>();
     }
 
     /**
      * Adds a child node.
+     *
      * @param childNode is the child evaluation tree node to add
      */
-    public void addChildNode(EvalFactoryNode childNode)
-    {
+    public void addChildNode(EvalFactoryNode childNode) {
         childNodes.add(childNode);
     }
 
@@ -58,10 +57,10 @@ public abstract class EvalNodeFactoryBase implements EvalFactoryNode, Serializab
 
     /**
      * Returns list of child nodes.
+     *
      * @return list of child nodes
      */
-    public List<EvalFactoryNode> getChildNodes()
-    {
+    public List<EvalFactoryNode> getChildNodes() {
         return childNodes;
     }
 
@@ -78,8 +77,7 @@ public abstract class EvalNodeFactoryBase implements EvalFactoryNode, Serializab
             writer.write("(");
             toPrecedenceFreeEPL(writer);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer);
         }
     }

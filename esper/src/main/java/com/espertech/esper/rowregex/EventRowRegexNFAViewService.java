@@ -16,8 +16,7 @@ import com.espertech.esper.util.StopCallback;
 /**
  * Service interface for match recognize.
  */
-public interface EventRowRegexNFAViewService extends StopCallback
-{
+public interface EventRowRegexNFAViewService extends StopCallback {
     public void init(EventBean[] newEvents);
 
     public RegexExprPreviousEvalStrategy getPreviousEvaluationStrategy();

@@ -30,32 +30,25 @@ import java.io.InputStream;
 import java.rmi.registry.LocateRegistry;
 import java.util.Properties;
 
-public class ServerShellMain
-{
+public class ServerShellMain {
     private static Logger log = LoggerFactory.getLogger(ServerShellMain.class);
 
     private boolean isShutdown;
 
-    public static void main(String[] args) throws Exception
-    {
-        try
-        {
+    public static void main(String[] args) throws Exception {
+        try {
             new ServerShellMain();
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             log.error("Error starting server shell : " + t.getMessage(), t);
             System.exit(-1);
         }
     }
 
-    public ServerShellMain() throws Exception
-    {
+    public ServerShellMain() throws Exception {
         log.info("Loading properties");
         Properties properties = new Properties();
         InputStream propertiesIS = ServerShellMain.class.getClassLoader().getResourceAsStream(ServerShellConstants.CONFIG_FILENAME);
-        if (propertiesIS == null)
-        {
+        if (propertiesIS == null) {
             throw new RuntimeException("Properties file '" + ServerShellConstants.CONFIG_FILENAME + "' not found in classpath");
         }
         properties.load(propertiesIS);
@@ -103,9 +96,8 @@ public class ServerShellMain
         int numListeners = Integer.parseInt(properties.getProperty(ServerShellConstants.JMS_NUM_LISTENERS));
         log.info("Creating " + numListeners + " listeners to destination '" + destination + "'");
 
-        SampleJMSMessageListener listeners[] = new SampleJMSMessageListener[numListeners];
-        for (int i = 0; i < numListeners; i++)
-        {
+        SampleJMSMessageListener[] listeners = new SampleJMSMessageListener[numListeners];
+        for (int i = 0; i < numListeners; i++) {
             listeners[i] = new SampleJMSMessageListener(engine.getEPRuntime());
             MessageConsumer consumer = jmsCtx.getSession().createConsumer(jmsCtx.getDestination());
             consumer.setMessageListener(listeners[i]);
@@ -116,10 +108,8 @@ public class ServerShellMain
         jmsCtx.getConnection().start();
 
         // Register shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
-            public void run()
-            {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
                 isShutdown = true;
             }
         });
@@ -132,8 +122,7 @@ public class ServerShellMain
         AccumulatingStat avgLast5 = new AccumulatingStat(5);
         AccumulatingStat avgLast10 = new AccumulatingStat(10);
         AccumulatingStat avgLast20 = new AccumulatingStat(20);
-        do
-        {
+        do {
             // sleep
             Thread.sleep(1000);
             currTime = System.currentTimeMillis();
@@ -141,8 +130,7 @@ public class ServerShellMain
 
             // compute stats
             int totalEvents = 0;
-            for (int i = 0; i < listeners.length; i++)
-            {
+            for (int i = 0; i < listeners.length; i++) {
                 totalEvents += listeners[i].getCount();
             }
 
@@ -158,7 +146,7 @@ public class ServerShellMain
                     " last10Avg=" + avgLast10.getAvg() +
                     " last20Avg=" + avgLast20.getAvg() +
                     " time=" + deltaSeconds
-                    );
+            );
             lastTotalEvents = totalEvents;
         }
         while (!isShutdown);

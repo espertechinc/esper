@@ -15,8 +15,7 @@ import java.util.Set;
 /**
  * Configuration object for Object array-based event types.
  */
-public class ConfigurationEventTypeObjectArray extends ConfigurationEventTypeWithSupertype
-{
+public class ConfigurationEventTypeObjectArray extends ConfigurationEventTypeWithSupertype {
     private static final long serialVersionUID = -5404892001689512405L;
 
     /**
@@ -26,6 +25,7 @@ public class ConfigurationEventTypeObjectArray extends ConfigurationEventTypeWit
 
     /**
      * Ctor.
+     *
      * @param superTypes super types
      */
     public ConfigurationEventTypeObjectArray(Set<String> superTypes) {

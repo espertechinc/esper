@@ -10,16 +10,12 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
-
 import java.util.Iterator;
 
 /**
  * Interface to iterate over events.
  */
-public interface EPIterable
-{
+public interface EPIterable {
     /**
      * Returns a concurrency-unsafe iterator over events representing statement results (pull API).
      * <p>
@@ -32,6 +28,7 @@ public interface EPIterable
      * <p>
      * Use the safeIterator method for concurrency-safe iteration. Note the safe iterator requires
      * applications to explicitly close the safe iterator when done iterating.
+     *
      * @return event iterator
      */
     public Iterator<EventBean> iterator();
@@ -54,12 +51,14 @@ public interface EPIterable
      * <p>
      * Multiple safe iterators may be not be used at the same time by different application threads.
      * A single application thread may hold and use multiple safe iterators however this is discouraged.
+     *
      * @return safe iterator; NOTE: Must use the close method to close the safe iterator, preferably in a finally block
      */
     public SafeIterator<EventBean> safeIterator();
 
     /**
      * Returns the type of events the iterable returns.
+     *
      * @return event type of events the iterator returns
      */
     public EventType getEventType();

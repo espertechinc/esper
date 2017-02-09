@@ -11,7 +11,9 @@
 package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.spec.ContextDetail;
+import com.espertech.esper.epl.spec.ContextDetailNested;
+import com.espertech.esper.epl.spec.CreateContextDesc;
 import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.util.*;
@@ -22,7 +24,7 @@ public class ContextControllerFactoryHelper {
         if (!(serviceContext.getDetail() instanceof ContextDetailNested)) {
             ContextControllerFactory factory = buildContextFactory(serviceContext, serviceContext.getContextName(), serviceContext.getDetail(), 1, 1, null, contextStateCache);
             factory.validateFactory();
-            return new ContextControllerFactory[] {factory};
+            return new ContextControllerFactory[]{factory};
         }
         return buildNestedContextFactories(serviceContext, contextStateCache);
     }
@@ -45,8 +47,7 @@ public class ContextControllerFactoryHelper {
                 List<FilterSpecCompiled> existing = filtersPerNestedContext.get(contextParent);
                 if (existing != null) {
                     existing.addAll(specs);
-                }
-                else {
+                } else {
                     filtersPerNestedContext.put(contextParent, specs);
                 }
             }

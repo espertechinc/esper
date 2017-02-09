@@ -18,9 +18,10 @@ public interface ContextPartitionSelectorFiltered extends ContextPartitionSelect
      * Filter function should return true or false to indicate
      * interest in this context partition.
      * <p>
-     *     Do not hold on to ContextIdentifier instance between calls.
-     *     The engine may reused an reassing values to this object.
+     * Do not hold on to ContextIdentifier instance between calls.
+     * The engine may reused an reassing values to this object.
      * </p>
+     *
      * @param contextPartitionIdentifier provides context partition information, may
      * @return true to pass filter, false to reject
      */

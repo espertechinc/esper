@@ -24,65 +24,62 @@ import java.util.concurrent.locks.ReadWriteLock;
  * The implementation is based on the SortedMap implementation of TreeMap and stores only expression
  * parameter values of type StringRange.
  */
-public final class FilterParamIndexStringRangeInverted extends FilterParamIndexStringRangeBase
-{
+public final class FilterParamIndexStringRangeInverted extends FilterParamIndexStringRangeBase {
     public FilterParamIndexStringRangeInverted(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock, FilterOperator filterOperator) {
         super(lookupable, readWriteLock, filterOperator);
-        if (!(filterOperator.isInvertedRangeOperator()))
-        {
+        if (!(filterOperator.isInvertedRangeOperator())) {
             throw new IllegalArgumentException("Invalid filter operator " + filterOperator);
         }
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         Object objAttributeValue = lookupable.getGetter().get(theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterReverseIndex(this, objAttributeValue);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilterReverseIndex(this, objAttributeValue);
+        }
 
-        if (objAttributeValue == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(false);}
+        if (objAttributeValue == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aFilterReverseIndex(false);
+            }
             return;
         }
 
         String attributeValue = (String) objAttributeValue;
 
-        if (this.getFilterOperator() == FilterOperator.NOT_RANGE_CLOSED)   // include all endpoints
-        {
+        if (this.getFilterOperator() == FilterOperator.NOT_RANGE_CLOSED) {
+            // include all endpoints
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) > 0 || entry.getKey().getMax().compareTo(attributeValue) < 0) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_OPEN) {  // include neither endpoint
+        } else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_OPEN) {  // include neither endpoint
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) >= 0 || entry.getKey().getMax().compareTo(attributeValue) <= 0) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_HALF_CLOSED) // include high endpoint not low endpoint
-        {
+        } else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_HALF_CLOSED) {
+            // include high endpoint not low endpoint
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) >= 0 || entry.getKey().getMax().compareTo(attributeValue) < 0) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_HALF_OPEN) // include low endpoint not high endpoint
-        {
+        } else if (this.getFilterOperator() == FilterOperator.NOT_RANGE_HALF_OPEN) {
+            // include low endpoint not high endpoint
             for (Map.Entry<StringRange, EventEvaluator> entry : ranges.entrySet()) {
                 if (entry.getKey().getMin().compareTo(attributeValue) > 0 || entry.getKey().getMax().compareTo(attributeValue) <= 0) {
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        else
-        {
+        } else {
             throw new IllegalStateException("Invalid filter operator " + this.getFilterOperator());
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilterReverseIndex(null);
+        }
     }
 
     private static final Logger log = LoggerFactory.getLogger(FilterParamIndexStringRangeInverted.class);

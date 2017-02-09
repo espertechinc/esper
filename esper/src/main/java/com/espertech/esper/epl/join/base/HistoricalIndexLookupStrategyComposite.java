@@ -27,25 +27,21 @@ import java.util.Set;
 /**
  * Index lookup strategy into a poll-based cache result.
  */
-public class HistoricalIndexLookupStrategyComposite implements HistoricalIndexLookupStrategy
-{
+public class HistoricalIndexLookupStrategyComposite implements HistoricalIndexLookupStrategy {
     private final CompositeIndexQuery chain;
 
     public HistoricalIndexLookupStrategyComposite(int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys, Class[] keyCoercionTypes, List<QueryGraphValueEntryRange> rangeKeyPairs, Class[] rangeCoercionTypes) {
         chain = CompositeIndexQueryFactory.makeJoinSingleLookupStream(false, lookupStream, hashKeys, keyCoercionTypes, rangeKeyPairs, rangeCoercionTypes);
     }
 
-    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext context)
-    {
+    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext context) {
         // The table may not be indexed as the cache may not actively cache, in which case indexing doesn't makes sense
-        if (indexTable[0] instanceof PropertyCompositeEventTable)
-        {
+        if (indexTable[0] instanceof PropertyCompositeEventTable) {
             PropertyCompositeEventTable table = (PropertyCompositeEventTable) indexTable[0];
             Map<Object, Object> index = table.getIndex();
 
             Set<EventBean> events = chain.get(lookupEvent, index, context, table.getPostProcessor());
-            if (events != null)
-            {
+            if (events != null) {
                 return events.iterator();
             }
             return null;

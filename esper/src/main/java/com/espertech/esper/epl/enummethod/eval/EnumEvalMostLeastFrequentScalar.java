@@ -34,8 +34,7 @@ public class EnumEvalMostLeastFrequentScalar extends EnumEvalBase implements Enu
 
             if (existing == null) {
                 existing = 1;
-            }
-            else {
+            } else {
                 existing++;
             }
             items.put(next, existing);

@@ -38,8 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TestCSVAdapterUseCases extends TestCase
-{
+public class TestCSVAdapterUseCases extends TestCase {
     private static String NEW_LINE = System.getProperty("line.separator");
     protected static String CSV_FILENAME_ONELINE_TRADE = "regression/csvtest_tradedata.csv";
     private static String CSV_FILENAME_ONELINE_TRADE_MULTIPLE = "regression/csvtest_tradedata_multiple.csv";
@@ -50,21 +49,20 @@ public class TestCSVAdapterUseCases extends TestCase
     private boolean useBean = false;
 
     public TestCSVAdapterUseCases() {
-		this(false);
-	}
+        this(false);
+    }
 
 
     public TestCSVAdapterUseCases(boolean ub) {
-		useBean = ub;
-	}
+        useBean = ub;
+    }
 
-	/**
+    /**
      * Play a CSV file using an existing event type definition (no timestamps).
-     *
+     * <p>
      * Should not require a timestamp column, should block thread until played in.
      */
-    public void testExistingTypeNoOptions()
-    {
+    public void testExistingTypeNoOptions() {
         epService = EPServiceProviderManager.getProvider("testExistingTypeNoOptions", makeConfig("TypeA", useBean));
         epService.initialize();
 
@@ -93,8 +91,7 @@ public class TestCSVAdapterUseCases extends TestCase
     /**
      * Play a CSV file that is from memory.
      */
-    public void testPlayFromInputStream() throws Exception
-    {
+    public void testPlayFromInputStream() throws Exception {
         String myCSV = "symbol, price, volume" + NEW_LINE + "IBM, 10.2, 10000";
         ByteArrayInputStream inputStream = new ByteArrayInputStream(myCSV.getBytes());
         trySource(new AdapterInputSource(inputStream));
@@ -103,8 +100,7 @@ public class TestCSVAdapterUseCases extends TestCase
     /**
      * Play a CSV file that is from memory.
      */
-    public void testPlayFromStringReader() throws Exception
-    {
+    public void testPlayFromStringReader() throws Exception {
         String myCSV = "symbol, price, volume" + NEW_LINE + "IBM, 10.2, 10000";
         StringReader reader = new StringReader(myCSV);
         trySource(new AdapterInputSource(reader));
@@ -113,8 +109,7 @@ public class TestCSVAdapterUseCases extends TestCase
     /**
      * Play a CSV file using an engine thread
      */
-    public void testEngineThread1000PerSec() throws Exception
-    {
+    public void testEngineThread1000PerSec() throws Exception {
         epService = EPServiceProviderManager.getProvider("testExistingTypeNoOptions", makeConfig("TypeA"));
         epService.initialize();
 
@@ -136,8 +131,7 @@ public class TestCSVAdapterUseCases extends TestCase
     /**
      * Play a CSV file using an engine thread.
      */
-    public void testEngineThread1PerSec() throws Exception
-    {
+    public void testEngineThread1PerSec() throws Exception {
         epService = EPServiceProviderManager.getProvider("testExistingTypeNoOptions", makeConfig("TypeA"));
         epService.initialize();
 
@@ -165,8 +159,7 @@ public class TestCSVAdapterUseCases extends TestCase
     /**
      * Play a CSV file using the application thread
      */
-    public void testAppThread() throws Exception
-    {
+    public void testAppThread() throws Exception {
         epService = EPServiceProviderManager.getProvider("testExistingTypeNoOptions", makeConfig("TypeA"));
         epService.initialize();
 
@@ -186,8 +179,7 @@ public class TestCSVAdapterUseCases extends TestCase
     /**
      * Play a CSV file using no existing (dynamic) event type (no timestamp)
      */
-    public void testDynamicType()
-    {
+    public void testDynamicType() {
         CSVInputAdapterSpec spec = new CSVInputAdapterSpec(new AdapterInputSource(CSV_FILENAME_ONELINE_TRADE), "TypeB");
 
         Configuration config = new Configuration();
@@ -209,8 +201,7 @@ public class TestCSVAdapterUseCases extends TestCase
         assertEquals(1, listener.getNewDataList().size());
     }
 
-    public void testCoordinated() throws Exception
-    {
+    public void testCoordinated() throws Exception {
         Map<String, Object> priceProps = new HashMap<String, Object>();
         priceProps.put("timestamp", Long.class);
         priceProps.put("symbol", String.class);
@@ -262,45 +253,45 @@ public class TestCSVAdapterUseCases extends TestCase
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
         assertEquals(1, listenerTrade.getNewDataList().size());
         assertEquals(1, listenerPrice.getNewDataList().size());
-        listenerTrade.reset(); listenerPrice.reset();
+        listenerTrade.reset();
+        listenerPrice.reset();
 
         // invoke read of price events at 1500 (see CSV)
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(2000));
         assertEquals(0, listenerTrade.getNewDataList().size());
         assertEquals(1, listenerPrice.getNewDataList().size());
-        listenerTrade.reset(); listenerPrice.reset();
+        listenerTrade.reset();
+        listenerPrice.reset();
 
         // invoke read of trade events at 2500 (see CSV)
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(3000));
         assertEquals(1, listenerTrade.getNewDataList().size());
         assertEquals(0, listenerPrice.getNewDataList().size());
-        listenerTrade.reset(); listenerPrice.reset();
+        listenerTrade.reset();
+        listenerPrice.reset();
     }
 
     private Configuration makeConfig(String typeName) {
-    	return makeConfig(typeName, false);
+        return makeConfig(typeName, false);
     }
 
-    private Configuration makeConfig(String typeName, boolean useBean)
-    {
+    private Configuration makeConfig(String typeName, boolean useBean) {
         Configuration configuration = new Configuration();
         configuration.addImport(FileSourceCSV.class.getPackage().getName() + ".*");
-    	if (useBean) {
+        if (useBean) {
             configuration.addEventType(typeName, ExampleMarketDataBean.class);
-    	}
-    	else {
+        } else {
             Map<String, Object> eventProperties = new HashMap<String, Object>();
             eventProperties.put("symbol", String.class);
             eventProperties.put("price", double.class);
             eventProperties.put("volume", Integer.class);
             configuration.addEventType(typeName, eventProperties);
-    	}
+        }
 
         return configuration;
     }
 
-    private void trySource(AdapterInputSource source) throws Exception
-    {
+    private void trySource(AdapterInputSource source) throws Exception {
         CSVInputAdapterSpec spec = new CSVInputAdapterSpec(source, "TypeC");
 
         epService = EPServiceProviderManager.getProvider("testPlayFromInputStream", makeConfig("TypeC"));
@@ -316,8 +307,7 @@ public class TestCSVAdapterUseCases extends TestCase
 
         if (source.getAsReader() != null) {
             source.getAsReader().reset();
-        }
-        else {
+        } else {
             source.getAsStream().reset();
         }
 
@@ -341,27 +331,32 @@ public class TestCSVAdapterUseCases extends TestCase
      * Bean with same properties as map type used in this test
      */
     public static class ExampleMarketDataBean {
-    	private String symbol;
-    	private double price;
-    	private Integer volume;
+        private String symbol;
+        private double price;
+        private Integer volume;
 
-		public String getSymbol() {
-			return symbol;
-		}
-		public void setSymbol(String symbol) {
-			this.symbol = symbol;
-		}
-		public double getPrice() {
-			return price;
-		}
-		public void setPrice(double price) {
-			this.price = price;
-		}
-		public Integer getVolume() {
-			return volume;
-		}
-		public void setVolume(Integer volume) {
-			this.volume = volume;
-		}
+        public String getSymbol() {
+            return symbol;
+        }
+
+        public void setSymbol(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public double getPrice() {
+            return price;
+        }
+
+        public void setPrice(double price) {
+            this.price = price;
+        }
+
+        public Integer getVolume() {
+            return volume;
+        }
+
+        public void setVolume(Integer volume) {
+            this.volume = volume;
+        }
     }
 }

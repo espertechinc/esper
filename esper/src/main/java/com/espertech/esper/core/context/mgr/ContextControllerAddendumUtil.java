@@ -10,16 +10,12 @@
  */
 package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.filter.FilterValueSet;
 import com.espertech.esper.filter.FilterValueSetParam;
-
-import java.util.NavigableMap;
-import java.util.TreeMap;
 
 public class ContextControllerAddendumUtil {
 
     public static FilterValueSetParam[][] addAddendum(FilterValueSetParam[][] filters, FilterValueSetParam toAdd) {
-        return addAddendum(filters, new FilterValueSetParam[] {toAdd});
+        return addAddendum(filters, new FilterValueSetParam[]{toAdd});
     }
 
     public static FilterValueSetParam[][] addAddendum(FilterValueSetParam[][] filters, FilterValueSetParam[] toAdd) {

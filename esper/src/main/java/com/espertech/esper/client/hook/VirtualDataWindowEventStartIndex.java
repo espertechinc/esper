@@ -24,10 +24,11 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
     /**
      * Ctor.
+     *
      * @param namedWindowName named window name
-     * @param indexName index name
-     * @param fields index fields
-     * @param unique for unique indexes
+     * @param indexName       index name
+     * @param fields          index fields
+     * @param unique          for unique indexes
      */
     public VirtualDataWindowEventStartIndex(String namedWindowName, String indexName, List<VDWCreateIndexField> fields, boolean unique) {
         this.namedWindowName = namedWindowName;
@@ -38,6 +39,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
     /**
      * Returns the index name.
+     *
      * @return index name
      */
     public String getIndexName() {
@@ -46,6 +48,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
     /**
      * Returns a list of fields that are part of the index.
+     *
      * @return list of index fields
      */
     public List<VDWCreateIndexField> getFields() {
@@ -54,6 +57,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
     /**
      * Returns the named window name.
+     *
      * @return named window name
      */
     public String getNamedWindowName() {
@@ -62,6 +66,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
     /**
      * Returns indictor for unique index
+     *
      * @return unique index indicator
      */
     public boolean isUnique() {
@@ -77,6 +82,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
         /**
          * Ctor.
+         *
          * @param name named window name
          * @param hash true for hash-based index, false for btree index
          */
@@ -87,6 +93,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
         /**
          * Name of the indexed field.
+         *
          * @return field name
          */
         public String getName() {
@@ -95,6 +102,7 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
 
         /**
          * Indicate whether the index is hash or btree, true for hash.
+         *
          * @return index type indicator
          */
         public boolean isHash() {

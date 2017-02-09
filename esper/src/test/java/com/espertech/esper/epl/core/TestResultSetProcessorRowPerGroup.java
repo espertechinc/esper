@@ -30,19 +30,17 @@ import junit.framework.TestCase;
 
 import java.util.Collections;
 
-public class TestResultSetProcessorRowPerGroup extends TestCase
-{
+public class TestResultSetProcessorRowPerGroup extends TestCase {
     private ResultSetProcessorRowPerGroup processor;
     private SupportAggregationService supportAggregationService;
     private AgentInstanceContext agentInstanceContext;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
 
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SelectExprProcessorHelper factory = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), SupportSelectExprFactory.makeSelectListFromIdent("theString", "s0"),
-        		Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getStatementContext().getEngineImportService(), 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
+                Collections.<SelectExprStreamDesc>emptyList(), null, null, false, new SupportStreamTypeSvc1Stream(), SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, agentInstanceContext.getStatementContext().getEngineImportService(), 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
         SelectExprProcessor selectProcessor = factory.getEvaluator();
         supportAggregationService = new SupportAggregationService();
 
@@ -54,10 +52,9 @@ public class TestResultSetProcessorRowPerGroup extends TestCase
         processor = (ResultSetProcessorRowPerGroup) prototype.instantiate(null, supportAggregationService, agentInstanceContext);
     }
 
-    public void testProcess()
-    {
-        EventBean[] newData = new EventBean[] {makeEvent(1, 2), makeEvent(3, 4)};
-        EventBean[] oldData = new EventBean[] {makeEvent(1, 2), makeEvent(1, 10)};
+    public void testProcess() {
+        EventBean[] newData = new EventBean[]{makeEvent(1, 2), makeEvent(3, 4)};
+        EventBean[] oldData = new EventBean[]{makeEvent(1, 2), makeEvent(1, 10)};
 
         UniformPair<EventBean[]> result = processor.processViewResult(newData, oldData, false);
 
@@ -68,8 +65,7 @@ public class TestResultSetProcessorRowPerGroup extends TestCase
         assertEquals(3, result.getSecond().length);
     }
 
-    private EventBean makeEvent(int intPrimitive, int intBoxed)
-    {
+    private EventBean makeEvent(int intPrimitive, int intBoxed) {
         SupportBean bean = new SupportBean();
         bean.setIntPrimitive(intPrimitive);
         bean.setIntBoxed(intBoxed);

@@ -11,26 +11,25 @@
 package com.espertech.esper.client.soda;
 
 import java.io.StringWriter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Every-Distinct construct for use in pattern expressions.
  */
-public class PatternEveryDistinctExpr extends PatternExprBase
-{
+public class PatternEveryDistinctExpr extends PatternExprBase {
     private static final long serialVersionUID = 0;
     private List<Expression> expressions = new ArrayList<Expression>();
 
     /**
      * Ctor - for use to create a pattern expression tree, without unique-criterial expression.
      */
-    public PatternEveryDistinctExpr()
-    {
+    public PatternEveryDistinctExpr() {
     }
 
     /**
      * Ctor - for use to create a pattern expression tree, without unique-criterial expression.
+     *
      * @param expressions distinct expressions
      */
     public PatternEveryDistinctExpr(List<Expression> expressions) {
@@ -39,6 +38,7 @@ public class PatternEveryDistinctExpr extends PatternExprBase
 
     /**
      * Returns distinct expressions
+     *
      * @return expr
      */
     public List<Expression> getExpressions() {
@@ -47,6 +47,7 @@ public class PatternEveryDistinctExpr extends PatternExprBase
 
     /**
      * Sets distinct expressions.
+     *
      * @param expressions expr
      */
     public void setExpressions(List<Expression> expressions) {
@@ -57,8 +58,7 @@ public class PatternEveryDistinctExpr extends PatternExprBase
         return PatternExprPrecedenceEnum.EVERY_NOT;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {
         writer.write("every-distinct(");
         String delimiter = "";
         for (Expression expr : expressions) {

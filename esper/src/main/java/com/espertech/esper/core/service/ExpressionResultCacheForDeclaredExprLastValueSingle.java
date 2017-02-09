@@ -19,7 +19,7 @@ import java.util.IdentityHashMap;
 public class ExpressionResultCacheForDeclaredExprLastValueSingle implements ExpressionResultCacheForDeclaredExprLastValue {
 
     private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Object>>> exprDeclCacheObject
-                = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Object>>>();
+            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Object>>>();
 
     public boolean cacheEnabled() {
         return true;

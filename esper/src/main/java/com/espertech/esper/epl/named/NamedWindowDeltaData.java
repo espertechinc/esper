@@ -15,59 +15,55 @@ import com.espertech.esper.client.EventBean;
 /**
  * A holder for events posted by a named window as an insert and remove stream.
  */
-public class NamedWindowDeltaData
-{
+public class NamedWindowDeltaData {
     private final EventBean[] newData;
     private final EventBean[] oldData;
 
     /**
      * Ctor.
+     *
      * @param newData is the insert stream events, or null if none
      * @param oldData is the remove stream events, or null if none
      */
-    public NamedWindowDeltaData(EventBean[] newData, EventBean[] oldData)
-    {
+    public NamedWindowDeltaData(EventBean[] newData, EventBean[] oldData) {
         this.newData = newData;
         this.oldData = oldData;
     }
 
     /**
      * Ctor aggregates two deltas into a single delta.
+     *
      * @param deltaOne is the insert and remove stream events of a first result
      * @param deltaTwo is the insert and remove stream events of a second result
      */
-    public NamedWindowDeltaData(NamedWindowDeltaData deltaOne, NamedWindowDeltaData deltaTwo)
-    {
+    public NamedWindowDeltaData(NamedWindowDeltaData deltaOne, NamedWindowDeltaData deltaTwo) {
         this.newData = aggregate(deltaOne.getNewData(), deltaTwo.getNewData());
         this.oldData = aggregate(deltaOne.getOldData(), deltaTwo.getOldData());
     }
 
     /**
      * Returns the insert stream events.
+     *
      * @return insert stream
      */
-    public EventBean[] getNewData()
-    {
+    public EventBean[] getNewData() {
         return newData;
     }
 
     /**
      * Returns the remove stream events.
+     *
      * @return remove stream
      */
-    public EventBean[] getOldData()
-    {
+    public EventBean[] getOldData() {
         return oldData;
     }
 
-    private static EventBean[] aggregate(EventBean[] arrOne, EventBean[] arrTwo)
-    {
-        if (arrOne == null)
-        {
+    private static EventBean[] aggregate(EventBean[] arrOne, EventBean[] arrTwo) {
+        if (arrOne == null) {
             return arrTwo;
         }
-        if (arrTwo == null)
-        {
+        if (arrTwo == null) {
             return arrOne;
         }
         EventBean[] arr = new EventBean[arrOne.length + arrTwo.length];

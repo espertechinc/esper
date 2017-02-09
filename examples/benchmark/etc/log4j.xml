@@ -3,8 +3,8 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
-   <logger name="com.espertech">
-      <level value="INFO"/>
-   </logger>
+    <logger name="com.espertech">
+        <level value="INFO"/>
+    </logger>
 
 </log4j:configuration>

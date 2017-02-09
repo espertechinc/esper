@@ -26,9 +26,10 @@ public class PropertyGroupDesc {
 
     /**
      * Ctor.
-     * @param groupNum the group number
+     *
+     * @param groupNum    the group number
      * @param nameTypeSet the event types and their names whose totality of properties fully falls within this group.
-     * @param properties is the properties in the group
+     * @param properties  is the properties in the group
      */
     public PropertyGroupDesc(int groupNum, Map<EventType, String> nameTypeSet, String[] properties) {
         this.groupNum = groupNum;
@@ -38,6 +39,7 @@ public class PropertyGroupDesc {
 
     /**
      * Returns the group number.
+     *
      * @return group number
      */
     public int getGroupNum() {
@@ -46,6 +48,7 @@ public class PropertyGroupDesc {
 
     /**
      * Returns the types.
+     *
      * @return types
      */
     public Map<EventType, String> getTypes() {
@@ -54,16 +57,16 @@ public class PropertyGroupDesc {
 
     /**
      * Returns the properties.
+     *
      * @return properties
      */
     public String[] getProperties() {
         return properties;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "groupNum=" + groupNum +
-               " properties=" + Arrays.toString(properties) +
-               " nameTypes=" + types.toString();
+                " properties=" + Arrays.toString(properties) +
+                " nameTypes=" + types.toString();
     }
 }

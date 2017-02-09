@@ -13,8 +13,7 @@ package com.espertech.esper.epl.join.table;
 /**
  * Factory for simple table of events without an index.
  */
-public class UnindexedEventTableFactory implements EventTableFactory
-{
+public class UnindexedEventTableFactory implements EventTableFactory {
     protected final int streamNum;
 
     public UnindexedEventTableFactory(int streamNum) {
@@ -22,15 +21,14 @@ public class UnindexedEventTableFactory implements EventTableFactory
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        return new EventTable[] {new UnindexedEventTableImpl(streamNum)};
+        return new EventTable[]{new UnindexedEventTableImpl(streamNum)};
     }
 
     public Class getEventTableClass() {
         return UnindexedEventTable.class;
     }
 
-    public String toQueryPlan()
-    {
+    public String toQueryPlan() {
         return this.getClass().getSimpleName() + " streamNum=" + streamNum;
     }
 }

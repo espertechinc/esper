@@ -59,7 +59,7 @@ public class AMQPSupportSendRunnable implements Runnable {
             log.info("Start publishing messages: " + events.size() + " messages");
 
             int count = 0;
-            while(true) {
+            while (true) {
                 if (events.isEmpty()) {
                     break;
                 }
@@ -68,8 +68,8 @@ public class AMQPSupportSendRunnable implements Runnable {
                 byte[] bytes = SerializerUtil.objectToByteArr(next);
                 channel.basicPublish("", queueName, null, bytes);
                 count++;
-                
-                log.info("Publishing message #" +count + ": " + next);
+
+                log.info("Publishing message #" + count + ": " + next);
                 Thread.sleep(msecSleepTime);
 
                 if (isShutdown()) {
@@ -78,8 +78,7 @@ public class AMQPSupportSendRunnable implements Runnable {
             }
 
             log.info("Completed publishing messages: " + count + " messages");
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Error attaching to AMQP: " + ex.getMessage(), ex);
         }
     }

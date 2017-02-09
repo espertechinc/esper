@@ -12,9 +12,9 @@ package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.event.EventAdapterService;
 
-public interface ContextStatePathValueBinding
-{
+public interface ContextStatePathValueBinding {
     public Object byteArrayToObject(byte[] bytes, EventAdapterService eventAdapterService);
+
     public byte[] toByteArray(Object contextInfo);
 }
 

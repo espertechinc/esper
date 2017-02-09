@@ -24,19 +24,18 @@ import java.util.Map;
 /**
  * Getter for a key property identified by a given key value, using vanilla reflection.
  */
-public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped
-{
+public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped {
     private final Method method;
     private final Object key;
 
     /**
      * Constructor.
-     * @param method is the method to use to retrieve a value from the object.
-     * @param key is the key to supply as parameter to the mapped property getter
+     *
+     * @param method              is the method to use to retrieve a value from the object.
+     * @param key                 is the key to supply as parameter to the mapped property getter
      * @param eventAdapterService factory for event beans and event types
      */
-    public KeyedMapMethodPropertyGetter(Method method, Object key, EventAdapterService eventAdapterService)
-    {
+    public KeyedMapMethodPropertyGetter(Method method, Object key, EventAdapterService eventAdapterService) {
         super(eventAdapterService, JavaClassHelper.getGenericReturnTypeMap(method, false), null);
         this.key = key;
         this.method = method;
@@ -50,55 +49,41 @@ public class KeyedMapMethodPropertyGetter extends BaseNativePropertyGetter imple
         return getBeanPropInternal(object, key);
     }
 
-    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
+        try {
             Object result = method.invoke(object, (Object[]) null);
             if (!(result instanceof Map)) {
                 return null;
             }
             Map resultMap = (Map) result;
             return resultMap.get(key);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(method, e);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw PropertyUtility.getIllegalAccessException(method, e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(method, e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "KeyedMapMethodPropertyGetter " +
                 " method=" + method.toString() +
                 " key=" + key;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

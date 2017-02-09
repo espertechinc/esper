@@ -11,23 +11,13 @@
 package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
-import com.espertech.esper.epl.variable.VariableReadWritePackage;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
-
-import java.util.List;
 
 /**
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
-public class OutputConditionPolledExpression implements OutputConditionPolled
-{
+public class OutputConditionPolledExpression implements OutputConditionPolled {
     private final OutputConditionPolledExpressionFactory factory;
     private final OutputConditionPolledExpressionState state;
     private final AgentInstanceContext agentInstanceContext;
@@ -46,8 +36,7 @@ public class OutputConditionPolledExpression implements OutputConditionPolled
         return state;
     }
 
-    public boolean updateOutputCondition(int newEventsCount, int oldEventsCount)
-    {
+    public boolean updateOutputCondition(int newEventsCount, int oldEventsCount) {
         state.setTotalNewEventsCount(state.getTotalNewEventsCount() + newEventsCount);
         state.setTotalOldEventsCount(state.getTotalOldEventsCount() + oldEventsCount);
         state.setTotalNewEventsSum(state.getTotalNewEventsSum() + newEventsCount);
@@ -66,8 +55,7 @@ public class OutputConditionPolledExpression implements OutputConditionPolled
 
                 try {
                     factory.getVariableReadWritePackage().writeVariables(agentInstanceContext.getStatementContext().getVariableService(), eventsPerStream, null, agentInstanceContext);
-                }
-                finally {
+                } finally {
                 }
             }
         }
@@ -80,8 +68,7 @@ public class OutputConditionPolledExpression implements OutputConditionPolled
                 state.getTotalOldEventsSum(), state.getLastOutputTimestamp());
     }
 
-    private boolean evaluate()
-    {
+    private boolean evaluate() {
         if (builtinProperties != null) {
             populateBuiltinProperties();
             eventsPerStream[0] = builtinProperties;
@@ -89,17 +76,15 @@ public class OutputConditionPolledExpression implements OutputConditionPolled
 
         boolean result = false;
         Boolean output = (Boolean) factory.getWhenExpressionNode().evaluate(eventsPerStream, true, agentInstanceContext);
-        if ((output != null) && (output)) {
+        if ((output != null) && output) {
             result = true;
         }
 
         return result;
     }
 
-    private void resetBuiltinProperties()
-    {
-        if (builtinProperties  != null)
-        {
+    private void resetBuiltinProperties() {
+        if (builtinProperties != null) {
             state.setTotalNewEventsCount(0);
             state.setTotalOldEventsCount(0);
             state.setLastOutputTimestamp(agentInstanceContext.getStatementContext().getSchedulingService().getTime());

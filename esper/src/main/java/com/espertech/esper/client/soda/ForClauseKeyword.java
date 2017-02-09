@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 /**
  * Keywords for use in the for-clause.
  */
-public enum ForClauseKeyword
-{
+public enum ForClauseKeyword {
     /**
      * Grouped delivery - listener receives invocation per group.
      */
@@ -33,6 +32,7 @@ public enum ForClauseKeyword
 
     /**
      * Returns for-keyword.
+     *
      * @return keyword
      */
     public String getName() {

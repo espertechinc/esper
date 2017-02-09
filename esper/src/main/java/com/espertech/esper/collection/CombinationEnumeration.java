@@ -25,27 +25,25 @@ import java.util.NoSuchElementException;
  * Usage Note: Do not hold on to the returned object array as {@link #nextElement()} returns the same array
  * with changed values for each enumeration.
  * <p>
- *   Each array element must be non-null and length 1 or more.
+ * Each array element must be non-null and length 1 or more.
  * </p>
  * <p>
- *   Does not detect duplicates in values.
+ * Does not detect duplicates in values.
  * </p>
  * <p>
- *   Allows any number for the first dimension.
+ * Allows any number for the first dimension.
  * </p>
  * <p>
- *   The algorithm adds 1 to the right and overflows until done.
+ * The algorithm adds 1 to the right and overflows until done.
  * </p>
  */
-public class CombinationEnumeration implements Enumeration<Object[]>
-{
+public class CombinationEnumeration implements Enumeration<Object[]> {
     private final Object[][] combinations;
     private final Object[] prototype;
     private final int[] current;
     private boolean hasMore = true;
 
-    public CombinationEnumeration(Object[][] combinations)
-    {
+    public CombinationEnumeration(Object[][] combinations) {
         for (Object[] element : combinations) {
             if (element == null || element.length < 1) {
                 throw new IllegalArgumentException("Expecting non-null element of minimum length 1");
@@ -56,8 +54,7 @@ public class CombinationEnumeration implements Enumeration<Object[]>
         this.prototype = new Object[combinations.length];
     }
 
-    public static CombinationEnumeration fromZeroBasedRanges(int[] zeroBasedRanges)
-    {
+    public static CombinationEnumeration fromZeroBasedRanges(int[] zeroBasedRanges) {
         Object[][] combinations = new Object[zeroBasedRanges.length][];
         for (int i = 0; i < zeroBasedRanges.length; i++) {
             combinations[i] = new Integer[zeroBasedRanges[i]];
@@ -68,13 +65,11 @@ public class CombinationEnumeration implements Enumeration<Object[]>
         return new CombinationEnumeration(combinations);
     }
 
-    public boolean hasMoreElements()
-    {
+    public boolean hasMoreElements() {
         return hasMore;
     }
 
-    public Object[] nextElement()
-    {
+    public Object[] nextElement() {
         if (!hasMore) {
             throw new NoSuchElementException();
         }

@@ -13,16 +13,15 @@ package com.espertech.esper.epl.variable;
 /**
  * Exception indicating a problem in a variable declaration.
  */
-public class VariableDeclarationException extends Exception
-{
+public class VariableDeclarationException extends Exception {
     private static final long serialVersionUID = 3583219395054834117L;
 
     /**
      * Ctor.
+     *
      * @param msg the exception message.
      */
-    public VariableDeclarationException(String msg)
-    {
+    public VariableDeclarationException(String msg) {
         super(msg);
     }
 }

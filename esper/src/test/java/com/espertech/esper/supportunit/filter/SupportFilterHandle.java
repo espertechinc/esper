@@ -10,56 +10,47 @@
  */
 package com.espertech.esper.supportunit.filter;
 
-import com.espertech.esper.filter.FilterHandleCallback;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.filter.FilterHandleCallback;
 
 import java.util.Collection;
 
-public class SupportFilterHandle implements FilterHandleCallback
-{
+public class SupportFilterHandle implements FilterHandleCallback {
     private int countInvoked;
     private EventBean lastEvent;
 
-    public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
-    {
+    public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
         countInvoked++;
         lastEvent = theEvent;
     }
 
-    public boolean isSubSelect()
-    {
+    public boolean isSubSelect() {
         return false;
     }
 
-    public int getCountInvoked()
-    {
+    public int getCountInvoked() {
         return countInvoked;
     }
 
-    public EventBean getLastEvent()
-    {
+    public EventBean getLastEvent() {
         return lastEvent;
     }
 
-    public void setCountInvoked(int countInvoked)
-    {
+    public void setCountInvoked(int countInvoked) {
         this.countInvoked = countInvoked;
     }
 
-    public void setLastEvent(EventBean lastEvent)
-    {
+    public void setLastEvent(EventBean lastEvent) {
         this.lastEvent = lastEvent;
     }
 
-    public int getAndResetCountInvoked()
-    {
+    public int getAndResetCountInvoked() {
         int count = countInvoked;
         countInvoked = 0;
         return count;
     }
 
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return 1;
     }
 }

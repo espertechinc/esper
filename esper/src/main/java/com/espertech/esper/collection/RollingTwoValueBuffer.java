@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.collection;
 
-public class RollingTwoValueBuffer<A, B>
-{
+public class RollingTwoValueBuffer<A, B> {
     private final A[] bufferA;
     private final B[] bufferB;
     private int nextFreeIndex;
 
-    public RollingTwoValueBuffer(A[] bufferA, B[] bufferB)
-    {
+    public RollingTwoValueBuffer(A[] bufferA, B[] bufferB) {
         if (bufferA.length != bufferB.length || bufferA.length == 0) {
             throw new IllegalArgumentException("Minimum buffer size is 1, buffer sizes must be identical");
         }
@@ -26,8 +24,7 @@ public class RollingTwoValueBuffer<A, B>
         nextFreeIndex = 0;
     }
 
-    public void add(A valueA, B valueB)
-    {
+    public void add(A valueA, B valueB) {
         bufferA[nextFreeIndex] = valueA;
         bufferB[nextFreeIndex] = valueB;
         nextFreeIndex++;

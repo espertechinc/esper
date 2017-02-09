@@ -18,7 +18,6 @@ import com.espertech.esper.epl.core.DuplicatePropertyException;
 import com.espertech.esper.epl.core.PropertyNotFoundException;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
-import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -28,8 +27,7 @@ import java.util.Map;
 /**
  * Represents a variable in an expression tree.
  */
-public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprVariableNode
-{
+public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprVariableNode {
     private static final long serialVersionUID = 0L;
 
     private final String variableName;
@@ -44,8 +42,7 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
     private transient Map<Integer, VariableReader> readersPerCp;
     private transient VariableReader readerNonCP;
 
-    public ExprVariableNodeImpl(VariableMetaData variableMetaData, String optSubPropName)
-    {
+    public ExprVariableNodeImpl(VariableMetaData variableMetaData, String optSubPropName) {
         if (variableMetaData == null) {
             throw new IllegalArgumentException("Variables metadata is null");
         }
@@ -78,33 +75,24 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
         return isConstant;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // determine if any types are property agnostic; If yes, resolve to variable
         boolean hasPropertyAgnosticType = false;
         EventType[] types = validationContext.getStreamTypeService().getEventTypes();
-        for (int i = 0; i < validationContext.getStreamTypeService().getEventTypes().length; i++)
-        {
-            if (types[i] instanceof EventTypeSPI)
-            {
+        for (int i = 0; i < validationContext.getStreamTypeService().getEventTypes().length; i++) {
+            if (types[i] instanceof EventTypeSPI) {
                 hasPropertyAgnosticType |= ((EventTypeSPI) types[i]).getMetadata().isPropertyAgnostic();
             }
         }
 
-        if (!hasPropertyAgnosticType)
-        {
+        if (!hasPropertyAgnosticType) {
             // the variable name should not overlap with a property name
-            try
-            {
+            try {
                 validationContext.getStreamTypeService().resolveByPropertyName(variableName, false);
                 throw new ExprValidationException("The variable by name '" + variableName + "' is ambigous to a property of the same name");
-            }
-            catch (DuplicatePropertyException e)
-            {
+            } catch (DuplicatePropertyException e) {
                 throw new ExprValidationException("The variable by name '" + variableName + "' is ambigous to a property of the same name");
-            }
-            catch (PropertyNotFoundException e)
-            {
+            } catch (PropertyNotFoundException e) {
                 // expected
             }
         }
@@ -133,45 +121,48 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
         return null;
     }
 
-    public Class getConstantType()
-    {
+    public Class getConstantType() {
         return variableType;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return variableType;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "variableName=" + variableName;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         VariableReader reader;
         if (readerNonCP != null) {
             reader = readerNonCP;
-        }
-        else {
+        } else {
             reader = readersPerCp.get(exprEvaluatorContext.getAgentInstanceId());
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprVariable(this);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprVariable(this);
+        }
         Object value = reader.getValue();
         if (isPrimitive || value == null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprVariable(value);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprVariable(value);
+            }
             return value;
         }
 
         EventBean theEvent = (EventBean) value;
         if (optSubPropName == null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprVariable(theEvent.getUnderlying());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprVariable(theEvent.getUnderlying());
+            }
             return theEvent.getUnderlying();
         }
         Object result = eventTypeGetter.get(theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprVariable(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprVariable(result);
+        }
         return result;
     }
 
@@ -187,10 +178,8 @@ public class ExprVariableNodeImpl extends ExprNodeBase implements ExprEvaluator,
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprVariableNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprVariableNodeImpl)) {
             return false;
         }
 

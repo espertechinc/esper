@@ -17,8 +17,7 @@ import java.io.Serializable;
 /**
  * Specification for the merge statement insert/update/delete-part.
  */
-public abstract class OnTriggerMergeAction implements Serializable
-{
+public abstract class OnTriggerMergeAction implements Serializable {
     private static final long serialVersionUID = 8361210591971686132L;
 
     private ExprNode optionalWhereClause;

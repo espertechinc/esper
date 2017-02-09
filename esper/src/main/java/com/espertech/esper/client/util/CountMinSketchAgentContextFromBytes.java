@@ -20,6 +20,7 @@ public class CountMinSketchAgentContextFromBytes extends CountMinSketchAgentCont
 
     /**
      * Ctor.
+     *
      * @param state the state
      */
     public CountMinSketchAgentContextFromBytes(CountMinSketchState state) {
@@ -28,6 +29,7 @@ public class CountMinSketchAgentContextFromBytes extends CountMinSketchAgentCont
 
     /**
      * Returns the byte value.
+     *
      * @return bytes
      */
     public byte[] getBytes() {
@@ -36,6 +38,7 @@ public class CountMinSketchAgentContextFromBytes extends CountMinSketchAgentCont
 
     /**
      * Sets the byte value.
+     *
      * @param bytes bytes
      */
     public void setBytes(byte[] bytes) {

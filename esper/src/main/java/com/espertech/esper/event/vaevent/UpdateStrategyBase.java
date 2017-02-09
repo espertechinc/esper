@@ -15,8 +15,7 @@ import com.espertech.esper.util.NullableObject;
 /**
  * Base strategy implementation holds the specification object.
  */
-public abstract class UpdateStrategyBase implements UpdateStrategy
-{
+public abstract class UpdateStrategyBase implements UpdateStrategy {
     /**
      * The specification.
      */
@@ -24,22 +23,21 @@ public abstract class UpdateStrategyBase implements UpdateStrategy
 
     /**
      * Ctor.
+     *
      * @param spec is the specification
      */
-    protected UpdateStrategyBase(RevisionSpec spec)
-    {
+    protected UpdateStrategyBase(RevisionSpec spec) {
         this.spec = spec;
     }
 
     /**
      * Array copy.
+     *
      * @param array to copy
      * @return copied array
      */
-    protected static NullableObject<Object>[] arrayCopy(NullableObject<Object>[] array)
-    {
-        if (array == null)
-        {
+    protected static NullableObject<Object>[] arrayCopy(NullableObject<Object>[] array) {
+        if (array == null) {
             return null;
         }
         NullableObject<Object>[] result = (NullableObject<Object>[]) new NullableObject[array.length];

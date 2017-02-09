@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class TestSerializerFactory extends TestCase {
 
     public void testTypes() throws IOException {
-        Object[] expected = new Object[] {2, 3L, 4f, 5.0d, "abc", new byte[] {10,20}, (byte) 20, (short) 21, true, new MyBean("E1")};
+        Object[] expected = new Object[]{2, 3L, 4f, 5.0d, "abc", new byte[]{10, 20}, (byte) 20, (short) 21, true, new MyBean("E1")};
         Class[] classes = new Class[expected.length];
         for (int i = 0; i < expected.length; i++) {
             classes[i] = expected.getClass();
@@ -27,12 +27,12 @@ public class TestSerializerFactory extends TestCase {
 
         Serializer[] serializers = SerializerFactory.getSerializers(classes);
         byte[] bytes = SerializerFactory.serialize(serializers, expected);
-        
+
         Object[] result = SerializerFactory.deserialize(expected.length, bytes, serializers);
         EPAssertionUtil.assertEqualsExactOrder(expected, result);
-        
+
         // null values are simply not serialized
-        bytes = SerializerFactory.serialize(new Serializer[] {SerializerFactory.getSerializer(Integer.class)}, new Object[] {null});
+        bytes = SerializerFactory.serialize(new Serializer[]{SerializerFactory.getSerializer(Integer.class)}, new Object[]{null});
         assertEquals(0, bytes.length);
     }
 

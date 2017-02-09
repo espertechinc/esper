@@ -34,12 +34,12 @@ import java.util.Iterator;
  * The view releases the batched events after the interval as new data to child views. The prior batch if
  * not empty is released as old data to child view. The view doesn't release intervals with no old or new data.
  * It also does not collect old data published by a parent view.
- *
+ * <p>
  * For example, we want to calculate the average of IBM stock every hour, for the last hour.
  * The view accepts 2 parameter combinations.
  * (1) A time interval is supplied with a reference point - based on this point the intervals are set.
  * (1) A time interval is supplied but no reference point - the reference point is set when the first event arrives.
- *
+ * <p>
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  * In that case also, no next callback is scheduled with the scheduling service until the next event arrives.
  */
@@ -63,14 +63,15 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
 
     /**
      * Constructor.
-     * @param timeDeltaComputation is the number of milliseconds to batch events for
-     * @param referencePoint is the reference point onto which to base intervals, or null if
-     * there is no such reference point supplied
+     *
+     * @param timeDeltaComputation  is the number of milliseconds to batch events for
+     * @param referencePoint        is the reference point onto which to base intervals, or null if
+     *                              there is no such reference point supplied
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param timeBatchViewFactory for copying this view in a group-by
-     * @param forceOutput is true if the batch should produce empty output if there is no value to output following time intervals
-     * @param isStartEager is true for start-eager
-     * @param agentInstanceContext context
+     * @param timeBatchViewFactory  for copying this view in a group-by
+     * @param forceOutput           is true if the batch should produce empty output if there is no value to output following time intervals
+     * @param isStartEager          is true for start-eager
+     * @param agentInstanceContext  context
      */
     public TimeBatchView(TimeBatchViewFactory timeBatchViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,
@@ -78,8 +79,7 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
                          Long referencePoint,
                          boolean forceOutput,
                          boolean isStartEager,
-                         ViewUpdatedCollection viewUpdatedCollection)
-    {
+                         ViewUpdatedCollection viewUpdatedCollection) {
         this.agentInstanceContext = agentInstanceContext;
         this.timeBatchViewFactory = timeBatchViewFactory;
         this.timeDeltaComputation = timeDeltaComputation;
@@ -91,10 +91,8 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         this.scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
 
         // schedule the first callback
-        if (isStartEager)
-        {
-            if (currentReferencePoint == null)
-            {
+        if (isStartEager) {
+            if (currentReferencePoint == null) {
                 currentReferencePoint = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
             }
             scheduleCallback();
@@ -104,8 +102,7 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         agentInstanceContext.addTerminationCallback(this);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return timeBatchViewFactory.makeView(agentInstanceContext);
     }
 
@@ -115,62 +112,59 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
 
     /**
      * Gets the reference point to use to anchor interval start and end dates to.
+     *
      * @return is the millisecond reference point.
      */
-    public final Long getInitialReferencePoint()
-    {
+    public final Long getInitialReferencePoint() {
         return initialReferencePoint;
     }
 
     /**
      * True for force-output.
+     *
      * @return indicates force-output
      */
-    public boolean isForceOutput()
-    {
+    public boolean isForceOutput() {
         return isForceOutput;
     }
 
     /**
      * True for start-eager.
+     *
      * @return indicates start-eager
      */
-    public boolean isStartEager()
-    {
+    public boolean isStartEager() {
         return isStartEager;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, timeBatchViewFactory.getViewName(), newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, timeBatchViewFactory.getViewName(), newData, oldData);
+        }
 
         // we don't care about removed data from a prior view
-        if ((newData == null) || (newData.length == 0))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if ((newData == null) || (newData.length == 0)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewProcessIRStream();
+            }
             return;
         }
 
         // If we have an empty window about to be filled for the first time, schedule a callback
-        if (currentBatch.isEmpty())
-        {
-            if (currentReferencePoint == null)
-            {
+        if (currentBatch.isEmpty()) {
+            if (currentReferencePoint == null) {
                 currentReferencePoint = initialReferencePoint;
-                if (currentReferencePoint == null)
-                {
+                if (currentReferencePoint == null) {
                     currentReferencePoint = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                 }
             }
 
             // Schedule the next callback if there is none currently scheduled
-            if (!isCallbackScheduled)
-            {
+            if (!isCallbackScheduled) {
                 scheduleCallback();
                 isCallbackScheduled = true;
             }
@@ -182,42 +176,42 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         }
 
         // We do not update child views, since we batch the events.
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     /**
      * This method updates child views and clears the batch of events.
      * We schedule a new callback at this time if there were events in the batch.
      */
-    protected void sendBatch()
-    {
+    protected void sendBatch() {
         isCallbackScheduled = false;
 
         // If there are child views and the batch was filled, fireStatementStopped update method
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             // Convert to object arrays
             EventBean[] newData = null;
             EventBean[] oldData = null;
-            if (!currentBatch.isEmpty())
-            {
+            if (!currentBatch.isEmpty()) {
                 newData = currentBatch.toArray(new EventBean[currentBatch.size()]);
             }
-            if ((lastBatch != null) && (!lastBatch.isEmpty()))
-            {
+            if ((lastBatch != null) && (!lastBatch.isEmpty())) {
                 oldData = lastBatch.toArray(new EventBean[lastBatch.size()]);
             }
 
             // Post new data (current batch) and old data (prior batch)
-            if (viewUpdatedCollection != null)
-            {
+            if (viewUpdatedCollection != null) {
                 viewUpdatedCollection.update(newData, oldData);
             }
-            if ((newData != null) || (oldData != null) || (isForceOutput))
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeBatchViewFactory.getViewName(), newData, oldData);}
+            if ((newData != null) || (oldData != null) || isForceOutput) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, timeBatchViewFactory.getViewName(), newData, oldData);
+                }
                 updateChildren(newData, oldData);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
 
@@ -225,9 +219,8 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         // there have been any events in this or the last interval do we schedule a callback,
         // such as to not waste resources when no events arrive.
         if ((!currentBatch.isEmpty()) || ((lastBatch != null) && (!lastBatch.isEmpty()))
-            ||
-            (isForceOutput))
-        {
+                ||
+                isForceOutput) {
             scheduleCallback();
             isCallbackScheduled = true;
         }
@@ -238,27 +231,23 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
-        if (lastBatch != null)
-        {
-            if (!lastBatch.isEmpty())
-            {
+    public boolean isEmpty() {
+        if (lastBatch != null) {
+            if (!lastBatch.isEmpty()) {
                 return false;
             }
         }
         return currentBatch.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return currentBatch.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " initialReferencePoint=" + initialReferencePoint;
     }
@@ -268,19 +257,21 @@ public class TimeBatchView extends ViewSupport implements CloneableView, Stoppab
         viewDataVisitor.visitPrimary(lastBatch, true, timeBatchViewFactory.getViewName(), null);
     }
 
-    protected void scheduleCallback()
-    {
+    protected void scheduleCallback() {
         long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         ExprTimePeriodEvalDeltaResult deltaWReference = timeDeltaComputation.deltaAddWReference(current, currentReferencePoint);
         long afterTime = deltaWReference.getDelta();
         currentReferencePoint = deltaWReference.getLastReference();
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeBatchView.this, timeBatchViewFactory.getViewName());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewScheduledEval(TimeBatchView.this, timeBatchViewFactory.getViewName());
+                }
                 TimeBatchView.this.sendBatch();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewScheduledEval();
+                }
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);

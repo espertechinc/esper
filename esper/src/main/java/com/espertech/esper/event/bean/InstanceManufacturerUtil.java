@@ -27,8 +27,7 @@ import java.lang.reflect.Constructor;
 public class InstanceManufacturerUtil {
 
     public static Pair<FastConstructor, ExprEvaluator[]> getManufacturer(Class targetClass, EngineImportService engineImportService, ExprEvaluator[] exprEvaluators, Object[] expressionReturnTypes)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Class[] ctorTypes = new Class[expressionReturnTypes.length];
         ExprEvaluator[] evaluators = new ExprEvaluator[exprEvaluators.length];
 
@@ -46,18 +45,15 @@ public class InstanceManufacturerUtil {
                 final Class returnType = columnEventType.getUnderlyingType();
                 final ExprEvaluator inner = exprEvaluators[i];
                 evaluators[i] = new ExprEvaluator() {
-                    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                    {
+                    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                         EventBean theEvent = (EventBean) inner.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                        if (theEvent != null)
-                        {
+                        if (theEvent != null) {
                             return theEvent.getUnderlying();
                         }
                         return null;
                     }
 
-                    public Class getType()
-                    {
+                    public Class getType() {
                         return returnType;
                     }
 
@@ -67,15 +63,13 @@ public class InstanceManufacturerUtil {
             }
 
             // handle case where the select-clause contains an fragment array
-            if (columnType instanceof EventType[])
-            {
+            if (columnType instanceof EventType[]) {
                 EventType columnEventType = ((EventType[]) columnType)[0];
                 final Class componentReturnType = columnEventType.getUnderlyingType();
 
                 final ExprEvaluator inner = exprEvaluators[i];
                 evaluators[i] = new ExprEvaluator() {
-                    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                    {
+                    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                         Object result = inner.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                         if (!(result instanceof EventBean[])) {
                             return null;
@@ -88,8 +82,7 @@ public class InstanceManufacturerUtil {
                         return values;
                     }
 
-                    public Class getType()
-                    {
+                    public Class getType() {
                         return componentReturnType;
                     }
 
@@ -106,8 +99,7 @@ public class InstanceManufacturerUtil {
             Constructor ctor = engineImportService.resolveCtor(targetClass, ctorTypes);
             FastClass fastClass = FastClass.create(engineImportService.getFastClassClassLoader(targetClass), targetClass);
             return new Pair<FastConstructor, ExprEvaluator[]>(fastClass.getConstructor(ctor), evaluators);
-        }
-        catch (EngineImportException ex) {
+        } catch (EngineImportException ex) {
             throw new ExprValidationException("Failed to find a suitable constructor for class '" + targetClass.getName() + "': " + ex.getMessage(), ex);
         }
     }

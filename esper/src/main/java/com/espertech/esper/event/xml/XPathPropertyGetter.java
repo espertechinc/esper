@@ -11,8 +11,8 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
@@ -22,9 +22,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathConstants;
 import java.lang.reflect.Array;
 
 /**

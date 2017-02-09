@@ -65,8 +65,8 @@ public class DeathRattleExceptionHandler implements Thread.UncaughtExceptionHand
     /**
      * Creates a new {@link DeathRattleExceptionHandler} with the given {@link Counter}.
      *
-     * @param counter    the {@link Counter} which will be used to record the number of uncaught
-     *                   exceptions
+     * @param counter the {@link Counter} which will be used to record the number of uncaught
+     *                exceptions
      */
     public DeathRattleExceptionHandler(Counter counter) {
         this.counter = counter;

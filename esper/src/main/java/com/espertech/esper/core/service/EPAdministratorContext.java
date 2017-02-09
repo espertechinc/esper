@@ -16,8 +16,7 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 /**
  * Context for administrative services.
  */
-public class EPAdministratorContext
-{
+public class EPAdministratorContext {
     private final EPRuntimeSPI runtimeSPI;
     private final EPServicesContext services;
     private final ConfigurationOperations configurationOperations;
@@ -25,13 +24,13 @@ public class EPAdministratorContext
 
     /**
      * Ctor.
-     * @param runtimeSPI runtime spi
-     * @param services engine services
+     *
+     * @param runtimeSPI              runtime spi
+     * @param services                engine services
      * @param configurationOperations configuration snapshot
-     * @param defaultStreamSelector default stream selection
+     * @param defaultStreamSelector   default stream selection
      */
-    public EPAdministratorContext(EPRuntimeSPI runtimeSPI, EPServicesContext services, ConfigurationOperations configurationOperations, SelectClauseStreamSelectorEnum defaultStreamSelector)
-    {
+    public EPAdministratorContext(EPRuntimeSPI runtimeSPI, EPServicesContext services, ConfigurationOperations configurationOperations, SelectClauseStreamSelectorEnum defaultStreamSelector) {
         this.runtimeSPI = runtimeSPI;
         this.configurationOperations = configurationOperations;
         this.defaultStreamSelector = defaultStreamSelector;
@@ -44,28 +43,28 @@ public class EPAdministratorContext
 
     /**
      * Returns configuration.
+     *
      * @return configuration
      */
-    public ConfigurationOperations getConfigurationOperations()
-    {
+    public ConfigurationOperations getConfigurationOperations() {
         return configurationOperations;
     }
 
     /**
      * Returns the default stream selector.
+     *
      * @return default stream selector
      */
-    public SelectClauseStreamSelectorEnum getDefaultStreamSelector()
-    {
+    public SelectClauseStreamSelectorEnum getDefaultStreamSelector() {
         return defaultStreamSelector;
     }
 
     /**
      * Returns the engine services context.
+     *
      * @return engine services
      */
-    public EPServicesContext getServices()
-    {
+    public EPServicesContext getServices() {
         return services;
     }
 }

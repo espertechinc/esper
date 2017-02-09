@@ -15,15 +15,15 @@ import com.espertech.esper.view.Viewable;
 /**
  * Result holder returned by @{link EPStatementStartMethod}.
  */
-public class EPStatementStartResult
-{
+public class EPStatementStartResult {
     private final Viewable viewable;
     private final EPStatementStopMethod stopMethod;
     private final EPStatementDestroyMethod destroyMethod;
 
     /**
      * Ctor.
-     * @param viewable last view to attach listeners to
+     *
+     * @param viewable   last view to attach listeners to
      * @param stopMethod method to stop
      */
     public EPStatementStartResult(Viewable viewable, EPStatementStopMethod stopMethod) {
@@ -34,8 +34,9 @@ public class EPStatementStartResult
 
     /**
      * Ctor.
-     * @param viewable last view to attach listeners to
-     * @param stopMethod method to stop
+     *
+     * @param viewable      last view to attach listeners to
+     * @param stopMethod    method to stop
      * @param destroyMethod method to call when destroying
      */
     public EPStatementStartResult(Viewable viewable, EPStatementStopMethod stopMethod, EPStatementDestroyMethod destroyMethod) {
@@ -46,6 +47,7 @@ public class EPStatementStartResult
 
     /**
      * Returns last view to attached to.
+     *
      * @return view
      */
     public Viewable getViewable() {
@@ -54,6 +56,7 @@ public class EPStatementStartResult
 
     /**
      * Returns stop method.
+     *
      * @return stop method.
      */
     public EPStatementStopMethod getStopMethod() {
@@ -62,6 +65,7 @@ public class EPStatementStartResult
 
     /**
      * Returns destroy method.
+     *
      * @return destroy method
      */
     public EPStatementDestroyMethod getDestroyMethod() {

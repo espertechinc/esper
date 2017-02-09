@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
-import com.espertech.esper.epl.rettype.EPType;
-import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.dot.ExprDotEval;
+import com.espertech.esper.epl.rettype.EPType;
 
 import java.util.List;
 

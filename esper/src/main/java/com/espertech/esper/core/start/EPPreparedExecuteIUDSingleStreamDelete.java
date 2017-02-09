@@ -19,8 +19,7 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPPreparedExecuteIUDSingleStreamDelete extends EPPreparedExecuteIUDSingleStream
-{
+public class EPPreparedExecuteIUDSingleStreamDelete extends EPPreparedExecuteIUDSingleStream {
     public EPPreparedExecuteIUDSingleStreamDelete(StatementSpecCompiled statementSpec, EPServicesContext services, StatementContext statementContext) throws ExprValidationException {
         super(statementSpec, services, statementContext);
     }

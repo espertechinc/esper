@@ -10,15 +10,16 @@
  */
 package com.espertech.esper.example.qos_sla.monitor;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 
-public class LatencySpikeMonitor
-{
-    private LatencySpikeMonitor() {}
+public class LatencySpikeMonitor {
+    private LatencySpikeMonitor() {
+    }
 
-    public static void start()
-    {
+    public static void start() {
         EPAdministrator admin = EPServiceProviderManager.getDefaultProvider().getEPAdministrator();
 
         EPStatement latencyAlert = admin.createPattern(

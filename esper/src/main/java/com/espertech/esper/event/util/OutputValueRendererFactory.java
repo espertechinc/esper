@@ -15,41 +15,33 @@ import com.espertech.esper.util.JavaClassHelper;
 /**
  * For rendering an output value returned by a property.
  */
-public class OutputValueRendererFactory
-{
+public class OutputValueRendererFactory {
     private static OutputValueRenderer jsonStringOutput = new OutputValueRendererJSONString();
     private static OutputValueRenderer xmlStringOutput = new OutputValueRendererXMLString();
     private static OutputValueRenderer baseOutput = new OutputValueRendererBase();
 
     /**
      * Returns a renderer for an output value.
-     * @param type to render
+     *
+     * @param type    to render
      * @param options options
      * @return renderer
      */
-    protected static OutputValueRenderer getOutputValueRenderer(Class type, RendererMetaOptions options)
-    {
-        if (type.isArray())
-        {
+    protected static OutputValueRenderer getOutputValueRenderer(Class type, RendererMetaOptions options) {
+        if (type.isArray()) {
             type = type.getComponentType();
         }
         if (type == String.class ||
-            type == Character.class ||
-            type == char.class ||
-            type.isEnum() ||
-            (!JavaClassHelper.isNumeric(type) && JavaClassHelper.getBoxedType(type) != Boolean.class))
-        {
-            if (options.isXmlOutput())
-            {
+                type == Character.class ||
+                type == char.class ||
+                type.isEnum() ||
+                (!JavaClassHelper.isNumeric(type) && JavaClassHelper.getBoxedType(type) != Boolean.class)) {
+            if (options.isXmlOutput()) {
                 return xmlStringOutput;
-            }
-            else
-            {
+            } else {
                 return jsonStringOutput;
             }
-        }
-        else
-        {
+        } else {
             return baseOutput;
         }
     }

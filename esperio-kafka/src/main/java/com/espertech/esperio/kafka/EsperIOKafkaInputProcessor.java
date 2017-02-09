@@ -14,6 +14,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 
 public interface EsperIOKafkaInputProcessor {
     void init(EsperIOKafkaInputProcessorContext context);
+
     void process(ConsumerRecords<Object, Object> records);
+
     void close();
 }

@@ -14,7 +14,6 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
-import com.espertech.esper.event.map.MapNestedEntryPropertyGetterBase;
 
 /**
  * A getter that works on EventBean events residing within a Map as an event property.

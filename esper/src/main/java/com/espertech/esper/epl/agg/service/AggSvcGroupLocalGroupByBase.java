@@ -27,8 +27,7 @@ import java.util.*;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
-{
+public abstract class AggSvcGroupLocalGroupByBase implements AggregationService {
     protected final boolean isJoin;
     protected final AggregationLocalGroupByPlan localGroupByPlan;
 
@@ -41,8 +40,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
     protected abstract Object computeGroupKey(AggregationLocalGroupByLevel level, Object groupKey, ExprEvaluator[] partitionEval, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext);
 
     public AggSvcGroupLocalGroupByBase(boolean isJoin,
-                                   AggregationLocalGroupByPlan localGroupByPlan)
-    {
+                                       AggregationLocalGroupByPlan localGroupByPlan) {
         this.isJoin = isJoin;
         this.localGroupByPlan = localGroupByPlan;
 
@@ -53,14 +51,14 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
         removedKeys = new ArrayList<Pair<Integer, Object>>();
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         clearResults(aggregatorsPerLevelAndGroup, aggregatorsTopLevel, statesTopLevel);
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object groupByKeyProvided, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, localGroupByPlan.getNumMethods(), localGroupByPlan.getNumAccess(), groupByKeyProvided);}
+    public void applyEnter(EventBean[] eventsPerStream, Object groupByKeyProvided, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, localGroupByPlan.getNumMethods(), localGroupByPlan.getNumAccess(), groupByKeyProvided);
+        }
         handleRemovedKeys();
 
         if (localGroupByPlan.getOptionalLevelTop() != null) {
@@ -82,20 +80,22 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
                 AggregationState[] rowStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null);
                 row = new AggregationMethodPairRow(1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
-            }
-            else {
+            } else {
                 row.increaseRefcount();
             }
 
             aggregateIntoEnter(level, row.getMethods(), row.getStates(), eventsPerStream, exprEvaluatorContext);
             internalHandleUpdatedGroup(levelNum, groupByKey, row);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);
+        }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object groupByKeyProvided, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, localGroupByPlan.getNumMethods(), localGroupByPlan.getNumAccess(), groupByKeyProvided);}
+    public void applyLeave(EventBean[] eventsPerStream, Object groupByKeyProvided, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, localGroupByPlan.getNumMethods(), localGroupByPlan.getNumAccess(), groupByKeyProvided);
+        }
         if (localGroupByPlan.getOptionalLevelTop() != null) {
             if (aggregatorsTopLevel == null) {
                 aggregatorsTopLevel = AggSvcGroupByUtil.newAggregators(localGroupByPlan.getOptionalLevelTop().getMethodFactories());
@@ -115,8 +115,7 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
                 AggregationState[] rowStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, level.getStateFactories(), groupByKey, null);
                 row = new AggregationMethodPairRow(1, rowAggregators, rowStates);
                 aggregatorsPerLevelAndGroup[levelNum].put(groupByKey, row);
-            }
-            else {
+            } else {
                 row.decreaseRefcount();
                 if (row.getRefcount() <= 0) {
                     removedKeys.add(new Pair<Integer, Object>(levelNum, groupByKey));
@@ -125,7 +124,9 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
             aggregateIntoLeave(level, row.getMethods(), row.getStates(), eventsPerStream, exprEvaluatorContext);
             internalHandleUpdatedGroup(levelNum, groupByKey, row);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);
+        }
     }
 
     public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -195,10 +196,9 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
     }
 
     public void handleRemovedKeys() {
-        if (!removedKeys.isEmpty())     // we collect removed keys lazily on the next enter to reduce the chance of empty-group queries creating empty aggregators temporarily
-        {
-            for (Pair<Integer, Object> removedKey : removedKeys)
-            {
+        // we collect removed keys lazily on the next enter to reduce the chance of empty-group queries creating empty aggregators temporarily
+        if (!removedKeys.isEmpty()) {
+            for (Pair<Integer, Object> removedKey : removedKeys) {
                 aggregatorsPerLevelAndGroup[removedKey.getFirst()].remove(removedKey.getSecond());
                 internalHandleGroupRemove(removedKey);
             }
@@ -227,29 +227,45 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService
 
     public static void aggregateIntoEnter(AggregationLocalGroupByLevel level, AggregationMethod[] methods, AggregationState[] states, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         for (int i = 0; i < level.getMethodEvaluators().length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, methods[i], level.getMethodFactories()[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, methods[i], level.getMethodFactories()[i].getAggregationExpression());
+            }
             Object value = level.getMethodEvaluators()[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
             methods[i].enter(value);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, methods[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, methods[i]);
+            }
         }
         for (int i = 0; i < states.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, states[i], level.getStateFactories()[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, states[i], level.getStateFactories()[i].getAggregationExpression());
+            }
             states[i].applyEnter(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, states[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, states[i]);
+            }
         }
     }
 
     public static void aggregateIntoLeave(AggregationLocalGroupByLevel level, AggregationMethod[] methods, AggregationState[] states, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         for (int i = 0; i < level.getMethodEvaluators().length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, methods[i], level.getMethodFactories()[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, methods[i], level.getMethodFactories()[i].getAggregationExpression());
+            }
             Object value = level.getMethodEvaluators()[i].evaluate(eventsPerStream, false, exprEvaluatorContext);
             methods[i].leave(value);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, methods[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, methods[i]);
+            }
         }
         for (int i = 0; i < states.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, states[i], level.getStateFactories()[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, states[i], level.getStateFactories()[i].getAggregationExpression());
+            }
             states[i].applyLeave(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, states[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, states[i]);
+            }
         }
     }
 

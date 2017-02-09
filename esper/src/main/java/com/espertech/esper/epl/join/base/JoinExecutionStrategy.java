@@ -18,11 +18,11 @@ import java.util.Set;
 /**
  * Strategy for executing a join.
  */
-public interface JoinExecutionStrategy
-{
+public interface JoinExecutionStrategy {
     /**
      * Execute join. The first dimension in the 2-dim arrays is the stream that generated the events,
      * and the second dimension is the actual events generated.
+     *
      * @param newDataPerStream - new events for each stream
      * @param oldDataPerStream - old events for each stream
      */
@@ -31,6 +31,7 @@ public interface JoinExecutionStrategy
 
     /**
      * A static join is for use with iterating over join statements.
+     *
      * @return set of rows, each row with two or more events, one for each stream
      */
     public Set<MultiKey<EventBean>> staticJoin();

@@ -12,8 +12,8 @@ package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventBean;
 
-public interface PriorEventBufferChangeCaptureMulti
-{
+public interface PriorEventBufferChangeCaptureMulti {
     public void added(EventBean key, EventBean[] referrals);
+
     public void removed(EventBean removed);
 }

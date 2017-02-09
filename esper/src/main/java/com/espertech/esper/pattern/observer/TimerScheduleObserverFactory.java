@@ -11,29 +11,25 @@
 package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.ScheduleParameterException;
-import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
  * Factory for ISO8601 repeating interval observers that indicate truth when a time point was reached.
  */
-public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefItem, Serializable
-{
+public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefItem, Serializable {
     private final static String NAME_OBSERVER = "Timer-schedule observer";
-    
+
     private final static String ISO_NAME = "iso";
     private final static String REPETITIONS_NAME = "repetitions";
     private final static String DATE_NAME = "date";
@@ -49,8 +45,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
 
     protected TimerScheduleSpec spec;
 
-    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
-    {
+    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException {
         this.convertor = convertor;
 
         // obtains name parameters
@@ -58,8 +53,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
         try {
             namedExpressions = ExprNodeUtility.getNamedExpressionsHandleDups(parameters);
             ExprNodeUtility.validateNamed(namedExpressions, NAMED_PARAMETERS);
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw new ObserverParameterException(e.getMessage(), e);
         }
 
@@ -67,20 +61,16 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
         ExprNamedParameterNode isoStringExpr = namedExpressions.get(ISO_NAME);
         if (namedExpressions.size() == 1 && isoStringExpr != null) {
             try {
-                allConstantResult = ExprNodeUtility.validateNamedExpectType(isoStringExpr, new Class[] {String.class});
-            }
-            catch (ExprValidationException ex) {
+                allConstantResult = ExprNodeUtility.validateNamedExpectType(isoStringExpr, new Class[]{String.class});
+            } catch (ExprValidationException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
             }
             scheduleComputer = new TimerScheduleSpecComputeISOString(isoStringExpr.getChildNodes()[0]);
-        }
-        else if (isoStringExpr != null) {
+        } else if (isoStringExpr != null) {
             throw new ObserverParameterException("The '" + ISO_NAME + "' parameter is exclusive of other parameters");
-        }
-        else if (namedExpressions.size() == 0) {
+        } else if (namedExpressions.size() == 0) {
             throw new ObserverParameterException("No parameters provided");
-        }
-        else {
+        } else {
             allConstantResult = true;
             ExprNamedParameterNode dateNamedNode = namedExpressions.get(DATE_NAME);
             ExprNamedParameterNode repetitionsNamedNode = namedExpressions.get(REPETITIONS_NAME);
@@ -90,16 +80,15 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
             }
             try {
                 if (dateNamedNode != null) {
-                    allConstantResult = ExprNodeUtility.validateNamedExpectType(dateNamedNode, new Class[] {String.class, Calendar.class, Date.class, Long.class, LocalDateTime.class, ZonedDateTime.class});
+                    allConstantResult = ExprNodeUtility.validateNamedExpectType(dateNamedNode, new Class[]{String.class, Calendar.class, Date.class, Long.class, LocalDateTime.class, ZonedDateTime.class});
                 }
                 if (repetitionsNamedNode != null) {
-                    allConstantResult &= ExprNodeUtility.validateNamedExpectType(repetitionsNamedNode, new Class[] {Integer.class, Long.class});
+                    allConstantResult &= ExprNodeUtility.validateNamedExpectType(repetitionsNamedNode, new Class[]{Integer.class, Long.class});
                 }
                 if (periodNamedNode != null) {
-                    allConstantResult &= ExprNodeUtility.validateNamedExpectType(periodNamedNode, new Class[] {TimePeriod.class});
+                    allConstantResult &= ExprNodeUtility.validateNamedExpectType(periodNamedNode, new Class[]{TimePeriod.class});
                 }
-            }
-            catch (ExprValidationException ex) {
+            } catch (ExprValidationException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
             }
             ExprNode dateNode = dateNamedNode == null ? null : dateNamedNode.getChildNodes()[0];
@@ -111,8 +100,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
         if (allConstantResult) {
             try {
                 spec = scheduleComputer.compute(convertor, new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), null, validationContext.getEngineImportService().getTimeZone(), validationContext.getEngineImportService().getTimeAbacus());
-            }
-            catch (ScheduleParameterException ex) {
+            } catch (ScheduleParameterException ex) {
                 throw new ObserverParameterException(ex.getMessage(), ex);
             }
         }
@@ -133,8 +121,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
         }
         try {
             return scheduleComputer.compute(convertor, beginState, context.getAgentInstanceContext(), context.getStatementContext().getEngineImportService().getTimeZone(), context.getStatementContext().getEngineImportService().getTimeAbacus());
-        }
-        catch (ScheduleParameterException e) {
+        } catch (ScheduleParameterException e) {
             throw new EPException("Error computing iso8601 schedule specification: " + e.getMessage(), e);
         }
     }
@@ -179,33 +166,26 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                 Object param = PatternExpressionUtil.evaluate(NAME_OBSERVER, beginState, dateNode, convertor, exprEvaluatorContext);
                 if (param instanceof String) {
                     optionalDate = TimerScheduleISO8601Parser.parseDate((String) param);
-                }
-                else if (param instanceof Number) {
+                } else if (param instanceof Number) {
                     long msec = ((Number) param).longValue();
                     optionalDate = Calendar.getInstance(timeZone);
                     optionalRemainder = timeAbacus.calendarSet(msec, optionalDate);
-                }
-                else if (param instanceof Calendar) {
+                } else if (param instanceof Calendar) {
                     optionalDate = (Calendar) param;
-                }
-                else if (param instanceof Date) {
+                } else if (param instanceof Date) {
                     optionalDate = Calendar.getInstance(timeZone);
                     optionalDate.setTimeInMillis(((Date) param).getTime());
-                }
-                else if (param instanceof LocalDateTime) {
+                } else if (param instanceof LocalDateTime) {
                     LocalDateTime ldt = (LocalDateTime) param;
                     Date d = Date.from(ldt.atZone(timeZone.toZoneId()).toInstant());
                     optionalDate = Calendar.getInstance(timeZone);
                     optionalDate.setTimeInMillis(d.getTime());
-                }
-                else if (param instanceof ZonedDateTime) {
+                } else if (param instanceof ZonedDateTime) {
                     ZonedDateTime zdt = (ZonedDateTime) param;
                     optionalDate = GregorianCalendar.from(zdt);
-                }
-                else if (param == null){
+                } else if (param == null) {
                     throw new EPException("Null date-time value returned from " + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(dateNode));
-                }
-                else {
+                } else {
                     throw new EPException("Unrecognized date-time value " + param.getClass());
                 }
             }
@@ -223,7 +203,7 @@ public class TimerScheduleObserverFactory implements ObserverFactory, MetaDefIte
                     optionalRepeatCount = ((Number) param).longValue();
                 }
             }
-            
+
             if (optionalDate == null && optionalTimePeriod == null) {
                 throw new EPException("Required date or time period are both null for " + NAME_OBSERVER);
             }

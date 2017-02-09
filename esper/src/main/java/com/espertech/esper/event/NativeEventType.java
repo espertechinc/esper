@@ -16,6 +16,5 @@ package com.espertech.esper.event;
  * Transpose is the process of taking a fragment event property and adding the fragment to the
  * resulting type rather then the underlying property object.
  */
-public interface NativeEventType
-{
+public interface NativeEventType {
 }

@@ -16,39 +16,36 @@ import java.util.List;
 /**
  * Result of analysis of pattern expression node tree.
  */
-public class EvalNodeAnalysisResult
-{
+public class EvalNodeAnalysisResult {
     private List<EvalFactoryNode> activeNodes = new ArrayList<EvalFactoryNode>();
 
     /**
      * Add a node found.
+     *
      * @param node found
      */
-    public void addNode(EvalFactoryNode node)
-    {
+    public void addNode(EvalFactoryNode node) {
         activeNodes.add(node);
     }
 
     /**
      * Returns all nodes found.
+     *
      * @return pattern nodes
      */
-    public List<EvalFactoryNode> getActiveNodes()
-    {
+    public List<EvalFactoryNode> getActiveNodes() {
         return activeNodes;
     }
 
     /**
      * Returns filter nodes.
+     *
      * @return filter nodes
      */
-    public List<EvalFilterFactoryNode> getFilterNodes()
-    {
+    public List<EvalFilterFactoryNode> getFilterNodes() {
         List<EvalFilterFactoryNode> filterNodes = new ArrayList<EvalFilterFactoryNode>();
-        for (EvalFactoryNode node : activeNodes)
-        {
-            if (node instanceof EvalFilterFactoryNode)
-            {
+        for (EvalFactoryNode node : activeNodes) {
+            if (node instanceof EvalFilterFactoryNode) {
                 filterNodes.add((EvalFilterFactoryNode) node);
             }
         }
@@ -57,15 +54,13 @@ public class EvalNodeAnalysisResult
 
     /**
      * Returns the repeat-nodes.
+     *
      * @return repeat nodes
      */
-    public List<EvalMatchUntilFactoryNode> getRepeatNodes()
-    {
+    public List<EvalMatchUntilFactoryNode> getRepeatNodes() {
         List<EvalMatchUntilFactoryNode> filterNodes = new ArrayList<EvalMatchUntilFactoryNode>();
-        for (EvalFactoryNode node : activeNodes)
-        {
-            if (node instanceof EvalMatchUntilFactoryNode)
-            {
+        for (EvalFactoryNode node : activeNodes) {
+            if (node instanceof EvalMatchUntilFactoryNode) {
                 filterNodes.add((EvalMatchUntilFactoryNode) node);
             }
         }

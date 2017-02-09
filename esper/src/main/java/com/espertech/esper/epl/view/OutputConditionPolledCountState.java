@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.view;
 
-public class OutputConditionPolledCountState implements OutputConditionPolledState
-{
+public class OutputConditionPolledCountState implements OutputConditionPolledState {
     private long eventRate;
     private int newEventsCount;
     private int oldEventsCount;

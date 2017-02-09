@@ -29,13 +29,11 @@ public class OrderByProcessorRowLimitOnly implements OrderByProcessor {
         this.rowLimitProcessor = rowLimitProcessor;
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return rowLimitProcessor.determineLimitAndApply(outgoingEvents);
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return rowLimitProcessor.determineLimitAndApply(outgoingEvents);
     }
 
@@ -43,8 +41,7 @@ public class OrderByProcessorRowLimitOnly implements OrderByProcessor {
         return rowLimitProcessor.determineLimitAndApply(outgoingEvents);
     }
 
-    public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
     }
 
@@ -52,13 +49,11 @@ public class OrderByProcessorRowLimitOnly implements OrderByProcessor {
         return null;
     }
 
-    public Object[] getSortKeyPerRow(EventBean[] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object[] getSortKeyPerRow(EventBean[] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] sort(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext) {
         return rowLimitProcessor.determineLimitAndApply(outgoingEvents);
     }
 }

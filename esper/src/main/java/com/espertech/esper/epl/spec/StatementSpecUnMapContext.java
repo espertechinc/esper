@@ -16,8 +16,7 @@ import java.util.List;
 /**
  * Un-mapping context for mapping from an internal specifications to an SODA object model.
  */
-public class StatementSpecUnMapContext
-{
+public class StatementSpecUnMapContext {
     private final List<SubstitutionParameterExpressionBase> substitutionParams;
 
     public StatementSpecUnMapContext() {

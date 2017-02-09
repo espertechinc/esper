@@ -22,8 +22,7 @@ import java.math.BigDecimal;
 /**
  * Represents a simple Math (+/-/divide/*) in a filter expression tree.
  */
-public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprMathNode extends ExprNodeBase implements ExprEvaluator {
     private final MathArithTypeEnum mathArithTypeEnum;
     private final boolean isIntegerDivision;
     private final boolean isDivisionByZeroReturnsNull;
@@ -36,34 +35,29 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Ctor.
-     * @param mathArithTypeEnum - type of math
-     * @param isIntegerDivision - false for division returns double, true for using Java-standard integer division
+     *
+     * @param mathArithTypeEnum           - type of math
+     * @param isIntegerDivision           - false for division returns double, true for using Java-standard integer division
      * @param isDivisionByZeroReturnsNull - false for division-by-zero returns infinity, true for null
      */
-    public ExprMathNode(MathArithTypeEnum mathArithTypeEnum, boolean isIntegerDivision, boolean isDivisionByZeroReturnsNull)
-    {
+    public ExprMathNode(MathArithTypeEnum mathArithTypeEnum, boolean isIntegerDivision, boolean isDivisionByZeroReturnsNull) {
         this.mathArithTypeEnum = mathArithTypeEnum;
         this.isIntegerDivision = isIntegerDivision;
         this.isDivisionByZeroReturnsNull = isDivisionByZeroReturnsNull;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 2)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("Arithmatic node must have 2 parameters");
         }
 
-        for (ExprNode child : this.getChildNodes())
-        {
+        for (ExprNode child : this.getChildNodes()) {
             Class childType = child.getExprEvaluator().getType();
-            if (!JavaClassHelper.isNumeric(childType))
-            {
+            if (!JavaClassHelper.isNumeric(childType)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
                         childType.getSimpleName() +
                         "' to numeric is not allowed");
@@ -78,26 +72,19 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
         Class childTypeTwo = evaluatorRight.getType();
 
         if ((childTypeOne == short.class || childTypeOne == Short.class) &&
-            (childTypeTwo == short.class || childTypeTwo == Short.class)) {
+                (childTypeTwo == short.class || childTypeTwo == Short.class)) {
             resultType = Integer.class;
-        }
-        else if ((childTypeOne == byte.class || childTypeOne == Byte.class) &&
-                 (childTypeTwo == byte.class || childTypeTwo == Byte.class)) {
+        } else if ((childTypeOne == byte.class || childTypeOne == Byte.class) &&
+                (childTypeTwo == byte.class || childTypeTwo == Byte.class)) {
             resultType = Integer.class;
-        }
-        else if (childTypeOne.equals(childTypeTwo))
-        {
+        } else if (childTypeOne.equals(childTypeTwo)) {
             resultType = JavaClassHelper.getBoxedType(childTypeTwo);
-        }
-        else
-        {
+        } else {
             resultType = JavaClassHelper.getArithmaticCoercionType(childTypeOne, childTypeTwo);
         }
 
-        if ((mathArithTypeEnum == MathArithTypeEnum.DIVIDE) && (!isIntegerDivision))
-        {
-            if (resultType != BigDecimal.class)
-            {
+        if ((mathArithTypeEnum == MathArithTypeEnum.DIVIDE) && (!isIntegerDivision)) {
+            if (resultType != BigDecimal.class) {
                 resultType = Double.class;
             }
         }
@@ -106,30 +93,31 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprMath(this, mathArithTypeEnum.getExpressionText());}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprMath(this, mathArithTypeEnum.getExpressionText());
+        }
         Object valueChildOne = evaluatorLeft.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueChildOne == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprMath(null);}
+        if (valueChildOne == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprMath(null);
+            }
             return null;
         }
 
         Object valueChildTwo = evaluatorRight.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueChildTwo == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprMath(null);}
+        if (valueChildTwo == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprMath(null);
+            }
             return null;
         }
 
@@ -151,26 +139,22 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
 
     public ExprPrecedenceEnum getPrecedence() {
         if (mathArithTypeEnum == MathArithTypeEnum.MULTIPLY ||
-            mathArithTypeEnum == MathArithTypeEnum.DIVIDE ||
-            mathArithTypeEnum == MathArithTypeEnum.MODULO) {
+                mathArithTypeEnum == MathArithTypeEnum.DIVIDE ||
+                mathArithTypeEnum == MathArithTypeEnum.MODULO) {
             return ExprPrecedenceEnum.MULTIPLY;
-        }
-        else {
+        } else {
             return ExprPrecedenceEnum.ADDITIVE;
         }
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprMathNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprMathNode)) {
             return false;
         }
 
         ExprMathNode other = (ExprMathNode) node;
 
-        if (other.mathArithTypeEnum != this.mathArithTypeEnum)
-        {
+        if (other.mathArithTypeEnum != this.mathArithTypeEnum) {
             return false;
         }
 
@@ -179,10 +163,10 @@ public class ExprMathNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Returns the type of math.
+     *
      * @return math type
      */
-    public MathArithTypeEnum getMathArithTypeEnum()
-    {
+    public MathArithTypeEnum getMathArithTypeEnum() {
         return mathArithTypeEnum;
     }
 }

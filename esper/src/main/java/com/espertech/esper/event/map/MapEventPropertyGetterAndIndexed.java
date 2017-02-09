@@ -15,6 +15,5 @@ import com.espertech.esper.client.EventPropertyGetterIndexed;
 /**
  * Property getter for Map-underlying events.
  */
-public interface MapEventPropertyGetterAndIndexed extends MapEventPropertyGetter, EventPropertyGetterIndexed
-{
+public interface MapEventPropertyGetterAndIndexed extends MapEventPropertyGetter, EventPropertyGetterIndexed {
 }

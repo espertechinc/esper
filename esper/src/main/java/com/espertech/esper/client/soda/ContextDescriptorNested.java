@@ -31,6 +31,7 @@ public class ContextDescriptorNested implements ContextDescriptor {
 
     /**
      * Ctor.
+     *
      * @param contexts the nested contexts
      */
     public ContextDescriptorNested(List<CreateContextClause> contexts) {
@@ -39,6 +40,7 @@ public class ContextDescriptorNested implements ContextDescriptor {
 
     /**
      * Returns the list of nested contexts
+     *
      * @return contexts
      */
     public List<CreateContextClause> getContexts() {
@@ -47,6 +49,7 @@ public class ContextDescriptorNested implements ContextDescriptor {
 
     /**
      * Sets the list of nested contexts
+     *
      * @param contexts nested contexts to set
      */
     public void setContexts(List<CreateContextClause> contexts) {

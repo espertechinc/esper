@@ -23,8 +23,7 @@ public class AgentInstanceComparator implements Comparator<AgentInstance>, Seria
 
     private EPStatementAgentInstanceHandleComparator innerComparator = new EPStatementAgentInstanceHandleComparator();
 
-    public int compare(AgentInstance ai1, AgentInstance ai2)
-    {
+    public int compare(AgentInstance ai1, AgentInstance ai2) {
         EPStatementAgentInstanceHandle o1 = ai1.getAgentInstanceContext().getEpStatementAgentInstanceHandle();
         EPStatementAgentInstanceHandle o2 = ai2.getAgentInstanceContext().getEpStatementAgentInstanceHandle();
         return innerComparator.compare(o1, o2);

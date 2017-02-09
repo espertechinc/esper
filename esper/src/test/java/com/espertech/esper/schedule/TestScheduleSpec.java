@@ -19,10 +19,8 @@ import java.util.EnumMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class TestScheduleSpec extends TestCase
-{
-    public void testValidate()
-    {
+public class TestScheduleSpec extends TestCase {
+    public void testValidate() {
         // Test all units missing
         EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues = new EnumMap<ScheduleUnit, SortedSet<Integer>>(ScheduleUnit.class);
         assertInvalid(unitValues);
@@ -50,15 +48,13 @@ public class TestScheduleSpec extends TestCase
         new ScheduleSpec(unitValues, null, null, null);
     }
 
-    public void testCompress()
-    {
+    public void testCompress() {
         EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues = new EnumMap<ScheduleUnit, SortedSet<Integer>>(ScheduleUnit.class);
         unitValues = (new ScheduleSpec()).getUnitValues();
 
         // Populate Month with all valid values
         SortedSet<Integer> monthValues = new TreeSet<Integer>();
-        for (int i = ScheduleUnit.MONTHS.min(); i <= ScheduleUnit.MONTHS.max(); i++)
-        {
+        for (int i = ScheduleUnit.MONTHS.min(); i <= ScheduleUnit.MONTHS.max(); i++) {
             monthValues.add(i);
         }
         unitValues.put(ScheduleUnit.MONTHS, monthValues);
@@ -68,15 +64,11 @@ public class TestScheduleSpec extends TestCase
         assertTrue(spec.getUnitValues().get(ScheduleUnit.MONTHS) == null);
     }
 
-    private void assertInvalid(EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues)
-    {
-        try
-        {
+    private void assertInvalid(EnumMap<ScheduleUnit, SortedSet<Integer>> unitValues) {
+        try {
             new ScheduleSpec(unitValues, null, null, null);
             assertFalse(true);
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             log.debug(".assertInvalid Expected exception, msg=" + ex.getMessage());
             // Expected exception
         }

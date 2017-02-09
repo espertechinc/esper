@@ -22,7 +22,6 @@ import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewDataVisitor;
 import com.espertech.esper.view.ViewFactory;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -47,8 +46,7 @@ public class ExpressionBatchView extends ExpressionViewBase {
                                AggregationServiceFactoryDesc aggregationServiceFactoryDesc,
                                ObjectArrayEventBean builtinEventProps,
                                Set<String> variableNames,
-                               AgentInstanceViewFactoryChainContext agentInstanceContext)
-    {
+                               AgentInstanceViewFactoryChainContext agentInstanceContext) {
         super(viewUpdatedCollection, expiryExpression, aggregationServiceFactoryDesc, builtinEventProps, variableNames, agentInstanceContext);
         this.dataWindowViewFactory = dataWindowViewFactory;
     }
@@ -57,17 +55,16 @@ public class ExpressionBatchView extends ExpressionViewBase {
         return dataWindowViewFactory.getViewName();
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return dataWindowViewFactory.makeView(agentInstanceContext);
     }
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return window.isEmpty();
     }
 
@@ -78,9 +75,10 @@ public class ExpressionBatchView extends ExpressionViewBase {
         }
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, dataWindowViewFactory.getViewName(), newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, dataWindowViewFactory.getViewName(), newData, oldData);
+        }
 
         boolean fireBatch = false;
 
@@ -95,8 +93,7 @@ public class ExpressionBatchView extends ExpressionViewBase {
 
             if (!window.isEmpty()) {
                 oldestEvent = window.iterator().next();
-            }
-            else {
+            } else {
                 oldestEvent = null;
             }
 
@@ -105,8 +102,7 @@ public class ExpressionBatchView extends ExpressionViewBase {
 
         // add data points to the window
         int numEventsInBatch = -1;
-        if (newData != null && newData.length > 0)
-        {
+        if (newData != null && newData.length > 0) {
             if (window.isEmpty()) {
                 oldestEventTimestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
             }
@@ -118,7 +114,7 @@ public class ExpressionBatchView extends ExpressionViewBase {
             for (EventBean newEvent : newData) {
                 window.add(newEvent);
                 if (aggregationService != null) {
-                    aggregationService.applyEnter(new EventBean[] {newEvent}, null, agentInstanceContext);
+                    aggregationService.applyEnter(new EventBean[]{newEvent}, null, agentInstanceContext);
                 }
                 newestEvent = newEvent;
                 if (!fireBatch) {
@@ -135,7 +131,9 @@ public class ExpressionBatchView extends ExpressionViewBase {
             expire(numEventsInBatch);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     // Called based on schedule evaluation registered when a variable changes (new data is null).
@@ -150,9 +148,13 @@ public class ExpressionBatchView extends ExpressionViewBase {
 
             // post
             if (batchNewData != null || lastBatch != null) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, dataWindowViewFactory.getViewName(), batchNewData, lastBatch);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, dataWindowViewFactory.getViewName(), batchNewData, lastBatch);
+                }
                 updateChildren(batchNewData, lastBatch);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
 
             // clear
@@ -163,8 +165,7 @@ public class ExpressionBatchView extends ExpressionViewBase {
             }
             oldestEvent = null;
             newestEvent = null;
-        }
-        else {
+        } else {
             EventBean[] batchNewData = new EventBean[numEventsInBatch];
             Iterator<EventBean> it = window.iterator();
             for (int i = 0; i < batchNewData.length; i++) {
@@ -178,9 +179,13 @@ public class ExpressionBatchView extends ExpressionViewBase {
 
             // post
             if (batchNewData != null || lastBatch != null) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, dataWindowViewFactory.getViewName(), batchNewData, lastBatch);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, dataWindowViewFactory.getViewName(), batchNewData, lastBatch);
+                }
                 updateChildren(batchNewData, lastBatch);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
 
             // clear
@@ -212,8 +217,7 @@ public class ExpressionBatchView extends ExpressionViewBase {
         return result;
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return window.iterator();
     }
 

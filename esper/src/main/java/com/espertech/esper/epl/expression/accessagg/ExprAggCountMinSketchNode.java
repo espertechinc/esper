@@ -37,21 +37,20 @@ import java.util.Map;
 /**
  * Represents the Count-min sketch aggregate function.
  */
-public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements ExprAggregateAccessMultiValueNode
-{
+public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements ExprAggregateAccessMultiValueNode {
     private static final long serialVersionUID = 202339518989532184L;
 
-    private static final double DEFAULT__EPS_OF_TOTAL_COUNT = 0.0001;
-    private static final double DEFAULT__CONFIDENCE = 0.99;
-    private static final int DEFAULT__SEED = 1234567;
-    private static final CountMinSketchAgentStringUTF16 DEFAULT__AGENT = new CountMinSketchAgentStringUTF16();
+    private static final double DEFAULT_EPS_OF_TOTAL_COUNT = 0.0001;
+    private static final double DEFAULT_CONFIDENCE = 0.99;
+    private static final int DEFAULT_SEED = 1234567;
+    private static final CountMinSketchAgentStringUTF16 DEFAULT_AGENT = new CountMinSketchAgentStringUTF16();
 
     private static final String MSG_NAME = "Count-min-sketch";
-    private static final String NAME__EPS_OF_TOTAL_COUNT = "epsOfTotalCount";
-    private static final String NAME__CONFIDENCE = "confidence";
-    private static final String NAME__SEED = "seed";
-    private static final String NAME__TOPK = "topk";
-    private static final String NAME__AGENT = "agent";
+    private static final String NAME_EPS_OF_TOTAL_COUNT = "epsOfTotalCount";
+    private static final String NAME_CONFIDENCE = "confidence";
+    private static final String NAME_SEED = "seed";
+    private static final String NAME_TOPK = "topk";
+    private static final String NAME_AGENT = "agent";
 
     private final CountMinSketchAggType aggType;
 
@@ -68,13 +67,11 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return validateAggregationInternal(context, tableAccessColumn);
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return aggType.getFuncName();
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return false;
     }
 
@@ -112,8 +109,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
     }
 
     private AggregationMethodFactory validateAggregationInternal(ExprValidationContext context, TableMetadataColumnAggregation tableAccessColumn)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (isDistinct()) {
             throw new ExprValidationException(getMessagePrefix() + "is not supported with distinct");
         }
@@ -133,8 +129,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
             if (this.getChildNodes().length == 0 || this.getChildNodes().length > 1) {
                 throw new ExprValidationException(getMessagePrefix() + "requires a single parameter expression");
             }
-        }
-        else {
+        } else {
             if (this.getChildNodes().length != 0) {
                 throw new ExprValidationException(getMessagePrefix() + "requires a no parameter expressions");
             }
@@ -145,8 +140,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
             if (context.getIntoTableName() == null) {
                 throw new ExprValidationException(getMessagePrefix() + "can only be used with into-table");
             }
-        }
-        else {
+        } else {
             if (tableAccessColumn == null) {
                 throw new ExprValidationException(getMessagePrefix() + "requires the use of a table-access expression");
             }
@@ -164,7 +158,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
 
     private CountMinSketchSpec validateSpecification(ExprEvaluatorContext exprEvaluatorContext, final EngineImportService engineImportService) throws ExprValidationException {
         // default specification
-        final CountMinSketchSpec spec = new CountMinSketchSpec(new CountMinSketchSpecHashes(DEFAULT__EPS_OF_TOTAL_COUNT, DEFAULT__CONFIDENCE, DEFAULT__SEED), null, DEFAULT__AGENT);
+        final CountMinSketchSpec spec = new CountMinSketchSpec(new CountMinSketchSpecHashes(DEFAULT_EPS_OF_TOTAL_COUNT, DEFAULT_CONFIDENCE, DEFAULT_SEED), null, DEFAULT_AGENT);
 
         // no parameters
         if (this.getChildNodes().length == 0) {
@@ -182,36 +176,43 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         }
 
         // define what to populate
-        PopulateFieldWValueDescriptor[] descriptors = new PopulateFieldWValueDescriptor[] {
-            new PopulateFieldWValueDescriptor(NAME__EPS_OF_TOTAL_COUNT, Double.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
+        PopulateFieldWValueDescriptor[] descriptors = new PopulateFieldWValueDescriptor[]{
+            new PopulateFieldWValueDescriptor(NAME_EPS_OF_TOTAL_COUNT, Double.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
                 public void set(Object value) {
-                    if (value != null) {spec.getHashesSpec().setEpsOfTotalCount((Double) value);}
+                    if (value != null) {
+                        spec.getHashesSpec().setEpsOfTotalCount((Double) value);
+                    }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME__CONFIDENCE, Double.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_CONFIDENCE, Double.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
                 public void set(Object value) {
-                    if (value != null) {spec.getHashesSpec().setConfidence((Double) value);}
+                    if (value != null) {
+                        spec.getHashesSpec().setConfidence((Double) value);
+                    }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME__SEED, Integer.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_SEED, Integer.class, spec.getHashesSpec().getClass(), new PopulateFieldValueSetter() {
                 public void set(Object value) {
-                    if (value != null) {spec.getHashesSpec().setSeed((Integer) value);}
+                    if (value != null) {
+                        spec.getHashesSpec().setSeed((Integer) value);
+                    }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME__TOPK, Integer.class, spec.getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_TOPK, Integer.class, spec.getClass(), new PopulateFieldValueSetter() {
                 public void set(Object value) {
-                    if (value != null) {spec.setTopkSpec((Integer) value);}
+                    if (value != null) {
+                        spec.setTopkSpec((Integer) value);
+                    }
                 }
             }, true),
-            new PopulateFieldWValueDescriptor(NAME__AGENT, String.class, spec.getClass(), new PopulateFieldValueSetter() {
+            new PopulateFieldWValueDescriptor(NAME_AGENT, String.class, spec.getClass(), new PopulateFieldValueSetter() {
                 public void set(Object value) throws ExprValidationException {
                     if (value != null) {
                         CountMinSketchAgent transform;
                         try {
                             Class transformClass = engineImportService.resolveClass((String) value, false);
                             transform = (CountMinSketchAgent) JavaClassHelper.instantiate(CountMinSketchAgent.class, transformClass);
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             throw new ExprValidationException("Failed to instantiate agent provider: " + e.getMessage(), e);
                         }
                         spec.setAgent(transform);

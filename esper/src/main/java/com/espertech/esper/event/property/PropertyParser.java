@@ -29,17 +29,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Parser for property names that can be simple, nested, mapped or a combination of these.
  * Uses ANTLR parser to parse.
  */
-public class PropertyParser
-{
+public class PropertyParser {
     private static final Logger log = LoggerFactory.getLogger(PropertyParser.class);
 
     private static Set<String> keywordCache;
@@ -51,27 +47,27 @@ public class PropertyParser
     /**
      * Parses property.
      * For cases when the property is not following the property syntax assume we act lax and assume its a simple property.
+     *
      * @param property to parse
      * @return property or SimpleProperty if the property cannot be parsed
      */
     public static Property parseAndWalkLaxToSimple(String property) {
         try {
             return walk(parse(property), false);
-        }
-        catch (PropertyAccessException p) {
+        } catch (PropertyAccessException p) {
             return new SimpleProperty(property);
         }
     }
 
     /**
      * Parse the given property name returning a Property instance for the property.
+     *
      * @param isRootedDynamic is true to indicate that the property is already rooted in a dynamic
-     * property and therefore all child properties should be dynamic properties as well
-     * @param tree tree
+     *                        property and therefore all child properties should be dynamic properties as well
+     * @param tree            tree
      * @return Property instance for property
      */
-    public static Property walk(EsperEPL2GrammarParser.StartEventPropertyRuleContext tree, boolean isRootedDynamic)
-    {
+    public static Property walk(EsperEPL2GrammarParser.StartEventPropertyRuleContext tree, boolean isRootedDynamic) {
         if (tree.eventProperty().eventPropertyAtomic().size() == 1) {
             return makeProperty(tree.eventProperty().eventPropertyAtomic(0), isRootedDynamic);
         }
@@ -80,8 +76,7 @@ public class PropertyParser
 
         List<Property> properties = new LinkedList<Property>();
         boolean isRootedInDynamic = isRootedDynamic;
-        for (EsperEPL2GrammarParser.EventPropertyAtomicContext atomic : propertyRoot.eventPropertyAtomic())
-        {
+        for (EsperEPL2GrammarParser.EventPropertyAtomicContext atomic : propertyRoot.eventPropertyAtomic()) {
             Property property = makeProperty(atomic, isRootedInDynamic);
             if (property instanceof DynamicSimpleProperty) {
                 isRootedInDynamic = true;
@@ -93,16 +88,15 @@ public class PropertyParser
 
     /**
      * Parses a given property name returning an AST.
+     *
      * @param propertyName to parse
      * @return AST syntax tree
      */
-    public static EsperEPL2GrammarParser.StartEventPropertyRuleContext parse(String propertyName)
-    {
+    public static EsperEPL2GrammarParser.StartEventPropertyRuleContext parse(String propertyName) {
         CharStream input;
         try {
             input = new NoCaseSensitiveStream(new StringReader(propertyName));
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new PropertyAccessException("IOException parsing property name '" + propertyName + '\'', ex);
         }
 
@@ -110,8 +104,7 @@ public class PropertyParser
         CommonTokenStream tokens = new CommonTokenStream(lex);
         try {
             tokens.fill();
-        }
-        catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             if (ParseHelper.hasControlCharacters(propertyName)) {
                 throw new PropertyAccessException("Unrecognized control characters found in text");
             }
@@ -122,19 +115,16 @@ public class PropertyParser
         EsperEPL2GrammarParser.StartEventPropertyRuleContext r;
 
         try {
-             r = g.startEventPropertyRule();
-        }
-        catch (RecognitionException e) {
+            r = g.startEventPropertyRule();
+        } catch (RecognitionException e) {
             return handleRecognitionEx(e, tokens, propertyName, g);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Error parsing property expression [" + propertyName + "]", e);
             }
             if (e.getCause() instanceof RecognitionException) {
-                return handleRecognitionEx( (RecognitionException) e.getCause(), tokens, propertyName, g);
-            }
-            else {
+                return handleRecognitionEx((RecognitionException) e.getCause(), tokens, propertyName, g);
+            } else {
                 throw e;
             }
         }
@@ -149,8 +139,7 @@ public class PropertyParser
         CharStream inputEscaped;
         try {
             inputEscaped = new NoCaseSensitiveStream(new StringReader(escapedPropertyName));
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new PropertyAccessException("IOException parsing property name '" + propertyName + '\'', ex);
         }
 
@@ -160,9 +149,7 @@ public class PropertyParser
 
         try {
             return gEscaped.startEventPropertyRule();
-        }
-        catch (Exception eEscaped)
-        {
+        } catch (Exception eEscaped) {
         }
 
         throw ExceptionConvertor.convertProperty(e, propertyName, true, g);
@@ -181,19 +168,18 @@ public class PropertyParser
         }
 
         StringWriter writer = new StringWriter();
-        for (Object token : tokens.getTokens()) // Call getTokens first before invoking tokens.size! ANTLR problem
-        {
+        // Call getTokens first before invoking tokens.size! ANTLR problem
+        for (Object token : tokens.getTokens()) {
             Token t = (Token) token;
             if (t.getType() == EsperEPL2GrammarLexer.EOF) {
                 break;
             }
-            boolean isKeyword = keywordCache.contains(t.getText().toLowerCase());
+            boolean isKeyword = keywordCache.contains(t.getText().toLowerCase(Locale.ENGLISH));
             if (isKeyword) {
                 writer.append('`');
                 writer.append(t.getText());
                 writer.append('`');
-            }
-            else {
+            } else {
                 writer.append(t.getText());
             }
         }
@@ -202,11 +188,11 @@ public class PropertyParser
 
     /**
      * Returns true if the property is a dynamic property.
+     *
      * @param ast property ast
      * @return dynamic or not
      */
-    public static boolean isPropertyDynamic(EsperEPL2GrammarParser.StartEventPropertyRuleContext ast)
-    {
+    public static boolean isPropertyDynamic(EsperEPL2GrammarParser.StartEventPropertyRuleContext ast) {
         List<EsperEPL2GrammarParser.EventPropertyAtomicContext> ctxs = ast.eventProperty().eventPropertyAtomic();
         for (EsperEPL2GrammarParser.EventPropertyAtomicContext ctx : ctxs) {
             if (ctx.q != null || ctx.q1 != null) {
@@ -216,8 +202,7 @@ public class PropertyParser
         return false;
     }
 
-    private static Property makeProperty(EsperEPL2GrammarParser.EventPropertyAtomicContext atomic, boolean isRootedInDynamic)
-    {
+    private static Property makeProperty(EsperEPL2GrammarParser.EventPropertyAtomicContext atomic, boolean isRootedInDynamic) {
         String prop = ASTUtil.unescapeDot(atomic.eventPropertyIdent().getText());
         if (prop.length() == 0) {
             throw new PropertyAccessException("Invalid zero-length string provided as an event property name");
@@ -226,25 +211,20 @@ public class PropertyParser
             int index = IntValue.parseString(atomic.ni.getText());
             if (!isRootedInDynamic && atomic.q == null) {
                 return new IndexedProperty(prop, index);
-            }
-            else {
+            } else {
                 return new DynamicIndexedProperty(prop, index);
             }
-        }
-        else if (atomic.lp != null) {
+        } else if (atomic.lp != null) {
             String key = StringValue.parseString(atomic.s.getText());
             if (!isRootedInDynamic && atomic.q == null) {
                 return new MappedProperty(prop, key);
-            }
-            else {
+            } else {
                 return new DynamicMappedProperty(prop, key);
             }
-        }
-        else {
+        } else {
             if (!isRootedInDynamic && atomic.q1 == null) {
                 return new SimpleProperty(prop);
-            }
-            else {
+            } else {
                 return new DynamicSimpleProperty(prop);
             }
         }

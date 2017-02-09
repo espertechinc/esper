@@ -17,32 +17,29 @@ import java.io.ObjectOutputStream;
 /**
  * Utility class for copying serializable objects via object input and output streams.
  */
-public class SerializableObjectCopier
-{
+public class SerializableObjectCopier {
     /**
      * Deep copies the input object.
+     *
      * @param orig is the object to be copied, must be serializable
      * @return copied object
-     * @throws IOException if the streams returned an exception
+     * @throws IOException            if the streams returned an exception
      * @throws ClassNotFoundException if the de-serialize fails
      */
-    public static Object copy(Object orig) throws IOException, ClassNotFoundException
-    {
+    public static Object copy(Object orig) throws IOException, ClassNotFoundException {
         SimpleByteArrayOutputStream fbos = new SimpleByteArrayOutputStream();
         ObjectOutputStream outStream = new ObjectOutputStream(fbos);
         try {
             outStream.writeObject(orig);
             outStream.flush();
-        }
-        finally {
+        } finally {
             outStream.close();
         }
 
         ObjectInputStream inStream = new ObjectInputStreamWithTCCL(fbos.getInputStream());
         try {
             return inStream.readObject();
-        }
-        finally {
+        } finally {
             inStream.close();
         }
     }

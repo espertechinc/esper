@@ -12,8 +12,8 @@ package com.espertech.esper.epl.expression.core;
 
 import com.espertech.esper.filter.FilterSpecLookupable;
 
-public interface ExprFilterOptimizableNode
-{
+public interface ExprFilterOptimizableNode {
     public boolean getFilterLookupEligible();
+
     public FilterSpecLookupable getFilterLookupable();
 }

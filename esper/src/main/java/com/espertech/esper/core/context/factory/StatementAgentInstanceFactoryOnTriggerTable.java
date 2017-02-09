@@ -53,8 +53,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
     private final SubordinateWMatchExprQueryPlanResult queryPlanResult;
 
     public StatementAgentInstanceFactoryOnTriggerTable(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection, ResultSetProcessorFactoryDesc resultSetProcessorPrototype, ExprNode validatedJoin, TableOnViewFactory onExprFactory, EventType activatorResultEventType, TableMetadata tableMetadata, ResultSetProcessorFactoryDesc outputResultSetProcessorPrototype, OutputProcessViewFactory outputProcessViewFactory)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         super(statementContext, statementSpec, services, activator, subSelectStrategyCollection);
         this.resultSetProcessorPrototype = resultSetProcessorPrototype;
         this.onExprFactory = onExprFactory;
@@ -88,8 +87,7 @@ public class StatementAgentInstanceFactoryOnTriggerTable extends StatementAgentI
         EventTable[] indexes;
         if (queryPlanResult.getIndexDescs() == null) {
             indexes = null;
-        }
-        else {
+        } else {
             indexes = new EventTable[queryPlanResult.getIndexDescs().length];
             for (int i = 0; i < indexes.length; i++) {
                 indexes[i] = state.getIndexRepository().getIndexByDesc(queryPlanResult.getIndexDescs()[i].getIndexMultiKey());

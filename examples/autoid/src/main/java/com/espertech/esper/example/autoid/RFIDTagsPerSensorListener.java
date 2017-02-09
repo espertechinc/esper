@@ -10,23 +10,19 @@
  */
 package com.espertech.esper.example.autoid;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RFIDTagsPerSensorListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        if (newEvents != null)
-        {
+public class RFIDTagsPerSensorListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (newEvents != null) {
             logRate(newEvents[0]);
         }
     }
 
-    private void logRate(EventBean theEvent)
-    {
+    private void logRate(EventBean theEvent) {
         String sensorId = (String) theEvent.get("sensorId");
         double numTags = (Double) theEvent.get("numTagsPerSensor");
 

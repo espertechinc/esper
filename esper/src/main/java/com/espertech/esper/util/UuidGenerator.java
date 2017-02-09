@@ -20,6 +20,7 @@ public class UuidGenerator {
     /**
      * Generates a 36-character alphanumeric value with dashes considering secure random id
      * and timestamp backed by {@link java.util.UUID}.
+     *
      * @return unique id string
      */
     public static String generate() {

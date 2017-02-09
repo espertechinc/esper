@@ -23,8 +23,9 @@ public class CronParameter implements Serializable {
 
     /**
      * Ctor.
+     *
      * @param operator is the operator as text
-     * @param day is the day text
+     * @param day      is the day text
      */
     public CronParameter(CronOperatorEnum operator, Integer day) {
         this.operator = operator;
@@ -33,6 +34,7 @@ public class CronParameter implements Serializable {
 
     /**
      * Sets the month value.
+     *
      * @param month to set
      */
     public void setMonth(int month) {

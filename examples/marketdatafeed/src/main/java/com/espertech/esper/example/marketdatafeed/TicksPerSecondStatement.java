@@ -10,24 +10,21 @@
  */
 package com.espertech.esper.example.marketdatafeed;
 
-import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.UpdateListener;
 
-public class TicksPerSecondStatement
-{
+public class TicksPerSecondStatement {
     private EPStatement statement;
 
-    public TicksPerSecondStatement(EPAdministrator admin)
-    {
+    public TicksPerSecondStatement(EPAdministrator admin) {
         String stmt = "insert into TicksPerSecond " +
-                      "select feed, count(*) as cnt from MarketDataEvent#time_batch(1 sec) group by feed";
+                "select feed, count(*) as cnt from MarketDataEvent#time_batch(1 sec) group by feed";
 
         statement = admin.createEPL(stmt);
     }
 
-    public void addListener(UpdateListener listener)
-    {
+    public void addListener(UpdateListener listener) {
         statement.addListener(listener);
     }
 }

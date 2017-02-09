@@ -11,10 +11,10 @@
 package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.lang.annotation.Annotation;
@@ -26,8 +26,7 @@ import java.util.Set;
 /**
  * Specification object representing a complete EPL statement including all EPL constructs.
  */
-public class StatementSpecCompiled
-{
+public class StatementSpecCompiled {
     public static final StatementSpecCompiled DEFAULT_SELECT_ALL_EMPTY;
 
     static {
@@ -105,8 +104,7 @@ public class StatementSpecCompiled
                                  FireAndForgetSpec fireAndForgetSpec,
                                  GroupByClauseExpressions groupByExpressions,
                                  IntoTableSpec intoTableSpec,
-                                 ExprTableAccessNode[] tableNodes)
-    {
+                                 ExprTableAccessNode[] tableNodes) {
         this.onTriggerDesc = onTriggerDesc;
         this.createWindowDesc = createWindowDesc;
         this.createIndexDesc = createIndexDesc;
@@ -146,8 +144,7 @@ public class StatementSpecCompiled
     /**
      * Ctor.
      */
-    public StatementSpecCompiled()
-    {
+    public StatementSpecCompiled() {
         onTriggerDesc = null;
         createWindowDesc = null;
         createIndexDesc = null;
@@ -186,33 +183,34 @@ public class StatementSpecCompiled
 
     /**
      * Returns the specification for an create-window statement.
+     *
      * @return create-window spec, or null if not such a statement
      */
-    public CreateWindowDesc getCreateWindowDesc()
-    {
+    public CreateWindowDesc getCreateWindowDesc() {
         return createWindowDesc;
     }
 
     /**
      * Returns the create-variable statement descriptor.
+     *
      * @return create-variable spec
      */
-    public CreateVariableDesc getCreateVariableDesc()
-    {
+    public CreateVariableDesc getCreateVariableDesc() {
         return createVariableDesc;
     }
 
     /**
      * Returns the FROM-clause stream definitions.
+     *
      * @return list of stream specifications
      */
-    public StreamSpecCompiled[] getStreamSpecs()
-    {
+    public StreamSpecCompiled[] getStreamSpecs() {
         return streamSpecs;
     }
 
     /**
      * Sets the FROM-clause stream definitions.
+     *
      * @param streamSpecs list of stream specifications
      */
     public void setStreamSpecs(StreamSpecCompiled[] streamSpecs) {
@@ -221,60 +219,61 @@ public class StatementSpecCompiled
 
     /**
      * Returns SELECT-clause list of expressions.
+     *
      * @return list of expressions and optional name
      */
-    public SelectClauseSpecCompiled getSelectClauseSpec()
-    {
+    public SelectClauseSpecCompiled getSelectClauseSpec() {
         return selectClauseSpec;
     }
 
     /**
      * Returns the WHERE-clause root node of filter expression.
+     *
      * @return filter expression root node
      */
-    public ExprNode getFilterRootNode()
-    {
+    public ExprNode getFilterRootNode() {
         return filterExprRootNode;
     }
 
     /**
      * Returns the LEFT/RIGHT/FULL OUTER JOIN-type and property name descriptor, if applicable. Returns null if regular join.
+     *
      * @return outer join type, stream names and property names
      */
-    public OuterJoinDesc[] getOuterJoinDescList()
-    {
+    public OuterJoinDesc[] getOuterJoinDescList() {
         return outerJoinDescList;
     }
 
     /**
      * Returns expression root node representing the having-clause, if present, or null if no having clause was supplied.
+     *
      * @return having-clause expression top node
      */
-    public ExprNode getHavingExprRootNode()
-    {
+    public ExprNode getHavingExprRootNode() {
         return havingExprRootNode;
     }
 
     /**
      * Returns the output limit definition, if any.
+     *
      * @return output limit spec
      */
-    public OutputLimitSpec getOutputLimitSpec()
-    {
+    public OutputLimitSpec getOutputLimitSpec() {
         return outputLimitSpec;
     }
 
     /**
      * Return a descriptor with the insert-into event name and optional list of columns.
+     *
      * @return insert into specification
      */
-    public InsertIntoDesc getInsertIntoDesc()
-    {
+    public InsertIntoDesc getInsertIntoDesc() {
         return insertIntoDesc;
     }
 
     /**
      * Returns the list of order-by expression as specified in the ORDER BY clause.
+     *
      * @return Returns the orderByList.
      */
     public OrderByItem[] getOrderByList() {
@@ -283,51 +282,52 @@ public class StatementSpecCompiled
 
     /**
      * Returns the stream selector (rstream/istream).
+     *
      * @return stream selector
      */
-    public SelectClauseStreamSelectorEnum getSelectStreamSelectorEnum()
-    {
+    public SelectClauseStreamSelectorEnum getSelectStreamSelectorEnum() {
         return selectStreamDirEnum;
     }
 
     /**
      * Set the where clause filter node.
+     *
      * @param optionalFilterNode is the where-clause filter node
      */
-    public void setFilterExprRootNode(ExprNode optionalFilterNode)
-    {
+    public void setFilterExprRootNode(ExprNode optionalFilterNode) {
         filterExprRootNode = optionalFilterNode;
     }
 
     /**
      * Returns the list of lookup expression nodes.
+     *
      * @return lookup nodes
      */
-    public ExprSubselectNode[] getSubSelectExpressions()
-    {
+    public ExprSubselectNode[] getSubSelectExpressions() {
         return subSelectExpressions;
     }
 
     /**
      * Returns the specification for an on-delete or on-select statement.
+     *
      * @return on-trigger spec, or null if not such a statement
      */
-    public OnTriggerDesc getOnTriggerDesc()
-    {
+    public OnTriggerDesc getOnTriggerDesc() {
         return onTriggerDesc;
     }
 
     /**
      * Returns true to indicate the statement has variables.
+     *
      * @return true for statements that use variables
      */
-    public boolean isHasVariables()
-    {
+    public boolean isHasVariables() {
         return variableReferences != null && !variableReferences.isEmpty();
     }
 
     /**
      * Sets the stream selection.
+     *
      * @param selectStreamDirEnum stream selection
      */
     public void setSelectStreamDirEnum(SelectClauseStreamSelectorEnum selectStreamDirEnum) {
@@ -336,60 +336,61 @@ public class StatementSpecCompiled
 
     /**
      * Returns the row limit specification, or null if none supplied.
+     *
      * @return row limit spec if any
      */
-    public RowLimitSpec getRowLimitSpec()
-    {
+    public RowLimitSpec getRowLimitSpec() {
         return rowLimitSpec;
     }
 
     /**
      * Returns the event type name in used by the statement.
+     *
      * @return set of event type name
      */
-    public String[] getEventTypeReferences()
-    {
+    public String[] getEventTypeReferences() {
         return eventTypeReferences;
     }
 
     /**
      * Returns annotations or empty array if none.
+     *
      * @return annotations
      */
-    public Annotation[] getAnnotations()
-    {
+    public Annotation[] getAnnotations() {
         return annotations;
     }
 
     /**
      * Sets the insert-into clause.
+     *
      * @param insertIntoDesc insert-into clause.
      */
-    public void setInsertIntoDesc(InsertIntoDesc insertIntoDesc)
-    {
+    public void setInsertIntoDesc(InsertIntoDesc insertIntoDesc) {
         this.insertIntoDesc = insertIntoDesc;
     }
 
     /**
      * Sets the select clause.
+     *
      * @param selectClauseSpec select clause
      */
-    public void setSelectClauseSpec(SelectClauseSpecCompiled selectClauseSpec)
-    {
+    public void setSelectClauseSpec(SelectClauseSpecCompiled selectClauseSpec) {
         this.selectClauseSpec = selectClauseSpec;
     }
 
     /**
      * Returns the update spec if update clause is used.
+     *
      * @return update desc
      */
-    public UpdateDesc getUpdateSpec()
-    {
+    public UpdateDesc getUpdateSpec() {
         return updateSpec;
     }
 
     /**
      * Returns the match recognize spec, if used
+     *
      * @return match recognize spec
      */
     public MatchRecognizeSpec getMatchRecognizeSpec() {
@@ -398,6 +399,7 @@ public class StatementSpecCompiled
 
     /**
      * Return variables referenced.
+     *
      * @return variables
      */
     public Set<String> getVariableReferences() {
@@ -406,25 +408,22 @@ public class StatementSpecCompiled
 
     /**
      * Returns create index
+     *
      * @return create index
      */
-    public CreateIndexDesc getCreateIndexDesc()
-    {
+    public CreateIndexDesc getCreateIndexDesc() {
         return createIndexDesc;
     }
 
-    public CreateSchemaDesc getCreateSchemaDesc()
-    {
+    public CreateSchemaDesc getCreateSchemaDesc() {
         return createSchemaDesc;
     }
 
-    public ForClauseSpec getForClauseSpec()
-    {
+    public ForClauseSpec getForClauseSpec() {
         return forClauseSpec;
     }
 
-    public Map<Integer, List<ExprNode>> getSqlParameters()
-    {
+    public Map<Integer, List<ExprNode>> getSqlParameters() {
         return sqlParameters;
     }
 

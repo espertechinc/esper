@@ -39,8 +39,7 @@ public class ExprDeclaredServiceImpl implements ExprDeclaredService {
             }
             globalExpressions.put(name, expression);
             return name;
-        }
-        else {
+        } else {
             ExpressionScriptProvided newScript = expressionDesc.getScript();
             String name = newScript.getName();
 
@@ -51,8 +50,7 @@ public class ExprDeclaredServiceImpl implements ExprDeclaredService {
                         throw new ExprValidationException("Script '" + name + "' that takes the same number of parameters has already been declared");
                     }
                 }
-            }
-            else {
+            } else {
                 scripts = new ArrayList<ExpressionScriptProvided>(2);
                 globalScripts.put(name, scripts);
             }
@@ -73,8 +71,7 @@ public class ExprDeclaredServiceImpl implements ExprDeclaredService {
     public synchronized void destroyedExpression(CreateExpressionDesc expressionDesc) {
         if (expressionDesc.getExpression() != null) {
             globalExpressions.remove(expressionDesc.getExpression().getName());
-        }
-        else {
+        } else {
             globalScripts.remove(expressionDesc.getScript().getName());
         }
     }

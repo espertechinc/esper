@@ -15,44 +15,42 @@ import java.io.StringWriter;
 /**
  * Regular expression evaluates a "regexp" regular expression.
  */
-public class RegExpExpression extends ExpressionBase
-{
+public class RegExpExpression extends ExpressionBase {
     private boolean not;
     private static final long serialVersionUID = -3147750744100550487L;
 
     /**
      * Ctor - for use to create an expression tree, without child expression.
+     *
      * @param isNot true for negated regex
      */
-    public RegExpExpression(boolean isNot)
-    {
+    public RegExpExpression(boolean isNot) {
         this.not = isNot;
     }
 
     /**
      * Ctor.
-     * @param left provides values to match against regexp string
+     *
+     * @param left  provides values to match against regexp string
      * @param right provides the regexp string
      * @param isNot true for negated regex
      */
-    public RegExpExpression(Expression left, Expression right, boolean isNot)
-    {
+    public RegExpExpression(Expression left, Expression right, boolean isNot) {
         this(left, right, null, isNot);
     }
 
     /**
      * Ctor.
-     * @param left provides values to match against regexp string
-     * @param right provides the regexp string
+     *
+     * @param left   provides values to match against regexp string
+     * @param right  provides the regexp string
      * @param escape provides the escape character
-     * @param isNot true for negated regex
+     * @param isNot  true for negated regex
      */
-    public RegExpExpression(Expression left, Expression right, Expression escape, boolean isNot)
-    {
+    public RegExpExpression(Expression left, Expression right, Expression escape, boolean isNot) {
         this.getChildren().add(left);
         this.getChildren().add(right);
-        if (escape != null)
-        {
+        if (escape != null) {
             this.getChildren().add(escape);
         }
         this.not = isNot;
@@ -60,34 +58,32 @@ public class RegExpExpression extends ExpressionBase
 
     /**
      * Ctor - for use to create an expression tree, without child expression.
-     */    
-    public RegExpExpression()
-    {
+     */
+    public RegExpExpression() {
         not = false;
     }
 
     /**
      * Ctor.
-     * @param left provides values to match against regexp string
+     *
+     * @param left  provides values to match against regexp string
      * @param right provides the regexp string
      */
-    public RegExpExpression(Expression left, Expression right)
-    {
+    public RegExpExpression(Expression left, Expression right) {
         this(left, right, null);
     }
 
     /**
      * Ctor.
-     * @param left provides values to match against regexp string
-     * @param right provides the regexp string
+     *
+     * @param left   provides values to match against regexp string
+     * @param right  provides the regexp string
      * @param escape provides the escape character
      */
-    public RegExpExpression(Expression left, Expression right, Expression escape)
-    {
+    public RegExpExpression(Expression left, Expression right, Expression escape) {
         this.getChildren().add(left);
         this.getChildren().add(right);
-        if (escape != null)
-        {
+        if (escape != null) {
             this.getChildren().add(escape);
         }
         not = false;
@@ -99,15 +95,13 @@ public class RegExpExpression extends ExpressionBase
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         this.getChildren().get(0).toEPL(writer, getPrecedence());
-        if (not)
-        {
-            writer.write(" not");            
+        if (not) {
+            writer.write(" not");
         }
         writer.write(" regexp ");
         this.getChildren().get(1).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
 
-        if (this.getChildren().size() > 2)
-        {
+        if (this.getChildren().size() > 2) {
             writer.write(" escape ");
             this.getChildren().get(2).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }
@@ -115,10 +109,10 @@ public class RegExpExpression extends ExpressionBase
 
     /**
      * Returns true if negated.
+     *
      * @return indicator whether negated
      */
-    public boolean isNot()
-    {
+    public boolean isNot() {
         return not;
     }
 }

@@ -15,29 +15,25 @@ import com.espertech.esper.collection.UniformPair;
 /**
  * Key consisting of 2 integer stream numbers, for use by {@link QueryGraph}.
  */
-public class QueryGraphKey
-{
+public class QueryGraphKey {
     private UniformPair<Integer> streams;
 
     /**
      * Ctor.
+     *
      * @param streamOne - from stream
      * @param streamTwo - to stream
      */
-    public QueryGraphKey(int streamOne, int streamTwo)
-    {
+    public QueryGraphKey(int streamOne, int streamTwo) {
         streams = new UniformPair<Integer>(streamOne, streamTwo);
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof QueryGraphKey))
-        {
+        if (!(obj instanceof QueryGraphKey)) {
             return false;
         }
 
@@ -45,13 +41,11 @@ public class QueryGraphKey
         return other.streams.equals(this.streams);
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return streams.hashCode();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "QueryGraphKey " + streams.getFirst() + " and " + streams.getSecond();
     }
 }

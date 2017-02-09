@@ -48,9 +48,9 @@ public class CsvReporter extends AbstractPollingReporter implements
      * Enables the CSV reporter for the default metrics registry, and causes it to write to files in
      * {@code outputDir} with the specified period.
      *
-     * @param outputDir    the directory in which {@code .csv} files will be created
-     * @param period       the period between successive outputs
-     * @param unit         the time unit of {@code period}
+     * @param outputDir the directory in which {@code .csv} files will be created
+     * @param period    the period between successive outputs
+     * @param unit      the time unit of {@code period}
      */
     public static void enable(File outputDir, long period, TimeUnit unit) {
         enable(Metrics.defaultRegistry(), outputDir, period, unit);
@@ -78,7 +78,7 @@ public class CsvReporter extends AbstractPollingReporter implements
          * Returns an open {@link java.io.PrintStream} for the metric with {@code header} already written
          * to it.
          *
-         * @param header    the CSV header
+         * @param header the CSV header
          * @return an open {@link java.io.PrintStream}
          * @throws java.io.IOException if there is an error opening the stream or writing to it
          */
@@ -95,9 +95,9 @@ public class CsvReporter extends AbstractPollingReporter implements
      * Creates a new {@link CsvReporter} which will write all metrics from the given
      * {@link MetricsRegistry} to CSV files in the given output directory.
      *
-     * @param outputDir          the directory to which files will be written
-     * @param metricsRegistry    the {@link MetricsRegistry} containing the metrics this reporter
-     *                           will report
+     * @param outputDir       the directory to which files will be written
+     * @param metricsRegistry the {@link MetricsRegistry} containing the metrics this reporter
+     *                        will report
      */
     public CsvReporter(MetricsRegistry metricsRegistry, File outputDir) {
         this(metricsRegistry, MetricPredicate.ALL, outputDir);
@@ -108,11 +108,11 @@ public class CsvReporter extends AbstractPollingReporter implements
      * {@link MetricsRegistry} which match the given {@link MetricPredicate} to CSV files in the
      * given output directory.
      *
-     * @param metricsRegistry    the {@link MetricsRegistry} containing the metrics this reporter
-     *                           will report
-     * @param predicate          the {@link MetricPredicate} which metrics are required to match
-     *                           before being written to files
-     * @param outputDir          the directory to which files will be written
+     * @param metricsRegistry the {@link MetricsRegistry} containing the metrics this reporter
+     *                        will report
+     * @param predicate       the {@link MetricPredicate} which metrics are required to match
+     *                        before being written to files
+     * @param outputDir       the directory to which files will be written
      */
     public CsvReporter(MetricsRegistry metricsRegistry,
                        MetricPredicate predicate,
@@ -125,12 +125,12 @@ public class CsvReporter extends AbstractPollingReporter implements
      * {@link MetricsRegistry} which match the given {@link MetricPredicate} to CSV files in the
      * given output directory.
      *
-     * @param metricsRegistry    the {@link MetricsRegistry} containing the metrics this reporter
-     *                           will report
-     * @param predicate          the {@link MetricPredicate} which metrics are required to match
-     *                           before being written to files
-     * @param outputDir          the directory to which files will be written
-     * @param clock              the clock used to measure time
+     * @param metricsRegistry the {@link MetricsRegistry} containing the metrics this reporter
+     *                        will report
+     * @param predicate       the {@link MetricPredicate} which metrics are required to match
+     *                        before being written to files
+     * @param outputDir       the directory to which files will be written
+     * @param clock           the clock used to measure time
      */
     public CsvReporter(MetricsRegistry metricsRegistry,
                        MetricPredicate predicate,
@@ -151,7 +151,7 @@ public class CsvReporter extends AbstractPollingReporter implements
      * Returns an opened {@link java.io.PrintStream} for the given {@link MetricName} which outputs data
      * to a metric-specific {@code .csv} file in the output directory.
      *
-     * @param metricName    the name of the metric
+     * @param metricName the name of the metric
      * @return an opened {@link java.io.PrintStream} specific to {@code metricName}
      * @throws java.io.IOException if there is an error opening the stream
      */
@@ -195,12 +195,12 @@ public class CsvReporter extends AbstractPollingReporter implements
         final PrintStream stream = context.getStream(
                 "# time,count,1 min rate,mean rate,5 min rate,15 min rate");
         stream.append(new StringBuilder()
-                              .append(meter.count()).append(',')
-                              .append(meter.oneMinuteRate()).append(',')
-                              .append(meter.meanRate()).append(',')
-                              .append(meter.fiveMinuteRate()).append(',')
-                              .append(meter.fifteenMinuteRate()).toString())
-              .println();
+                .append(meter.count()).append(',')
+                .append(meter.oneMinuteRate()).append(',')
+                .append(meter.meanRate()).append(',')
+                .append(meter.fiveMinuteRate()).append(',')
+                .append(meter.fifteenMinuteRate()).toString())
+                .println();
         stream.flush();
     }
 
@@ -216,14 +216,14 @@ public class CsvReporter extends AbstractPollingReporter implements
         final PrintStream stream = context.getStream("# time,min,max,mean,median,stddev,95%,99%,99.9%");
         final Snapshot snapshot = histogram.getSnapshot();
         stream.append(new StringBuilder()
-                              .append(histogram.min()).append(',')
-                              .append(histogram.max()).append(',')
-                              .append(histogram.mean()).append(',')
-                              .append(snapshot.getMedian()).append(',')
-                              .append(histogram.stdDev()).append(',')
-                              .append(snapshot.get95thPercentile()).append(',')
-                              .append(snapshot.get99thPercentile()).append(',')
-                              .append(snapshot.get999thPercentile()).toString())
+                .append(histogram.min()).append(',')
+                .append(histogram.max()).append(',')
+                .append(histogram.mean()).append(',')
+                .append(snapshot.getMedian()).append(',')
+                .append(histogram.stdDev()).append(',')
+                .append(snapshot.get95thPercentile()).append(',')
+                .append(snapshot.get99thPercentile()).append(',')
+                .append(snapshot.get999thPercentile()).toString())
                 .println();
         stream.println();
         stream.flush();
@@ -234,14 +234,14 @@ public class CsvReporter extends AbstractPollingReporter implements
         final PrintStream stream = context.getStream("# time,min,max,mean,median,stddev,95%,99%,99.9%");
         final Snapshot snapshot = timer.getSnapshot();
         stream.append(new StringBuilder()
-                              .append(timer.min()).append(',')
-                              .append(timer.max()).append(',')
-                              .append(timer.mean()).append(',')
-                              .append(snapshot.getMedian()).append(',')
-                              .append(timer.stdDev()).append(',')
-                              .append(snapshot.get95thPercentile()).append(',')
-                              .append(snapshot.get99thPercentile()).append(',')
-                              .append(snapshot.get999thPercentile()).toString())
+                .append(timer.min()).append(',')
+                .append(timer.max()).append(',')
+                .append(timer.mean()).append(',')
+                .append(snapshot.getMedian()).append(',')
+                .append(timer.stdDev()).append(',')
+                .append(snapshot.get95thPercentile()).append(',')
+                .append(snapshot.get99thPercentile()).append(',')
+                .append(snapshot.get999thPercentile()).toString())
                 .println();
         stream.flush();
     }

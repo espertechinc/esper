@@ -19,8 +19,7 @@ import java.util.Map;
  * A no-latch implementation of a latch for use in guaranteeing delivery between
  * a named window delta result and consumable by another statement.
  */
-public class NamedWindowConsumerLatchNone extends NamedWindowConsumerLatch
-{
+public class NamedWindowConsumerLatchNone extends NamedWindowConsumerLatch {
     public NamedWindowConsumerLatchNone(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo) {
         super(deltaData, dispatchTo);
     }

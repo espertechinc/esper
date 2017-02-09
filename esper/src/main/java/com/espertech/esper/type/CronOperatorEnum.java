@@ -10,19 +10,10 @@
  */
 package com.espertech.esper.type;
 
-import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
-import com.espertech.esper.client.EPException;
-
-import java.util.Calendar;
-import java.util.Set;
-import java.util.HashSet;
-import java.io.StringWriter;
-
 /**
  * Enumeration for special keywords in crontab timer.
  */
-public enum CronOperatorEnum
-{
+public enum CronOperatorEnum {
     /**
      * Last day of week or month.
      */
@@ -40,17 +31,16 @@ public enum CronOperatorEnum
 
     private String syntax;
 
-    private CronOperatorEnum(String s)
-    {
-        syntax = s;        
+    private CronOperatorEnum(String s) {
+        syntax = s;
     }
 
     /**
      * Returns the syntax string for the operator.
+     *
      * @return syntax string
      */
-    public String getSyntax()
-    {
+    public String getSyntax() {
         return syntax;
     }
 }

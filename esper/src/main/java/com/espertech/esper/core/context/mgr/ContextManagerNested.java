@@ -62,8 +62,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
     private final ContextPartitionIdManager contextPartitionIdManager;
 
     public ContextManagerNested(ContextControllerFactoryServiceContext factoryServiceContext)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.contextName = factoryServiceContext.getContextName();
         this.servicesContext = factoryServiceContext.getServicesContext();
         this.contextPartitionIdManager = factoryServiceContext.getAgentInstanceContextCreate().getStatementContext().getContextControllerFactoryService().allocatePartitionIdMgr(contextName, factoryServiceContext.getAgentInstanceContextCreate().getStatementContext().getStatementId());
@@ -116,10 +115,10 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
     }
 
     protected static ContextPartitionIdentifier[] getTreeCompositeKey(
-                                                  ContextControllerFactory[] nestedContextFactories,
-                                                  Object initPartitionKey,
-                                                  ContextControllerTreeEntry treeEntry,
-                                                  Map<ContextController, ContextControllerTreeEntry> subcontexts) {
+            ContextControllerFactory[] nestedContextFactories,
+            Object initPartitionKey,
+            ContextControllerTreeEntry treeEntry,
+            Map<ContextController, ContextControllerTreeEntry> subcontexts) {
         int length = nestedContextFactories.length;
         ContextPartitionIdentifier[] keys = new ContextPartitionIdentifier[length];
         keys[length - 1] = nestedContextFactories[length - 1].keyPayloadToIdentifier(initPartitionKey);
@@ -178,7 +177,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         return new ContextStatePathDescriptor(visitor.getStates(), visitor.getAgentInstanceInfo());
     }
 
-    public Map<Integer,ContextPartitionDescriptor> startPaths(ContextPartitionSelector selector) {
+    public Map<Integer, ContextPartitionDescriptor> startPaths(ContextPartitionSelector selector) {
         ContextPartitionVisitorStateWithPath visitor = getContextPartitionPathsInternal(selector);
         for (Map.Entry<ContextController, List<ContextPartitionVisitorStateWithPath.LeafDesc>> entry : visitor.getControllerAgentInstances().entrySet()) {
             ContextControllerTreeEntry treeEntry = subcontexts.get(entry.getKey());
@@ -208,13 +207,11 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         if (selector instanceof ContextPartitionSelectorNested) {
             ContextPartitionSelectorNested nested = (ContextPartitionSelectorNested) selector;
             selectors = nested.getSelectors();
-        }
-        else if (selector instanceof ContextPartitionSelectorAll) {
+        } else if (selector instanceof ContextPartitionSelectorAll) {
             ContextPartitionSelector[] all = new ContextPartitionSelector[getNumNestingLevels()];
             Arrays.fill(all, selector);
             selectors = Collections.singletonList(all);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Invalid selector for nested context");
         }
         for (ContextPartitionSelector[] item : selectors) {
@@ -239,9 +236,8 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         // activate if this is the first statement
         if (statements.size() == 1) {
             activate();     // this may itself trigger a callback
-        }
-        // activate statement in respect to existing context partitions
-        else {
+        } else {
+            // activate statement in respect to existing context partitions
             for (Map.Entry<ContextController, ContextControllerTreeEntry> subcontext : subcontexts.entrySet()) {
                 if (subcontext.getKey().getFactory().getFactoryContext().getNestingLevel() != nestedContextFactories.length) {
                     continue;
@@ -270,8 +266,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
         }
         if (statements.size() == 1) {
             safeDestroy();
-        }
-        else {
+        } else {
             removeStatement(statementId);
         }
     }
@@ -317,8 +312,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                 ContextStatePathKey key = new ContextStatePathKey(nestedContextFactories.length, originator.getPathId(), existingHandle.getSubPathId());
                 ContextStatePathValue value = new ContextStatePathValue(existingHandle.getContextPartitionOrPathId(), payload, ContextPartitionState.STARTED);
                 originator.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, key, value);
-            }
-            else {
+            } else {
                 List<AgentInstance> removed = new ArrayList<AgentInstance>(2);
                 List<AgentInstance> added = new ArrayList<AgentInstance>(2);
                 List<AgentInstance> current = cpEntry.getValue().getAgentInstances();
@@ -391,7 +385,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                         " for level " + nextContext.getFactory().getFactoryContext().getNestingLevel() +
                         "(" + nextContext.getFactory().getFactoryContext().getContextName() + ")" +
                         " childPath " + subPathId
-                        );
+                );
             }
 
             return new ContextManagerNestedInstanceHandle(subPathId, nextContext, subPathId, true, null);
@@ -475,8 +469,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                         "(" + branch.getFactory().getFactoryContext().getContextName() + ")" +
                         " parentPath " + branch.getPathId());
             }
-        }
-        else {
+        } else {
             ContextManagerNestedInstanceHandle leafHandle = handle;
             ContextController leaf = leafHandle.getController();
             ContextControllerTreeEntry leafEntry = subcontexts.get(leaf);
@@ -588,7 +581,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
 
             for (Map.Entry<Integer, ContextControllerTreeAgentInstanceList> contextPartitionEntry : entry.getValue().getAgentInstances().entrySet()) {
                 Iterator<AgentInstance> instanceIt = contextPartitionEntry.getValue().getAgentInstances().iterator();
-                for (;instanceIt.hasNext();) {
+                for (; instanceIt.hasNext(); ) {
                     AgentInstance instance = instanceIt.next();
                     if (instance.getAgentInstanceContext().getStatementContext().getStatementId() != statementId) {
                         continue;
@@ -701,11 +694,9 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
             ArrayList agentInstanceIds = new ArrayList<Integer>(ids);
             agentInstanceIds.retainAll(contextPartitionIdManager.getIds());
             return agentInstanceIds;
-        }
-        else if (selector instanceof ContextPartitionSelectorAll) {
+        } else if (selector instanceof ContextPartitionSelectorAll) {
             return new ArrayList<Integer>(contextPartitionIdManager.getIds());
-        }
-        else if (selector instanceof ContextPartitionSelectorNested) {
+        } else if (selector instanceof ContextPartitionSelectorNested) {
             ContextPartitionSelectorNested nested = (ContextPartitionSelectorNested) selector;
             ContextPartitionVisitorAgentInstanceIdWPath visitor = new ContextPartitionVisitorAgentInstanceIdWPath(nestedContextFactories.length);
             for (ContextPartitionSelector[] item : nested.getSelectors()) {
@@ -713,7 +704,7 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
             }
             return visitor.getAgentInstanceIds();
         }
-        throw ContextControllerSelectorUtil.getInvalidSelector(new Class[] {ContextPartitionSelectorNested.class}, selector, true);
+        throw ContextControllerSelectorUtil.getInvalidSelector(new Class[]{ContextPartitionSelectorNested.class}, selector, true);
     }
 
     private void recursivePopulateSelector(ContextController currentContext, int level, ContextPartitionSelector[] selectorStack, ContextPartitionVisitorWithPath visitor) {
@@ -735,9 +726,8 @@ public class ContextManagerNested implements ContextManager, ContextControllerLi
                     recursivePopulateSelector(controller, level + 1, selectorStack, visitor);
                 }
             }
-        }
-        // handle leaf
-        else {
+        } else {
+            // handle leaf
             currentContext.visitSelectedPartitions(selector, visitor);
         }
     }

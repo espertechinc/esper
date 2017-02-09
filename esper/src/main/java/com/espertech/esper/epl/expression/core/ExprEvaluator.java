@@ -15,19 +15,20 @@ import com.espertech.esper.client.EventBean;
 /**
  * Interface for evaluating of an event tuple.
  */
-public interface ExprEvaluator
-{
+public interface ExprEvaluator {
     /**
      * Evaluate event tuple and return result.
+     *
      * @param eventsPerStream - event tuple
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param context context for expression evaluation
+     * @param isNewData       - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param context         context for expression evaluation
      * @return evaluation result, a boolean value for OR/AND-type evalution nodes.
      */
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     /**
      * Returns the type that the node's evaluate method returns an instance of.
+     *
      * @return type returned when evaluated
      */
     public Class getType();

@@ -30,8 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * This view is hooked into a named window's view chain as the last view and handles dispatching of named window
  * insert and remove stream results via {@link NamedWindowMgmtService} to consuming statements.
  */
-public class NamedWindowTailView
-{
+public class NamedWindowTailView {
     protected final EventType eventType;
     protected final NamedWindowMgmtService namedWindowMgmtService;
     protected final NamedWindowDispatchService namedWindowDispatchService;
@@ -58,6 +57,7 @@ public class NamedWindowTailView
 
     /**
      * Returns true to indicate that the data window view is a batch view.
+     *
      * @return true if batch view
      */
     public boolean isParentBatchWindow() {
@@ -92,8 +92,7 @@ public class NamedWindowTailView
         return consumersNonContext;
     }
 
-    public NamedWindowConsumerView addConsumer(NamedWindowConsumerDesc consumerDesc)
-    {
+    public NamedWindowConsumerView addConsumer(NamedWindowConsumerDesc consumerDesc) {
         NamedWindowConsumerCallback consumerCallback = new NamedWindowConsumerCallback() {
             public Iterator<EventBean> getIterator() {
                 throw new UnsupportedOperationException("Iterator not supported on named windows that have a context attached and when that context is not the same as the consuming statement's context");
@@ -110,8 +109,7 @@ public class NamedWindowTailView
 
         // Keep a list of consumer views per statement to accomodate joins and subqueries
         List<NamedWindowConsumerView> viewsPerStatements = consumersNonContext.get(consumerDesc.getAgentInstanceContext().getEpStatementAgentInstanceHandle());
-        if (viewsPerStatements == null)
-        {
+        if (viewsPerStatements == null) {
             viewsPerStatements = new CopyOnWriteArrayList<NamedWindowConsumerView>();
 
             // avoid concurrent modification as a thread may currently iterate over consumers as its dispatching
@@ -129,25 +127,22 @@ public class NamedWindowTailView
     /**
      * Called by the consumer view to indicate it was stopped or destroyed, such that the
      * consumer can be deregistered and further dispatches disregard this consumer.
+     *
      * @param namedWindowConsumerView is the consumer representative view
      */
-    public void removeConsumer(NamedWindowConsumerView namedWindowConsumerView)
-    {
+    public void removeConsumer(NamedWindowConsumerView namedWindowConsumerView) {
         EPStatementAgentInstanceHandle handleRemoved = null;
         // Find the consumer view
-        for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : consumersNonContext.entrySet())
-        {
+        for (Map.Entry<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> entry : consumersNonContext.entrySet()) {
             boolean foundAndRemoved = entry.getValue().remove(namedWindowConsumerView);
             // Remove the consumer view
-            if ((foundAndRemoved) && (entry.getValue().size() == 0))
-            {
+            if (foundAndRemoved && (entry.getValue().size() == 0)) {
                 // Remove the handle if this list is now empty
                 handleRemoved = entry.getKey();
                 break;
             }
         }
-        if (handleRemoved != null)
-        {
+        if (handleRemoved != null) {
             Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> newConsumers = NamedWindowUtil.createConsumerMap(isPrioritized);
             newConsumers.putAll(consumersNonContext);
             newConsumers.remove(handleRemoved);

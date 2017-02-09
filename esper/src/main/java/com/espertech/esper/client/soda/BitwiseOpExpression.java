@@ -17,8 +17,7 @@ import java.io.StringWriter;
 /**
  * Bitwise (binary) operator for binary AND, binary OR and binary XOR.
  */
-public class BitwiseOpExpression extends ExpressionBase
-{
+public class BitwiseOpExpression extends ExpressionBase {
     private BitWiseOpEnum binaryOp;
     private static final long serialVersionUID = 5564205980185587363L;
 
@@ -32,58 +31,54 @@ public class BitwiseOpExpression extends ExpressionBase
      * Ctor - for use to create an expression tree, without child expression.
      * <p>
      * Use add methods to add child expressions to acts upon.
+     *
      * @param binaryOp the binary operator
      */
-    public BitwiseOpExpression(BitWiseOpEnum binaryOp)
-    {
+    public BitwiseOpExpression(BitWiseOpEnum binaryOp) {
         this.binaryOp = binaryOp;
     }
 
     /**
      * Add a property to the expression.
+     *
      * @param property to add
      * @return expression
      */
-    public BitwiseOpExpression add(String property)
-    {
+    public BitwiseOpExpression add(String property) {
         this.getChildren().add(new PropertyValueExpression(property));
         return this;
     }
 
     /**
      * Add a constant to the expression.
+     *
      * @param object constant to add
      * @return expression
      */
-    public BitwiseOpExpression add(Object object)
-    {
+    public BitwiseOpExpression add(Object object) {
         this.getChildren().add(new ConstantExpression(object));
         return this;
     }
 
     /**
      * Add an expression to the expression.
+     *
      * @param expression to add
      * @return expression
      */
-    public BitwiseOpExpression add(Expression expression)
-    {
+    public BitwiseOpExpression add(Expression expression) {
         this.getChildren().add(expression);
         return this;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.BITWISE;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         boolean isFirst = true;
-        for (Expression child : this.getChildren())
-        {
-            if (!isFirst)
-            {
+        for (Expression child : this.getChildren()) {
+            if (!isFirst) {
                 writer.write(binaryOp.getExpressionText());
             }
             child.toEPL(writer, getPrecedence());
@@ -93,19 +88,19 @@ public class BitwiseOpExpression extends ExpressionBase
 
     /**
      * Returns the binary operator.
+     *
      * @return operator
      */
-    public BitWiseOpEnum getBinaryOp()
-    {
+    public BitWiseOpEnum getBinaryOp() {
         return binaryOp;
     }
 
     /**
      * Sets the binary operator.
+     *
      * @param binaryOp operator to set
      */
-    public void setBinaryOp(BitWiseOpEnum binaryOp)
-    {
+    public void setBinaryOp(BitWiseOpEnum binaryOp) {
         this.binaryOp = binaryOp;
     }
 }

@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Represents the "countever" aggregation function.
  */
-public class CountEverProjectionExpression extends ExpressionBase
-{
+public class CountEverProjectionExpression extends ExpressionBase {
     private static final long serialVersionUID = 4793677355945144559L;
 
     private boolean distinct;
@@ -28,60 +27,57 @@ public class CountEverProjectionExpression extends ExpressionBase
     }
 
     /**
-
      * Ctor.
+     *
      * @param isDistinct true for distinct
      */
-    public CountEverProjectionExpression(boolean isDistinct)
-    {
+    public CountEverProjectionExpression(boolean isDistinct) {
         this.distinct = isDistinct;
     }
 
     /**
      * Ctor.
+     *
      * @param expression to aggregate
      * @param isDistinct true for distinct
      */
-    public CountEverProjectionExpression(Expression expression, boolean isDistinct)
-    {
+    public CountEverProjectionExpression(Expression expression, boolean isDistinct) {
         this.distinct = isDistinct;
         this.getChildren().add(expression);
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         ExpressionBase.renderAggregation(writer, "countever", distinct, this.getChildren());
     }
 
     /**
      * Returns true for distinct.
+     *
      * @return boolean indicating distinct or not
      */
-    public boolean isDistinct()
-    {
+    public boolean isDistinct() {
         return distinct;
     }
 
     /**
      * Returns true for distinct.
+     *
      * @return boolean indicating distinct or not
      */
-    public boolean getDistinct()
-    {
+    public boolean getDistinct() {
         return distinct;
     }
 
     /**
      * Set to true for distinct.
+     *
      * @param distinct indicating distinct or not
      */
-    public void setDistinct(boolean distinct)
-    {
+    public void setDistinct(boolean distinct) {
         this.distinct = distinct;
     }
 }

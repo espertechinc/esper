@@ -19,9 +19,10 @@ import java.util.Collection;
 
 public class CountMinSketchAggAccessorDefault implements AggregationAccessor {
 
-    public static CountMinSketchAggAccessorDefault INSTANCE = new CountMinSketchAggAccessorDefault();
+    public final static CountMinSketchAggAccessorDefault INSTANCE = new CountMinSketchAggAccessorDefault();
 
-    private CountMinSketchAggAccessorDefault() {}
+    private CountMinSketchAggAccessorDefault() {
+    }
 
     public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;

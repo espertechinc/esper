@@ -18,8 +18,7 @@ import com.espertech.esper.view.ViewSupport;
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public abstract class NamedWindowOnExprBaseView extends ViewSupport
-{
+public abstract class NamedWindowOnExprBaseView extends ViewSupport {
     /**
      * The event type of the events hosted in the named window.
      */
@@ -33,14 +32,14 @@ public abstract class NamedWindowOnExprBaseView extends ViewSupport
 
     /**
      * Ctor.
-     * @param lookupStrategy for handling trigger events to determine deleted events
-     * @param rootView to indicate which events to delete
+     *
+     * @param lookupStrategy       for handling trigger events to determine deleted events
+     * @param rootView             to indicate which events to delete
      * @param exprEvaluatorContext context for expression evalauation
      */
     public NamedWindowOnExprBaseView(SubordWMatchExprLookupStrategy lookupStrategy,
-                                 NamedWindowRootViewInstance rootView,
-                                 ExprEvaluatorContext exprEvaluatorContext)
-    {
+                                     NamedWindowRootViewInstance rootView,
+                                     ExprEvaluatorContext exprEvaluatorContext) {
         this.lookupStrategy = lookupStrategy;
         this.rootView = rootView;
         this.exprEvaluatorContext = exprEvaluatorContext;
@@ -48,15 +47,14 @@ public abstract class NamedWindowOnExprBaseView extends ViewSupport
 
     /**
      * Implemented by on-trigger views to action on the combination of trigger and matching events in the named window.
-     * @param triggerEvents is the trigger events (usually 1)
+     *
+     * @param triggerEvents  is the trigger events (usually 1)
      * @param matchingEvents is the matching events retrieved via lookup strategy
      */
     public abstract void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents);
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (newData == null)
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (newData == null) {
             return;
         }
 
@@ -69,6 +67,7 @@ public abstract class NamedWindowOnExprBaseView extends ViewSupport
 
     /**
      * returns expr context.
+     *
      * @return context
      */
     public ExprEvaluatorContext getExprEvaluatorContext() {

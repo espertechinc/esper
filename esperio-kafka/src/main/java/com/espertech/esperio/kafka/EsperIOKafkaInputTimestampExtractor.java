@@ -13,5 +13,5 @@ package com.espertech.esperio.kafka;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public interface EsperIOKafkaInputTimestampExtractor {
-    long extract(ConsumerRecord<Object,Object> record);
+    long extract(ConsumerRecord<Object, Object> record);
 }

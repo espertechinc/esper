@@ -22,8 +22,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
-public class ExprAggMultiFunctionSortedMinMaxByNodeFactory implements AggregationMethodFactory
-{
+public class ExprAggMultiFunctionSortedMinMaxByNodeFactory implements AggregationMethodFactory {
     private final ExprAggMultiFunctionSortedMinMaxByNode parent;
     private final AggregationAccessor accessor;
     private final Class accessorResultType;

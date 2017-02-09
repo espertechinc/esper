@@ -23,8 +23,7 @@ import java.util.Map;
 /**
  * Aggregation service for use when only first/last/window aggregation functions are used an none other.
  */
-public class AggSvcGroupByAccessOnlyImpl implements AggregationService, AggregationResultFuture
-{
+public class AggSvcGroupByAccessOnlyImpl implements AggregationService, AggregationResultFuture {
     private final Map<Object, AggregationState[]> accessMap;
     private final AggregationAccessorSlotPair[] accessors;
     private final AggregationStateFactory[] accessAggSpecs;
@@ -35,52 +34,64 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
 
     /**
      * Ctor.
-     * @param accessors accessor definitions
+     *
+     * @param accessors      accessor definitions
      * @param accessAggSpecs access agg specs
-     * @param isJoin true for join, false for single-stream
+     * @param isJoin         true for join, false for single-stream
      */
     public AggSvcGroupByAccessOnlyImpl(AggregationAccessorSlotPair[] accessors,
-                                                   AggregationStateFactory[] accessAggSpecs,
-                                                   boolean isJoin)
-    {
+                                       AggregationStateFactory[] accessAggSpecs,
+                                       boolean isJoin) {
         this.accessMap = new HashMap<Object, AggregationState[]>();
         this.accessors = accessors;
         this.accessAggSpecs = accessAggSpecs;
         this.isJoin = isJoin;
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, 0, accessAggSpecs.length, groupKey);}
+    public void applyEnter(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, 0, accessAggSpecs.length, groupKey);
+        }
         AggregationState[] row = getAssertRow(exprEvaluatorContext.getAgentInstanceId(), groupKey);
         for (int i = 0; i < row.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, row[i], accessAggSpecs[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, row[i], accessAggSpecs[i].getAggregationExpression());
+            }
             row[i].applyEnter(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, row[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, row[i]);
+            }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);
+        }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, 0, accessAggSpecs.length, groupKey);}
+    public void applyLeave(EventBean[] eventsPerStream, Object groupKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, 0, accessAggSpecs.length, groupKey);
+        }
         AggregationState[] row = getAssertRow(exprEvaluatorContext.getAgentInstanceId(), groupKey);
         for (int i = 0; i < row.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, row[i], accessAggSpecs[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, row[i], accessAggSpecs[i].getAggregationExpression());
+            }
             row[i].applyLeave(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, row[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, row[i]);
+            }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);
+        }
     }
 
-    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         currentAccesses = getAssertRow(agentInstanceId, groupKey);
         currentGroupKey = groupKey;
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         AggregationAccessorSlotPair pair = accessors[column];
         return pair.getAccessor().getValue(currentAccesses[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
     }
@@ -100,8 +111,7 @@ public class AggSvcGroupByAccessOnlyImpl implements AggregationService, Aggregat
         return pair.getAccessor().getEnumerableEvent(currentAccesses[pair.getSlot()], eventsPerStream, isNewData, context);
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         accessMap.clear();
     }
 

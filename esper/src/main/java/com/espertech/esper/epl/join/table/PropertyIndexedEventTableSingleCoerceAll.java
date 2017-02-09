@@ -17,8 +17,7 @@ import com.espertech.esper.util.SimpleNumberCoercer;
 
 import java.util.Set;
 
-public class PropertyIndexedEventTableSingleCoerceAll extends PropertyIndexedEventTableSingleCoerceAdd
-{
+public class PropertyIndexedEventTableSingleCoerceAll extends PropertyIndexedEventTableSingleCoerceAdd {
     private final Class coercionType;
 
     public PropertyIndexedEventTableSingleCoerceAll(EventPropertyGetter propertyGetter, EventTableOrganization organization, SimpleNumberCoercer coercer, Class coercionType) {
@@ -28,10 +27,10 @@ public class PropertyIndexedEventTableSingleCoerceAll extends PropertyIndexedEve
 
     /**
      * Returns the set of events that have the same property value as the given event.
+     *
      * @return set of events with property value, or null if none found (never returns zero-sized set)
      */
-    public Set<EventBean> lookup(Object key)
-    {
+    public Set<EventBean> lookup(Object key) {
         key = EventBeanUtility.coerce(key, coercionType);
         return propertyIndex.get(key);
     }

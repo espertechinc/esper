@@ -22,32 +22,29 @@ package com.espertech.esper.schedule;
  * and timers within their statement (such as time window or output rate limit timers) behave
  * deterministically.
  */
-public class ScheduleBucket
-{
+public class ScheduleBucket {
     private final int bucketNum;
     private int lastSlot;
 
     /**
      * Ctor.
+     *
      * @param bucketNum is a simple integer number for this bucket by which buckets can be sorted
      */
-    public ScheduleBucket(int bucketNum)
-    {
+    public ScheduleBucket(int bucketNum) {
         this.bucketNum = bucketNum;
         lastSlot = 0;
     }
 
-    public long allocateSlot()
-    {
+    public long allocateSlot() {
         return toLong(bucketNum, lastSlot++);
     }
 
-    public long allocateSlot(int slotNumber)
-    {
+    public long allocateSlot(int slotNumber) {
         return toLong(bucketNum, slotNumber);
     }
 
     public static long toLong(int bucket, int slot) {
-        return ((long)bucket << 32) | slot & 0xFFFFFFFFL;
+        return ((long) bucket << 32) | slot & 0xFFFFFFFFL;
     }
 }

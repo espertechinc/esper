@@ -21,20 +21,19 @@ import java.util.Map;
 /**
  * Getter for map entry.
  */
-public abstract class MapPropertyGetterDefaultBase implements MapEventPropertyGetter
-{
+public abstract class MapPropertyGetterDefaultBase implements MapEventPropertyGetter {
     private final String propertyName;
     protected final EventType fragmentEventType;
     protected final EventAdapterService eventAdapterService;
 
     /**
      * Ctor.
-     * @param propertyNameAtomic property name
-     * @param fragmentEventType fragment type
+     *
+     * @param propertyNameAtomic  property name
+     * @param fragmentEventType   fragment type
      * @param eventAdapterService factory for event beans and event types
      */
-    public MapPropertyGetterDefaultBase(String propertyNameAtomic, EventType fragmentEventType, EventAdapterService eventAdapterService)
-    {
+    public MapPropertyGetterDefaultBase(String propertyNameAtomic, EventType fragmentEventType, EventAdapterService eventAdapterService) {
         this.propertyName = propertyNameAtomic;
         this.fragmentEventType = fragmentEventType;
         this.eventAdapterService = eventAdapterService;
@@ -42,28 +41,23 @@ public abstract class MapPropertyGetterDefaultBase implements MapEventPropertyGe
 
     protected abstract Object handleCreateFragment(Object value);
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         return map.get(propertyName);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true;
     }
 
-    public Object get(EventBean obj) throws PropertyAccessException
-    {
+    public Object get(EventBean obj) throws PropertyAccessException {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true;
     }
 
-    public Object getFragment(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         Object value = get(eventBean);
         return handleCreateFragment(value);
     }

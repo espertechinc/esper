@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.agg.service;
 
-public interface AggregationServiceVisitorWGroupDetail
-{
+public interface AggregationServiceVisitorWGroupDetail {
     public void visitGrouped(int numGroups);
-    public void visitGroup(Object groupKey, Object ... state);
+
+    public void visitGroup(Object groupKey, Object... state);
 }

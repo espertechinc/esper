@@ -12,27 +12,21 @@ package com.espertech.esper.filter;
 
 import junit.framework.TestCase;
 
-public class TestFilterSpecParamRange extends TestCase
-{
-    public void testConstruct()
-    {
-        DoubleRange range = new DoubleRange(3d,3d);
+public class TestFilterSpecParamRange extends TestCase {
+    public void testConstruct() {
+        DoubleRange range = new DoubleRange(3d, 3d);
 
         makeParam("a", FilterOperator.RANGE_HALF_OPEN, range);
 
-        try
-        {
+        try {
             makeParam("a", FilterOperator.EQUAL, range);
             assertTrue(false);
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected exception
         }
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         FilterSpecParam c1 = makeParam("a", FilterOperator.RANGE_CLOSED, new DoubleRange(5d, 6d));
         FilterSpecParam c2 = makeParam("b", FilterOperator.RANGE_CLOSED, new DoubleRange(5d, 6d));
         FilterSpecParam c3 = makeParam("a", FilterOperator.RANGE_HALF_CLOSED, new DoubleRange(5d, 6d));
@@ -45,8 +39,7 @@ public class TestFilterSpecParamRange extends TestCase
         assertTrue(c1.equals(c5));
     }
 
-    private FilterSpecParamRange makeParam(String propertyName, FilterOperator filterOp, DoubleRange doubleRange)
-    {
+    private FilterSpecParamRange makeParam(String propertyName, FilterOperator filterOp, DoubleRange doubleRange) {
         return new FilterSpecParamRange(makeLookupable(propertyName), filterOp,
                 new RangeValueDouble(doubleRange.getMin()),
                 new RangeValueDouble(doubleRange.getMax()));

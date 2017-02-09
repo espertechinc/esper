@@ -18,8 +18,7 @@ import java.lang.annotation.Annotation;
 /**
  * Provides statement-level locks.
  */
-public class StatementLockFactoryImpl implements StatementLockFactory
-{
+public class StatementLockFactoryImpl implements StatementLockFactory {
     private final boolean fairlocks;
     private final boolean disableLocking;
 
@@ -28,11 +27,10 @@ public class StatementLockFactoryImpl implements StatementLockFactory
         this.disableLocking = disableLocking;
     }
 
-    public StatementAgentInstanceLock getStatementLock(String statementName, Annotation[] annotations, boolean stateless)
-    {
+    public StatementAgentInstanceLock getStatementLock(String statementName, Annotation[] annotations, boolean stateless) {
         boolean foundNoLock = AnnotationUtil.findAnnotation(annotations, NoLock.class) != null;
         if (disableLocking || foundNoLock || stateless) {
-           return new StatementNoLockImpl(statementName);
+            return new StatementNoLockImpl(statementName);
         }
         return new StatementAgentInstanceRWLockImpl(fairlocks);
     }

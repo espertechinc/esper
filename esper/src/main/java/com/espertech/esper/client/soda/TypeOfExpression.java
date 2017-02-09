@@ -17,9 +17,9 @@ import java.io.StringWriter;
  * the fragment event type if passing a property name that results in a fragment event otherwise
  * the class simple name of the expression result or null if the expression returns a null value.
  */
-public class TypeOfExpression extends ExpressionBase
-{
-    private String[] typeNames;private static final long serialVersionUID = 8091600570950143727L;
+public class TypeOfExpression extends ExpressionBase {
+    private String[] typeNames;
+    private static final long serialVersionUID = 8091600570950143727L;
 
     /**
      * Ctor.
@@ -29,20 +29,18 @@ public class TypeOfExpression extends ExpressionBase
 
     /**
      * Ctor.
+     *
      * @param expression for which to return the result type or null if the result is null
      */
-    public TypeOfExpression(Expression expression)
-    {
+    public TypeOfExpression(Expression expression) {
         this.getChildren().add(expression);
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("typeof(");
         this.getChildren().get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         writer.write(")");

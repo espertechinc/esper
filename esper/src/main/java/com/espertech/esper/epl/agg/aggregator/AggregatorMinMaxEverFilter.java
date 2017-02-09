@@ -16,15 +16,13 @@ import com.espertech.esper.type.MinMaxTypeEnum;
 /**
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).
  */
-public class AggregatorMinMaxEverFilter extends AggregatorMinMaxEver
-{
+public class AggregatorMinMaxEverFilter extends AggregatorMinMaxEver {
     public AggregatorMinMaxEverFilter(MinMaxTypeEnum minMaxTypeEnum) {
         super(minMaxTypeEnum);
     }
 
     @Override
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;
@@ -33,8 +31,7 @@ public class AggregatorMinMaxEverFilter extends AggregatorMinMaxEver
     }
 
     @Override
-    public void leave(Object parameters)
-    {
+    public void leave(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

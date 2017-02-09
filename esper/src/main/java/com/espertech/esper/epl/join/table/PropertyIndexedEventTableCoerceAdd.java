@@ -24,8 +24,7 @@ import com.espertech.esper.util.SimpleNumberCoercer;
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public class PropertyIndexedEventTableCoerceAdd extends PropertyIndexedEventTableUnadorned
-{
+public class PropertyIndexedEventTableCoerceAdd extends PropertyIndexedEventTableUnadorned {
     private final SimpleNumberCoercer[] coercers;
     protected final Class[] coercionTypes;
 
@@ -36,16 +35,12 @@ public class PropertyIndexedEventTableCoerceAdd extends PropertyIndexedEventTabl
     }
 
     @Override
-    protected MultiKeyUntyped getMultiKey(EventBean theEvent)
-    {
+    protected MultiKeyUntyped getMultiKey(EventBean theEvent) {
         Object[] keyValues = new Object[propertyGetters.length];
-        for (int i = 0; i < propertyGetters.length; i++)
-        {
+        for (int i = 0; i < propertyGetters.length; i++) {
             Object value = propertyGetters[i].get(theEvent);
-            if ((value != null) && (!value.getClass().equals(coercionTypes[i])))
-            {
-                if (value instanceof Number)
-                {
+            if ((value != null) && (!value.getClass().equals(coercionTypes[i]))) {
+                if (value instanceof Number) {
                     value = coercers[i].coerceBoxed((Number) value);
                 }
             }

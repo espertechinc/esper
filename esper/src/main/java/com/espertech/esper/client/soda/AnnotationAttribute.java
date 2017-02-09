@@ -18,7 +18,7 @@ import java.io.Serializable;
 public class AnnotationAttribute implements Serializable {
 
     private static final long serialVersionUID = -2448173068516111756L;
-    
+
     private String name;
     private Serializable value;
 
@@ -30,7 +30,8 @@ public class AnnotationAttribute implements Serializable {
 
     /**
      * Ctor.
-     * @param name annotation name
+     *
+     * @param name  annotation name
      * @param value annotation value, could be a primitive, array or another annotation
      */
     public AnnotationAttribute(String name, Object value) {
@@ -40,6 +41,7 @@ public class AnnotationAttribute implements Serializable {
 
     /**
      * Returns annotation name.
+     *
      * @return name
      */
     public String getName() {
@@ -48,6 +50,7 @@ public class AnnotationAttribute implements Serializable {
 
     /**
      * Sets annotation name.
+     *
      * @param name to set
      */
     public void setName(String name) {
@@ -56,6 +59,7 @@ public class AnnotationAttribute implements Serializable {
 
     /**
      * Returns annotation value.
+     *
      * @return value
      */
     public Object getValue() {
@@ -64,6 +68,7 @@ public class AnnotationAttribute implements Serializable {
 
     /**
      * Sets annotation value.
+     *
      * @param value to set
      */
     public void setValue(Object value) {

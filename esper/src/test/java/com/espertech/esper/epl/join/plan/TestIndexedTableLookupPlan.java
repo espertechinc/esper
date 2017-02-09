@@ -24,28 +24,25 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class TestIndexedTableLookupPlan extends TestCase
-{
+public class TestIndexedTableLookupPlan extends TestCase {
     private PropertyIndexedEventTable propertyMapEventIndex;
     private EventType[] types;
 
-    public void setUp()
-    {
-        types = new EventType[] { SupportEventTypeFactory.createBeanType(SupportBean.class) };
+    public void setUp() {
+        types = new EventType[]{SupportEventTypeFactory.createBeanType(SupportBean.class)};
 
-        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, types[0], new String[] {"intBoxed"}, false, null);
+        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, types[0], new String[]{"intBoxed"}, false, null);
         propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
     }
 
-    public void testLookup()
-    {
+    public void testLookup() {
         List<QueryGraphValueEntryHashKeyed> keys = new ArrayList<QueryGraphValueEntryHashKeyed>();
         keys.add(new QueryGraphValueEntryHashKeyedProp(new ExprIdentNodeImpl(types[0], "intBoxed", 0), "intBoxed"));
         IndexedTableLookupPlanMulti spec = new IndexedTableLookupPlanMulti(0, 1, new TableLookupIndexReqKey("idx1"), keys);
 
-        Map<TableLookupIndexReqKey,EventTable>[] indexes = new Map[2];
-        indexes[0] = new HashMap<TableLookupIndexReqKey,EventTable>();
-        indexes[1] = new HashMap<TableLookupIndexReqKey,EventTable>();
+        Map<TableLookupIndexReqKey, EventTable>[] indexes = new Map[2];
+        indexes[0] = new HashMap<TableLookupIndexReqKey, EventTable>();
+        indexes[1] = new HashMap<TableLookupIndexReqKey, EventTable>();
         indexes[1].put(new TableLookupIndexReqKey("idx1"), propertyMapEventIndex);
 
         JoinExecTableLookupStrategy lookupStrategy = spec.makeStrategy("ABC", 1, null, indexes, types, new VirtualDWView[2]);
@@ -53,6 +50,6 @@ public class TestIndexedTableLookupPlan extends TestCase
         IndexedTableLookupStrategy strategy = (IndexedTableLookupStrategy) lookupStrategy;
         assertEquals(types[0], strategy.getEventType());
         assertEquals(propertyMapEventIndex, strategy.getIndex());
-        assertTrue(Arrays.equals(new String[] {"intBoxed"}, strategy.getProperties()));
+        assertTrue(Arrays.equals(new String[]{"intBoxed"}, strategy.getProperties()));
     }
 }

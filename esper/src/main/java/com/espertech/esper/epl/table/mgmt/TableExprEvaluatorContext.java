@@ -15,10 +15,8 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 public class TableExprEvaluatorContext {
-    private final ThreadLocal<Set<Lock>> threadLocal = new ThreadLocal<Set<Lock>>()
-    {
-        protected synchronized Set<Lock> initialValue()
-        {
+    private final ThreadLocal<Set<Lock>> threadLocal = new ThreadLocal<Set<Lock>>() {
+        protected synchronized Set<Lock> initialValue() {
             return new HashSet<Lock>();
         }
     };

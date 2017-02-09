@@ -21,8 +21,9 @@ public class VirtualDataWindowLookupFieldDesc {
 
     /**
      * Ctor.
-     * @param propertyName property name queried in where-clause
-     * @param operator operator
+     *
+     * @param propertyName    property name queried in where-clause
+     * @param operator        operator
      * @param lookupValueType lookup key type
      */
     public VirtualDataWindowLookupFieldDesc(String propertyName, VirtualDataWindowLookupOp operator, Class lookupValueType) {
@@ -33,6 +34,7 @@ public class VirtualDataWindowLookupFieldDesc {
 
     /**
      * Sets the operator.
+     *
      * @param operator to set
      */
     public void setOperator(VirtualDataWindowLookupOp operator) {
@@ -41,6 +43,7 @@ public class VirtualDataWindowLookupFieldDesc {
 
     /**
      * Sets the lookup value type.
+     *
      * @param lookupValueType type
      */
     public void setLookupValueType(Class lookupValueType) {
@@ -49,6 +52,7 @@ public class VirtualDataWindowLookupFieldDesc {
 
     /**
      * Returns the property name queried in the where-clause.
+     *
      * @return property name.
      */
     public String getPropertyName() {
@@ -57,6 +61,7 @@ public class VirtualDataWindowLookupFieldDesc {
 
     /**
      * Returns the type of lookup value provided.
+     *
      * @return lookup value type (aka. key type)
      */
     public Class getLookupValueType() {
@@ -65,6 +70,7 @@ public class VirtualDataWindowLookupFieldDesc {
 
     /**
      * Returns the operator.
+     *
      * @return operator
      */
     public VirtualDataWindowLookupOp getOperator() {

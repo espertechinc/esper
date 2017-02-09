@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
@@ -41,8 +40,7 @@ import java.util.*;
  * such as to efficiently dispatch in situations where 0, 1 or more listeners
  * are attached and/or 0 or 1 subscriber (such as iteration-only statement).
  */
-public class StatementResultServiceImpl implements StatementResultService
-{
+public class StatementResultServiceImpl implements StatementResultService {
     private static Logger log = LoggerFactory.getLogger(StatementResultServiceImpl.class);
 
     private final String statementName;
@@ -59,7 +57,7 @@ public class StatementResultServiceImpl implements StatementResultService
     private boolean isForClause;
     private StatementMetricHandle statementMetricHandle;
 
-    private boolean forClauseDelivery= false;
+    private boolean forClauseDelivery = false;
     private ExprEvaluator[] groupDeliveryExpressions;
     private ExprEvaluatorContext exprEvaluatorContext;
 
@@ -86,24 +84,23 @@ public class StatementResultServiceImpl implements StatementResultService
 
     /**
      * Ctor.
-     * @param statementLifecycleSvc handles persistence for statements
+     *
+     * @param statementLifecycleSvc  handles persistence for statements
      * @param metricReportingService for metrics reporting
-     * @param threadingService for outbound threading
-     * @param statementName statement name
+     * @param threadingService       for outbound threading
+     * @param statementName          statement name
      */
     public StatementResultServiceImpl(String statementName,
                                       StatementLifecycleSvc statementLifecycleSvc,
                                       MetricReportingServiceSPI metricReportingService,
-                                      ThreadingService threadingService)
-    {
+                                      ThreadingService threadingService) {
         log.debug(".ctor");
         this.statementName = statementName;
         this.statementLifecycleSvc = statementLifecycleSvc;
         this.metricReportingService = metricReportingService;
         if (metricReportingService != null) {
             this.statementOutputHooks = metricReportingService.getStatementOutputHooks();
-        }
-        else {
+        } else {
             this.statementOutputHooks = Collections.EMPTY_SET;
         }
         this.threadingService = threadingService;
@@ -114,8 +111,7 @@ public class StatementResultServiceImpl implements StatementResultService
                            boolean isPattern,
                            boolean isDistinct,
                            boolean isForClause,
-                           StatementMetricHandle statementMetricHandle)
-    {
+                           StatementMetricHandle statementMetricHandle) {
         this.epStatement = epStatement;
         this.epServiceProvider = epServiceProvider;
         this.isInsertInto = isInsertInto;
@@ -127,14 +123,11 @@ public class StatementResultServiceImpl implements StatementResultService
     }
 
     public void setSelectClause(Class[] selectClauseTypes, String[] selectClauseColumnNames,
-                                boolean forClauseDelivery, ExprEvaluator[] groupDeliveryExpressions, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if ((selectClauseTypes == null) || (selectClauseTypes.length == 0))
-        {
+                                boolean forClauseDelivery, ExprEvaluator[] groupDeliveryExpressions, ExprEvaluatorContext exprEvaluatorContext) {
+        if ((selectClauseTypes == null) || (selectClauseTypes.length == 0)) {
             throw new IllegalArgumentException("Invalid null or zero-element list of select clause expression types");
         }
-        if ((selectClauseColumnNames == null) || (selectClauseColumnNames.length == 0))
-        {
+        if ((selectClauseColumnNames == null) || (selectClauseColumnNames.length == 0)) {
             throw new IllegalArgumentException("Invalid null or zero-element list of select clause column names");
         }
         this.selectClauseTypes = selectClauseTypes;
@@ -148,13 +141,11 @@ public class StatementResultServiceImpl implements StatementResultService
         return epStatement.getStatementId();
     }
 
-    public boolean isMakeSynthetic()
-    {
+    public boolean isMakeSynthetic() {
         return isMakeSynthetic;
     }
 
-    public boolean isMakeNatural()
-    {
+    public boolean isMakeNatural() {
         return isMakeNatural;
     }
 
@@ -168,8 +159,7 @@ public class StatementResultServiceImpl implements StatementResultService
 
     public void setUpdateListeners(EPStatementListenerSet updateListeners, boolean isRecovery) {
         // indicate that listeners were updated for potential persistence of listener set, once the statement context is known
-        if (epStatement != null)
-        {
+        if (epStatement != null) {
             this.statementLifecycleSvc.updatedListeners(epStatement, updateListeners, isRecovery);
         }
 
@@ -179,8 +169,7 @@ public class StatementResultServiceImpl implements StatementResultService
         isMakeSynthetic = !(statementListenerSet.getListeners().length == 0 && statementListenerSet.getStmtAwareListeners().length == 0)
                 || isPattern || isInsertInto || isDistinct | isForClause;
 
-        if (statementListenerSet.getSubscriber() == null)
-        {
+        if (statementListenerSet.getSubscriber() == null) {
             statementResultNaturalStrategy = null;
             isMakeNatural = false;
             return;
@@ -192,47 +181,38 @@ public class StatementResultServiceImpl implements StatementResultService
     }
 
     // Called by OutputProcessView
-    public void indicate(UniformPair<EventBean[]> results)
-    {
-        if (results != null)
-        {
-            if ((MetricReportingPath.isMetricsEnabled) && (statementMetricHandle.isEnabled()))
-            {
+    public void indicate(UniformPair<EventBean[]> results) {
+        if (results != null) {
+            if ((MetricReportingPath.isMetricsEnabled) && (statementMetricHandle.isEnabled())) {
                 int numIStream = (results.getFirst() != null) ? results.getFirst().length : 0;
                 int numRStream = (results.getSecond() != null) ? results.getSecond().length : 0;
                 this.metricReportingService.accountOutput(statementMetricHandle, numIStream, numRStream);
             }
 
-            if ((results.getFirst() != null) && (results.getFirst().length != 0))
-            {
+            if ((results.getFirst() != null) && (results.getFirst().length != 0)) {
                 lastResults.get().add(results);
-            }
-            else if ((results.getSecond() != null) && (results.getSecond().length != 0))
-            {
+            } else if ((results.getSecond() != null) && (results.getSecond().length != 0)) {
                 lastResults.get().add(results);
             }
         }
     }
 
-    public void execute()
-    {
+    public void execute() {
         ArrayDeque<UniformPair<EventBean[]>> dispatches = lastResults.get();
 
         UniformPair<EventBean[]> events = EventBeanUtility.flattenList(dispatches);
 
-        if (ExecutionPathDebugLog.isDebugEnabled && log.isDebugEnabled())
-        {
+        if (ExecutionPathDebugLog.isDebugEnabled && log.isDebugEnabled()) {
             ViewSupport.dumpUpdateParams(".execute", events);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qaStatementResultExecute(events, epStatement.getStatementId(), epStatement.getName(), exprEvaluatorContext.getAgentInstanceId(), Thread.currentThread().getId());}
-
-        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isOutboundThreading()))
-        {
-            threadingService.submitOutbound(new OutboundUnitRunnable(events, this));
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qaStatementResultExecute(events, epStatement.getStatementId(), epStatement.getName(), exprEvaluatorContext.getAgentInstanceId(), Thread.currentThread().getId());
         }
-        else
-        {
+
+        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isOutboundThreading())) {
+            threadingService.submitOutbound(new OutboundUnitRunnable(events, this));
+        } else {
             processDispatch(events);
         }
 
@@ -241,10 +221,10 @@ public class StatementResultServiceImpl implements StatementResultService
 
     /**
      * Indicate an outbound result.
+     *
      * @param events to indicate
      */
-    public void processDispatch(UniformPair<EventBean[]> events)
-    {
+    public void processDispatch(UniformPair<EventBean[]> events) {
         // Plain all-events delivery
         if (!forClauseDelivery) {
             dispatchInternal(events);
@@ -252,19 +232,19 @@ public class StatementResultServiceImpl implements StatementResultService
         }
 
         // Discrete delivery
-        if ((groupDeliveryExpressions == null) || (groupDeliveryExpressions.length == 0)){
+        if ((groupDeliveryExpressions == null) || (groupDeliveryExpressions.length == 0)) {
             UniformPair<EventBean[]> todeliver = new UniformPair<EventBean[]>(null, null);
             if (events != null) {
                 if (events.getFirst() != null) {
                     for (EventBean theEvent : events.getFirst()) {
-                        todeliver.setFirst(new EventBean[] {theEvent});
+                        todeliver.setFirst(new EventBean[]{theEvent});
                         dispatchInternal(todeliver);
                     }
                     todeliver.setFirst(null);
                 }
                 if (events.getSecond() != null) {
                     for (EventBean theEvent : events.getSecond()) {
-                        todeliver.setSecond(new EventBean[] {theEvent});
+                        todeliver.setSecond(new EventBean[]{theEvent});
                         dispatchInternal(todeliver);
                     }
                     todeliver.setSecond(null);
@@ -277,8 +257,7 @@ public class StatementResultServiceImpl implements StatementResultService
         Map<Object, UniformPair<EventBean[]>> groups;
         try {
             groups = getGroupedResults(events);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.error("Unexpected exception evaluating grouped-delivery expressions: " + ex.getMessage() + ", delivering ungrouped", ex);
             dispatchInternal(events);
             return;
@@ -290,8 +269,7 @@ public class StatementResultServiceImpl implements StatementResultService
         }
     }
 
-    private Map<Object, UniformPair<EventBean[]>> getGroupedResults(UniformPair<EventBean[]> events)
-    {
+    private Map<Object, UniformPair<EventBean[]>> getGroupedResults(UniformPair<EventBean[]> events) {
         if (events == null) {
             return Collections.emptyMap();
         }
@@ -302,12 +280,11 @@ public class StatementResultServiceImpl implements StatementResultService
         return groups;
     }
 
-    private void getGroupedResults(Map<Object, UniformPair<EventBean[]>> groups, EventBean[] events, boolean insertStream, EventBean[] eventsPerStream)
-    {
+    private void getGroupedResults(Map<Object, UniformPair<EventBean[]>> groups, EventBean[] events, boolean insertStream, EventBean[] eventsPerStream) {
         if (events == null) {
             return;
         }
-        
+
         for (EventBean theEvent : events) {
 
             EventBean evalEvent = theEvent;
@@ -319,8 +296,7 @@ public class StatementResultServiceImpl implements StatementResultService
             eventsPerStream[0] = evalEvent;
             if (groupDeliveryExpressions.length == 1) {
                 key = groupDeliveryExpressions[0].evaluate(eventsPerStream, true, exprEvaluatorContext);
-            }
-            else {
+            } else {
                 Object[] keys = new Object[groupDeliveryExpressions.length];
                 for (int i = 0; i < groupDeliveryExpressions.length; i++) {
                     keys[i] = groupDeliveryExpressions[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
@@ -331,27 +307,22 @@ public class StatementResultServiceImpl implements StatementResultService
             UniformPair<EventBean[]> groupEntry = groups.get(key);
             if (groupEntry == null) {
                 if (insertStream) {
-                    groupEntry = new UniformPair<EventBean[]>(new EventBean[] {theEvent}, null);
-                }
-                else {
-                    groupEntry = new UniformPair<EventBean[]>(null, new EventBean[] {theEvent});
+                    groupEntry = new UniformPair<EventBean[]>(new EventBean[]{theEvent}, null);
+                } else {
+                    groupEntry = new UniformPair<EventBean[]>(null, new EventBean[]{theEvent});
                 }
                 groups.put(key, groupEntry);
-            }
-            else {
+            } else {
                 if (insertStream) {
                     if (groupEntry.getFirst() == null) {
-                        groupEntry.setFirst(new EventBean[] {theEvent});
-                    }
-                    else {
+                        groupEntry.setFirst(new EventBean[]{theEvent});
+                    } else {
                         groupEntry.setFirst(EventBeanUtility.addToArray(groupEntry.getFirst(), theEvent));
                     }
-                }
-                else {
+                } else {
                     if (groupEntry.getSecond() == null) {
-                        groupEntry.setSecond(new EventBean[] {theEvent});
-                    }
-                    else {
+                        groupEntry.setSecond(new EventBean[]{theEvent});
+                    } else {
                         groupEntry.setSecond(EventBeanUtility.addToArray(groupEntry.getSecond(), theEvent));
                     }
                 }
@@ -360,47 +331,35 @@ public class StatementResultServiceImpl implements StatementResultService
     }
 
     private void dispatchInternal(UniformPair<EventBean[]> events) {
-        if (statementResultNaturalStrategy != null)
-        {
+        if (statementResultNaturalStrategy != null) {
             statementResultNaturalStrategy.execute(events);
         }
 
         EventBean[] newEventArr = events != null ? events.getFirst() : null;
         EventBean[] oldEventArr = events != null ? events.getSecond() : null;
 
-        for (UpdateListener listener : statementListenerSet.getListeners())
-        {
-            try
-            {
+        for (UpdateListener listener : statementListenerSet.getListeners()) {
+            try {
                 listener.update(newEventArr, oldEventArr);
-            }
-            catch (Throwable t)
-            {
+            } catch (Throwable t) {
                 String message = "Unexpected exception invoking listener update method on listener class '" + listener.getClass().getSimpleName() +
                         "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
                 log.error(message, t);
             }
         }
-        if (statementListenerSet.getStmtAwareListeners().length > 0)
-        {
-            for (StatementAwareUpdateListener listener : statementListenerSet.getStmtAwareListeners())
-            {
-                try
-                {
+        if (statementListenerSet.getStmtAwareListeners().length > 0) {
+            for (StatementAwareUpdateListener listener : statementListenerSet.getStmtAwareListeners()) {
+                try {
                     listener.update(newEventArr, oldEventArr, epStatement, epServiceProvider);
-                }
-                catch (Throwable t)
-                {
+                } catch (Throwable t) {
                     String message = "Unexpected exception invoking listener update method on listener class '" + listener.getClass().getSimpleName() +
                             "' : " + t.getClass().getSimpleName() + " : " + t.getMessage();
                     log.error(message, t);
                 }
             }
         }
-        if ((AuditPath.isAuditEnabled) && (!statementOutputHooks.isEmpty()))
-        {
-            for (StatementResultListener listener : statementOutputHooks)
-            {
+        if ((AuditPath.isAuditEnabled) && (!statementOutputHooks.isEmpty())) {
+            for (StatementResultListener listener : statementOutputHooks) {
                 listener.update(newEventArr, oldEventArr, epStatement.getName(), epStatement, epServiceProvider);
             }
         }
@@ -409,11 +368,9 @@ public class StatementResultServiceImpl implements StatementResultService
     /**
      * Dispatches when the statement is stopped any remaining results.
      */
-    public void dispatchOnStop()
-    {
+    public void dispatchOnStop() {
         ArrayDeque<UniformPair<EventBean[]>> dispatches = lastResults.get();
-        if (dispatches.isEmpty())
-        {
+        if (dispatches.isEmpty()) {
             return;
         }
         execute();

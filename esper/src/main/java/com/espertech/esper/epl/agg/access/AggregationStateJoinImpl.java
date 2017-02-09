@@ -19,18 +19,17 @@ import java.util.*;
 /**
  * Implementation of access function for joins.
  */
-public class AggregationStateJoinImpl implements AggregationStateWithSize, AggregationStateLinear
-{
+public class AggregationStateJoinImpl implements AggregationStateWithSize, AggregationStateLinear {
     protected int streamId;
     protected LinkedHashMap<EventBean, Integer> refSet = new LinkedHashMap<EventBean, Integer>();
     private EventBean[] array;
 
     /**
      * Ctor.
+     *
      * @param streamId stream id
      */
-    public AggregationStateJoinImpl(int streamId)
-    {
+    public AggregationStateJoinImpl(int streamId) {
         this.streamId = streamId;
     }
 
@@ -39,16 +38,14 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         array = null;
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[streamId];
         if (theEvent == null) {
             return;
         }
         array = null;
         Integer value = refSet.get(theEvent);
-        if (value == null)
-        {
+        if (value == null) {
             refSet.put(theEvent, 1);
             return;
         }
@@ -57,8 +54,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         refSet.put(theEvent, value);
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[streamId];
         if (theEvent == null) {
             return;
@@ -66,13 +62,11 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         array = null;
 
         Integer value = refSet.get(theEvent);
-        if (value == null)
-        {
+        if (value == null) {
             return;
         }
 
-        if (value == 1)
-        {
+        if (value == 1) {
             refSet.remove(theEvent);
             return;
         }
@@ -120,8 +114,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         return refSet.entrySet().iterator().next().getKey();
     }
 
-    public EventBean getLastValue()
-    {
+    public EventBean getLastValue() {
         if (refSet.isEmpty()) {
             return null;
         }
@@ -131,8 +124,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         return array[array.length - 1];
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         if (array == null) {
             initArray();
         }
@@ -146,8 +138,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         return Arrays.asList(array);
     }
 
-    public int size()
-    {
+    public int size() {
         return refSet.size();
     }
 

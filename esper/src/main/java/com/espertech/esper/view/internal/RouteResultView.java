@@ -19,8 +19,6 @@ import com.espertech.esper.core.start.EPStatementStartMethodOnTriggerItem;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewSupport;
@@ -30,8 +28,7 @@ import java.util.Iterator;
 /**
  * View for processing split-stream syntax.
  */
-public class RouteResultView extends ViewSupport
-{
+public class RouteResultView extends ViewSupport {
     private final EventType eventType;
     private RouteResultViewHandler handler;
     private ExprEvaluatorContext exprEvaluatorContext;
@@ -44,50 +41,39 @@ public class RouteResultView extends ViewSupport
                            EPStatementStartMethodOnTriggerItem[] items,
                            ResultSetProcessor[] processors,
                            ExprEvaluator[] whereClauses,
-                           AgentInstanceContext agentInstanceContext)
-    {
-        if (whereClauses.length != processors.length)
-        {
+                           AgentInstanceContext agentInstanceContext) {
+        if (whereClauses.length != processors.length) {
             throw new IllegalArgumentException("Number of where-clauses and processors does not match");
         }
 
         this.exprEvaluatorContext = agentInstanceContext;
         this.eventType = eventType;
-        if (isFirst)
-        {
+        if (isFirst) {
             handler = new RouteResultViewHandlerFirst(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
-        }
-        else
-        {
+        } else {
             handler = new RouteResultViewHandlerAll(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
         }
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (newData == null)
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (newData == null) {
             return;
         }
 
-        for (EventBean bean : newData)
-        {
+        for (EventBean bean : newData) {
             boolean isHandled = handler.handle(bean, exprEvaluatorContext);
 
-            if (!isHandled)
-            {
-                updateChildren(new EventBean[] {bean}, null);
+            if (!isHandled) {
+                updateChildren(new EventBean[]{bean}, null);
             }
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return CollectionUtil.NULL_EVENT_ITERATOR;
     }
 }

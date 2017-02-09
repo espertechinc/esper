@@ -14,40 +14,35 @@ package com.espertech.esper.filter;
 /**
  * Holds a range of double values with a minimum (start) value and a maximum (end) value.
  */
-public final class StringRange implements Range
-{
+public final class StringRange implements Range {
     private String min;
     private String max;
     private int hashCode;
 
     /**
      * Constructor - takes range endpoints.
+     *
      * @param min is the low endpoint
      * @param max is the high endpoint
      */
-    public StringRange(String min, String max)
-    {
+    public StringRange(String min, String max) {
         this.min = min;
         this.max = max;
 
-        if ((min != null) && (max != null))
-        {
-            if (min.compareTo(max) > 0)
-            {
+        if ((min != null) && (max != null)) {
+            if (min.compareTo(max) > 0) {
                 this.max = min;
                 this.min = max;
             }
         }
 
         hashCode = 7;
-        if (min != null)
-        {
-            hashCode = 31*hashCode;
+        if (min != null) {
+            hashCode = 31 * hashCode;
             hashCode ^= min.hashCode();
         }
-        if (max != null)
-        {
-            hashCode = 31*hashCode;
+        if (max != null) {
+            hashCode = 31 * hashCode;
             hashCode ^= max.hashCode();
         }
     }
@@ -62,19 +57,19 @@ public final class StringRange implements Range
 
     /**
      * Returns low endpoint.
+     *
      * @return low endpoint
      */
-    public final String getMin()
-    {
+    public final String getMin() {
         return min;
     }
 
     /**
      * Returns high endpoint.
+     *
      * @return high endpoint
      */
-    public final String getMax()
-    {
+    public final String getMax() {
         return max;
     }
 
@@ -95,10 +90,9 @@ public final class StringRange implements Range
         return hashCode;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "StringRange" +
-               " min=" + min +
-               " max=" + max;
+                " min=" + min +
+                " max=" + max;
     }
 }

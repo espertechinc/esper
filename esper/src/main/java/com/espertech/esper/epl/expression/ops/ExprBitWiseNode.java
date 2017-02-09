@@ -25,7 +25,7 @@ import java.io.StringWriter;
  */
 public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
 
-    private final BitWiseOpEnum _bitWiseOpEnum;
+    private final BitWiseOpEnum bitWiseOpEnum;
     private transient BitWiseOpEnum.Computer bitWiseOpEnumComputer;
     private Class resultType;
 
@@ -35,40 +35,35 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
 
     /**
      * Ctor.
-     * @param bitWiseOpEnum_ - type of math
+     *
+     * @param bitWiseOpEnum - type of math
      */
-    public ExprBitWiseNode(BitWiseOpEnum bitWiseOpEnum_)
-    {
-        _bitWiseOpEnum = bitWiseOpEnum_;
+    public ExprBitWiseNode(BitWiseOpEnum bitWiseOpEnum) {
+        this.bitWiseOpEnum = bitWiseOpEnum;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
     /**
      * Returns the bitwise operator.
+     *
      * @return operator
      */
-    public BitWiseOpEnum getBitWiseOpEnum()
-    {
-        return _bitWiseOpEnum;
+    public BitWiseOpEnum getBitWiseOpEnum() {
+        return bitWiseOpEnum;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 2)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("BitWise node must have 2 parameters");
         }
 
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Class childType = child.getType();
-            if ((!JavaClassHelper.isBoolean(childType)) && (!JavaClassHelper.isNumeric(childType)))
-            {
+            if ((!JavaClassHelper.isBoolean(childType)) && (!JavaClassHelper.isNumeric(childType))) {
                 throw new ExprValidationException("Invalid datatype for bitwise " +
                         childType.getName() + " is not allowed");
             }
@@ -77,46 +72,40 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
         // Determine result type, set up compute function
         Class childTypeOne = evaluators[0].getType();
         Class childTypeTwo = evaluators[1].getType();
-        if ((JavaClassHelper.isFloatingPointClass(childTypeOne)) || (JavaClassHelper.isFloatingPointClass(childTypeTwo)))
-        {
-            throw new ExprValidationException("Invalid type for bitwise " + _bitWiseOpEnum.getComputeDescription()  + " operator");
-        }
-        else
-        {
-            Class childBoxedTypeOne = JavaClassHelper.getBoxedType(childTypeOne) ;
-            Class childBoxedTypeTwo = JavaClassHelper.getBoxedType(childTypeTwo) ;
-            if (childBoxedTypeOne == childBoxedTypeTwo)
-            {
+        if ((JavaClassHelper.isFloatingPointClass(childTypeOne)) || (JavaClassHelper.isFloatingPointClass(childTypeTwo))) {
+            throw new ExprValidationException("Invalid type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
+        } else {
+            Class childBoxedTypeOne = JavaClassHelper.getBoxedType(childTypeOne);
+            Class childBoxedTypeTwo = JavaClassHelper.getBoxedType(childTypeTwo);
+            if (childBoxedTypeOne == childBoxedTypeTwo) {
                 resultType = childBoxedTypeOne;
-                bitWiseOpEnumComputer = _bitWiseOpEnum.getComputer(resultType);
-            }
-            else
-            {
-                throw new ExprValidationException("Bitwise expressions must be of the same type for bitwise " + _bitWiseOpEnum.getComputeDescription()  + " operator");
+                bitWiseOpEnumComputer = bitWiseOpEnum.getComputer(resultType);
+            } else {
+                throw new ExprValidationException("Bitwise expressions must be of the same type for bitwise " + bitWiseOpEnum.getComputeDescription() + " operator");
             }
         }
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprBitwise(this, _bitWiseOpEnum);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprBitwise(this, bitWiseOpEnum);
+        }
         Object valueChildOne = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         Object valueChildTwo = evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
 
-        if ((valueChildOne == null) || (valueChildTwo == null))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprBitwise(null);}
+        if ((valueChildOne == null) || (valueChildTwo == null)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprBitwise(null);
+            }
             return null;
         }
 
@@ -129,17 +118,14 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
         return bitWiseOpEnumComputer.compute(valueChildOne, valueChildTwo);
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprBitWiseNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprBitWiseNode)) {
             return false;
         }
 
         ExprBitWiseNode other = (ExprBitWiseNode) node;
 
-        if (other._bitWiseOpEnum != _bitWiseOpEnum)
-        {
+        if (other.bitWiseOpEnum != bitWiseOpEnum) {
             return false;
         }
 
@@ -148,7 +134,7 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         getChildNodes()[0].toEPL(writer, getPrecedence());
-        writer.append(_bitWiseOpEnum.getComputeDescription());
+        writer.append(bitWiseOpEnum.getComputeDescription());
         getChildNodes()[1].toEPL(writer, getPrecedence());
     }
 

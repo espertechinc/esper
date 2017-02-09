@@ -16,8 +16,7 @@ import java.util.Calendar;
 /**
  * Available information about deployment made.
  */
-public class DeploymentInformation implements Serializable
-{
+public class DeploymentInformation implements Serializable {
     private static final long serialVersionUID = -7517475026231263141L;
 
     private String deploymentId;
@@ -29,15 +28,15 @@ public class DeploymentInformation implements Serializable
 
     /**
      * Ctor.
-     * @param deploymentId deployment id
-     * @param addedDate date the deployment was added
+     *
+     * @param deploymentId   deployment id
+     * @param addedDate      date the deployment was added
      * @param lastUpdateDate date of last update to state
-     * @param items module statement-level details
-     * @param state current state
-     * @param module the module
+     * @param items          module statement-level details
+     * @param state          current state
+     * @param module         the module
      */
-    public DeploymentInformation(String deploymentId, Module module, Calendar addedDate, Calendar lastUpdateDate, DeploymentInformationItem[] items, DeploymentState state)
-    {
+    public DeploymentInformation(String deploymentId, Module module, Calendar addedDate, Calendar lastUpdateDate, DeploymentInformationItem[] items, DeploymentState state) {
         this.deploymentId = deploymentId;
         this.module = module;
         this.lastUpdateDate = lastUpdateDate;
@@ -48,26 +47,27 @@ public class DeploymentInformation implements Serializable
 
     /**
      * Returns the deployment id.
+     *
      * @return deployment id
      */
-    public String getDeploymentId()
-    {
+    public String getDeploymentId() {
         return deploymentId;
     }
 
 
     /**
      * Returns the last update date, i.e. date the information was last updated with new state.
+     *
      * @return last update date
      */
-    public Calendar getLastUpdateDate()
-    {
+    public Calendar getLastUpdateDate() {
         return lastUpdateDate;
     }
 
     /**
      * Returns deployment statement-level details: Note that for an newly-added undeployed modules
      * not all statement-level information is available and therefore returns an empty array.
+     *
      * @return statement details or empty array for newly added deployments
      */
     public DeploymentInformationItem[] getItems() {
@@ -76,33 +76,33 @@ public class DeploymentInformation implements Serializable
 
     /**
      * Returns current deployment state.
+     *
      * @return state
      */
-    public DeploymentState getState()
-    {
+    public DeploymentState getState() {
         return state;
     }
 
     /**
      * Returns date the deployment was added.
+     *
      * @return added-date
      */
-    public Calendar getAddedDate()
-    {
+    public Calendar getAddedDate() {
         return addedDate;
     }
 
     /**
      * Returns the module.
+     *
      * @return module
      */
-    public Module getModule()
-    {
+    public Module getModule() {
         return module;
     }
 
     public String toString() {
         return "id '" + deploymentId + "' " +
-               " added on " + addedDate.getTime().toString();
+                " added on " + addedDate.getTime().toString();
     }
 }

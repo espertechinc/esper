@@ -232,7 +232,7 @@ public class CSVReader {
 
         char firstChar = (char) source.read();
         char secondChar = (char) source.read();
-        boolean result = (firstChar == '\r' && secondChar == '\n');
+        boolean result = firstChar == '\r' && secondChar == '\n';
 
         resetReader(doConsume, result);
         return result;
@@ -242,7 +242,7 @@ public class CSVReader {
         markReader(1, doConsume);
 
         char firstChar = (char) source.read();
-        boolean result = (firstChar == character);
+        boolean result = firstChar == character;
 
         resetReader(doConsume, result);
         return result;
@@ -264,7 +264,7 @@ public class CSVReader {
         markReader(1, doConsume);
 
         int value = source.read();
-        atEOF = (value == -1);
+        atEOF = value == -1;
 
         resetReader(doConsume, atEOF);
         return atEOF;

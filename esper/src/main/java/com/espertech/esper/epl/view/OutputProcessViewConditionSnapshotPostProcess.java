@@ -19,8 +19,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 /**
  * A view that handles the "output snapshot" keyword in output rate stabilizing.
  */
-public class OutputProcessViewConditionSnapshotPostProcess extends OutputProcessViewConditionSnapshot
-{
+public class OutputProcessViewConditionSnapshotPostProcess extends OutputProcessViewConditionSnapshot {
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewConditionSnapshotPostProcess(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
@@ -28,11 +27,9 @@ public class OutputProcessViewConditionSnapshotPostProcess extends OutputProcess
         this.postProcessor = postProcessor;
     }
 
-    public void output(boolean forceUpdate, UniformPair<EventBean[]> results)
-    {
+    public void output(boolean forceUpdate, UniformPair<EventBean[]> results) {
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcessor.output(forceUpdate, results, childView);
         }
     }

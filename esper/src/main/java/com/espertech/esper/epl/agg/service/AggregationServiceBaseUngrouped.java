@@ -17,37 +17,35 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
  * All aggregation services require evaluation nodes which supply the value to be aggregated (summed, averaged, etc.)
  * and aggregation state factories to make new aggregation states.
  */
-public abstract class AggregationServiceBaseUngrouped implements AggregationService
-{
+public abstract class AggregationServiceBaseUngrouped implements AggregationService {
     /**
      * Evaluation nodes under.
      */
-    protected ExprEvaluator evaluators[];
+    protected ExprEvaluator[] evaluators;
 
     /**
      * Aggregation states.
      */
-    protected AggregationMethod aggregators[];
+    protected AggregationMethod[] aggregators;
 
-    protected AggregationMethodFactory aggregatorFactories[];
+    protected AggregationMethodFactory[] aggregatorFactories;
     protected AggregationStateFactory[] accessAggregations;
 
     /**
      * Ctor.
-     * @param evaluators - are the child node of each aggregation function used for computing the value to be aggregated
-     * @param aggregators - aggregation states/factories
+     *
+     * @param evaluators          - are the child node of each aggregation function used for computing the value to be aggregated
+     * @param aggregators         - aggregation states/factories
      * @param aggregatorFactories method factories
-     * @param accessAggregations access aggs
+     * @param accessAggregations  access aggs
      */
-    public AggregationServiceBaseUngrouped(ExprEvaluator evaluators[], AggregationMethod aggregators[], AggregationMethodFactory aggregatorFactories[], AggregationStateFactory[] accessAggregations)
-    {
+    public AggregationServiceBaseUngrouped(ExprEvaluator[] evaluators, AggregationMethod[] aggregators, AggregationMethodFactory[] aggregatorFactories, AggregationStateFactory[] accessAggregations) {
         this.evaluators = evaluators;
         this.aggregators = aggregators;
         this.aggregatorFactories = aggregatorFactories;
         this.accessAggregations = accessAggregations;
 
-        if (evaluators.length != aggregators.length)
-        {
+        if (evaluators.length != aggregators.length) {
             throw new IllegalArgumentException("Expected the same number of evaluates as aggregation methods");
         }
     }

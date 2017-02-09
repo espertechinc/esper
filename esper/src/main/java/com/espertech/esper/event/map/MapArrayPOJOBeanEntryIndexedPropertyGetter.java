@@ -30,11 +30,12 @@ public class MapArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNativeProper
 
     /**
      * Ctor.
-     * @param propertyMap the property to look at
-     * @param nestedGetter the getter for the map entry
+     *
+     * @param propertyMap         the property to look at
+     * @param nestedGetter        the getter for the map entry
      * @param eventAdapterService for producing wrappers to objects
-     * @param index the index to fetch the array element for
-     * @param returnType type of the entry returned
+     * @param index               the index to fetch the array element for
+     * @param returnType          type of the entry returned
      */
     public MapArrayPOJOBeanEntryIndexedPropertyGetter(String propertyMap, int index, BeanEventPropertyGetter nestedGetter, EventAdapterService eventAdapterService, Class returnType) {
         super(eventAdapterService, returnType, null);
@@ -43,26 +44,22 @@ public class MapArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNativeProper
         this.nestedGetter = nestedGetter;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = map.get(propertyMap);
         return BaseNestableEventUtil.getBeanArrayValue(nestedGetter, value, index);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         Map<String, Object> map = BaseNestableEventUtil.checkedCastUnderlyingMap(obj);
         return getMap(map);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

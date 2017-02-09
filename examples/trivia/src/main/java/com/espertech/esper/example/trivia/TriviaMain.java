@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TriviaMain {
@@ -32,8 +33,7 @@ public class TriviaMain {
         try {
             TriviaMain main = new TriviaMain();
             main.run();
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.error("Unexpected exception encountered: " + ex.getMessage(), ex);
         }
     }
@@ -115,20 +115,17 @@ public class TriviaMain {
                 String answerTime = line.split(" at ")[1] + "0";
                 Map<String, Object> data = EventFactory.makePlayerAnswer(playerId, questionId, answer, getTime(answerTime));
                 actions.add(new PlayerAction("PlayerAnswer", data));
-            }
-            else if (line.startsWith("RequestAnswerEvent")) {
+            } else if (line.startsWith("RequestAnswerEvent")) {
                 String questionId = split[1].substring(1, split[1].indexOf(")")).trim();
                 String requestTime = line.split(" at ")[1] + "0";
                 Map<String, Object> data = EventFactory.makePlayerFARequest(playerId, questionId);
                 actions.add(new PlayerAction("PlayerFARequest", data));
-            }
-            else if (line.startsWith("AnswerAnnulmentEvent")) {
+            } else if (line.startsWith("AnswerAnnulmentEvent")) {
                 String questionId = split[1].trim();
                 String requestTime = line.split(" at ")[1] + "0";
                 Map<String, Object> data = EventFactory.makePlayerAnnulment(playerId, questionId, getTime(requestTime));
                 actions.add(new PlayerAction("PlayerAnnulment", data));
-            }
-            else {
+            } else {
                 throw new RuntimeException("Unrecognized line: " + line);
             }
         }
@@ -168,14 +165,13 @@ public class TriviaMain {
                 }
                 result.add(line);
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new RuntimeException("Failed to parse lines: " + ex.getMessage(), ex);
         }
         return result;
     }
 
-    private void printScore(String questionId, Map<String,Integer> scores) {
+    private void printScore(String questionId, Map<String, Integer> scores) {
         System.out.println("Score after question " + questionId + ":");
         for (Map.Entry<String, Integer> score : scores.entrySet()) {
             System.out.println("  User " + score.getKey() + " : " + score.getValue());
@@ -199,10 +195,9 @@ public class TriviaMain {
             writer.write(delimiter);
             writer.write(entry.getKey());
             writer.write("=");
-            if (entry.getKey().toLowerCase().contains("time")) {
+            if (entry.getKey().toLowerCase(Locale.ENGLISH).contains("time")) {
                 writer.write(TriviaHelper.print(entry.getValue()));
-            }
-            else {
+            } else {
                 writer.write(entry.getValue().toString());
             }
             delimiter = ", ";

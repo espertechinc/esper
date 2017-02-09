@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 /**
  * A fast collection backed by an array with severe limitations. Allows direct access to the backing array
  * - this must be used with care as old elements could be in the array and the array is only valid until
- *  the number of elements indicated by size.
+ * the number of elements indicated by size.
  * <p>
  * Implements only the add, size and clear methods of the collection interface.
  * <p>
@@ -26,27 +26,24 @@ import java.util.NoSuchElementException;
  * <p>
  * Not synchronized and not thread-safe.
  */
-public class ArrayBackedCollection<T> implements Collection<T>
-{
+public class ArrayBackedCollection<T> implements Collection<T> {
     private int lastIndex;
     private int currentIndex;
     private Object[] handles;
 
     /**
      * Ctor.
+     *
      * @param currentSize is the initial size of the backing array.
      */
-    public ArrayBackedCollection(int currentSize)
-    {
+    public ArrayBackedCollection(int currentSize) {
         this.lastIndex = currentSize - 1;
         this.currentIndex = 0;
         this.handles = new Object[currentSize];
     }
 
-    public boolean add(T object)
-    {
-        if (currentIndex <= lastIndex)
-        {
+    public boolean add(T object) {
+        if (currentIndex <= lastIndex) {
             handles[currentIndex++] = object;
             return true;
         }
@@ -63,13 +60,11 @@ public class ArrayBackedCollection<T> implements Collection<T>
         return true;
     }
 
-    public void clear()
-    {
+    public void clear() {
         currentIndex = 0;
     }
 
-    public int size()
-    {
+    public int size() {
         return currentIndex;
     }
 
@@ -77,93 +72,78 @@ public class ArrayBackedCollection<T> implements Collection<T>
      * Returns the backing object array, valid until the current size.
      * <p>
      * Applications must ensure to not read past current size as old elements can be encountered.
+     *
      * @return backing array
      */
-    public Object[] getArray()
-    {
+    public Object[] getArray() {
         return handles;
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         throw new UnsupportedOperationException();
     }
 
-    public boolean contains(Object o)
-    {
+    public boolean contains(Object o) {
         throw new UnsupportedOperationException();
     }
 
-    public Iterator<T> iterator()
-    {
+    public Iterator<T> iterator() {
         return new ArrayBackedCollectionIterator(handles, currentIndex);
     }
 
-    public Object[] toArray()
-    {
+    public Object[] toArray() {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(Object o)
-    {
+    public boolean remove(Object o) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean addAll(Collection c)
-    {
+    public boolean addAll(Collection c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(Collection c)
-    {
+    public boolean retainAll(Collection c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean removeAll(Collection c)
-    {
+    public boolean removeAll(Collection c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(Collection c)
-    {
+    public boolean containsAll(Collection c) {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T[] toArray(T[] a)
-    {
+    public <T> T[] toArray(T[] a) {
         throw new UnsupportedOperationException();
     }
 
-    public class ArrayBackedCollectionIterator implements Iterator<T>
-    {
+    public class ArrayBackedCollectionIterator implements Iterator<T> {
         private final Object[] items;
         private final int lastIndex;
         private int position;
 
-        public ArrayBackedCollectionIterator(Object[] items, int lastIndex)
-        {
+        public ArrayBackedCollectionIterator(Object[] items, int lastIndex) {
             this.items = items;
             this.lastIndex = lastIndex;
         }
 
-        public boolean hasNext()
-        {
+        public boolean hasNext() {
             if (position >= lastIndex) {
                 return false;
             }
             return true;
         }
 
-        public T next()
-        {
+        public T next() {
             if (position >= lastIndex) {
                 throw new NoSuchElementException();
             }
             return (T) items[position++];
         }
 
-        public void remove()
-        {
+        public void remove() {
             throw new UnsupportedOperationException();
         }
     }

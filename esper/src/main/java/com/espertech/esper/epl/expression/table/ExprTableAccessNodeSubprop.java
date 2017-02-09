@@ -15,19 +15,19 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotEnumerationSourceForProps;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
-import com.espertech.esper.epl.table.mgmt.*;
-import com.espertech.esper.epl.table.mgmt.TableMetadataColumnPlain;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
+import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
+import com.espertech.esper.epl.table.mgmt.TableMetadataColumnPlain;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.io.StringWriter;
 import java.util.Collection;
 
-public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements ExprEvaluator, ExprEvaluatorEnumeration
-{
+public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements ExprEvaluator, ExprEvaluatorEnumeration {
     private static final long serialVersionUID = 1779238498208599159L;
 
     private final String subpropName;
@@ -54,8 +54,7 @@ public class ExprTableAccessNodeSubprop extends ExprTableAccessNode implements E
             ExprDotEnumerationSourceForProps enumerationSource = ExprDotNodeUtility.getPropertyEnumerationSource(subpropName, 0, tableMetadata.getInternalEventType(), true, true);
             optionalEnumerationType = enumerationSource.getReturnType();
             optionalPropertyEnumEvaluator = enumerationSource.getEnumerationGivenEvent();
-        }
-        else {
+        } else {
             TableMetadataColumnAggregation aggcol = (TableMetadataColumnAggregation) column;
             optionalEnumerationType = aggcol.getOptionalEnumerationType();
             bindingReturnType = aggcol.getFactory().getResultType();

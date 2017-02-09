@@ -18,10 +18,10 @@ import com.espertech.esper.pattern.observer.ObserverFactory;
 /**
  * Factory service for resolving pattern objects such as guards and observers.
  */
-public interface PatternObjectResolutionService
-{
+public interface PatternObjectResolutionService {
     /**
      * Creates an observer factory considering configured plugged-in resources.
+     *
      * @param spec is the namespace, name and parameters for the observer
      * @return observer factory
      * @throws PatternObjectException if the observer cannot be resolved
@@ -30,6 +30,7 @@ public interface PatternObjectResolutionService
 
     /**
      * Creates a guard factory considering configured plugged-in resources.
+     *
      * @param spec is the namespace, name and parameters for the guard
      * @return guard factory
      * @throws PatternObjectException if the guard cannot be resolved

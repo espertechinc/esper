@@ -78,7 +78,7 @@ public class ExprDotStaticMethodWrapIterableEvents implements ExprDotStaticMetho
 
         private void init() {
             Deque<Object> q = new ArrayDeque<Object>();
-            for (;inner.hasNext();) {
+            for (; inner.hasNext(); ) {
                 q.add(inner.next());
             }
             cache = q.toArray();

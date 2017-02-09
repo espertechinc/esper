@@ -20,8 +20,7 @@ import java.util.Deque;
 /**
  * Method to call to destroy an EPStatement.
  */
-public class EPStatementDestroyCallbackList implements EPStatementDestroyMethod
-{
+public class EPStatementDestroyCallbackList implements EPStatementDestroyMethod {
     private static final Logger log = LoggerFactory.getLogger(EPStatementDestroyCallbackList.class);
 
     private Deque<DestroyCallback> callbacks;
@@ -40,8 +39,7 @@ public class EPStatementDestroyCallbackList implements EPStatementDestroyMethod
         for (DestroyCallback destroyCallback : callbacks) {
             try {
                 destroyCallback.destroy();
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 log.error("Failed to destroy resource: " + ex.getMessage(), ex);
             }
         }

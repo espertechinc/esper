@@ -53,8 +53,7 @@ public class ContextPartitionVisitorStateWithPath implements ContextPartitionVis
             ContextPartitionDescriptor descriptor = new ContextPartitionDescriptor(contextPartitionOrSubPath, new ContextPartitionIdentifierNested(keys), value.getState());
             agentInstanceInfo.put(contextPartitionOrSubPath, descriptor);
             states.put(key, value);
-        }
-        else {
+        } else {
             // handle non-leaf
             subpaths.add(contextPartitionOrSubPath);
             states.put(key, new ContextStatePathValue(contextPartitionOrSubPath, binding.toByteArray(payload), ContextPartitionState.STARTED));
@@ -77,7 +76,7 @@ public class ContextPartitionVisitorStateWithPath implements ContextPartitionVis
         return controllerAgentInstances;
     }
 
-    public Map<Integer,ContextPartitionDescriptor> getAgentInstanceInfo() {
+    public Map<Integer, ContextPartitionDescriptor> getAgentInstanceInfo() {
         return agentInstanceInfo;
     }
 

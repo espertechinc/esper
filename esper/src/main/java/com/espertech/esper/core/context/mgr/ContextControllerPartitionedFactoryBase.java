@@ -109,7 +109,7 @@ public abstract class ContextControllerPartitionedFactoryBase extends ContextCon
         if (payload instanceof MultiKeyUntyped) {
             return new ContextPartitionIdentifierPartitioned(((MultiKeyUntyped) payload).getKeys());
         }
-        return new ContextPartitionIdentifierPartitioned(new Object[] {payload});
+        return new ContextPartitionIdentifierPartitioned(new Object[]{payload});
     }
 
     private Collection<EventType> getItemEventTypes(ContextDetailPartitioned segmentedSpec) {

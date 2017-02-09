@@ -19,8 +19,7 @@ import java.util.NoSuchElementException;
 /**
  * Iterator for aggregation results that aggregate all rows.
  */
-public class ResultSetAggregateAllIterator implements Iterator<EventBean>
-{
+public class ResultSetAggregateAllIterator implements Iterator<EventBean> {
     private final Iterator<EventBean> sourceIterator;
     private final ResultSetProcessorAggregateAll resultSetProcessor;
     private EventBean nextResult;
@@ -29,43 +28,37 @@ public class ResultSetAggregateAllIterator implements Iterator<EventBean>
 
     /**
      * Ctor.
-     * @param sourceIterator is the parent iterator
-     * @param resultSetProcessor for getting outgoing rows
+     *
+     * @param sourceIterator       is the parent iterator
+     * @param resultSetProcessor   for getting outgoing rows
      * @param exprEvaluatorContext context for expression evalauation
      */
-    public ResultSetAggregateAllIterator(Iterator<EventBean> sourceIterator, ResultSetProcessorAggregateAll resultSetProcessor, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public ResultSetAggregateAllIterator(Iterator<EventBean> sourceIterator, ResultSetProcessorAggregateAll resultSetProcessor, ExprEvaluatorContext exprEvaluatorContext) {
         this.sourceIterator = sourceIterator;
         this.resultSetProcessor = resultSetProcessor;
         eventsPerStream = new EventBean[1];
         this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
-    public boolean hasNext()
-    {
-        if (nextResult != null)
-        {
+    public boolean hasNext() {
+        if (nextResult != null) {
             return true;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             return true;
         }
         return false;
     }
 
-    public EventBean next()
-    {
-        if (nextResult != null)
-        {
+    public EventBean next() {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
@@ -73,20 +66,16 @@ public class ResultSetAggregateAllIterator implements Iterator<EventBean>
         throw new NoSuchElementException();
     }
 
-    private void findNext()
-    {
-        while (sourceIterator.hasNext())
-        {
+    private void findNext() {
+        while (sourceIterator.hasNext()) {
             EventBean candidate = sourceIterator.next();
             eventsPerStream[0] = candidate;
 
             Boolean pass = true;
-            if (resultSetProcessor.getOptionalHavingNode() != null)
-            {
+            if (resultSetProcessor.getOptionalHavingNode() != null) {
                 pass = (Boolean) resultSetProcessor.getOptionalHavingNode().evaluate(eventsPerStream, true, exprEvaluatorContext);
             }
-            if (!pass)
-            {
+            if (!pass) {
                 continue;
             }
 
@@ -96,8 +85,7 @@ public class ResultSetAggregateAllIterator implements Iterator<EventBean>
         }
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

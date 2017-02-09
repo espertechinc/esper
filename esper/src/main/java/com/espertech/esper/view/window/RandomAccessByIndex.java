@@ -18,10 +18,10 @@ import java.util.Iterator;
 /**
  * Random access interface to insert stream and remove stream data based on an index.
  */
-public interface RandomAccessByIndex
-{
+public interface RandomAccessByIndex {
     /**
      * Returns an new data event given an index.
+     *
      * @param index to return new data for
      * @return new data event
      */
@@ -29,6 +29,7 @@ public interface RandomAccessByIndex
 
     /**
      * Returns an old data event given an index.
+     *
      * @param index to return old data for
      * @return old data event
      */

@@ -13,8 +13,7 @@ package com.espertech.esper.client.util;
 /**
  * XML rendering options.
  */
-public class XMLRenderingOptions
-{
+public class XMLRenderingOptions {
     private boolean preventLooping;
     private boolean defaultAsAttribute;
     private EventPropertyRenderer renderer;
@@ -22,8 +21,7 @@ public class XMLRenderingOptions
     /**
      * Ctor.
      */
-    public XMLRenderingOptions()
-    {
+    public XMLRenderingOptions() {
         preventLooping = true;
         defaultAsAttribute = false;
     }
@@ -34,20 +32,20 @@ public class XMLRenderingOptions
      * <p>
      * The algorithm to control looping considers the combination of event type and property name for each
      * level of nested property.
+     *
      * @return indicator whether the rendering algorithm prevents looping behavior
      */
-    public boolean isPreventLooping()
-    {
+    public boolean isPreventLooping() {
         return preventLooping;
     }
 
     /**
      * Indicator whether simple properties are rendered as attributes, this setting is false by default thereby
      * simple properties are rendered as elements.
+     *
      * @return true for simple properties rendered as attributes
      */
-    public boolean isDefaultAsAttribute()
-    {
+    public boolean isDefaultAsAttribute() {
         return defaultAsAttribute;
     }
 
@@ -57,11 +55,11 @@ public class XMLRenderingOptions
      * <p>
      * The algorithm to control looping considers the combination of event type and property name for each
      * level of nested property.
+     *
      * @param preventLooping indicator whether the rendering algorithm prevents looping behavior
      * @return options object
      */
-    public XMLRenderingOptions setPreventLooping(boolean preventLooping)
-    {
+    public XMLRenderingOptions setPreventLooping(boolean preventLooping) {
         this.preventLooping = preventLooping;
         return this;
     }
@@ -69,17 +67,18 @@ public class XMLRenderingOptions
     /**
      * Indicator whether simple properties are rendered as elements (the default) or as attributes, this setting is false by default thereby
      * simple properties are rendered as elements.
+     *
      * @param defaultAsAttribute true for simple properties rendered as attributes
      * @return options object
      */
-    public XMLRenderingOptions setDefaultAsAttribute(boolean defaultAsAttribute)
-    {
+    public XMLRenderingOptions setDefaultAsAttribute(boolean defaultAsAttribute) {
         this.defaultAsAttribute = defaultAsAttribute;
         return this;
     }
 
     /**
      * Returns the event property renderer to use.
+     *
      * @return event property renderer
      */
     public EventPropertyRenderer getRenderer() {
@@ -88,6 +87,7 @@ public class XMLRenderingOptions
 
     /**
      * Sets the event property renderer to use.
+     *
      * @param renderer event property renderer
      */
     public void setRenderer(EventPropertyRenderer renderer) {

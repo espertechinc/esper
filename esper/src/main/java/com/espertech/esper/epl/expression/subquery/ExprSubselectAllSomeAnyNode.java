@@ -27,8 +27,7 @@ import java.util.LinkedHashMap;
 /**
  * Represents a subselect in an expression tree.
  */
-public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
-{
+public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
     private static final Logger log = LoggerFactory.getLogger(ExprSubselectInNode.class);
     private final boolean isNot;
     private final boolean isAll;
@@ -39,13 +38,13 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
 
     /**
      * Ctor.
-     * @param statementSpec is the lookup statement spec from the parser, unvalidated
-     * @param not when NOT
-     * @param all when ALL, false for ANY
+     *
+     * @param statementSpec    is the lookup statement spec from the parser, unvalidated
+     * @param not              when NOT
+     * @param all              when ALL, false for ANY
      * @param relationalOpEnum operator
      */
-    public ExprSubselectAllSomeAnyNode(StatementSpecRaw statementSpec, boolean not, boolean all, RelationalOpEnum relationalOpEnum)
-    {
+    public ExprSubselectAllSomeAnyNode(StatementSpecRaw statementSpec, boolean not, boolean all, RelationalOpEnum relationalOpEnum) {
         super(statementSpec);
         isNot = not;
         isAll = all;
@@ -54,43 +53,40 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
 
     /**
      * Returns true for not.
+     *
      * @return not indicator
      */
-    public boolean isNot()
-    {
+    public boolean isNot() {
         return isNot;
     }
 
     /**
      * Returns true for all.
+     *
      * @return all indicator
      */
-    public boolean isAll()
-    {
+    public boolean isAll() {
         return isAll;
     }
 
     /**
      * Returns relational op.
+     *
      * @return op
      */
-    public RelationalOpEnum getRelationalOp()
-    {
+    public RelationalOpEnum getRelationalOp() {
         return relationalOp;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
         evalStrategy = SubselectEvalStrategyFactory.createStrategy(this, isNot, isAll, !isAll, relationalOp);
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
         return evalStrategy.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
     }
 
@@ -137,5 +133,5 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode
     @Override
     public boolean isAllowMultiColumnSelect() {
         return false;
-    }    
+    }
 }

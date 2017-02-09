@@ -13,9 +13,10 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Represents a constant in an expressiun tree.
  */
-public interface ExprConstantNode extends ExprNode
-{
+public interface ExprConstantNode extends ExprNode {
     public Class getConstantType();
+
     public Object getConstantValue(ExprEvaluatorContext context);
+
     public boolean isConstantValue();
 }

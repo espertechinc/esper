@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * Create a context.
  */
-public class CreateContextClause implements Serializable
-{
+public class CreateContextClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String contextName;
@@ -31,8 +30,9 @@ public class CreateContextClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param contextName context name
-     * @param descriptor context dimension descriptor
+     * @param descriptor  context dimension descriptor
      */
     public CreateContextClause(String contextName, ContextDescriptor descriptor) {
         this.contextName = contextName;
@@ -41,6 +41,7 @@ public class CreateContextClause implements Serializable
 
     /**
      * Returns the context name
+     *
      * @return context name
      */
     public String getContextName() {
@@ -49,6 +50,7 @@ public class CreateContextClause implements Serializable
 
     /**
      * Sets the context name
+     *
      * @param contextName context name
      */
     public void setContextName(String contextName) {
@@ -57,6 +59,7 @@ public class CreateContextClause implements Serializable
 
     /**
      * Returns the context dimension informatin
+     *
      * @return context descriptor
      */
     public ContextDescriptor getDescriptor() {
@@ -65,6 +68,7 @@ public class CreateContextClause implements Serializable
 
     /**
      * Sets the context dimension informatin
+     *
      * @param descriptor context descriptor
      */
     public void setDescriptor(ContextDescriptor descriptor) {
@@ -73,11 +77,11 @@ public class CreateContextClause implements Serializable
 
     /**
      * Render as EPL.
-     * @param writer to output to
+     *
+     * @param writer    to output to
      * @param formatter formatter
      */
-    public void toEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         writer.append("create context ");
         writer.append(contextName);
         writer.append(" as ");

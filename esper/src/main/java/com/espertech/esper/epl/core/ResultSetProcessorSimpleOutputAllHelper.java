@@ -16,11 +16,14 @@ import com.espertech.esper.collection.UniformPair;
 
 import java.util.Set;
 
-public interface ResultSetProcessorSimpleOutputAllHelper extends ResultSetProcessorOutputHelper
-{
+public interface ResultSetProcessorSimpleOutputAllHelper extends ResultSetProcessorOutputHelper {
     void processView(EventBean[] newData, EventBean[] oldData);
+
     void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents);
+
     UniformPair<EventBean[]> outputView(boolean isSynthesize);
+
     UniformPair<EventBean[]> outputJoin(boolean isSynthesize);
+
     void destroy();
 }

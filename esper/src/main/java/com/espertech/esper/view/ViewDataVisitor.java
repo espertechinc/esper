@@ -18,8 +18,12 @@ import java.util.Map;
 
 public interface ViewDataVisitor {
     public void visitPrimary(EventBean event, String viewName);
+
     public void visitPrimary(EventBean[] events, String viewName);
+
     public void visitPrimary(Collection<?> primary, boolean countsEvents, String viewName, Integer count);
+
     public void visitPrimary(Map<?, ?> currentBatch, boolean countsEvents, String viewName, Integer count, Integer keyCountWhenAvailable);
+
     public void visitPrimary(ViewUpdatedCollection buffer, String viewName);
 }

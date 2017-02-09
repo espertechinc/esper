@@ -18,10 +18,10 @@ package com.espertech.esper.client.annotation;
  * <p>
  * The default priority value is zero (0).
  */
-public @interface Priority
-{
+public @interface Priority {
     /**
      * Priority value.
+     *
      * @return value
      */
     public int value();

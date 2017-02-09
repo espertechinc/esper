@@ -19,12 +19,12 @@ import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethodCreateWindow;
-import com.espertech.esper.core.start.EPStatementStartMethodHelperTableAccess;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperSubselect;
+import com.espertech.esper.core.start.EPStatementStartMethodHelperTableAccess;
 import com.espertech.esper.epl.agg.service.AggregationService;
+import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.pattern.EvalRootState;
 import com.espertech.esper.util.StopCallback;
@@ -46,6 +46,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
     private final SubSelectStrategyCollection subSelectStrategyCollection;
 
     public abstract OnExprViewResult determineOnExprView(AgentInstanceContext agentInstanceContext, List<StopCallback> stopCallbacks, boolean isRecoveringReslient);
+
     public abstract View determineFinalOutputView(AgentInstanceContext agentInstanceContext, View onExprView);
 
     public StatementAgentInstanceFactoryOnTriggerBase(StatementContext statementContext, StatementSpecCompiled statementSpec, EPServicesContext services, ViewableActivator activator, SubSelectStrategyCollection subSelectStrategyCollection) {
@@ -56,8 +57,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
         this.subSelectStrategyCollection = subSelectStrategyCollection;
     }
 
-    public StatementAgentInstanceFactoryOnTriggerResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryOnTriggerResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         List<StopCallback> stopCallbacks = new ArrayList<StopCallback>();
         View view;
         Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
@@ -85,8 +85,7 @@ public abstract class StatementAgentInstanceFactoryOnTriggerBase implements Stat
 
             // plan table access
             tableAccessStrategies = EPStatementStartMethodHelperTableAccess.attachTableAccess(services, agentInstanceContext, statementSpec.getTableNodes());
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
             StatementAgentInstanceUtil.stopSafe(stopCallback, statementContext);
             throw ex;

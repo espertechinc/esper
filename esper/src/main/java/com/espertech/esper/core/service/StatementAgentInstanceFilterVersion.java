@@ -18,7 +18,7 @@ import java.io.Serializable;
 public class StatementAgentInstanceFilterVersion implements Serializable {
 
     private static final long serialVersionUID = 5443667960162916787L;
-    
+
     private volatile long stmtFilterVersion;
 
     /**
@@ -30,6 +30,7 @@ public class StatementAgentInstanceFilterVersion implements Serializable {
 
     /**
      * Set filter version.
+     *
      * @param stmtFilterVersion to set
      */
     public void setStmtFilterVersion(long stmtFilterVersion) {
@@ -42,11 +43,11 @@ public class StatementAgentInstanceFilterVersion implements Serializable {
 
     /**
      * Check current filter.
+     *
      * @param filterVersion to check
      * @return false if not current
      */
-    public boolean isCurrentFilter(long filterVersion)
-    {
+    public boolean isCurrentFilter(long filterVersion) {
         if (filterVersion < stmtFilterVersion) {
             // catch-up in case of roll
             if (filterVersion + 100000 < stmtFilterVersion && stmtFilterVersion != Long.MAX_VALUE) {

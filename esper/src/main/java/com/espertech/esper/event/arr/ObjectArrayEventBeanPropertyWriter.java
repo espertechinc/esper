@@ -22,8 +22,7 @@ public class ObjectArrayEventBeanPropertyWriter implements EventPropertyWriter {
         this.index = index;
     }
 
-    public void write(Object value, EventBean target)
-    {
+    public void write(Object value, EventBean target) {
         ObjectArrayBackedEventBean arrayEvent = (ObjectArrayBackedEventBean) target;
         write(value, arrayEvent.getProperties());
     }

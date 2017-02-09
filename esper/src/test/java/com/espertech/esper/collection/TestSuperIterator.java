@@ -25,8 +25,7 @@ public class TestSuperIterator extends TestCase {
         try {
             it.next();
             fail();
-        }
-        catch (NoSuchElementException ex) {
+        } catch (NoSuchElementException ex) {
         }
     }
 

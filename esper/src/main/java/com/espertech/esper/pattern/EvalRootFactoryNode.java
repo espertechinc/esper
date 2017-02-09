@@ -18,8 +18,7 @@ import java.util.List;
  * This class is always the root node in the evaluation tree representing an event expression.
  * It hold the handle to the EPStatement implementation for notifying when matches are found.
  */
-public class EvalRootFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalRootFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = -4478876398666926782L;
 
     public final int numTreeChildNodes;
@@ -34,9 +33,8 @@ public class EvalRootFactoryNode extends EvalNodeFactoryBase
         return new EvalRootNode(agentInstanceContext, this, child);
     }
 
-    public final String toString()
-    {
-        return ("EvalRootNode children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalRootNode children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {

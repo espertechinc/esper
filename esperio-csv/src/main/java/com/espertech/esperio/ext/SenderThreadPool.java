@@ -10,11 +10,11 @@
  */
 package com.espertech.esperio.ext;
 
+import com.espertech.esperio.DirectSender;
+
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import com.espertech.esperio.DirectSender;
 
 /**
  * Implementation of Sender to send to esper engine using a thread pool

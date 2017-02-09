@@ -30,8 +30,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * <p>
  * Reports for all statements even if not in a statement group, i.e. statement in default group.
  */
-public class MetricReportingServiceImpl implements MetricReportingServiceSPI, MetricEventRouter, StatementLifecycleObserver
-{
+public class MetricReportingServiceImpl implements MetricReportingServiceSPI, MetricEventRouter, StatementLifecycleObserver {
     private static final Logger log = LoggerFactory.getLogger(MetricReportingServiceImpl.class);
 
     private final ConfigurationMetricsReporting specification;
@@ -54,13 +53,12 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
 
     /**
      * Ctor.
+     *
      * @param specification configuration
-     * @param engineUri engine URI
+     * @param engineUri     engine URI
      */
-    public MetricReportingServiceImpl(ConfigurationMetricsReporting specification, String engineUri)
-    {
-        if (specification.isEnableMetricsReporting())
-        {
+    public MetricReportingServiceImpl(ConfigurationMetricsReporting specification, String engineUri) {
+        if (specification.isEnableMetricsReporting()) {
             MetricUtil.initialize();
         }
         this.specification = specification;
@@ -72,12 +70,9 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         statementMetricHandles = new HashMap<String, StatementMetricHandle>();
         statementOutputHooks = new CopyOnWriteArraySet<StatementResultListener>();
 
-        if (specification.isThreading())
-        {
+        if (specification.isThreading()) {
             metricsExecutor = new MetricsExecutorThreaded(engineUri);
-        }
-        else
-        {
+        } else {
             metricsExecutor = new MetricsExecutorUnthreaded();
         }
     }
@@ -94,8 +89,7 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         return statementOutputHooks;
     }
 
-    public void setContext(EPRuntime runtime, EPServicesContext servicesContext)
-    {
+    public void setContext(EPRuntime runtime, EPServicesContext servicesContext) {
         MetricExecutionContext metricsExecutionContext = new MetricExecutionContext(servicesContext, runtime, stmtMetricRepository);
 
         // create all engine and statement executions
@@ -103,8 +97,7 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         metricExecStmtGroupDefault = new MetricExecStatement(this, schedule, specification.getStatementInterval(), 0);
 
         int countGroups = 1;
-        for (Map.Entry<String, ConfigurationMetricsReporting.StmtGroupMetrics> entry : specification.getStatementGroups().entrySet())
-        {
+        for (Map.Entry<String, ConfigurationMetricsReporting.StmtGroupMetrics> entry : specification.getStatementGroups().entrySet()) {
             ConfigurationMetricsReporting.StmtGroupMetrics config = entry.getValue();
             MetricExecStatement metricsExecution = new MetricExecStatement(this, schedule, config.getInterval(), countGroups);
             this.statementGroupExecutions.put(entry.getKey(), metricsExecution);
@@ -115,81 +108,65 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         executionContext = metricsExecutionContext;
     }
 
-    public void processTimeEvent(long timeEventTime)
-    {
-        if (!MetricReportingPath.isMetricsEnabled)
-        {
+    public void processTimeEvent(long timeEventTime) {
+        if (!MetricReportingPath.isMetricsEnabled) {
             return;
         }
 
         schedule.setTime(timeEventTime);
-        if (!isScheduled)
-        {
-            if (executionContext != null)
-            {
+        if (!isScheduled) {
+            if (executionContext != null) {
                 scheduleExecutions();
                 isScheduled = true;
-            }
-            else
-            {
+            } else {
                 return; // not initialized yet, race condition and must wait till initialized
             }
         }
 
         // fast evaluation against nearest scheduled time
         Long nearestTime = schedule.getNearestTime();
-        if ((nearestTime == null) || (nearestTime > timeEventTime))
-        {
+        if ((nearestTime == null) || (nearestTime > timeEventTime)) {
             return;
         }
 
         // get executions
         List<MetricExec> executions = new ArrayList<MetricExec>(2);
         schedule.evaluate(executions);
-        if (executions.isEmpty())
-        {
+        if (executions.isEmpty()) {
             return;
         }
 
         // execute
-        if (executionContext == null)
-        {
+        if (executionContext == null) {
             log.debug(".processTimeEvent No execution context");
             return;
         }
-        
-        for (MetricExec execution : executions)
-        {
+
+        for (MetricExec execution : executions) {
             metricsExecutor.execute(execution, executionContext);
         }
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         schedule.clear();
         metricsExecutor.destroy();
     }
 
-    public void route(MetricEvent metricEvent)
-    {
+    public void route(MetricEvent metricEvent) {
         executionContext.getRuntime().sendEvent(metricEvent);
     }
 
-    public void accountTime(StatementMetricHandle metricsHandle, long deltaCPU, long deltaWall, int numInputEvents)
-    {
+    public void accountTime(StatementMetricHandle metricsHandle, long deltaCPU, long deltaWall, int numInputEvents) {
         stmtMetricRepository.accountTimes(metricsHandle, deltaCPU, deltaWall, numInputEvents);
     }
 
-    public void accountOutput(StatementMetricHandle handle, int numIStream, int numRStream)
-    {
+    public void accountOutput(StatementMetricHandle handle, int numIStream, int numRStream) {
         stmtMetricRepository.accountOutput(handle, numIStream, numRStream);
     }
 
-    public StatementMetricHandle getStatementHandle(int statementId, String statementName)
-    {
-        if (!MetricReportingPath.isMetricsEnabled)
-        {
-            return null;   
+    public StatementMetricHandle getStatementHandle(int statementId, String statementName) {
+        if (!MetricReportingPath.isMetricsEnabled) {
+            return null;
         }
 
         StatementMetricHandle handle = stmtMetricRepository.addStatement(statementName);
@@ -197,106 +174,84 @@ public class MetricReportingServiceImpl implements MetricReportingServiceSPI, Me
         return handle;
     }
 
-    public void observe(StatementLifecycleEvent theEvent)
-    {
-        if (!MetricReportingPath.isMetricsEnabled)
-        {
+    public void observe(StatementLifecycleEvent theEvent) {
+        if (!MetricReportingPath.isMetricsEnabled) {
             return;
         }
 
-        if (theEvent.getEventType() == StatementLifecycleEvent.LifecycleEventType.STATECHANGE)
-        {
-            if (theEvent.getStatement().isDestroyed())
-            {
+        if (theEvent.getEventType() == StatementLifecycleEvent.LifecycleEventType.STATECHANGE) {
+            if (theEvent.getStatement().isDestroyed()) {
                 stmtMetricRepository.removeStatement(theEvent.getStatement().getName());
                 statementMetricHandles.remove(theEvent.getStatement().getName());
             }
         }
     }
 
-    public void setMetricsReportingInterval(String stmtGroupName, long newInterval)
-    {
-        if (stmtGroupName == null)
-        {
+    public void setMetricsReportingInterval(String stmtGroupName, long newInterval) {
+        if (stmtGroupName == null) {
             metricExecStmtGroupDefault.setInterval(newInterval);
             return;
         }
-        
+
         MetricExecStatement exec = this.statementGroupExecutions.get(stmtGroupName);
-        if (exec == null)
-        {
+        if (exec == null) {
             throw new IllegalArgumentException("Statement group by name '" + stmtGroupName + "' could not be found");
         }
         exec.setInterval(newInterval);
     }
 
-    private boolean isConsiderSchedule(long value)
-    {
-        if ((value > 0) && (value < Long.MAX_VALUE))
-        {
+    private boolean isConsiderSchedule(long value) {
+        if ((value > 0) && (value < Long.MAX_VALUE)) {
             return true;
         }
         return false;
     }
 
-    public void setMetricsReportingStmtDisabled(String statementName) throws ConfigurationException
-    {
+    public void setMetricsReportingStmtDisabled(String statementName) throws ConfigurationException {
         StatementMetricHandle handle = statementMetricHandles.get(statementName);
-        if (handle == null)
-        {
+        if (handle == null) {
             throw new ConfigurationException("Statement by name '" + statementName + "' not found in metrics collection");
         }
         handle.setEnabled(false);
     }
 
-    public void setMetricsReportingStmtEnabled(String statementName) throws ConfigurationException
-    {
+    public void setMetricsReportingStmtEnabled(String statementName) throws ConfigurationException {
         StatementMetricHandle handle = statementMetricHandles.get(statementName);
-        if (handle == null)
-        {
+        if (handle == null) {
             throw new ConfigurationException("Statement by name '" + statementName + "' not found in metrics collection");
         }
         handle.setEnabled(true);
     }
 
-    public void setMetricsReportingEnabled()
-    {
-        if (!specification.isEnableMetricsReporting())
-        {
+    public void setMetricsReportingEnabled() {
+        if (!specification.isEnableMetricsReporting()) {
             throw new ConfigurationException("Metrics reporting must be enabled through initialization-time configuration");
         }
         scheduleExecutions();
         MetricReportingPath.setMetricsEnabled(true);
     }
 
-    public void setMetricsReportingDisabled()
-    {
+    public void setMetricsReportingDisabled() {
         schedule.clear();
         MetricReportingPath.setMetricsEnabled(false);
     }
 
-    private void scheduleExecutions()
-    {
-        if (!specification.isEnableMetricsReporting())
-        {
+    private void scheduleExecutions() {
+        if (!specification.isEnableMetricsReporting()) {
             return;
         }
 
-        if (isConsiderSchedule(metricExecEngine.getInterval()))
-        {
+        if (isConsiderSchedule(metricExecEngine.getInterval())) {
             schedule.add(metricExecEngine.getInterval(), metricExecEngine);
         }
 
         // schedule each statement group, count the "default" group as the first group
-        if (isConsiderSchedule(metricExecStmtGroupDefault.getInterval()))
-        {
+        if (isConsiderSchedule(metricExecStmtGroupDefault.getInterval())) {
             schedule.add(metricExecStmtGroupDefault.getInterval(), metricExecStmtGroupDefault);
         }
 
-        for (MetricExecStatement metricsExecution : statementGroupExecutions.values())
-        {
-            if (isConsiderSchedule(metricsExecution.getInterval()))
-            {
+        for (MetricExecStatement metricsExecution : statementGroupExecutions.values()) {
+            if (isConsiderSchedule(metricsExecution.getInterval())) {
                 schedule.add(metricsExecution.getInterval(), metricsExecution);
             }
         }

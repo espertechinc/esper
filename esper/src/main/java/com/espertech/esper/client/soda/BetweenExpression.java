@@ -17,8 +17,7 @@ import java.io.StringWriter;
  * <p>
  * Closed and open ranges (endpoint included or excluded) are supported by this class, as is not-between.
  */
-public class BetweenExpression extends ExpressionBase
-{
+public class BetweenExpression extends ExpressionBase {
     private boolean isLowEndpointIncluded;
     private boolean isHighEndpointIncluded;
     private boolean isNotBetween;
@@ -32,12 +31,12 @@ public class BetweenExpression extends ExpressionBase
 
     /**
      * Ctor, creates a between range check.
+     *
      * @param datapoint provides the datapoint
-     * @param lower provides lower boundary
-     * @param higher provides upper boundary
+     * @param lower     provides lower boundary
+     * @param higher    provides upper boundary
      */
-    public BetweenExpression(Expression datapoint, Expression lower, Expression higher)
-    {
+    public BetweenExpression(Expression datapoint, Expression lower, Expression higher) {
         this(datapoint, lower, higher, true, true, false);
     }
 
@@ -45,12 +44,12 @@ public class BetweenExpression extends ExpressionBase
      * Ctor - for use to create an expression tree, without child expression.
      * <p>
      * Use add methods to add child expressions to acts upon.
-     * @param lowEndpointIncluded true if the low endpoint is included, false if not
+     *
+     * @param lowEndpointIncluded  true if the low endpoint is included, false if not
      * @param highEndpointIncluded true if the high endpoint is included, false if not
-     * @param notBetween true for not-between, false for between
+     * @param notBetween           true for not-between, false for between
      */
-    public BetweenExpression(boolean lowEndpointIncluded, boolean highEndpointIncluded, boolean notBetween)
-    {
+    public BetweenExpression(boolean lowEndpointIncluded, boolean highEndpointIncluded, boolean notBetween) {
         isLowEndpointIncluded = lowEndpointIncluded;
         isHighEndpointIncluded = highEndpointIncluded;
         isNotBetween = notBetween;
@@ -58,15 +57,15 @@ public class BetweenExpression extends ExpressionBase
 
     /**
      * Ctor.
-     * @param datapoint provides the datapoint
-     * @param lower provides lower boundary
-     * @param higher provides upper boundary
-     * @param lowEndpointIncluded true if the low endpoint is included, false if not
+     *
+     * @param datapoint            provides the datapoint
+     * @param lower                provides lower boundary
+     * @param higher               provides upper boundary
+     * @param lowEndpointIncluded  true if the low endpoint is included, false if not
      * @param highEndpointIncluded true if the high endpoint is included, false if not
-     * @param notBetween true for not-between, false for between
+     * @param notBetween           true for not-between, false for between
      */
-    public BetweenExpression(Expression datapoint, Expression lower, Expression higher, boolean lowEndpointIncluded, boolean highEndpointIncluded, boolean notBetween)
-    {
+    public BetweenExpression(Expression datapoint, Expression lower, Expression higher, boolean lowEndpointIncluded, boolean highEndpointIncluded, boolean notBetween) {
         this.getChildren().add(datapoint);
         this.getChildren().add(lower);
         this.getChildren().add(higher);
@@ -82,39 +81,30 @@ public class BetweenExpression extends ExpressionBase
 
     /**
      * Renders the clause in textual representation.
+     *
      * @param writer to output to
      */
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
-        if ((isLowEndpointIncluded) && (isHighEndpointIncluded))
-        {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
+        if (isLowEndpointIncluded && isHighEndpointIncluded) {
             this.getChildren().get(0).toEPL(writer, getPrecedence());
             writer.write(" between ");
             this.getChildren().get(1).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             writer.write(" and ");
             this.getChildren().get(2).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-        }
-        else
-        {
+        } else {
             this.getChildren().get(0).toEPL(writer, getPrecedence());
             writer.write(" in ");
-            if (isLowEndpointIncluded)
-            {
+            if (isLowEndpointIncluded) {
                 writer.write('[');
-            }
-            else
-            {
+            } else {
                 writer.write('(');
             }
             this.getChildren().get(1).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             writer.write(':');
             this.getChildren().get(2).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-            if (isHighEndpointIncluded)
-            {
+            if (isHighEndpointIncluded) {
                 writer.write(']');
-            }
-            else
-            {
+            } else {
                 writer.write(')');
             }
         }
@@ -122,55 +112,55 @@ public class BetweenExpression extends ExpressionBase
 
     /**
      * True if the low endpoint is included.
+     *
      * @return true for inclusive range.
      */
-    public boolean isLowEndpointIncluded()
-    {
+    public boolean isLowEndpointIncluded() {
         return isLowEndpointIncluded;
     }
 
     /**
      * Set to true to indicate that the low endpoint is included (the default).
+     *
      * @param lowEndpointIncluded true for inclusive
      */
-    public void setLowEndpointIncluded(boolean lowEndpointIncluded)
-    {
+    public void setLowEndpointIncluded(boolean lowEndpointIncluded) {
         isLowEndpointIncluded = lowEndpointIncluded;
     }
 
     /**
      * True if the high endpoint is included.
+     *
      * @return true for inclusive range.
      */
-    public boolean isHighEndpointIncluded()
-    {
+    public boolean isHighEndpointIncluded() {
         return isHighEndpointIncluded;
     }
 
     /**
      * Set to true to indicate that the high endpoint is included (the default).
+     *
      * @param highEndpointIncluded true for inclusive
      */
-    public void setHighEndpointIncluded(boolean highEndpointIncluded)
-    {
+    public void setHighEndpointIncluded(boolean highEndpointIncluded) {
         isHighEndpointIncluded = highEndpointIncluded;
     }
 
     /**
      * Returns true for not-between, or false for between range.
+     *
      * @return false is the default range check, true checks if the value is outside of the range
      */
-    public boolean isNotBetween()
-    {
+    public boolean isNotBetween() {
         return isNotBetween;
     }
 
     /**
      * Set to true for not-between, or false for between range.
+     *
      * @param notBetween false is the default range check, true checks if the value is outside of the range
      */
-    public void setNotBetween(boolean notBetween)
-    {
+    public void setNotBetween(boolean notBetween) {
         isNotBetween = notBetween;
     }
 }

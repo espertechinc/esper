@@ -25,15 +25,13 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.view.window.TimeLengthBatchView}.
  */
-public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory
-{
+public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory {
     /**
      * Number of events to collect before batch fires.
      */
     protected ExprEvaluator sizeEvaluator;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters);
         String errorMessage = getViewName() + " view requires a numeric or time period parameter as a time interval size, and an integer parameter as a maximal number-of-events, and an optional list of control keywords as a string parameter (please see the documentation)";
         if ((validated.length != 2) && (validated.length != 3)) {
@@ -50,8 +48,7 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
         }
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -59,46 +56,39 @@ public class TimeLengthBatchViewFactory extends TimeBatchViewFactoryParams imple
         return new RelativeAccessByEventNIndexGetterImpl();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new TimeLengthBatchView(this, agentInstanceViewFactoryContext, timeDeltaComputation, size, isForceUpdate, isStartEager, viewUpdatedCollection);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof TimeLengthBatchView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof TimeLengthBatchView)) {
             return false;
         }
 
         TimeLengthBatchView myView = (TimeLengthBatchView) view;
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
-        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
-        {
+        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }
 
         int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
-        if (myView.getNumberOfEvents() != size)
-        {
+        if (myView.getNumberOfEvents() != size) {
             return false;
         }
 
-        if (myView.isForceOutput() != isForceUpdate)
-        {
+        if (myView.isForceOutput() != isForceUpdate) {
             return false;
         }
 
-        if (myView.isStartEager())  // since it's already started
-        {
+        if (myView.isStartEager()) {
+            // since it's already started
             return false;
         }
 

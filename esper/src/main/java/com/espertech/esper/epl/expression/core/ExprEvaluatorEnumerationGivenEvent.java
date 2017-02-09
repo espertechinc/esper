@@ -17,8 +17,7 @@ import java.util.Collection;
 /**
  * Interface for evaluating of an event re. enumeration.
  */
-public interface ExprEvaluatorEnumerationGivenEvent
-{
+public interface ExprEvaluatorEnumerationGivenEvent {
     public Collection<EventBean> evaluateEventGetROCollectionEvents(EventBean event, ExprEvaluatorContext context);
 
     public Collection evaluateEventGetROCollectionScalar(EventBean event, ExprEvaluatorContext context);

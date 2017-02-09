@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 /**
  * A variant event is a type that can represent many event types.
  */
-public interface VariantEvent
-{
+public interface VariantEvent {
     /**
      * Returns the underlying event.
+     *
      * @return underlying event
      */
     public EventBean getUnderlyingEventBean();

@@ -17,6 +17,7 @@ public interface EPDataFlowOperatorProvider {
 
     /**
      * Called to see if the provider would like to provide the operator instance as described in the context.
+     *
      * @param context operator instance requested
      * @return operator instance, or null if the default empty construct instantiation for the operator class should be used
      */

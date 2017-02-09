@@ -29,7 +29,10 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
-import com.espertech.esper.epl.expression.visitor.*;
+import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
+import com.espertech.esper.epl.expression.visitor.ExprNodePreviousVisitorWParent;
+import com.espertech.esper.epl.expression.visitor.ExprNodeStreamRequiredVisitor;
+import com.espertech.esper.epl.expression.visitor.ExprNodeStreamUseCollectVisitor;
 import com.espertech.esper.epl.spec.MatchRecognizeDefineItem;
 import com.espertech.esper.epl.spec.MatchRecognizeMeasureItem;
 import com.espertech.esper.epl.spec.MatchRecognizeSpec;
@@ -44,8 +47,7 @@ import java.util.*;
 /**
  * View factory for match-recognize view.
  */
-public class EventRowRegexNFAViewFactory extends ViewFactorySupport
-{
+public class EventRowRegexNFAViewFactory extends ViewFactorySupport {
     protected final MatchRecognizeSpec matchRecognizeSpec;
     protected final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
     protected final Map<Integer, String> streamVariables;
@@ -66,17 +68,17 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
 
     /**
      * Ctor.
-     * @param viewChain views
-     * @param matchRecognizeSpec specification
-     * @param isUnbound true for unbound stream
-     * @param annotations annotations
+     *
+     * @param viewChain            views
+     * @param matchRecognizeSpec   specification
+     * @param isUnbound            true for unbound stream
+     * @param annotations          annotations
      * @param matchRecognizeConfig config
      * @param agentInstanceContext context
      * @throws ExprValidationException if validation fails
      */
     public EventRowRegexNFAViewFactory(ViewFactoryChain viewChain, MatchRecognizeSpec matchRecognizeSpec, AgentInstanceContext agentInstanceContext, boolean isUnbound, Annotation[] annotations, ConfigurationEngineDefaults.MatchRecognize matchRecognizeConfig)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         EventType parentViewType = viewChain.getEventType();
         this.matchRecognizeSpec = matchRecognizeSpec;
         this.isUnbound = isUnbound;
@@ -95,21 +97,18 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
         // each variable gets associated with a stream number (multiple-row variables as well to hold the current event for the expression).
         int streamNum = 0;
         variableStreams = new LinkedHashMap<String, Pair<Integer, Boolean>>();
-        for (String variableSingle : variablesSingle)
-        {
+        for (String variableSingle : variablesSingle) {
             variableStreams.put(variableSingle, new Pair<Integer, Boolean>(streamNum, false));
             streamNum++;
         }
-        for (String variableMultiple : variablesMultiple)
-        {
+        for (String variableMultiple : variablesMultiple) {
             variableStreams.put(variableMultiple, new Pair<Integer, Boolean>(streamNum, true));
             streamNum++;
         }
 
         // mapping of stream to variable
         streamVariables = new TreeMap<Integer, String>();
-        for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet())
-        {
+        for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
             streamVariables.put(entry.getValue().getFirst(), entry.getKey());
         }
 
@@ -121,14 +120,12 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
         EventType[] allTypes = new EventType[variableStreams.size()];
 
         streamNum = 0;
-        for (String variableSingle : variablesSingle)
-        {
+        for (String variableSingle : variablesSingle) {
             allStreamNames[streamNum] = variableSingle;
             allTypes[streamNum] = parentViewType;
             streamNum++;
         }
-        for (String variableMultiple : variablesMultiple)
-        {
+        for (String variableMultiple : variablesMultiple) {
             allStreamNames[streamNum] = variableMultiple;
             allTypes[streamNum] = parentViewType;
             streamNum++;
@@ -141,11 +138,9 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
         ExprEvaluatorContextStatement exprEvaluatorContext = new ExprEvaluatorContextStatement(statementContext, false);
         this.isExprRequiresMultimatchState = new boolean[variableStreams.size()];
 
-        for (int defineIndex = 0; defineIndex < matchRecognizeSpec.getDefines().size(); defineIndex++)
-        {
+        for (int defineIndex = 0; defineIndex < matchRecognizeSpec.getDefines().size(); defineIndex++) {
             MatchRecognizeDefineItem defineItem = matchRecognizeSpec.getDefines().get(defineIndex);
-            if (definedVariables.contains(defineItem.getIdentifier()))
-            {
+            if (definedVariables.contains(defineItem.getIdentifier())) {
                 throw new ExprValidationException("Variable '" + defineItem.getIdentifier() + "' has already been defined");
             }
             definedVariables.add(defineItem.getIdentifier());
@@ -167,8 +162,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
                 if (!aggregateNodes.isEmpty()) {
                     throw new ExprValidationException("An aggregate function may not appear in a DEFINE clause");
                 }
-            }
-            catch (ExprValidationException ex) {
+            } catch (ExprValidationException ex) {
                 throw new ExprValidationException("Failed to validate condition expression for variable '" + defineItem.getIdentifier() + "': " + ex.getMessage(), ex);
             }
 
@@ -200,13 +194,11 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
 
         // determine type service for use with MEASURE
         Map<String, Object> measureTypeDef = new LinkedHashMap<String, Object>();
-        for (String variableSingle : variablesSingle)
-        {
+        for (String variableSingle : variablesSingle) {
             measureTypeDef.put(variableSingle, parentViewType);
         }
-        for (String variableMultiple : variablesMultiple)
-        {
-            measureTypeDef.put(variableMultiple, new EventType[] {parentViewType});
+        for (String variableMultiple : variablesMultiple) {
+            measureTypeDef.put(variableMultiple, new EventType[]{parentViewType});
         }
         String outputEventTypeName = statementContext.getStatementId() + "_rowrecog";
         compositeEventType = (ObjectArrayEventType) statementContext.getEventAdapterService().createAnonymousObjectArrayType(outputEventTypeName, measureTypeDef);
@@ -215,19 +207,16 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
         // find MEASURE clause aggregations
         boolean measureReferencesMultivar = false;
         List<ExprAggregateNode> measureAggregateExprNodes = new ArrayList<ExprAggregateNode>();
-        for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures())
-        {
+        for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures()) {
             ExprAggregateNodeUtil.getAggregatesBottomUp(measureItem.getExpr(), measureAggregateExprNodes);
         }
-        if (!measureAggregateExprNodes.isEmpty())
-        {
+        if (!measureAggregateExprNodes.isEmpty()) {
             boolean[] isIStreamOnly = new boolean[allStreamNames.length];
             Arrays.fill(isIStreamOnly, true);
             StreamTypeServiceImpl typeServiceAggregateMeasure = new StreamTypeServiceImpl(allTypes, allStreamNames, isIStreamOnly, statementContext.getEngineURI(), false);
             Map<Integer, List<ExprAggregateNode>> measureExprAggNodesPerStream = new HashMap<Integer, List<ExprAggregateNode>>();
 
-            for (ExprAggregateNode aggregateNode : measureAggregateExprNodes)
-            {
+            for (ExprAggregateNode aggregateNode : measureAggregateExprNodes) {
                 // validate absence of group-by
                 aggregateNode.validatePositionals();
                 if (aggregateNode.getOptionalLocalGroupBy() != null) {
@@ -239,8 +228,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
                 ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(true);
 
                 ExprValidationContext validationContext = new ExprValidationContext(typeServiceAggregateMeasure, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-                for (ExprNode child : aggregateNode.getChildNodes())
-                {
+                for (ExprNode child : aggregateNode.getChildNodes()) {
                     ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGMEASURE, child, validationContext);
                     validated.accept(visitor);
                     aggregateNode.setChildNode(count++, new ExprNodeValidated(validated));
@@ -250,20 +238,16 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
 
                 // verify properties used within the aggregation
                 Set<Integer> aggregatedStreams = new HashSet<Integer>();
-                for (Pair<Integer, String> pair : visitor.getExprProperties())
-                {
+                for (Pair<Integer, String> pair : visitor.getExprProperties()) {
                     aggregatedStreams.add(pair.getFirst());
                 }
 
                 Integer multipleVarStream = null;
-                for (int streamNumAggregated : aggregatedStreams)
-                {
+                for (int streamNumAggregated : aggregatedStreams) {
                     String variable = streamVariables.get(streamNumAggregated);
-                    if (variablesMultiple.contains(variable))
-                    {
+                    if (variablesMultiple.contains(variable)) {
                         measureReferencesMultivar = true;
-                        if (multipleVarStream == null)
-                        {
+                        if (multipleVarStream == null) {
                             multipleVarStream = streamNumAggregated;
                             continue;
                         }
@@ -271,14 +255,12 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
                     }
                 }
 
-                if (multipleVarStream == null)
-                {
+                if (multipleVarStream == null) {
                     throw new ExprValidationException("Aggregation functions in the measure-clause must refer to one or more properties of exactly one group variable returning multiple events");
                 }
 
                 List<ExprAggregateNode> aggNodesForStream = measureExprAggNodesPerStream.get(multipleVarStream);
-                if (aggNodesForStream == null)
-                {
+                if (aggNodesForStream == null) {
                     aggNodesForStream = new ArrayList<ExprAggregateNode>();
                     measureExprAggNodesPerStream.put(multipleVarStream, aggNodesForStream);
                 }
@@ -288,9 +270,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
             AggregationServiceMatchRecognizeFactoryDesc factoryDesc = AggregationServiceFactoryFactory.getServiceMatchRecognize(streamVariables.size(), measureExprAggNodesPerStream, typeServiceAggregateMeasure.getEventTypes());
             aggregationService = factoryDesc.getAggregationServiceFactory().makeService(agentInstanceContext);
             aggregationExpressions = factoryDesc.getExpressions();
-        }
-        else
-        {
+        } else {
             aggregationService = null;
             aggregationExpressions = Collections.emptyList();
         }
@@ -298,10 +278,8 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
         // validate each MEASURE clause expression
         Map<String, Object> rowTypeDef = new LinkedHashMap<String, Object>();
         ExprNodeStreamUseCollectVisitor streamRefVisitor = new ExprNodeStreamUseCollectVisitor();
-        for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures())
-        {
-            if (measureItem.getName() == null)
-            {
+        for (MatchRecognizeMeasureItem measureItem : matchRecognizeSpec.getMeasures()) {
+            if (measureItem.getName() == null) {
                 throw new ExprValidationException("The measures clause requires that each expression utilizes the AS keyword to assign a column name");
             }
             ExprNode validated = validateMeasureClause(measureItem.getExpr(), typeServiceMeasure, variablesMultiple, variablesSingle, statementContext);
@@ -339,13 +317,11 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
         rowEventType = statementContext.getEventAdapterService().createAnonymousMapType(rowEventTypeName, rowTypeDef, true);
 
         // validate partition-by expressions, if any
-        if (!matchRecognizeSpec.getPartitionByExpressions().isEmpty())
-        {
+        if (!matchRecognizeSpec.getPartitionByExpressions().isEmpty()) {
             StreamTypeService typeServicePartition = new StreamTypeServiceImpl(parentViewType, "MATCH_RECOGNIZE_PARTITION", true, statementContext.getEngineURI());
             List<ExprNode> validated = new ArrayList<ExprNode>();
             ExprValidationContext validationContext = new ExprValidationContext(typeServicePartition, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
-            for (ExprNode partitionExpr : matchRecognizeSpec.getPartitionByExpressions())
-            {
+            for (ExprNode partitionExpr : matchRecognizeSpec.getPartitionByExpressions()) {
                 validated.add(ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGPARTITION, partitionExpr, validationContext));
             }
             matchRecognizeSpec.setPartitionByExpressions(validated);
@@ -359,85 +335,64 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
     }
 
     private ExprNode validateMeasureClause(ExprNode measureNode, StreamTypeService typeServiceMeasure, Set<String> variablesMultiple, Set<String> variablesSingle, StatementContext statementContext)
-            throws ExprValidationException
-    {
-        try
-        {
+            throws ExprValidationException {
+        try {
             ExprEvaluatorContextStatement exprEvaluatorContext = new ExprEvaluatorContextStatement(statementContext, false);
             ExprValidationContext validationContext = new ExprValidationContext(typeServiceMeasure, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), exprEvaluatorContext, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
             return ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.MATCHRECOGMEASURE, measureNode, validationContext);
-        }
-        catch (ExprValidationPropertyException e)
-        {
+        } catch (ExprValidationPropertyException e) {
             String grouped = CollectionUtil.toString(variablesMultiple);
             String single = CollectionUtil.toString(variablesSingle);
             String message = e.getMessage();
-            if (!variablesMultiple.isEmpty())
-            {
+            if (!variablesMultiple.isEmpty()) {
                 message += ", ensure that grouped variables (variables " + grouped + ") are accessed via index (i.e. variable[0].property) or appear within an aggregation";
             }
-            if (!variablesSingle.isEmpty())
-            {
+            if (!variablesSingle.isEmpty()) {
                 message += ", ensure that singleton variables (variables " + single + ") are not accessed via index";
             }
             throw new ExprValidationPropertyException(message, e);
         }
     }
 
-    private ExprNode handlePreviousFunctions(ExprNode defineItemExpression) throws ExprValidationException
-    {
+    private ExprNode handlePreviousFunctions(ExprNode defineItemExpression) throws ExprValidationException {
         ExprNodePreviousVisitorWParent previousVisitor = new ExprNodePreviousVisitorWParent();
         defineItemExpression.accept(previousVisitor);
 
-        if (previousVisitor.getPrevious() == null)
-        {
+        if (previousVisitor.getPrevious() == null) {
             return defineItemExpression;
         }
 
-        for (Pair<ExprNode, ExprPreviousNode> previousNodePair : previousVisitor.getPrevious())
-        {
+        for (Pair<ExprNode, ExprPreviousNode> previousNodePair : previousVisitor.getPrevious()) {
             ExprPreviousNode previousNode = previousNodePair.getSecond();
             ExprPreviousMatchRecognizeNode matchRecogPrevNode = new ExprPreviousMatchRecognizeNode();
 
-            if (previousNodePair.getSecond().getChildNodes().length == 1)
-            {
+            if (previousNodePair.getSecond().getChildNodes().length == 1) {
                 matchRecogPrevNode.addChildNode(previousNode.getChildNodes()[0]);
                 matchRecogPrevNode.addChildNode(new ExprConstantNodeImpl(1));
-            }
-            else if (previousNodePair.getSecond().getChildNodes().length == 2)
-            {
+            } else if (previousNodePair.getSecond().getChildNodes().length == 2) {
                 ExprNode first = previousNode.getChildNodes()[0];
                 ExprNode second = previousNode.getChildNodes()[1];
-                if ((first.isConstantResult()) && (!second.isConstantResult()))
-                {
+                if ((first.isConstantResult()) && (!second.isConstantResult())) {
                     matchRecogPrevNode.addChildNode(second);
                     matchRecogPrevNode.addChildNode(first);
-                }
-                else if ((!first.isConstantResult()) && (second.isConstantResult()))
-                {
+                } else if ((!first.isConstantResult()) && (second.isConstantResult())) {
                     matchRecogPrevNode.addChildNode(first);
                     matchRecogPrevNode.addChildNode(second);
-                }
-                else
-                {
+                } else {
                     throw new ExprValidationException("PREV operator requires a constant index");
                 }
             }
 
-            if (previousNodePair.getFirst() == null)
-            {
+            if (previousNodePair.getFirst() == null) {
                 defineItemExpression = matchRecogPrevNode;
-            }
-            else
-            {
+            } else {
                 ExprNodeUtility.replaceChildNode(previousNodePair.getFirst(), previousNodePair.getSecond(), matchRecogPrevNode);
             }
 
             // store in a list per index such that we can consolidate this into a single buffer
             int index = matchRecogPrevNode.getConstantIndexNumber();
             List<ExprPreviousMatchRecognizeNode> callbackList = callbacksPerIndex.get(index);
-            if (callbackList == null)
-            {
+            if (callbackList == null) {
                 callbackList = new ArrayList<ExprPreviousMatchRecognizeNode>();
                 callbacksPerIndex.put(index, callbackList);
             }
@@ -479,7 +434,7 @@ public class EventRowRegexNFAViewFactory extends ViewFactorySupport
                 expandedPatternNode,
                 matchRecognizeConfig,
                 scheduler
-             );
+        );
 
         if (scheduler != null) {
             scheduler.setScheduleCallback(agentInstanceViewFactoryContext.getAgentInstanceContext(), view);

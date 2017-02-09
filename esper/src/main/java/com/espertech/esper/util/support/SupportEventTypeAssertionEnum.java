@@ -14,8 +14,7 @@ import com.espertech.esper.client.EventPropertyDescriptor;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 
-public enum SupportEventTypeAssertionEnum
-{
+public enum SupportEventTypeAssertionEnum {
     NAME(new Extractor() {
         public Object extract(EventPropertyDescriptor desc, EventType eventType) {
             return desc.getPropertyName();
@@ -60,6 +59,6 @@ public enum SupportEventTypeAssertionEnum
     }
 
     public static SupportEventTypeAssertionEnum[] getSetWithFragment() {
-        return new SupportEventTypeAssertionEnum[] {NAME, TYPE, FRAGEMENT_TYPE_NAME, FRAGMENT_IS_INDEXED};
+        return new SupportEventTypeAssertionEnum[]{NAME, TYPE, FRAGEMENT_TYPE_NAME, FRAGMENT_IS_INDEXED};
     }
 }

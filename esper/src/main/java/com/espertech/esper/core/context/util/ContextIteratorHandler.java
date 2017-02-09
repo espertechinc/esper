@@ -18,7 +18,10 @@ import java.util.Iterator;
 
 public interface ContextIteratorHandler {
     public Iterator<EventBean> iterator(int statementId);
+
     public SafeIterator<EventBean> safeIterator(int statementId);
+
     public Iterator<EventBean> iterator(int statementId, ContextPartitionSelector selector);
+
     public SafeIterator<EventBean> safeIterator(int statementId, ContextPartitionSelector selector);
 }

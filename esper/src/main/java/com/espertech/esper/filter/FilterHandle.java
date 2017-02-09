@@ -14,10 +14,10 @@ package com.espertech.esper.filter;
  * Marker interface for use with {@link FilterService}. Implementations serve as a filter match values when
  * events match filters, and also serve to enter and remove a filter from the filter subscription set.
  */
-public interface FilterHandle
-{
+public interface FilterHandle {
     /**
      * Returns the statement id.
+     *
      * @return statement id
      */
     public int getStatementId();

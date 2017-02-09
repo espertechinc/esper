@@ -89,9 +89,8 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
         // activate if this is the first statement
         if (statements.size() == 1) {
             activate();     // this may itself trigger a callback
-        }
-        // activate statement in respect to existing context partitions
-        else {
+        } else {
+            // activate statement in respect to existing context partitions
             for (Map.Entry<Integer, ContextControllerTreeAgentInstanceList> entry : agentInstances.entrySet()) {
                 if (entry.getValue().getState() == ContextPartitionState.STARTED) {
                     AgentInstance agentInstance = startStatement(entry.getKey(), desc, rootContext, entry.getValue().getInitPartitionKey(), entry.getValue().getInitContextProperties(), isRecoveringResilient);
@@ -212,8 +211,7 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
             ContextStatePathKey key = new ContextStatePathKey(1, 0, existingHandle.getSubPathId());
             ContextStatePathValue value = new ContextStatePathValue(existingHandle.getContextPartitionOrPathId(), payload, ContextPartitionState.STARTED);
             rootContext.getFactory().getFactoryContext().getStateCache().updateContextPath(contextName, key, value);
-        }
-        else {
+        } else {
             List<AgentInstance> removed = new ArrayList<AgentInstance>(2);
             List<AgentInstance> added = new ArrayList<AgentInstance>(2);
             for (AgentInstance agentInstance : entry.getAgentInstances()) {
@@ -273,11 +271,9 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
             ArrayList agentInstanceIds = new ArrayList<Integer>(ids);
             agentInstanceIds.retainAll(agentInstances.keySet());
             return agentInstanceIds;
-        }
-        else if (selector instanceof ContextPartitionSelectorAll) {
+        } else if (selector instanceof ContextPartitionSelectorAll) {
             return new ArrayList<Integer>(agentInstances.keySet());
-        }
-        else {
+        } else {
             ContextPartitionVisitorAgentInstanceId visitor = new ContextPartitionVisitorAgentInstanceId(1);
             rootContext.visitSelectedPartitions(selector, visitor);
             return visitor.getAgentInstanceIds();

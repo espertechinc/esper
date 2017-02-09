@@ -17,17 +17,14 @@ import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewFactoryContext;
 import com.espertech.esper.view.ViewParameterException;
-import com.espertech.esper.view.ViewServiceHelper;
 
 import java.util.List;
 
 /**
  * Factory for {@link com.espertech.esper.view.window.ExpressionWindowView}.
  */
-public class ExpressionWindowViewFactory extends ExpressionViewFactoryBase
-{
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+public class ExpressionWindowViewFactory extends ExpressionViewFactoryBase {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         if (expressionParameters.size() != 1) {
             String errorMessage = getViewName() + " view requires a single expression as a parameter";
             throw new ViewParameterException(errorMessage);
@@ -35,8 +32,7 @@ public class ExpressionWindowViewFactory extends ExpressionViewFactoryBase
         expiryExpression = expressionParameters.get(0);
     }
 
-    public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new ExpressionWindowView(this, randomAccess, expiryExpressionEvaluator, aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);

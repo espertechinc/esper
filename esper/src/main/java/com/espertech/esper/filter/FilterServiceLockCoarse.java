@@ -17,8 +17,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public final class FilterServiceLockCoarse extends FilterServiceBase
-{
+public final class FilterServiceLockCoarse extends FilterServiceBase {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public FilterServiceLockCoarse(boolean allowIsolation) {
@@ -37,8 +36,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.writeLock().lock();
         try {
             return super.takeInternal(statementId);
-        }
-        finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }
@@ -47,8 +45,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.writeLock().lock();
         try {
             super.applyInternal(filterSet);
-        }
-        finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }
@@ -57,8 +54,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.readLock().lock();
         try {
             return super.evaluateInternal(theEvent, matches);
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -67,8 +63,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.readLock().lock();
         try {
             return super.evaluateInternal(theEvent, matches, statementId);
-        }
-        finally {
+        } finally {
             lock.readLock().unlock();
         }
     }
@@ -77,8 +72,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.writeLock().lock();
         try {
             return super.addInternal(filterValueSet, callback);
-        }
-        finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }
@@ -87,8 +81,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.writeLock().lock();
         try {
             super.removeInternal(callback, filterServiceEntry);
-        }
-        finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }
@@ -97,8 +90,7 @@ public final class FilterServiceLockCoarse extends FilterServiceBase
         lock.writeLock().lock();
         try {
             super.removeTypeInternal(type);
-        }
-        finally {
+        } finally {
             lock.writeLock().unlock();
         }
     }

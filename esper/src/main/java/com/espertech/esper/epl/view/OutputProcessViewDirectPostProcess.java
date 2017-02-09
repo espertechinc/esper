@@ -15,8 +15,7 @@ import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.service.UpdateDispatchView;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 
-public class OutputProcessViewDirectPostProcess extends OutputProcessViewDirect
-{
+public class OutputProcessViewDirectPostProcess extends OutputProcessViewDirect {
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewDirectPostProcess(ResultSetProcessor resultSetProcessor, OutputProcessViewDirectFactory parent, OutputStrategyPostProcess postProcessor) {

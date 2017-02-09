@@ -23,46 +23,40 @@ import java.util.Map;
 /**
  * Builds a tree of assembly nodes given a strategy for how to join streams.
  */
-public class AssemblyStrategyTreeBuilder
-{
+public class AssemblyStrategyTreeBuilder {
     /**
      * Builds a tree of {@link BaseAssemblyNode} from join strategy information.
-     * @param rootStream - the root stream supplying the event to evaluate
+     *
+     * @param rootStream             - the root stream supplying the event to evaluate
      * @param streamsJoinedPerStream - a map in which the key is the stream number to supply an event,
-     * and the value is an array of streams to find events in for the given event
-     * @param isRequiredPerStream - indicates which streams are required join streams versus optional streams
+     *                               and the value is an array of streams to find events in for the given event
+     * @param isRequiredPerStream    - indicates which streams are required join streams versus optional streams
      * @return root assembly node
      */
-    public static BaseAssemblyNodeFactory build(int rootStream, Map<Integer, int[]> streamsJoinedPerStream, boolean isRequiredPerStream[])
-    {
-        if (streamsJoinedPerStream.size() < 3)
-        {
+    public static BaseAssemblyNodeFactory build(int rootStream, Map<Integer, int[]> streamsJoinedPerStream, boolean[] isRequiredPerStream) {
+        if (streamsJoinedPerStream.size() < 3) {
             throw new IllegalArgumentException("Not a 3-way join");
         }
-        if ((rootStream < 0) || (rootStream >= streamsJoinedPerStream.size()))
-        {
+        if ((rootStream < 0) || (rootStream >= streamsJoinedPerStream.size())) {
             throw new IllegalArgumentException("Invalid root stream");
         }
-        if (isRequiredPerStream.length != streamsJoinedPerStream.size())
-        {
+        if (isRequiredPerStream.length != streamsJoinedPerStream.size()) {
             throw new IllegalArgumentException("Arrays not matching up");
         }
 
         NStreamOuterQueryPlanBuilder.verifyJoinedPerStream(rootStream, streamsJoinedPerStream);
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".build Building node for root stream " + rootStream +
-                            " streamsJoinedPerStream=" + NStreamOuterQueryPlanBuilder.print(streamsJoinedPerStream) +
-                            " isRequiredPerStream=" + Arrays.toString(isRequiredPerStream));
+                    " streamsJoinedPerStream=" + NStreamOuterQueryPlanBuilder.print(streamsJoinedPerStream) +
+                    " isRequiredPerStream=" + Arrays.toString(isRequiredPerStream));
         }
 
         BaseAssemblyNodeFactory topNode = createNode(true, rootStream, streamsJoinedPerStream.size(), streamsJoinedPerStream.get(rootStream), isRequiredPerStream);
 
         recursiveBuild(rootStream, topNode, streamsJoinedPerStream, isRequiredPerStream);
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             StringWriter buf = new StringWriter();
             PrintWriter print = new PrintWriter(buf);
             IndentWriter indentWriter = new IndentWriter(print, 0, 2);
@@ -75,52 +69,37 @@ public class AssemblyStrategyTreeBuilder
     }
 
     private static void recursiveBuild(int parentStreamNum, BaseAssemblyNodeFactory parentNode,
-                                Map<Integer, int[]> streamsJoinedPerStream, boolean isRequiredPerStream[])
-    {
+                                       Map<Integer, int[]> streamsJoinedPerStream, boolean[] isRequiredPerStream) {
         int numStreams = streamsJoinedPerStream.size();
 
-        for (int i = 0; i < streamsJoinedPerStream.get(parentStreamNum).length; i++)
-        {
+        for (int i = 0; i < streamsJoinedPerStream.get(parentStreamNum).length; i++) {
             int streamJoined = streamsJoinedPerStream.get(parentStreamNum)[i];
             BaseAssemblyNodeFactory childNode = createNode(false, streamJoined, numStreams, streamsJoinedPerStream.get(streamJoined), isRequiredPerStream);
             parentNode.addChild(childNode);
 
-            if (streamsJoinedPerStream.get(streamJoined).length > 0)
-            {
+            if (streamsJoinedPerStream.get(streamJoined).length > 0) {
                 recursiveBuild(streamJoined, childNode, streamsJoinedPerStream, isRequiredPerStream);
             }
         }
     }
 
-    private static BaseAssemblyNodeFactory createNode(boolean isRoot, int streamNum, int numStreams, int[] joinedStreams, boolean isRequiredPerStream[])
-    {
-        if (joinedStreams.length == 0)
-        {
+    private static BaseAssemblyNodeFactory createNode(boolean isRoot, int streamNum, int numStreams, int[] joinedStreams, boolean[] isRequiredPerStream) {
+        if (joinedStreams.length == 0) {
             return new LeafAssemblyNodeFactory(streamNum, numStreams);
         }
-        if (joinedStreams.length == 1)
-        {
+        if (joinedStreams.length == 1) {
             int joinedStream = joinedStreams[0];
             boolean isRequired = isRequiredPerStream[joinedStream];
-            if (isRequired)
-            {
-                if (isRoot)
-                {
+            if (isRequired) {
+                if (isRoot) {
                     return new RootRequiredAssemblyNodeFactory(streamNum, numStreams);
-                }
-                else
-                {
+                } else {
                     return new BranchRequiredAssemblyNodeFactory(streamNum, numStreams);
                 }
-            }
-            else
-            {
-                if (isRoot)
-                {
+            } else {
+                if (isRoot) {
                     return new RootOptionalAssemblyNodeFactory(streamNum, numStreams);
-                }
-                else
-                {
+                } else {
                     return new BranchOptionalAssemblyNodeFactory(streamNum, numStreams);
                 }
             }
@@ -128,22 +107,17 @@ public class AssemblyStrategyTreeBuilder
 
         // Determine if all substream are outer (optional) joins
         boolean allSubStreamsOptional = true;
-        for (int i = 0; i < joinedStreams.length; i++)
-        {
+        for (int i = 0; i < joinedStreams.length; i++) {
             int stream = joinedStreams[i];
-            if (isRequiredPerStream[stream])
-            {
+            if (isRequiredPerStream[stream]) {
                 allSubStreamsOptional = false;
             }
         }
 
         // Make node for building a cartesian product
-        if (isRoot)
-        {
+        if (isRoot) {
             return new RootCartProdAssemblyNodeFactory(streamNum, numStreams, allSubStreamsOptional);
-        }
-        else
-        {
+        } else {
             return new CartesianProdAssemblyNodeFactory(streamNum, numStreams, allSubStreamsOptional);
         }
     }

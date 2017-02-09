@@ -17,10 +17,8 @@ import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
-public class TestExprNode extends TestCase
-{
-    public void testGetValidatedSubtree() throws Exception
-    {
+public class TestExprNode extends TestCase {
+    public void testGetValidatedSubtree() throws Exception {
         SupportExprNode.setValidateCount(0);
 
         // Confirms all child nodes validated
@@ -54,8 +52,7 @@ public class TestExprNode extends TestCase
         assertEquals(7, topNode.getValidateCountSnapshot());
     }
 
-    public void testDeepEquals() throws Exception
-    {
+    public void testDeepEquals() throws Exception {
         assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make2SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd()));
         assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeEqualsNode(), SupportExprNodeFactory.makeMathNode()));
         assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.makeMathNode()));
@@ -63,8 +60,7 @@ public class TestExprNode extends TestCase
         assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make3SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd()));
     }
 
-    public void testParseMappedProp()
-    {
+    public void testParseMappedProp() {
         ExprNodeUtility.MappedPropertyParseResult result = ExprNodeUtility.parseMappedProperty("a.b('c')");
         assertEquals("a", result.getClassName());
         assertEquals("b", result.getMethodName());

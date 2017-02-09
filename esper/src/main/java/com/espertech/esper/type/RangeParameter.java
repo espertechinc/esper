@@ -16,8 +16,7 @@ import java.util.Set;
 /**
  * Represents a range of numbers as a parameter.
  */
-public class RangeParameter implements NumberSetParameter
-{
+public class RangeParameter implements NumberSetParameter {
     private int low;
     private int high;
     private static final long serialVersionUID = 8495531153029613902L;
@@ -27,11 +26,11 @@ public class RangeParameter implements NumberSetParameter
 
     /**
      * Ctor.
-     * @param low - start of range
+     *
+     * @param low  - start of range
      * @param high - end of range
      */
-    public RangeParameter(int low, int high)
-    {
+    public RangeParameter(int low, int high) {
         this.low = low;
         this.high = high;
     }
@@ -46,40 +45,36 @@ public class RangeParameter implements NumberSetParameter
 
     /**
      * Returns start of range.
+     *
      * @return start of range
      */
-    public int getLow()
-    {
+    public int getLow() {
         return low;
     }
 
     /**
      * Returns end of range.
+     *
      * @return end of range
      */
-    public int getHigh()
-    {
+    public int getHigh() {
         return high;
     }
 
-    public boolean isWildcard(int min, int max)
-    {
-        if ((min >= low) && (max <= high))
-        {
+    public boolean isWildcard(int min, int max) {
+        if ((min >= low) && (max <= high)) {
             return true;
         }
         return false;
     }
 
-    public Set<Integer> getValuesInRange(int min, int max)
-    {
+    public Set<Integer> getValuesInRange(int min, int max) {
         Set<Integer> values = new HashSet<Integer>();
 
         int start = (min > low) ? min : low;
         int end = (max > high) ? high : max;
 
-        while (start <= end)
-        {
+        while (start <= end) {
             values.add(start);
             start++;
         }
@@ -88,7 +83,7 @@ public class RangeParameter implements NumberSetParameter
     }
 
     public boolean containsPoint(int point) {
-        return (low <= point && point <= high);
+        return low <= point && point <= high;
     }
 
     public String formatted() {

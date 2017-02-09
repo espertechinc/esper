@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public class SelectExprProcessorEvalByGetterFragment implements ExprEvaluator
-{
+public class SelectExprProcessorEvalByGetterFragment implements ExprEvaluator {
     private final int streamNum;
     private final EventPropertyGetter getter;
     private final Class returnType;
@@ -27,8 +26,7 @@ public class SelectExprProcessorEvalByGetterFragment implements ExprEvaluator
         this.returnType = returnType;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean streamEvent = eventsPerStream[streamNum];
         if (streamEvent == null) {
             return null;
@@ -44,8 +42,7 @@ public class SelectExprProcessorEvalByGetterFragment implements ExprEvaluator
         return streamNum;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return returnType;
     }
 }

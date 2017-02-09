@@ -20,13 +20,12 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 /**
  * Implementation for handling aggregation without any grouping (no group-by).
  */
-public class AggSvcGroupAllMixedAccessFactory extends AggregationServiceFactoryBase
-{
+public class AggSvcGroupAllMixedAccessFactory extends AggregationServiceFactoryBase {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
 
-    public AggSvcGroupAllMixedAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join) {
+    public AggSvcGroupAllMixedAccessFactory(ExprEvaluator[] evaluators, AggregationMethodFactory[] aggregators, AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join) {
         super(evaluators, aggregators);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;

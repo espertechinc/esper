@@ -13,8 +13,7 @@ package com.espertech.esper.core.service;
 /**
  * Type of the statement.
  */
-public enum StatementType
-{
+public enum StatementType {
     /**
      * Pattern statement.
      */

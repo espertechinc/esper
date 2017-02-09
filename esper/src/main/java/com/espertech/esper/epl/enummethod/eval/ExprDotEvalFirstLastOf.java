@@ -12,10 +12,13 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.core.StreamTypeService;
-import com.espertech.esper.epl.enummethod.dot.*;
+import com.espertech.esper.epl.enummethod.dot.EnumMethodEnum;
+import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
+import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
+import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 
@@ -32,14 +35,12 @@ public class ExprDotEvalFirstLastOf extends ExprDotEvalEnumMethodBase {
         if (bodiesAndParameters.isEmpty()) {
             if (inputEventType != null) {
                 super.setTypeInfo(EPTypeHelper.singleEvent(inputEventType));
-            }
-            else {
+            } else {
                 super.setTypeInfo(EPTypeHelper.singleValue(collectionComponentType));
             }
             if (this.getEnumMethodEnum() == EnumMethodEnum.FIRST) {
                 return new EnumEvalFirstOfNoPredicate(numStreamsIncoming);
-            }
-            else {
+            } else {
                 return new EnumEvalLastOfNoPredicate(numStreamsIncoming);
             }
         }
@@ -49,16 +50,14 @@ public class ExprDotEvalFirstLastOf extends ExprDotEvalEnumMethodBase {
             super.setTypeInfo(EPTypeHelper.singleEvent(inputEventType));
             if (this.getEnumMethodEnum() == EnumMethodEnum.FIRST) {
                 return new EnumEvalFirstOfPredicateEvents(first.getBodyEvaluator(), first.getStreamCountIncoming());
-            }
-            else {
+            } else {
                 return new EnumEvalLastOfPredicateEvents(first.getBodyEvaluator(), first.getStreamCountIncoming());
             }
         }
         super.setTypeInfo(EPTypeHelper.singleValue(collectionComponentType));
         if (this.getEnumMethodEnum() == EnumMethodEnum.FIRST) {
             return new EnumEvalFirstOfPredicateScalar(first.getBodyEvaluator(), first.getStreamCountIncoming(), (ObjectArrayEventType) first.getGoesToTypes()[0]);
-        }
-        else {
+        } else {
             return new EnumEvalLastOfPredicateScalar(first.getBodyEvaluator(), first.getStreamCountIncoming(), (ObjectArrayEventType) first.getGoesToTypes()[0]);
         }
 

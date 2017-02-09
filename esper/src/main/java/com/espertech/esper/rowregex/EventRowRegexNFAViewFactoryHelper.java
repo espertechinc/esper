@@ -24,15 +24,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class EventRowRegexNFAViewFactoryHelper
-{
+public class EventRowRegexNFAViewFactoryHelper {
     public static ObjectArrayBackedEventBean getDefineMultimatchBean(StatementContext statementContext,
-                                                               LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams,
-                                                               EventType parentViewType) {
+                                                                     LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams,
+                                                                     EventType parentViewType) {
         Map<String, Object> multievent = new LinkedHashMap<String, Object>();
         for (Map.Entry<String, Pair<Integer, Boolean>> entry : variableStreams.entrySet()) {
             if (entry.getValue().getSecond()) {
-                multievent.put(entry.getKey(), new EventType[] {parentViewType});
+                multievent.put(entry.getKey(), new EventType[]{parentViewType});
             }
         }
         EventType multimatch = statementContext.getEventAdapterService().createAnonymousObjectArrayType(
@@ -45,8 +44,7 @@ public class EventRowRegexNFAViewFactoryHelper
                                                                        MatchRecognizeDefineItem defineItem,
                                                                        Map<String, Set<String>> visibilityByIdentifier,
                                                                        EventType parentViewType)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!variableStreams.containsKey(defineItem.getIdentifier())) {
             throw new ExprValidationException("Variable '" + defineItem.getIdentifier() + "' does not occur in pattern");
         }
@@ -69,8 +67,7 @@ public class EventRowRegexNFAViewFactoryHelper
                 if (!def.getSecond()) {
                     streamNamesDefine[def.getFirst()] = visible;
                     typesDefine[def.getFirst()] = parentViewType;
-                }
-                else {
+                } else {
                     hasVisibleMultimatch = true;
                 }
             }
@@ -83,9 +80,8 @@ public class EventRowRegexNFAViewFactoryHelper
                 String identifier = entry.getKey();
                 if (entry.getValue().getSecond()) {
                     if (visibles.contains(identifier)) {
-                        multievent.put(identifier, new EventType[] {parentViewType});
-                    }
-                    else {
+                        multievent.put(identifier, new EventType[]{parentViewType});
+                    } else {
                         multievent.put("esper_matchrecog_internal", null);
                     }
                 }

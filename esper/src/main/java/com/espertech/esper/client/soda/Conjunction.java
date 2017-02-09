@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Conjunction represents a logical AND allowing multiple sub-expressions to be connected by AND.
  */
-public class Conjunction extends Junction
-{
+public class Conjunction extends Junction {
     private static final long serialVersionUID = 755557538634794086L;
 
     /**
@@ -24,36 +23,31 @@ public class Conjunction extends Junction
      * <p>
      * Use add methods to add child expressions to acts upon.
      */
-    public Conjunction()
-    {
+    public Conjunction() {
     }
 
     /**
      * Ctor.
-     * @param first provides value to AND
-     * @param second provides value to AND
+     *
+     * @param first       provides value to AND
+     * @param second      provides value to AND
      * @param expressions is more expressions to put in the AND-relationship.
      */
-    public Conjunction(Expression first, Expression second, Expression ...expressions)
-    {
+    public Conjunction(Expression first, Expression second, Expression... expressions) {
         addChild(first);
         addChild(second);
-        for (int i = 0; i < expressions.length; i++)
-        {
+        for (int i = 0; i < expressions.length; i++) {
             addChild(expressions[i]);
         }
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.AND;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         String delimiter = "";
-        for (Expression child : this.getChildren())
-        {
+        for (Expression child : this.getChildren()) {
             writer.write(delimiter);
             child.toEPL(writer, getPrecedence());
             delimiter = " and ";

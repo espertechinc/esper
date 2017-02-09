@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-public interface ExprDotNodeFilterAnalyzerInput
-{
+public interface ExprDotNodeFilterAnalyzerInput {
 
 }

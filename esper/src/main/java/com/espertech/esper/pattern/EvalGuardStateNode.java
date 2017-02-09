@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.guard.Guard;
 import com.espertech.esper.pattern.guard.Quitable;
 import org.slf4j.Logger;
@@ -24,8 +24,7 @@ import java.util.Set;
  * The within operator applies to a subexpression and is thus expected to only
  * have one child node.
  */
-public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quitable
-{
+public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quitable {
     protected EvalGuardNode evalGuardNode;
     protected EvalStateNode activeChildNode;
     protected Guard guard;
@@ -33,12 +32,12 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode    is the parent evaluator to call to indicate truth value
      * @param evalGuardNode is the factory node associated to the state
      */
     public EvalGuardStateNode(Evaluator parentNode,
-                               EvalGuardNode evalGuardNode)
-    {
+                              EvalGuardNode evalGuardNode) {
         super(parentNode);
         this.evalGuardNode = evalGuardNode;
     }
@@ -47,8 +46,7 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         if (PatternConsumptionUtil.containsEvent(matchEvent, beginState)) {
             quit();
             this.getParentEvaluator().evaluateFalse(this, true);
-        }
-        else {
+        } else {
             if (activeChildNode != null) {
                 activeChildNode.removeMatch(matchEvent);
             }
@@ -64,9 +62,10 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         return evalGuardNode.getContext();
     }
 
-    public void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternGuardStart(evalGuardNode, beginState);}
+    public void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternGuardStart(evalGuardNode, beginState);
+        }
         this.beginState = beginState;
         guard = evalGuardNode.getFactoryNode().getGuardFactory().makeGuard(evalGuardNode.getContext(), beginState, this, null, null);
         activeChildNode = evalGuardNode.getChildNode().newState(this, null, 0L);
@@ -76,54 +75,57 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
 
         // Start the guard
         guard.startGuard();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternGuardStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternGuardStart();
+        }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternGuardEvaluateTrue(evalGuardNode, matchEvent);}
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternGuardEvaluateTrue(evalGuardNode, matchEvent);
+        }
         boolean haveQuitted = activeChildNode == null;
 
         // If one of the children quits, remove the child
-        if (isQuitted)
-        {
+        if (isQuitted) {
             activeChildNode = null;
 
             // Stop guard, since associated subexpression is gone
             guard.stopGuard();
         }
 
-        if (!(haveQuitted))
-        {
+        if (!haveQuitted) {
             boolean guardPass = guard.inspect(matchEvent);
-            if (guardPass)
-            {
+            if (guardPass) {
                 this.getParentEvaluator().evaluateTrue(matchEvent, this, isQuitted);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternGuardEvaluateTrue(isQuitted);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternGuardEvaluateTrue(isQuitted);
+        }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
         activeChildNode = null;
         this.getParentEvaluator().evaluateFalse(this, true);
     }
 
-    public final void quit()
-    {
+    public final void quit() {
         if (activeChildNode == null) {
             return;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternGuardQuit(evalGuardNode);}
-        if (activeChildNode != null)
-        {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternGuardQuit(evalGuardNode);
+        }
+        if (activeChildNode != null) {
             activeChildNode.quit();
             guard.stopGuard();
         }
 
         activeChildNode = null;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternGuardQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternGuardQuit();
+        }
     }
 
     public final void accept(EvalStateNodeVisitor visitor) {
@@ -133,10 +135,9 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvaluationWitinStateNode activeChildNode=" + activeChildNode +
-                 " guard=" + guard;
+                " guard=" + guard;
     }
 
     public boolean isNotOperator() {
@@ -155,21 +156,23 @@ public class EvalGuardStateNode extends EvalStateNode implements Evaluator, Quit
         return false;
     }
 
-    public void guardQuit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternGuardGuardQuit(evalGuardNode);}
+    public void guardQuit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternGuardGuardQuit(evalGuardNode);
+        }
         // It is possible that the child node has already been quit such as when the parent wait time was shorter.
         // 1. parent node's guard indicates quit to all children
         // 2. this node's guards also indicates quit, however that already occured
-        if (activeChildNode != null)
-        {
+        if (activeChildNode != null) {
             activeChildNode.quit();
         }
         activeChildNode = null;
 
         // Indicate to parent state that this is permanently false.
         this.getParentEvaluator().evaluateFalse(this, true);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternGuardGuardQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternGuardGuardQuit();
+        }
     }
 
     private static final Logger log = LoggerFactory.getLogger(EvalGuardStateNode.class);

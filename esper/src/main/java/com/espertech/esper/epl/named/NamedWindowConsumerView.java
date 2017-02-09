@@ -31,8 +31,7 @@ import java.util.Iterator;
  * <p>
  * The view simply dispatches directly to child views, and keeps the last new event for iteration.
  */
-public class NamedWindowConsumerView extends ViewSupport implements StopCallback
-{
+public class NamedWindowConsumerView extends ViewSupport implements StopCallback {
     private final ExprEvaluator[] filterList;
     private final EventType eventType;
     private final NamedWindowConsumerCallback consumerCallback;
@@ -46,14 +45,12 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
                                    EventType eventType,
                                    NamedWindowConsumerCallback consumerCallback,
                                    ExprEvaluatorContext exprEvaluatorContext,
-                                   boolean audit)
-    {
+                                   boolean audit) {
         this.filterList = filterList;
         this.optPropertyEvaluator = optPropertyEvaluator;
         if (optPropertyEvaluator != null) {
             optPropertyContainedBuffer = new FlushedEventBuffer();
-        }
-        else {
+        } else {
             optPropertyContainedBuffer = null;
         }
         this.eventType = eventType;
@@ -62,8 +59,7 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
         this.audit = audit;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         if (audit) {
             if (AuditPath.isInfoEnabled()) {
                 AuditPath.auditLog(exprEvaluatorContext.getEngineURI(), exprEvaluatorContext.getStatementName(), AuditEnum.STREAM, eventType.getName() + " insert {" + EventBeanUtility.summarize(newData) + "} remove {" + EventBeanUtility.summarize(oldData) + "}");
@@ -71,8 +67,7 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
         }
 
         // if we have a filter for the named window,
-        if (filterList.length != 0)
-        {
+        if (filterList.length != 0) {
             EventBean[] eventPerStream = new EventBean[1];
             newData = passFilter(newData, true, exprEvaluatorContext, eventPerStream);
             oldData = passFilter(oldData, false, exprEvaluatorContext, eventPerStream);
@@ -83,14 +78,12 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
             oldData = getUnpacked(oldData);
         }
 
-        if ((newData != null) || (oldData != null))
-        {
+        if ((newData != null) || (oldData != null)) {
             updateChildren(newData, oldData);
         }
     }
 
-    private EventBean[] getUnpacked(EventBean[] data)
-    {
+    private EventBean[] getUnpacked(EventBean[] data) {
         if (data == null) {
             return null;
         }
@@ -105,60 +98,49 @@ public class NamedWindowConsumerView extends ViewSupport implements StopCallback
         return optPropertyContainedBuffer.getAndFlush();
     }
 
-    private EventBean[] passFilter(EventBean[] eventData, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, EventBean[] eventPerStream)
-    {
-        if ((eventData == null) || (eventData.length == 0))
-        {
+    private EventBean[] passFilter(EventBean[] eventData, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, EventBean[] eventPerStream) {
+        if ((eventData == null) || (eventData.length == 0)) {
             return null;
         }
 
         OneEventCollection filtered = null;
-        for (EventBean theEvent : eventData)
-        {
+        for (EventBean theEvent : eventData) {
             eventPerStream[0] = theEvent;
             boolean pass = true;
-            for (ExprEvaluator filter : filterList)
-            {
+            for (ExprEvaluator filter : filterList) {
                 Boolean result = (Boolean) filter.evaluate(eventPerStream, isNewData, exprEvaluatorContext);
-                if (result == null || !result)
-                {
+                if (result == null || !result) {
                     pass = false;
                     break;
                 }
             }
 
-            if (pass)
-            {
-                if (filtered == null)
-                {
+            if (pass) {
+                if (filtered == null) {
                     filtered = new OneEventCollection();
                 }
                 filtered.add(theEvent);
             }
         }
 
-        if (filtered == null)
-        {
+        if (filtered == null) {
             return null;
         }
         return filtered.toArray();
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         if (optPropertyEvaluator != null) {
             return optPropertyEvaluator.getFragmentEventType();
         }
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new FilteredEventIterator(filterList, consumerCallback.getIterator(), exprEvaluatorContext);
     }
 
-    public void stop()
-    {
+    public void stop() {
         consumerCallback.stopped(this);
     }
 }

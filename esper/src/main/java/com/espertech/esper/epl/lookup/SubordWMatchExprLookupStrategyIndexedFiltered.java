@@ -20,19 +20,18 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SubordWMatchExprLookupStrategyIndexedFiltered implements SubordWMatchExprLookupStrategy
-{
+public class SubordWMatchExprLookupStrategyIndexedFiltered implements SubordWMatchExprLookupStrategy {
     private final ExprEvaluator joinExpr;
     private final EventBean[] eventsPerStream;
     private final SubordTableLookupStrategy tableLookupStrategy;
 
     /**
      * Ctor.
-     * @param joinExpr the validated where clause of the on-delete
+     *
+     * @param joinExpr            the validated where clause of the on-delete
      * @param tableLookupStrategy the strategy for looking up in an index the matching events using correlation
      */
-    public SubordWMatchExprLookupStrategyIndexedFiltered(ExprEvaluator joinExpr, SubordTableLookupStrategy tableLookupStrategy)
-    {
+    public SubordWMatchExprLookupStrategyIndexedFiltered(ExprEvaluator joinExpr, SubordTableLookupStrategy tableLookupStrategy) {
         this.joinExpr = joinExpr;
         this.eventsPerStream = new EventBean[2];
         this.tableLookupStrategy = tableLookupStrategy;
@@ -42,40 +41,34 @@ public class SubordWMatchExprLookupStrategyIndexedFiltered implements SubordWMat
         return tableLookupStrategy;
     }
 
-    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.INDEXED_FILTERED); }
+    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.INDEXED_FILTERED);
+        }
         Set<EventBean> foundEvents = null;
 
         // For every new event (usually 1)
-        for (EventBean newEvent : newData)
-        {
+        for (EventBean newEvent : newData) {
             eventsPerStream[1] = newEvent;
 
             // use index to find match
             Collection<EventBean> matches = tableLookupStrategy.lookup(eventsPerStream, exprEvaluatorContext);
-            if ((matches == null) || (matches.isEmpty()))
-            {
+            if ((matches == null) || (matches.isEmpty())) {
                 continue;
             }
 
             // evaluate expression
             Iterator<EventBean> eventsIt = matches.iterator();
-            for (;eventsIt.hasNext();)
-            {
+            for (; eventsIt.hasNext(); ) {
                 eventsPerStream[0] = eventsIt.next();
 
-                for (EventBean aNewData : newData)
-                {
+                for (EventBean aNewData : newData) {
                     eventsPerStream[1] = aNewData;    // Stream 1 events are the originating events (on-delete events)
 
                     Boolean result = (Boolean) joinExpr.evaluate(eventsPerStream, true, exprEvaluatorContext);
-                    if (result != null)
-                    {
-                        if (result)
-                        {
-                            if (foundEvents == null)
-                            {
+                    if (result != null) {
+                        if (result) {
+                            if (foundEvents == null) {
                                 foundEvents = new LinkedHashSet<EventBean>();
                             }
                             foundEvents.add(eventsPerStream[0]);
@@ -85,14 +78,17 @@ public class SubordWMatchExprLookupStrategyIndexedFiltered implements SubordWMat
             }
         }
 
-        if (foundEvents == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraTriggeredLookup(null); }
+        if (foundEvents == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aInfraTriggeredLookup(null);
+            }
             return null;
         }
 
         EventBean[] events = foundEvents.toArray(new EventBean[foundEvents.size()]);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraTriggeredLookup(events); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraTriggeredLookup(events);
+        }
 
         return events;
     }

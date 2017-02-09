@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -153,7 +154,7 @@ public class TestRowPatternRecognitionRegex extends TestCase {
         for (String measure : testDesc.getMeasures().split(","))
         {
             buf.append(delimiter);
-            buf.append(measure.toUpperCase() + ".theString as " + replaceBrackets(measure) + "val");
+            buf.append(measure.toUpperCase(Locale.ENGLISH) + ".theString as " + replaceBrackets(measure) + "val");
             delimiter = ",";
         }
         buf.append("\n all matches ");
@@ -164,14 +165,14 @@ public class TestRowPatternRecognitionRegex extends TestCase {
         Set<String> defines = new HashSet<String>();
         for (String measure : testDesc.getMeasures().split(","))
         {
-            defines.add(removeBrackets(measure).toUpperCase());
+            defines.add(removeBrackets(measure).toUpperCase(Locale.ENGLISH));
         }
 
         delimiter = "";
         for (String define : defines)
         {
             buf.append(delimiter);
-            buf.append(define + " as (" + define + ".theString like '" + define.toLowerCase() + "%')");
+            buf.append(define + " as (" + define + ".theString like '" + define.toLowerCase(Locale.ENGLISH) + "%')");
             delimiter = ",\n";
         }
         buf.append(")");

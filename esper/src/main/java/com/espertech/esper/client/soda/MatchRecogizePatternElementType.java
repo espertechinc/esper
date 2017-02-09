@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 /**
  * Enum for match recognize pattern atom types.
  */
-public enum MatchRecogizePatternElementType 
-{
+public enum MatchRecogizePatternElementType {
     /**
      * For single multiplicity.
      */
@@ -58,6 +57,7 @@ public enum MatchRecogizePatternElementType
 
     /**
      * Returns the multiplicity text.
+     *
      * @return text
      */
     public String getText() {

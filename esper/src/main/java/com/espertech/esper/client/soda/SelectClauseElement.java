@@ -16,10 +16,10 @@ import java.io.StringWriter;
 /**
  * Item in a select-clause to describe individual select-clause expressions or wildcard(s).
  */
-public interface SelectClauseElement extends Serializable
-{
+public interface SelectClauseElement extends Serializable {
     /**
      * Output the string rendering of the select clause element.
+     *
      * @param writer to output to
      */
     public void toEPLElement(StringWriter writer);

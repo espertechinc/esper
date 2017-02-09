@@ -26,8 +26,7 @@ public class EPDataFlowEmitter1Stream1TargetUnwind extends EPDataFlowEmitter1Str
         try {
             exceptionHandler.handleAudit(targetObject, parameters);
             fastMethod.invoke(targetObject, parameters);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             exceptionHandler.handleException(targetObject, fastMethod, e, parameters);
         }
     }

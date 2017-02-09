@@ -16,8 +16,7 @@ import com.espertech.esper.schedule.SchedulingServiceSPI;
 /**
  * Context for all services that provide the isolated runtime.
  */
-public class EPIsolationUnitServices
-{
+public class EPIsolationUnitServices {
     private final String name;
     private final int unitId;
     private final FilterServiceSPI filterService;
@@ -25,9 +24,10 @@ public class EPIsolationUnitServices
 
     /**
      * Ctor.
-     * @param name the isolation unit name
-     * @param unitId id of the isolation unit
-     * @param filterService isolated filter service
+     *
+     * @param name              the isolation unit name
+     * @param unitId            id of the isolation unit
+     * @param filterService     isolated filter service
      * @param schedulingService isolated scheduling service
      */
     public EPIsolationUnitServices(String name, int unitId, FilterServiceSPI filterService, SchedulingServiceSPI schedulingService) {
@@ -39,24 +39,25 @@ public class EPIsolationUnitServices
 
     /**
      * Returns the name of the isolated service.
+     *
      * @return name of the isolated service
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Returns the id assigned to that isolated service.
+     *
      * @return isolated service id
      */
-    public int getUnitId()
-    {
+    public int getUnitId() {
         return unitId;
     }
 
     /**
      * Returns the isolated filter service.
+     *
      * @return filter service
      */
     public FilterServiceSPI getFilterService() {
@@ -65,6 +66,7 @@ public class EPIsolationUnitServices
 
     /**
      * Returns the isolated scheduling service.
+     *
      * @return scheduling service
      */
     public SchedulingServiceSPI getSchedulingService() {

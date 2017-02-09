@@ -19,8 +19,7 @@ import java.io.StringWriter;
 /**
  * This class represents an 'and' operator in the evaluation tree representing an event expressions.
  */
-public class EvalAndFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalAndFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = -7065465204506721233L;
 
     protected EvalAndFactoryNode() {
@@ -31,9 +30,8 @@ public class EvalAndFactoryNode extends EvalNodeFactoryBase
         return new EvalAndNode(agentInstanceContext, this, children);
     }
 
-    public final String toString()
-    {
-        return ("EvalAndFactoryNode children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalAndFactoryNode children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {

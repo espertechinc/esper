@@ -12,7 +12,6 @@ package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.util.JavaClassHelper;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 

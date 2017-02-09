@@ -41,8 +41,7 @@ public class EvalMatchUntilNode extends EvalNodeBase {
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalMatchUntilStateNode(parentNode, this);
     }
 

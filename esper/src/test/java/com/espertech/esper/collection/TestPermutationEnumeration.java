@@ -11,80 +11,73 @@
 package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestPermutationEnumeration extends TestCase
-{
-    public void testInvalid()
-    {
-        try
-        {
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+
+public class TestPermutationEnumeration extends TestCase {
+    public void testInvalid() {
+        try {
             new PermutationEnumeration(0);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
-    public void testNext()
-    {
-        final int[][] expectedValues4 = new int[][] {
-            { 0, 1, 2, 3 },     // 0
-            { 0, 1, 3, 2 },
-            { 0, 2, 1, 3 },
-            { 0, 2, 3, 1 },
-            { 0, 3, 1, 2 },
-            { 0, 3, 2, 1 },     // 5
+    public void testNext() {
+        final int[][] expectedValues4 = new int[][]{
+                {0, 1, 2, 3},     // 0
+                {0, 1, 3, 2},
+                {0, 2, 1, 3},
+                {0, 2, 3, 1},
+                {0, 3, 1, 2},
+                {0, 3, 2, 1},     // 5
 
-            { 1, 0, 2, 3 },     // 6
-            { 1, 0, 3, 2 },     // 7
-            { 1, 2, 0, 3 },     // 8
-            { 1, 2, 3, 0 },
-            { 1, 3, 0, 2 },
-            { 1, 3, 2, 0 },     // 11
+                {1, 0, 2, 3},     // 6
+                {1, 0, 3, 2},     // 7
+                {1, 2, 0, 3},     // 8
+                {1, 2, 3, 0},
+                {1, 3, 0, 2},
+                {1, 3, 2, 0},     // 11
 
-            { 2, 0, 1, 3 },     // 12
-            { 2, 0, 3, 1 },
-            { 2, 1, 0, 3 },
-            { 2, 1, 3, 0 },
-            { 2, 3, 0, 1 },
-            { 2, 3, 1, 0 },     // 17
+                {2, 0, 1, 3},     // 12
+                {2, 0, 3, 1},
+                {2, 1, 0, 3},
+                {2, 1, 3, 0},
+                {2, 3, 0, 1},
+                {2, 3, 1, 0},     // 17
 
-            { 3, 0, 1, 2 },     // 18
-            { 3, 0, 2, 1 },
-            { 3, 1, 0, 2 },
-            { 3, 1, 2, 0 },     // 21
-            { 3, 2, 0, 1 },
-            { 3, 2, 1, 0 } };
+                {3, 0, 1, 2},     // 18
+                {3, 0, 2, 1},
+                {3, 1, 0, 2},
+                {3, 1, 2, 0},     // 21
+                {3, 2, 0, 1},
+                {3, 2, 1, 0}};
         tryPermutation(4, expectedValues4);
 
-        final int[][] expectedValues3 = new int[][] {
-            { 0, 1, 2 },
-            { 0, 2, 1 },
-            { 1, 0, 2 },
-            { 1, 2, 0 },
-            { 2, 0, 1 },
-            { 2, 1, 0 }};
+        final int[][] expectedValues3 = new int[][]{
+                {0, 1, 2},
+                {0, 2, 1},
+                {1, 0, 2},
+                {1, 2, 0},
+                {2, 0, 1},
+                {2, 1, 0}};
         tryPermutation(3, expectedValues3);
 
-        final int[][] expectedValues2 = new int[][] {
-            { 0, 1},
-            { 1, 0}};
+        final int[][] expectedValues2 = new int[][]{
+                {0, 1},
+                {1, 0}};
         tryPermutation(2, expectedValues2);
 
-        final int[][] expectedValues1 = new int[][] {
-            {0}};
+        final int[][] expectedValues1 = new int[][]{
+                {0}};
         tryPermutation(1, expectedValues1);
     }
 
-    private void tryPermutation(int numElements, int[][] expectedValues)
-    {
+    private void tryPermutation(int numElements, int[][] expectedValues) {
         /*
         Total: 4 * 3 * 2 = 24 = 6!  (6 faculty)
 
@@ -105,8 +98,7 @@ public class TestPermutationEnumeration extends TestCase
         PermutationEnumeration enumeration = new PermutationEnumeration(numElements);
 
         int count = 0;
-        while(enumeration.hasMoreElements())
-        {
+        while (enumeration.hasMoreElements()) {
             int[] result = enumeration.nextElement();
             int[] expected = expectedValues[count];
 
@@ -118,48 +110,42 @@ public class TestPermutationEnumeration extends TestCase
         }
         assertEquals(count, expectedValues.length);
 
-        try
-        {
+        try {
             enumeration.nextElement();
             fail();
-        }
-        catch (NoSuchElementException ex)
-        {
+        } catch (NoSuchElementException ex) {
             // Expected
         }
     }
 
-    public static void testGetPermutation()
-    {
+    public static void testGetPermutation() {
         int[] factors = PermutationEnumeration.getFactors(4);
         int[] result = PermutationEnumeration.getPermutation(4, 21, factors);
 
         log.debug(".testGetPermutation result=" + Arrays.toString(result));
-        assertTrue(Arrays.equals(result, new int[] {3, 1, 2, 0}));
+        assertTrue(Arrays.equals(result, new int[]{3, 1, 2, 0}));
     }
 
-    public static void testGetFactors()
-    {
+    public static void testGetFactors() {
         int[] factors = PermutationEnumeration.getFactors(5);
-        assertTrue(Arrays.equals(factors, new int[] {24, 6, 2, 1, 0}));
+        assertTrue(Arrays.equals(factors, new int[]{24, 6, 2, 1, 0}));
 
         factors = PermutationEnumeration.getFactors(4);
-        assertTrue(Arrays.equals(factors, new int[] {6, 2, 1, 0}));
+        assertTrue(Arrays.equals(factors, new int[]{6, 2, 1, 0}));
 
         factors = PermutationEnumeration.getFactors(3);
-        assertTrue(Arrays.equals(factors, new int[] {2, 1, 0}));
+        assertTrue(Arrays.equals(factors, new int[]{2, 1, 0}));
 
         factors = PermutationEnumeration.getFactors(2);
-        assertTrue(Arrays.equals(factors, new int[] {1, 0}));
+        assertTrue(Arrays.equals(factors, new int[]{1, 0}));
 
         factors = PermutationEnumeration.getFactors(1);
-        assertTrue(Arrays.equals(factors, new int[] {0}));
+        assertTrue(Arrays.equals(factors, new int[]{0}));
 
         //log.debug(".testGetFactors " + Arrays.toString(factors));
     }
 
-    public static void testFaculty()
-    {
+    public static void testFaculty() {
         assertEquals(0, PermutationEnumeration.faculty(0));
         assertEquals(1, PermutationEnumeration.faculty(1));
         assertEquals(2, PermutationEnumeration.faculty(2));

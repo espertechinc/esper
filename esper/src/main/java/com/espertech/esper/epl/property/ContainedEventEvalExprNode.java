@@ -72,7 +72,7 @@ public class ContainedEventEvalExprNode implements ContainedEventEval {
             }
             return events.toArray(new EventBean[events.size()]);
         }
-                
+
         return null;
     }
 }

@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Inbound work unit processing a map event.
  */
-public class InboundUnitSendObjectArray implements InboundUnitRunnable
-{
+public class InboundUnitSendObjectArray implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendObjectArray.class);
     private final Object[] properties;
     private final String eventTypeName;
@@ -29,28 +28,24 @@ public class InboundUnitSendObjectArray implements InboundUnitRunnable
 
     /**
      * Ctor.
-     * @param properties to send
+     *
+     * @param properties    to send
      * @param eventTypeName type name
-     * @param services to wrap
-     * @param runtime to process
+     * @param services      to wrap
+     * @param runtime       to process
      */
-    public InboundUnitSendObjectArray(Object[] properties, String eventTypeName, EPServicesContext services, EPRuntimeImpl runtime)
-    {
+    public InboundUnitSendObjectArray(Object[] properties, String eventTypeName, EPServicesContext services, EPRuntimeImpl runtime) {
         this.eventTypeName = eventTypeName;
         this.properties = properties;
         this.services = services;
         this.runtime = runtime;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             EventBean eventBean = services.getEventAdapterService().adapterForObjectArray(properties, eventTypeName);
             runtime.processWrappedEvent(eventBean);
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing Object-array event: " + e.getMessage(), e);
         }
     }

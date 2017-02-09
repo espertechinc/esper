@@ -10,17 +10,15 @@
  */
 package com.espertech.esper.event.xml;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathConstants;
-
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportEventAdapterService;
-
-import org.w3c.dom.Document;
 import junit.framework.TestCase;
+import org.w3c.dom.Document;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathConstants;
 import java.net.URL;
 
 public class TestSchemaXMLEventType extends TestCase {
@@ -52,31 +50,31 @@ public class TestSchemaXMLEventType extends TestCase {
     }
 
     public void testNestedProperties() {
-        assertEquals(Boolean.TRUE,eventSchemaOne.get("nested1.prop2"));
-        assertEquals(Boolean.class,eventSchemaOne.get("nested1.prop2").getClass());
+        assertEquals(Boolean.TRUE, eventSchemaOne.get("nested1.prop2"));
+        assertEquals(Boolean.class, eventSchemaOne.get("nested1.prop2").getClass());
     }
 
     public void testMappedProperties() {
-        assertEquals("SAMPLE_V8",eventSchemaOne.get("nested3.nested4('a').prop5[1]"));
-        assertEquals("SAMPLE_V11",eventSchemaOne.get("nested3.nested4('c').prop5[1]"));
+        assertEquals("SAMPLE_V8", eventSchemaOne.get("nested3.nested4('a').prop5[1]"));
+        assertEquals("SAMPLE_V11", eventSchemaOne.get("nested3.nested4('c').prop5[1]"));
     }
 
     public void testIndexedProperties() {
-        assertEquals(5,eventSchemaOne.get("nested1.nested2.prop3[2]"));
-        assertEquals(Integer.class,eventSchemaOne.getEventType().getPropertyType("nested1.nested2.prop3[2]"));
+        assertEquals(5, eventSchemaOne.get("nested1.nested2.prop3[2]"));
+        assertEquals(Integer.class, eventSchemaOne.getEventType().getPropertyType("nested1.nested2.prop3[2]"));
     }
 
     public void testCustomProperty() {
-        assertEquals(Double.class,eventSchemaOne.getEventType().getPropertyType("customProp"));
-        assertEquals(new Double(3),eventSchemaOne.get("customProp"));
+        assertEquals(Double.class, eventSchemaOne.getEventType().getPropertyType("customProp"));
+        assertEquals(new Double(3), eventSchemaOne.get("customProp"));
     }
 
     public void testAttrProperty() {
-        assertEquals(Boolean.TRUE,eventSchemaOne.get("prop4.attr2"));
-        assertEquals(Boolean.class,eventSchemaOne.getEventType().getPropertyType("prop4.attr2"));
+        assertEquals(Boolean.TRUE, eventSchemaOne.get("prop4.attr2"));
+        assertEquals(Boolean.class, eventSchemaOne.getEventType().getPropertyType("prop4.attr2"));
 
-        assertEquals("c",eventSchemaOne.get("nested3.nested4[2].id"));
-        assertEquals(String.class,eventSchemaOne.getEventType().getPropertyType("nested3.nested4[1].id"));
+        assertEquals("c", eventSchemaOne.get("nested3.nested4[2].id"));
+        assertEquals(String.class, eventSchemaOne.getEventType().getPropertyType("nested3.nested4[1].id"));
     }
 
     public void testInvalidCollectionAccess() {

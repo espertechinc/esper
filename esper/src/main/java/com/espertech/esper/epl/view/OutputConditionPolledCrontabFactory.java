@@ -26,8 +26,7 @@ import java.util.List;
 /**
  * Output condition handling crontab-at schedule output.
  */
-public final class OutputConditionPolledCrontabFactory implements OutputConditionPolledFactory
-{
+public final class OutputConditionPolledCrontabFactory implements OutputConditionPolledFactory {
     private final ExprEvaluator[] expressions;
 
     public OutputConditionPolledCrontabFactory(List<ExprNode> scheduleSpecExpressionList,
@@ -48,8 +47,7 @@ public final class OutputConditionPolledCrontabFactory implements OutputConditio
         try {
             Object[] scheduleSpecParameterList = evaluate(expressions, agentInstanceContext);
             scheduleSpec = ScheduleSpecUtil.computeValues(scheduleSpecParameterList);
-        }
-        catch (ScheduleParameterException e) {
+        } catch (ScheduleParameterException e) {
             throw new IllegalArgumentException("Invalid schedule specification : " + e.getMessage(), e);
         }
         OutputConditionPolledCrontabState state = new OutputConditionPolledCrontabState(scheduleSpec, null, 0);
@@ -60,16 +58,14 @@ public final class OutputConditionPolledCrontabFactory implements OutputConditio
         return new OutputConditionPolledCrontab(agentInstanceContext, (OutputConditionPolledCrontabState) state);
     }
 
-    private static Object[] evaluate(ExprEvaluator[] parameters, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    private static Object[] evaluate(ExprEvaluator[] parameters, ExprEvaluatorContext exprEvaluatorContext) {
         Object[] results = new Object[parameters.length];
         int count = 0;
         for (ExprEvaluator expr : parameters) {
             try {
                 results[count] = expr.evaluate(null, true, exprEvaluatorContext);
                 count++;
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 String message = "Failed expression evaluation in crontab timer-at for parameter " + count + ": " + ex.getMessage();
                 log.error(message, ex);
                 throw new IllegalArgumentException(message);

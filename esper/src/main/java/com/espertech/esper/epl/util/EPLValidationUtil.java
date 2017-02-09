@@ -22,14 +22,12 @@ public class EPLValidationUtil {
     }
 
     public static void validateContextName(boolean table, String tableOrNamedWindowName, String tableOrNamedWindowContextName, String optionalContextName, boolean mustMatchContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (tableOrNamedWindowContextName != null) {
             if (optionalContextName == null || !optionalContextName.equals(tableOrNamedWindowContextName)) {
                 throw getCtxMessage(table, tableOrNamedWindowName, tableOrNamedWindowContextName);
             }
-        }
-        else {
+        } else {
             if (mustMatchContext && optionalContextName != null) {
                 throw getCtxMessage(table, tableOrNamedWindowName, tableOrNamedWindowContextName);
             }
@@ -37,7 +35,7 @@ public class EPLValidationUtil {
     }
 
     private static ExprValidationException getCtxMessage(boolean table, String tableOrNamedWindowName, String tableOrNamedWindowContextName) {
-        String prefix = table ? "Table": "Named window";
+        String prefix = table ? "Table" : "Named window";
         return new ExprValidationException(prefix + " by name '" + tableOrNamedWindowName + "' has been declared for context '" + tableOrNamedWindowContextName + "' and can only be used within the same context");
     }
 }

@@ -10,27 +10,22 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public class SupportBeanBase implements SupportMarkerInterface
-{
+public class SupportBeanBase implements SupportMarkerInterface {
     private String id;
 
-    public SupportBeanBase(String id)
-    {
+    public SupportBeanBase(String id) {
         this.id = id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "id=" + id;
     }
 

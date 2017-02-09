@@ -10,62 +10,48 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.EPStatementStateListener;
 import com.espertech.esper.client.EPServiceProvider;
-
-import java.util.Iterator;
-
+import com.espertech.esper.client.EPStatementStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
 
 /**
  * Dispatcher for statement lifecycle events to service provider statement state listeners.
  */
-public class StatementEventDispatcherUnthreaded implements StatementLifecycleObserver
-{
+public class StatementEventDispatcherUnthreaded implements StatementLifecycleObserver {
     private static Logger log = LoggerFactory.getLogger(StatementEventDispatcherUnthreaded.class);
     private final EPServiceProvider serviceProvider;
     private final Iterable<EPStatementStateListener> statementListeners;
 
     /**
      * Ctor.
-     * @param serviceProvider engine instance
+     *
+     * @param serviceProvider    engine instance
      * @param statementListeners listeners to dispatch to
      */
-    public StatementEventDispatcherUnthreaded(EPServiceProvider serviceProvider, Iterable<EPStatementStateListener> statementListeners)
-    {
+    public StatementEventDispatcherUnthreaded(EPServiceProvider serviceProvider, Iterable<EPStatementStateListener> statementListeners) {
         this.serviceProvider = serviceProvider;
         this.statementListeners = statementListeners;
     }
 
-    public void observe(StatementLifecycleEvent theEvent)
-    {
-        if (theEvent.getEventType() == StatementLifecycleEvent.LifecycleEventType.CREATE)
-        {
+    public void observe(StatementLifecycleEvent theEvent) {
+        if (theEvent.getEventType() == StatementLifecycleEvent.LifecycleEventType.CREATE) {
             Iterator<EPStatementStateListener> it = statementListeners.iterator();
-            for (;it.hasNext();)
-            {
-                try
-                {
+            for (; it.hasNext(); ) {
+                try {
                     it.next().onStatementCreate(serviceProvider, theEvent.getStatement());
-                }
-                catch (RuntimeException ex)
-                {
+                } catch (RuntimeException ex) {
                     log.error("Caught runtime exception in onStatementCreate callback:" + ex.getMessage(), ex);
                 }
             }
-        }
-        else if (theEvent.getEventType() == StatementLifecycleEvent.LifecycleEventType.STATECHANGE)
-        {
+        } else if (theEvent.getEventType() == StatementLifecycleEvent.LifecycleEventType.STATECHANGE) {
             Iterator<EPStatementStateListener> it = statementListeners.iterator();
-            for (;it.hasNext();)
-            {
-                try
-                {
+            for (; it.hasNext(); ) {
+                try {
                     it.next().onStatementStateChange(serviceProvider, theEvent.getStatement());
-                }
-                catch (RuntimeException ex)
-                {
+                } catch (RuntimeException ex) {
                     log.error("Caught runtime exception in onStatementCreate callback:" + ex.getMessage(), ex);
                 }
             }

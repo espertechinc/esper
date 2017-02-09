@@ -20,8 +20,9 @@ public class PlugInAggregationMultiFunctionStateContext {
 
     /**
      * Ctor.
+     *
      * @param agentInstanceId agent instance id
-     * @param groupKey group key, or null if there are no group-by criteria
+     * @param groupKey        group key, or null if there are no group-by criteria
      */
     public PlugInAggregationMultiFunctionStateContext(int agentInstanceId, Object groupKey) {
         this.agentInstanceId = agentInstanceId;
@@ -30,6 +31,7 @@ public class PlugInAggregationMultiFunctionStateContext {
 
     /**
      * Returns the agent instance id.
+     *
      * @return context partition id
      */
     public int getAgentInstanceId() {
@@ -38,6 +40,7 @@ public class PlugInAggregationMultiFunctionStateContext {
 
     /**
      * Returns the group key or null if no group-by criteria are defined
+     *
      * @return group key
      */
     public Object getGroupKey() {

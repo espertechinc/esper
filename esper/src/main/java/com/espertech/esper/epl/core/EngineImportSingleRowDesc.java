@@ -17,8 +17,7 @@ import java.io.Serializable;
 /**
  * Provides information about a single-row function.
  */
-public class EngineImportSingleRowDesc implements Serializable
-{
+public class EngineImportSingleRowDesc implements Serializable {
     private static final long serialVersionUID = -6024893655764123446L;
     private final String className;
     private final String methodName;

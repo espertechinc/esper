@@ -11,25 +11,22 @@
 package com.espertech.esper.core.start;
 
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
-import com.espertech.esper.epl.spec.TableQueryStreamSpec;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StreamSpecCompiled;
+import com.espertech.esper.epl.spec.TableQueryStreamSpec;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 
-public class FireAndForgetProcessorFactory
-{
+public class FireAndForgetProcessorFactory {
     public static FireAndForgetProcessor validateResolveProcessor(StreamSpecCompiled streamSpec, EPServicesContext services)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // resolve processor
         String processorName;
         if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
             processorName = namedSpec.getWindowName();
-        }
-        else {
+        } else {
             TableQueryStreamSpec tableSpec = (TableQueryStreamSpec) streamSpec;
             processorName = tableSpec.getTableName();
         }
@@ -38,8 +35,7 @@ public class FireAndForgetProcessorFactory
         TableMetadata tableMetadata = services.getTableService().getTableMetadata(processorName);
         if (tableMetadata != null) {
             return new FireAndForgetProcessorTable(services.getTableService(), tableMetadata);
-        }
-        else {
+        } else {
             NamedWindowProcessor nwprocessor = services.getNamedWindowMgmtService().getProcessor(processorName);
             if (nwprocessor == null) {
                 throw new ExprValidationException("A table or named window by name '" + processorName + "' does not exist");

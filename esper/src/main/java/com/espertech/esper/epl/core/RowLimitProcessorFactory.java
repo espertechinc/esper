@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.spec.RowLimitSpec;
 import com.espertech.esper.epl.variable.VariableMetaData;
@@ -32,16 +31,15 @@ public class RowLimitProcessorFactory {
 
     /**
      * Ctor.
-     * @param rowLimitSpec specification for row limit, or null if no row limit is defined
-     * @param variableService for retrieving variable state for use with row limiting
+     *
+     * @param rowLimitSpec        specification for row limit, or null if no row limit is defined
+     * @param variableService     for retrieving variable state for use with row limiting
      * @param optionalContextName context name
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if row limit specification validation fails
      */
     public RowLimitProcessorFactory(RowLimitSpec rowLimitSpec, VariableService variableService, String optionalContextName)
-            throws ExprValidationException
-    {
-        if (rowLimitSpec.getNumRowsVariable() != null)
-        {
+            throws ExprValidationException {
+        if (rowLimitSpec.getNumRowsVariable() != null) {
             numRowsVariableMetaData = variableService.getVariableMetaData(rowLimitSpec.getNumRowsVariable());
             if (numRowsVariableMetaData == null) {
                 throw new ExprValidationException("Limit clause variable by name '" + rowLimitSpec.getNumRowsVariable() + "' has not been declared");
@@ -50,24 +48,19 @@ public class RowLimitProcessorFactory {
             if (message != null) {
                 throw new ExprValidationException(message);
             }
-            if (!JavaClassHelper.isNumeric(numRowsVariableMetaData.getType()))
-            {
+            if (!JavaClassHelper.isNumeric(numRowsVariableMetaData.getType())) {
                 throw new ExprValidationException("Limit clause requires a variable of numeric type");
             }
-        }
-        else
-        {
+        } else {
             numRowsVariableMetaData = null;
             currentRowLimit = rowLimitSpec.getNumRows();
 
-            if (currentRowLimit < 0)
-            {
+            if (currentRowLimit < 0) {
                 currentRowLimit = Integer.MAX_VALUE;
             }
         }
 
-        if (rowLimitSpec.getOptionalOffsetVariable() != null)
-        {
+        if (rowLimitSpec.getOptionalOffsetVariable() != null) {
             offsetVariableMetaData = variableService.getVariableMetaData(rowLimitSpec.getOptionalOffsetVariable());
             if (offsetVariableMetaData == null) {
                 throw new ExprValidationException("Limit clause variable by name '" + rowLimitSpec.getOptionalOffsetVariable() + "' has not been declared");
@@ -76,25 +69,18 @@ public class RowLimitProcessorFactory {
             if (message != null) {
                 throw new ExprValidationException(message);
             }
-            if (!JavaClassHelper.isNumeric(offsetVariableMetaData.getType()))
-            {
+            if (!JavaClassHelper.isNumeric(offsetVariableMetaData.getType())) {
                 throw new ExprValidationException("Limit clause requires a variable of numeric type");
             }
-        }
-        else
-        {
+        } else {
             offsetVariableMetaData = null;
-            if (rowLimitSpec.getOptionalOffset() != null)
-            {
+            if (rowLimitSpec.getOptionalOffset() != null) {
                 currentOffset = rowLimitSpec.getOptionalOffset();
 
-                if (currentOffset <= 0)
-                {
+                if (currentOffset <= 0) {
                     throw new ExprValidationException("Limit clause requires a positive offset");
                 }
-            }
-            else
-            {
+            } else {
                 currentOffset = 0;
             }
         }

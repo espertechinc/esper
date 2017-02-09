@@ -10,38 +10,32 @@
  */
 package com.espertech.esper.example.stockticker.eventbean;
 
-public class PriceLimit
-{
+public class PriceLimit {
     String userId;
     String stockSymbol;
     double limitPct;
 
-    public PriceLimit(String userId, String stockSymbol, double limitPct)
-    {
+    public PriceLimit(String userId, String stockSymbol, double limitPct) {
         this.userId = userId;
         this.stockSymbol = stockSymbol;
         this.limitPct = limitPct;
     }
 
-    public String getUserId()
-    {
+    public String getUserId() {
         return userId;
     }
 
-    public String getStockSymbol()
-    {
+    public String getStockSymbol() {
         return stockSymbol;
     }
 
-    public double getLimitPct()
-    {
+    public double getLimitPct() {
         return limitPct;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "userId=" + userId +
-               "  stockSymbol=" + stockSymbol +
-               "  limitPct=" + limitPct;
+                "  stockSymbol=" + stockSymbol +
+                "  limitPct=" + limitPct;
     }
 }

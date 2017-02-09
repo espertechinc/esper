@@ -13,7 +13,6 @@ package com.espertech.esper.epl.spec;
 /**
  * Validated stream specifications generally have expression nodes that are valid and event types exist.
  */
-public interface StreamSpecCompiled extends StreamSpec
-{
+public interface StreamSpecCompiled extends StreamSpec {
     public final static StreamSpecCompiled[] EMPTY_STREAM_ARRAY = new StreamSpecCompiled[0];
 }

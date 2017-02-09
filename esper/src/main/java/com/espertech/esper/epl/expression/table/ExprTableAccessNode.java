@@ -16,8 +16,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadataColumn;
 
 import java.io.StringWriter;
 
-public abstract class ExprTableAccessNode extends ExprNodeBase
-{
+public abstract class ExprTableAccessNode extends ExprNodeBase {
     private static final long serialVersionUID = -2048267912299812034L;
 
     protected final String tableName;
@@ -26,6 +25,7 @@ public abstract class ExprTableAccessNode extends ExprNodeBase
 
     protected abstract void validateBindingInternal(ExprValidationContext validationContext, TableMetadata tableMetadata)
             throws ExprValidationException;
+
     protected abstract boolean equalsNodeInternal(ExprTableAccessNode other);
 
     protected ExprTableAccessNode(String tableName) {
@@ -58,8 +58,8 @@ public abstract class ExprTableAccessNode extends ExprNodeBase
         }
 
         if (metadata.getContextName() != null &&
-            validationContext.getContextDescriptor() != null &&
-            !metadata.getContextName().equals(validationContext.getContextDescriptor().getContextName())) {
+                validationContext.getContextDescriptor() != null &&
+                !metadata.getContextName().equals(validationContext.getContextDescriptor().getContextName())) {
             throw new ExprValidationException("Table by name '" + tableName + "' has been declared for context '" + metadata.getContextName() + "' and can only be used within the same context");
         }
 
@@ -71,8 +71,7 @@ public abstract class ExprTableAccessNode extends ExprNodeBase
     protected void validateGroupKeys(TableMetadata metadata) throws ExprValidationException {
         if (this.getChildNodes().length > 0) {
             groupKeyEvaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        }
-        else {
+        } else {
             groupKeyEvaluators = new ExprEvaluator[0];
         }
         Class[] typesReturned = ExprNodeUtility.getExprResultTypes(groupKeyEvaluators);
@@ -104,8 +103,7 @@ public abstract class ExprTableAccessNode extends ExprNodeBase
     }
 
     protected TableMetadataColumn validateSubpropertyGetCol(TableMetadata tableMetadata, String subpropName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         TableMetadataColumn column = tableMetadata.getTableColumns().get(subpropName);
         if (column == null) {
             throw new ExprValidationException("A column '" + subpropName + "' could not be found for table '" + tableName + "'");

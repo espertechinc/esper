@@ -17,8 +17,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 
-public class EventRowRegexNFAViewUtil
-{
+public class EventRowRegexNFAViewUtil {
     protected static EventBean[] getMultimatchArray(int[] multimatchStreamNumToVariable, RegexNFAStateEntry state, int stream) {
         if (state.getOptionalMultiMatches() == null) {
             return null;
@@ -34,55 +33,40 @@ public class EventRowRegexNFAViewUtil
     protected static String printStates(List<RegexNFAStateEntry> states, Map<Integer, String> streamsVariables, LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams, int[] multimatchStreamNumToVariable) {
         StringBuilder buf = new StringBuilder();
         String delimiter = "";
-        for (RegexNFAStateEntry state : states)
-        {
+        for (RegexNFAStateEntry state : states) {
             buf.append(delimiter);
             buf.append(state.getState().getNodeNumNested());
 
             buf.append("{");
             EventBean[] eventsPerStream = state.getEventsPerStream();
-            if (eventsPerStream == null)
-            {
+            if (eventsPerStream == null) {
                 buf.append("null");
-            }
-            else
-            {
+            } else {
                 String eventDelimiter = "";
-                for (Map.Entry<Integer, String> streamVariable : streamsVariables.entrySet())
-                {
+                for (Map.Entry<Integer, String> streamVariable : streamsVariables.entrySet()) {
                     buf.append(eventDelimiter);
                     buf.append(streamVariable.getValue());
                     buf.append('=');
                     boolean single = !variableStreams.get(streamVariable.getValue()).getSecond();
-                    if (single)
-                    {
-                        if (eventsPerStream[streamVariable.getKey()] == null)
-                        {
+                    if (single) {
+                        if (eventsPerStream[streamVariable.getKey()] == null) {
                             buf.append("null");
-                        }
-                        else
-                        {
+                        } else {
                             buf.append(eventsPerStream[streamVariable.getKey()].getUnderlying());
                         }
-                    }
-                    else
-                    {
+                    } else {
                         int streamNum = state.getState().getStreamNum();
                         int index = multimatchStreamNumToVariable[streamNum];
                         if (state.getOptionalMultiMatches() == null) {
                             buf.append("null-mm");
-                        }
-                        else if (state.getOptionalMultiMatches()[index] == null) {
+                        } else if (state.getOptionalMultiMatches()[index] == null) {
                             buf.append("no-entry");
-                        }
-                        else
-                        {
+                        } else {
                             buf.append("{");
                             String arrayEventDelimiter = "";
                             EventBean[] multiMatch = state.getOptionalMultiMatches()[index].getBuffer();
                             int count = state.getOptionalMultiMatches()[index].getCount();
-                            for (int i = 0; i < count; i++)
-                            {
+                            for (int i = 0; i < count; i++) {
                                 buf.append(arrayEventDelimiter);
                                 buf.append(multiMatch[i].getUnderlying());
                                 arrayEventDelimiter = ", ";
@@ -110,15 +94,11 @@ public class EventRowRegexNFAViewUtil
 
     protected static void print(List<RegexNFAState> states, PrintWriter writer, int indent, Stack<RegexNFAState> currentStack) {
 
-        for (RegexNFAState state : states)
-        {
+        for (RegexNFAState state : states) {
             indent(writer, indent);
-            if (currentStack.contains(state))
-            {
+            if (currentStack.contains(state)) {
                 writer.println("(self)");
-            }
-            else
-            {
+            } else {
                 writer.println(printState(state));
 
                 currentStack.push(state);
@@ -128,22 +108,16 @@ public class EventRowRegexNFAViewUtil
         }
     }
 
-    private static String printState(RegexNFAState state)
-    {
-        if (state instanceof RegexNFAStateEnd)
-        {
+    private static String printState(RegexNFAState state) {
+        if (state instanceof RegexNFAStateEnd) {
             return "#" + state.getNodeNumNested();
-        }
-        else
-        {
+        } else {
             return "#" + state.getNodeNumNested() + " " + state.getVariableName() + " s" + state.getStreamNum() + " defined as " + state;
         }
     }
 
-    private static void indent(PrintWriter writer, int indent)
-    {
-        for (int i = 0; i < indent; i++)
-        {
+    private static void indent(PrintWriter writer, int indent) {
+        for (int i = 0; i < indent; i++) {
             writer.append(' ');
         }
     }

@@ -17,16 +17,15 @@ import java.util.SortedMap;
 /**
  * Iterator for use by {@link SortWindowView}.
  */
-public final class SortWindowIterator extends MixedEventBeanAndCollectionIteratorBase
-{
+public final class SortWindowIterator extends MixedEventBeanAndCollectionIteratorBase {
     private final SortedMap<Object, Object> window;
 
     /**
      * Ctor.
+     *
      * @param window - sorted map with events
      */
-    public SortWindowIterator(SortedMap<Object, Object> window)
-    {
+    public SortWindowIterator(SortedMap<Object, Object> window) {
         super(window.keySet().iterator());
         this.window = window;
         init();

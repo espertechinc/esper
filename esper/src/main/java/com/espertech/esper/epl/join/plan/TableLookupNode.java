@@ -12,13 +12,13 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.join.exec.base.ExecNode;
-import com.espertech.esper.epl.join.exec.base.TableLookupExecNode;
 import com.espertech.esper.epl.join.exec.base.JoinExecTableLookupStrategy;
+import com.espertech.esper.epl.join.exec.base.TableLookupExecNode;
 import com.espertech.esper.epl.join.exec.base.TableLookupExecNodeTableLocking;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.HistoricalStreamIndexList;
-import com.espertech.esper.util.IndentWriter;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
+import com.espertech.esper.util.IndentWriter;
 import com.espertech.esper.view.Viewable;
 
 import java.lang.annotation.Annotation;
@@ -30,16 +30,15 @@ import java.util.concurrent.locks.Lock;
 /**
  * Specifies exection of a table lookup using the supplied plan for performing the lookup.
  */
-public class TableLookupNode extends QueryPlanNode
-{
+public class TableLookupNode extends QueryPlanNode {
     private TableLookupPlan tableLookupPlan;
 
     /**
      * Ctor.
+     *
      * @param tableLookupPlan - plan for performing lookup
      */
-    public TableLookupNode(TableLookupPlan tableLookupPlan)
-    {
+    public TableLookupNode(TableLookupPlan tableLookupPlan) {
         this.tableLookupPlan = tableLookupPlan;
     }
 
@@ -49,21 +48,19 @@ public class TableLookupNode extends QueryPlanNode
 
     /**
      * Returns lookup plan.
+     *
      * @return lookup plan
      */
-    protected TableLookupPlan getLookupStrategySpec()
-    {
+    protected TableLookupPlan getLookupStrategySpec() {
         return tableLookupPlan;
     }
 
-    public void print(IndentWriter writer)
-    {
+    public void print(IndentWriter writer) {
         writer.println("TableLookupNode " +
-               " tableLookupPlan=" + tableLookupPlan);
+                " tableLookupPlan=" + tableLookupPlan);
     }
 
-    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
-    {
+    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks) {
         JoinExecTableLookupStrategy lookupStrategy = tableLookupPlan.makeStrategy(statementName, statementId, annotations, indexesPerStream, streamTypes, viewExternal);
         int indexedStream = tableLookupPlan.getIndexedStream();
         if (tableSecondaryIndexLocks[indexedStream] != null) {

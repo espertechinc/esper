@@ -17,10 +17,10 @@ import org.antlr.v4.runtime.tree.Tree;
 /**
  * For selection of the parse rule to use.
  */
-public interface ParseRuleSelector
-{
+public interface ParseRuleSelector {
     /**
      * Implementations can invoke a parse rule of their choice on the parser.
+     *
      * @param parser - to invoke parse rule on
      * @return the AST tree as a result of the parsing
      * @throws RecognitionException is a parse exception

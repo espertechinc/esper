@@ -26,17 +26,14 @@ import java.util.LinkedHashSet;
  * <p>
  * Remove stream events delete from the data window.
  */
-public class FirstLengthWindowView extends ViewSupport implements DataWindowView, CloneableView
-{
+public class FirstLengthWindowView extends ViewSupport implements DataWindowView, CloneableView {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final FirstLengthWindowViewFactory lengthFirstFactory;
     private final int size;
     protected LinkedHashSet<EventBean> indexedEvents;
 
-    public FirstLengthWindowView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, FirstLengthWindowViewFactory lengthFirstWindowViewFactory, int size)
-    {
-        if (size < 1)
-        {
+    public FirstLengthWindowView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, FirstLengthWindowViewFactory lengthFirstWindowViewFactory, int size) {
+        if (size < 1) {
             throw new IllegalArgumentException("Illegal argument for size of length window");
         }
 
@@ -46,51 +43,46 @@ public class FirstLengthWindowView extends ViewSupport implements DataWindowView
         indexedEvents = new LinkedHashSet<EventBean>();
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return lengthFirstFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return indexedEvents.isEmpty();
     }
 
     /**
      * Returns the size of the length window.
+     *
      * @return size of length window
      */
-    public final int getSize()
-    {
+    public final int getSize() {
         return size;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The event type is the parent view's event type
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, lengthFirstFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, lengthFirstFactory.getViewName(), newData, oldData);
+        }
 
         OneEventCollection newDataToPost = null;
         OneEventCollection oldDataToPost = null;
 
         // add data points to the window as long as its not full, ignoring later events
-        if (newData != null)
-        {
-            for (EventBean aNewData : newData)
-            {
-                if (indexedEvents.size() < size)
-                {
-                    if (newDataToPost == null)
-                    {
+        if (newData != null) {
+            for (EventBean aNewData : newData) {
+                if (indexedEvents.size() < size) {
+                    if (newDataToPost == null) {
                         newDataToPost = new OneEventCollection();
                     }
                     newDataToPost.add(aNewData);
@@ -100,15 +92,11 @@ public class FirstLengthWindowView extends ViewSupport implements DataWindowView
             }
         }
 
-        if (oldData != null)
-        {
-            for (EventBean anOldData : oldData)
-            {
+        if (oldData != null) {
+            for (EventBean anOldData : oldData) {
                 boolean removed = indexedEvents.remove(anOldData);
-                if (removed)
-                {
-                    if (oldDataToPost == null)
-                    {
+                if (removed) {
+                    if (oldDataToPost == null) {
                         oldDataToPost = new OneEventCollection();
                     }
                     oldDataToPost.add(anOldData);
@@ -118,16 +106,21 @@ public class FirstLengthWindowView extends ViewSupport implements DataWindowView
         }
 
         // If there are child views, call update method
-        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null)))
-        {
+        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null))) {
             EventBean[] nd = (newDataToPost != null) ? newDataToPost.toArray() : null;
             EventBean[] od = (oldDataToPost != null) ? oldDataToPost.toArray() : null;
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, lengthFirstFactory.getViewName(), nd, od);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, lengthFirstFactory.getViewName(), nd, od);
+            }
             updateChildren(nd, od);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleRemoved(EventBean anOldData) {
@@ -138,13 +131,11 @@ public class FirstLengthWindowView extends ViewSupport implements DataWindowView
         // no action required
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return indexedEvents.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " size=" + size;
     }
 

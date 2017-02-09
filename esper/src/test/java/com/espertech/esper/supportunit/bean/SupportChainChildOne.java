@@ -10,13 +10,11 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public class SupportChainChildOne
-{
+public class SupportChainChildOne {
     private String text;
     private int value;
 
-    public SupportChainChildOne(String text, int value)
-    {
+    public SupportChainChildOne(String text, int value) {
         this.text = text;
         this.value = value;
     }

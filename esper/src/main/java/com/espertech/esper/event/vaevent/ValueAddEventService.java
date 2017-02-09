@@ -25,30 +25,32 @@ import java.util.Map;
  * <p>
  * Associates named windows and revision event types.
  */
-public interface ValueAddEventService
-{
+public interface ValueAddEventService {
     /**
      * Called at initialization time, verifies configurations provided.
-     * @param revisionTypes is the revision types to add
-     * @param variantStreams is the variant streams to add
-     * @param eventAdapterService for obtaining event type information for each name
+     *
+     * @param revisionTypes        is the revision types to add
+     * @param variantStreams       is the variant streams to add
+     * @param eventAdapterService  for obtaining event type information for each name
      * @param eventTypeIdGenerator event type id provider
      */
     public void init(Map<String, ConfigurationRevisionEventType> revisionTypes, Map<String, ConfigurationVariantStream> variantStreams, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator);
 
     /**
      * Adds a new revision event types.
-     * @param name to add
-     * @param config the revision event type configuration
+     *
+     * @param name                to add
+     * @param config              the revision event type configuration
      * @param eventAdapterService for obtaining event type information for each name
      */
     public void addRevisionEventType(String name, ConfigurationRevisionEventType config, EventAdapterService eventAdapterService);
 
     /**
      * Adds a new variant stream.
+     *
      * @param variantEventTypeName the name of the type
-     * @param variantStreamConfig the configs
-     * @param eventAdapterService for handling nested events
+     * @param variantStreamConfig  the configs
+     * @param eventAdapterService  for handling nested events
      * @param eventTypeIdGenerator event type id provider
      * @throws ConfigurationException if the configuration is invalid
      */
@@ -58,6 +60,7 @@ public interface ValueAddEventService
     /**
      * Upon named window creation, and during resolution of type specified as part of a named window create statement,
      * returns looks up the revision event type name provided and return the revision event type if found, or null if not found.
+     *
      * @param name to look up
      * @return null if not found, of event type
      */
@@ -65,10 +68,11 @@ public interface ValueAddEventService
 
     /**
      * Upon named window creation, create a unique revision event type that this window processes.
-     * @param namedWindowName name of window
-     * @param typeName name to use
+     *
+     * @param namedWindowName      name of window
+     * @param typeName             name to use
      * @param statementStopService for handling stops
-     * @param eventAdapterService for event type info
+     * @param eventAdapterService  for event type info
      * @param eventTypeIdGenerator event type id provider
      * @return revision event type
      */
@@ -76,6 +80,7 @@ public interface ValueAddEventService
 
     /**
      * Upon named window creation, check if the name used is a revision event type name.
+     *
      * @param name to check
      * @return true if revision event type, false if not
      */
@@ -83,6 +88,7 @@ public interface ValueAddEventService
 
     /**
      * Gets a value-added event processor.
+     *
      * @param name of the value-add events
      * @return processor
      */
@@ -90,6 +96,7 @@ public interface ValueAddEventService
 
     /**
      * Returns all event types representing value-add event types.
+     *
      * @return value-add event type
      */
     public EventType[] getValueAddedTypes();

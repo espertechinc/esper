@@ -20,8 +20,7 @@ import junit.framework.TestCase;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestFilterParamIndexNotEquals extends TestCase
-{
+public class TestFilterParamIndexNotEquals extends TestCase {
     private SupportEventEvaluator testEvaluator;
     private SupportBean testBean;
     private EventBean testEventBean;
@@ -29,8 +28,7 @@ public class TestFilterParamIndexNotEquals extends TestCase
     private List<FilterHandle> matchesList;
     private FilterServiceGranularLockFactory lockFactory = new FilterServiceGranularLockFactoryReentrant();
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvaluator = new SupportEventEvaluator();
         testBean = new SupportBean();
         testEventBean = SupportEventBeanFactory.createObject(testBean);
@@ -38,8 +36,7 @@ public class TestFilterParamIndexNotEquals extends TestCase
         matchesList = new LinkedList<FilterHandle>();
     }
 
-    public void testBoolean()
-    {
+    public void testBoolean() {
         FilterParamIndexNotEquals index = new FilterParamIndexNotEquals(makeLookupable("boolPrimitive"), lockFactory.obtainNew());
         assertEquals(FilterOperator.NOT_EQUAL, index.getFilterOperator());
         assertEquals("boolPrimitive", index.getLookupable().getExpression());
@@ -50,8 +47,7 @@ public class TestFilterParamIndexNotEquals extends TestCase
         verifyBooleanPrimitive(index, false, 0);
     }
 
-    public void testString()
-    {
+    public void testString() {
         FilterParamIndexNotEquals index = new FilterParamIndexNotEquals(makeLookupable("theString"), lockFactory.obtainNew());
 
         index.put("hello", testEvaluator);
@@ -63,15 +59,13 @@ public class TestFilterParamIndexNotEquals extends TestCase
         verifyString(index, "test", 1);
     }
 
-    private void verifyBooleanPrimitive(FilterParamIndexBase index, boolean testValue, int numExpected)
-    {
+    private void verifyBooleanPrimitive(FilterParamIndexBase index, boolean testValue, int numExpected) {
         testBean.setBoolPrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyString(FilterParamIndexBase index, String testValue, int numExpected)
-    {
+    private void verifyString(FilterParamIndexBase index, String testValue, int numExpected) {
         testBean.setTheString(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());

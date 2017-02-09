@@ -24,11 +24,9 @@ public class EventRepresentationUtil {
         // assigned type has priority
         if (assignedType == CreateSchemaDesc.AssignedType.OBJECTARRAY) {
             return EventUnderlyingType.OBJECTARRAY;
-        }
-        else if (assignedType == CreateSchemaDesc.AssignedType.MAP) {
+        } else if (assignedType == CreateSchemaDesc.AssignedType.MAP) {
             return EventUnderlyingType.MAP;
-        }
-        else if (assignedType == CreateSchemaDesc.AssignedType.AVRO) {
+        } else if (assignedType == CreateSchemaDesc.AssignedType.AVRO) {
             return EventUnderlyingType.AVRO;
         }
         if (assignedType == CreateSchemaDesc.AssignedType.VARIANT || assignedType != CreateSchemaDesc.AssignedType.NONE) {
@@ -41,14 +39,11 @@ public class EventRepresentationUtil {
             EventRepresentation eventRepresentation = (EventRepresentation) annotation;
             if (eventRepresentation.value() == EventUnderlyingType.AVRO) {
                 return EventUnderlyingType.AVRO;
-            }
-            else if (eventRepresentation.value() == EventUnderlyingType.OBJECTARRAY) {
+            } else if (eventRepresentation.value() == EventUnderlyingType.OBJECTARRAY) {
                 return EventUnderlyingType.OBJECTARRAY;
-            }
-            else if (eventRepresentation.value() == EventUnderlyingType.MAP) {
+            } else if (eventRepresentation.value() == EventUnderlyingType.MAP) {
                 return EventUnderlyingType.MAP;
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Unrecognized enum " + eventRepresentation.value());
             }
         }
@@ -57,11 +52,9 @@ public class EventRepresentationUtil {
         EventUnderlyingType configured = configs.getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
         if (configured == EventUnderlyingType.OBJECTARRAY) {
             return EventUnderlyingType.OBJECTARRAY;
-        }
-        else if (configured == EventUnderlyingType.MAP) {
+        } else if (configured == EventUnderlyingType.MAP) {
             return EventUnderlyingType.MAP;
-        }
-        else if (configured == EventUnderlyingType.AVRO) {
+        } else if (configured == EventUnderlyingType.AVRO) {
             return EventUnderlyingType.AVRO;
         }
         return EventUnderlyingType.MAP;

@@ -19,15 +19,13 @@ import java.util.List;
 /**
  * Visitor that collects {@link ExprDeclaredNode} instances.
  */
-public class ExprNodeDeclaredVisitor implements ExprNodeVisitor
-{
+public class ExprNodeDeclaredVisitor implements ExprNodeVisitor {
     private final List<ExprDeclaredNode> declaredExpressions;
 
     /**
      * Ctor.
      */
-    public ExprNodeDeclaredVisitor()
-    {
+    public ExprNodeDeclaredVisitor() {
         declaredExpressions = new ArrayList<ExprDeclaredNode>(1);
     }
 
@@ -39,15 +37,13 @@ public class ExprNodeDeclaredVisitor implements ExprNodeVisitor
         return declaredExpressions;
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 
     public void visit(ExprNode exprNode) {
 
-        if (exprNode instanceof ExprDeclaredNode)
-        {
+        if (exprNode instanceof ExprDeclaredNode) {
             declaredExpressions.add((ExprDeclaredNode) exprNode);
         }
     }

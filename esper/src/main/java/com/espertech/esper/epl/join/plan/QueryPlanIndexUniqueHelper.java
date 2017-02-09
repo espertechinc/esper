@@ -13,8 +13,7 @@ package com.espertech.esper.epl.join.plan;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QueryPlanIndexUniqueHelper
-{
+public class QueryPlanIndexUniqueHelper {
     public static ReducedHashKeys reduceToUniqueIfPossible(String[] hashPropsProvided, Class[] hashCoercionTypes, List<QueryGraphValueEntryHashKeyed> hashFunctions, String[][] hashPropsRequiredPerIndex) {
         if (hashPropsRequiredPerIndex == null || hashPropsRequiredPerIndex.length == 0) {
             return null;

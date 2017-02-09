@@ -10,34 +10,49 @@
  */
 package com.espertech.esper.core.context.stmt;
 
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 
 public interface AIRegistryExpr {
 
     public AIRegistrySubselect getSubselectService(ExprSubselectNode exprSubselectNode);
+
     public AIRegistryAggregation getSubselectAggregationService(ExprSubselectNode exprSubselectNode);
+
     public AIRegistryPrior getPriorServices(ExprPriorNode key);
+
     public AIRegistryPrevious getPreviousServices(ExprPreviousNode key);
+
     public AIRegistryMatchRecognizePrevious getMatchRecognizePrevious();
+
     public AIRegistryTableAccess getTableAccessServices(ExprTableAccessNode key);
 
     public AIRegistrySubselect allocateSubselect(ExprSubselectNode subselectNode);
+
     public AIRegistryAggregation allocateSubselectAggregation(ExprSubselectNode subselectNode);
+
     public AIRegistryPrior allocatePrior(ExprPriorNode key);
+
     public AIRegistryPrevious allocatePrevious(ExprPreviousNode previousNode);
+
     public AIRegistryMatchRecognizePrevious allocateMatchRecognizePrevious();
+
     public AIRegistryTableAccess allocateTableAccess(ExprTableAccessNode tableNode);
 
     public AIRegistryPrior getOrAllocatePrior(ExprPriorNode key);
+
     public AIRegistryPrevious getOrAllocatePrevious(ExprPreviousNode key);
+
     public AIRegistrySubselect getOrAllocateSubquery(ExprSubselectNode key);
+
     public AIRegistryAggregation getOrAllocateSubselectAggregation(ExprSubselectNode exprSubselectNode);
 
     public int getSubselectAgentInstanceCount();
+
     public int getPreviousAgentInstanceCount();
+
     public int getPriorAgentInstanceCount();
 
     public void deassignService(int agentInstanceId);

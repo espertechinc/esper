@@ -17,6 +17,5 @@ package com.espertech.esper.view;
  * and such data windows post insert stream events only when batching conditions have been met and
  * the batch is released.
  */
-public interface DataWindowBatchingViewFactory
-{
+public interface DataWindowBatchingViewFactory {
 }

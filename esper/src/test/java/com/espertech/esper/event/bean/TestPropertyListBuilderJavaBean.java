@@ -10,24 +10,21 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import junit.framework.TestCase;
 import com.espertech.esper.client.ConfigurationEventTypeLegacy;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.supportunit.bean.SupportLegacyBean;
-
-import java.util.List;
-import java.util.LinkedList;
-
+import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestPropertyListBuilderJavaBean extends TestCase
-{
+import java.util.LinkedList;
+import java.util.List;
+
+public class TestPropertyListBuilderJavaBean extends TestCase {
     private PropertyListBuilderJavaBean builder;
 
-    public void setUp()
-    {
+    public void setUp() {
         ConfigurationEventTypeLegacy config = new ConfigurationEventTypeLegacy();
 
         // add 2 explicit properties, also supported
@@ -37,8 +34,7 @@ public class TestPropertyListBuilderJavaBean extends TestCase
         builder = new PropertyListBuilderJavaBean(config);
     }
 
-    public void testBuildPropList() throws Exception
-    {
+    public void testBuildPropList() throws Exception {
         List<InternalEventPropDescriptor> descList = builder.assessProperties(SupportLegacyBean.class);
 
         List<InternalEventPropDescriptor> expected = new LinkedList<InternalEventPropDescriptor>();

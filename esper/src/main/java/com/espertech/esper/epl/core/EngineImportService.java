@@ -21,18 +21,17 @@ import com.espertech.esper.epl.expression.time.TimeAbacus;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.MathContext;
-import java.util.Map;
 import java.util.TimeZone;
 
 /**
  * Service for engine-level resolution of static methods and aggregation methods.
  */
-public interface EngineImportService
-{
+public interface EngineImportService {
     public final static String EXT_SINGLEROW_FUNCTION_TRANSPOSE = "transpose";
 
     /**
      * Returns the method invocation caches for the from-clause for a class.
+     *
      * @param className the class name providing the method
      * @return cache configs
      */
@@ -40,6 +39,7 @@ public interface EngineImportService
 
     /**
      * Add an import, such as "com.mypackage.*" or "com.mypackage.MyClass".
+     *
      * @param importName is the import to add
      * @throws EngineImportException if the information or format is invalid
      */
@@ -47,6 +47,7 @@ public interface EngineImportService
 
     /**
      * Add an import for annotation-only use, such as "com.mypackage.*" or "com.mypackage.MyClass".
+     *
      * @param importName is the import to add
      * @throws EngineImportException if the information or format is invalid
      */
@@ -54,7 +55,8 @@ public interface EngineImportService
 
     /**
      * Add an aggregation function.
-     * @param functionName is the name of the function to make known.
+     *
+     * @param functionName    is the name of the function to make known.
      * @param aggregationDesc is the descriptor for the aggregation function
      * @throws EngineImportException throw if format or information is invalid
      */
@@ -62,12 +64,13 @@ public interface EngineImportService
 
     /**
      * Add an single-row function.
-     * @param functionName is the name of the function to make known.
+     *
+     * @param functionName       is the name of the function to make known.
      * @param singleRowFuncClass is the class that provides the single row function
-     * @param methodName is the name of the public static method provided by the class that provides the single row function
-     * @param valueCache setting to control value cache behavior which may cache a result value when constant parameters are passed
-     * @param filterOptimizable filter behavior setting
-     * @param rethrowExceptions for whether to rethrow
+     * @param methodName         is the name of the public static method provided by the class that provides the single row function
+     * @param valueCache         setting to control value cache behavior which may cache a result value when constant parameters are passed
+     * @param filterOptimizable  filter behavior setting
+     * @param rethrowExceptions  for whether to rethrow
      * @throws EngineImportException throw if format or information is invalid
      */
     public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions) throws EngineImportException;
@@ -75,31 +78,34 @@ public interface EngineImportService
     /**
      * Used at statement compile-time to try and resolve a given function name into an
      * aggregation method. Matches function name case-neutral.
+     *
      * @param functionName is the function name
      * @return aggregation provider
      * @throws EngineImportUndefinedException if the function is not a configured aggregation function
-     * @throws EngineImportException if the aggregation providing class could not be loaded or doesn't match
+     * @throws EngineImportException          if the aggregation providing class could not be loaded or doesn't match
      */
     public AggregationFunctionFactory resolveAggregationFactory(String functionName) throws EngineImportUndefinedException, EngineImportException;
 
     public ConfigurationPlugInAggregationMultiFunction resolveAggregationMultiFunction(String name);
 
-        /**
-        * Used at statement compile-time to try and resolve a given function name into an
-        * single-row function. Matches function name case-neutral.
-        * @param functionName is the function name
-        * @return class name and method name pair
-        * @throws EngineImportUndefinedException if the function is not a configured single-row function
-        * @throws EngineImportException if the function providing class could not be loaded or doesn't match
-        */
+    /**
+     * Used at statement compile-time to try and resolve a given function name into an
+     * single-row function. Matches function name case-neutral.
+     *
+     * @param functionName is the function name
+     * @return class name and method name pair
+     * @throws EngineImportUndefinedException if the function is not a configured single-row function
+     * @throws EngineImportException          if the function providing class could not be loaded or doesn't match
+     */
     public Pair<Class, EngineImportSingleRowDesc> resolveSingleRow(String functionName) throws EngineImportUndefinedException, EngineImportException;
 
     /**
      * Resolves a given class, method and list of parameter types to a static method.
-     * @param className is the class name to use
-     * @param methodName is the method name
-     * @param paramTypes is parameter types match expression sub-nodes
-     * @param allowEventBeanType flag for whether event bean is allowed
+     *
+     * @param className              is the class name to use
+     * @param methodName             is the method name
+     * @param paramTypes             is parameter types match expression sub-nodes
+     * @param allowEventBeanType     flag for whether event bean is allowed
      * @param allowEventBeanCollType flag for whether event bean array is allowed
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static method
@@ -108,7 +114,8 @@ public interface EngineImportService
 
     /**
      * Resolves a constructor matching list of parameter types.
-     * @param clazz is the class to use
+     *
+     * @param clazz      is the class to use
      * @param paramTypes is parameter types match expression sub-nodes
      * @return method this resolves to
      * @throws EngineImportException if the ctor cannot be resolved
@@ -117,7 +124,8 @@ public interface EngineImportService
 
     /**
      * Resolves a given class name, either fully qualified and simple and imported to a class.
-     * @param className is the class name to use
+     *
+     * @param className     is the class name to use
      * @param forAnnotation whether we are resolving an annotation
      * @return class this resolves to
      * @throws EngineImportException if there was an error resolving the class
@@ -126,6 +134,7 @@ public interface EngineImportService
 
     /**
      * Resolves a given class name, either fully qualified and simple and imported to a annotation.
+     *
      * @param className is the class name to use
      * @return annotation class this resolves to
      * @throws EngineImportException if there was an error resolving the class
@@ -135,31 +144,34 @@ public interface EngineImportService
     /**
      * Resolves a given class and method name to a static method, expecting the method to exist
      * exactly once and not be overloaded, with any parameters.
-     * @param className is the class name to use
+     *
+     * @param className  is the class name to use
      * @param methodName is the method name
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static method, or
-     * if the method is overloaded
+     *                               if the method is overloaded
      */
     public Method resolveMethodOverloadChecked(String className, String methodName) throws EngineImportException;
 
     /**
      * Resolves a given class and method name to a non-static method, expecting the method to exist
      * exactly once and not be overloaded, with any parameters.
-     * @param clazz is the class
+     *
+     * @param clazz      is the class
      * @param methodName is the method name
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static method, or
-     * if the method is overloaded
+     *                               if the method is overloaded
      */
     public Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException;
 
     /**
      * Resolves a given method name and list of parameter types to an instance or static method exposed by the given class.
-     * @param clazz is the class to look for a fitting method
-     * @param methodName is the method name
-     * @param paramTypes is parameter types match expression sub-nodes
-     * @param allowEventBeanType whether EventBean footprint is allowed
+     *
+     * @param clazz                  is the class to look for a fitting method
+     * @param methodName             is the method name
+     * @param paramTypes             is parameter types match expression sub-nodes
+     * @param allowEventBeanType     whether EventBean footprint is allowed
      * @param allowEventBeanCollType whether EventBean array footprint is allowed
      * @return method this resolves to
      * @throws EngineImportException if the method cannot be resolved to a visible static or instance method
@@ -168,7 +180,8 @@ public interface EngineImportService
 
     /**
      * Resolve an extended (non-SQL std) builtin aggregation.
-     * @param name of func
+     *
+     * @param name       of func
      * @param isDistinct indicator
      * @return aggregation func node
      */
@@ -176,6 +189,7 @@ public interface EngineImportService
 
     /**
      * Resolve an extended (non-SQL std) single-row function.
+     *
      * @param name of func
      * @return node or null
      */

@@ -20,63 +20,52 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class SupportEventTypeAssertionUtil
-{
+public class SupportEventTypeAssertionUtil {
     public static void assertFragments(EventBean event, boolean isNative, boolean array, String propertyExpressions) {
         String[] names = propertyExpressions.split(",");
         for (String name : names) {
             if (!array) {
                 assertFragmentNonArray(event, isNative, name);
-            }
-            else {
+            } else {
                 assertFragmentArray(event, isNative, name);
             }
         }
     }
 
-    public static void assertConsistency(EventBean eventBean)
-    {
+    public static void assertConsistency(EventBean eventBean) {
         assertConsistencyRecusive(eventBean, new HashSet<EventType>());
     }
 
-    public static void assertConsistency(EventType eventType)
-    {
+    public static void assertConsistency(EventType eventType) {
         assertConsistencyRecursive(eventType, new HashSet<EventType>());
     }
 
-    public static String print(EventBean theEvent)
-    {
+    public static String print(EventBean theEvent) {
         StringWriter writer = new StringWriter();
         print(theEvent, writer, 0, new Stack<String>());
         return writer.toString();
     }
 
-    private static void print(EventBean theEvent, StringWriter writer, int indent, Stack<String> propertyStack)
-    {
+    private static void print(EventBean theEvent, StringWriter writer, int indent, Stack<String> propertyStack) {
         writeIndent(writer, indent);
         writer.append("Properties : \n");
         printProperties(theEvent, writer, indent + 2, propertyStack);
 
         // count fragments
         int countFragments = 0;
-        for (EventPropertyDescriptor desc : theEvent.getEventType().getPropertyDescriptors())
-        {
-            if (desc.isFragment())
-            {
+        for (EventPropertyDescriptor desc : theEvent.getEventType().getPropertyDescriptors()) {
+            if (desc.isFragment()) {
                 countFragments++;
             }
         }
-        if (countFragments == 0)
-        {
+        if (countFragments == 0) {
             return;
         }
 
         writeIndent(writer, indent);
         writer.append("Fragments : (" + countFragments + ") \n");
-        for (EventPropertyDescriptor desc : theEvent.getEventType().getPropertyDescriptors())
-        {
-            if (!desc.isFragment())
-            {
+        for (EventPropertyDescriptor desc : theEvent.getEventType().getPropertyDescriptors()) {
+            if (!desc.isFragment()) {
                 continue;
             }
 
@@ -84,80 +73,60 @@ public class SupportEventTypeAssertionUtil
             writer.append(desc.getPropertyName());
             writer.append(" : ");
 
-            if (desc.isRequiresIndex())
-            {
+            if (desc.isRequiresIndex()) {
                 writer.append("\n");
                 int count = 0;
-                while(true){
-                    try
-                    {
+                while (true) {
+                    try {
                         writeIndent(writer, indent + 4);
                         writer.append("bean #");
                         writer.append(Integer.toString(count));
                         EventBean result = (EventBean) theEvent.getFragment(desc.getPropertyName() + "[" + count + "]");
-                        if (result == null)
-                        {
+                        if (result == null) {
                             writer.append("(null EventBean)\n");
-                        }
-                        else
-                        {
+                        } else {
                             writer.append("\n");
                             propertyStack.push(desc.getPropertyName());
                             print(result, writer, indent + 6, propertyStack);
                             propertyStack.pop();
                         }
                         count++;
-                    }
-                    catch (PropertyAccessException ex)
-                    {
+                    } catch (PropertyAccessException ex) {
                         writer.append("-- no access --\n");
                         break;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 Object fragment = theEvent.getFragment(desc.getPropertyName());
-                if (fragment == null)
-                {
+                if (fragment == null) {
                     writer.append("(null)\n");
                     continue;
                 }
 
-                if (fragment instanceof EventBean)
-                {
-                    EventBean fragmentBean = (EventBean)fragment;
+                if (fragment instanceof EventBean) {
+                    EventBean fragmentBean = (EventBean) fragment;
                     writer.append("EventBean type ");
                     writer.append(fragmentBean.getEventType().getName());
                     writer.append("...\n");
 
                     // prevent getThis() loops
-                    if (fragmentBean.getEventType() == theEvent.getEventType())
-                    {
+                    if (fragmentBean.getEventType() == theEvent.getEventType()) {
                         writeIndent(writer, indent + 2);
                         writer.append("Skipping");
-                    }
-                    else
-                    {
+                    } else {
                         propertyStack.push(desc.getPropertyName());
                         print(fragmentBean, writer, indent + 4, propertyStack);
                         propertyStack.pop();
                     }
-                }
-                else
-                {
-                    EventBean[] fragmentBeans = (EventBean[])fragment;
+                } else {
+                    EventBean[] fragmentBeans = (EventBean[]) fragment;
                     writer.append("EventBean[] type ");
-                    if (fragmentBeans.length == 0)
-                    {
+                    if (fragmentBeans.length == 0) {
                         writer.append("(empty array)\n");
-                    }
-                    else
-                    {
+                    } else {
                         writer.append(fragmentBeans[0].getEventType().getName());
                         writer.append("...\n");
-                        for (int i = 0; i < fragmentBeans.length; i++)
-                        {
+                        for (int i = 0; i < fragmentBeans.length; i++) {
                             writeIndent(writer, indent + 4);
                             writer.append("bean #" + i + "...\n");
 
@@ -171,17 +140,14 @@ public class SupportEventTypeAssertionUtil
         }
     }
 
-    private static void printProperties(EventBean eventBean, StringWriter writer, int indent, Stack<String> propertyStack)
-    {
-        EventPropertyDescriptor properties[] = eventBean.getEventType().getPropertyDescriptors();
+    private static void printProperties(EventBean eventBean, StringWriter writer, int indent, Stack<String> propertyStack) {
+        EventPropertyDescriptor[] properties = eventBean.getEventType().getPropertyDescriptors();
 
         // write simple properties
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             String propertyName = properties[i].getPropertyName();
 
-            if (properties[i].isIndexed() || properties[i].isMapped())
-            {
+            if (properties[i].isIndexed() || properties[i].isMapped()) {
                 continue;
             }
 
@@ -192,34 +158,29 @@ public class SupportEventTypeAssertionUtil
             Object resultGet = eventBean.get(propertyName);
             writeValue(writer, resultGet);
             writer.append("\n");
-        }        
+        }
 
         // write indexed properties
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             String propertyName = properties[i].getPropertyName();
 
-            if (!properties[i].isIndexed())
-            {
+            if (!properties[i].isIndexed()) {
                 continue;
             }
 
             writeIndent(writer, indent);
             writer.append(propertyName);
             String type = "array";
-            if (properties[i].isRequiresIndex())
-            {
+            if (properties[i].isRequiresIndex()) {
                 type = type + " requires-index";
             }
             writer.append(" (" + type + ") : ");
 
-            if (properties[i].isRequiresIndex())
-            {
+            if (properties[i].isRequiresIndex()) {
                 int count = 0;
                 writer.append("\n");
-                while(true){
-                    try
-                    {
+                while (true) {
+                    try {
                         writeIndent(writer, indent + 2);
                         writer.append("#");
                         writer.append(Integer.toString(count));
@@ -228,16 +189,12 @@ public class SupportEventTypeAssertionUtil
                         writeValue(writer, result);
                         writer.append("\n");
                         count++;
-                    }
-                    catch (PropertyAccessException ex)
-                    {
+                    } catch (PropertyAccessException ex) {
                         writer.append("-- no access --\n");
                         break;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 Object result = eventBean.get(propertyName);
                 writeValue(writer, result);
                 writer.append("\n");
@@ -245,85 +202,66 @@ public class SupportEventTypeAssertionUtil
         }
 
         // write mapped properties
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             String propertyName = properties[i].getPropertyName();
 
-            if (!properties[i].isMapped())
-            {
+            if (!properties[i].isMapped()) {
                 continue;
             }
 
             writeIndent(writer, indent);
             writer.append(propertyName);
             String type = "mapped";
-            if (properties[i].isRequiresMapkey())
-            {
+            if (properties[i].isRequiresMapkey()) {
                 type = type + " requires-mapkey";
             }
             writer.append(" (" + type + ") : ");
 
-            if (!properties[i].isRequiresMapkey())
-            {
+            if (!properties[i].isRequiresMapkey()) {
                 Object result = eventBean.get(propertyName);
                 writeValue(writer, result);
                 writer.append("\n");
-            }
-            else
-            {
-                writer.append("??map key unknown??\n");                
+            } else {
+                writer.append("??map key unknown??\n");
             }
         }
     }
-    
-    private static void assertConsistencyRecusive(EventBean eventBean, Set<EventType> alreadySeenTypes)
-    {
+
+    private static void assertConsistencyRecusive(EventBean eventBean, Set<EventType> alreadySeenTypes) {
         assertConsistencyRecursive(eventBean.getEventType(), alreadySeenTypes);
 
-        EventPropertyDescriptor properties[] = eventBean.getEventType().getPropertyDescriptors();
-        for (int i = 0; i < properties.length; i++)
-        {
+        EventPropertyDescriptor[] properties = eventBean.getEventType().getPropertyDescriptors();
+        for (int i = 0; i < properties.length; i++) {
             String failedMessage = "failed assertion for property '" + properties[i].getPropertyName() + "' ";
             String propertyName = properties[i].getPropertyName();
 
             // assert getter
-            if ((!properties[i].isRequiresIndex()) && (!properties[i].isRequiresMapkey()))
-            {
+            if ((!properties[i].isRequiresIndex()) && (!properties[i].isRequiresMapkey())) {
                 EventPropertyGetter getter = eventBean.getEventType().getGetter(propertyName);
                 Object resultGetter = getter.get(eventBean);
                 Object resultGet = eventBean.get(propertyName);
 
-                if ((resultGetter == null) && (resultGet == null))
-                {
+                if ((resultGetter == null) && (resultGet == null)) {
                     // fine
-                }
-                else if (resultGet instanceof NodeList)
-                {
-                    ScopeTestHelper.assertEquals(failedMessage, ((NodeList)resultGet).getLength(), ((NodeList)resultGetter).getLength());
-                }
-                else if (resultGet.getClass().isArray())
-                {
+                } else if (resultGet instanceof NodeList) {
+                    ScopeTestHelper.assertEquals(failedMessage, ((NodeList) resultGet).getLength(), ((NodeList) resultGetter).getLength());
+                } else if (resultGet.getClass().isArray()) {
                     ScopeTestHelper.assertEquals(failedMessage, Array.getLength(resultGet), Array.getLength(resultGetter));
-                }
-                else
-                {
+                } else {
                     ScopeTestHelper.assertEquals(failedMessage, resultGet, resultGetter);
                 }
 
-                if (resultGet != null)
-                {
+                if (resultGet != null) {
                     if (resultGet instanceof EventBean[] || resultGet instanceof EventBean) {
                         ScopeTestHelper.assertTrue(properties[i].isFragment());
-                    }
-                    else {
+                    } else {
                         ScopeTestHelper.assertTrue(failedMessage, JavaClassHelper.isSubclassOrImplementsInterface(resultGet.getClass(), JavaClassHelper.getBoxedType(properties[i].getPropertyType())));
                     }
                 }
             }
 
             // fragment
-            if (!properties[i].isFragment())
-            {
+            if (!properties[i].isFragment()) {
                 ScopeTestHelper.assertNull(failedMessage, eventBean.getFragment(propertyName));
                 continue;
             }
@@ -334,29 +272,23 @@ public class SupportEventTypeAssertionUtil
             FragmentEventType fragmentType = eventBean.getEventType().getFragmentType(propertyName);
             ScopeTestHelper.assertNotNull(failedMessage, fragmentType);
 
-            if (!fragmentType.isIndexed())
-            {
+            if (!fragmentType.isIndexed()) {
                 ScopeTestHelper.assertTrue(failedMessage, fragment instanceof EventBean);
                 EventBean fragmentEvent = (EventBean) fragment;
                 assertConsistencyRecusive(fragmentEvent, alreadySeenTypes);
-            }
-            else
-            {
+            } else {
                 ScopeTestHelper.assertTrue(failedMessage, fragment instanceof EventBean[]);
                 EventBean[] events = (EventBean[]) fragment;
                 ScopeTestHelper.assertTrue(failedMessage, events.length > 0);
-                for (EventBean theEvent : events)
-                {
+                for (EventBean theEvent : events) {
                     assertConsistencyRecusive(theEvent, alreadySeenTypes);
                 }
             }
         }
     }
 
-    private static void assertConsistencyRecursive(EventType eventType, Set<EventType> alreadySeenTypes)
-    {
-        if (alreadySeenTypes.contains(eventType))
-        {
+    private static void assertConsistencyRecursive(EventType eventType, Set<EventType> alreadySeenTypes) {
+        if (alreadySeenTypes.contains(eventType)) {
             return;
         }
         alreadySeenTypes.add(eventType);
@@ -364,27 +296,21 @@ public class SupportEventTypeAssertionUtil
         assertConsistencyProperties(eventType);
 
         // test fragments
-        for (EventPropertyDescriptor descriptor : eventType.getPropertyDescriptors())
-        {
+        for (EventPropertyDescriptor descriptor : eventType.getPropertyDescriptors()) {
             String failedMessage = "failed assertion for property '" + descriptor.getPropertyName() + "' ";
-            if (!descriptor.isFragment())
-            {
+            if (!descriptor.isFragment()) {
                 ScopeTestHelper.assertNull(failedMessage, eventType.getFragmentType(descriptor.getPropertyName()));
                 continue;
             }
 
             FragmentEventType fragment = eventType.getFragmentType(descriptor.getPropertyName());
-            if (!descriptor.isRequiresIndex())
-            {
+            if (!descriptor.isRequiresIndex()) {
                 ScopeTestHelper.assertNotNull(failedMessage, fragment);
-                if (fragment.isIndexed())
-                {
+                if (fragment.isIndexed()) {
                     ScopeTestHelper.assertTrue(descriptor.isIndexed());
                 }
                 assertConsistencyRecursive(fragment.getFragmentType(), alreadySeenTypes);
-            }
-            else
-            {
+            } else {
                 fragment = eventType.getFragmentType(descriptor.getPropertyName() + "[0]");
                 ScopeTestHelper.assertNotNull(failedMessage, fragment);
                 ScopeTestHelper.assertTrue(descriptor.isIndexed());
@@ -393,13 +319,11 @@ public class SupportEventTypeAssertionUtil
         }
     }
 
-    private static void assertConsistencyProperties(EventType eventType)
-    {
+    private static void assertConsistencyProperties(EventType eventType) {
         List<String> propertyNames = new ArrayList<String>();
 
-        EventPropertyDescriptor properties[] = eventType.getPropertyDescriptors();
-        for (int i = 0; i < properties.length; i++)
-        {
+        EventPropertyDescriptor[] properties = eventType.getPropertyDescriptors();
+        for (int i = 0; i < properties.length; i++) {
             String propertyName = properties[i].getPropertyName();
             propertyNames.add(propertyName);
             String failedMessage = "failed assertion for property '" + propertyName + "' ";
@@ -408,16 +332,14 @@ public class SupportEventTypeAssertionUtil
             ScopeTestHelper.assertSame(properties[i], eventType.getPropertyDescriptor(propertyName));
 
             // test properties that can simply be in a property expression
-            if ((!properties[i].isRequiresIndex()) && (!properties[i].isRequiresMapkey()))
-            {
+            if ((!properties[i].isRequiresIndex()) && (!properties[i].isRequiresMapkey())) {
                 ScopeTestHelper.assertTrue(failedMessage, eventType.isProperty(propertyName));
                 ScopeTestHelper.assertSame(failedMessage, eventType.getPropertyType(propertyName), properties[i].getPropertyType());
                 ScopeTestHelper.assertNotNull(failedMessage, eventType.getGetter(propertyName));
             }
-            
+
             // test indexed property
-            if (properties[i].isIndexed())
-            {
+            if (properties[i].isIndexed()) {
                 String propertyNameIndexed = propertyName + "[0]";
                 ScopeTestHelper.assertTrue(failedMessage, eventType.isProperty(propertyNameIndexed));
                 ScopeTestHelper.assertNotNull(failedMessage, eventType.getPropertyType(propertyNameIndexed));
@@ -425,8 +347,7 @@ public class SupportEventTypeAssertionUtil
             }
 
             // test mapped property
-            if (properties[i].isRequiresMapkey())
-            {
+            if (properties[i].isRequiresMapkey()) {
                 String propertyNameMapped = propertyName + "('a')";
                 ScopeTestHelper.assertTrue(failedMessage, eventType.isProperty(propertyNameMapped));
                 ScopeTestHelper.assertNotNull(failedMessage, eventType.getPropertyType(propertyNameMapped));
@@ -435,12 +356,10 @@ public class SupportEventTypeAssertionUtil
 
             // consistent flags
             ScopeTestHelper.assertFalse(failedMessage, properties[i].isIndexed() && properties[i].isMapped());
-            if (properties[i].isRequiresIndex())
-            {
+            if (properties[i].isRequiresIndex()) {
                 ScopeTestHelper.assertTrue(failedMessage, properties[i].isIndexed());
             }
-            if (properties[i].isRequiresMapkey())
-            {
+            if (properties[i].isRequiresMapkey()) {
                 ScopeTestHelper.assertTrue(failedMessage, properties[i].isMapped());
             }
         }
@@ -449,38 +368,30 @@ public class SupportEventTypeAssertionUtil
         EPAssertionUtil.assertEqualsAnyOrder(eventType.getPropertyNames(), propertyNames.toArray());
     }
 
-    private static void writeIndent(StringWriter writer, int indent)
-    {
-        for (int i = 0; i < indent; i++)
-        {
+    private static void writeIndent(StringWriter writer, int indent) {
+        for (int i = 0; i < indent; i++) {
             writer.write(' ');
         }
     }
 
-    private static void writeValue(StringWriter writer, Object result)
-    {
-        if (result == null)
-        {
+    private static void writeValue(StringWriter writer, Object result) {
+        if (result == null) {
             writer.append("(null)");
             return;
         }
 
-        if (result.getClass().isArray())
-        {
+        if (result.getClass().isArray()) {
             writer.append("Array len=");
             writer.append(Integer.toString(Array.getLength(result)));
             writer.append("{");
             String delimiter = "";
-            for (int i = 0; i < Array.getLength(result); i++)
-            {
+            for (int i = 0; i < Array.getLength(result); i++) {
                 writer.append(delimiter);
                 writeValue(writer, Array.get(result, i));
                 delimiter = ", ";
             }
             writer.append("}");
-        }
-        else
-        {
+        } else {
             writer.append(result.toString());
         }
     }

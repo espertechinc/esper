@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Represents a create-variable syntax for creating a new variable.
  */
-public class CreateDataFlowClause implements Serializable
-{
+public class CreateDataFlowClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String dataFlowName;
@@ -33,9 +32,10 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param dataFlowName data flow name
-     * @param schemas schemas
-     * @param operators operators
+     * @param schemas      schemas
+     * @param operators    operators
      */
     public CreateDataFlowClause(String dataFlowName, List<CreateSchemaClause> schemas, List<DataFlowOperator> operators) {
         this.dataFlowName = dataFlowName;
@@ -45,6 +45,7 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Returns the data flow name.
+     *
      * @return name
      */
     public String getDataFlowName() {
@@ -53,6 +54,7 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Sets the data flow name.
+     *
      * @param dataFlowName name
      */
     public void setDataFlowName(String dataFlowName) {
@@ -61,6 +63,7 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Returns schemas.
+     *
      * @return schemas
      */
     public List<CreateSchemaClause> getSchemas() {
@@ -69,6 +72,7 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Sets schemas.
+     *
      * @param schemas schemas to set
      */
     public void setSchemas(List<CreateSchemaClause> schemas) {
@@ -77,6 +81,7 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Returns operators.
+     *
      * @return operator definitions
      */
     public List<DataFlowOperator> getOperators() {
@@ -85,6 +90,7 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Sets operators.
+     *
      * @param operators to define
      */
     public void setOperators(List<DataFlowOperator> operators) {
@@ -93,11 +99,11 @@ public class CreateDataFlowClause implements Serializable
 
     /**
      * Render as EPL.
-     * @param writer to output to
+     *
+     * @param writer    to output to
      * @param formatter to use
      */
-    public void toEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         writer.append("create dataflow ");
         writer.append(dataFlowName);
         if (schemas != null) {

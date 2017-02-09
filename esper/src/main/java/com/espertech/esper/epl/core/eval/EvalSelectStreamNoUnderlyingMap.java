@@ -29,8 +29,7 @@ public class EvalSelectStreamNoUnderlyingMap extends EvalSelectStreamBaseMap imp
         super(selectExprContext, resultEventType, namedStreams, usingWildcard);
     }
 
-    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return super.getSelectExprContext().getEventAdapterService().adapterForTypedMap(props, super.getResultEventType());
     }
 }

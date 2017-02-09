@@ -31,8 +31,7 @@ public class ContextPartitionIdManagerImpl implements ContextPartitionIdManager 
         while (true) {
             if (lastAssignedId < Integer.MAX_VALUE) {
                 lastAssignedId++;
-            }
-            else {
+            } else {
                 lastAssignedId = 0;
             }
 

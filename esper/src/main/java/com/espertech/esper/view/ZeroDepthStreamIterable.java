@@ -21,8 +21,7 @@ import java.util.Iterator;
  * Event stream implementation that does not keep any window by itself of the events coming into the stream,
  * however is itself iterable and keeps the last event.
  */
-public final class ZeroDepthStreamIterable implements EventStream
-{
+public final class ZeroDepthStreamIterable implements EventStream {
     private View[] children = ViewSupport.EMPTY_VIEW_ARRAY;
     private final EventType eventType;
     private EventBean lastInsertedEvent;
@@ -30,64 +29,54 @@ public final class ZeroDepthStreamIterable implements EventStream
 
     /**
      * Ctor.
+     *
      * @param eventType - type of event
      */
-    public ZeroDepthStreamIterable(EventType eventType)
-    {
+    public ZeroDepthStreamIterable(EventType eventType) {
         this.eventType = eventType;
     }
 
-    public void insert(EventBean[] events)
-    {
-        for (View childView : children)
-        {
+    public void insert(EventBean[] events) {
+        for (View childView : children) {
             childView.update(events, null);
         }
 
         lastInsertedEvents = events;
     }
 
-    public final void insert(EventBean theEvent)
-    {
+    public final void insert(EventBean theEvent) {
         // Get a new array created rather then re-use the old one since some client listeners
         // to this view may keep reference to the new data
         EventBean[] row = new EventBean[]{theEvent};
-        for (View childView : children)
-        {
+        for (View childView : children) {
             childView.update(row, null);
         }
 
         lastInsertedEvent = theEvent;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return eventType;
     }
 
-    public final Iterator<EventBean> iterator()
-    {
-        if (lastInsertedEvents != null)
-        {
+    public final Iterator<EventBean> iterator() {
+        if (lastInsertedEvents != null) {
             return new ArrayEventIterator(lastInsertedEvents);
         }
         return new SingleEventIterator(lastInsertedEvent);
     }
 
-    public final View addView(View view)
-    {
+    public final View addView(View view) {
         children = ViewSupport.addView(children, view);
         view.setParent(this);
         return view;
     }
 
-    public final View[] getViews()
-    {
+    public final View[] getViews() {
         return children;
     }
 
-    public final boolean removeView(View view)
-    {
+    public final boolean removeView(View view) {
         int index = ViewSupport.findViewIndex(children, view);
         if (index == -1) {
             return false;
@@ -97,13 +86,11 @@ public final class ZeroDepthStreamIterable implements EventStream
         return true;
     }
 
-    public final boolean hasViews()
-    {
+    public final boolean hasViews() {
         return children.length > 0;
     }
 
-    public void removeAllViews()
-    {
+    public void removeAllViews() {
         children = ViewSupport.EMPTY_VIEW_ARRAY;
     }
 }

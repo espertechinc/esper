@@ -26,21 +26,18 @@ public class StatementResourceHolderUtil {
             holder.setAggregationService(selectResult.getOptionalAggegationService());
             holder.setSubselectStrategies(selectResult.getSubselectStrategies());
             holder.setPostLoad(selectResult.getOptionalPostLoadJoin());
-        }
-        else if (startResult instanceof StatementAgentInstanceFactoryCreateWindowResult) {
+        } else if (startResult instanceof StatementAgentInstanceFactoryCreateWindowResult) {
             StatementAgentInstanceFactoryCreateWindowResult createResult = (StatementAgentInstanceFactoryCreateWindowResult) startResult;
-            holder.setTopViewables(new Viewable[] {createResult.getTopView()});
+            holder.setTopViewables(new Viewable[]{createResult.getTopView()});
             holder.setPostLoad(createResult.getPostLoad());
             holder.setNamedWindowProcessorInstance(createResult.getProcessorInstance());
-        }
-        else if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
+        } else if (startResult instanceof StatementAgentInstanceFactoryCreateTableResult) {
             StatementAgentInstanceFactoryCreateTableResult createResult = (StatementAgentInstanceFactoryCreateTableResult) startResult;
-            holder.setTopViewables(new Viewable[] {createResult.getFinalView()});
+            holder.setTopViewables(new Viewable[]{createResult.getFinalView()});
             holder.setAggregationService(createResult.getOptionalAggegationService());
-        }
-        else if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
+        } else if (startResult instanceof StatementAgentInstanceFactoryOnTriggerResult) {
             StatementAgentInstanceFactoryOnTriggerResult onTriggerResult = (StatementAgentInstanceFactoryOnTriggerResult) startResult;
-            holder.setPatternRoots(new EvalRootState[] {onTriggerResult.getOptPatternRoot()});
+            holder.setPatternRoots(new EvalRootState[]{onTriggerResult.getOptPatternRoot()});
             holder.setAggregationService(onTriggerResult.getOptionalAggegationService());
             holder.setSubselectStrategies(onTriggerResult.getSubselectStrategies());
         }

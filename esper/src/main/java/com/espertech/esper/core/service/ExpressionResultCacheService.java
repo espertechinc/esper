@@ -17,10 +17,8 @@ public class ExpressionResultCacheService {
 
     public ExpressionResultCacheService(final int declareExprCacheSize) {
         this.declareExprCacheSize = declareExprCacheSize;
-        this.threadCache = new ThreadLocal<ExpressionResultCacheServiceHolder>()
-        {
-            protected synchronized ExpressionResultCacheServiceHolder initialValue()
-            {
+        this.threadCache = new ThreadLocal<ExpressionResultCacheServiceHolder>() {
+            protected synchronized ExpressionResultCacheServiceHolder initialValue() {
                 return new ExpressionResultCacheServiceHolder(declareExprCacheSize);
             }
         };

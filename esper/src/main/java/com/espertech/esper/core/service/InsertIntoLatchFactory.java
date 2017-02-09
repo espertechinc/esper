@@ -18,8 +18,7 @@ import com.espertech.esper.timer.TimeSourceService;
  * Class to hold a current latch per statement that uses an insert-into stream (per statement and insert-into stream
  * relationship).
  */
-public class InsertIntoLatchFactory
-{
+public class InsertIntoLatchFactory {
     private final String name;
     private final boolean stateless;
     private final boolean useSpin;
@@ -31,29 +30,26 @@ public class InsertIntoLatchFactory
 
     /**
      * Ctor.
-     * @param name the factory name
-     * @param msecWait the number of milliseconds latches will await maximually
-     * @param locking the blocking strategy to employ
+     *
+     * @param name              the factory name
+     * @param msecWait          the number of milliseconds latches will await maximually
+     * @param locking           the blocking strategy to employ
      * @param timeSourceService time source provider
-     * @param stateless indicator whether stateless
+     * @param stateless         indicator whether stateless
      */
     public InsertIntoLatchFactory(String name, boolean stateless, long msecWait, ConfigurationEngineDefaults.Threading.Locking locking,
-                                  TimeSourceService timeSourceService)
-    {
+                                  TimeSourceService timeSourceService) {
         this.name = name;
         this.msecWait = msecWait;
         this.timeSourceService = timeSourceService;
         this.stateless = stateless;
 
-        useSpin = (locking == ConfigurationEngineDefaults.Threading.Locking.SPIN);
+        useSpin = locking == ConfigurationEngineDefaults.Threading.Locking.SPIN;
 
         // construct a completed latch as an initial root latch
-        if (useSpin)
-        {
+        if (useSpin) {
             currentLatchSpin = new InsertIntoLatchSpin(this);
-        }
-        else
-        {
+        } else {
             currentLatchWait = new InsertIntoLatchWait(this);
         }
     }
@@ -62,22 +58,19 @@ public class InsertIntoLatchFactory
      * Returns a new latch.
      * <p>
      * Need not be synchronized as there is one per statement and execution is during statement lock.
+     *
      * @param payload is the object returned by the await.
      * @return latch
      */
-    public Object newLatch(EventBean payload)
-    {
+    public Object newLatch(EventBean payload) {
         if (stateless) {
             return payload;
         }
-        if (useSpin)
-        {
+        if (useSpin) {
             InsertIntoLatchSpin nextLatch = new InsertIntoLatchSpin(this, currentLatchSpin, msecWait, payload);
             currentLatchSpin = nextLatch;
             return nextLatch;
-        }
-        else
-        {
+        } else {
             InsertIntoLatchWait nextLatch = new InsertIntoLatchWait(currentLatchWait, msecWait, payload);
             currentLatchWait.setLater(nextLatch);
             currentLatchWait = nextLatch;

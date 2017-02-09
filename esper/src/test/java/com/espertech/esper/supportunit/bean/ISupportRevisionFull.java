@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public interface ISupportRevisionFull
-{
+public interface ISupportRevisionFull {
     public String getK0();
+
     public String getP0();
+
     public String getP1();
 }

@@ -24,8 +24,7 @@ import java.io.StringWriter;
  * <p>
  * May have one subnode depending on the cron parameter type.
  */
-public class ExprNumberSetCronParam extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprNumberSetCronParam extends ExprNodeBase implements ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetCronParam.class);
 
     private final CronOperatorEnum cronOperator;
@@ -34,24 +33,23 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprEvaluato
 
     /**
      * Ctor.
+     *
      * @param cronOperator type of cron parameter
      */
-    public ExprNumberSetCronParam(CronOperatorEnum cronOperator)
-    {
+    public ExprNumberSetCronParam(CronOperatorEnum cronOperator) {
         this.cronOperator = cronOperator;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
     /**
      * Returns the cron parameter type.
+     *
      * @return type of cron parameter
      */
-    public CronOperatorEnum getCronOperator()
-    {
+    public CronOperatorEnum getCronOperator() {
         return cronOperator;
     }
 
@@ -68,59 +66,46 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprEvaluato
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean isConstantResult()
-    {
-        if (this.getChildNodes().length == 0)
-        {
+    public boolean isConstantResult() {
+        if (this.getChildNodes().length == 0) {
             return true;
         }
         return this.getChildNodes()[0].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprNumberSetCronParam))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprNumberSetCronParam)) {
             return false;
         }
         ExprNumberSetCronParam other = (ExprNumberSetCronParam) node;
         return other.cronOperator.equals(this.cronOperator);
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length == 0)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length == 0) {
             return null;
         }
         evaluator = this.getChildNodes()[0].getExprEvaluator();
         Class type = evaluator.getType();
-        if (!(JavaClassHelper.isNumericNonFP(type)))
-        {
+        if (!(JavaClassHelper.isNumericNonFP(type))) {
             throw new ExprValidationException("Frequency operator requires an integer-type parameter");
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return CronParameter.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (this.getChildNodes().length == 0)
-        {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (this.getChildNodes().length == 0) {
             return new CronParameter(cronOperator, null);
         }
         Object value = evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (value == null)
-        {
+        if (value == null) {
             log.warn("Null value returned for cron parameter");
             return new CronParameter(cronOperator, null);
-        }
-        else
-        {
+        } else {
             int intValue = ((Number) value).intValue();
             return new CronParameter(cronOperator, intValue);
         }

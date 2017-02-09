@@ -21,79 +21,58 @@ import java.util.Map;
 /**
  * Getter for a dynamic mapped property (syntax field.mapped('key')?), using vanilla reflection.
  */
-public class DynamicMappedPropertyGetter extends DynamicPropertyGetterBase
-{
+public class DynamicMappedPropertyGetter extends DynamicPropertyGetterBase {
     private final String getterMethodName;
     private final Object[] parameters;
 
     /**
      * Ctor.
-     * @param fieldName property name
-     * @param key mapped access key
+     *
+     * @param fieldName           property name
+     * @param key                 mapped access key
      * @param eventAdapterService factory for event beans and event types
      */
-    public DynamicMappedPropertyGetter(String fieldName, String key, EventAdapterService eventAdapterService)
-    {
+    public DynamicMappedPropertyGetter(String fieldName, String key, EventAdapterService eventAdapterService) {
         super(eventAdapterService);
         getterMethodName = PropertyHelper.getGetterMethodName(fieldName);
-        this.parameters = new Object[] {key};
+        this.parameters = new Object[]{key};
     }
 
-    public Method determineMethod(Class clazz) throws PropertyAccessException
-    {
-        try
-        {
+    public Method determineMethod(Class clazz) throws PropertyAccessException {
+        try {
             return clazz.getMethod(getterMethodName, String.class);
-        }
-        catch (NoSuchMethodException ex1)
-        {
+        } catch (NoSuchMethodException ex1) {
             Method method;
-            try
-            {
+            try {
                 method = clazz.getMethod(getterMethodName);
-            }
-            catch (NoSuchMethodException e)
-            {
+            } catch (NoSuchMethodException e) {
                 return null;
             }
 
-            if (method.getReturnType() != Map.class)
-            {
+            if (method.getReturnType() != Map.class) {
                 return null;
             }
             return method;
         }
     }
 
-    protected Object call(DynamicPropertyDescriptor descriptor, Object underlying)
-    {
-        try
-        {
-            if (descriptor.isHasParameters())
-            {
+    protected Object call(DynamicPropertyDescriptor descriptor, Object underlying) {
+        try {
+            if (descriptor.isHasParameters()) {
                 return descriptor.getMethod().invoke(underlying, parameters);
-            }
-            else
-            {
+            } else {
                 Object result = descriptor.getMethod().invoke(underlying, null);
-                if ((result instanceof Map) && (result != null))
-                {
+                if ((result instanceof Map) && (result != null)) {
                     Map map = (Map) result;
                     return map.get(parameters[0]);
                 }
                 return null;
             }
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(descriptor.getMethod().getJavaMethod(), underlying, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(descriptor.getMethod().getJavaMethod(), e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(descriptor.getMethod().getJavaMethod(), e);
         }
     }

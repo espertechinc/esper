@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Factory for {@link CorrelationView} instances.
  */
-public class CorrelationViewFactory implements ViewFactory
-{
+public class CorrelationViewFactory implements ViewFactory {
     private List<ExprNode> viewParameters;
     private int streamNumber;
 
@@ -49,20 +48,17 @@ public class CorrelationViewFactory implements ViewFactory
      */
     protected EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
         this.streamNumber = viewFactoryContext.getStreamNum();
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
         if (validated.length < 2) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType())))
-        {
+        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType()))) {
             throw new ViewParameterException(getViewParamMessage());
         }
 
@@ -73,20 +69,16 @@ public class CorrelationViewFactory implements ViewFactory
         eventType = CorrelationView.createEventType(statementContext, additionalProps, streamNumber);
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new CorrelationView(this, agentInstanceViewFactoryContext.getAgentInstanceContext(), expressionX, expressionY, eventType, additionalProps);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof CorrelationView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof CorrelationView)) {
             return false;
         }
 
@@ -95,9 +87,8 @@ public class CorrelationViewFactory implements ViewFactory
         }
 
         CorrelationView other = (CorrelationView) view;
-        if ((!ExprNodeUtility.deepEquals(other.getExpressionX(), expressionX) ||
-            (!ExprNodeUtility.deepEquals(other.getExpressionY(), expressionY))))
-        {
+        if (!ExprNodeUtility.deepEquals(other.getExpressionX(), expressionX) ||
+                (!ExprNodeUtility.deepEquals(other.getExpressionY(), expressionY))) {
             return false;
         }
 

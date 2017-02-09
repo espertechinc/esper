@@ -13,8 +13,7 @@ package com.espertech.esper.adapter;
 /**
  * An InputAdapter takes some external data, converts it into events, and sends it into the runtime engine.
  */
-public interface InputAdapter extends Adapter
-{
+public interface InputAdapter extends Adapter {
     /**
      * Use for MapMessage events to indicate the event type name.
      */

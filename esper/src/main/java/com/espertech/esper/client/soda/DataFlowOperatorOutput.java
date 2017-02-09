@@ -30,8 +30,9 @@ public class DataFlowOperatorOutput implements Serializable {
 
     /**
      * Ctor.
+     *
      * @param streamName output stream name
-     * @param typeInfo type information
+     * @param typeInfo   type information
      */
     public DataFlowOperatorOutput(String streamName, List<DataFlowOperatorOutputType> typeInfo) {
         this.streamName = streamName;
@@ -40,6 +41,7 @@ public class DataFlowOperatorOutput implements Serializable {
 
     /**
      * Returns the output stream name.
+     *
      * @return stream name.
      */
     public String getStreamName() {
@@ -48,6 +50,7 @@ public class DataFlowOperatorOutput implements Serializable {
 
     /**
      * Sets the output stream name.
+     *
      * @param streamName stream name.
      */
     public void setStreamName(String streamName) {
@@ -56,6 +59,7 @@ public class DataFlowOperatorOutput implements Serializable {
 
     /**
      * Returns output port type information
+     *
      * @return type info
      */
     public List<DataFlowOperatorOutputType> getTypeInfo() {
@@ -64,6 +68,7 @@ public class DataFlowOperatorOutput implements Serializable {
 
     /**
      * Sets output port type information
+     *
      * @param typeInfo type info to use
      */
     public void setTypeInfo(List<DataFlowOperatorOutputType> typeInfo) {

@@ -24,25 +24,23 @@ import java.util.List;
 /**
  * Getter for a list property identified by a given index, using vanilla reflection.
  */
-public class ListMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed
-{
+public class ListMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed {
     private final Method method;
     private final int index;
 
     /**
      * Constructor.
-     * @param method is the method to use to retrieve a value from the object
-     * @param index is tge index within the array to get the property from
+     *
+     * @param method              is the method to use to retrieve a value from the object
+     * @param index               is tge index within the array to get the property from
      * @param eventAdapterService factory for event beans and event types
      */
-    public ListMethodPropertyGetter(Method method, int index, EventAdapterService eventAdapterService)
-    {
+    public ListMethodPropertyGetter(Method method, int index, EventAdapterService eventAdapterService) {
         super(eventAdapterService, JavaClassHelper.getGenericReturnType(method, false), null);
         this.index = index;
         this.method = method;
 
-        if (index < 0)
-        {
+        if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
     }
@@ -55,60 +53,44 @@ public class ListMethodPropertyGetter extends BaseNativePropertyGetter implement
         return getBeanPropInternal(object, index);
     }
 
-    public Object getBeanPropInternal(Object object, int index) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
+        try {
             Object value = method.invoke(object, (Object[]) null);
-            if (!(value instanceof List))
-            {
+            if (!(value instanceof List)) {
                 return null;
             }
             List valueList = (List) value;
-            if (valueList.size() <= index)
-            {
+            if (valueList.size() <= index) {
                 return null;
             }
             return valueList.get(index);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(method, e);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw PropertyUtility.getIllegalAccessException(method, e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw new PropertyAccessException(e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "ListMethodPropertyGetter " +
                 " method=" + method.toString() +
                 " index=" + index;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

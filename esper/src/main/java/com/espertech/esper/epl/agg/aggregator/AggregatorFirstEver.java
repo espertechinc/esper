@@ -13,32 +13,26 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Aggregator for the very first value.
  */
-public class AggregatorFirstEver implements AggregationMethod
-{
+public class AggregatorFirstEver implements AggregationMethod {
     protected boolean isSet;
     protected Object firstValue;
 
-    public void clear()
-    {
+    public void clear() {
         firstValue = null;
         isSet = false;
     }
 
-    public void enter(Object object)
-    {
-        if (!isSet)
-        {
+    public void enter(Object object) {
+        if (!isSet) {
             isSet = true;
             firstValue = object;
         }
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return firstValue;
     }
 

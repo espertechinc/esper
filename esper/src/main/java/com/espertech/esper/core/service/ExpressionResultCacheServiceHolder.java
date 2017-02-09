@@ -34,11 +34,9 @@ public class ExpressionResultCacheServiceHolder {
         if (declaredExprLastValue == null) {
             if (declareExprCacheSize < 1) {
                 declaredExprLastValue = new ExpressionResultCacheForDeclaredExprLastValueNone();
-            }
-            else if (declareExprCacheSize < 2) {
+            } else if (declareExprCacheSize < 2) {
                 declaredExprLastValue = new ExpressionResultCacheForDeclaredExprLastValueSingle();
-            }
-            else {
+            } else {
                 declaredExprLastValue = new ExpressionResultCacheForDeclaredExprLastValueMulti(declareExprCacheSize);
             }
         }

@@ -12,14 +12,13 @@ package com.espertech.esper.collection;
 
 import java.util.ArrayDeque;
 
-public final class TimeWindowIterator extends MixedEventBeanAndCollectionIteratorBase
-{
+public final class TimeWindowIterator extends MixedEventBeanAndCollectionIteratorBase {
     /**
      * Ctor.
+     *
      * @param window is the time-slotted collection
      */
-    public TimeWindowIterator(ArrayDeque<TimeWindowPair> window)
-    {
+    public TimeWindowIterator(ArrayDeque<TimeWindowPair> window) {
         super(window.iterator());
         init();
     }

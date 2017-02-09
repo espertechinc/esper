@@ -15,12 +15,12 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 import com.espertech.esper.client.dataflow.EPDataFlowSignalFinalMarker;
+import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.event.EventBeanSPI;
 import com.espertech.esper.event.util.EventTypePropertyPair;
 import com.espertech.esper.event.util.GetterPair;
 import com.espertech.esper.event.util.RendererMeta;
 import com.espertech.esper.event.util.RendererMetaOptions;
-import com.espertech.esper.dataflow.interfaces.*;
 import com.espertech.esper.util.FileUtil;
 
 import java.io.*;
@@ -69,19 +69,17 @@ public class FileSinkCSV implements DataFlowOpLifecycle, EPDataFlowSignalHandler
             int index = filename.lastIndexOf(File.separatorChar);
             if (index != -1) {
                 filenameCPDir = filename.substring(0, index);
-                filenameAlone = filename.substring(index+1);
-            }
-            else {
+                filenameAlone = filename.substring(index + 1);
+            } else {
                 index = filename.lastIndexOf('\\');
                 if (index != -1) {
                     filenameCPDir = filename.substring(0, index);
-                    filenameAlone = filename.substring(index+1);
-                }
-                else {
+                    filenameAlone = filename.substring(index + 1);
+                } else {
                     index = filename.lastIndexOf('/');
                     if (index != -1) {
                         filenameCPDir = filename.substring(0, index);
-                        filenameAlone = filename.substring(index+1);
+                        filenameAlone = filename.substring(index + 1);
                     }
                 }
             }
@@ -97,8 +95,7 @@ public class FileSinkCSV implements DataFlowOpLifecycle, EPDataFlowSignalHandler
                 throw new EPException("Failed to find filename in 'path/filename' format for '" + filename + "'");
             }
             file = new File(fileCP + File.separatorChar + filenameAlone);
-        }
-        else {
+        } else {
             file = new File(filename);
         }
 
@@ -109,9 +106,8 @@ public class FileSinkCSV implements DataFlowOpLifecycle, EPDataFlowSignalHandler
         try {
             fos = new FileOutputStream(file, append);
             writer = new OutputStreamWriter(fos);
-        }
-        catch (FileNotFoundException e) {
-             throw new EPException("Failed to open '" + file.getAbsolutePath() + "' for writing");
+        } catch (FileNotFoundException e) {
+            throw new EPException("Failed to open '" + file.getAbsolutePath() + "' for writing");
         }
     }
 
@@ -125,13 +121,11 @@ public class FileSinkCSV implements DataFlowOpLifecycle, EPDataFlowSignalHandler
             fos.flush();
             fos.getChannel().force(true);
             fos.getFD().sync();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             if (writer != null) {
                 try {
                     writer.close();
-                }
-                catch (IOException e1) {
+                } catch (IOException e1) {
                 }
                 writer = null;
             }
@@ -148,12 +142,10 @@ public class FileSinkCSV implements DataFlowOpLifecycle, EPDataFlowSignalHandler
         destroy();
     }
 
-    private static void recursiveRender(EventBean theEvent, StringBuilder buf, int level, RendererMeta meta, RendererMetaOptions rendererOptions)
-    {
+    private static void recursiveRender(EventBean theEvent, StringBuilder buf, int level, RendererMeta meta, RendererMetaOptions rendererOptions) {
         String delimiter = "";
         GetterPair[] simpleProps = meta.getSimpleProperties();
-        for (GetterPair simpleProp : simpleProps)
-        {
+        for (GetterPair simpleProp : simpleProps) {
             Object value = simpleProp.getGetter().get(theEvent);
             buf.append(delimiter);
             simpleProp.getOutput().render(value, buf);
@@ -166,16 +158,14 @@ public class FileSinkCSV implements DataFlowOpLifecycle, EPDataFlowSignalHandler
         if (writer != null) {
             try {
                 writer.close();
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
             }
             writer = null;
         }
         if (fos != null) {
             try {
                 fos.close();
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
             }
             fos = null;
         }

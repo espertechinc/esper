@@ -18,38 +18,32 @@ import java.sql.PreparedStatement;
 /**
  * Caches the Connection and PreparedStatement instance for reuse.
  */
-public class ConnectionCacheImpl extends ConnectionCache
-{
+public class ConnectionCacheImpl extends ConnectionCache {
     private Pair<Connection, PreparedStatement> cache;
 
     /**
      * Ctor.
+     *
      * @param databaseConnectionFactory - connection factory
-     * @param sql - statement sql
+     * @param sql                       - statement sql
      */
-    public ConnectionCacheImpl(DatabaseConnectionFactory databaseConnectionFactory, String sql)
-    {
+    public ConnectionCacheImpl(DatabaseConnectionFactory databaseConnectionFactory, String sql) {
         super(databaseConnectionFactory, sql);
     }
 
-    public Pair<Connection, PreparedStatement> getConnection()
-    {
-        if (cache == null)
-        {
+    public Pair<Connection, PreparedStatement> getConnection() {
+        if (cache == null) {
             cache = makeNew();
         }
         return cache;
     }
 
-    public void doneWith(Pair<Connection, PreparedStatement> pair)
-    {
+    public void doneWith(Pair<Connection, PreparedStatement> pair) {
         // no need to implement
     }
 
-    public void destroy()
-    {
-        if (cache != null)
-        {
+    public void destroy() {
+        if (cache != null) {
             close(cache);
         }
         cache = null;

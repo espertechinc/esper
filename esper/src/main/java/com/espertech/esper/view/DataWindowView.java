@@ -32,6 +32,5 @@ package com.espertech.esper.view;
  * not work correctly over time as events accumulate but are not removed from the view by means old data updates
  * received from a parent data window.
  */
-public interface DataWindowView extends View, ViewDataVisitable, GroupableView
-{
+public interface DataWindowView extends View, ViewDataVisitable, GroupableView {
 }

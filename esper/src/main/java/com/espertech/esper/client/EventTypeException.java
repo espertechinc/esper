@@ -13,16 +13,15 @@ package com.espertech.esper.client;
 /**
  * Indicates that a problem occurred looking up, assigning or creating and event type.
  */
-public class EventTypeException extends EPException
-{
+public class EventTypeException extends EPException {
     private static final long serialVersionUID = 6379075288506028975L;
 
     /**
      * Ctor.
+     *
      * @param message supplies exception details
      */
-    public EventTypeException(final String message)
-    {
+    public EventTypeException(final String message) {
         super(message);
     }
 }

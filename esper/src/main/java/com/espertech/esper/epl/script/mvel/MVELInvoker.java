@@ -36,33 +36,29 @@ public class MVELInvoker {
         assertClasspath(engineImportService);
         Method method;
         try {
-            method = mvelClass.getMethod("analysisCompile", new Class[] {String.class, parserContextClass});
-        }
-        catch (Exception e) {
+            method = mvelClass.getMethod("analysisCompile", new Class[]{String.class, parserContextClass});
+        } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
 
         try {
-            method.invoke(null, new Object[] {expression, parserContext});
-        }
-        catch (IllegalAccessException e) {
+            method.invoke(null, new Object[]{expression, parserContext});
+        } catch (IllegalAccessException e) {
             throw new EPException("Failed to access MVEL method: " + e.getMessage(), e);
         }
     }
 
-    public static Object compileExpression(String expression, Object parserContext)  throws InvocationTargetException {
+    public static Object compileExpression(String expression, Object parserContext) throws InvocationTargetException {
         Method method;
         try {
-            method = mvelClass.getMethod("compileExpression", new Class[] {String.class, parserContextClass});
-        }
-        catch (Exception e) {
+            method = mvelClass.getMethod("compileExpression", new Class[]{String.class, parserContextClass});
+        } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
 
         try {
-            return method.invoke(null, new Object[] {expression, parserContext});
-        }
-        catch (IllegalAccessException e) {
+            return method.invoke(null, new Object[]{expression, parserContext});
+        } catch (IllegalAccessException e) {
             throw new EPException("Failed to access MVEL method: " + e.getMessage(), e);
         }
     }
@@ -72,8 +68,7 @@ public class MVELInvoker {
 
         try {
             return parserContextClass.newInstance();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Failed to instantiate MVEL ParserContext: " + e.getMessage(), e);
         }
     }
@@ -83,17 +78,15 @@ public class MVELInvoker {
         try {
             method = parserContextClass.getMethod("getInputs", new Class[0]);
             return (Map<String, Class>) method.invoke(parserContext, null);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
     }
 
     public static Object executeExpression(Object executable, Map<String, Object> parameters) throws InvocationTargetException {
         try {
-            return executeExpressionMethod.invoke(null, new Object[] {executable, parameters});
-        }
-        catch (IllegalAccessException e) {
+            return executeExpressionMethod.invoke(null, new Object[]{executable, parameters});
+        } catch (IllegalAccessException e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
     }
@@ -103,8 +96,7 @@ public class MVELInvoker {
         try {
             method = parserContextClass.getMethod("setStrongTyping", boolean.class);
             method.invoke(parserContext, true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
     }
@@ -114,8 +106,7 @@ public class MVELInvoker {
         try {
             method = parserContextClass.getMethod("setInputs", Map.class);
             method.invoke(parserContext, mvelInputParamTypes);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
     }
@@ -125,8 +116,7 @@ public class MVELInvoker {
         try {
             method = execStatementClass.getMethod("getKnownEgressType", null);
             return (Class) method.invoke(compiled, null);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
         }
     }
@@ -137,9 +127,8 @@ public class MVELInvoker {
         execStatementClass = JavaClassHelper.getClassInClasspath("org.mvel2.compiler.ExecutableStatement", engineImportService.getClassForNameProvider());
         if (mvelClass != null) {
             try {
-                executeExpressionMethod = mvelClass.getMethod("executeExpression", new Class[] {Object.class, Map.class});
-            }
-            catch (NoSuchMethodException e) {
+                executeExpressionMethod = mvelClass.getMethod("executeExpression", new Class[]{Object.class, Map.class});
+            } catch (NoSuchMethodException e) {
                 throw new EPException("Failed to find MVEL method: " + e.getMessage(), e);
             }
         }

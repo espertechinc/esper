@@ -15,6 +15,8 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.core.eval.SelectExprStreamDesc;
 import com.espertech.esper.epl.spec.InsertIntoDesc;
 import com.espertech.esper.epl.spec.SelectClauseExprCompiledSpec;
@@ -22,10 +24,8 @@ import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.supportunit.bean.SupportBean;
-import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.supportunit.epl.SupportSelectExprFactory;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc1Stream;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportValueAddEventService;
 import junit.framework.TestCase;
@@ -33,13 +33,11 @@ import junit.framework.TestCase;
 import java.util.Collections;
 import java.util.List;
 
-public class TestSelectExprEvalProcessor extends TestCase
-{
+public class TestSelectExprEvalProcessor extends TestCase {
     private SelectExprProcessorHelper methodOne;
     private SelectExprProcessorHelper methodTwo;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         List<SelectClauseExprCompiledSpec> selectList = SupportSelectExprFactory.makeNoAggregateSelectList();
         EventAdapterService eventAdapterService = SupportEventAdapterService.getService();
         SupportValueAddEventService vaeService = new SupportValueAddEventService();
@@ -55,8 +53,7 @@ public class TestSelectExprEvalProcessor extends TestCase
         methodTwo = new SelectExprProcessorHelper(Collections.<Integer>emptyList(), selectList, Collections.<SelectExprStreamDesc>emptyList(), insertIntoDesc, null, false, new SupportStreamTypeSvc1Stream(), eventAdapterService, vaeService, selectExprEventTypeRegistry, engineImportService, 1, "stmtname", null, new Configuration(), null, new TableServiceImpl(), null);
     }
 
-    public void testGetResultEventType() throws Exception
-    {
+    public void testGetResultEventType() throws Exception {
         EventType type = methodOne.getEvaluator().getResultEventType();
         EPAssertionUtil.assertEqualsAnyOrder(type.getPropertyNames(), new String[]{"resultOne", "resultTwo"});
         assertEquals(Double.class, type.getPropertyType("resultOne"));
@@ -68,9 +65,8 @@ public class TestSelectExprEvalProcessor extends TestCase
         assertEquals(Integer.class, type.getPropertyType("b"));
     }
 
-    public void testProcess() throws Exception
-    {
-        EventBean[] events = new EventBean[] {makeEvent(8.8, 3, 4)};
+    public void testProcess() throws Exception {
+        EventBean[] events = new EventBean[]{makeEvent(8.8, 3, 4)};
 
         EventBean result = methodOne.getEvaluator().process(events, true, false, null);
         assertEquals(8.8d, result.get("resultOne"));
@@ -82,8 +78,7 @@ public class TestSelectExprEvalProcessor extends TestCase
         assertSame(result.getEventType(), methodTwo.getEvaluator().getResultEventType());
     }
 
-    private EventBean makeEvent(double doubleBoxed, int intPrimitive, int intBoxed)
-    {
+    private EventBean makeEvent(double doubleBoxed, int intPrimitive, int intBoxed) {
         SupportBean bean = new SupportBean();
         bean.setDoubleBoxed(doubleBoxed);
         bean.setIntPrimitive(intPrimitive);

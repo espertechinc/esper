@@ -10,27 +10,23 @@
  */
 package com.espertech.esper.example.qos_sla.monitor;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AverageLatencyListener implements UpdateListener
-{
+public class AverageLatencyListener implements UpdateListener {
     private long alertThreshold;
 
-    public AverageLatencyListener(long alertThreshold)
-    {
+    public AverageLatencyListener(long alertThreshold) {
         this.alertThreshold = alertThreshold;
     }
 
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
         long count = (Long) newEvents[0].get("datapoints");
         double avg = (Double) newEvents[0].get("average");
 
-        if ((count < 100) || (avg < alertThreshold))
-        {
+        if ((count < 100) || (avg < alertThreshold)) {
             return;
         }
 

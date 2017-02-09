@@ -30,16 +30,14 @@ import java.util.Collection;
 /**
  * Represents a custom aggregation function in an expresson tree.
  */
-public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode, ExprAggregationPlugInNodeMarker
-{
+public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode, ExprAggregationPlugInNodeMarker {
     private static final long serialVersionUID = 6356766499476980697L;
     private PlugInAggregationMultiFunctionFactory pluginAggregationMultiFunctionFactory;
     private final String functionName;
     private final ConfigurationPlugInAggregationMultiFunction config;
     private transient ExprPlugInAggMultiFunctionNodeFactory factory;
 
-    public ExprPlugInAggMultiFunctionNode(boolean distinct, ConfigurationPlugInAggregationMultiFunction config, PlugInAggregationMultiFunctionFactory pluginAggregationMultiFunctionFactory, String functionName)
-    {
+    public ExprPlugInAggMultiFunctionNode(boolean distinct, ConfigurationPlugInAggregationMultiFunction config, PlugInAggregationMultiFunctionFactory pluginAggregationMultiFunctionFactory, String functionName) {
         super(distinct);
         this.pluginAggregationMultiFunctionFactory = pluginAggregationMultiFunctionFactory;
         this.functionName = functionName;
@@ -65,8 +63,7 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         return factory;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return functionName;
     }
 
@@ -101,8 +98,7 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         return super.aggregationResultFuture.getEventBean(column, eventsPerStream, isNewData, context);
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return false;
     }
 }

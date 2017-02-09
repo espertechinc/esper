@@ -16,8 +16,9 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 
-public class AggregationMethodFactoryUtil
-{
+import java.util.Locale;
+
+public class AggregationMethodFactoryUtil {
     public static void validateAggregationType(AggregationMethodFactory requiredFactory,
                                                AggregationMethodFactory providedFactory) throws ExprValidationException {
         if (!JavaClassHelper.isSubclassOrImplementsInterface(providedFactory.getClass(), requiredFactory.getClass())) {
@@ -35,11 +36,11 @@ public class AggregationMethodFactoryUtil
     }
 
     public static void validateAggregationInputType(Class requiredParam,
-                                                      Class providedParam) throws ExprValidationException {
+                                                    Class providedParam) throws ExprValidationException {
         Class boxedRequired = JavaClassHelper.getBoxedType(requiredParam);
         Class boxedProvided = JavaClassHelper.getBoxedType(providedParam);
         if (boxedRequired != boxedProvided &&
-            !JavaClassHelper.isSubclassOrImplementsInterface(boxedProvided, boxedRequired)) {
+                !JavaClassHelper.isSubclassOrImplementsInterface(boxedProvided, boxedRequired)) {
             throw new ExprValidationException("The required parameter type is " +
                     JavaClassHelper.getClassNameFullyQualPretty(requiredParam) +
                     " and provided is " +
@@ -59,8 +60,7 @@ public class AggregationMethodFactoryUtil
     }
 
     public static void validateAggregationUnbound(boolean requiredHasDataWindows, boolean providedHasDataWindows)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (requiredHasDataWindows != providedHasDataWindows) {
             throw new ExprValidationException("The aggregation declares " +
                     (requiredHasDataWindows ? "use with data windows" : "unbound") +
@@ -70,8 +70,7 @@ public class AggregationMethodFactoryUtil
     }
 
     public static void validateEventType(EventType requiredType, EventType providedType)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!EventTypeUtility.isTypeOrSubTypeOf(providedType, requiredType)) {
             throw new ExprValidationException("The required event type is '" +
                     requiredType.getName() +
@@ -80,9 +79,8 @@ public class AggregationMethodFactoryUtil
     }
 
     public static void validateAggFuncName(String requiredName, String providedName)
-            throws ExprValidationException
-    {
-        if (!requiredName.toLowerCase().equals(providedName)) {
+            throws ExprValidationException {
+        if (!requiredName.toLowerCase(Locale.ENGLISH).equals(providedName)) {
             throw new ExprValidationException("The required aggregation function name is '" +
                     requiredName + "' and provided is '" + providedName + "'");
         }

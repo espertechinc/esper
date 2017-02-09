@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * Represents a type definition for use with the create-schema syntax for creating a new event type.
  */
-public enum CreateSchemaClauseTypeDef implements Serializable
-{
+public enum CreateSchemaClauseTypeDef implements Serializable {
     /**
      * Variant type.
      */
@@ -45,19 +44,17 @@ public enum CreateSchemaClauseTypeDef implements Serializable
 
     /**
      * Write keyword according to type def.
+     *
      * @param writer to write to
      */
     public void write(StringWriter writer) {
         if (this == VARIANT) {
             writer.write(" variant");
-        }
-        else if (this == MAP) {
+        } else if (this == MAP) {
             writer.write(" map");
-        }
-        else if (this == OBJECTARRAY) {
+        } else if (this == OBJECTARRAY) {
             writer.write(" objectarray");
-        }
-        else if (this == AVRO) {
+        } else if (this == AVRO) {
             writer.write(" avro");
         }
     }

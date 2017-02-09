@@ -23,6 +23,7 @@ public class DataInputToObjectCollectorContext {
 
     /**
      * Returns the emitter.
+     *
      * @return emitter
      */
     public EPDataFlowEmitter getEmitter() {
@@ -31,6 +32,7 @@ public class DataInputToObjectCollectorContext {
 
     /**
      * Sets the emitter
+     *
      * @param emitter emitter
      */
     public void setEmitter(EPDataFlowEmitter emitter) {
@@ -39,6 +41,7 @@ public class DataInputToObjectCollectorContext {
 
     /**
      * Returns the data input.
+     *
      * @return data input
      */
     public DataInput getDataInput() {
@@ -47,6 +50,7 @@ public class DataInputToObjectCollectorContext {
 
     /**
      * Sets the data input.
+     *
      * @param dataInput data input
      */
     public void setDataInput(DataInput dataInput) {

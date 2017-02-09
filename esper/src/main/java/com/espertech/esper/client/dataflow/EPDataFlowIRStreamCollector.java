@@ -17,6 +17,7 @@ package com.espertech.esper.client.dataflow;
 public interface EPDataFlowIRStreamCollector {
     /**
      * Collect: use the context to transform statement output event(s) to data flow event(s).
+     *
      * @param context contains event bean, emitter and related information
      */
     public void collect(EPDataFlowIRStreamCollectorContext context);

@@ -24,8 +24,7 @@ public class ExprNodeUtilUnderlyingEvaluatorTable implements ExprEvaluator {
         this.tableMetadata = tableMetadata;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (eventsPerStream == null) {
             return null;
         }
@@ -36,8 +35,7 @@ public class ExprNodeUtilUnderlyingEvaluatorTable implements ExprEvaluator {
         return tableMetadata.getEventToPublic().convertToUnd(event, eventsPerStream, isNewData, context);
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 }

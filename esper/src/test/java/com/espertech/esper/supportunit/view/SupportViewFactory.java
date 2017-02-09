@@ -15,14 +15,15 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.view.*;
+import com.espertech.esper.view.View;
+import com.espertech.esper.view.ViewFactory;
+import com.espertech.esper.view.ViewFactoryContext;
+import com.espertech.esper.view.ViewParameterException;
 
 import java.util.List;
 
-public abstract class SupportViewFactory implements ViewFactory
-{
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParameters) throws ViewParameterException
-    {
+public abstract class SupportViewFactory implements ViewFactory {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParameters) throws ViewParameterException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -30,18 +31,15 @@ public abstract class SupportViewFactory implements ViewFactory
 
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

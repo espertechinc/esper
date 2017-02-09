@@ -18,18 +18,19 @@ import java.util.Collection;
  * Interface for a callback method to be called when an event matches a filter specification. Provided
  * as a convenience for use as a filter handle for registering with the {@link FilterService}.
  */
-public interface FilterHandleCallback extends FilterHandle
-{
+public interface FilterHandleCallback extends FilterHandle {
     /**
      * Indicate that an event was evaluated by the {@link com.espertech.esper.filter.FilterService}
      * which matches the filter specification {@link com.espertech.esper.filter.FilterSpecCompiled} associated with this callback.
-     * @param theEvent - the event received that matches the filter specification
+     *
+     * @param theEvent       - the event received that matches the filter specification
      * @param allStmtMatches - collection of matches that represent all matches for the same statement
      */
     public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches);
 
     /**
      * Returns true if the filter applies to subselects.
+     *
      * @return subselect filter
      */
     public boolean isSubSelect();

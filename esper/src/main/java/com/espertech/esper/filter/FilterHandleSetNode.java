@@ -24,8 +24,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * Events are evaluated by asking each of the indizes to evaluate the event and by
  * adding any filter callbacks in this node to the "matches" list of callbacks.
  */
-public final class FilterHandleSetNode implements EventEvaluator
-{
+public final class FilterHandleSetNode implements EventEvaluator {
     private final ReadWriteLock nodeRWLock;
     private final Set<FilterHandle> callbackSet;
     private final List<FilterParamIndexBase> indizes;
@@ -40,10 +39,10 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Returns an indication of whether there are any callbacks or index nodes at all in this set.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @return true if there are neither indizes nor filter callbacks stored, false if either exist.
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return callbackSet.isEmpty() && indizes.isEmpty();
     }
 
@@ -51,28 +50,28 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Returns the number of filter callbacks stored.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @return number of filter callbacks stored
      */
-    public int getFilterCallbackCount()
-    {
+    public int getFilterCallbackCount() {
         return callbackSet.size();
     }
 
     /**
      * Returns to lock to use for making changes to the filter callback or inzides collections stored by this node.
+     *
      * @return lock to use in multithreaded environment
      */
-    public final ReadWriteLock getNodeRWLock()
-    {
+    public final ReadWriteLock getNodeRWLock() {
         return nodeRWLock;
     }
 
     /**
      * Returns list of indexes - not returning an iterator. Client classes should not change this collection.
+     *
      * @return list of indizes
      */
-    public List<FilterParamIndexBase> getIndizes()
-    {
+    public List<FilterParamIndexBase> getIndizes() {
         return indizes;
     }
 
@@ -80,11 +79,11 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Evaluate an event by asking each index to match the event. Any filter callbacks at this node automatically
      * match the event and do not need to be further evaluated, and are thus added to the "matches" list of callbacks.
      * NOTE: This client should not use the lock before calling this method.
+     *
      * @param theEvent is the event wrapper supplying the event property values
-     * @param matches is the list of callbacks to add to for any matches found
+     * @param matches  is the list of callbacks to add to for any matches found
      */
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         nodeRWLock.readLock().lock();
         try {
             if (InstrumentationHelper.ENABLED) {
@@ -111,12 +110,10 @@ public final class FilterHandleSetNode implements EventEvaluator
             }
 
             // Add each filter callback stored in this node to the matching list
-            for (FilterHandle filterCallback : callbackSet)
-            {
+            for (FilterHandle filterCallback : callbackSet) {
                 matches.add(filterCallback);
             }
-        }
-        finally {
+        } finally {
             nodeRWLock.readLock().unlock();
         }
     }
@@ -125,11 +122,11 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Returns an indication whether the filter callback exists in this node.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @param filterCallback is the filter callback to check for
      * @return true if callback found, false if not
      */
-    public boolean contains(FilterHandle filterCallback)
-    {
+    public boolean contains(FilterHandle filterCallback) {
         return callbackSet.contains(filterCallback);
     }
 
@@ -137,10 +134,10 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Add an index. The same index can be added twice - there is no checking done.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @param index - index to add
      */
-    public final void add(FilterParamIndexBase index)
-    {
+    public final void add(FilterParamIndexBase index) {
         indizes.add(index);
     }
 
@@ -148,11 +145,11 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Remove an index, returning true if it was found and removed or false if not in collection.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @param index is the index to remove
      * @return true if found, false if not existing
      */
-    public final boolean remove(FilterParamIndexBase index)
-    {
+    public final boolean remove(FilterParamIndexBase index) {
         return indizes.remove(index);
     }
 
@@ -161,10 +158,10 @@ public final class FilterHandleSetNode implements EventEvaluator
      * If a client to the class needs to check that the callback already existed, the contains method does that.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @param filterCallback is the callback to add
      */
-    public final void add(FilterHandle filterCallback)
-    {
+    public final void add(FilterHandle filterCallback) {
         callbackSet.add(filterCallback);
     }
 
@@ -172,11 +169,11 @@ public final class FilterHandleSetNode implements EventEvaluator
      * Remove a filter callback, returning true if it was found and removed or false if not in collection.
      * NOTE: the client to this method must use the read-write lock of this object to lock, if required by the client
      * code.
+     *
      * @param filterCallback is the callback to remove
      * @return true if found, false if not existing
      */
-    public final boolean remove(FilterHandle filterCallback)
-    {
+    public final boolean remove(FilterHandle filterCallback) {
         return callbackSet.remove(filterCallback);
     }
 

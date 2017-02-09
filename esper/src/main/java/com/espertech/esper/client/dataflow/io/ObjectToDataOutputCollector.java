@@ -18,6 +18,7 @@ import java.io.IOException;
 public interface ObjectToDataOutputCollector {
     /**
      * Write the received object to {@link java.io.DataOutput}.
+     *
      * @param context the object and output
      * @throws IOException when the write operation failed
      */

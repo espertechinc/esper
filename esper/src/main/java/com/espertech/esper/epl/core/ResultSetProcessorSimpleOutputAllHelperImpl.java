@@ -20,8 +20,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
 
-public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetProcessorSimpleOutputAllHelper
-{
+public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetProcessorSimpleOutputAllHelper {
     private final ResultSetProcessorSimple processor;
 
     private final Deque<EventBean> eventsNewView = new ArrayDeque<EventBean>(2);
@@ -44,9 +43,13 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
             for (EventBean theEvent : newData) {
                 eventsPerStream[0] = theEvent;
 
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
+                }
                 Boolean passesHaving = (Boolean) processor.prototype.getOptionalHavingExpr().evaluate(eventsPerStream, true, processor.exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
+                }
                 if ((passesHaving == null) || (!passesHaving)) {
                     continue;
                 }
@@ -57,9 +60,13 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
             for (EventBean theEvent : oldData) {
                 eventsPerStream[0] = theEvent;
 
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
+                }
                 Boolean passesHaving = (Boolean) processor.prototype.getOptionalHavingExpr().evaluate(eventsPerStream, false, processor.exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
+                }
                 if ((passesHaving == null) || (!passesHaving)) {
                     continue;
                 }
@@ -76,9 +83,13 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
 
         if (newEvents != null && newEvents.size() > 0) {
             for (MultiKey<EventBean> theEvent : newEvents) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());
+                }
                 Boolean passesHaving = (Boolean) processor.prototype.getOptionalHavingExpr().evaluate(theEvent.getArray(), true, processor.exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
+                }
                 if ((passesHaving == null) || (!passesHaving)) {
                     continue;
                 }
@@ -88,9 +99,13 @@ public class ResultSetProcessorSimpleOutputAllHelperImpl implements ResultSetPro
         if (oldEvents != null && oldEvents.size() > 0) {
             for (MultiKey<EventBean> theEvent : oldEvents) {
 
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseJoin(theEvent.getArray());
+                }
                 Boolean passesHaving = (Boolean) processor.prototype.getOptionalHavingExpr().evaluate(theEvent.getArray(), false, processor.exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
+                }
                 if ((passesHaving == null) || (!passesHaving)) {
                     continue;
                 }

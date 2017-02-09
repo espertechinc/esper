@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventBean;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IntersectDefaultViewLocalState
-{
+public class IntersectDefaultViewLocalState {
     private final EventBean[][] oldEventsPerView;
     private final Set<EventBean> removalEvents = new HashSet<EventBean>();
     private boolean hasRemovestreamData;

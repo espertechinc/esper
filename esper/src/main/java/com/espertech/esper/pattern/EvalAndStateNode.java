@@ -21,20 +21,19 @@ import java.util.*;
 /**
  * This class represents the state of an "and" operator in the evaluation state tree.
  */
-public class EvalAndStateNode extends EvalStateNode implements Evaluator
-{
+public class EvalAndStateNode extends EvalStateNode implements Evaluator {
     protected final EvalAndNode evalAndNode;
     protected final EvalStateNode[] activeChildNodes;
     protected Object[] eventsPerChild;
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode  is the parent evaluator to call to indicate truth value
      * @param evalAndNode is the factory node associated to the state
      */
     public EvalAndStateNode(Evaluator parentNode,
-                                  EvalAndNode evalAndNode)
-    {
+                            EvalAndNode evalAndNode) {
         super(parentNode);
 
         this.evalAndNode = evalAndNode;
@@ -48,8 +47,7 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
             for (Object entry : eventsPerChild) {
                 if (entry instanceof MatchedEventMap) {
                     quit = PatternConsumptionUtil.containsEvent(matchEvent, (MatchedEventMap) entry);
-                }
-                else if (entry != null) {
+                } else if (entry != null) {
                     List<MatchedEventMap> list = (List<MatchedEventMap>) entry;
                     for (MatchedEventMap map : list) {
                         quit = PatternConsumptionUtil.containsEvent(matchEvent, map);
@@ -81,25 +79,26 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         return evalAndNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternAndStart(evalAndNode, beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternAndStart(evalAndNode, beginState);
+        }
         // In an "and" expression we need to create a state for all child listeners
         int count = 0;
-        for (EvalNode node : evalAndNode.getChildNodes())
-        {
+        for (EvalNode node : evalAndNode.getChildNodes()) {
             EvalStateNode childState = node.newState(this, null, 0L);
             activeChildNodes[count++] = childState;
         }
 
         // Start all child nodes
-        for (EvalStateNode child : activeChildNodes)
-        {
+        for (EvalStateNode child : activeChildNodes) {
             if (child != null) {
                 child.start(beginState);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternAndStart();
+        }
     }
 
     public boolean isFilterStateNode() {
@@ -118,12 +117,13 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         return false;
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternAndEvaluateTrue(evalAndNode, matchEvent);}
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternAndEvaluateTrue(evalAndNode, matchEvent);
+        }
 
         Integer indexFrom = null;
-        for (int i = 0 ; i < activeChildNodes.length; i++) {
+        for (int i = 0; i < activeChildNodes.length; i++) {
             if (activeChildNodes[i] == fromNode) {
                 indexFrom = i;
             }
@@ -135,7 +135,9 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         }
 
         if (eventsPerChild == null || indexFrom == null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndEvaluateTrue(true);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aPatternAndEvaluateTrue(true);
+            }
             return;
         }
 
@@ -151,7 +153,9 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         // if we don't have events from all child nodes, add event and done
         if (!allHaveEventsExcludingFromChild) {
             addMatchEvent(eventsPerChild, indexFrom, matchEvent);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndEvaluateTrue(false);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aPatternAndEvaluateTrue(false);
+            }
             return;
         }
 
@@ -177,37 +181,35 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
 
         // Check if this is quitting
         boolean quitted = true;
-        if (hasActive)
-        {
-            for (EvalStateNode stateNode : activeChildNodes)
-            {
-                if (stateNode != null && !(stateNode.isNotOperator()))
-                {
+        if (hasActive) {
+            for (EvalStateNode stateNode : activeChildNodes) {
+                if (stateNode != null && !(stateNode.isNotOperator())) {
                     quitted = false;
                 }
             }
         }
 
         // So we are quitting if all non-not child nodes have quit, since the not-node wait for evaluate false
-        if (quitted)
-        {
+        if (quitted) {
             quitInternal();
         }
 
         // Send results to parent
-        for (MatchedEventMap theEvent : result)
-        {
+        for (MatchedEventMap theEvent : result) {
             this.getParentEvaluator().evaluateTrue(theEvent, this, quitted);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndEvaluateTrue(eventsPerChild == null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternAndEvaluateTrue(eventsPerChild == null);
+        }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternAndEvaluateFalse(evalAndNode);}
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternAndEvaluateFalse(evalAndNode);
+        }
         Integer indexFrom = null;
-        for (int i = 0 ; i < activeChildNodes.length; i++) {
+        for (int i = 0; i < activeChildNodes.length; i++) {
             if (activeChildNodes[i] == fromNode) {
                 activeChildNodes[i] = null;
                 indexFrom = i;
@@ -221,32 +223,31 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         // The and node cannot turn true anymore, might as well quit all child nodes
         quitInternal();
         this.getParentEvaluator().evaluateFalse(this, restartable ? true : false);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndEvaluateFalse();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternAndEvaluateFalse();
+        }
     }
 
     /**
      * Generate a list of matching event combinations constisting of the events per child that are passed in.
-     * @param matchEvent can be populated with prior events that must be passed on
+     *
+     * @param matchEvent     can be populated with prior events that must be passed on
      * @param eventsPerChild is the list of events for each child node to the "And" node.
-     * @param indexFrom from-index
+     * @param indexFrom      from-index
      * @return list of events populated with all possible combinations
      */
     public static List<MatchedEventMap> generateMatchEvents(MatchedEventMap matchEvent,
-                                                              Object[] eventsPerChild,
-                                                              int indexFrom)
-    {
+                                                            Object[] eventsPerChild,
+                                                            int indexFrom) {
         // Place event list for each child state node into an array, excluding the node where the event came from
         ArrayList<List<MatchedEventMap>> listArray = new ArrayList<List<MatchedEventMap>>();
         int index = 0;
-        for (int i = 0; i < eventsPerChild.length; i++)
-        {
+        for (int i = 0; i < eventsPerChild.length; i++) {
             Object eventsChild = eventsPerChild[i];
-            if (indexFrom != i && eventsChild != null)
-            {
+            if (indexFrom != i && eventsChild != null) {
                 if (eventsChild instanceof MatchedEventMap) {
-                    listArray.add(index++, Collections.singletonList((MatchedEventMap)eventsChild));
-                }
-                else {
+                    listArray.add(index++, Collections.singletonList((MatchedEventMap) eventsChild));
+                } else {
                     listArray.add(index++, (List<MatchedEventMap>) eventsChild);
                 }
             }
@@ -262,48 +263,46 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
     /**
      * For each combination of MatchedEventMap instance in all collections, add an entry to the list.
      * Recursive method.
-     * @param eventList is an array of lists containing MatchedEventMap instances to combine
-     * @param index is the current index into the array
-     * @param result is the resulting list of MatchedEventMap
+     *
+     * @param eventList  is an array of lists containing MatchedEventMap instances to combine
+     * @param index      is the current index into the array
+     * @param result     is the resulting list of MatchedEventMap
      * @param matchEvent is the start MatchedEventMap to generate from
      */
     protected static void generateMatchEvents(ArrayList<List<MatchedEventMap>> eventList,
-                                                   int index,
-                                                   List<MatchedEventMap> result,
-                                                   MatchedEventMap matchEvent)
-    {
+                                              int index,
+                                              List<MatchedEventMap> result,
+                                              MatchedEventMap matchEvent) {
         List<MatchedEventMap> events = eventList.get(index);
 
-        for (MatchedEventMap theEvent : events)
-        {
+        for (MatchedEventMap theEvent : events) {
             MatchedEventMap current = matchEvent.shallowCopy();
             current.merge(theEvent);
 
             // If this is the very last list in the array of lists, add accumulated MatchedEventMap events to result
-            if ((index + 1) == eventList.size())
-            {
+            if ((index + 1) == eventList.size()) {
                 result.add(current);
-            }
-            else
-            {
+            } else {
                 // make a copy of the event collection and hand to next list of events
                 generateMatchEvents(eventList, index + 1, result, current);
             }
         }
     }
 
-    public final void quit()
-    {
+    public final void quit() {
         if (eventsPerChild == null) {
             return;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternAndQuit(evalAndNode);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternAndQuit(evalAndNode);
+        }
         quitInternal();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternAndQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternAndQuit();
+        }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitAnd(evalAndNode.getFactoryNode(), this, eventsPerChild);
         for (EvalStateNode node : activeChildNodes) {
             if (node != null) {
@@ -312,8 +311,7 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalAndStateNode";
     }
 
@@ -321,23 +319,19 @@ public class EvalAndStateNode extends EvalStateNode implements Evaluator
         Object matchEventHolder = eventsPerChild[indexFrom];
         if (matchEventHolder == null) {
             eventsPerChild[indexFrom] = matchEvent;
-        }
-        else if (matchEventHolder instanceof MatchedEventMap) {
+        } else if (matchEventHolder instanceof MatchedEventMap) {
             List<MatchedEventMap> list = new ArrayList<MatchedEventMap>(4);
             list.add((MatchedEventMap) matchEventHolder);
             list.add(matchEvent);
             eventsPerChild[indexFrom] = list;
-        }
-        else {
+        } else {
             List<MatchedEventMap> list = (List<MatchedEventMap>) matchEventHolder;
             list.add(matchEvent);
         }
     }
 
-    private void quitInternal()
-    {
-        for (EvalStateNode child : activeChildNodes)
-        {
+    private void quitInternal() {
+        for (EvalStateNode child : activeChildNodes) {
             if (child != null) {
                 child.quit();
             }

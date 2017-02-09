@@ -12,25 +12,23 @@ package com.espertech.esper.view.stat;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
 import com.espertech.esper.supportunit.view.SupportBeanClassView;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
 import com.espertech.esper.view.ViewFieldEnum;
 import junit.framework.TestCase;
 
 import java.util.Iterator;
 
-public class TestWeightedAverageView extends TestCase
-{
+public class TestWeightedAverageView extends TestCase {
     private WeightedAverageView myView;
     private SupportBeanClassView childView;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         // Set up sum view and a test child view
         EventType type = WeightedAverageView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         WeightedAverageViewFactory factory = new WeightedAverageViewFactory();
@@ -38,14 +36,13 @@ public class TestWeightedAverageView extends TestCase
         factory.setEventType(type);
         factory.setFieldNameWeight(SupportExprNodeFactory.makeIdentNodeMD("volume"));
         myView = new WeightedAverageView(factory, SupportStatementContextFactory.makeAgentInstanceViewFactoryContext());
-        
+
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         myView.addView(childView);
     }
 
     // Check values against Microsoft Excel computed values
-    public void testViewComputedValues()
-    {
+    public void testViewComputedValues() {
         // Set up feed for sum view
         SupportStreamImpl stream = new SupportStreamImpl(SupportMarketDataBean.class, 3);
         stream.addView(myView);
@@ -75,20 +72,17 @@ public class TestWeightedAverageView extends TestCase
         checkNew(10.59756098);
     }
 
-    public void testGetSchema()
-    {
+    public void testGetSchema() {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception
-    {
+    public void testCopyView() throws Exception {
         WeightedAverageView copied = (WeightedAverageView) myView.cloneView();
         assertTrue(myView.getFieldNameWeight().equals(copied.getFieldNameWeight()));
         assertTrue(myView.getFieldNameX().equals(copied.getFieldNameX()));
     }
 
-    private void checkNew(double avgE)
-    {
+    private void checkNew(double avgE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), avgE);
         assertTrue(iterator.hasNext() == false);
@@ -98,27 +92,23 @@ public class TestWeightedAverageView extends TestCase
         checkValues(childViewValues, avgE);
     }
 
-    private void checkOld(double avgE)
-    {
+    private void checkOld(double avgE) {
         assertTrue(childView.getLastOldData().length == 1);
         EventBean childViewValues = childView.getLastOldData()[0];
         checkValues(childViewValues, avgE);
     }
 
-    private void checkValues(EventBean values, double avgE)
-    {
+    private void checkValues(EventBean values, double avgE) {
         double avg = getDoubleValue(ViewFieldEnum.WEIGHTED_AVERAGE__AVERAGE, values);
 
-        assertTrue(DoubleValueAssertionUtil.equals(avg,  avgE, 6));
+        assertTrue(DoubleValueAssertionUtil.equals(avg, avgE, 6));
     }
 
-    private double getDoubleValue(ViewFieldEnum field, EventBean eventBean)
-    {
+    private double getDoubleValue(ViewFieldEnum field, EventBean eventBean) {
         return (Double) eventBean.get(field.getName());
     }
 
-    private EventBean makeBean(String symbol, double price, long volume)
-    {
+    private EventBean makeBean(String symbol, double price, long volume) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, volume, "");
         return SupportEventBeanFactory.createObject(bean);
     }

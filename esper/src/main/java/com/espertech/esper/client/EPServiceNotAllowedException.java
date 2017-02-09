@@ -13,12 +13,12 @@ package com.espertech.esper.client;
 /**
  * This exception is thrown to indicate that the operation is not allowed.
  */
-public class EPServiceNotAllowedException extends RuntimeException
-{
+public class EPServiceNotAllowedException extends RuntimeException {
     private static final long serialVersionUID = 7753532348030296756L;
 
     /**
      * Ctor.
+     *
      * @param message message
      */
     public EPServiceNotAllowedException(String message) {

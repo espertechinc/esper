@@ -1,12 +1,9 @@
 package com.espertech.esperio.socket;
 
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.net.ServerSocket;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 
 public class SupportSocketClientCSV {
 
@@ -18,8 +15,7 @@ public class SupportSocketClientCSV {
         wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
-    public void send(String csv) throws IOException
-    {
+    public void send(String csv) throws IOException {
         wr.write(csv);
         wr.flush();
     }

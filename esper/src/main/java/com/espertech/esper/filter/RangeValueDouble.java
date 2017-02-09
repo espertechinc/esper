@@ -16,48 +16,42 @@ import com.espertech.esper.pattern.MatchedEventMap;
 /**
  * A Double-typed value as a filter parameter representing a range.
  */
-public class RangeValueDouble implements FilterSpecParamRangeValue
-{
+public class RangeValueDouble implements FilterSpecParamRangeValue {
     private final double doubleValue;
     private static final long serialVersionUID = -7724314003290299382L;
 
     /**
      * Ctor.
+     *
      * @param doubleValue is the value of the range endpoint
      */
-    public RangeValueDouble(double doubleValue)
-    {
+    public RangeValueDouble(double doubleValue) {
         this.doubleValue = doubleValue;
     }
 
-    public final Double getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public final Double getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
         return doubleValue;
     }
 
     /**
      * Returns the constant value.
+     *
      * @return constant
      */
-    public double getDoubleValue()
-    {
+    public double getDoubleValue() {
         return doubleValue;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return Double.toString(doubleValue);
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof RangeValueDouble))
-        {
+        if (!(obj instanceof RangeValueDouble)) {
             return false;
         }
 
@@ -65,8 +59,7 @@ public class RangeValueDouble implements FilterSpecParamRangeValue
         return other.doubleValue == this.doubleValue;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         long temp = doubleValue != +0.0d ? Double.doubleToLongBits(doubleValue) : 0L;
         return (int) (temp ^ (temp >>> 32));
     }

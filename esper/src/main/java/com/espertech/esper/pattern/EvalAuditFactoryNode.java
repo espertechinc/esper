@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * This class represents an 'or' operator in the evaluation tree representing any event expressions.
  */
-public class EvalAuditFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalAuditFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = 6585271287552353699L;
     private final boolean auditPattern;
     private final boolean auditPatternInstance;
@@ -45,9 +44,8 @@ public class EvalAuditFactoryNode extends EvalNodeFactoryBase
         return patternExpr;
     }
 
-    public final String toString()
-    {
-        return ("EvalAuditFactoryNode children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalAuditFactoryNode children=" + this.getChildNodes().size();
     }
 
     public void decreaseRefCount(EvalAuditStateNode current, PatternContext patternContext) {

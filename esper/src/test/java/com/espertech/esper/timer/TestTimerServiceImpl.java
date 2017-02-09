@@ -10,25 +10,22 @@
  */
 package com.espertech.esper.timer;
 
-import junit.framework.*;
 import com.espertech.esper.supportunit.timer.SupportTimerCallback;
-import org.slf4j.LoggerFactory;
+import junit.framework.TestCase;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TestTimerServiceImpl extends TestCase
-{
+public class TestTimerServiceImpl extends TestCase {
     private SupportTimerCallback callback;
     private TimerServiceImpl service;
 
-    public void setUp()
-    {
+    public void setUp() {
         callback = new SupportTimerCallback();
         service = new TimerServiceImpl(null, 100);
         service.setCallback(callback);
     }
 
-    public void testClocking()
-    {
+    public void testClocking() {
         final int RESOLUTION = (int) service.getMsecTimerResolution();
 
         // Wait .55 sec
@@ -81,14 +78,10 @@ public class TestTimerServiceImpl extends TestCase
         assertTrue(callback.getCount() == 0);
     }
 
-    private void sleep(long msec)
-    {
-        try
-        {
+    private void sleep(long msec) {
+        try {
             Thread.sleep(msec);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             log.error("Interrupted: {}", e.getMessage(), e);
         }
     }

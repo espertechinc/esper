@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.type.RelationalOpEnum;
 
-public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilterAnalyzerDesc
-{
+public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilterAnalyzerDesc {
     private final DatetimeMethodEnum currentMethod;
     private final EventType[] typesPerStream;
     private final int targetStreamNum;
@@ -58,14 +57,12 @@ public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilte
             queryGraph.addRelationalOpStrict(targetStreamNum, targetEndExpr,
                     parameterStreamNum, parameterStartExpr,
                     RelationalOpEnum.LT);
-        }
-        else if (currentMethod == DatetimeMethodEnum.AFTER) {
+        } else if (currentMethod == DatetimeMethodEnum.AFTER) {
             // a.start > b.end
             queryGraph.addRelationalOpStrict(targetStreamNum, targetStartExpr,
                     parameterStreamNum, parameterEndExpr,
                     RelationalOpEnum.GT);
-        }
-        else if (currentMethod == DatetimeMethodEnum.COINCIDES) {
+        } else if (currentMethod == DatetimeMethodEnum.COINCIDES) {
             // a.startTimestamp = b.startTimestamp and a.endTimestamp = b.endTimestamp
             queryGraph.addStrictEquals(targetStreamNum, targetStartProp, targetStartExpr,
                     parameterStreamNum, parameterStartProp, parameterStartExpr);
@@ -77,8 +74,7 @@ public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilte
                 queryGraph.addStrictEquals(targetStreamNum, targetEndProp, leftEndExpr,
                         parameterStreamNum, parameterEndProp, rightEndExpr);
             }
-        }
-        else if (currentMethod == DatetimeMethodEnum.DURING || currentMethod == DatetimeMethodEnum.INCLUDES) {
+        } else if (currentMethod == DatetimeMethodEnum.DURING || currentMethod == DatetimeMethodEnum.INCLUDES) {
             // DURING:   b.startTimestamp < a.startTimestamp <= a.endTimestamp < b.endTimestamp
             // INCLUDES: a.startTimestamp < b.startTimestamp <= b.endTimestamp < a.endTimestamp
             RelationalOpEnum relop = currentMethod == DatetimeMethodEnum.DURING ? RelationalOpEnum.LT : RelationalOpEnum.GT;
@@ -89,8 +85,7 @@ public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilte
             queryGraph.addRelationalOpStrict(targetStreamNum, targetEndExpr,
                     parameterStreamNum, parameterEndExpr,
                     relop);
-        }
-        else if (currentMethod == DatetimeMethodEnum.FINISHES || currentMethod == DatetimeMethodEnum.FINISHEDBY) {
+        } else if (currentMethod == DatetimeMethodEnum.FINISHES || currentMethod == DatetimeMethodEnum.FINISHEDBY) {
             // FINISHES:   b.startTimestamp < a.startTimestamp and a.endTimestamp = b.endTimestamp
             // FINISHEDBY: a.startTimestamp < b.startTimestamp and a.endTimestamp = b.endTimestamp
             RelationalOpEnum relop = currentMethod == DatetimeMethodEnum.FINISHES ? RelationalOpEnum.LT : RelationalOpEnum.GT;
@@ -100,18 +95,15 @@ public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilte
 
             queryGraph.addStrictEquals(targetStreamNum, targetEndProp, targetEndExpr,
                     parameterStreamNum, parameterEndProp, parameterEndExpr);
-        }
-        else if (currentMethod == DatetimeMethodEnum.MEETS) {
+        } else if (currentMethod == DatetimeMethodEnum.MEETS) {
             // a.endTimestamp = b.startTimestamp
             queryGraph.addStrictEquals(targetStreamNum, targetEndProp, targetEndExpr,
                     parameterStreamNum, parameterStartProp, parameterStartExpr);
-        }
-        else if (currentMethod == DatetimeMethodEnum.METBY) {
+        } else if (currentMethod == DatetimeMethodEnum.METBY) {
             // a.startTimestamp = b.endTimestamp
             queryGraph.addStrictEquals(targetStreamNum, targetStartProp, targetStartExpr,
                     parameterStreamNum, parameterEndProp, parameterEndExpr);
-        }
-        else if (currentMethod == DatetimeMethodEnum.OVERLAPS || currentMethod == DatetimeMethodEnum.OVERLAPPEDBY) {
+        } else if (currentMethod == DatetimeMethodEnum.OVERLAPS || currentMethod == DatetimeMethodEnum.OVERLAPPEDBY) {
             // OVERLAPS:     a.startTimestamp < b.startTimestamp < a.endTimestamp < b.endTimestamp
             // OVERLAPPEDBY: b.startTimestamp < a.startTimestamp < b.endTimestamp < a.endTimestamp
             RelationalOpEnum relop = currentMethod == DatetimeMethodEnum.OVERLAPS ? RelationalOpEnum.LT : RelationalOpEnum.GT;
@@ -127,14 +119,12 @@ public class ExprDotNodeFilterAnalyzerDTIntervalDesc implements ExprDotNodeFilte
                 queryGraph.addRelationalOpStrict(parameterStreamNum, parameterStartExpr,
                         targetStreamNum, targetEndExpr,
                         RelationalOpEnum.LT);
-            }
-            else {
+            } else {
                 queryGraph.addRelationalOpStrict(targetStreamNum, targetStartExpr,
                         parameterStreamNum, parameterEndExpr,
                         RelationalOpEnum.LT);
             }
-        }
-        else if (currentMethod == DatetimeMethodEnum.STARTS || currentMethod == DatetimeMethodEnum.STARTEDBY) {
+        } else if (currentMethod == DatetimeMethodEnum.STARTS || currentMethod == DatetimeMethodEnum.STARTEDBY) {
             // STARTS:       a.startTimestamp = b.startTimestamp and a.endTimestamp < b.endTimestamp
             // STARTEDBY:    a.startTimestamp = b.startTimestamp and b.endTimestamp < a.endTimestamp
             queryGraph.addStrictEquals(targetStreamNum, targetStartProp, targetStartExpr,

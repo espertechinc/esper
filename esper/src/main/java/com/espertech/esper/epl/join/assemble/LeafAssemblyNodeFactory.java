@@ -15,20 +15,18 @@ import com.espertech.esper.util.IndentWriter;
 /**
  * Assembly node factory for an event stream that is a leaf with a no child nodes below it.
  */
-public class LeafAssemblyNodeFactory extends BaseAssemblyNodeFactory
-{
+public class LeafAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     /**
      * Ctor.
-     * @param streamNum - is the stream number
+     *
+     * @param streamNum  - is the stream number
      * @param numStreams - is the number of streams
      */
-    public LeafAssemblyNodeFactory(int streamNum, int numStreams)
-    {
+    public LeafAssemblyNodeFactory(int streamNum, int numStreams) {
         super(streamNum, numStreams);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("LeafAssemblyNode streamNum=" + streamNum);
     }
 

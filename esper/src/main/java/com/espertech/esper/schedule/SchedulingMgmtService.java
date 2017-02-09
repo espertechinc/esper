@@ -14,10 +14,10 @@ package com.espertech.esper.schedule;
  * Interface for a service that allocated schedule buckets for statements,
  * for controlling timer callback orders.
  */
-public interface SchedulingMgmtService
-{
+public interface SchedulingMgmtService {
     /**
      * Returns a bucket from which slots can be allocated for ordering concurrent callbacks.
+     *
      * @return bucket
      */
     public ScheduleBucket allocateBucket();

@@ -21,17 +21,13 @@ public class ContextControllerFactoryFactorySvcImpl implements ContextController
         ContextControllerFactory factory;
         if (detail instanceof ContextDetailInitiatedTerminated) {
             factory = new ContextControllerInitTermFactoryImpl(factoryContext, (ContextDetailInitiatedTerminated) detail);
-        }
-        else if (detail instanceof ContextDetailPartitioned) {
+        } else if (detail instanceof ContextDetailPartitioned) {
             factory = new ContextControllerPartitionedFactoryImpl(factoryContext, (ContextDetailPartitioned) detail, optFiltersNested);
-        }
-        else if (detail instanceof ContextDetailCategory) {
+        } else if (detail instanceof ContextDetailCategory) {
             factory = new ContextControllerCategoryFactoryImpl(factoryContext, (ContextDetailCategory) detail, optFiltersNested);
-        }
-        else if (detail instanceof ContextDetailHash) {
+        } else if (detail instanceof ContextDetailHash) {
             factory = new ContextControllerHashFactoryImpl(factoryContext, (ContextDetailHash) detail, optFiltersNested);
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Context detail " + detail + " is not yet supported in a nested context");
         }
 

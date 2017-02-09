@@ -25,20 +25,15 @@ public class EvalSelectWildcardSSWrapper extends EvalBaseMap implements SelectEx
         super(selectExprContext, resultEventType);
     }
 
-    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         // In case of a wildcard and single stream that is itself a
         // wrapper bean, we also need to add the map properties
-        DecoratingEventBean wrapper = (DecoratingEventBean)eventsPerStream[0];
-        if(wrapper != null)
-        {
+        DecoratingEventBean wrapper = (DecoratingEventBean) eventsPerStream[0];
+        if (wrapper != null) {
             Map<String, Object> map = wrapper.getDecoratingProperties();
-            if ((super.getExprNodes().length == 0) && (!map.isEmpty()))
-            {
+            if ((super.getExprNodes().length == 0) && (!map.isEmpty())) {
                 props = new HashMap<String, Object>(map);
-            }
-            else
-            {
+            } else {
                 props.putAll(map);
             }
         }

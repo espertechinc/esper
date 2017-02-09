@@ -14,8 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator
-{
+public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator {
     private final int streamNum;
     private final EventPropertyGetter propertyGetter;
     private final Class propertyType;
@@ -28,13 +27,15 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator
         this.identNode = identNode;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprIdent(identNode.getFullUnresolvedName());}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprIdent(identNode.getFullUnresolvedName());
+        }
         EventBean theEvent = eventsPerStream[streamNum];
-        if (theEvent == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprIdent(null);}
+        if (theEvent == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprIdent(null);
+            }
             return null;
         }
         if (InstrumentationHelper.ENABLED) {
@@ -56,15 +57,14 @@ public class ExprIdentNodeEvaluatorImpl implements ExprIdentNodeEvaluator
 
     /**
      * Returns true if the property exists, or false if not.
+     *
      * @param eventsPerStream each stream's events
-     * @param isNewData if the stream represents insert or remove stream
+     * @param isNewData       if the stream represents insert or remove stream
      * @return true if the property exists, false if not
      */
-    public boolean evaluatePropertyExists(EventBean[] eventsPerStream, boolean isNewData)
-    {
+    public boolean evaluatePropertyExists(EventBean[] eventsPerStream, boolean isNewData) {
         EventBean theEvent = eventsPerStream[streamNum];
-        if (theEvent == null)
-        {
+        if (theEvent == null) {
             return false;
         }
         return propertyGetter.isExistsProperty(theEvent);

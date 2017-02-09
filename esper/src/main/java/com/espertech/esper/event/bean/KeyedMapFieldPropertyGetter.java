@@ -23,19 +23,18 @@ import java.util.Map;
 /**
  * Getter for a key property identified by a given key value, using vanilla reflection.
  */
-public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped
-{
+public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped {
     private final Field field;
     private final Object key;
 
     /**
      * Constructor.
-     * @param field is the field to use to retrieve a value from the object.
-     * @param key is the key to supply as parameter to the mapped property getter
+     *
+     * @param field               is the field to use to retrieve a value from the object.
+     * @param key                 is the key to supply as parameter to the mapped property getter
      * @param eventAdapterService factory for event beans and event types
      */
-    public KeyedMapFieldPropertyGetter(Field field, Object key, EventAdapterService eventAdapterService)
-    {
+    public KeyedMapFieldPropertyGetter(Field field, Object key, EventAdapterService eventAdapterService) {
         super(eventAdapterService, JavaClassHelper.getGenericFieldTypeMap(field, false), null);
         this.key = key;
         this.field = field;
@@ -49,51 +48,39 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
         return getBeanPropInternal(object, key);
     }
 
-    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
+        try {
             Object result = field.get(object);
             if (!(result instanceof Map)) {
                 return null;
             }
             Map resultMap = (Map) result;
             return resultMap.get(key);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(field, object, e);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw PropertyUtility.getIllegalAccessException(field, e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(field, e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "KeyedMapFieldPropertyGetter " +
                 " field=" + field.toString() +
                 " key=" + key;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

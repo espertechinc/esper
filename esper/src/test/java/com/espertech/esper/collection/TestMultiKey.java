@@ -10,36 +10,33 @@
  */
 package com.espertech.esper.collection;
 
-import junit.framework.TestCase;
-
-import java.util.Set;
-import java.util.HashSet;
-
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
-public class TestMultiKey extends TestCase
-{
-    MultiKey<String> keys1 = new MultiKey<String>(new String[] {"a", "b" });
-    MultiKey<String> keys2 = new MultiKey<String>(new String[] {"a", "b"});
-    MultiKey<String> keys3 = new MultiKey<String>(new String[] {"a", null});
-    MultiKey<String> keys4 = new MultiKey<String>(new String[] {null, "b"});
-    MultiKey<String> keys5 = new MultiKey<String>(new String[] {null, null});
-    MultiKey<String> keys6 = new MultiKey<String>(new String[] {"a"});
-    MultiKey<String> keys7 = new MultiKey<String>(new String[] {"a", "b", "c"});
-    MultiKey<String> keys8 = new MultiKey<String>(new String[] {"a", "b", null});
-    MultiKey<String> keys9 = new MultiKey<String>(new String[] {"a", "b", "c", "d"});
-    MultiKey<String> keys10 = new MultiKey<String>(new String[] {"a", "b", "c", "d"});
-    MultiKey<String> keys11 = new MultiKey<String>(new String[] {"espera", "esperb"});
-    MultiKey<String> keys12 = new MultiKey<String>(new String[] {"esperc", "esperd"});
-    MultiKey<String> keys13 = new MultiKey<String>(new String[] {"espere", "esperf"});
+import java.util.HashSet;
+import java.util.Set;
 
-    public void testHashCode()
-    {
+public class TestMultiKey extends TestCase {
+    MultiKey<String> keys1 = new MultiKey<String>(new String[]{"a", "b"});
+    MultiKey<String> keys2 = new MultiKey<String>(new String[]{"a", "b"});
+    MultiKey<String> keys3 = new MultiKey<String>(new String[]{"a", null});
+    MultiKey<String> keys4 = new MultiKey<String>(new String[]{null, "b"});
+    MultiKey<String> keys5 = new MultiKey<String>(new String[]{null, null});
+    MultiKey<String> keys6 = new MultiKey<String>(new String[]{"a"});
+    MultiKey<String> keys7 = new MultiKey<String>(new String[]{"a", "b", "c"});
+    MultiKey<String> keys8 = new MultiKey<String>(new String[]{"a", "b", null});
+    MultiKey<String> keys9 = new MultiKey<String>(new String[]{"a", "b", "c", "d"});
+    MultiKey<String> keys10 = new MultiKey<String>(new String[]{"a", "b", "c", "d"});
+    MultiKey<String> keys11 = new MultiKey<String>(new String[]{"espera", "esperb"});
+    MultiKey<String> keys12 = new MultiKey<String>(new String[]{"esperc", "esperd"});
+    MultiKey<String> keys13 = new MultiKey<String>(new String[]{"espere", "esperf"});
+
+    public void testHashCode() {
         assertTrue(keys11.hashCode() != keys12.hashCode());
         assertTrue(keys12.hashCode() != keys13.hashCode());
 
-        assertTrue(keys1.hashCode() == ("a".hashCode()*31 ^ "b".hashCode()));
+        assertTrue(keys1.hashCode() == ("a".hashCode() * 31 ^ "b".hashCode()));
         assertTrue(keys3.hashCode() == "a".hashCode());
         assertTrue(keys4.hashCode() == "b".hashCode());
         assertTrue(keys5.hashCode() == 0);
@@ -54,8 +51,7 @@ public class TestMultiKey extends TestCase
         assertTrue(keys9.hashCode() == keys10.hashCode());
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         assertEquals(keys2, keys1);
         assertEquals(keys1, keys2);
 
@@ -79,8 +75,7 @@ public class TestMultiKey extends TestCase
         assertTrue(keys9.equals(keys10));
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         assertEquals(1, keys6.size());
         assertEquals(2, keys1.size());
         assertEquals(3, keys8.size());
@@ -92,13 +87,12 @@ public class TestMultiKey extends TestCase
         assertTrue("d" == keys10.get(3));
     }
 
-    public void testWithSet()
-    {
-        EventBean[][] testEvents = new EventBean[][] {
-            SupportEventBeanFactory.makeEvents(new String[] {"a", "b"}),
-            SupportEventBeanFactory.makeEvents(new String[] {"a"}),
-            SupportEventBeanFactory.makeEvents(new String[] {"a", "b", "c"}),
-            SupportEventBeanFactory.makeEvents(new String[] {"a", "b"}),
+    public void testWithSet() {
+        EventBean[][] testEvents = new EventBean[][]{
+                SupportEventBeanFactory.makeEvents(new String[]{"a", "b"}),
+                SupportEventBeanFactory.makeEvents(new String[]{"a"}),
+                SupportEventBeanFactory.makeEvents(new String[]{"a", "b", "c"}),
+                SupportEventBeanFactory.makeEvents(new String[]{"a", "b"}),
         };
 
         Set<MultiKey> mapSet = new HashSet<MultiKey>();

@@ -19,70 +19,59 @@ import org.w3c.dom.NodeList;
 /**
  * DOM getter for Map-property.
  */
-public class DOMMapGetter implements EventPropertyGetter, DOMPropertyGetter
-{
+public class DOMMapGetter implements EventPropertyGetter, DOMPropertyGetter {
     private final String propertyMap;
     private final String mapKey;
     private final FragmentFactory fragmentFactory;
 
     /**
      * Ctor.
-     * @param propertyName property name
-     * @param mapKey key in map
+     *
+     * @param propertyName    property name
+     * @param mapKey          key in map
      * @param fragmentFactory for creating fragments
      */
-    public DOMMapGetter(String propertyName, String mapKey, FragmentFactory fragmentFactory)
-    {
+    public DOMMapGetter(String propertyName, String mapKey, FragmentFactory fragmentFactory) {
         this.propertyMap = propertyName;
         this.mapKey = mapKey;
         this.fragmentFactory = fragmentFactory;
     }
 
-    public Node[] getValueAsNodeArray(Node node)
-    {
+    public Node[] getValueAsNodeArray(Node node) {
         return null;
     }
 
-    public Object getValueAsFragment(Node node)
-    {
-        if (fragmentFactory == null)
-        {
+    public Object getValueAsFragment(Node node) {
+        if (fragmentFactory == null) {
             return null;
         }
-        
+
         Node result = getValueAsNode(node);
-        if (result == null)
-        {
+        if (result == null) {
             return null;
         }
         return fragmentFactory.getEvent(result);
     }
 
-    public Node getValueAsNode(Node node)
-    {
+    public Node getValueAsNode(Node node) {
         NodeList list = node.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++)
-        {
+        for (int i = 0; i < list.getLength(); i++) {
             Node childNode = list.item(i);
             if (childNode == null) {
                 continue;
             }
-            if (childNode.getNodeType() != Node.ELEMENT_NODE)
-            {
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            if (!(childNode.getNodeName().equals(propertyMap)))
-            {
+            if (!(childNode.getNodeName().equals(propertyMap))) {
                 continue;
             }
 
             Node attribute = childNode.getAttributes().getNamedItem("id");
-            if (attribute == null)
-            {
+            if (attribute == null) {
                 continue;
             }
-            if (!(attribute.getTextContent().equals(mapKey)))
-            {
+            if (!(attribute.getTextContent().equals(mapKey))) {
                 continue;
             }
 
@@ -91,11 +80,9 @@ public class DOMMapGetter implements EventPropertyGetter, DOMPropertyGetter
         return null;
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         Object result = eventBean.getUnderlying();
-        if (!(result instanceof Node))
-        {
+        if (!(result instanceof Node)) {
             return null;
         }
         Node node = (Node) result;
@@ -103,38 +90,31 @@ public class DOMMapGetter implements EventPropertyGetter, DOMPropertyGetter
         return getValueAsNode(node);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Object result = eventBean.getUnderlying();
-        if (!(result instanceof Node))
-        {
+        if (!(result instanceof Node)) {
             return false;
         }
         Node node = (Node) result;
 
         NodeList list = node.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++)
-        {
+        for (int i = 0; i < list.getLength(); i++) {
             Node childNode = list.item(i);
             if (childNode == null) {
                 continue;
             }
-            if (childNode.getNodeType() != Node.ELEMENT_NODE)
-            {
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            if (!(childNode.getNodeName().equals(propertyMap)))
-            {
+            if (!(childNode.getNodeName().equals(propertyMap))) {
                 continue;
             }
 
             Node attribute = childNode.getAttributes().getNamedItem("id");
-            if (attribute == null)
-            {
+            if (attribute == null) {
                 continue;
             }
-            if (!(attribute.getTextContent().equals(mapKey)))
-            {
+            if (!(attribute.getTextContent().equals(mapKey))) {
                 continue;
             }
 
@@ -143,8 +123,7 @@ public class DOMMapGetter implements EventPropertyGetter, DOMPropertyGetter
         return false;
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 }

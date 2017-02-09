@@ -5,25 +5,19 @@ import com.espertech.esper.client.util.EventUnderlyingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SampleVirtualDataWindowMain
-{
+public class SampleVirtualDataWindowMain {
     private static final Logger log = LoggerFactory.getLogger(SampleVirtualDataWindowMain.class);
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         SampleVirtualDataWindowMain sample = new SampleVirtualDataWindowMain();
-        try
-        {
+        try {
             sample.run();
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             log.error("Unexpected exception :" + ex.getMessage(), ex);
         }
     }
 
-    public void run()
-    {
+    public void run() {
         log.info("Setting up engine instance.");
 
         Configuration config = new Configuration();
@@ -103,10 +97,10 @@ public class SampleVirtualDataWindowMain
 
         String onDelete =
                 "on SampleMergeEvent " +
-                "merge MySampleWindow " +
-                "where key1 = propOne " +
-                "when not matched then insert select propOne as key1, propTwo as key2, 0 as value1, 0d as value2 " +
-                "when matched then update set key2 = propTwo";
+                        "merge MySampleWindow " +
+                        "where key1 = propOne " +
+                        "when not matched then insert select propOne as key1, propTwo as key2, 0 as value1, 0d as value2 " +
+                        "when matched then update set key2 = propTwo";
 
         EPStatement stmt = epService.getEPAdministrator().createEPL(onDelete);
         SampleUpdateListener sampleListener = new SampleUpdateListener();

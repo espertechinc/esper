@@ -13,34 +13,31 @@ package com.espertech.esper.epl.metric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Metrics executor relying on a cached threadpool.
  */
-public class MetricsExecutorThreaded implements MetricsExecutor
-{
+public class MetricsExecutorThreaded implements MetricsExecutor {
     private static final Logger log = LoggerFactory.getLogger(MetricsExecutorThreaded.class);
     private final ExecutorService threadPool;
 
     /**
      * Ctor.
+     *
      * @param engineURI engine URI
      */
-    public MetricsExecutorThreaded(final String engineURI)
-    {
-        ThreadFactory threadFactory = new ThreadFactory()
-        {
+    public MetricsExecutorThreaded(final String engineURI) {
+        ThreadFactory threadFactory = new ThreadFactory() {
             AtomicInteger count = new AtomicInteger(0);
-            public Thread newThread(Runnable r)
-            {
+
+            public Thread newThread(Runnable r) {
                 String uri = engineURI;
-                if (engineURI == null)
-                {
+                if (engineURI == null) {
                     uri = "default";
                 }
                 Thread t = new Thread(r);
@@ -52,27 +49,21 @@ public class MetricsExecutorThreaded implements MetricsExecutor
         threadPool = Executors.newCachedThreadPool(threadFactory);
     }
 
-    public void execute(final MetricExec execution, final MetricExecutionContext executionContext)
-    {
+    public void execute(final MetricExec execution, final MetricExecutionContext executionContext) {
         Runnable runnable = new Runnable() {
-            public void run()
-            {
+            public void run() {
                 execution.execute(executionContext);
             }
         };
         threadPool.execute(runnable);
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         threadPool.shutdownNow();
-        
-        try
-        {
+
+        try {
             threadPool.awaitTermination(10, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             log.error("Interrupted", e);
         }
     }

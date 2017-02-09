@@ -22,8 +22,7 @@ import java.util.Iterator;
 /**
  * Base getter for native fragments.
  */
-public abstract class BaseNativePropertyGetter implements EventPropertyGetter
-{
+public abstract class BaseNativePropertyGetter implements EventPropertyGetter {
     private final EventAdapterService eventAdapterService;
     private volatile BeanEventType fragmentEventType;
     private final Class fragmentClassType;
@@ -33,27 +32,22 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetter
 
     /**
      * Constructor.
+     *
      * @param eventAdapterService factory for event beans and event types
-     * @param returnType type of the entry returned
-     * @param genericType type generic parameter, if any
+     * @param returnType          type of the entry returned
+     * @param genericType         type generic parameter, if any
      */
-    public BaseNativePropertyGetter(EventAdapterService eventAdapterService, Class returnType, Class genericType)
-    {
+    public BaseNativePropertyGetter(EventAdapterService eventAdapterService, Class returnType, Class genericType) {
         this.eventAdapterService = eventAdapterService;
-        if (returnType.isArray())
-        {
+        if (returnType.isArray()) {
             this.fragmentClassType = returnType.getComponentType();
             isArray = true;
             isIterable = false;
-        }
-        else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class))
-        {
+        } else if (JavaClassHelper.isImplementsInterface(returnType, Iterable.class)) {
             this.fragmentClassType = genericType;
             isArray = false;
             isIterable = true;
-        }
-        else
-        {
+        } else {
             this.fragmentClassType = returnType;
             isArray = false;
             isIterable = false;
@@ -63,51 +57,41 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetter
 
     /**
      * Returns the fragment for dynamic properties.
-     * @param object to inspect
+     *
+     * @param object              to inspect
      * @param eventAdapterService factory for event beans and event types
      * @return fragment
      */
-    public static Object getFragmentDynamic(Object object, EventAdapterService eventAdapterService)
-    {
-        if (object == null)
-        {
+    public static Object getFragmentDynamic(Object object, EventAdapterService eventAdapterService) {
+        if (object == null) {
             return null;
         }
 
         BeanEventType fragmentEventType = null;
         boolean isArray = false;
-        if (object.getClass().isArray())
-        {
-            if (JavaClassHelper.isFragmentableType(object.getClass().getComponentType()))
-            {
+        if (object.getClass().isArray()) {
+            if (JavaClassHelper.isFragmentableType(object.getClass().getComponentType())) {
                 isArray = true;
                 fragmentEventType = eventAdapterService.getBeanEventTypeFactory().createBeanTypeDefaultName(object.getClass().getComponentType());
             }
-        }
-        else
-        {
-            if (JavaClassHelper.isFragmentableType(object.getClass()))
-            {
+        } else {
+            if (JavaClassHelper.isFragmentableType(object.getClass())) {
                 fragmentEventType = eventAdapterService.getBeanEventTypeFactory().createBeanTypeDefaultName(object.getClass());
             }
         }
 
-        if (fragmentEventType == null)
-        {
+        if (fragmentEventType == null) {
             return null;
         }
 
-        if (isArray)
-        {
+        if (isArray) {
             int len = Array.getLength(object);
             EventBean[] events = new EventBean[len];
             int countFilled = 0;
 
-            for (int i = 0; i < len; i++)
-            {
+            for (int i = 0; i < len; i++) {
                 Object element = Array.get(object, i);
-                if (element == null)
-                {
+                if (element == null) {
                     continue;
                 }
 
@@ -115,110 +99,86 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetter
                 countFilled++;
             }
 
-            if (countFilled == len)
-            {
+            if (countFilled == len) {
                 return events;
             }
 
-            if (countFilled == 0)
-            {
+            if (countFilled == 0) {
                 return new EventBean[0];
             }
 
             EventBean[] returnVal = new EventBean[countFilled];
             System.arraycopy(events, 0, returnVal, 0, countFilled);
             return returnVal;
-        }
-        else
-        {
+        } else {
             return eventAdapterService.adapterForTypedBean(object, fragmentEventType);
         }
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         Object object = get(eventBean);
-        if (object == null)
-        {
+        if (object == null) {
             return null;
         }
 
-        if (!isFragmentable)
-        {
+        if (!isFragmentable) {
             return null;
         }
 
-        if (fragmentEventType == null)
-        {
-            if (JavaClassHelper.isFragmentableType(fragmentClassType))
-            {
+        if (fragmentEventType == null) {
+            if (JavaClassHelper.isFragmentableType(fragmentClassType)) {
                 fragmentEventType = eventAdapterService.getBeanEventTypeFactory().createBeanTypeDefaultName(fragmentClassType);
-            }
-            else
-            {
+            } else {
                 isFragmentable = false;
                 return null;
             }
         }
 
-        if (isArray)
-        {
+        if (isArray) {
             int len = Array.getLength(object);
             EventBean[] events = new EventBean[len];
             int countFilled = 0;
 
-            for (int i = 0; i < len; i++)
-            {
+            for (int i = 0; i < len; i++) {
                 Object element = Array.get(object, i);
-                if (element == null)
-                {
+                if (element == null) {
                     continue;
                 }
-                
+
                 events[countFilled] = eventAdapterService.adapterForTypedBean(element, fragmentEventType);
                 countFilled++;
             }
 
-            if (countFilled == len)
-            {
+            if (countFilled == len) {
                 return events;
             }
 
-            if (countFilled == 0)
-            {
+            if (countFilled == 0) {
                 return new EventBean[0];
             }
 
             EventBean[] returnVal = new EventBean[countFilled];
             System.arraycopy(events, 0, returnVal, 0, countFilled);
             return returnVal;
-        }
-        else if (isIterable)
-        {
-            if (!(object instanceof Iterable))
-            {
+        } else if (isIterable) {
+            if (!(object instanceof Iterable)) {
                 return null;
             }
             Iterator iterator = ((Iterable) object).iterator();
-            if (!iterator.hasNext())
-            {
+            if (!iterator.hasNext()) {
                 return new EventBean[0];
             }
             ArrayDeque<EventBean> events = new ArrayDeque<EventBean>();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                 Object next = iterator.next();
-                if (next == null)
-                {
+                if (next == null) {
                     continue;
                 }
 
                 events.add(eventAdapterService.adapterForTypedBean(next, fragmentEventType));
             }
             return events.toArray(new EventBean[events.size()]);
-        }
-        else
-        {
+        } else {
             return eventAdapterService.adapterForTypedBean(object, fragmentEventType);
         }
     }

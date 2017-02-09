@@ -10,36 +10,31 @@
  */
 package com.espertech.esper.example.stockticker.monitor;
 
-import java.util.List;
+import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
-
-public class StockTickerResultListener
-{
+public class StockTickerResultListener {
     private List<Object> matchEvents = Collections.synchronizedList(new LinkedList<Object>());
 
-    public void emitted(LimitAlert object)
-    {
+    public void emitted(LimitAlert object) {
         log.info(".emitted Received emitted " + object);
         matchEvents.add(object);
     }
 
-    public int getSize()
-    {
+    public int getSize() {
         return matchEvents.size();
     }
 
-    public List getMatchEvents()
-    {
+    public List getMatchEvents() {
         return matchEvents;
     }
 
-    public void clearMatched()
-    {
+    public void clearMatched() {
         matchEvents.clear();
     }
 

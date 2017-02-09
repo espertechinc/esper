@@ -19,10 +19,10 @@ public class DeploymentStateException extends DeploymentException {
 
     /**
      * Ctor.
+     *
      * @param message error message
      */
-    public DeploymentStateException(String message)
-    {
+    public DeploymentStateException(String message) {
         super(message);
     }
 }

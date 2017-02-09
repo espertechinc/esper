@@ -10,27 +10,29 @@
  */
 package com.espertech.esper.core.deploy;
 
-import com.espertech.esper.client.deploy.*;
+import com.espertech.esper.client.deploy.DeploymentInformation;
 
 /**
  * Interface for a service maintaining deployment state.
  */
-public interface DeploymentStateService
-{
+public interface DeploymentStateService {
     /**
      * Allocates a new deployment id.
+     *
      * @return deployment id
      */
     public String nextDeploymentId();
 
     /**
      * Returns a list of deployment ids of deployments.
+     *
      * @return deployment ids
      */
     public String[] getDeployments();
 
     /**
      * Returns the deployment informaton for a given deployment id.
+     *
      * @param deploymentId id
      * @return deployment information
      */
@@ -38,12 +40,14 @@ public interface DeploymentStateService
 
     /**
      * Returns deployment information for all deployments.
+     *
      * @return array of deployment info
      */
     public DeploymentInformation[] getAllDeployments();
 
     /**
      * Add or update the deployment information using the contained deployment id as a key.
+     *
      * @param descriptor to store
      */
     public void addUpdateDeployment(DeploymentInformation descriptor);
@@ -55,6 +59,7 @@ public interface DeploymentStateService
 
     /**
      * Remove deployment
+     *
      * @param deploymentId to remove
      */
     public void remove(String deploymentId);

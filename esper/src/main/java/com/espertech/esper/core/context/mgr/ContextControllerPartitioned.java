@@ -15,7 +15,6 @@ import com.espertech.esper.client.context.*;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.ContextControllerSelectorUtil;
 import com.espertech.esper.core.context.util.StatementAgentInstanceUtil;
-import com.espertech.esper.client.context.ContextPartitionState;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.event.EventAdapterService;
 
@@ -64,8 +63,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
                 }
             }
             return;
-        }
-        else if (contextPartitionSelector instanceof ContextPartitionSelectorSegmented) {
+        } else if (contextPartitionSelector instanceof ContextPartitionSelectorSegmented) {
             ContextPartitionSelectorSegmented partitioned = (ContextPartitionSelectorSegmented) contextPartitionSelector;
             if (partitioned.getPartitionKeys() == null || partitioned.getPartitionKeys().isEmpty()) {
                 return;
@@ -78,8 +76,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
                 }
             }
             return;
-        }
-        else if (contextPartitionSelector instanceof ContextPartitionSelectorById) {
+        } else if (contextPartitionSelector instanceof ContextPartitionSelectorById) {
             ContextPartitionSelectorById filtered = (ContextPartitionSelectorById) contextPartitionSelector;
 
             for (Map.Entry<Object, ContextControllerInstanceHandle> entry : partitionKeys.entrySet()) {
@@ -88,8 +85,7 @@ public class ContextControllerPartitioned implements ContextController, ContextC
                 }
             }
             return;
-        }
-        else if (contextPartitionSelector instanceof ContextPartitionSelectorAll) {
+        } else if (contextPartitionSelector instanceof ContextPartitionSelectorAll) {
             for (Map.Entry<Object, ContextControllerInstanceHandle> entry : partitionKeys.entrySet()) {
                 visitor.visit(nestingLevel, pathId, factory.getBinding(), getKeyObjectsAccountForMultikey(entry.getKey()), this, entry.getValue());
             }
@@ -173,18 +169,16 @@ public class ContextControllerPartitioned implements ContextController, ContextC
 
     private Object[] getKeyObjectsAccountForMultikey(Object key) {
         if (key instanceof MultiKeyUntyped) {
-            return ((MultiKeyUntyped)key).getKeys();
-        }
-        else {
-            return new Object[] {key};
+            return ((MultiKeyUntyped) key).getKeys();
+        } else {
+            return new Object[]{key};
         }
     }
 
     private Object getKeyObjectForLookup(Object[] keyObjects) {
         if (keyObjects.length > 1) {
             return new MultiKeyUntyped(keyObjects);
-        }
-        else {
+        } else {
             return keyObjects[0];
         }
     }

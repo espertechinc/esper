@@ -26,12 +26,11 @@ public class EPDataFlowEmitter1Stream1TargetPassAlongWStream extends EPDataFlowE
 
     @Override
     public void submitInternal(Object object) {
-        Object[] parameters = new Object[] {streamNum, object};
+        Object[] parameters = new Object[]{streamNum, object};
         try {
             exceptionHandler.handleAudit(targetObject, parameters);
             fastMethod.invoke(targetObject, parameters);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             exceptionHandler.handleException(targetObject, fastMethod, e, parameters);
         }
     }

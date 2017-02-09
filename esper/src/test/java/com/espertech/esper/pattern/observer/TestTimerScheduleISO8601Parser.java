@@ -134,14 +134,12 @@ public class TestTimerScheduleISO8601Parser extends TestCase {
         assertEquals(expectedNumRepeats, (Object) spec.getOptionalRepeatCount());
         if (expectedTimePeriod == null) {
             assertNull(spec.getOptionalTimePeriod());
-        }
-        else {
+        } else {
             assertEquals("expected '" + expectedTimePeriod.toStringISO8601() + "' got '" + spec.getOptionalTimePeriod().toStringISO8601() + "'", expectedTimePeriod, spec.getOptionalTimePeriod());
         }
         if (expectedDate == null) {
             assertNull(spec.getOptionalDate());
-        }
-        else {
+        } else {
             assertEquals(DateTime.parseDefaultMSecWZone(expectedDate), spec.getOptionalDate().getTimeInMillis());
         }
     }
@@ -161,8 +159,7 @@ public class TestTimerScheduleISO8601Parser extends TestCase {
         try {
             TimerScheduleISO8601Parser.parse(iso8601);
             fail();
-        }
-        catch (ScheduleParameterException ex) {
+        } catch (ScheduleParameterException ex) {
             assertEquals(message, ex.getMessage());
         }
     }

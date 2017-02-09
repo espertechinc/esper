@@ -13,9 +13,9 @@ package com.espertech.esper.epl.agg.rollup;
 import com.espertech.esper.collection.CombinationEnumeration;
 import com.espertech.esper.collection.MultiKeyInt;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.SerializableObjectCopier;
@@ -25,8 +25,8 @@ import java.util.*;
 
 public class GroupByExpressionHelper {
     public static GroupByClauseExpressions getGroupByRollupExpressions(List<GroupByClauseElement> groupByElements,
-                                           SelectClauseSpecRaw selectClauseSpec, ExprNode optionalHavingNode, List<OrderByItem> orderByList,
-                                           ExprNodeSubselectDeclaredDotVisitor visitor)
+                                                                       SelectClauseSpecRaw selectClauseSpec, ExprNode optionalHavingNode, List<OrderByItem> orderByList,
+                                                                       ExprNodeSubselectDeclaredDotVisitor visitor)
             throws ExprValidationException {
         if (groupByElements == null || groupByElements.size() == 0) {
             return null;
@@ -88,12 +88,10 @@ public class GroupByExpressionHelper {
                     perNodeCombinations[i][j] = combinations.get(j);
                 }
             }
-        }
-        catch (GroupByRollupDuplicateException ex) {
+        } catch (GroupByRollupDuplicateException ex) {
             if (ex.getIndexes().length == 0) {
                 throw new ExprValidationException("Failed to validate the group-by clause, found duplicate specification of the overall grouping '()'");
-            }
-            else {
+            } else {
                 StringWriter writer = new StringWriter();
                 String delimiter = "";
                 for (int i = 0; i < ex.getIndexes().length; i++) {
@@ -109,7 +107,7 @@ public class GroupByExpressionHelper {
         CombinationEnumeration combinationEnumeration = new CombinationEnumeration(perNodeCombinations);
         Set<Integer> combination = new TreeSet<Integer>();
         Set<MultiKeyInt> indexList = new LinkedHashSet<MultiKeyInt>();
-        for (;combinationEnumeration.hasMoreElements();) {
+        for (; combinationEnumeration.hasMoreElements(); ) {
             combination.clear();
             Object[] combinationOA = combinationEnumeration.nextElement();
             for (Object indexes : combinationOA) {
@@ -184,13 +182,11 @@ public class GroupByExpressionHelper {
                 GroupByClauseElementExpr expr = (GroupByClauseElementExpr) element;
                 exprNodes.add(expr.getExpr());
                 parent = new GroupByRollupNodeSingleExpr(expr.getExpr());
-            }
-            else if (element instanceof GroupByClauseElementRollupOrCube) {
+            } else if (element instanceof GroupByClauseElementRollupOrCube) {
                 GroupByClauseElementRollupOrCube spec = (GroupByClauseElementRollupOrCube) element;
                 parent = new GroupByRollupNodeRollupOrCube(spec.isCube());
                 groupByAddRollup(spec, parent, exprNodes);
-            }
-            else if (element instanceof GroupByClauseElementGroupingSet) {
+            } else if (element instanceof GroupByClauseElementGroupingSet) {
                 GroupByClauseElementGroupingSet spec = (GroupByClauseElementGroupingSet) element;
                 parent = new GroupByRollupNodeGroupingSet();
                 for (GroupByClauseElement groupElement : spec.getElements()) {
@@ -211,8 +207,7 @@ public class GroupByExpressionHelper {
                         parent.add(node);
                     }
                 }
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Unexpected group-by clause element " + element);
             }
             parents.add(parent);
@@ -227,8 +222,7 @@ public class GroupByExpressionHelper {
                 GroupByClauseElementExpr expr = (GroupByClauseElementExpr) rolledUp;
                 exprNodes.add(expr.getExpr());
                 parent.add(new GroupByRollupNodeSingleExpr(expr.getExpr()));
-            }
-            else {
+            } else {
                 GroupByClauseElementCombinedExpr combined = (GroupByClauseElementCombinedExpr) rolledUp;
                 exprNodes.addAll(combined.getExpressions());
                 parent.add(new GroupByRollupNodeCombinedExpr(combined.getExpressions()));

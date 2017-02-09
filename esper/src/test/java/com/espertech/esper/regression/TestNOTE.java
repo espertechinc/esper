@@ -15,9 +15,8 @@ import junit.framework.TestCase;
 /**
  * NOTE
  * ====
- *
+ * <p>
  * Esper regression tests can be found in a separate folder and Maven project "esper-regression".
- *
  */
 public class TestNOTE extends TestCase {
     public void testEmptyOnPurpose() {

@@ -9,6 +9,7 @@ import java.util.Map;
 public class TestTriviaChallengeTestset extends TestCase {
 
     private EPServiceProvider engine;
+
     public void setUp() throws Exception {
 
         TriviaExample example = new TriviaExample();

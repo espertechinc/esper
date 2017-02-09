@@ -33,8 +33,7 @@ public class EvalInsertWildcardRevisionWrapper extends EvalBaseMap implements Se
         this.wrappingEventType = wrappingEventType;
     }
 
-    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean underlying = eventsPerStream[0];
         EventBean wrapped = super.getEventAdapterService().adapterForTypedWrapper(underlying, props, wrappingEventType);
         return vaeProcessor.getValueAddEventBean(wrapped);

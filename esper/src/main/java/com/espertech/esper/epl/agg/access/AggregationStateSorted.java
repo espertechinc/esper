@@ -15,34 +15,38 @@ import com.espertech.esper.client.EventBean;
 import java.util.Collection;
 import java.util.Iterator;
 
-public interface AggregationStateSorted
-{
+public interface AggregationStateSorted {
     /**
      * Returns the first (oldest) value entered.
+     *
      * @return first value
      */
     public EventBean getFirstValue();
 
     /**
      * Returns the newest (last) value entered.
+     *
      * @return last value
      */
     public EventBean getLastValue();
 
     /**
      * Returns all events for the group.
+     *
      * @return group event iterator
      */
     public Iterator<EventBean> iterator();
 
     /**
      * Returns all events for the group.
+     *
      * @return group event iterator
      */
     public Collection<EventBean> collectionReadOnly();
 
     /**
      * Returns the number of events in the group.
+     *
      * @return size
      */
     public int size();

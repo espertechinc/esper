@@ -71,8 +71,7 @@ public class VirtualDWViewFactoryImpl implements ViewFactory, DataWindowViewFact
         for (int i = 0; i < validatedNodes.length; i++) {
             try {
                 viewParameterArr[i] = ViewFactorySupport.evaluateAssertNoProperties(viewFactoryContext.getViewName(), validatedNodes[i], i, evaluatorContextStmt);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 // expected
             }
         }
@@ -83,21 +82,18 @@ public class VirtualDWViewFactoryImpl implements ViewFactory, DataWindowViewFact
         try {
             eventBeanFactory = EventAdapterServiceHelper.getFactoryForType(parentEventType, statementContext.getEventAdapterService());
             virtualDataWindowFactory.initialize(new VirtualDataWindowFactoryContext(parentEventType, viewParameterArr, viewParameterExp, eventBeanFactory, namedWindowName, viewFactoryContext, customConfiguration));
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             throw new ViewParameterException("Validation exception initializing virtual data window '" + namedWindowName + "': " + ex.getMessage(), ex);
         }
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         VirtualDataWindowOutStreamImpl outputStream = new VirtualDataWindowOutStreamImpl();
         VirtualDataWindowContext context = new VirtualDataWindowContext(agentInstanceViewFactoryContext.getAgentInstanceContext(), parentEventType, viewParameterArr, viewParameterExp, eventBeanFactory, outputStream, namedWindowName, viewFactoryContext, customConfiguration);
         VirtualDataWindow window;
         try {
             window = virtualDataWindowFactory.create(context);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new ViewProcessingException("Exception returned by virtual data window factory upon creation: " + ex.getMessage(), ex);
         }
         VirtualDWViewImpl view = new VirtualDWViewImpl(window, parentEventType, namedWindowName);

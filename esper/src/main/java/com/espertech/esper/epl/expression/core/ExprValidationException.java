@@ -13,26 +13,25 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Thrown to indicate a validation error in a filter expression.
  */
-public class ExprValidationException extends Exception
-{
+public class ExprValidationException extends Exception {
     private static final long serialVersionUID = 3208537526187204408L;
 
     /**
      * Ctor.
+     *
      * @param message - validation error message
      */
-    public ExprValidationException(String message)
-    {
+    public ExprValidationException(String message) {
         super(message);
     }
 
     /**
      * Ctor.
+     *
      * @param message is the error message
-     * @param cause is the inner exception
+     * @param cause   is the inner exception
      */
-    public ExprValidationException(String message, Throwable cause)
-    {
+    public ExprValidationException(String message, Throwable cause) {
         super(message, cause);
     }
 }

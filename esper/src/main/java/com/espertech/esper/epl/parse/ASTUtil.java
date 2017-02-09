@@ -28,8 +28,7 @@ import java.util.*;
 /**
  * Utility class for AST node handling.
  */
-public class ASTUtil
-{
+public class ASTUtil {
     private static Logger log = LoggerFactory.getLogger(ASTUtil.class);
 
     private final static String PROPERTY_ENABLED_AST_DUMP = "ENABLE_AST_DUMP";
@@ -87,12 +86,11 @@ public class ASTUtil
 
     /**
      * Dump the AST node to system.out.
+     *
      * @param ast to dump
      */
-    public static void dumpAST(Tree ast)
-    {
-        if (System.getProperty(PROPERTY_ENABLED_AST_DUMP) != null)
-        {
+    public static void dumpAST(Tree ast) {
+        if (System.getProperty(PROPERTY_ENABLED_AST_DUMP) != null) {
             StringWriter writer = new StringWriter();
             PrintWriter printer = new PrintWriter(writer);
 
@@ -103,21 +101,17 @@ public class ASTUtil
         }
     }
 
-    public static void dumpAST(PrintWriter printer, Tree ast, int ident)
-    {
+    public static void dumpAST(PrintWriter printer, Tree ast, int ident) {
         char[] identChars = new char[ident];
         Arrays.fill(identChars, ' ');
 
-        if (ast == null)
-        {
+        if (ast == null) {
             renderNode(identChars, null, printer);
             return;
         }
-        for (int i = 0; i < ast.getChildCount(); i++)
-        {
+        for (int i = 0; i < ast.getChildCount(); i++) {
             Tree node = ast.getChild(i);
-            if (node == null)
-            {
+            if (node == null) {
                 throw new NullPointerException("Null AST node");
             }
             renderNode(identChars, node, printer);
@@ -127,26 +121,21 @@ public class ASTUtil
 
     /**
      * Print the token stream to the logger.
+     *
      * @param tokens to print
      */
-    public static void printTokens(CommonTokenStream tokens)
-    {
-        if (log.isDebugEnabled())
-        {
+    public static void printTokens(CommonTokenStream tokens) {
+        if (log.isDebugEnabled()) {
             List tokenList = tokens.getTokens();
 
             StringWriter writer = new StringWriter();
             PrintWriter printer = new PrintWriter(writer);
-            for (int i = 0; i < tokens.size(); i++)
-            {
+            for (int i = 0; i < tokens.size(); i++) {
                 Token t = (Token) tokenList.get(i);
                 String text = t.getText();
-                if (text.trim().length() == 0)
-                {
+                if (text.trim().length() == 0) {
                     printer.print("'" + text + "'");
-                }
-                else
-                {
+                } else {
                     printer.print(text);
                 }
                 printer.print('[');
@@ -159,22 +148,17 @@ public class ASTUtil
         }
     }
 
-    private static void renderNode(char[] ident, Tree node, PrintWriter printer)
-    {
+    private static void renderNode(char[] ident, Tree node, PrintWriter printer) {
         printer.print(ident);
-        if (node == null)
-        {
+        if (node == null) {
             printer.print("NULL NODE");
-        }
-        else
-        {
+        } else {
             if (node instanceof ParserRuleContext) {
                 ParserRuleContext ctx = (ParserRuleContext) node;
                 int ruleIndex = ctx.getRuleIndex();
                 String ruleName = EsperEPL2GrammarParser.ruleNames[ruleIndex];
                 printer.print(ruleName);
-            }
-            else {
+            } else {
                 TerminalNode terminal = (TerminalNode) node;
                 printer.print(terminal.getSymbol().getText());
                 printer.print(" [");
@@ -184,17 +168,12 @@ public class ASTUtil
 
             if (node instanceof ParseTree) {
                 ParseTree parseTree = (ParseTree) node;
-                if (parseTree.getText() == null)
-                {
+                if (parseTree.getText() == null) {
                     printer.print(" (null value in text)");
-                }
-                else if (parseTree.getText().contains("\\"))
-                {
+                } else if (parseTree.getText().contains("\\")) {
                     int count = 0;
-                    for (int i = 0; i < parseTree.getText().length(); i++)
-                    {
-                        if (parseTree.getText().charAt(i) == '\\')
-                        {
+                    for (int i = 0; i < parseTree.getText().length(); i++) {
+                        if (parseTree.getText().charAt(i) == '\\') {
                             count++;
                         }
                     }
@@ -207,31 +186,26 @@ public class ASTUtil
 
     /**
      * Escape all unescape dot characters in the text (identifier only) passed in.
+     *
      * @param identifierToEscape text to escape
      * @return text where dots are escaped
      */
-    protected static String escapeDot(String identifierToEscape)
-    {
+    protected static String escapeDot(String identifierToEscape) {
         int indexof = identifierToEscape.indexOf(".");
-        if (indexof == -1)
-        {
+        if (indexof == -1) {
             return identifierToEscape;
         }
 
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < identifierToEscape.length(); i++)
-        {
+        for (int i = 0; i < identifierToEscape.length(); i++) {
             char c = identifierToEscape.charAt(i);
-            if (c != '.')
-            {
+            if (c != '.') {
                 builder.append(c);
                 continue;
             }
 
-            if (i > 0)
-            {
-                if (identifierToEscape.charAt(i - 1) == '\\')
-                {
+            if (i > 0) {
+                if (identifierToEscape.charAt(i - 1) == '\\') {
                     builder.append('.');
                     continue;
                 }
@@ -246,29 +220,24 @@ public class ASTUtil
 
     /**
      * Find the index of an unescaped dot (.) character, or return -1 if none found.
+     *
      * @param identifier text to find an un-escaped dot character
      * @return index of first unescaped dot
      */
-    public static int unescapedIndexOfDot(String identifier)
-    {
+    public static int unescapedIndexOfDot(String identifier) {
         int indexof = identifier.indexOf(".");
-        if (indexof == -1)
-        {
+        if (indexof == -1) {
             return -1;
         }
 
-        for (int i = 0; i < identifier.length(); i++)
-        {
+        for (int i = 0; i < identifier.length(); i++) {
             char c = identifier.charAt(i);
-            if (c != '.')
-            {
+            if (c != '.') {
                 continue;
             }
 
-            if (i > 0)
-            {
-                if (identifier.charAt(i - 1) == '\\')
-                {
+            if (i > 0) {
+                if (identifier.charAt(i - 1) == '\\') {
                     continue;
                 }
             }
@@ -281,37 +250,32 @@ public class ASTUtil
 
     /**
      * Un-Escape all escaped dot characters in the text (identifier only) passed in.
+     *
      * @param identifierToUnescape text to un-escape
      * @return string
      */
-    public static String unescapeDot(String identifierToUnescape)
-    {
+    public static String unescapeDot(String identifierToUnescape) {
         int indexof = identifierToUnescape.indexOf(".");
-        if (indexof == -1)
-        {
+        if (indexof == -1) {
             return identifierToUnescape;
         }
         indexof = identifierToUnescape.indexOf("\\");
-        if (indexof == -1)
-        {
+        if (indexof == -1) {
             return identifierToUnescape;
         }
 
         StringBuilder builder = new StringBuilder();
         int index = -1;
         int max = identifierToUnescape.length() - 1;
-        do
-        {
+        do {
             index++;
             char c = identifierToUnescape.charAt(index);
             if (c != '\\') {
                 builder.append(c);
                 continue;
             }
-            if (index < identifierToUnescape.length() - 1)
-            {
-                if (identifierToUnescape.charAt(index + 1) == '.')
-                {
+            if (index < identifierToUnescape.length() - 1) {
+                if (identifierToUnescape.charAt(index + 1) == '.') {
                     builder.append('.');
                     index++;
                 }
@@ -341,14 +305,12 @@ public class ASTUtil
         int index = -1;
         int max = text.length() - 1;
         boolean skip = false;
-        do
-        {
+        do {
             index++;
             char c = text.charAt(index);
             if (c == '`') {
                 skip = !skip;
-            }
-            else {
+            } else {
                 builder.append(c);
             }
         }

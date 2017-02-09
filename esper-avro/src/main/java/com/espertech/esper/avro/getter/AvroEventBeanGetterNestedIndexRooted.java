@@ -38,7 +38,7 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
         if (value == null || !(value instanceof GenericData.Record)) {
             return null;
         }
-        return nested.getAvroFieldValue((GenericData.Record)value);
+        return nested.getAvroFieldValue((GenericData.Record) value);
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -52,6 +52,6 @@ public class AvroEventBeanGetterNestedIndexRooted implements EventPropertyGetter
         if (value == null || !(value instanceof GenericData.Record)) {
             return null;
         }
-        return nested.getAvroFragment((GenericData.Record)value);
+        return nested.getAvroFragment((GenericData.Record) value);
     }
 }

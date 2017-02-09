@@ -33,7 +33,7 @@ public class TestAnnotationJMX extends TestCase {
         private String value = "initial value";
 
         @JmxSetter(name = "propertyToSet", description = "Set some value")
-        public void setValue(@JmxParam(name="value to set", description = "description for the value to set") String value) {
+        public void setValue(@JmxParam(name = "value to set", description = "description for the value to set") String value) {
             log.info("Setting value " + value);
             this.value = value;
         }

@@ -13,62 +13,57 @@ package com.espertech.esper.client;
 /**
  * This exception is thrown to indicate a problem with a accessing a property of an {@link com.espertech.esper.client.EventBean}.
  */
-public final class PropertyAccessException extends RuntimeException
-{
+public final class PropertyAccessException extends RuntimeException {
     private String expression;
     private static final long serialVersionUID = 6935348296074757184L;
 
     /**
      * Constructor.
-     * @param message is the error message
+     *
+     * @param message            is the error message
      * @param propertyExpression property expression
      */
-    public PropertyAccessException(final String message, String propertyExpression)
-    {
+    public PropertyAccessException(final String message, String propertyExpression) {
         super(message);
         this.expression = propertyExpression;
     }
 
     /**
      * Constructor for an inner exception and message.
+     *
      * @param message is the error message
-     * @param cause is the inner exception
+     * @param cause   is the inner exception
      */
-    public PropertyAccessException(final String message, final Throwable cause)
-    {
+    public PropertyAccessException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     /**
      * Constructor for an inner exception and message.
+     *
      * @param message is the error message
      */
-    public PropertyAccessException(final String message)
-    {
+    public PropertyAccessException(final String message) {
         super(message);
     }
 
     /**
      * Constructor.
+     *
      * @param cause is the inner exception
      */
-    public PropertyAccessException(final Throwable cause)
-    {
+    public PropertyAccessException(final Throwable cause) {
         super(cause);
     }
 
     public String getMessage() {
         StringBuilder msg;
-        if (super.getMessage() != null)
-        {
+        if (super.getMessage() != null) {
             msg = new StringBuilder(super.getMessage());
-        }
-        else
-        {
+        } else {
             msg = new StringBuilder("Unexpected exception");
         }
-        if (expression != null)
-        {
+        if (expression != null) {
             msg.append(" [");
             msg.append(expression);
             msg.append(']');

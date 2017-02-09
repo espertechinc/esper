@@ -20,16 +20,14 @@ import junit.framework.TestCase;
 
 import java.util.Properties;
 
-public class TestHTTPAdapterInput extends TestCase
-{
+public class TestHTTPAdapterInput extends TestCase {
     private SupportUpdateListener listener;
 
     public void setUp() throws Exception {
         listener = new SupportUpdateListener();
     }
 
-    public void testGet() throws Exception
-    {
+    public void testGet() throws Exception {
         // test classic
         validateGet(false, 8082, "TestHTTPAdapterOutputClassic");
 
@@ -66,8 +64,7 @@ public class TestHTTPAdapterInput extends TestCase
             client = new SupportHTTPClient(port);
             client.request(port, "sendevent");
             fail();
-        }
-        catch (Exception expected) {            
+        } catch (Exception expected) {
         }
     }
 }

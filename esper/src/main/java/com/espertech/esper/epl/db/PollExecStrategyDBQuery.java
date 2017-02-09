@@ -32,7 +32,7 @@ import java.util.Date;
  * Viewable providing historical data from a database.
  */
 public class PollExecStrategyDBQuery implements PollExecStrategy {
-    private static final Logger jdbcPerfLog = LoggerFactory.getLogger(AuditPath.JDBC_LOG);
+    private static final Logger JDBC_PERF_LOG = LoggerFactory.getLogger(AuditPath.JDBC_LOG);
 
     private static final Logger log = LoggerFactory.getLogger(PollExecStrategyDBQuery.class);
     private final EventAdapterService eventAdapterService;
@@ -106,7 +106,7 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
             log.info(".execute Executing prepared statement '" + preparedStatementText + "'");
         }
 
-        boolean hasJDBCLogging = enableJDBCLogging && jdbcPerfLog.isInfoEnabled();
+        boolean hasJDBCLogging = enableJDBCLogging && JDBC_PERF_LOG.isInfoEnabled();
 
         // set parameters
         SQLInputParameterContext inputParameterContext = null;
@@ -155,7 +155,7 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
             }
             long endTimeNS = System.nanoTime();
             long endTimeMS = System.currentTimeMillis();
-            jdbcPerfLog.info("Statement '" + preparedStatementText + "' delta nanosec " + (endTimeNS - startTimeNS) +
+            JDBC_PERF_LOG.info("Statement '" + preparedStatementText + "' delta nanosec " + (endTimeNS - startTimeNS) +
                     " delta msec " + (endTimeMS - startTimeMS) +
                     " parameters " + Arrays.toString(parameters));
         } else {
@@ -228,8 +228,8 @@ public class PollExecStrategyDBQuery implements PollExecStrategy {
             throw new EPException("Error reading results for statement '" + preparedStatementText + '\'', ex);
         }
 
-        if (enableJDBCLogging && jdbcPerfLog.isInfoEnabled()) {
-            jdbcPerfLog.info("Statement '" + preparedStatementText + "' " + rows.size() + " rows");
+        if (enableJDBCLogging && JDBC_PERF_LOG.isInfoEnabled()) {
+            JDBC_PERF_LOG.info("Statement '" + preparedStatementText + "' " + rows.size() + " rows");
         }
 
         try {

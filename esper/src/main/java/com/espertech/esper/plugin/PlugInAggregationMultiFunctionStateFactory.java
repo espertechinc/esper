@@ -18,6 +18,7 @@ import com.espertech.esper.epl.agg.access.AggregationState;
 public interface PlugInAggregationMultiFunctionStateFactory {
     /**
      * Return a new aggregation state holder for a given group (or ungrouped if there is no group-by).
+     *
      * @param stateContext context includes group key
      * @return state holder, cannot be a null value
      */

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.avro.selectexprrep;
 
-import com.espertech.esper.avro.core.AvroGenericDataEventBean;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
@@ -31,7 +30,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
 
     private final SelectExprContext selectExprContext;
     private final AvroEventType resultEventType;
-    private final ExprEvaluator evaluator[];
+    private final ExprEvaluator[] evaluator;
 
     public EvalSelectNoWildcardAvro(SelectExprContext selectExprContext, EventType resultEventType, String statementName, String engineURI) throws ExprValidationException {
         this.selectExprContext = selectExprContext;
@@ -45,8 +44,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
 
             if (eval instanceof SelectExprProcessorEvalByGetterFragment) {
                 evaluator[i] = handleFragment((SelectExprProcessorEvalByGetterFragment) eval);
-            }
-            else if (eval instanceof SelectExprProcessorEvalStreamInsertUnd) {
+            } else if (eval instanceof SelectExprProcessorEvalStreamInsertUnd) {
                 SelectExprProcessorEvalStreamInsertUnd und = (SelectExprProcessorEvalStreamInsertUnd) eval;
                 evaluator[i] = new ExprEvaluator() {
                     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -56,16 +54,15 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
                         }
                         return event.getUnderlying();
                     }
+
                     public Class getType() {
                         return GenericData.Record.class;
                     }
                 };
-            }
-            else if (eval instanceof SelectExprProcessorEvalTypableMap) {
+            } else if (eval instanceof SelectExprProcessorEvalTypableMap) {
                 SelectExprProcessorEvalTypableMap typableMap = (SelectExprProcessorEvalTypableMap) eval;
                 evaluator[i] = new SelectExprProcessorEvalAvroMapToAvro(typableMap.getInnerEvaluator(), ((AvroEventType) resultEventType).getSchemaAvro(), selectExprContext.getColumnNames()[i]);
-            }
-            else if (eval instanceof SelectExprProcessorEvalStreamInsertNamedWindow) {
+            } else if (eval instanceof SelectExprProcessorEvalStreamInsertNamedWindow) {
                 SelectExprProcessorEvalStreamInsertNamedWindow nw = (SelectExprProcessorEvalStreamInsertNamedWindow) eval;
                 evaluator[i] = new ExprEvaluator() {
                     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -75,20 +72,19 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
                         }
                         return event.getUnderlying();
                     }
+
                     public Class getType() {
                         return GenericData.Record.class;
                     }
                 };
 
-            }
-            else if (eval.getType() != null && eval.getType().isArray()) {
+            } else if (eval.getType() != null && eval.getType().isArray()) {
                 TypeWidener widener = TypeWidenerFactory.getArrayToCollectionCoercer(eval.getType().getComponentType());
                 if (eval.getType() == byte[].class) {
                     widener = TypeWidenerFactory.BYTE_ARRAY_TO_BYTE_BUFFER_COERCER;
                 }
                 evaluator[i] = new SelectExprProcessorEvalAvroArrayCoercer(eval, widener);
-            }
-            else {
+            } else {
                 String propertyName = selectExprContext.getColumnNames()[i];
                 Class propertyType = resultEventType.getPropertyType(propertyName);
                 TypeWidener widener = TypeWidenerFactory.getCheckPropertyAssignType(propertyName, eval.getType(), propertyType, propertyName, true, typeWidenerCustomizer, statementName, engineURI);
@@ -99,15 +95,13 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
         }
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         String[] columnNames = selectExprContext.getColumnNames();
 
         GenericData.Record record = new GenericData.Record(resultEventType.getSchemaAvro());
 
         // Evaluate all expressions and build a map of name-value pairs
-        for (int i = 0; i < evaluator.length; i++)
-        {
+        for (int i = 0; i < evaluator.length; i++) {
             Object evalResult = evaluator[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             record.put(columnNames[i], evalResult);
         }
@@ -115,8 +109,7 @@ public class EvalSelectNoWildcardAvro implements SelectExprProcessor {
         return selectExprContext.getEventAdapterService().adapterForTypedAvro(record, resultEventType);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 

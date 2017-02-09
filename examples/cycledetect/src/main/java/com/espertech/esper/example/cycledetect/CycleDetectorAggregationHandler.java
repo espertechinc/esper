@@ -20,9 +20,12 @@ import com.espertech.esper.plugin.PlugInAggregationMultiFunctionHandler;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionStateFactory;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionValidationContext;
 
+import java.util.Locale;
+
 public class CycleDetectorAggregationHandler implements PlugInAggregationMultiFunctionHandler {
 
-    private static final AggregationStateKey CYCLE_KEY = new AggregationStateKey() {};
+    private static final AggregationStateKey CYCLE_KEY = new AggregationStateKey() {
+    };
 
     private final CycleDetectorAggregationFactory factory;
     private final PlugInAggregationMultiFunctionValidationContext validationContext;
@@ -41,17 +44,17 @@ public class CycleDetectorAggregationHandler implements PlugInAggregationMultiFu
     }
 
     public AggregationAccessor getAccessor() {
-        if (validationContext.getFunctionName().toLowerCase().equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
+        if (validationContext.getFunctionName().toLowerCase(Locale.ENGLISH).equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
             return new CycleDetectorAggregationAccessorOutput();
         }
         return new CycleDetectorAggregationAccessorDetect();
     }
 
     public EPType getReturnType() {
-        if (validationContext.getFunctionName().toLowerCase().equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
+        if (validationContext.getFunctionName().toLowerCase(Locale.ENGLISH).equals(CycleDetectorConstant.CYCLEOUTPUT_NAME)) {
             return EPTypeHelper.collectionOfSingleValue(factory.getFromExpression().getType());
         }
-        return EPTypeHelper.singleValue(Boolean.class) ;
+        return EPTypeHelper.singleValue(Boolean.class);
     }
 
     public AggregationAgent getAggregationAgent(PlugInAggregationMultiFunctionAgentContext agentContext) {

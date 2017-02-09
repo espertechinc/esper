@@ -12,7 +12,6 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.collection.Pair;
 
-public interface StreamTypesExceptionSuggestionGen
-{
+public interface StreamTypesExceptionSuggestionGen {
     public Pair<Integer, String> getSuggestion();
 }

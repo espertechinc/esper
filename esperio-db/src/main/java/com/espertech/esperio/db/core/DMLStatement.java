@@ -10,19 +10,17 @@
  */
 package com.espertech.esperio.db.core;
 
-import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Map;
 
-public class DMLStatement
-{
+public class DMLStatement {
     private static Logger log = LoggerFactory.getLogger(DMLStatement.class);
 
     private final StoreExceptionHandler storeExceptionHandler;
@@ -35,43 +33,31 @@ public class DMLStatement
         this.bindings = bindings;
     }
 
-    public void execute(Connection connection, EventBean eventBean)
-    {
+    public void execute(Connection connection, EventBean eventBean) {
         PreparedStatement statement = null;
-        try
-        {
-            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-            {
+        try {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
                 log.debug("Executing '" + dmlSQL + ")");
             }
             statement = connection.prepareStatement(dmlSQL);
-            for (Map.Entry<Integer, BindingEntry> entry : bindings.entrySet())
-            {
+            for (Map.Entry<Integer, BindingEntry> entry : bindings.entrySet()) {
                 Object value = entry.getValue().getGetter().get(eventBean);
                 statement.setObject(entry.getKey(), value);
             }
 
             int rows = statement.executeUpdate();
-            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-            {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
                 log.debug("Execution yielded " + rows + " rows");
             }
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             String message = "Failed to invoke : " + dmlSQL + " :" + ex.getMessage();
             log.error(message, ex);
             storeExceptionHandler.handle(message, ex);
             throw new StoreExceptionDBRel(message, ex);
-        }
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 if (statement != null) statement.close();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
             }
         }
     }

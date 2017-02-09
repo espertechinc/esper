@@ -10,34 +10,29 @@
  */
 package com.espertech.esperio.db.config;
 
+import com.espertech.esper.client.ConfigurationDBRef;
 import junit.framework.TestCase;
 
 import java.net.URL;
 
-import com.espertech.esper.client.ConfigurationDBRef;
-
 public class TestConfig extends TestCase {
     private ConfigurationDBAdapter config;
 
-    public void setUp()
-    {
+    public void setUp() {
         config = new ConfigurationDBAdapter();
     }
 
-    public void testConfigureFromStream() throws Exception
-    {
+    public void testConfigureFromStream() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("esperio-db-sample-config.xml");
         ConfigurationDBAdapterParser.doConfigure(config, url.openStream(), url.toString());
         assertFileConfig(config);
     }
 
-    public void testEngineDefaults()
-    {
+    public void testEngineDefaults() {
         config = new ConfigurationDBAdapter();
     }
 
-    protected static void assertFileConfig(ConfigurationDBAdapter config) throws Exception
-    {
+    protected static void assertFileConfig(ConfigurationDBAdapter config) throws Exception {
         assertEquals(3, config.getJdbcConnections().size());
 
         ConfigurationDBRef connection = config.getJdbcConnections().get("db1");

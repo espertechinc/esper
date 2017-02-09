@@ -13,10 +13,9 @@ package com.espertech.esper.client.soda;
 /**
  * Represents the "window" aggregation function.
  */
-public class WindowProjectionExpression extends AccessProjectionExpressionBase
-{
+public class WindowProjectionExpression extends AccessProjectionExpressionBase {
     private static final long serialVersionUID = -8775046889683797339L;
-    
+
     /**
      * Ctor.
      */
@@ -25,10 +24,10 @@ public class WindowProjectionExpression extends AccessProjectionExpressionBase
 
     /**
      * Ctor.
+     *
      * @param expression to aggregate
      */
-    public WindowProjectionExpression(Expression expression)
-    {
+    public WindowProjectionExpression(Expression expression) {
         super(expression);
     }
 

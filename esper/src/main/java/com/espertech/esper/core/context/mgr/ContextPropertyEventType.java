@@ -106,8 +106,7 @@ public class ContextPropertyEventType {
         props.put(PROP_CTX_ID, agentInstanceId);
         if (matchEvent != null) {
             props.putAll(matchEvent);
-        }
-        else {
+        } else {
             props.put(filterAsName, theEvent);
         }
         return props;
@@ -125,9 +124,8 @@ public class ContextPropertyEventType {
     public static Map<String, Object> getPartitionBean(String contextName, int agentInstanceId, Object keyValue, List<String> propertyNames) {
         Object[] agentInstanceProperties;
         if (propertyNames.size() == 1) {
-            agentInstanceProperties = new Object[] {keyValue};
-        }
-        else {
+            agentInstanceProperties = new Object[]{keyValue};
+        } else {
             agentInstanceProperties = ((MultiKeyUntyped) keyValue).getKeys();
         }
 

@@ -15,32 +15,25 @@ import junit.framework.TestCase;
 
 import java.util.Set;
 
-public class TestFrequencyParameter extends TestCase
-{
-    public void testInvalid()
-    {
-        try
-        {
+public class TestFrequencyParameter extends TestCase {
+    public void testInvalid() {
+        try {
             new FrequencyParameter(0);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected
         }
     }
 
-    public void testIsWildcard()
-    {
+    public void testIsWildcard() {
         FrequencyParameter freq = new FrequencyParameter(1);
-        assertTrue(freq.isWildcard(1,10));
+        assertTrue(freq.isWildcard(1, 10));
 
         freq = new FrequencyParameter(2);
-        assertFalse(freq.isWildcard(1,20));
+        assertFalse(freq.isWildcard(1, 20));
     }
 
-    public void testGetValues()
-    {
+    public void testGetValues() {
         FrequencyParameter freq = new FrequencyParameter(3);
         Set<Integer> result = freq.getValuesInRange(1, 8);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3, 6}, result);
@@ -66,7 +59,7 @@ public class TestFrequencyParameter extends TestCase
         assertFalse(freqThree.containsPoint(1));
         assertFalse(freqThree.containsPoint(2));
         assertFalse(freqThree.containsPoint(4));
-        
+
         FrequencyParameter freqOne = new FrequencyParameter(1);
         assertTrue(freqOne.containsPoint(1));
         assertTrue(freqOne.containsPoint(2));

@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.example.terminal.mdb;
 
-import junit.framework.TestCase;
 import com.espertech.esper.example.terminal.common.LowPaper;
 import com.espertech.esper.example.terminal.common.TerminalInfo;
+import junit.framework.TestCase;
 
-public class TestEPServiceMDBAdapter extends TestCase
-{
-    public void testAdapter() throws Exception
-    {
+public class TestEPServiceMDBAdapter extends TestCase {
+    public void testAdapter() throws Exception {
         SupportOutboundSender sender = new SupportOutboundSender();
         EPServiceMDBAdapter adapter = new EPServiceMDBAdapter(sender);
 

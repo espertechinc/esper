@@ -10,27 +10,25 @@
  */
 package com.espertech.esper.view.stat;
 
-import com.espertech.esper.client.EventType;
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
 import com.espertech.esper.supportunit.view.SupportBeanClassView;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.view.ViewFieldEnum;
+import junit.framework.TestCase;
 
 import java.util.Iterator;
 
-public class TestCorrelationView extends TestCase
-{
+public class TestCorrelationView extends TestCase {
     CorrelationView myView;
     SupportBeanClassView childView;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         // Set up sum view and a test child view
         EventType type = CorrelationView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         CorrelationViewFactory factory = new CorrelationViewFactory();
@@ -42,8 +40,7 @@ public class TestCorrelationView extends TestCase
     }
 
     // Check values against Microsoft Excel computed values
-    public void testViewComputedValues()
-    {
+    public void testViewComputedValues() {
         // Set up feed for sum view
         SupportStreamImpl stream = new SupportStreamImpl(SupportMarketDataBean.class, 3);
         stream.addView(myView);
@@ -73,20 +70,17 @@ public class TestCorrelationView extends TestCase
         checkNew(0.70463404);
     }
 
-    public void testGetSchema()
-    {
+    public void testGetSchema() {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.CORRELATION__CORRELATION.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception
-    {
+    public void testCopyView() throws Exception {
         CorrelationView copied = (CorrelationView) myView.cloneView();
         assertTrue(myView.getExpressionX().equals(copied.getExpressionX()));
         assertTrue(myView.getExpressionY().equals(copied.getExpressionY()));
     }
 
-    private void checkNew(double correlationE)
-    {
+    private void checkNew(double correlationE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), correlationE);
         assertTrue(iterator.hasNext() == false);
@@ -96,26 +90,22 @@ public class TestCorrelationView extends TestCase
         checkValues(childViewValues, correlationE);
     }
 
-    private void checkOld(double correlationE)
-    {
+    private void checkOld(double correlationE) {
         assertTrue(childView.getLastOldData().length == 1);
         EventBean childViewValues = childView.getLastOldData()[0];
         checkValues(childViewValues, correlationE);
     }
 
-    private void checkValues(EventBean values, double correlationE)
-    {
+    private void checkValues(EventBean values, double correlationE) {
         double correlation = getDoubleValue(ViewFieldEnum.CORRELATION__CORRELATION, values);
-        assertTrue(DoubleValueAssertionUtil.equals(correlation,  correlationE, 6));
+        assertTrue(DoubleValueAssertionUtil.equals(correlation, correlationE, 6));
     }
 
-    private double getDoubleValue(ViewFieldEnum field, EventBean values)
-    {
+    private double getDoubleValue(ViewFieldEnum field, EventBean values) {
         return (Double) values.get(field.getName());
     }
 
-    private EventBean makeBean(String symbol, double price, long volume)
-    {
+    private EventBean makeBean(String symbol, double price, long volume) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, volume, "");
         return SupportEventBeanFactory.createObject(bean);
     }

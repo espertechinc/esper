@@ -31,8 +31,7 @@ import java.util.Set;
  * by keeping set-like semantics. See {@link TimeAccumView} for the same behavior without
  * remove stream handling.
  */
-public class TimeAccumViewRStream extends ViewSupport implements CloneableView, DataWindowView, StoppableView, StopCallback
-{
+public class TimeAccumViewRStream extends ViewSupport implements CloneableView, DataWindowView, StoppableView, StopCallback {
     // View parameters
     private final TimeAccumViewFactory factory;
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
@@ -47,14 +46,14 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
 
     /**
      * Constructor.
+     *
      * @param timeBatchViewFactory for copying this view in a group-by
      * @param agentInstanceContext context
      * @param timeDeltaComputation time delta eval
      */
     public TimeAccumViewRStream(TimeAccumViewFactory timeBatchViewFactory,
-                         AgentInstanceViewFactoryChainContext agentInstanceContext,
-                         ExprTimePeriodEvalDeltaConst timeDeltaComputation)
-    {
+                                AgentInstanceViewFactoryChainContext agentInstanceContext,
+                                ExprTimePeriodEvalDeltaConst timeDeltaComputation) {
         this.agentInstanceContext = agentInstanceContext;
         this.factory = timeBatchViewFactory;
         this.timeDeltaComputation = timeDeltaComputation;
@@ -62,19 +61,21 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
         this.scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeAccumViewRStream.this, TimeAccumViewRStream.this.factory.getViewName());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewScheduledEval(TimeAccumViewRStream.this, TimeAccumViewRStream.this.factory.getViewName());
+                }
                 TimeAccumViewRStream.this.sendRemoveStream();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewScheduledEval();
+                }
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
         agentInstanceContext.addTerminationCallback(this);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return factory.makeView(agentInstanceContext);
     }
 
@@ -82,84 +83,69 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
         return timeDeltaComputation;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, factory.getViewName(), newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, factory.getViewName(), newData, oldData);
+        }
 
-        if ((newData != null) && (newData.length > 0))
-        {
+        if ((newData != null) && (newData.length > 0)) {
             // If we have an empty window about to be filled for the first time, add a callback
             boolean removeSchedule = false;
             boolean addSchedule = false;
             long timestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
 
             // if the window is already filled, then we may need to reschedule
-            if (!currentBatch.isEmpty())
-            {
+            if (!currentBatch.isEmpty()) {
                 // check if we need to reschedule
                 long callbackTime = timestamp + timeDeltaComputation.deltaAdd(timestamp);
-                if (callbackTime != callbackScheduledTime)
-                {
+                if (callbackTime != callbackScheduledTime) {
                     removeSchedule = true;
                     addSchedule = true;
                 }
-            }
-            else
-            {
+            } else {
                 addSchedule = true;
             }
 
-            if (removeSchedule)
-            {
+            if (removeSchedule) {
                 agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
                 callbackScheduledTime = -1;
             }
-            if (addSchedule)
-            {
+            if (addSchedule) {
                 long timeIntervalSize = timeDeltaComputation.deltaAdd(timestamp);
                 agentInstanceContext.getStatementContext().getSchedulingService().add(timeIntervalSize, handle, scheduleSlot);
                 callbackScheduledTime = timeIntervalSize + timestamp;
             }
 
             // add data points to the window
-            for (int i = 0; i < newData.length; i++)
-            {
+            for (int i = 0; i < newData.length; i++) {
                 currentBatch.put(newData[i], timestamp);
                 internalHandleAdded(newData[i], timestamp);
                 lastEvent = newData[i];
             }
         }
 
-        if ((oldData != null) && (oldData.length > 0))
-        {
+        if ((oldData != null) && (oldData.length > 0)) {
             boolean removedLastEvent = false;
-            for (EventBean anOldData : oldData)
-            {
+            for (EventBean anOldData : oldData) {
                 currentBatch.remove(anOldData);
                 internalHandleRemoved(anOldData);
-                if (anOldData == lastEvent)
-                {
+                if (anOldData == lastEvent) {
                     removedLastEvent = true;
                 }
             }
 
             // we may need to reschedule as the newest event may have been deleted
-            if (currentBatch.size() == 0)
-            {
+            if (currentBatch.size() == 0) {
                 agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
                 callbackScheduledTime = -1;
                 lastEvent = null;
-            }
-            else
-            {
+            } else {
                 // reschedule if the last event was removed
-                if (removedLastEvent)
-                {
+                if (removedLastEvent) {
                     Set<EventBean> keyset = currentBatch.keySet();
                     EventBean[] events = keyset.toArray(new EventBean[keyset.size()]);
                     lastEvent = events[events.length - 1];
@@ -169,8 +155,7 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
                     long timestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                     long callbackTime = lastTimestamp + timeDeltaComputation.deltaAdd(lastTimestamp);
                     long deltaFromNow = callbackTime - timestamp;
-                    if (callbackTime != callbackScheduledTime)
-                    {
+                    if (callbackTime != callbackScheduledTime) {
                         agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
                         agentInstanceContext.getStatementContext().getSchedulingService().add(deltaFromNow, handle, scheduleSlot);
                         callbackScheduledTime = callbackTime;
@@ -180,14 +165,19 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
         }
 
         // update child views
-        if (this.hasViews())
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), newData, oldData);}
+        if (this.hasViews()) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), newData, oldData);
+            }
             updateChildren(newData, oldData);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
@@ -197,25 +187,25 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
     /**
      * This method sends the remove stream for all accumulated events.
      */
-    protected void sendRemoveStream()
-    {
+    protected void sendRemoveStream() {
         callbackScheduledTime = -1;
 
         // If there are child views and the batch was filled, fireStatementStopped update method
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             // Convert to object arrays
             EventBean[] oldData = null;
-            if (!currentBatch.isEmpty())
-            {
+            if (!currentBatch.isEmpty()) {
                 oldData = currentBatch.keySet().toArray(new EventBean[currentBatch.size()]);
             }
 
-            if (oldData != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), null, oldData);}
+            if (oldData != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), null, oldData);
+                }
                 updateChildren(null, oldData);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
 
@@ -224,20 +214,18 @@ public class TimeAccumViewRStream extends ViewSupport implements CloneableView, 
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return currentBatch.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return currentBatch.keySet().iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 

@@ -13,8 +13,7 @@ package com.espertech.esper.epl.view;
 /**
  * Output condition for output rate limiting that handles when-then expressions for controlling output.
  */
-public class OutputConditionPolledExpressionState implements OutputConditionPolledState
-{
+public class OutputConditionPolledExpressionState implements OutputConditionPolledState {
     private int totalNewEventsCount;
     private int totalOldEventsCount;
     private int totalNewEventsSum;

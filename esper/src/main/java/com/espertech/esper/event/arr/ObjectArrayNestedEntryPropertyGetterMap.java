@@ -30,8 +30,7 @@ public class ObjectArrayNestedEntryPropertyGetterMap extends ObjectArrayNestedEn
     }
 
     public Object handleNestedValue(Object value) {
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             if (value instanceof EventBean) {
                 return mapGetter.get((EventBean) value);
             }
@@ -41,8 +40,7 @@ public class ObjectArrayNestedEntryPropertyGetterMap extends ObjectArrayNestedEn
     }
 
     public Object handleNestedValueFragment(Object value) {
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             if (value instanceof EventBean) {
                 return mapGetter.getFragment((EventBean) value);
             }
@@ -55,8 +53,7 @@ public class ObjectArrayNestedEntryPropertyGetterMap extends ObjectArrayNestedEn
     }
 
     public boolean handleNestedValueExists(Object value) {
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             if (value instanceof EventBean) {
                 return mapGetter.isExistsProperty((EventBean) value);
             }

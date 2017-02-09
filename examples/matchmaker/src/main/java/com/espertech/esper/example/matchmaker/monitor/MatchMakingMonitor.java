@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 
-public class MatchMakingMonitor
-{
+public class MatchMakingMonitor {
     public static final double PROXIMITY_RANGE = 1;
 
     private final HashSet<Integer> existingUsers = new HashSet<Integer>();
@@ -32,23 +31,19 @@ public class MatchMakingMonitor
     private int mobileUserId;
     private EPStatement locateOther;
 
-    public MatchMakingMonitor(final EPServiceProvider epService, final MatchAlertListener matchAlertListener)
-    {
+    public MatchMakingMonitor(final EPServiceProvider epService, final MatchAlertListener matchAlertListener) {
         this.epService = epService;
         this.matchAlertListener = matchAlertListener;
 
         // Get called for any user showing up
         EPStatement factory = epService.getEPAdministrator().createPattern("every user=" + MobileUserBean.class.getName());
 
-        factory.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        factory.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 MobileUserBean user = (MobileUserBean) newEvents[0].get("user");
 
                 // No action if user already known
-                if (existingUsers.contains(user.getUserId()))
-                {
+                if (existingUsers.contains(user.getUserId())) {
                     return;
                 }
 
@@ -60,8 +55,7 @@ public class MatchMakingMonitor
         });
     }
 
-    public MatchMakingMonitor(EPServiceProvider epService, MobileUserBean mobileUser, MatchAlertListener matchAlertListener)
-    {
+    public MatchMakingMonitor(EPServiceProvider epService, MobileUserBean mobileUser, MatchAlertListener matchAlertListener) {
         this.epService = epService;
         this.matchAlertListener = matchAlertListener;
         this.mobileUserId = mobileUser.getUserId();
@@ -72,12 +66,10 @@ public class MatchMakingMonitor
         // Listen to my own location changes so my data is up-to-date
         EPStatement locationChange = epService.getEPAdministrator().createPattern(
                 "every myself=" + MobileUserBean.class.getName() +
-                "(userId=" + mobileUser.getUserId() + ")");
+                        "(userId=" + mobileUser.getUserId() + ")");
 
-        locationChange.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        locationChange.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 // When my location changed, re-establish pattern
                 locateOther.removeAllListeners();
                 MobileUserBean myself = (MobileUserBean) newEvents[0].get("myself");
@@ -86,8 +78,7 @@ public class MatchMakingMonitor
         });
     }
 
-    private void setupPatterns(MobileUserBean mobileUser)
-    {
+    private void setupPatterns(MobileUserBean mobileUser) {
         double locXLow = mobileUser.getLocationX() - PROXIMITY_RANGE;
         double locXHigh = mobileUser.getLocationX() + PROXIMITY_RANGE;
         double locYLow = mobileUser.getLocationY() - PROXIMITY_RANGE;
@@ -95,20 +86,18 @@ public class MatchMakingMonitor
 
         this.locateOther = epService.getEPAdministrator().createPattern(
                 "every other=" + MobileUserBean.class.getName() +
-                "(locationX in [" + locXLow + ":" + locXHigh + "]," +
-                "locationY in [" + locYLow + ":" + locYHigh + "]," +
-                "myGender='" + mobileUser.getPreferredGender() + "'," +
-                "myAgeRange='" + mobileUser.getPreferredAgeRange() + "'," +
-                "myHairColor='" + mobileUser.getPreferredHairColor() + "'," +
-                "preferredGender='" + mobileUser.getMyGender() + "'," +
-                "preferredAgeRange='" + mobileUser.getMyAgeRange() + "'," +
-                "preferredHairColor='" + mobileUser.getMyHairColor() + "'" +
-                ")");
+                        "(locationX in [" + locXLow + ":" + locXHigh + "]," +
+                        "locationY in [" + locYLow + ":" + locYHigh + "]," +
+                        "myGender='" + mobileUser.getPreferredGender() + "'," +
+                        "myAgeRange='" + mobileUser.getPreferredAgeRange() + "'," +
+                        "myHairColor='" + mobileUser.getPreferredHairColor() + "'," +
+                        "preferredGender='" + mobileUser.getMyGender() + "'," +
+                        "preferredAgeRange='" + mobileUser.getMyAgeRange() + "'," +
+                        "preferredHairColor='" + mobileUser.getMyHairColor() + "'" +
+                        ")");
 
-        locateOther.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+        locateOther.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 MobileUserBean other = (MobileUserBean) newEvents[0].get("other");
                 MatchAlertBean alert = new MatchAlertBean(other.getUserId(), MatchMakingMonitor.this.mobileUserId);
                 matchAlertListener.emitted(alert);

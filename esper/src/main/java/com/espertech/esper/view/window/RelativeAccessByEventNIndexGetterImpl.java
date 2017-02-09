@@ -18,31 +18,25 @@ import java.util.Map;
 /**
  * Provides random-access into window contents by event and index as a combination.
  */
-public class RelativeAccessByEventNIndexGetterImpl implements IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver, RelativeAccessByEventNIndexGetter
-{
+public class RelativeAccessByEventNIndexGetterImpl implements IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver, RelativeAccessByEventNIndexGetter {
     private final Map<EventBean, RelativeAccessByEventNIndex> accessorByEvent = new HashMap<EventBean, RelativeAccessByEventNIndex>();
-    private final Map<RelativeAccessByEventNIndex, EventBean[]> eventsByAccessor  = new HashMap<RelativeAccessByEventNIndex, EventBean[]>();
+    private final Map<RelativeAccessByEventNIndex, EventBean[]> eventsByAccessor = new HashMap<RelativeAccessByEventNIndex, EventBean[]>();
 
-    public void updated(RelativeAccessByEventNIndex iStreamRelativeAccess, EventBean[] newData)
-    {
+    public void updated(RelativeAccessByEventNIndex iStreamRelativeAccess, EventBean[] newData) {
         // remove data posted from the last update
         EventBean[] lastNewData = eventsByAccessor.get(iStreamRelativeAccess);
-        if (lastNewData != null)
-        {
-            for (int i = 0; i < lastNewData.length; i++)
-            {
+        if (lastNewData != null) {
+            for (int i = 0; i < lastNewData.length; i++) {
                 accessorByEvent.remove(lastNewData[i]);
             }
         }
 
-        if (newData == null)
-        {
+        if (newData == null) {
             return;
         }
 
         // hold accessor per event for querying
-        for (int i = 0; i < newData.length; i++)
-        {
+        for (int i = 0; i < newData.length; i++) {
             accessorByEvent.put(newData[i], iStreamRelativeAccess);
         }
 
@@ -52,14 +46,13 @@ public class RelativeAccessByEventNIndexGetterImpl implements IStreamRelativeAcc
 
     /**
      * Returns the access into window contents given an event.
+     *
      * @param theEvent to which the method returns relative access from
      * @return buffer
      */
-    public RelativeAccessByEventNIndex getAccessor(EventBean theEvent)
-    {
+    public RelativeAccessByEventNIndex getAccessor(EventBean theEvent) {
         RelativeAccessByEventNIndex iStreamRelativeAccess = accessorByEvent.get(theEvent);
-        if (iStreamRelativeAccess == null)
-        {
+        if (iStreamRelativeAccess == null) {
             return null;
         }
         return iStreamRelativeAccess;

@@ -21,30 +21,27 @@ import java.util.Set;
 /**
  * Visitor that collects event property identifier information under expression nodes.
  */
-public class ExprNodeIdentifierCollectVisitor implements ExprNodeVisitor
-{
+public class ExprNodeIdentifierCollectVisitor implements ExprNodeVisitor {
     private final List<ExprIdentNode> exprProperties;
 
     /**
      * Ctor.
      */
-    public ExprNodeIdentifierCollectVisitor()
-    {
+    public ExprNodeIdentifierCollectVisitor() {
         this.exprProperties = new LinkedList<ExprIdentNode>();
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 
     /**
      * Returns list of event property stream numbers and names that uniquely identify which
      * property is from whcih stream, and the name of each.
+     *
      * @return list of event property statement-unique info
      */
-    public List<ExprIdentNode> getExprProperties()
-    {
+    public List<ExprIdentNode> getExprProperties() {
         return exprProperties;
     }
 
@@ -56,10 +53,8 @@ public class ExprNodeIdentifierCollectVisitor implements ExprNodeVisitor
         return streams;
     }
 
-    public void visit(ExprNode exprNode)
-    {
-        if (!(exprNode instanceof ExprIdentNode))
-        {
+    public void visit(ExprNode exprNode) {
+        if (!(exprNode instanceof ExprIdentNode)) {
             return;
         }
 

@@ -19,8 +19,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class VirtualDWEventTable implements EventTable
-{
+public class VirtualDWEventTable implements EventTable {
     private final boolean unique;
     private final List<VirtualDataWindowLookupFieldDesc> hashAccess;
     private final List<VirtualDataWindowLookupFieldDesc> btreeAccess;

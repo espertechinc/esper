@@ -18,8 +18,7 @@ import java.io.Serializable;
 /**
  * Descriptor for create-variable statements.
  */
-public class CreateVariableDesc implements MetaDefItem, Serializable
-{
+public class CreateVariableDesc implements MetaDefItem, Serializable {
     private String variableType;
     private String variableName;
     private ExprNode assignment;
@@ -30,15 +29,15 @@ public class CreateVariableDesc implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param variableType type of the variable
-     * @param variableName name of the variable
-     * @param assignment expression assigning the initial value, or null if none
-     * @param constant indicator for constant
-     * @param array indicator for array
+     *
+     * @param variableType     type of the variable
+     * @param variableName     name of the variable
+     * @param assignment       expression assigning the initial value, or null if none
+     * @param constant         indicator for constant
+     * @param array            indicator for array
      * @param arrayOfPrimitive indicator for array of primitive
      */
-    public CreateVariableDesc(String variableType, String variableName, ExprNode assignment, boolean constant, boolean array, boolean arrayOfPrimitive)
-    {
+    public CreateVariableDesc(String variableType, String variableName, ExprNode assignment, boolean constant, boolean array, boolean arrayOfPrimitive) {
         this.variableType = variableType;
         this.variableName = variableName;
         this.assignment = assignment;
@@ -49,28 +48,28 @@ public class CreateVariableDesc implements MetaDefItem, Serializable
 
     /**
      * Returns the variable type.
+     *
      * @return type of variable
      */
-    public String getVariableType()
-    {
+    public String getVariableType() {
         return variableType;
     }
 
     /**
      * Returns the variable name
+     *
      * @return name
      */
-    public String getVariableName()
-    {
+    public String getVariableName() {
         return variableName;
     }
 
     /**
      * Returns the assignment expression, or null if none
+     *
      * @return expression or null
      */
-    public ExprNode getAssignment()
-    {
+    public ExprNode getAssignment() {
         return assignment;
     }
 

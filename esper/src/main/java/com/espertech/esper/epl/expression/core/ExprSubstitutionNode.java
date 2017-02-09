@@ -19,8 +19,7 @@ import java.io.StringWriter;
  * Represents a substitution value to be substituted in an expression tree, not valid for any purpose of use
  * as an expression, however can take a place in an expression tree.
  */
-public class ExprSubstitutionNode extends ExprNodeBase
-{
+public class ExprSubstitutionNode extends ExprNodeBase {
     private static final String ERROR_MSG = "Invalid use of substitution parameters marked by '?' in statement, use the prepare method to prepare statements with substitution parameters";
     private Integer index;
     private String name;
@@ -28,6 +27,7 @@ public class ExprSubstitutionNode extends ExprNodeBase
 
     /**
      * Ctor.
+     *
      * @param index is the index of the substitution parameter
      */
     public ExprSubstitutionNode(Integer index) {
@@ -36,51 +36,48 @@ public class ExprSubstitutionNode extends ExprNodeBase
 
     /**
      * Ctor.
+     *
      * @param name is the name of the substitution parameter
      */
     public ExprSubstitutionNode(String name) {
         this.name = name;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         throw new ExprValidationException(ERROR_MSG);
     }
 
     /**
      * Returns the substitution parameter index (or null if by-name).
+     *
      * @return index
      */
-    public Integer getIndex()
-    {
+    public Integer getIndex() {
         return index;
     }
 
     /**
      * Returns the substitution parameter name (or null if by-index).
+     *
      * @return name
      */
     public String getName() {
         return name;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         throw new IllegalStateException(ERROR_MSG);
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new EPException(ERROR_MSG);
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         throw new EPException(ERROR_MSG);
     }
 
@@ -92,10 +89,8 @@ public class ExprSubstitutionNode extends ExprNodeBase
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprSubstitutionNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprSubstitutionNode)) {
             return false;
         }
 

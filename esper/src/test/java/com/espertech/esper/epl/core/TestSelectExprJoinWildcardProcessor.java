@@ -13,21 +13,19 @@ package com.espertech.esper.epl.core;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 import java.util.Collections;
 
-public class TestSelectExprJoinWildcardProcessor extends TestCase
-{
+public class TestSelectExprJoinWildcardProcessor extends TestCase {
     private SelectExprProcessor processor;
 
-    public void setUp() throws ExprValidationException
-    {
+    public void setUp() throws ExprValidationException {
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         SupportStreamTypeSvc3Stream supportTypes = new SupportStreamTypeSvc3Stream();
 
@@ -35,8 +33,7 @@ public class TestSelectExprJoinWildcardProcessor extends TestCase
                 SupportEventAdapterService.getService(), null, selectExprEventTypeRegistry, null, null, new Configuration(), new TableServiceImpl(), "default");
     }
 
-    public void testProcess()
-    {
+    public void testProcess() {
         EventBean[] testEvents = SupportStreamTypeSvc3Stream.getSampleEvents();
 
         EventBean result = processor.process(testEvents, true, false, null);
@@ -50,8 +47,7 @@ public class TestSelectExprJoinWildcardProcessor extends TestCase
         assertNull(result.get("s1"));
     }
 
-    public void testType()
-    {
+    public void testType() {
         assertEquals(SupportBean.class, processor.getResultEventType().getPropertyType("s0"));
         assertEquals(SupportBean.class, processor.getResultEventType().getPropertyType("s1"));
     }

@@ -11,25 +11,19 @@
 package com.espertech.esperio.db.core;
 
 import com.espertech.esper.client.EventBean;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executor;
-
-public class RunnableDMLFactory implements RunnableFactory
-{
+public class RunnableDMLFactory implements RunnableFactory {
     private static Logger log = LoggerFactory.getLogger(RunnableDMLFactory.class);
 
     private final RunnableDMLContext context;
 
-    public RunnableDMLFactory(RunnableDMLContext context)
-    {
+    public RunnableDMLFactory(RunnableDMLContext context) {
         this.context = context;
     }
 
-    public RunnableDMLContext getContext()
-    {
+    public RunnableDMLContext getContext() {
         return context;
     }
 

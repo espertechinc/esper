@@ -15,24 +15,20 @@ import java.io.StringWriter;
 /**
  * Current execution context supplies the current expression execution context.
  */
-public class CurrentEvaluationContextExpression extends ExpressionBase
-{
+public class CurrentEvaluationContextExpression extends ExpressionBase {
     private static final long serialVersionUID = 1168797704683988017L;
 
     /**
      * Ctor.
      */
-    public CurrentEvaluationContextExpression()
-    {
+    public CurrentEvaluationContextExpression() {
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("current_evaluation_context()");
     }
 }

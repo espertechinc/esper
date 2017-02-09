@@ -11,7 +11,6 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 
 import java.util.Collection;
@@ -26,13 +25,12 @@ import java.util.Collection;
  * <p>
  * The performance of an implementation of this service is crucial in achieving a high overall event throughput.
  */
-public interface FilterService
-{
+public interface FilterService {
     /**
      * Finds matching filters to the event passed in and collects their associated callback method.
      *
      * @param theEvent is the event to be matched against filters
-     * @param matches is a collection that is populated via add method with any handles for matching filters
+     * @param matches  is a collection that is populated via add method with any handles for matching filters
      * @return filter current version
      */
     public long evaluate(EventBean theEvent, Collection<FilterHandle> matches);
@@ -40,8 +38,8 @@ public interface FilterService
     /**
      * Finds matching filters to the event passed in and collects their associated callback method, for a particular statement only
      *
-     * @param theEvent is the event to be matched against filters
-     * @param matches is a collection that is populated via add method with any handles for matching filters
+     * @param theEvent    is the event to be matched against filters
+     * @param matches     is a collection that is populated via add method with any handles for matching filters
      * @param statementId statement for which to return results for
      * @return filter current version
      */
@@ -50,22 +48,25 @@ public interface FilterService
     /**
      * Add a filter for events as defined by the filter specification, and register a
      * callback to be invoked upon evaluation of an event that matches the filter spec.
+     *
      * @param filterValueSet is a specification of filter parameters, contains
-     * event type information, event property values and operators
-     * @param callback is the callback to be invoked when the filter matches an event
+     *                       event type information, event property values and operators
+     * @param callback       is the callback to be invoked when the filter matches an event
      * @return entry
      */
     public FilterServiceEntry add(FilterValueSet filterValueSet, FilterHandle callback);
 
     /**
      * Remove a filter callback.
-     * @param callback is the callback to be removed
+     *
+     * @param callback           is the callback to be removed
      * @param filterServiceEntry entry
      */
     public void remove(FilterHandle callback, FilterServiceEntry filterServiceEntry);
 
     /**
      * Return a count of the number of events evaluated by this service.
+     *
      * @return count of invocations of evaluate method
      */
     public long getNumEventsEvaluated();
@@ -82,6 +83,7 @@ public interface FilterService
 
     /**
      * Returns filter version.
+     *
      * @return filter version
      */
     public long getFiltersVersion();

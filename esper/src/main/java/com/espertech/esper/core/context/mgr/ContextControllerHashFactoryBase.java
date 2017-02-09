@@ -49,7 +49,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
     public boolean hasFiltersSpecsNestedContexts() {
         return filtersSpecsNestedContexts != null && !filtersSpecsNestedContexts.isEmpty();
     }
-    
+
     public void validateFactory() throws ExprValidationException {
         validatePopulateContextDesc();
         contextBuiltinProps = ContextPropertyEventType.getHashType();
@@ -98,8 +98,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
                     return new StatementAIResourceRegistry(new AIRegistryAggregationMultiPerm(), new AIRegistryExprMultiPerm());
                 }
             };
-        }
-        else {
+        } else {
             return new StatementAIResourceRegistryFactory() {
                 public StatementAIResourceRegistry make() {
                     return new StatementAIResourceRegistry(new AIRegistryAggregationMap(), new AIRegistryExprMap());
@@ -154,14 +153,13 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             if (hashFunction == null) {
                 try {
                     hashSingleRowFunction = factoryContext.getAgentInstanceContextCreate().getStatementContext().getEngineImportService().resolveSingleRow(hashFuncName);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     // expected
                 }
 
                 if (hashSingleRowFunction == null) {
                     throw new ExprValidationException("For context '" + factoryContext.getContextName() + "' expected a hash function that is any of {" + HashFunctionEnum.getStringList() +
-                        "} or a plug-in single-row function or script but received '" + hashFuncName + "'");
+                            "} or a plug-in single-row function or script but received '" + hashFuncName + "'");
                 }
             }
 
@@ -174,28 +172,23 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             if (hashFunction == HashFunctionEnum.CONSISTENT_HASH_CRC32) {
                 if (item.getFunction().getParameters().size() > 1 || paramType != String.class) {
                     getter = new ContextControllerHashedGetterCRC32Serialized(factoryContext.getAgentInstanceContextCreate().getStatementContext().getStatementName(), item.getFunction().getParameters(), hashedSpec.getGranularity());
-                }
-                else {
+                } else {
                     getter = new ContextControllerHashedGetterCRC32Single(eval, hashedSpec.getGranularity());
                 }
-            }
-            else if (hashFunction == HashFunctionEnum.HASH_CODE) {
+            } else if (hashFunction == HashFunctionEnum.HASH_CODE) {
                 if (item.getFunction().getParameters().size() > 1) {
                     getter = new ContextControllerHashedGetterHashMultiple(item.getFunction().getParameters(), hashedSpec.getGranularity());
-                }
-                else {
+                } else {
                     getter = new ContextControllerHashedGetterHashSingle(eval, hashedSpec.getGranularity());
                 }
-            }
-            else if (hashSingleRowFunction != null) {
+            } else if (hashSingleRowFunction != null) {
                 getter = new ContextControllerHashedGetterSingleRow(factoryContext.getAgentInstanceContextCreate().getStatementContext().getStatementName(), hashFuncName, hashSingleRowFunction, item.getFunction().getParameters(), hashedSpec.getGranularity(),
                         factoryContext.getAgentInstanceContextCreate().getStatementContext().getEngineImportService(),
                         item.getFilterSpecCompiled().getFilterForEventType(),
                         factoryContext.getAgentInstanceContextCreate().getStatementContext().getEventAdapterService(),
                         factoryContext.getAgentInstanceContextCreate().getStatementId(),
                         factoryContext.getServicesContext().getTableService());
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Unrecognized hash code function '" + hashFuncName + "'");
             }
 
@@ -232,8 +225,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
 
         if (!isCreateWindow) {
             foundPartition = findHashItemSpec(hashSpec, filterSpecCompiled);
-        }
-        else {
+        } else {
             String declaredAsName = statementDesc.getStatement().getStatementSpec().getCreateWindowDesc().getAsEventTypeName();
             for (ContextDetailHashItem partitionItem : hashSpec.getItems()) {
                 if (partitionItem.getFilterSpecCompiled().getFilterForEventType().getName().equals(declaredAsName)) {
@@ -250,7 +242,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
         FilterValueSetParam filter = new FilterValueSetParamImpl(foundPartition.getLookupable(), FilterOperator.EQUAL, hashCode);
 
         FilterValueSetParam[][] addendum = new FilterValueSetParam[1][];
-        addendum[0] = new FilterValueSetParam[] {filter};
+        addendum[0] = new FilterValueSetParam[]{filter};
 
         FilterValueSetParam[][] partitionFilters = foundPartition.getParametersCompiled();
         if (partitionFilters != null) {
@@ -277,9 +269,9 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
         private static String stringList;
 
         public static HashFunctionEnum determine(String contextName, String name) throws ExprValidationException {
-            String nameTrim = name.toLowerCase().trim();
+            String nameTrim = name.toLowerCase(Locale.ENGLISH).trim();
             for (HashFunctionEnum val : HashFunctionEnum.values()) {
-                if (val.name().toLowerCase().trim().equals(nameTrim)) {
+                if (val.name().toLowerCase(Locale.ENGLISH).trim().equals(nameTrim)) {
                     return val;
                 }
             }
@@ -292,7 +284,7 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
             String delimiter = "";
             for (HashFunctionEnum val : HashFunctionEnum.values()) {
                 message.append(delimiter);
-                message.append(val.name().toLowerCase().trim());
+                message.append(val.name().toLowerCase(Locale.ENGLISH).trim());
                 delimiter = ", ";
             }
             return message.toString();

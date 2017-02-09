@@ -15,69 +15,69 @@ import java.time.temporal.ChronoField;
 
 public class ZonedDateTimeEvalStatics {
 
-    public final static ZonedDateTimeEval MinuteOfHour = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getMinute();
-            }
-        };
+    public final static ZonedDateTimeEval MINUTE_OF_HOUR = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getMinute();
+        }
+    };
 
-    public final static ZonedDateTimeEval MonthOfYear = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getMonth();
-            }
-        };
+    public final static ZonedDateTimeEval MONTH_OF_YEAR = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getMonth();
+        }
+    };
 
-    public final static ZonedDateTimeEval DayOfMonth = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getDayOfMonth();
-            }
-        };
+    public final static ZonedDateTimeEval DAY_OF_MONTH = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getDayOfMonth();
+        }
+    };
 
-    public final static ZonedDateTimeEval DayOfWeek = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getDayOfWeek();
-            }
-        };
+    public final static ZonedDateTimeEval DAY_OF_WEEK = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getDayOfWeek();
+        }
+    };
 
-    public final static ZonedDateTimeEval DayOfYear = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getDayOfYear();
-            }
-        };    
+    public final static ZonedDateTimeEval DAY_OF_YEAR = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getDayOfYear();
+        }
+    };
 
-    public final static ZonedDateTimeEval Era = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.get(ChronoField.ERA);
-            }
-        };
+    public final static ZonedDateTimeEval ERA = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.get(ChronoField.ERA);
+        }
+    };
 
-    public final static ZonedDateTimeEval HourOfDay = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getHour();
-            }
-        };
+    public final static ZonedDateTimeEval HOUR_OF_DAY = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getHour();
+        }
+    };
 
-    public final static ZonedDateTimeEval MillisOfSecond = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.get(ChronoField.MILLI_OF_SECOND);
-            }
-        };
+    public final static ZonedDateTimeEval MILLIS_OF_SECOND = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.get(ChronoField.MILLI_OF_SECOND);
+        }
+    };
 
-    public final static ZonedDateTimeEval SecondOfMinute = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getSecond();
-            }
-        };
+    public final static ZonedDateTimeEval SECOND_OF_MINUTE = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getSecond();
+        }
+    };
 
-    public final static ZonedDateTimeEval Weekyear = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-            }
-        };
+    public final static ZonedDateTimeEval WEEKYEAR = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+        }
+    };
 
-    public final static ZonedDateTimeEval Year = new ZonedDateTimeEval() {
-            public Object evaluateInternal(ZonedDateTime ldt) {
-                return ldt.getYear();
-            }
-        };
+    public final static ZonedDateTimeEval YEAR = new ZonedDateTimeEval() {
+        public Object evaluateInternal(ZonedDateTime ldt) {
+            return ldt.getYear();
+        }
+    };
 }

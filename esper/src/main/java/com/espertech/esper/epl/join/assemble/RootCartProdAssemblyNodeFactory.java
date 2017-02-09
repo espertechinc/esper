@@ -10,44 +10,35 @@
  */
 package com.espertech.esper.epl.join.assemble;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.util.IndentWriter;
-
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Assembly factory node for an event stream that is a root with a two or more child nodes below it.
  */
-public class RootCartProdAssemblyNodeFactory extends BaseAssemblyNodeFactory
-{
+public class RootCartProdAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     private final int[] childStreamIndex; // maintain mapping of stream number to index in array
     private boolean allSubStreamsOptional;
 
     /**
      * Ctor.
-     * @param streamNum - is the stream number
-     * @param numStreams - is the number of streams
+     *
+     * @param streamNum             - is the stream number
+     * @param numStreams            - is the number of streams
      * @param allSubStreamsOptional - true if all substreams are optional and none are required
      */
-    public RootCartProdAssemblyNodeFactory(int streamNum, int numStreams, boolean allSubStreamsOptional)
-    {
+    public RootCartProdAssemblyNodeFactory(int streamNum, int numStreams, boolean allSubStreamsOptional) {
         super(streamNum, numStreams);
         this.allSubStreamsOptional = allSubStreamsOptional;
         childStreamIndex = new int[numStreams];
     }
 
     @Override
-    public void addChild(BaseAssemblyNodeFactory childNode)
-    {
+    public void addChild(BaseAssemblyNodeFactory childNode) {
         childStreamIndex[childNode.getStreamNum()] = childNodes.size();
         super.addChild(childNode);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("RootCartProdAssemblyNode streamNum=" + streamNum);
     }
 

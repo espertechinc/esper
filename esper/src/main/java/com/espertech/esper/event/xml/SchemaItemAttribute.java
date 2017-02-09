@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Represents an attribute in a schema.
  */
-public class SchemaItemAttribute implements SchemaItem, Serializable
-{
+public class SchemaItemAttribute implements SchemaItem, Serializable {
     private static final long serialVersionUID = 127082800205223116L;
     private final String namespace;
     private final String name;
@@ -25,13 +24,13 @@ public class SchemaItemAttribute implements SchemaItem, Serializable
 
     /**
      * Ctor.
+     *
      * @param namespace namespace
-     * @param name name
-     * @param type attribute type
-     * @param typeName attribute type name
+     * @param name      name
+     * @param type      attribute type
+     * @param typeName  attribute type name
      */
-    public SchemaItemAttribute(String namespace, String name, short type, String typeName)
-    {
+    public SchemaItemAttribute(String namespace, String name, short type, String typeName) {
         this.name = name;
         this.namespace = namespace;
         this.xsSimpleType = type;
@@ -40,42 +39,41 @@ public class SchemaItemAttribute implements SchemaItem, Serializable
 
     /**
      * Returns the namespace.
+     *
      * @return namespace
      */
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return namespace;
     }
 
     /**
      * Returns the name.
+     *
      * @return name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Returns the type.
+     *
      * @return type
      */
-    public short getXsSimpleType()
-    {
+    public short getXsSimpleType() {
         return xsSimpleType;
     }
 
     /**
      * Returns the type name.
+     *
      * @return type name
      */
-    public String getTypeName()
-    {
+    public String getTypeName() {
         return typeName;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "Attribute " + namespace + " " + name;
     }
 }

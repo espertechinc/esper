@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
  * This class is always the root node in the evaluation tree representing an event expression.
  * It hold the handle to the EPStatement implementation for notifying when matches are found.
  */
-public class EvalRootNode extends EvalNodeBase implements PatternStarter
-{
+public class EvalRootNode extends EvalNodeBase implements PatternStarter {
     protected final EvalRootFactoryNode factoryNode;
     protected final EvalNode childNode;
 
@@ -37,26 +36,23 @@ public class EvalRootNode extends EvalNodeBase implements PatternStarter
     }
 
     public EvalRootState start(PatternMatchCallback callback,
-                                           PatternContext context,
-                                           boolean isRecoveringResilient)
-    {
+                               PatternContext context,
+                               boolean isRecoveringResilient) {
         MatchedEventMap beginState = new MatchedEventMapImpl(context.getMatchedEventMapMeta());
         return startInternal(callback, context, beginState, isRecoveringResilient);
     }
 
     public EvalRootState start(PatternMatchCallback callback,
-                                           PatternContext context,
-                                           MatchedEventMap beginState,
-                                           boolean isRecoveringResilient)
-    {
+                               PatternContext context,
+                               MatchedEventMap beginState,
+                               boolean isRecoveringResilient) {
         return startInternal(callback, context, beginState, isRecoveringResilient);
     }
 
     protected EvalRootState startInternal(PatternMatchCallback callback,
-                                           PatternContext context,
-                                           MatchedEventMap beginState,
-                                           boolean isRecoveringResilient)
-    {
+                                          PatternContext context,
+                                          MatchedEventMap beginState,
+                                          boolean isRecoveringResilient) {
         if (beginState == null) {
             throw new IllegalArgumentException("No pattern begin-state has been provided");
         }
@@ -68,8 +64,7 @@ public class EvalRootNode extends EvalNodeBase implements PatternStarter
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalRootStateNode(childNode);
     }
 

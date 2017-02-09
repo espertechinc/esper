@@ -64,8 +64,8 @@ public class ConsoleReporter extends AbstractPollingReporter implements
      */
     public static void enable(MetricsRegistry metricsRegistry, long period, TimeUnit unit) {
         final ConsoleReporter reporter = new ConsoleReporter(metricsRegistry,
-                                                             System.out,
-                                                             MetricPredicate.ALL);
+                System.out,
+                MetricPredicate.ALL);
         reporter.start(period, unit);
     }
 
@@ -143,8 +143,8 @@ public class ConsoleReporter extends AbstractPollingReporter implements
     public void run() {
         try {
             final DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
-                                                                     DateFormat.MEDIUM,
-                                                                     locale);
+                    DateFormat.MEDIUM,
+                    locale);
             format.setTimeZone(timeZone);
             final String dateTime = format.format(new Date(clock.time()));
             out.print(dateTime);
@@ -188,21 +188,21 @@ public class ConsoleReporter extends AbstractPollingReporter implements
         final String unit = abbrev(meter.rateUnit());
         stream.printf(locale, "             count = %d\n", meter.count());
         stream.printf(locale, "         mean rate = %2.2f %s/%s\n",
-                      meter.meanRate(),
-                      meter.eventType(),
-                      unit);
+                meter.meanRate(),
+                meter.eventType(),
+                unit);
         stream.printf(locale, "     1-minute rate = %2.2f %s/%s\n",
-                      meter.oneMinuteRate(),
-                      meter.eventType(),
-                      unit);
+                meter.oneMinuteRate(),
+                meter.eventType(),
+                unit);
         stream.printf(locale, "     5-minute rate = %2.2f %s/%s\n",
-                      meter.fiveMinuteRate(),
-                      meter.eventType(),
-                      unit);
+                meter.fiveMinuteRate(),
+                meter.eventType(),
+                unit);
         stream.printf(locale, "    15-minute rate = %2.2f %s/%s\n",
-                      meter.fifteenMinuteRate(),
-                      meter.eventType(),
-                      unit);
+                meter.fifteenMinuteRate(),
+                meter.eventType(),
+                unit);
     }
 
     @Override

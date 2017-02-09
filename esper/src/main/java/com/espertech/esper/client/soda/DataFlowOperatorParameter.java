@@ -25,7 +25,8 @@ public class DataFlowOperatorParameter implements Serializable {
 
     /**
      * Ctor.
-     * @param parameterName parameter name
+     *
+     * @param parameterName  parameter name
      * @param parameterValue parameter value
      */
     public DataFlowOperatorParameter(String parameterName, Object parameterValue) {
@@ -41,6 +42,7 @@ public class DataFlowOperatorParameter implements Serializable {
 
     /**
      * Get the parameter name.
+     *
      * @return parameter name
      */
     public String getParameterName() {
@@ -49,6 +51,7 @@ public class DataFlowOperatorParameter implements Serializable {
 
     /**
      * Set the parameter name.
+     *
      * @param parameterName parameter name
      */
     public void setParameterName(String parameterName) {
@@ -58,6 +61,7 @@ public class DataFlowOperatorParameter implements Serializable {
     /**
      * Get the parameter value, which can be either a constant, an {@link Expression} or a JSON object
      * or a {@link EPStatementObjectModel}.
+     *
      * @return parameter value
      */
     public Object getParameterValue() {
@@ -67,6 +71,7 @@ public class DataFlowOperatorParameter implements Serializable {
     /**
      * Set the parameter value, which can be either a constant, an {@link Expression} or a JSON object
      * or a {@link EPStatementObjectModel}.
+     *
      * @param parameterValue to set
      */
     public void setParameterValue(Object parameterValue) {
@@ -75,6 +80,7 @@ public class DataFlowOperatorParameter implements Serializable {
 
     /**
      * Render parameter.
+     *
      * @param writer to write to
      */
     public void toEpl(StringWriter writer) {
@@ -85,7 +91,8 @@ public class DataFlowOperatorParameter implements Serializable {
 
     /**
      * Render prameter.
-     * @param writer to render to
+     *
+     * @param writer         to render to
      * @param parameterValue value
      */
     public static void renderValue(StringWriter writer, Object parameterValue) {
@@ -93,19 +100,15 @@ public class DataFlowOperatorParameter implements Serializable {
             writer.write("(");
             ((EPStatementObjectModel) parameterValue).toEPL(writer);
             writer.write(")");
-        }
-        else if (parameterValue instanceof Expression) {
+        } else if (parameterValue instanceof Expression) {
             ((Expression) parameterValue).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-        }
-        else if (parameterValue == null) {
+        } else if (parameterValue == null) {
             writer.write("null");
-        }
-        else if (parameterValue instanceof String) {
+        } else if (parameterValue instanceof String) {
             writer.write("\"");
             writer.write(parameterValue.toString());
             writer.write("\"");
-        }
-        else {
+        } else {
             writer.write(parameterValue.toString());
         }
     }

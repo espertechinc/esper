@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class ExprCastNodeNonConstEval implements ExprEvaluator
-{
+public class ExprCastNodeNonConstEval implements ExprEvaluator {
     private final ExprCastNode parent;
     private final ExprEvaluator evaluator;
     private final ExprCastNode.CasterParserComputer casterParserComputer;
@@ -28,14 +27,18 @@ public class ExprCastNodeNonConstEval implements ExprEvaluator
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprCast(parent);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprCast(parent);
+        }
 
         Object result = evaluator.evaluate(eventsPerStream, isNewData, context);
         if (result != null) {
             result = casterParserComputer.compute(result, eventsPerStream, isNewData, context);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprCast(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprCast(result);
+        }
         return result;
     }
 

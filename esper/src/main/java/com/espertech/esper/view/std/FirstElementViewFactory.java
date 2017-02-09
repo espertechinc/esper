@@ -22,36 +22,29 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.view.std.FirstElementView} instances.
  */
-public class FirstElementViewFactory implements AsymetricDataWindowViewFactory
-{
+public class FirstElementViewFactory implements AsymetricDataWindowViewFactory {
     public final static String NAME = "First-Event";
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         ViewFactorySupport.validateNoParameters(getViewName(), expressionParameters);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new FirstElementView(this);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof FirstElementView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof FirstElementView)) {
             return false;
         }
         return true;

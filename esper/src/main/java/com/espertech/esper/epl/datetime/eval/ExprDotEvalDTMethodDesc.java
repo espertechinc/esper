@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.epl.datetime.eval;
 
-import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
+import com.espertech.esper.epl.rettype.EPType;
 
 public class ExprDotEvalDTMethodDesc {
 

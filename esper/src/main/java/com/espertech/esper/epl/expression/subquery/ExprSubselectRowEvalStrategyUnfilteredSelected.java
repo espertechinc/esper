@@ -38,8 +38,7 @@ public class ExprSubselectRowEvalStrategyUnfilteredSelected implements ExprSubse
         Object result;
         if (parent.selectClauseEvaluator.length == 1) {
             result = parent.selectClauseEvaluator[0].evaluate(events, true, exprEvaluatorContext);
-        }
-        else {
+        } else {
             // we are returning a Map here, not object-array, preferring the self-describing structure
             result = parent.evaluateRow(events, true, exprEvaluatorContext);
         }

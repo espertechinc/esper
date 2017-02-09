@@ -103,8 +103,7 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
         if (indexDescription != null) {
             Assert.assertEquals(indexDescription, onexp.getTables()[0].getIndexDesc());
             Assert.assertEquals(indexName, onexp.getTables()[0].getIndexName()); // can be null
-        }
-        else {
+        } else {
             Assert.assertNull(onexp.getTables());
             Assert.assertNull(indexDescription);
         }

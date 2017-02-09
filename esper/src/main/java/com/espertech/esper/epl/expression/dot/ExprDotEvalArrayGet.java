@@ -20,15 +20,13 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 
-public class ExprDotEvalArrayGet implements ExprDotEval
-{
+public class ExprDotEvalArrayGet implements ExprDotEval {
     private static final Logger log = LoggerFactory.getLogger(ExprDotEvalArrayGet.class);
 
     private final EPType typeInfo;
     private final ExprEvaluator indexExpression;
 
-    public ExprDotEvalArrayGet(ExprEvaluator index, Class componentType)
-    {
+    public ExprDotEvalArrayGet(ExprEvaluator index, Class componentType) {
         this.indexExpression = index;
         this.typeInfo = EPTypeHelper.singleValue(componentType);
     }

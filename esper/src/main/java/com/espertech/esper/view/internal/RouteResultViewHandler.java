@@ -16,13 +16,13 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Handler for incoming events for split-stream syntax, encapsulates where-clause evaluation strategies.
  */
-public interface RouteResultViewHandler
-{
+public interface RouteResultViewHandler {
     /**
      * Handle event.
-     * @param theEvent to handle
+     *
+     * @param theEvent             to handle
      * @param exprEvaluatorContext expression eval context
-     * @return true if at least one match was found, false if not 
+     * @return true if at least one match was found, false if not
      */
     public boolean handle(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext);
 }

@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
  * UpdateDispatchFutureSpin is aware of future and past dispatches:
  * (newest) DF3   &lt;--&gt;   DF2  &lt;--&gt;  DF1  (oldest), and uses a spin lock to block if required
  */
-public class UpdateDispatchFutureSpin implements Dispatchable
-{
+public class UpdateDispatchFutureSpin implements Dispatchable {
     private static final Logger log = LoggerFactory.getLogger(UpdateDispatchFutureSpin.class);
     private UpdateDispatchViewBlockingSpin view;
     private UpdateDispatchFutureSpin earlier;
@@ -33,13 +32,13 @@ public class UpdateDispatchFutureSpin implements Dispatchable
 
     /**
      * Ctor.
-     * @param view is the blocking dispatch view through which to execute a dispatch
-     * @param earlier is the older future
-     * @param msecTimeout is the timeout period to wait for listeners to complete a prior dispatch
+     *
+     * @param view              is the blocking dispatch view through which to execute a dispatch
+     * @param earlier           is the older future
+     * @param msecTimeout       is the timeout period to wait for listeners to complete a prior dispatch
      * @param timeSourceService time source provider
      */
-    public UpdateDispatchFutureSpin(UpdateDispatchViewBlockingSpin view, UpdateDispatchFutureSpin earlier, long msecTimeout, TimeSourceService timeSourceService)
-    {
+    public UpdateDispatchFutureSpin(UpdateDispatchViewBlockingSpin view, UpdateDispatchFutureSpin earlier, long msecTimeout, TimeSourceService timeSourceService) {
         this.view = view;
         this.earlier = earlier;
         this.msecTimeout = msecTimeout;
@@ -48,36 +47,32 @@ public class UpdateDispatchFutureSpin implements Dispatchable
 
     /**
      * Ctor - use for the first future to indicate completion.
+     *
      * @param timeSourceService time source provider
      */
-    public UpdateDispatchFutureSpin(TimeSourceService timeSourceService)
-    {
+    public UpdateDispatchFutureSpin(TimeSourceService timeSourceService) {
         isCompleted = true;
         this.timeSourceService = timeSourceService;
     }
 
     /**
      * Returns true if the dispatch completed for this future.
+     *
      * @return true for completed, false if not
      */
-    public boolean isCompleted()
-    {
+    public boolean isCompleted() {
         return isCompleted;
     }
 
-    public void execute()
-    {
-        if (!earlier.isCompleted)
-        {
+    public void execute() {
+        if (!earlier.isCompleted) {
             long spinStartTime = timeSourceService.getTimeMillis();
 
-            while(!earlier.isCompleted)
-            {
+            while (!earlier.isCompleted) {
                 Thread.yield();
 
                 long spinDelta = timeSourceService.getTimeMillis() - spinStartTime;
-                if (spinDelta > msecTimeout)
-                {
+                if (spinDelta > msecTimeout) {
                     log.info("Spin wait timeout exceeded in listener dispatch for statement '" + view.getStatementResultService().getStatementName() + "'");
                     break;
                 }

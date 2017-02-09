@@ -68,8 +68,7 @@ public class ASTGroupByHelper {
         for (EsperEPL2GrammarParser.GroupBySetsChoiceContext ctx : ctxs) {
             if (ctx.groupByCubeOrRollup() != null) {
                 elements.add(walkCubeOrRollup(ctx.groupByCubeOrRollup(), astExprNodeMap));
-            }
-            else {
+            } else {
                 elements.add(walkCombinable(ctx.groupByCombinableExpr(), astExprNodeMap));
             }
         }

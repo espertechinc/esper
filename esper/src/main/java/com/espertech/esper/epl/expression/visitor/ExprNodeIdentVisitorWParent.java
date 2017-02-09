@@ -20,8 +20,7 @@ import java.util.List;
 /**
  * Visitor for getting a list of identifier nodes with their parent node, which can be null if there is no parent node.
  */
-public class ExprNodeIdentVisitorWParent implements ExprNodeVisitorWithParent
-{
+public class ExprNodeIdentVisitorWParent implements ExprNodeVisitorWithParent {
     private List<Pair<ExprNode, ExprIdentNode>> identNodes = new ArrayList<Pair<ExprNode, ExprIdentNode>>();
 
     public boolean isVisit(ExprNode exprNode) {

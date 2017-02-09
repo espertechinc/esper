@@ -15,17 +15,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.variable.VariableService;
 
-public class ExprNodeAdapterMultiStreamNoTL extends ExprNodeAdapterMultiStream
-{
+public class ExprNodeAdapterMultiStreamNoTL extends ExprNodeAdapterMultiStream {
     public ExprNodeAdapterMultiStreamNoTL(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
         super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, variableService, prototype);
     }
 
     @Override
-    public boolean evaluate(EventBean theEvent)
-    {
-        if (variableService != null)
-        {
+    public boolean evaluate(EventBean theEvent) {
+        if (variableService != null) {
             variableService.setLocalVersion();
         }
 

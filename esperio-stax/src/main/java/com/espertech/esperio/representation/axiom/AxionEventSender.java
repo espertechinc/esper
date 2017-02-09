@@ -22,61 +22,48 @@ import org.apache.axiom.om.OMElement;
  * <p>
  * See {@link AxiomEventRepresentation} for more details.
  */
-public class AxionEventSender implements EventSender
-{
+public class AxionEventSender implements EventSender {
     private final AxiomXMLEventType eventType;
     private final EPRuntimeEventSender runtimeEventSender;
 
     /**
      * Ctor.
-     * @param eventType the axiom event metadata
+     *
+     * @param eventType          the axiom event metadata
      * @param runtimeEventSender the sender to send events into
      */
-    public AxionEventSender(AxiomXMLEventType eventType, EPRuntimeEventSender runtimeEventSender)
-    {
+    public AxionEventSender(AxiomXMLEventType eventType, EPRuntimeEventSender runtimeEventSender) {
         this.eventType = eventType;
         this.runtimeEventSender = runtimeEventSender;
     }
 
-    public void sendEvent(Object theEvent)
-    {
+    public void sendEvent(Object theEvent) {
         processEvent(theEvent, false);
     }
 
-    public void route(Object theEvent)
-    {
+    public void route(Object theEvent) {
         processEvent(theEvent, true);
     }
 
-    public void processEvent(Object node, boolean isRoute)
-    {
+    public void processEvent(Object node, boolean isRoute) {
         OMElement namedNode;
-        if (node instanceof OMDocument)
-        {
+        if (node instanceof OMDocument) {
             namedNode = ((OMDocument) node).getOMDocumentElement();
-        }
-        else if (node instanceof OMElement)
-        {
-            namedNode = (OMElement)node;
-        }
-        else
-        {
+        } else if (node instanceof OMElement) {
+            namedNode = (OMElement) node;
+        } else {
             throw new EPException("Unexpected AXIOM node of type '" + node.getClass() + "' encountered, please supply a Document or Element node");
         }
 
         String rootElementNameRequired = eventType.getConfig().getRootElementName();
         String rootElementNameFound = namedNode.getLocalName();
-        if (!rootElementNameFound.equals(rootElementNameRequired))
-        {
+        if (!rootElementNameFound.equals(rootElementNameRequired)) {
             throw new EPException("Unexpected root element name '" + rootElementNameFound + "' encountered, expected '" + rootElementNameRequired + "'");
         }
 
-        if (isRoute)
-        {
+        if (isRoute) {
             runtimeEventSender.routeEventBean(new AxiomEventBean(namedNode, eventType));
-        }
-        else
-        {
+        } else {
             runtimeEventSender.processWrappedEvent(new AxiomEventBean(namedNode, eventType));
         }
     }

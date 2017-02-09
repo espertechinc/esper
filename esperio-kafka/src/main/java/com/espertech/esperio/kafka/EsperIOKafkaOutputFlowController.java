@@ -12,5 +12,6 @@ package com.espertech.esperio.kafka;
 
 public interface EsperIOKafkaOutputFlowController {
     void initialize(EsperIOKafkaOutputFlowControllerContext context);
+
     void close();
 }

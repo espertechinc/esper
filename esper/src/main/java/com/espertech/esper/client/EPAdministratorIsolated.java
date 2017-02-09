@@ -13,8 +13,7 @@ package com.espertech.esper.client;
 /**
  * Administrative interfae
  */
-public interface EPAdministratorIsolated
-{
+public interface EPAdministratorIsolated {
     /**
      * Create and starts an EPL statement.
      * <p>
@@ -24,8 +23,9 @@ public interface EPAdministratorIsolated
      * Accepts an application defined user data object associated with the statement. The <em>user
      * object</em> is a single, unnamed field that is stored with every statement.
      * Applications may put arbitrary objects in this field or a null value.
-     * @param eplStatement is the query language statement
-     * @param userObject is the application-defined user object, or null if none provided
+     *
+     * @param eplStatement  is the query language statement
+     * @param userObject    is the application-defined user object, or null if none provided
      * @param statementName is the statement name or null if not provided or provided via annotation instead
      * @return EPStatement to poll data from or to add listeners to, or null if provided via annotation
      * @throws com.espertech.esper.client.EPException when the expression was not valid
@@ -36,12 +36,14 @@ public interface EPAdministratorIsolated
      * Returns the statement names of all started and stopped statements.
      * <p>
      * This excludes the name of destroyed statements.
+     *
      * @return statement names
      */
     public String[] getStatementNames();
 
     /**
      * Add a statement to the isolated service.
+     *
      * @param statement to add
      * @throws EPServiceIsolationException if the statement cannot be isolated, typically because it already is isolated
      */
@@ -49,6 +51,7 @@ public interface EPAdministratorIsolated
 
     /**
      * Remove a statement from the isolated service. This does not change engine state.
+     *
      * @param statement to remove
      * @throws EPServiceIsolationException if the statement was not isolated herein
      */
@@ -56,6 +59,7 @@ public interface EPAdministratorIsolated
 
     /**
      * Add statements to the isolated service.
+     *
      * @param statements to add
      * @throws EPServiceIsolationException if the statement cannot be isolated, typically because it already is isolated
      */
@@ -63,6 +67,7 @@ public interface EPAdministratorIsolated
 
     /**
      * Remove statements from the isolated service. This does not change engine state.
+     *
      * @param statements to remove
      * @throws EPServiceIsolationException if the statement was not isolated herein
      */

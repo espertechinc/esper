@@ -30,8 +30,7 @@ import java.util.List;
  * - not applicable for multiple nested range as ordering not nested
  * - each add/remove and lookup would also need to construct a key object.
  */
-public class PropertyCompositeEventTableFactory implements EventTableFactory
-{
+public class PropertyCompositeEventTableFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String[] optionalKeyedProps;
     protected final String[] rangeProps;
@@ -39,8 +38,7 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
     protected final Class[] optKeyCoercedTypes;
     protected final Class[] optRangeCoercedTypes;
 
-    public PropertyCompositeEventTableFactory(int streamNum, EventType eventType, String[] optionalKeyedProps, Class[] optKeyCoercedTypes, String[] rangeProps, Class[] optRangeCoercedTypes)
-    {
+    public PropertyCompositeEventTableFactory(int streamNum, EventType eventType, String[] optionalKeyedProps, Class[] optKeyCoercedTypes, String[] rangeProps, Class[] optRangeCoercedTypes) {
         this.streamNum = streamNum;
         this.rangeProps = rangeProps;
         this.optionalKeyedProps = optionalKeyedProps;
@@ -72,15 +70,14 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
-        return new EventTable[] {new PropertyCompositeEventTableImpl(optKeyCoercedTypes, optRangeCoercedTypes, organization, (optionalKeyedProps != null && optionalKeyedProps.length > 0), chain)};
+        return new EventTable[]{new PropertyCompositeEventTableImpl(optKeyCoercedTypes, optRangeCoercedTypes, organization, optionalKeyedProps != null && optionalKeyedProps.length > 0, chain)};
     }
 
     public Class getEventTableClass() {
         return PropertyCompositeEventTable.class;
     }
 
-    public String toQueryPlan()
-    {
+    public String toQueryPlan() {
         return this.getClass().getName() +
                 " streamNum=" + streamNum +
                 " keys=" + Arrays.toString(optionalKeyedProps) +

@@ -15,13 +15,14 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import java.util.List;
 import java.util.Map;
 
-public abstract class NamedWindowConsumerLatch
-{
+public abstract class NamedWindowConsumerLatch {
     private final NamedWindowDeltaData deltaData;
     private final Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo;
 
     public abstract void await();
+
     public abstract Thread getCurrentThread();
+
     public abstract void done();
 
     public NamedWindowConsumerLatch(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo) {

@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.join.exec.base;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.util.IndentWriter;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.util.IndentWriter;
 
 import java.util.Collection;
 import java.util.Set;
@@ -20,33 +20,31 @@ import java.util.Set;
 /**
  * Execution node for lookup in a table.
  */
-public class TableLookupExecNode extends ExecNode
-{
+public class TableLookupExecNode extends ExecNode {
     private int indexedStream;
     protected JoinExecTableLookupStrategy lookupStrategy;
 
     /**
      * Ctor.
-     * @param indexedStream - stream indexed for lookup
+     *
+     * @param indexedStream  - stream indexed for lookup
      * @param lookupStrategy - strategy to use for lookup (full table/indexed)
      */
-    public TableLookupExecNode(int indexedStream, JoinExecTableLookupStrategy lookupStrategy)
-    {
+    public TableLookupExecNode(int indexedStream, JoinExecTableLookupStrategy lookupStrategy) {
         this.indexedStream = indexedStream;
         this.lookupStrategy = lookupStrategy;
     }
 
     /**
      * Returns strategy for lookup.
+     *
      * @return lookup strategy
      */
-    public JoinExecTableLookupStrategy getLookupStrategy()
-    {
+    public JoinExecTableLookupStrategy getLookupStrategy() {
         return lookupStrategy;
     }
 
-    public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> result, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> result, ExprEvaluatorContext exprEvaluatorContext) {
         // Lookup events
         Set<EventBean> joinedEvents = lookupStrategy.lookup(lookupEvent, null, exprEvaluatorContext);
         if (joinedEvents == null) {
@@ -67,15 +65,14 @@ public class TableLookupExecNode extends ExecNode
 
     /**
      * Returns target stream for lookup.
+     *
      * @return indexed stream
      */
-    public int getIndexedStream()
-    {
+    public int getIndexedStream() {
         return indexedStream;
     }
 
-    public void print(IndentWriter writer)
-    {
+    public void print(IndentWriter writer) {
         writer.println("TableLookupExecNode indexedStream=" + indexedStream + " lookup=" + lookupStrategy);
     }
 }

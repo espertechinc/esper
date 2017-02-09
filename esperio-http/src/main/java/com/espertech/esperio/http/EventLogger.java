@@ -1,8 +1,8 @@
 package com.espertech.esperio.http;
 
+import org.apache.http.HttpException;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.EventListener;
-import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

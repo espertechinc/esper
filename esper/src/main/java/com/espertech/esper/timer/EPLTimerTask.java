@@ -25,32 +25,32 @@ final class EPLTimerTask implements Runnable {
     private ScheduledFuture<?> future;
     private boolean isCancelled;
 
-    protected boolean _enableStats;
-    protected long _lastDrift;
-    protected long _maxDrift;
-    protected long _totalDrift;
-    protected long _invocationCount;
+    protected boolean enableStats;
+    protected long lastDrift;
+    protected long maxDrift;
+    protected long totalDrift;
+    protected long invocationCount;
 
     public EPLTimerTask(TimerCallback callback) {
         this.callback = callback;
-        _enableStats = false;
-        _lastDrift = 0;
-        _maxDrift = 0;
-        _totalDrift = 0;
-        _invocationCount = 0;
+        enableStats = false;
+        lastDrift = 0;
+        maxDrift = 0;
+        totalDrift = 0;
+        invocationCount = 0;
     }
 
     public final void run() {
         if (!isCancelled) {
-            if (_enableStats) {
+            if (enableStats) {
                 // If we are called early, then delay will be positive. If we are called late, then the delay will be negative.
-                // NOTE: don't allow _enableStats to be set until future has been set
+                // NOTE: don't allow enableStats to be set until future has been set
                 if (future != null) {
-                    _lastDrift = Math.abs(future.getDelay(TimeUnit.MILLISECONDS));
+                    lastDrift = Math.abs(future.getDelay(TimeUnit.MILLISECONDS));
                 }
-                _totalDrift += _lastDrift;
-                _invocationCount++;
-                if (_lastDrift > _maxDrift) _maxDrift = _lastDrift;
+                totalDrift += lastDrift;
+                invocationCount++;
+                if (lastDrift > maxDrift) maxDrift = lastDrift;
             }
 
             try {
@@ -62,10 +62,10 @@ final class EPLTimerTask implements Runnable {
     }
 
     protected void resetStats() {
-        _invocationCount = 0;
-        _lastDrift = 0;
-        _totalDrift = 0;
-        _maxDrift = 0;
+        invocationCount = 0;
+        lastDrift = 0;
+        totalDrift = 0;
+        maxDrift = 0;
     }
 
     public void setCancelled(boolean cancelled) {

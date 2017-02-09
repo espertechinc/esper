@@ -13,8 +13,7 @@ package com.espertech.esper.core.start;
 /**
  * Method to call to stop an EPStatement.
  */
-public interface EPStatementStopMethod
-{
+public interface EPStatementStopMethod {
     /**
      * Stops a statement.
      */

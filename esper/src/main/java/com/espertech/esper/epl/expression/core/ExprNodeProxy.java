@@ -45,8 +45,7 @@ public class ExprNodeProxy implements java.lang.reflect.InvocationHandler {
         String expressionToString = "undefined";
         try {
             expressionToString = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             // no action
         }
 

@@ -20,23 +20,18 @@ import com.espertech.esper.view.Viewable;
 
 import java.util.*;
 
-public class ResultSetProcessorUtil
-{
+public class ResultSetProcessorUtil {
     public static void applyAggViewResult(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, EventBean[] newData, EventBean[] oldData, EventBean[] eventsPerStream) {
-        if (newData != null)
-        {
+        if (newData != null) {
             // apply new data to aggregates
-            for (int i = 0; i < newData.length; i++)
-            {
+            for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
                 aggregationService.applyEnter(eventsPerStream, null, exprEvaluatorContext);
             }
         }
-        if (oldData != null)
-        {
+        if (oldData != null) {
             // apply old data to aggregates
-            for (int i = 0; i < oldData.length; i++)
-            {
+            for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
                 aggregationService.applyLeave(eventsPerStream, null, exprEvaluatorContext);
             }
@@ -44,19 +39,15 @@ public class ResultSetProcessorUtil
     }
 
     public static void applyAggJoinResult(AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext, Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents) {
-        if (!newEvents.isEmpty())
-        {
+        if (!newEvents.isEmpty()) {
             // apply new data to aggregates
-            for (MultiKey<EventBean> events : newEvents)
-            {
+            for (MultiKey<EventBean> events : newEvents) {
                 aggregationService.applyEnter(events.getArray(), null, exprEvaluatorContext);
             }
         }
-        if (!oldEvents.isEmpty())
-        {
+        if (!oldEvents.isEmpty()) {
             // apply old data to aggregates
-            for (MultiKey<EventBean> events : oldEvents)
-            {
+            for (MultiKey<EventBean> events : oldEvents) {
                 aggregationService.applyLeave(events.getArray(), null, exprEvaluatorContext);
             }
         }
@@ -65,15 +56,15 @@ public class ResultSetProcessorUtil
     /**
      * Applies the select-clause to the given events returning the selected events. The number of events stays the
      * same, i.e. this method does not filter it just transforms the result set.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param events - input events
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param events               - input events
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectEventsNoHaving(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectEventsNoHaving(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -90,16 +81,16 @@ public class ResultSetProcessorUtil
     /**
      * Applies the select-clause to the given events returning the selected events. The number of events stays the
      * same, i.e. this method does not filter it just transforms the result set.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param orderByProcessor - orders the outgoing events according to the order-by clause
-     * @param events - input events
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param orderByProcessor     - orders the outgoing events according to the order-by clause
+     * @param events               - input events
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -111,7 +102,7 @@ public class ResultSetProcessorUtil
         for (int i = 0; i < events.length; i++) {
             eventsPerStream[0] = events[i];
             result[i] = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
-            eventGenerators[i] = new EventBean[] {events[i]};
+            eventGenerators[i] = new EventBean[]{events[i]};
         }
 
         return orderByProcessor.sort(result, eventGenerators, isNewData, exprEvaluatorContext);
@@ -122,17 +113,17 @@ public class ResultSetProcessorUtil
      * same, i.e. this method does not filter it just transforms the result set.
      * <p>
      * Also applies a having clause.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param orderByProcessor - for sorting output events according to the order-by clause
-     * @param events - input events
-     * @param havingNode - supplies the having-clause expression
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param orderByProcessor     - for sorting output events according to the order-by clause
+     * @param events               - input events
+     * @param havingNode           - supplies the having-clause expression
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -144,9 +135,13 @@ public class ResultSetProcessorUtil
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -173,11 +168,12 @@ public class ResultSetProcessorUtil
      * same, i.e. this method does not filter it just transforms the result set.
      * <p>
      * Also applies a having clause.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param events - input events
-     * @param havingNode - supplies the having-clause expression
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param events               - input events
+     * @param havingNode           - supplies the having-clause expression
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
@@ -186,8 +182,7 @@ public class ResultSetProcessorUtil
                                                        ExprEvaluator havingNode,
                                                        boolean isNewData,
                                                        boolean isSynthesize,
-                                                       ExprEvaluatorContext exprEvaluatorContext)
-    {
+                                                       ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return null;
         }
@@ -198,9 +193,13 @@ public class ResultSetProcessorUtil
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -223,16 +222,16 @@ public class ResultSetProcessorUtil
     /**
      * Applies the select-clause to the given events returning the selected events. The number of events stays the
      * same, i.e. this method does not filter it just transforms the result set.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param orderByProcessor - for sorting output events according to the order-by clause
-     * @param events - input events
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param orderByProcessor     - for sorting output events according to the order-by clause
+     * @param events               - input events
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -254,15 +253,15 @@ public class ResultSetProcessorUtil
     /**
      * Applies the select-clause to the given events returning the selected events. The number of events stays the
      * same, i.e. this method does not filter it just transforms the result set.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param events - input events
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param events               - input events
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -284,16 +283,16 @@ public class ResultSetProcessorUtil
      * same, i.e. this method does not filter it just transforms the result set.
      * <p>
      * Also applies a having clause.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param events - input events
-     * @param havingNode - supplies the having-clause expression
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param events               - input events
+     * @param havingNode           - supplies the having-clause expression
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -303,9 +302,13 @@ public class ResultSetProcessorUtil
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -330,17 +333,17 @@ public class ResultSetProcessorUtil
      * same, i.e. this method does not filter it just transforms the result set.
      * <p>
      * Also applies a having clause.
-     * @param exprProcessor - processes each input event and returns output event
-     * @param orderByProcessor - for sorting output events according to the order-by clause
-     * @param events - input events
-     * @param havingNode - supplies the having-clause expression
-     * @param isNewData - indicates whether we are dealing with new data (istream) or old data (rstream)
-     * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
+     *
+     * @param exprProcessor        - processes each input event and returns output event
+     * @param orderByProcessor     - for sorting output events according to the order-by clause
+     * @param events               - input events
+     * @param havingNode           - supplies the having-clause expression
+     * @param isNewData            - indicates whether we are dealing with new data (istream) or old data (rstream)
+     * @param isSynthesize         - set to true to indicate that synthetic events are required for an iterator result set
      * @param exprEvaluatorContext context for expression evalauation
      * @return output events, one for each input event
      */
-    protected static EventBean[] getSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static EventBean[] getSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         if ((events == null) || (events.isEmpty())) {
             return null;
         }
@@ -351,9 +354,13 @@ public class ResultSetProcessorUtil
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -375,8 +382,7 @@ public class ResultSetProcessorUtil
         return null;
     }
 
-    protected static void populateSelectEventsNoHaving(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, Collection<EventBean> result, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectEventsNoHaving(SelectExprProcessor exprProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, Collection<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
@@ -392,8 +398,7 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, Collection<EventBean> result, List<Object> sortKeys, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, boolean isNewData, boolean isSynthesize, Collection<EventBean> result, List<Object> sortKeys, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
@@ -410,8 +415,7 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectEventsHaving(SelectExprProcessor exprProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectEventsHaving(SelectExprProcessor exprProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
@@ -420,9 +424,13 @@ public class ResultSetProcessorUtil
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -434,8 +442,7 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> optSortKeys, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, EventBean[] events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> optSortKeys, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
@@ -444,9 +451,13 @@ public class ResultSetProcessorUtil
         for (EventBean theEvent : events) {
             eventsPerStream[0] = theEvent;
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseNonJoin(theEvent);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseNonJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -459,8 +470,7 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectJoinEventsHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
@@ -468,9 +478,13 @@ public class ResultSetProcessorUtil
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -482,8 +496,7 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> sortKeys, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectJoinEventsHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, ExprEvaluator havingNode, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> sortKeys, ExprEvaluatorContext exprEvaluatorContext) {
         if (events == null) {
             return;
         }
@@ -491,9 +504,13 @@ public class ResultSetProcessorUtil
         for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+            }
             Boolean passesHaving = (Boolean) havingNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(passesHaving);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aHavingClauseJoin(passesHaving);
+            }
             if ((passesHaving == null) || (!passesHaving)) {
                 continue;
             }
@@ -506,8 +523,7 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectJoinEventsNoHaving(SelectExprProcessor exprProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, ExprEvaluatorContext exprEvaluatorContext) {
         int length = (events != null) ? events.size() : 0;
         if (length == 0) {
             return;
@@ -522,15 +538,13 @@ public class ResultSetProcessorUtil
         }
     }
 
-    protected static void populateSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> optSortKeys, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    protected static void populateSelectJoinEventsNoHavingWithOrderBy(SelectExprProcessor exprProcessor, OrderByProcessor orderByProcessor, Set<MultiKey<EventBean>> events, boolean isNewData, boolean isSynthesize, List<EventBean> result, List<Object> optSortKeys, ExprEvaluatorContext exprEvaluatorContext) {
         int length = (events != null) ? events.size() : 0;
         if (length == 0) {
             return;
         }
 
-        for (MultiKey<EventBean> key : events)
-        {
+        for (MultiKey<EventBean> key : events) {
             EventBean[] eventsPerStream = key.getArray();
             EventBean resultEvent = exprProcessor.process(eventsPerStream, isNewData, isSynthesize, exprEvaluatorContext);
             if (resultEvent != null) {
@@ -544,7 +558,7 @@ public class ResultSetProcessorUtil
         aggregationService.clearResults(exprEvaluatorContext);
         Iterator<EventBean> it = parent.iterator();
         EventBean[] eventsPerStream = new EventBean[1];
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             eventsPerStream[0] = it.next();
             aggregationService.applyEnter(eventsPerStream, null, exprEvaluatorContext);
         }
@@ -552,7 +566,7 @@ public class ResultSetProcessorUtil
 
     public static ArrayDeque<EventBean> iteratorToDeque(Iterator<EventBean> it) {
         ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>();
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             deque.add(it.next());
         }
         return deque;

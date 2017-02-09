@@ -48,6 +48,7 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
     }
 
     public abstract EventType[] getAddStreamTypes(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, EventAdapterService eventAdapterService);
+
     public abstract EnumEval getEnumEval(EngineImportService engineImportService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException;
 
     public EnumMethodEnum getEnumMethodEnum() {
@@ -187,8 +188,7 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
             }
             EventBean[] eventsLambda = allocateCopyEventLambda(eventsPerStream);
             return enumEval.evaluateEnumMethod(eventsLambda, coll, isNewData, exprEvaluatorContext);
-        }
-        finally {
+        } finally {
             enumerationMethodCache.popContext();
         }
     }
@@ -235,8 +235,7 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
         try {
             ExprValidationContext filterValidationContext = new ExprValidationContext(types, validationContext);
             filter = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, filter, filterValidationContext);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             throw new ExprValidationException("Error validating enumeration method '" + enumMethodUsedName + "' parameter " + parameterNum + ": " + ex.getMessage(), ex);
         }
 

@@ -13,8 +13,7 @@ package com.espertech.esper.epl.spec;
 /**
  * Enum for the type of on-trigger statement.
  */
-public enum OnTriggerType
-{
+public enum OnTriggerType {
     /**
      * For on-delete triggers that delete from a named window when a triggering event arrives.
      */

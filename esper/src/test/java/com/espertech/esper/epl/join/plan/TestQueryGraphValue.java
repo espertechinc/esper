@@ -10,12 +10,12 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.event.bean.BeanEventType;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 public class TestQueryGraphValue extends TestCase {
@@ -23,25 +23,25 @@ public class TestQueryGraphValue extends TestCase {
     public void testRangeRelOp() {
 
         tryAdd("b", QueryGraphRangeEnum.GREATER_OR_EQUAL, makeIdent("a"),      // read a >= b
-               "c", QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"),         // read a <= c
-                new Object[][] {{null, "b", "c", QueryGraphRangeEnum.RANGE_CLOSED, "a"}});
+                "c", QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"),         // read a <= c
+                new Object[][]{{null, "b", "c", QueryGraphRangeEnum.RANGE_CLOSED, "a"}});
 
         tryAdd("b", QueryGraphRangeEnum.GREATER, makeIdent("a"),      // read a > b
-               "c", QueryGraphRangeEnum.LESS, makeIdent("a"),         // read a < c
-                new Object[][] {{null, "b", "c", QueryGraphRangeEnum.RANGE_OPEN, "a"}});
+                "c", QueryGraphRangeEnum.LESS, makeIdent("a"),         // read a < c
+                new Object[][]{{null, "b", "c", QueryGraphRangeEnum.RANGE_OPEN, "a"}});
 
         tryAdd("b", QueryGraphRangeEnum.GREATER_OR_EQUAL, makeIdent("a"),      // read a >= b
-               "c", QueryGraphRangeEnum.LESS, makeIdent("a"),                  // read a < c
-                new Object[][] {{null, "b", "c", QueryGraphRangeEnum.RANGE_HALF_OPEN, "a"}});
+                "c", QueryGraphRangeEnum.LESS, makeIdent("a"),                  // read a < c
+                new Object[][]{{null, "b", "c", QueryGraphRangeEnum.RANGE_HALF_OPEN, "a"}});
 
         tryAdd("b", QueryGraphRangeEnum.GREATER, makeIdent("a"),                       // read a > b
-               "c", QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"),                  // read a <= c
-                new Object[][] {{null, "b", "c", QueryGraphRangeEnum.RANGE_HALF_CLOSED, "a"}});
+                "c", QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"),                  // read a <= c
+                new Object[][]{{null, "b", "c", QueryGraphRangeEnum.RANGE_HALF_CLOSED, "a"}});
 
         // sanity
         tryAdd("b", QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"),                     // read a <= b
-               "c", QueryGraphRangeEnum.GREATER_OR_EQUAL, makeIdent("a"),                  // read a >= c
-                new Object[][] {{null, "c", "b", QueryGraphRangeEnum.RANGE_CLOSED, "a"}});
+                "c", QueryGraphRangeEnum.GREATER_OR_EQUAL, makeIdent("a"),                  // read a >= c
+                new Object[][]{{null, "c", "b", QueryGraphRangeEnum.RANGE_CLOSED, "a"}});
     }
 
     private ExprIdentNode makeIdent(String prop) {
@@ -68,12 +68,12 @@ public class TestQueryGraphValue extends TestCase {
         QueryGraphValue value = new QueryGraphValue();
         value.addRelOp(makeIdent("b"), QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"), false);
         value.addRelOp(makeIdent("b"), QueryGraphRangeEnum.LESS_OR_EQUAL, makeIdent("a"), false);
-        assertRanges(new Object[][] {{"b", null, null, QueryGraphRangeEnum.LESS_OR_EQUAL, "a"}}, value);
+        assertRanges(new Object[][]{{"b", null, null, QueryGraphRangeEnum.LESS_OR_EQUAL, "a"}}, value);
 
         value = new QueryGraphValue();
         value.addRange(QueryGraphRangeEnum.RANGE_CLOSED, makeIdent("b"), makeIdent("c"), makeIdent("a"));
         value.addRange(QueryGraphRangeEnum.RANGE_CLOSED, makeIdent("b"), makeIdent("c"), makeIdent("a"));
-        assertRanges(new Object[][] {{null, "b", "c", QueryGraphRangeEnum.RANGE_CLOSED, "a"}}, value);
+        assertRanges(new Object[][]{{null, "b", "c", QueryGraphRangeEnum.RANGE_CLOSED, "a"}}, value);
     }
 
     private void assertRanges(Object[][] ranges, QueryGraphValue value) {
@@ -90,8 +90,7 @@ public class TestQueryGraphValue extends TestCase {
             if (r instanceof QueryGraphValueEntryRangeRelOp) {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) r;
                 assertEquals(ranges[count][0], getProp(relOp.getExpression()));
-            }
-            else {
+            } else {
                 QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) r;
                 assertEquals(ranges[count][1], getProp(rangeIn.getExprStart()));
                 assertEquals(ranges[count][2], getProp(rangeIn.getExprEnd()));

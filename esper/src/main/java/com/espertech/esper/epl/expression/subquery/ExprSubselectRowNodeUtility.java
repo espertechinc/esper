@@ -24,16 +24,13 @@ public class ExprSubselectRowNodeUtility {
     public static EventBean evaluateFilterExpectSingleMatch(EventBean[] eventsZeroSubselect, boolean newData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext, ExprSubselectRowNode parent) {
 
         EventBean subSelectResult = null;
-        for (EventBean subselectEvent : matchingEvents)
-        {
+        for (EventBean subselectEvent : matchingEvents) {
             // Prepare filter expression event list
             eventsZeroSubselect[0] = subselectEvent;
 
             Boolean pass = (Boolean) parent.filterExpr.evaluate(eventsZeroSubselect, newData, exprEvaluatorContext);
-            if ((pass != null) && (pass))
-            {
-                if (subSelectResult != null)
-                {
+            if ((pass != null) && pass) {
+                if (subSelectResult != null) {
                     log.warn(parent.getMultirowMessage());
                     return null;
                 }

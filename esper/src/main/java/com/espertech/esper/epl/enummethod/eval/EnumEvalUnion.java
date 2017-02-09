@@ -41,11 +41,10 @@ public class EnumEvalUnion implements EnumEval {
         Collection set;
         if (scalar) {
             set = evaluator.evaluateGetROCollectionScalar(eventsLambda, isNewData, context);
-        }
-        else {
+        } else {
             set = evaluator.evaluateGetROCollectionEvents(eventsLambda, isNewData, context);
         }
-        
+
         if (set == null || set.isEmpty()) {
             return target;
         }

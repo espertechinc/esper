@@ -10,27 +10,23 @@
  */
 package com.espertech.esper.supportunit.view;
 
-import com.espertech.esper.view.internal.BufferObserver;
 import com.espertech.esper.collection.FlushedEventBuffer;
+import com.espertech.esper.view.internal.BufferObserver;
 
-public class SupportBufferObserver implements BufferObserver
-{
+public class SupportBufferObserver implements BufferObserver {
     private boolean hasNewData;
     private int streamId;
     private FlushedEventBuffer newEventBuffer;
     private FlushedEventBuffer oldEventBuffer;
 
-    public boolean getAndResetHasNewData()
-    {
+    public boolean getAndResetHasNewData() {
         boolean result = hasNewData;
         hasNewData = false;
         return result;
     }
 
-    public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer)
-    {
-        if (hasNewData == true)
-        {
+    public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer) {
+        if (hasNewData == true) {
             throw new IllegalStateException("Observer already has new data");
         }
 
@@ -40,22 +36,19 @@ public class SupportBufferObserver implements BufferObserver
         this.oldEventBuffer = oldEventBuffer;
     }
 
-    public int getAndResetStreamId()
-    {
+    public int getAndResetStreamId() {
         int id = streamId;
         streamId = 0;
         return id;
     }
 
-    public FlushedEventBuffer getAndResetNewEventBuffer()
-    {
+    public FlushedEventBuffer getAndResetNewEventBuffer() {
         FlushedEventBuffer buf = newEventBuffer;
         newEventBuffer = null;
         return buf;
     }
 
-    public FlushedEventBuffer getAndResetOldEventBuffer()
-    {
+    public FlushedEventBuffer getAndResetOldEventBuffer() {
         FlushedEventBuffer buf = oldEventBuffer;
         oldEventBuffer = null;
         return buf;

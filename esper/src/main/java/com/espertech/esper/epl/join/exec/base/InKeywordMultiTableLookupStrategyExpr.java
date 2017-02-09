@@ -23,16 +23,14 @@ import java.util.Set;
 /**
  * Lookup on an index using a set of expression results as key values.
  */
-public class InKeywordMultiTableLookupStrategyExpr implements JoinExecTableLookupStrategy
-{
+public class InKeywordMultiTableLookupStrategyExpr implements JoinExecTableLookupStrategy {
     private final PropertyIndexedEventTableSingle[] indexes;
     private final int streamNum;
     private final EventBean[] eventsPerStream;
     private final ExprEvaluator evaluator;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    public InKeywordMultiTableLookupStrategyExpr(ExprEvaluator evaluator, int streamNum, PropertyIndexedEventTableSingle[] indexes, LookupStrategyDesc lookupStrategyDesc)
-    {
+    public InKeywordMultiTableLookupStrategyExpr(ExprEvaluator evaluator, int streamNum, PropertyIndexedEventTableSingle[] indexes, LookupStrategyDesc lookupStrategyDesc) {
         if (indexes == null) {
             throw new IllegalArgumentException("Unexpected null index received");
         }
@@ -45,21 +43,19 @@ public class InKeywordMultiTableLookupStrategyExpr implements JoinExecTableLooku
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle[] getIndex()
-    {
+    public PropertyIndexedEventTableSingle[] getIndex() {
         return indexes;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
         eventsPerStream[streamNum] = theEvent;
         return InKeywordTableLookupUtil.multiIndexLookup(evaluator, eventsPerStream, exprEvaluatorContext, indexes);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName() + " " + lookupStrategyDesc.toString();
     }
 

@@ -49,21 +49,18 @@ public class ASTCreateSchemaHelper {
         if (ctx.createSchemaQual() != null) {
             List<EsperEPL2GrammarParser.CreateSchemaQualContext> qualCtxs = ctx.createSchemaQual();
             for (EsperEPL2GrammarParser.CreateSchemaQualContext qualCtx : qualCtxs) {
-                String qualName = qualCtx.i.getText().toLowerCase();
+                String qualName = qualCtx.i.getText().toLowerCase(Locale.ENGLISH);
                 List<String> cols = ASTUtil.getIdentList(qualCtx.columnList());
-                if (qualName.toLowerCase().equals("inherits")) {
+                if (qualName.toLowerCase(Locale.ENGLISH).equals("inherits")) {
                     inherited.addAll(cols);
                     continue;
-                }
-                else if (qualName.toLowerCase().equals("starttimestamp")) {
+                } else if (qualName.toLowerCase(Locale.ENGLISH).equals("starttimestamp")) {
                     startTimestamp = cols.get(0);
                     continue;
-                }
-                else if (qualName.toLowerCase().equals("endtimestamp")) {
+                } else if (qualName.toLowerCase(Locale.ENGLISH).equals("endtimestamp")) {
                     endTimestamp = cols.get(0);
                     continue;
-                }
-                else if (qualName.toLowerCase().equals("copyfrom")) {
+                } else if (qualName.toLowerCase(Locale.ENGLISH).equals("copyfrom")) {
                     copyFrom.addAll(cols);
                     continue;
                 }
@@ -74,8 +71,7 @@ public class ASTCreateSchemaHelper {
         return new CreateSchemaDesc(schemaName, typeNames, columnTypes, inherited, assignedType, startTimestamp, endTimestamp, copyFrom);
     }
 
-    public static List<ColumnDesc> getColTypeList(EsperEPL2GrammarParser.CreateColumnListContext ctx)
-    {
+    public static List<ColumnDesc> getColTypeList(EsperEPL2GrammarParser.CreateColumnListContext ctx) {
         if (ctx == null) {
             return Collections.emptyList();
         }
@@ -86,8 +82,7 @@ public class ASTCreateSchemaHelper {
             String type;
             if (colctx.VALUE_NULL() != null) {
                 type = null;
-            }
-            else {
+            } else {
                 type = ASTUtil.unescapeClassIdent(idents.get(1));
             }
             boolean array = colctx.b != null;
@@ -99,7 +94,7 @@ public class ASTCreateSchemaHelper {
 
     protected static boolean validateIsPrimitiveArray(Token p) {
         if (p != null) {
-            if (!p.getText().toLowerCase().equals("primitive")) {
+            if (!p.getText().toLowerCase(Locale.ENGLISH).equals("primitive")) {
                 throw ASTWalkException.from("Column type keyword '" + p.getText() + "' not recognized, expecting '[primitive]'");
             }
             return true;

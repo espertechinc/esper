@@ -75,5 +75,5 @@ public class EnumEvalTakeWhileLastIndexScalar extends EnumEvalBaseScalarIndex im
         }
 
         return result;
-    }    
+    }
 }

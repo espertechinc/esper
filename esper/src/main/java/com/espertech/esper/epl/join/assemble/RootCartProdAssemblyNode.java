@@ -21,8 +21,7 @@ import java.util.List;
 /**
  * Assembly node for an event stream that is a root with a two or more child nodes below it.
  */
-public class RootCartProdAssemblyNode extends BaseAssemblyNode
-{
+public class RootCartProdAssemblyNode extends BaseAssemblyNode {
     private final int[] childStreamIndex; // maintain mapping of stream number to index in array
     private final List<EventBean[]>[] rowsPerStream;
     private final boolean allSubStreamsOptional;
@@ -34,30 +33,26 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
 
     /**
      * Ctor.
-     * @param streamNum - is the stream number
-     * @param numStreams - is the number of streams
+     *
+     * @param streamNum             - is the stream number
+     * @param numStreams            - is the number of streams
      * @param allSubStreamsOptional - true if all substreams are optional and none are required
-     * @param childStreamIndex indexes for child streams
+     * @param childStreamIndex      indexes for child streams
      */
-    public RootCartProdAssemblyNode(int streamNum, int numStreams, boolean allSubStreamsOptional, int[] childStreamIndex)
-    {
+    public RootCartProdAssemblyNode(int streamNum, int numStreams, boolean allSubStreamsOptional, int[] childStreamIndex) {
         super(streamNum, numStreams);
         this.allSubStreamsOptional = allSubStreamsOptional;
         this.childStreamIndex = childStreamIndex;
         rowsPerStream = new List[numStreams];
     }
 
-    public void init(List<Node>[] result)
-    {
-        if (subStreamsNumsPerChild == null)
-        {
-            if (childNodes.size() < 2)
-            {
+    public void init(List<Node>[] result) {
+        if (subStreamsNumsPerChild == null) {
+            if (childNodes.size() < 2) {
                 throw new IllegalStateException("Expecting at least 2 child nodes");
             }
             subStreamsNumsPerChild = new int[childNodes.size()][];
-            for (int i = 0; i < childNodes.size(); i++)
-            {
+            for (int i = 0; i < childNodes.size(); i++) {
                 subStreamsNumsPerChild[i] = childNodes.get(i).getSubstreams();
             }
 
@@ -65,17 +60,14 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
         }
 
         haveChildResults = false;
-        for (int i = 0; i < rowsPerStream.length; i++)
-        {
+        for (int i = 0; i < rowsPerStream.length; i++) {
             rowsPerStream[i] = null;
         }
     }
 
-    public void process(List<Node>[] result, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-    {
+    public void process(List<Node>[] result, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
         // If no child has posted any rows, generate row and done
-        if ((!haveChildResults) && (allSubStreamsOptional))
-        {
+        if ((!haveChildResults) && allSubStreamsOptional) {
             // post an empty row
             EventBean[] row = new EventBean[numStreams];
             parentNode.result(row, streamNum, null, null, resultFinalRows, resultRootEvent);
@@ -86,8 +78,7 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
         postCartesian(rowsPerStream, resultFinalRows, resultRootEvent);
     }
 
-    public void result(EventBean[] row, int fromStreamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-    {
+    public void result(EventBean[] row, int fromStreamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
         haveChildResults = true;
 
         // fill event in
@@ -96,31 +87,26 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
 
         // keep a reference to the row to build a cartesian product on the call to process
         List<EventBean[]> rows = rowsPerStream[childStreamArrIndex];
-        if (rows == null)
-        {
+        if (rows == null) {
             rows = new LinkedList<EventBean[]>();
             rowsPerStream[childStreamArrIndex] = rows;
         }
         rows.add(row);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("RootCartProdAssemblyNode streamNum=" + streamNum);
     }
 
-    private void postCartesian(List<EventBean[]>[] rowsPerStream, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-    {
+    private void postCartesian(List<EventBean[]>[] rowsPerStream, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
         List<EventBean[]> result = new LinkedList<EventBean[]>();
         CartesianUtil.computeCartesian(
                 rowsPerStream[0], subStreamsNumsPerChild[0],
                 rowsPerStream[1], subStreamsNumsPerChild[1],
                 result);
 
-        if (rowsPerStream.length > 2)
-        {
-            for (int i = 0; i < subStreamsNumsPerChild.length - 2; i++)
-            {
+        if (rowsPerStream.length > 2) {
+            for (int i = 0; i < subStreamsNumsPerChild.length - 2; i++) {
                 List<EventBean[]> product = new LinkedList<EventBean[]>();
                 CartesianUtil.computeCartesian(
                         result, combinedSubStreams[i],
@@ -130,23 +116,21 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
             }
         }
 
-        for (EventBean[] row : result)
-        {
+        for (EventBean[] row : result) {
             parentNode.result(row, streamNum, null, null, resultFinalRows, resultRootEvent);
         }
     }
 
     /**
      * Compute an array of supersets of sub stream numbers per stream, for at least 3 or more streams.
+     *
      * @param subStreamsPerChild is for each stream number a list of direct child sub streams
      * @return an array in with length (subStreamsPerChild.lenght - 2) in which
      * array[0] contains the streams for subStreamsPerChild[0] and subStreamsPerChild[1] combined, and
      * array[1] contains the streams for subStreamsPerChild[0], subStreamsPerChild[1] and subStreamsPerChild[2] combined
      */
-    protected static int[][] computeCombined(int[][] subStreamsPerChild)
-    {
-        if (subStreamsPerChild.length < 3)
-        {
+    protected static int[][] computeCombined(int[][] subStreamsPerChild) {
+        if (subStreamsPerChild.length < 3) {
             return null;
         }
 
@@ -157,27 +141,23 @@ public class RootCartProdAssemblyNode extends BaseAssemblyNode
         int[][] result = new int[subStreamsPerChild.length - 2][];
 
         result[0] = addSubstreams(subStreamsPerChild[0], subStreamsPerChild[1]);
-        for (int i = 0; i < subStreamsPerChild.length - 3; i++)
-        {
+        for (int i = 0; i < subStreamsPerChild.length - 3; i++) {
             result[i + 1] = addSubstreams(result[i], subStreamsPerChild[i + 2]);
         }
 
         return result;
     }
 
-    private static int[] addSubstreams(int[] arrayOne, int[] arrayTwo)
-    {
+    private static int[] addSubstreams(int[] arrayOne, int[] arrayTwo) {
         int[] result = new int[arrayOne.length + arrayTwo.length];
 
         int count = 0;
-        for (int i = 0; i < arrayOne.length; i++)
-        {
+        for (int i = 0; i < arrayOne.length; i++) {
             result[count] = arrayOne[i];
             count++;
         }
 
-        for (int i = 0; i < arrayTwo.length; i++)
-        {
+        for (int i = 0; i < arrayTwo.length; i++) {
             result[count] = arrayTwo[i];
             count++;
         }

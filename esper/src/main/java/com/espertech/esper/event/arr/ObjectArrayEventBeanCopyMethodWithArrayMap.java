@@ -24,8 +24,7 @@ import java.util.Set;
 /**
  * Copy method for Map-underlying events.
  */
-public class ObjectArrayEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod
-{
+public class ObjectArrayEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod {
     private final ObjectArrayEventType eventType;
     private final EventAdapterService eventAdapterService;
     private final Set<Integer> mapIndexesToCopy;
@@ -52,8 +51,7 @@ public class ObjectArrayEventBeanCopyMethodWithArrayMap implements EventBeanCopy
         }
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         ObjectArrayBackedEventBean arrayBacked = (ObjectArrayBackedEventBean) theEvent;
         Object[] props = arrayBacked.getProperties();
         Object[] shallowCopy = new Object[props.length];

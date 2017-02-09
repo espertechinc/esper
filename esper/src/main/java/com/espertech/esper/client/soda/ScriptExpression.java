@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Script-expression is external scripting language expression such as JavaScript, Groovy or MVEL, for example.
  */
-public class ScriptExpression implements Serializable
-{
+public class ScriptExpression implements Serializable {
     private static final long serialVersionUID = 3264067514571908258L;
     private String name;
     private List<String> parameterNames;
@@ -34,11 +33,12 @@ public class ScriptExpression implements Serializable
 
     /**
      * Ctor.
-     * @param name script name
-     * @param parameterNames parameter list
-     * @param expressionText script text
+     *
+     * @param name               script name
+     * @param parameterNames     parameter list
+     * @param expressionText     script text
      * @param optionalReturnType return type
-     * @param optionalDialect dialect
+     * @param optionalDialect    dialect
      */
     public ScriptExpression(String name, List<String> parameterNames, String expressionText, String optionalReturnType, String optionalDialect) {
         this.name = name;
@@ -50,6 +50,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Returns the script name.
+     *
      * @return script name
      */
     public String getName() {
@@ -58,6 +59,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Sets the script name.
+     *
      * @param name script name to set
      */
     public void setName(String name) {
@@ -66,6 +68,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Returns the return type, if any is specified.
+     *
      * @return return type
      */
     public String getOptionalReturnType() {
@@ -74,6 +77,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Sets the return type, if any is specified.
+     *
      * @param optionalReturnType return type
      */
     public void setOptionalReturnType(String optionalReturnType) {
@@ -82,6 +86,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Returns a dialect name, or null if none is defined and the configured default applies
+     *
      * @return dialect name
      */
     public String getOptionalDialect() {
@@ -90,6 +95,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Sets a dialect name, or null if none is defined and the configured default applies
+     *
      * @param optionalDialect dialect name
      */
     public void setOptionalDialect(String optionalDialect) {
@@ -98,6 +104,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Returns the script body.
+     *
      * @return script body
      */
     public String getExpressionText() {
@@ -106,6 +113,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Sets the script body.
+     *
      * @param expressionText script body
      */
     public void setExpressionText(String expressionText) {
@@ -114,6 +122,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Returns the lambda expression parameters.
+     *
      * @return lambda expression parameters
      */
     public List<String> getParameterNames() {
@@ -122,6 +131,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Sets the lambda expression parameters.
+     *
      * @param parameterNames lambda expression parameters
      */
     public void setParameterNames(List<String> parameterNames) {
@@ -130,8 +140,9 @@ public class ScriptExpression implements Serializable
 
     /**
      * Print.
-     * @param writer to print to
-     * @param scripts scripts
+     *
+     * @param writer    to print to
+     * @param scripts   scripts
      * @param formatter for newline-whitespace formatting
      */
     public static void toEPL(StringWriter writer, List<ScriptExpression> scripts, EPStatementFormatter formatter) {
@@ -150,6 +161,7 @@ public class ScriptExpression implements Serializable
 
     /**
      * Print part.
+     *
      * @param writer to write to
      */
     public void toEPL(StringWriter writer) {

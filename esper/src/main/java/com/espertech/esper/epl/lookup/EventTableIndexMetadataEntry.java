@@ -15,8 +15,7 @@ import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import java.util.HashSet;
 import java.util.Set;
 
-public class EventTableIndexMetadataEntry extends EventTableIndexEntryBase
-{
+public class EventTableIndexMetadataEntry extends EventTableIndexEntryBase {
     private final boolean primary;
     private final Set<String> referencedByStmt;
     private final QueryPlanIndexItem queryPlanIndexItem;

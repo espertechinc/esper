@@ -17,19 +17,16 @@ import com.espertech.esper.supportunit.pattern.SupportPatternContextFactory;
 import com.espertech.esper.view.TestViewSupport;
 import junit.framework.TestCase;
 
-public class TestTimerObserverFactory extends TestCase
-{
+public class TestTimerObserverFactory extends TestCase {
     private PatternAgentInstanceContext patternContext;
 
-    public void setUp()
-    {
+    public void setUp() {
         patternContext = SupportPatternContextFactory.makePatternAgentInstanceContext();
     }
 
-    public void testIntervalWait() throws Exception
-    {
+    public void testIntervalWait() throws Exception {
         TimerIntervalObserverFactory factory = new TimerIntervalObserverFactory();
-        factory.setObserverParameters(TestViewSupport.toExprListBean(new Object[] {1}), new SupportMatchedEventConvertor(), null);
+        factory.setObserverParameters(TestViewSupport.toExprListBean(new Object[]{1}), new SupportMatchedEventConvertor(), null);
         EventObserver eventObserver = factory.makeObserver(patternContext, null, new SupportObserverEventEvaluator(patternContext), null, null, false);
 
         assertTrue(eventObserver instanceof TimerIntervalObserver);

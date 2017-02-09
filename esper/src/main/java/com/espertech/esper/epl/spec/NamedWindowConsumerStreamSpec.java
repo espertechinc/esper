@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.named.NamedWindowConsumerDesc;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 
 import java.util.List;
@@ -20,8 +19,7 @@ import java.util.List;
 /**
  * Specification for use of an existing named window.
  */
-public class NamedWindowConsumerStreamSpec extends StreamSpecBase implements StreamSpecCompiled
-{
+public class NamedWindowConsumerStreamSpec extends StreamSpecBase implements StreamSpecCompiled {
     private static final long serialVersionUID = -8549850729310756432L;
 
     private String windowName;
@@ -30,15 +28,15 @@ public class NamedWindowConsumerStreamSpec extends StreamSpecBase implements Str
 
     /**
      * Ctor.
-     * @param windowName - specifies the name of the named window
-     * @param optionalAsName - a name or null if none defined
-     * @param viewSpecs - is the view specifications
-     * @param filterExpressions - the named window filters
-     * @param streamSpecOptions - additional options such as unidirectional stream in a join
+     *
+     * @param windowName           - specifies the name of the named window
+     * @param optionalAsName       - a name or null if none defined
+     * @param viewSpecs            - is the view specifications
+     * @param filterExpressions    - the named window filters
+     * @param streamSpecOptions    - additional options such as unidirectional stream in a join
      * @param optPropertyEvaluator - for nested events
      */
-    public NamedWindowConsumerStreamSpec(String windowName, String optionalAsName, ViewSpec[] viewSpecs, List<ExprNode> filterExpressions, StreamSpecOptions streamSpecOptions, PropertyEvaluator optPropertyEvaluator)
-    {
+    public NamedWindowConsumerStreamSpec(String windowName, String optionalAsName, ViewSpec[] viewSpecs, List<ExprNode> filterExpressions, StreamSpecOptions streamSpecOptions, PropertyEvaluator optPropertyEvaluator) {
         super(optionalAsName, viewSpecs, streamSpecOptions);
         this.windowName = windowName;
         this.filterExpressions = filterExpressions;
@@ -47,24 +45,23 @@ public class NamedWindowConsumerStreamSpec extends StreamSpecBase implements Str
 
     /**
      * Returns the window name.
+     *
      * @return window name
      */
-    public String getWindowName()
-    {
+    public String getWindowName() {
         return windowName;
     }
 
     /**
      * Returns list of filter expressions onto the named window, or no filter expressions if none defined.
+     *
      * @return list of filter expressions
      */
-    public List<ExprNode> getFilterExpressions()
-    {
+    public List<ExprNode> getFilterExpressions() {
         return filterExpressions;
     }
 
-    public PropertyEvaluator getOptPropertyEvaluator()
-    {
+    public PropertyEvaluator getOptPropertyEvaluator() {
         return optPropertyEvaluator;
     }
 

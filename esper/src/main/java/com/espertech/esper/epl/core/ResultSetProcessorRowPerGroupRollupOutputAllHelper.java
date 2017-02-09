@@ -18,8 +18,12 @@ import java.util.Set;
 
 public interface ResultSetProcessorRowPerGroupRollupOutputAllHelper extends ResultSetProcessorOutputHelper {
     void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic);
+
     void processJoin(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, boolean isGenerateSynthetic);
+
     UniformPair<EventBean[]> outputView(boolean isSynthesize);
+
     UniformPair<EventBean[]> outputJoin(boolean isSynthesize);
+
     void destroy();
 }

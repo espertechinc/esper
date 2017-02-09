@@ -26,8 +26,7 @@ public class ContextPartitionVisitorAgentInstanceIdWPath implements ContextParti
     public void visit(int nestingLevel, int pathId, ContextStatePathValueBinding binding, Object payload, ContextController contextController, ContextControllerInstanceHandle instanceHandle) {
         if (nestingLevel == maxNestingLevel) {
             agentInstanceIds.add(instanceHandle.getContextPartitionOrPathId());
-        }
-        else {
+        } else {
             subpaths.add(instanceHandle.getContextPartitionOrPathId());
         }
     }

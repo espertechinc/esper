@@ -15,20 +15,19 @@ import java.util.List;
 /**
  * Specification for the on-select splitstream statement.
  */
-public class OnTriggerSplitStreamDesc extends OnTriggerDesc
-{
+public class OnTriggerSplitStreamDesc extends OnTriggerDesc {
     private boolean isFirst;
     private final List<OnTriggerSplitStream> splitStreams;
     private static final long serialVersionUID = 794886832792005103L;
 
     /**
      * Ctor.
+     *
      * @param onTriggerType type of trigger
-     * @param isFirst true for use the first-matching where clause, false for all
-     * @param splitStreams streams
+     * @param isFirst       true for use the first-matching where clause, false for all
+     * @param splitStreams  streams
      */
-    public OnTriggerSplitStreamDesc(OnTriggerType onTriggerType, boolean isFirst, List<OnTriggerSplitStream> splitStreams)
-    {
+    public OnTriggerSplitStreamDesc(OnTriggerType onTriggerType, boolean isFirst, List<OnTriggerSplitStream> splitStreams) {
         super(onTriggerType);
         this.isFirst = isFirst;
         this.splitStreams = splitStreams;
@@ -36,19 +35,19 @@ public class OnTriggerSplitStreamDesc extends OnTriggerDesc
 
     /**
      * Returns the remaining insert-into and select-clauses in the split-stream clause.
+     *
      * @return clauses.
      */
-    public List<OnTriggerSplitStream> getSplitStreams()
-    {
+    public List<OnTriggerSplitStream> getSplitStreams() {
         return splitStreams;
     }
 
     /**
      * Returns indicator whether only the first or all where-clauses are triggering.
+     *
      * @return first or all
      */
-    public boolean isFirst()
-    {
+    public boolean isFirst() {
         return isFirst;
     }
 }

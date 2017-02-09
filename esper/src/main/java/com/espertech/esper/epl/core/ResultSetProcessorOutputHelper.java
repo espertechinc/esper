@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.epl.core;
 
-public interface ResultSetProcessorOutputHelper
-{
+public interface ResultSetProcessorOutputHelper {
 }

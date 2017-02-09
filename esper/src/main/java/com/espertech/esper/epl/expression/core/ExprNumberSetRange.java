@@ -23,10 +23,9 @@ import java.io.StringWriter;
  * <p>
  * Differs from the between-expression since the value returned by evaluating is a cron-value object.
  */
-public class ExprNumberSetRange extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprNumberSetRange extends ExprNodeBase implements ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetRange.class);
-    private transient ExprEvaluator evaluators[];
+    private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = -3777415170380735662L;
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -44,44 +43,36 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprEvaluator
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return this.getChildNodes()[0].isConstantResult() && this.getChildNodes()[1].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         return node instanceof ExprNumberSetRange;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
         Class typeOne = evaluators[0].getType();
         Class typeTwo = evaluators[1].getType();
-        if ((!(JavaClassHelper.isNumericNonFP(typeOne))) || (!(JavaClassHelper.isNumericNonFP(typeTwo))))
-        {
+        if ((!(JavaClassHelper.isNumericNonFP(typeOne))) || (!(JavaClassHelper.isNumericNonFP(typeTwo)))) {
             throw new ExprValidationException("Range operator requires integer-type parameters");
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return RangeParameter.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object valueLower = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         Object valueUpper = evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (valueLower == null)
-        {
+        if (valueLower == null) {
             log.warn("Null value returned for lower bounds value in range parameter, using zero as lower bounds");
             valueLower = 0;
         }
-        if (valueUpper == null)
-        {
+        if (valueUpper == null) {
             log.warn("Null value returned for upper bounds value in range parameter, using max as upper bounds");
             valueUpper = Integer.MAX_VALUE;
         }

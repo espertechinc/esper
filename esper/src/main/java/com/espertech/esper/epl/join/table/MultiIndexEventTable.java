@@ -23,28 +23,27 @@ import java.util.Iterator;
  * filled or empty tables. All tables are expected to be filled and empty at the same time,
  * reflecting multiple indexes on a single set of data.
  */
-public class MultiIndexEventTable implements EventTable
-{
+public class MultiIndexEventTable implements EventTable {
     private final EventTable[] tables;
     private final EventTableOrganization organization;
 
     /**
      * Ctor.
-     * @param tables tables to hold
+     *
+     * @param tables       tables to hold
      * @param organization organization
      */
-    public MultiIndexEventTable(EventTable[] tables, EventTableOrganization organization)
-    {
+    public MultiIndexEventTable(EventTable[] tables, EventTableOrganization organization) {
         this.tables = tables;
         this.organization = organization;
     }
 
     /**
      * Returns all tables.
+     *
      * @return tables
      */
-    public EventTable[] getTables()
-    {
+    public EventTable[] getTables() {
         return tables;
     }
 
@@ -52,40 +51,32 @@ public class MultiIndexEventTable implements EventTable
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean[] events)
-    {
+    public void add(EventBean[] events) {
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean event)
-    {
+    public void add(EventBean event) {
         throw new UnsupportedOperationException();
     }
 
-    public void remove(EventBean[] events)
-    {
+    public void remove(EventBean[] events) {
         throw new UnsupportedOperationException();
     }
 
-    public void remove(EventBean event)
-    {
+    public void remove(EventBean event) {
         throw new UnsupportedOperationException();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         throw new UnsupportedOperationException();
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return tables[0].isEmpty();
     }
 
-    public void clear()
-    {
-        for (int i = 0; i < tables.length; i++)
-        {
+    public void clear() {
+        for (int i = 0; i < tables.length; i++) {
             tables[i].clear();
         }
     }

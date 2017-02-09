@@ -15,10 +15,10 @@ import com.espertech.esper.client.util.EventUnderlyingType;
 /**
  * Annotation that can be attached to specify which underlying event representation to use for events.
  */
-public @interface EventRepresentation
-{
+public @interface EventRepresentation {
     /**
      * Define the event underlying type
+     *
      * @return event underlying type
      */
     EventUnderlyingType value();

@@ -13,28 +13,25 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventTypeIdGeneratorImpl;
 import com.espertech.esper.supportunit.bean.ISupportD;
 import com.espertech.esper.supportunit.bean.ISupportDImpl;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportunit.bean.SupportBeanSimple;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TestBeanEventAdapter extends TestCase
-{
+public class TestBeanEventAdapter extends TestCase {
     private BeanEventTypeFactory beanEventTypeFactory;
 
-    public void setUp()
-    {
+    public void setUp() {
         beanEventTypeFactory = new BeanEventAdapter(new ConcurrentHashMap<Class, BeanEventType>(), SupportEventAdapterService.getService(), new EventTypeIdGeneratorImpl());
     }
 
-    public void testCreateBeanType()
-    {
+    public void testCreateBeanType() {
         BeanEventType eventType = beanEventTypeFactory.createBeanType("a", SupportBeanSimple.class, true, true, true);
 
         assertEquals(SupportBeanSimple.class, eventType.getUnderlyingType());
@@ -49,8 +46,7 @@ public class TestBeanEventAdapter extends TestCase
         assertTrue(eventTypeThree == eventType);
     }
 
-    public void testInterfaceProperty()
-    {
+    public void testInterfaceProperty() {
         // Assert implementations have full set of properties
         ISupportDImpl theEvent = new ISupportDImpl("D", "BaseD", "BaseDBase");
         EventType typeBean = beanEventTypeFactory.createBeanType(theEvent.getClass().getName(), theEvent.getClass(), true, true, true);
@@ -68,9 +64,8 @@ public class TestBeanEventAdapter extends TestCase
                 new String[]{"d", "baseD", "baseDBase"});
     }
 
-    public void testMappedIndexedNestedProperty() throws Exception
-    {
-    	EventType eventType = beanEventTypeFactory.createBeanType("e", SupportBeanComplexProps.class, true, true, true);
+    public void testMappedIndexedNestedProperty() throws Exception {
+        EventType eventType = beanEventTypeFactory.createBeanType("e", SupportBeanComplexProps.class, true, true, true);
 
         assertEquals(Map.class, eventType.getPropertyType("mapProperty"));
         assertEquals(String.class, eventType.getPropertyType("mapped('x')"));

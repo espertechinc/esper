@@ -12,34 +12,31 @@ package com.espertech.esper.collection;
 
 import com.espertech.esper.util.MetaDefItem;
 
-import java.util.Arrays;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Functions as a key value for Maps where keys need to be composite values.
  * The class allows a Map that uses MultiKeyUntyped entries for key values to use multiple objects as keys.
  * It calculates the hashCode from the key objects on construction and caches the hashCode.
  */
-public final class MultiKeyUntyped implements MetaDefItem, Serializable
-{
+public final class MultiKeyUntyped implements MetaDefItem, Serializable {
     private final Object[] keys;
     private final int hashCode;
     private static final long serialVersionUID = -3890626073105861216L;
 
     /**
      * Constructor for multiple keys supplied in an object array.
+     *
      * @param keys is an array of key objects
      */
-    public MultiKeyUntyped(Object[] keys)
-    {
-        if (keys == null)
-        {
+    public MultiKeyUntyped(Object[] keys) {
+        if (keys == null) {
             throw new IllegalArgumentException("The array of keys must not be null");
         }
 
         int total = 0;
-        for (int i = 0; i < keys.length; i++)
-        {
+        for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null) {
                 total *= 31;
                 total ^= keys[i].hashCode();
@@ -52,73 +49,70 @@ public final class MultiKeyUntyped implements MetaDefItem, Serializable
 
     /**
      * Constructor for a single key object.
+     *
      * @param key is the single key object
      */
-    public MultiKeyUntyped(Object key)
-    {
-        this(new Object[] {key});
+    public MultiKeyUntyped(Object key) {
+        this(new Object[]{key});
     }
 
     /**
      * Constructor for a pair of key objects.
+     *
      * @param key1 is the first key object
      * @param key2 is the second key object
      */
-    public MultiKeyUntyped(Object key1, Object key2)
-    {
-        this(new Object[] {key1, key2});
+    public MultiKeyUntyped(Object key1, Object key2) {
+        this(new Object[]{key1, key2});
     }
 
     /**
      * Constructor for three key objects.
+     *
      * @param key1 is the first key object
      * @param key2 is the second key object
      * @param key3 is the third key object
      */
-    public MultiKeyUntyped(Object key1, Object key2, Object key3)
-    {
-        this(new Object[] {key1, key2, key3});
+    public MultiKeyUntyped(Object key1, Object key2, Object key3) {
+        this(new Object[]{key1, key2, key3});
     }
 
     /**
      * Constructor for four key objects.
+     *
      * @param key1 is the first key object
      * @param key2 is the second key object
      * @param key3 is the third key object
      * @param key4 is the fourth key object
      */
-    public MultiKeyUntyped(Object key1, Object key2, Object key3, Object key4)
-    {
-        this(new Object[] {key1, key2, key3, key4});
+    public MultiKeyUntyped(Object key1, Object key2, Object key3, Object key4) {
+        this(new Object[]{key1, key2, key3, key4});
     }
 
     /**
      * Returns the number of key objects.
+     *
      * @return size of key object array
      */
-    public final int size()
-    {
+    public final int size() {
         return keys.length;
     }
 
     /**
      * Returns the key object at the specified position.
+     *
      * @param index is the array position
      * @return key object at position
      */
-    public final Object get(int index)
-    {
+    public final Object get(int index) {
         return keys[index];
-    }        
+    }
 
-    public final boolean equals(Object other)
-    {
-        if (other == this)
-        {
+    public final boolean equals(Object other) {
+        if (other == this) {
             return true;
         }
-        if (other instanceof MultiKeyUntyped)
-        {
+        if (other instanceof MultiKeyUntyped) {
             MultiKeyUntyped otherKeys = (MultiKeyUntyped) other;
             return Arrays.equals(keys, otherKeys.keys);
         }
@@ -127,20 +121,18 @@ public final class MultiKeyUntyped implements MetaDefItem, Serializable
 
     /**
      * Returns keys.
+     *
      * @return keys object array
      */
-    public Object[] getKeys()
-    {
+    public Object[] getKeys() {
         return keys;
     }
 
-    public final int hashCode()
-    {
+    public final int hashCode() {
         return hashCode;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "MultiKeyUntyped" + Arrays.asList(keys).toString();
     }
 }

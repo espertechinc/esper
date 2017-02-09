@@ -26,9 +26,9 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.type.MinMaxTypeEnum;
-import com.espertech.esper.util.TransientConfigurationResolver;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MethodResolver;
+import com.espertech.esper.util.TransientConfigurationResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +126,7 @@ public class EngineImportServiceImpl implements EngineImportService {
         if (aggregationDesc.getFactoryClassName() == null || !isClassName(aggregationDesc.getFactoryClassName())) {
             throw new EngineImportException("Invalid class name for aggregation factory '" + aggregationDesc.getFactoryClassName() + "'");
         }
-        aggregationFunctions.put(functionName.toLowerCase(), aggregationDesc);
+        aggregationFunctions.put(functionName.toLowerCase(Locale.ENGLISH), aggregationDesc);
     }
 
     public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions) throws EngineImportException {
@@ -135,13 +135,13 @@ public class EngineImportServiceImpl implements EngineImportService {
         if (!isClassName(singleRowFuncClass)) {
             throw new EngineImportException("Invalid class name for aggregation '" + singleRowFuncClass + "'");
         }
-        singleRowFunctions.put(functionName.toLowerCase(), new EngineImportSingleRowDesc(singleRowFuncClass, methodName, valueCache, filterOptimizable, rethrowExceptions));
+        singleRowFunctions.put(functionName.toLowerCase(Locale.ENGLISH), new EngineImportSingleRowDesc(singleRowFuncClass, methodName, valueCache, filterOptimizable, rethrowExceptions));
     }
 
     public AggregationFunctionFactory resolveAggregationFactory(String name) throws EngineImportUndefinedException, EngineImportException {
         ConfigurationPlugInAggregationFunction desc = aggregationFunctions.get(name);
         if (desc == null) {
-            desc = aggregationFunctions.get(name.toLowerCase());
+            desc = aggregationFunctions.get(name.toLowerCase(Locale.ENGLISH));
         }
         if (desc == null || desc.getFactoryClassName() == null) {
             throw new EngineImportUndefinedException("A function named '" + name + "' is not defined");
@@ -173,8 +173,8 @@ public class EngineImportServiceImpl implements EngineImportService {
     public void addAggregationMultiFunction(ConfigurationPlugInAggregationMultiFunction desc) throws EngineImportException {
         LinkedHashSet<String> orderedImmutableFunctionNames = new LinkedHashSet<String>();
         for (String functionName : desc.getFunctionNames()) {
-            orderedImmutableFunctionNames.add(functionName.toLowerCase());
-            validateFunctionName("aggregation multi-function", functionName.toLowerCase());
+            orderedImmutableFunctionNames.add(functionName.toLowerCase(Locale.ENGLISH));
+            validateFunctionName("aggregation multi-function", functionName.toLowerCase(Locale.ENGLISH));
         }
         if (!isClassName(desc.getMultiFunctionFactoryClassName())) {
             throw new EngineImportException("Invalid class name for aggregation multi-function factory '" + desc.getMultiFunctionFactoryClassName() + "'");
@@ -184,7 +184,7 @@ public class EngineImportServiceImpl implements EngineImportService {
 
     public ConfigurationPlugInAggregationMultiFunction resolveAggregationMultiFunction(String name) {
         for (Pair<Set<String>, ConfigurationPlugInAggregationMultiFunction> config : aggregationAccess) {
-            if (config.getFirst().contains(name.toLowerCase())) {
+            if (config.getFirst().contains(name.toLowerCase(Locale.ENGLISH))) {
                 return config.getSecond();
             }
         }
@@ -194,7 +194,7 @@ public class EngineImportServiceImpl implements EngineImportService {
     public Pair<Class, EngineImportSingleRowDesc> resolveSingleRow(String name) throws EngineImportException, EngineImportUndefinedException {
         EngineImportSingleRowDesc pair = singleRowFunctions.get(name);
         if (pair == null) {
-            pair = singleRowFunctions.get(name.toLowerCase());
+            pair = singleRowFunctions.get(name.toLowerCase(Locale.ENGLISH));
         }
         if (pair == null) {
             throw new EngineImportUndefinedException("A function named '" + name + "' is not defined");
@@ -382,7 +382,7 @@ public class EngineImportServiceImpl implements EngineImportService {
     }
 
     public ExprNode resolveSingleRowExtendedBuiltin(String name) {
-        String nameLowerCase = name.toLowerCase();
+        String nameLowerCase = name.toLowerCase(Locale.ENGLISH);
         if (nameLowerCase.equals("current_evaluation_context")) {
             return new ExprCurrentEvaluationContextNode();
         }
@@ -393,7 +393,7 @@ public class EngineImportServiceImpl implements EngineImportService {
         if (!allowExtendedAggregationFunc) {
             return null;
         }
-        String nameLowerCase = name.toLowerCase();
+        String nameLowerCase = name.toLowerCase(Locale.ENGLISH);
         if (nameLowerCase.equals("first")) {
             return new ExprAggMultiFunctionLinearAccessNode(AggregationStateType.FIRST);
         }
@@ -509,7 +509,7 @@ public class EngineImportServiceImpl implements EngineImportService {
     }
 
     private void validateFunctionName(String functionType, String functionName) throws EngineImportException {
-        String functionNameLower = functionName.toLowerCase();
+        String functionNameLower = functionName.toLowerCase(Locale.ENGLISH);
         if (aggregationFunctions.containsKey(functionNameLower)) {
             throw new EngineImportException("Aggregation function by name '" + functionName + "' is already defined");
         }
@@ -528,7 +528,7 @@ public class EngineImportServiceImpl implements EngineImportService {
 
     private Method resolveMethodInternalCheckOverloads(Class clazz, String methodName, MethodModifiers methodModifiers)
             throws EngineImportException {
-        Method methods[] = clazz.getMethods();
+        Method[] methods = clazz.getMethods();
         Set<Method> overloadeds = null;
         Method methodByName = null;
 
@@ -597,7 +597,7 @@ public class EngineImportServiceImpl implements EngineImportService {
                 }
             } else {
                 if (requireAnnotation && importName.equals(Configuration.ANNOTATION_IMPORT)) {
-                    Class clazz = BuiltinAnnotation.BUILTIN.get(className.toLowerCase());
+                    Class clazz = BuiltinAnnotation.BUILTIN.get(className.toLowerCase(Locale.ENGLISH));
                     if (clazz != null) {
                         return clazz;
                     }

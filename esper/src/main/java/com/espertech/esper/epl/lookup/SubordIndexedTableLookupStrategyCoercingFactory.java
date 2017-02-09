@@ -13,13 +13,13 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.PropertyIndexedEventTable;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
+
 import java.util.List;
 
 /**
  * Index lookup strategy that coerces the key values before performing a lookup.
  */
-public class SubordIndexedTableLookupStrategyCoercingFactory extends SubordIndexedTableLookupStrategyExprFactory
-{
+public class SubordIndexedTableLookupStrategyCoercingFactory extends SubordIndexedTableLookupStrategyExprFactory {
     private Class[] coercionTypes;
 
     public SubordIndexedTableLookupStrategyCoercingFactory(boolean isNWOnTrigger, int numStreamsOuter, List<SubordPropHashKey> hashKeys, Class[] coercionTypes) {
@@ -31,8 +31,7 @@ public class SubordIndexedTableLookupStrategyCoercingFactory extends SubordIndex
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordIndexedTableLookupStrategyCoercingNW(evaluators, (PropertyIndexedEventTable) eventTable[0], coercionTypes, strategyDesc);
-        }
-        else {
+        } else {
             return new SubordIndexedTableLookupStrategyCoercing(numStreamsOuter, evaluators, (PropertyIndexedEventTable) eventTable[0], coercionTypes, strategyDesc);
         }
     }

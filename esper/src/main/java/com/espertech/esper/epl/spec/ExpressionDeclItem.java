@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import java.io.Serializable;
 import java.util.List;
 
-public class ExpressionDeclItem implements Serializable
-{
+public class ExpressionDeclItem implements Serializable {
     private static final long serialVersionUID = 1823345580817519502L;
 
     private final String name;

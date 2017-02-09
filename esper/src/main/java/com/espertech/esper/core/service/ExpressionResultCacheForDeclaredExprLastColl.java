@@ -18,11 +18,12 @@ import java.util.Collection;
  * On the level of expression declaration:
  * a) for non-enum evaluation and for enum-evaluation a separate cache
  * b) The cache is keyed by the prototype-node and verified by a events-per-stream (EventBean[]) that is maintained or rewritten.
- *
+ * <p>
  * NOTE: ExpressionResultCacheEntry should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForDeclaredExprLastColl {
 
     ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> getDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream);
+
     void saveDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream, Collection<EventBean> result);
 }

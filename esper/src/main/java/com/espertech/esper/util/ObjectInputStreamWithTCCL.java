@@ -42,8 +42,7 @@ public class ObjectInputStreamWithTCCL extends ObjectInputStream {
             if (currentTccl != null) {
                 return currentTccl.loadClass(desc.getName());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
         return super.resolveClass(desc);
     }

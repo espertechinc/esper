@@ -15,8 +15,7 @@ import com.espertech.esper.pattern.MatchedEventMap;
 /**
  * Guard instances inspect a matched events and makes a determination on whether to let it pass or not.
  */
-public interface Guard
-{
+public interface Guard {
     /**
      * Start the guard operation.
      */
@@ -29,6 +28,7 @@ public interface Guard
 
     /**
      * Returns true if inspection shows that the match events can pass, or false to not pass.
+     *
      * @param matchEvent is the map of matching events
      * @return true to pass, false to not pass
      */

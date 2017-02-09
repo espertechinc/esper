@@ -30,8 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class EsperIOHTTPAdapter
-{
+public class EsperIOHTTPAdapter {
     private static Logger log = LoggerFactory.getLogger(EsperIOHTTPAdapter.class);
 
     private final ConfigurationHTTPAdapter config;
@@ -41,11 +40,11 @@ public class EsperIOHTTPAdapter
 
     /**
      * Quickstart constructor.
-     * @param config configuration
+     *
+     * @param config    configuration
      * @param engineURI engine URI
      */
-    public EsperIOHTTPAdapter(ConfigurationHTTPAdapter config, String engineURI)
-    {
+    public EsperIOHTTPAdapter(ConfigurationHTTPAdapter config, String engineURI) {
         this.config = config;
         this.engineURI = engineURI;
     }
@@ -53,17 +52,14 @@ public class EsperIOHTTPAdapter
     /**
      * Re-initialize.
      */
-    public void initialize()
-    {
+    public void initialize() {
     }
 
     /**
      * Start the DDS endpoint.
      */
-    public synchronized void start()
-    {
-        if (log.isInfoEnabled())
-        {
+    public synchronized void start() {
+        if (log.isInfoEnabled()) {
             log.info("Starting EsperIO HTTP Adapter for engine URI '" + engineURI + "'");
         }
 
@@ -82,8 +78,7 @@ public class EsperIOHTTPAdapter
                 subs.seteventTypeName(request.getStream());
                 subs.setSubscriptionName("EsperIOHTTP-" + request.getUri());
                 subs.registerAdapter(engineSPI);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error("Error starting HTTP Request definition for URI " + request.getUri() + "'" + t.getMessage(), t);
             }
         }
@@ -109,8 +104,7 @@ public class EsperIOHTTPAdapter
                     throw new ConfigurationException("NIO Handler not found in classpath, please ensure httpcore-nio exists in classpath.");
                 }
                 httpService = new EsperHttpServiceNIO(entry.getKey(), entry.getValue());
-            }
-            else {
+            } else {
                 httpService = new EsperHttpServiceClassic(entry.getKey(), entry.getValue());
             }
             services.put(entry.getKey(), httpService);
@@ -134,8 +128,7 @@ public class EsperIOHTTPAdapter
             }
         }
 
-        if (log.isInfoEnabled())
-        {
+        if (log.isInfoEnabled()) {
             log.info("Completed starting EsperIO HTTP Adapter for engine URI '" + engineURI + "'.");
         }
     }
@@ -143,10 +136,8 @@ public class EsperIOHTTPAdapter
     /**
      * Destroy the adapter.
      */
-    public synchronized void destroy()
-    {
-        if (log.isDebugEnabled())
-        {
+    public synchronized void destroy() {
+        if (log.isDebugEnabled()) {
             log.debug("Destroying Esper HTTP Adapter");
         }
 

@@ -13,7 +13,6 @@ package com.espertech.esper.epl.core.eval;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class EvalInsertNoWildcardObjectArray extends EvalBase implements SelectExprProcessor {
@@ -24,8 +23,7 @@ public class EvalInsertNoWildcardObjectArray extends EvalBase implements SelectE
 
     public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         Object[] result = new Object[super.getExprNodes().length];
-        for (int i = 0; i < super.getExprNodes().length; i++)
-        {
+        for (int i = 0; i < super.getExprNodes().length; i++) {
             result[i] = super.getExprNodes()[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         }
 

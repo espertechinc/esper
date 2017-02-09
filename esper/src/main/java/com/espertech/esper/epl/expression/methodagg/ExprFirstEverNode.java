@@ -19,21 +19,19 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 /**
  * Represents the "firstever" aggregate function is an expression tree.
  */
-public class ExprFirstEverNode extends ExprAggregateNodeBase
-{
+public class ExprFirstEverNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 1436994080693454617L;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprFirstEverNode(boolean distinct)
-    {
+    public ExprFirstEverNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (positionalParams.length > 2) {
             throw makeExceptionExpectedParamNum(0, 2);
         }
@@ -47,13 +45,11 @@ public class ExprFirstEverNode extends ExprAggregateNodeBase
         return positionalParams.length == 2;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "firstever";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprFirstEverNode;
     }
 }

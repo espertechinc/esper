@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventType;
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public abstract class NamedWindowOnExprBaseViewFactory implements NamedWindowOnExprFactory
-{
+public abstract class NamedWindowOnExprBaseViewFactory implements NamedWindowOnExprFactory {
     protected final EventType namedWindowEventType;
 
     protected NamedWindowOnExprBaseViewFactory(EventType namedWindowEventType) {

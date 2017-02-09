@@ -19,8 +19,7 @@ import com.espertech.esper.event.EventBeanUtility;
 /**
  * Index lookup strategy that coerces the key values before performing a lookup.
  */
-public class SubordIndexedTableLookupStrategySingleCoercing extends SubordIndexedTableLookupStrategySingleExpr
-{
+public class SubordIndexedTableLookupStrategySingleCoercing extends SubordIndexedTableLookupStrategySingleExpr {
     private Class coercionType;
 
     public SubordIndexedTableLookupStrategySingleCoercing(int streamCountOuter, ExprEvaluator evaluator, PropertyIndexedEventTableSingle index, Class coercionType, LookupStrategyDesc strategyDesc) {

@@ -19,37 +19,32 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 /**
  * Represents the avg(...) aggregate function is an expression tree.
  */
-public class ExprAvgNode extends ExprAggregateNodeBase
-{
+public class ExprAvgNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 984275656068129627L;
 
     private boolean hasFilter;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprAvgNode(boolean distinct)
-    {
+    public ExprAvgNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeAvg(validationContext.getStatementExtensionSvcContext(), this, childType, validationContext.getEngineImportService().getDefaultMathContext());
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "avg";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprAvgNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprAvgNode)) {
             return false;
         }
 

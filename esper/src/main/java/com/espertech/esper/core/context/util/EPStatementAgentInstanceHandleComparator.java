@@ -19,8 +19,7 @@ public class EPStatementAgentInstanceHandleComparator implements Comparator<EPSt
 
     public final static EPStatementAgentInstanceHandleComparator INSTANCE = new EPStatementAgentInstanceHandleComparator();
 
-    public int compare(EPStatementAgentInstanceHandle o1, EPStatementAgentInstanceHandle o2)
-    {
+    public int compare(EPStatementAgentInstanceHandle o1, EPStatementAgentInstanceHandle o2) {
         if (o1.getPriority() == o2.getPriority()) {
             if (o1 == o2 || o1.equals(o2)) {
                 return 0;
@@ -29,8 +28,7 @@ public class EPStatementAgentInstanceHandleComparator implements Comparator<EPSt
                 return compare(o1.getStatementId(), o2.getStatementId());
             }
             return o1.getAgentInstanceId() < o2.getAgentInstanceId() ? -1 : 1;
-        }
-        else {
+        } else {
             return o1.getPriority() > o2.getPriority() ? -1 : 1;
         }
     }

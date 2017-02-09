@@ -11,6 +11,7 @@
 package com.espertech.esper.client.annotation;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -24,30 +25,12 @@ public class BuiltinAnnotation {
     public final static Map<String, Class> BUILTIN = new HashMap<String, Class>();
 
     static {
-        for (Class clazz : new Class[] {
-                Audit.class,
-                Description.class,
-                Drop.class,
-                Durable.class,
-                EventRepresentation.class,
-                ExternalDW.class,
-                ExternalDWKey.class,
-                ExternalDWListener.class,
-                ExternalDWQuery.class,
-                ExternalDWSetting.class,
-                ExternalDWValue.class,
-                Hint.class,
-                Hook.class,
-                IterableUnbound.class,
-                Name.class,
-                NoLock.class,
-                Overflow.class,
-                Priority.class,
-                Resilient.class,
-                Tag.class,
-                Transient.class
+        for (Class clazz : new Class[]{Audit.class, Description.class, Drop.class, Durable.class, EventRepresentation.class,
+            ExternalDW.class, ExternalDWKey.class, ExternalDWListener.class, ExternalDWQuery.class, ExternalDWSetting.class,
+            ExternalDWValue.class, Hint.class, Hook.class, IterableUnbound.class, Name.class, NoLock.class, Overflow.class,
+            Priority.class, Resilient.class, Tag.class, Transient.class
         }) {
-            BUILTIN.put(clazz.getSimpleName().toLowerCase(), clazz);
+            BUILTIN.put(clazz.getSimpleName().toLowerCase(Locale.ENGLISH), clazz);
         }
     }
 }

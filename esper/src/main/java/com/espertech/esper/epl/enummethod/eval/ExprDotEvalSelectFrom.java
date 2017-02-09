@@ -12,12 +12,12 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.filter.*;
@@ -18,17 +19,14 @@ import com.espertech.esper.pattern.EvalNodeAnalysisResult;
 import com.espertech.esper.pattern.EvalNodeUtil;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-public class TestPatternStreamSpecRaw extends TestCase
-{
-    public void testPatternEquals() throws Exception
-    {
+public class TestPatternStreamSpecRaw extends TestCase {
+    public void testPatternEquals() throws Exception {
         String text = "select * from pattern [" +
                 "s=" + SupportBean.class.getName() + "(intPrimitive=5) -> " +
                 "t=" + SupportBean.class.getName() + "(intPrimitive=s.intBoxed)" +
@@ -42,8 +40,7 @@ public class TestPatternStreamSpecRaw extends TestCase
         tryPatternEquals(text);
     }
 
-    public void testInvalid() throws Exception
-    {
+    public void testInvalid() throws Exception {
         String text = "select * from pattern [" +
                 "s=" + SupportBean.class.getName() + " -> " +
                 "t=" + SupportBean.class.getName() + "(intPrimitive=s.doubleBoxed)" +
@@ -57,22 +54,17 @@ public class TestPatternStreamSpecRaw extends TestCase
         tryInvalid(text);
     }
 
-    private void tryInvalid(String text) throws Exception
-    {
-        try
-        {
+    private void tryInvalid(String text) throws Exception {
+        try {
             PatternStreamSpecRaw raw = makeSpec(text);
             compile(raw);
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }
 
-    public void testPatternExpressions() throws Exception
-    {
+    public void testPatternExpressions() throws Exception {
         String text = "select * from pattern [" +
                 "s=" + SupportBean.class.getName() + "(intPrimitive in (s.intBoxed + 1, 0), intBoxed+1=intPrimitive-1)" +
                 "]";
@@ -93,11 +85,10 @@ public class TestPatternStreamSpecRaw extends TestCase
         FilterSpecParamExprNode exprParam = (FilterSpecParamExprNode) filterNode.getFilterSpec().getParameters()[0][0];
     }
 
-    public void testPatternInSetOfVal() throws Exception
-    {
+    public void testPatternInSetOfVal() throws Exception {
         String text = "select * from pattern [" +
                 "s=" + SupportBean.class.getName() + " -> " +
-                       SupportBean.class.getName() + "(intPrimitive in (s.intBoxed, 0))" +
+                SupportBean.class.getName() + "(intPrimitive in (s.intBoxed, 0))" +
                 "]";
 
         PatternStreamSpecRaw raw = makeSpec(text);
@@ -133,11 +124,10 @@ public class TestPatternStreamSpecRaw extends TestCase
         assertEquals(0, constant.getConstant());
     }
 
-    public void testRange() throws Exception
-    {
+    public void testRange() throws Exception {
         String text = "select * from pattern [" +
                 "s=" + SupportBean.class.getName() + " -> " +
-                       SupportBean.class.getName() + "(intPrimitive between s.intBoxed and 100)" +
+                SupportBean.class.getName() + "(intPrimitive between s.intBoxed and 100)" +
                 "]";
 
         PatternStreamSpecRaw raw = makeSpec(text);
@@ -172,8 +162,7 @@ public class TestPatternStreamSpecRaw extends TestCase
         assertEquals(100d, constant.getDoubleValue());
     }
 
-    private void tryPatternEquals(String text) throws Exception
-    {
+    private void tryPatternEquals(String text) throws Exception {
         PatternStreamSpecRaw raw = makeSpec(text);
         PatternStreamSpecCompiled spec = compile(raw);
         assertEquals(2, spec.getTaggedEventTypes().size());
@@ -206,13 +195,11 @@ public class TestPatternStreamSpecRaw extends TestCase
         assertEquals("intBoxed", eventprop.getResultEventProperty());
     }
 
-    private PatternStreamSpecCompiled compile(PatternStreamSpecRaw raw) throws Exception
-    {
+    private PatternStreamSpecCompiled compile(PatternStreamSpecRaw raw) throws Exception {
         return raw.compile(SupportStatementContextFactory.makeContext(), new HashSet<String>(), false, Collections.<Integer>emptyList(), false, false, false, null);
     }
 
-    private static PatternStreamSpecRaw makeSpec(String expression) throws Exception
-    {
+    private static PatternStreamSpecRaw makeSpec(String expression) throws Exception {
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         return (PatternStreamSpecRaw) walker.getStatementSpec().getStreamSpecs().get(0);
     }

@@ -10,25 +10,22 @@
  */
 package com.espertech.esper.epl.join.assemble;
 
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.supportunit.epl.join.SupportJoinProcNode;
 import com.espertech.esper.supportunit.epl.join.SupportJoinResultNodeFactory;
-import com.espertech.esper.epl.join.rep.Node;
-import com.espertech.esper.client.EventBean;
+import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-public class TestSingleOptionalAssemblyNode extends TestCase
-{
+public class TestSingleOptionalAssemblyNode extends TestCase {
     private SupportJoinProcNode parentNode;
     private BranchOptionalAssemblyNode optAssemblyNode;
     private List<Node>[] resultMultipleEvents;
     private List<Node>[] resultSingleEvent;
 
-    public void setUp()
-    {
+    public void setUp() {
         optAssemblyNode = new BranchOptionalAssemblyNode(1, 4);
         parentNode = new SupportJoinProcNode(-1, 4);
         parentNode.addChild(optAssemblyNode);
@@ -37,8 +34,7 @@ public class TestSingleOptionalAssemblyNode extends TestCase
         resultSingleEvent = SupportJoinResultNodeFactory.makeOneStreamResult(4, 1, 1, 1); // 1 nodes 1 event each for (1)
     }
 
-    public void testProcessMultipleEvents()
-    {
+    public void testProcessMultipleEvents() {
         List<EventBean[]> resultFinalRows = new ArrayList<EventBean[]>();
         optAssemblyNode.init(resultMultipleEvents);
 
@@ -60,8 +56,7 @@ public class TestSingleOptionalAssemblyNode extends TestCase
         assertEquals(nodeTwo.getEvents().iterator().next(), row[1]);
     }
 
-    public void testProcessSingleEvent()
-    {
+    public void testProcessSingleEvent() {
         optAssemblyNode.init(resultSingleEvent);
 
         // test that the node indeed manufactures event rows for any event not received from a child
@@ -76,14 +71,12 @@ public class TestSingleOptionalAssemblyNode extends TestCase
         assertEquals(node.getEvents().iterator().next(), row[1]);
     }
 
-    public void testChildResult()
-    {
+    public void testChildResult() {
         optAssemblyNode.init(resultMultipleEvents);
         testChildResult(optAssemblyNode, parentNode);
     }
 
-    protected static void testChildResult(BaseAssemblyNode nodeUnderTest, SupportJoinProcNode mockParentNode)
-    {
+    protected static void testChildResult(BaseAssemblyNode nodeUnderTest, SupportJoinProcNode mockParentNode) {
         EventBean[] childRow = new EventBean[4];
         childRow[3] = SupportJoinResultNodeFactory.makeEvent();
 

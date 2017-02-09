@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.epl.view;
 
-public interface OutputConditionPolledState
-{
+public interface OutputConditionPolledState {
 }

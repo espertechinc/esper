@@ -14,12 +14,11 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.mgr.ContextManagementServiceImpl;
 import com.espertech.esper.core.service.EPAdministratorHelper;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
-import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
+import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
@@ -43,17 +42,17 @@ public class ExcludePlanHintExprUtil {
                 ExcludePlanHintExprUtil.class.getSimpleName(), 0, null, properties, null, null, null);
     }
 
-    public static EventBean toEvent(int from_streamnum,
-                                    int to_streamnum,
-                                    String from_streamname,
-                                    String to_streamname,
+    public static EventBean toEvent(int fromStreamnum,
+                                    int toStreamnum,
+                                    String fromStreamname,
+                                    String toStreamname,
                                     String opname,
                                     ExprNode[] expressions) {
         String[] texts = new String[expressions.length];
         for (int i = 0; i < expressions.length; i++) {
             texts[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expressions[i]);
         }
-        Object[] event = new Object[] {from_streamnum, to_streamnum, from_streamname, to_streamname, opname, texts};
+        Object[] event = new Object[]{fromStreamnum, toStreamnum, fromStreamname, toStreamname, opname, texts};
         return new ObjectArrayEventBean(event, OAEXPRESSIONTYPE);
     }
 

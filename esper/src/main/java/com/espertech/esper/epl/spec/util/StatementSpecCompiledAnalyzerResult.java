@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.spec.util;
 
-import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.util.List;

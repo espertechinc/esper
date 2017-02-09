@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * PluginLoader for added this example as part of an Esper configuration file and therefore execute it during startup.
  */
-public class MatchMakerSamplePlugin implements PluginLoader
-{
+public class MatchMakerSamplePlugin implements PluginLoader {
     private static final Logger log = LoggerFactory.getLogger(MatchMakerSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
@@ -19,20 +18,15 @@ public class MatchMakerSamplePlugin implements PluginLoader
     private MatchMakerMain matchMakerMain;
     private Thread simulationThread;
 
-    public void init(PluginLoaderInitContext context)
-    {
-        if (context.getProperties().getProperty(ENGINE_URI) != null)
-        {
+    public void init(PluginLoaderInitContext context) {
+        if (context.getProperties().getProperty(ENGINE_URI) != null) {
             engineURI = context.getProperties().getProperty(ENGINE_URI);
-        }
-        else
-        {
+        } else {
             engineURI = context.getEpServiceProvider().getURI();
         }
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         log.info("Starting MatchMaker-example for engine URI '" + engineURI + "'.");
 
         try {
@@ -40,24 +34,21 @@ public class MatchMakerSamplePlugin implements PluginLoader
             simulationThread = new Thread(matchMakerMain, this.getClass().getName() + "-simulator");
             simulationThread.setDaemon(true);
             simulationThread.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error starting MatchMaker example: " + e.getMessage());
         }
 
         log.info("MatchMaker-example started.");
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         if (matchMakerMain != null) {
             EPServiceProviderManager.getProvider(engineURI).getEPAdministrator().destroyAllStatements();
         }
         try {
             simulationThread.interrupt();
             simulationThread.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.info("Interrupted", e);
         }
         matchMakerMain = null;

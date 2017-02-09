@@ -20,6 +20,7 @@ public interface ExprAggregateAccessMultiValueNode extends ExprEvaluatorEnumerat
 
     public void validatePositionals()
             throws ExprValidationException;
+
     public abstract AggregationMethodFactory validateAggregationParamsWBinding(ExprValidationContext context, TableMetadataColumnAggregation tableAccessColumn)
             throws ExprValidationException;
 }

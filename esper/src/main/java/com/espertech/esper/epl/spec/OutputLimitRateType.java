@@ -13,8 +13,7 @@ package com.espertech.esper.epl.spec;
 /**
  * Enum for the type of rate for output-rate limiting.
  */
-public enum OutputLimitRateType
-{
+public enum OutputLimitRateType {
     /**
      * Output by number of events.
      */

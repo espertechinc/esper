@@ -29,64 +29,51 @@ public abstract class ExprNodeBase implements ExprNode {
     /**
      * Constructor creates a list of child nodes.
      */
-    public ExprNodeBase()
-    {
+    public ExprNodeBase() {
         childNodes = ExprNodeUtility.EMPTY_EXPR_ARRAY;
     }
 
     public abstract void toPrecedenceFreeEPL(StringWriter writer);
 
-    public void accept(ExprNodeVisitor visitor)
-    {
-        if (visitor.isVisit(this))
-        {
+    public void accept(ExprNodeVisitor visitor) {
+        if (visitor.isVisit(this)) {
             visitor.visit(this);
 
-            for (ExprNode childNode : childNodes)
-            {
+            for (ExprNode childNode : childNodes) {
                 childNode.accept(visitor);
             }
         }
     }
 
-    public void accept(ExprNodeVisitorWithParent visitor)
-    {
-        if (visitor.isVisit(this))
-        {
+    public void accept(ExprNodeVisitorWithParent visitor) {
+        if (visitor.isVisit(this)) {
             visitor.visit(this, null);
 
-            for (ExprNode childNode : childNodes)
-            {
+            for (ExprNode childNode : childNodes) {
                 childNode.acceptChildnodes(visitor, this);
             }
         }
     }
 
-    public void acceptChildnodes(ExprNodeVisitorWithParent visitor, ExprNode parent)
-    {
-        if (visitor.isVisit(this))
-        {
+    public void acceptChildnodes(ExprNodeVisitorWithParent visitor, ExprNode parent) {
+        if (visitor.isVisit(this)) {
             visitor.visit(this, parent);
 
-            for (ExprNode childNode : childNodes)
-            {
+            for (ExprNode childNode : childNodes) {
                 childNode.acceptChildnodes(visitor, this);
             }
         }
     }
 
-    public final void addChildNode(ExprNode childNode)
-    {
+    public final void addChildNode(ExprNode childNode) {
         childNodes = (ExprNode[]) CollectionUtil.arrayExpandAddSingle(childNodes, childNode);
     }
 
-    public final void addChildNodes(Collection<ExprNode> childNodeColl)
-    {
+    public final void addChildNodes(Collection<ExprNode> childNodeColl) {
         childNodes = (ExprNode[]) CollectionUtil.arrayExpandAddElements(childNodes, childNodeColl);
     }
 
-    public final ExprNode[] getChildNodes()
-    {
+    public final ExprNode[] getChildNodes() {
         return childNodes;
     }
 
@@ -95,10 +82,10 @@ public abstract class ExprNodeBase implements ExprNode {
     }
 
     public void addChildNodeToFront(ExprNode childNode) {
-        childNodes = (ExprNode[]) CollectionUtil.arrayExpandAddElements(new ExprNode[] {childNode}, childNodes);
+        childNodes = (ExprNode[]) CollectionUtil.arrayExpandAddElements(new ExprNode[]{childNode}, childNodes);
     }
 
-    public void setChildNodes(ExprNode ... nodes) {
+    public void setChildNodes(ExprNode... nodes) {
         this.childNodes = nodes;
     }
 
@@ -111,8 +98,7 @@ public abstract class ExprNodeBase implements ExprNode {
             writer.write("(");
             toPrecedenceFreeEPL(writer);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer);
         }
     }

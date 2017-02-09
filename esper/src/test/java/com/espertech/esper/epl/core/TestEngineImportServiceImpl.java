@@ -17,33 +17,26 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
 
-public class TestEngineImportServiceImpl extends TestCase
-{
+public class TestEngineImportServiceImpl extends TestCase {
     EngineImportServiceImpl engineImportService;
 
-    public void setUp()
-    {
+    public void setUp() {
         this.engineImportService = SupportEngineImportServiceFactory.make();
     }
 
-    public void testResolveMethodNoArgTypes() throws Exception
-    {
+    public void testResolveMethodNoArgTypes() throws Exception {
         Method method = engineImportService.resolveMethodOverloadChecked("java.lang.Math", "cbrt");
-        assertEquals(Math.class.getMethod("cbrt", new Class[] {double.class}), method);
+        assertEquals(Math.class.getMethod("cbrt", new Class[]{double.class}), method);
 
-        try
-        {
+        try {
             engineImportService.resolveMethodOverloadChecked("java.lang.Math", "abs");
             fail();
-        }
-        catch (EngineImportException ex)
-        {
+        } catch (EngineImportException ex) {
             assertEquals("Method by name 'abs' is overloaded in class 'java.lang.Math' and overloaded methods do not return the same type", ex.getMessage());
         }
     }
 
-    public void testAddAggregation() throws EngineImportException
-    {
+    public void testAddAggregation() throws EngineImportException {
         engineImportService.addAggregation("abc", new ConfigurationPlugInAggregationFunction("abc", "abcdef.G"));
         engineImportService.addAggregation("abcDefGhk", new ConfigurationPlugInAggregationFunction("abcDefGhk", "ab"));
         engineImportService.addAggregation("a", new ConfigurationPlugInAggregationFunction("a", "Yh"));
@@ -53,36 +46,27 @@ public class TestEngineImportServiceImpl extends TestCase
         tryInvalidAddAggregation("abc", "hhh");
     }
 
-    public void testResolveAggregationMethod() throws Exception
-    {
+    public void testResolveAggregationMethod() throws Exception {
         engineImportService.addAggregation("abc", new ConfigurationPlugInAggregationFunction("abc", SupportPluginAggregationMethodOneFactory.class.getName()));
         assertTrue(engineImportService.resolveAggregationFactory("abc") instanceof SupportPluginAggregationMethodOneFactory);
     }
 
-    public void testInvalidResolveAggregation(String funcName) throws Exception
-    {
-        try
-        {
+    public void testInvalidResolveAggregation(String funcName) throws Exception {
+        try {
             engineImportService.resolveAggregationFactory("abc");
-        }
-        catch (EngineImportUndefinedException ex)
-        {
+        } catch (EngineImportUndefinedException ex) {
             // expected
         }
-        
+
         engineImportService.addAggregation("abc", new ConfigurationPlugInAggregationFunction("abc", "abcdef.G"));
-        try
-        {
+        try {
             engineImportService.resolveAggregationFactory("abc");
-        }
-        catch (EngineImportException ex)
-        {
+        } catch (EngineImportException ex) {
             // expected
         }
     }
 
-    public void testResolveClass() throws Exception
-    {
+    public void testResolveClass() throws Exception {
         String className = "java.lang.Math";
         Class expected = Math.class;
         assertEquals(expected, engineImportService.resolveClassInternal(className, false, false));
@@ -96,22 +80,17 @@ public class TestEngineImportServiceImpl extends TestCase
         assertEquals(expected, engineImportService.resolveClassInternal(className, false, false));
     }
 
-    public void testResolveClassInvalid()
-    {
+    public void testResolveClassInvalid() {
         String className = "Math";
-        try
-        {
+        try {
             engineImportService.resolveClassInternal(className, false, false);
             fail();
-        }
-        catch (ClassNotFoundException e)
-        {
+        } catch (ClassNotFoundException e) {
             // Expected
         }
     }
 
-    public void testAddImport() throws EngineImportException
-    {
+    public void testAddImport() throws EngineImportException {
         engineImportService.addImport("java.lang.Math");
         assertEquals(1, engineImportService.getImports().length);
         assertEquals("java.lang.Math", engineImportService.getImports()[0]);
@@ -122,37 +101,26 @@ public class TestEngineImportServiceImpl extends TestCase
         assertEquals("java.lang.*", engineImportService.getImports()[1]);
     }
 
-    public void testAddImportInvalid()
-    {
-        try
-        {
+    public void testAddImportInvalid() {
+        try {
             engineImportService.addImport("java.lang.*.*");
             fail();
-        }
-        catch (EngineImportException e)
-        {
+        } catch (EngineImportException e) {
             // Expected
         }
 
-        try
-        {
+        try {
             engineImportService.addImport("java.lang..Math");
             fail();
-        }
-        catch (EngineImportException e)
-        {
+        } catch (EngineImportException e) {
             // Expected
         }
     }
 
-    private void tryInvalidAddAggregation(String funcName, String className)
-    {
-        try
-        {
+    private void tryInvalidAddAggregation(String funcName, String className) {
+        try {
             engineImportService.addAggregation(funcName, new ConfigurationPlugInAggregationFunction(funcName, className));
-        }
-        catch (EngineImportException ex)
-        {
+        } catch (EngineImportException ex) {
             // expected
         }
     }

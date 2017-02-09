@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.core.service.resource;
 
-import com.espertech.esper.core.context.factory.*;
+import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoad;
 import com.espertech.esper.core.context.subselect.SubSelectStrategyHolder;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;

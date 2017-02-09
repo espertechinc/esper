@@ -19,14 +19,13 @@ import com.espertech.esper.epl.agg.aggregator.AggregatorLeaving;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.methodagg.ExprLeavingAggNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryLeaving implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryLeaving implements AggregationMethodFactory {
     protected final ExprLeavingAggNode parent;
 
     public AggregationMethodFactoryLeaving(ExprLeavingAggNode parent) {
@@ -37,8 +36,7 @@ public class AggregationMethodFactoryLeaving implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return Boolean.class;
     }
 

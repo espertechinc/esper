@@ -16,6 +16,7 @@ package com.espertech.esper.client.dataflow;
 public interface EPDataFlowEventCollector {
     /**
      * Collect: use the context to transform insert and remove stream events to data flow events.
+     *
      * @param context contains event beans, emitter and related information
      */
     public void collect(EPDataFlowEventCollectorContext context);

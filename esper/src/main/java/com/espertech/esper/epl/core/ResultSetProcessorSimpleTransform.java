@@ -10,20 +10,20 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.TransformEventMethod;
 import com.espertech.esper.collection.UniformPair;
-import com.espertech.esper.client.EventBean;
 
 /**
  * Method to transform an event based on the select expression.
  */
-public class ResultSetProcessorSimpleTransform implements TransformEventMethod
-{
+public class ResultSetProcessorSimpleTransform implements TransformEventMethod {
     private final ResultSetProcessorBaseSimple resultSetProcessor;
     private final EventBean[] newData;
 
     /**
      * Ctor.
+     *
      * @param resultSetProcessor is applying the select expressions to the events for the transformation
      */
     public ResultSetProcessorSimpleTransform(ResultSetProcessorBaseSimple resultSetProcessor) {
@@ -31,8 +31,7 @@ public class ResultSetProcessorSimpleTransform implements TransformEventMethod
         newData = new EventBean[1];
     }
 
-    public EventBean transform(EventBean theEvent)
-    {
+    public EventBean transform(EventBean theEvent) {
         newData[0] = theEvent;
         UniformPair<EventBean[]> pair = resultSetProcessor.processViewResult(newData, null, true);
         return pair == null ? null : (pair.getFirst() == null ? null : pair.getFirst()[0]);

@@ -326,8 +326,8 @@ public class ResultSetProcessorFactoryFactory {
         }
 
         // We only generate Remove-Stream events if they are explicitly selected, or the insert-into requires them
-        boolean isSelectRStream = (statementSpec.getSelectStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH
-                || statementSpec.getSelectStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ONLY);
+        boolean isSelectRStream = statementSpec.getSelectStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH
+                || statementSpec.getSelectStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ONLY;
         if ((statementSpec.getInsertIntoDesc() != null) && (statementSpec.getInsertIntoDesc().getStreamSelector().isSelectsRStream())) {
             isSelectRStream = true;
         }

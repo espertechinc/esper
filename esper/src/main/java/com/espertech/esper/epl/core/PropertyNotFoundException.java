@@ -13,8 +13,7 @@ package com.espertech.esper.epl.core;
 /**
  * Exception to indicate that a property name used in a filter doesn't resolve.
  */
-public class PropertyNotFoundException extends StreamTypesException
-{
+public class PropertyNotFoundException extends StreamTypesException {
     private static final long serialVersionUID = -29171552032256573L;
 
     public PropertyNotFoundException(String messageWithoutDetail, StreamTypesExceptionSuggestionGen msgGen) {

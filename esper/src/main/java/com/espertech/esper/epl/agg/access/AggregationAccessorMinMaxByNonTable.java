@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Represents the aggregation accessor that provides the result for the "maxBy" aggregation function.
  */
-public class AggregationAccessorMinMaxByNonTable extends AggregationAccessorMinMaxByBase
-{
+public class AggregationAccessorMinMaxByNonTable extends AggregationAccessorMinMaxByBase {
     public AggregationAccessorMinMaxByNonTable(boolean max) {
         super(max);
     }

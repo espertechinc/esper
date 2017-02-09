@@ -23,10 +23,10 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.epl.core.*;
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.join.base.*;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -50,9 +50,8 @@ import java.util.*;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
-{
-    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
+    private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
     private static final Logger log = LoggerFactory.getLogger(EPPreparedExecuteMethodQuery.class);
 
     private final StatementSpecCompiled statementSpec;
@@ -67,23 +66,23 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
 
     /**
      * Ctor.
-     * @param statementSpec is a container for the definition of all statement constructs that
-     * may have been used in the statement, i.e. if defines the select clauses, insert into, outer joins etc.
-     * @param services is the service instances for dependency injection
+     *
+     * @param statementSpec    is a container for the definition of all statement constructs that
+     *                         may have been used in the statement, i.e. if defines the select clauses, insert into, outer joins etc.
+     * @param services         is the service instances for dependency injection
      * @param statementContext is statement-level information and statement services
      * @throws ExprValidationException if the preparation failed
      */
     public EPPreparedExecuteMethodQuery(StatementSpecCompiled statementSpec,
                                         EPServicesContext services,
                                         StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         boolean queryPlanLogging = services.getConfigSnapshot().getEngineDefaults().getLogging().isEnableQueryPlan();
         if (queryPlanLogging) {
-            queryPlanLog.info("Query plans for Fire-and-forget query '" + statementContext.getExpression() + "'");
+            QUERY_PLAN_LOG.info("Query plans for Fire-and-forget query '" + statementContext.getExpression() + "'");
         }
 
-        this.hasTableAccess = (statementSpec.getTableNodes() != null && statementSpec.getTableNodes().length > 0);
+        this.hasTableAccess = statementSpec.getTableNodes() != null && statementSpec.getTableNodes().length > 0;
         for (StreamSpecCompiled streamSpec : statementSpec.getStreamSpecs()) {
             hasTableAccess |= streamSpec instanceof TableQueryStreamSpec;
         }
@@ -123,8 +122,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
                             Collections.singletonList(statementSpec.getFilterRootNode()), null,
                             tagged, tagged, types,
                             null, statementContext, Collections.singleton(i));
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
                 }
             }
@@ -139,8 +137,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(statementSpec, statementContext, typeService, null, new boolean[0], true, ContextPropertyRegistryImpl.EMPTY_REGISTRY, null, services.getConfigSnapshot(), services.getResultSetProcessorHelperFactory(), true, false);
         resultSetProcessor = EPStatementStartMethodHelperAssignExpr.getAssignResultSetProcessor(agentInstanceContext, resultSetProcessorPrototype, false, null, true);
 
-        if (statementSpec.getSelectClauseSpec().isDistinct())
-        {
+        if (statementSpec.getSelectClauseSpec().isDistinct()) {
             if (resultSetProcessor.getResultEventType() instanceof EventTypeSPI) {
                 eventBeanReader = ((EventTypeSPI) resultSetProcessor.getResultEventType()).getReader();
             }
@@ -157,8 +154,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         }
 
         // plan joins or simple queries
-        if (numStreams > 1)
-        {
+        if (numStreams > 1) {
             StreamJoinAnalysisResult streamJoinAnalysisResult = new StreamJoinAnalysisResult(numStreams);
             Arrays.fill(streamJoinAnalysisResult.getNamedWindow(), true);
             for (int i = 0; i < numStreams; i++) {
@@ -183,19 +179,19 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
 
     /**
      * Returns the event type of the prepared statement.
+     *
      * @return event type
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return resultSetProcessor.getResultEventType();
     }
 
     /**
      * Executes the prepared query.
+     *
      * @return query results
      */
-    public EPPreparedQueryResult execute(ContextPartitionSelector[] contextPartitionSelectors)
-    {
+    public EPPreparedQueryResult execute(ContextPartitionSelector[] contextPartitionSelectors) {
         try {
             int numStreams = processors.length;
 
@@ -248,8 +244,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
                 }
             }
             return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), EventBeanUtility.flatten(events));
-        }
-        finally {
+        } finally {
             if (hasTableAccess) {
                 services.getTableService().getTableExprEvaluatorContext().releaseAcquiredLocks();
             }
@@ -262,8 +257,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
             NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
             filterExpressions = namedSpec.getFilterExpressions();
-        }
-        else {
+        } else {
             TableQueryStreamSpec tableSpec = (TableQueryStreamSpec) streamSpec;
             filterExpressions = tableSpec.getFilterExpressions();
         }
@@ -305,17 +299,13 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         int numStreams = processors.length;
 
         UniformPair<EventBean[]> results;
-        if (numStreams == 1)
-        {
-            if (statementSpec.getFilterRootNode() != null)
-            {
+        if (numStreams == 1) {
+            if (statementSpec.getFilterRootNode() != null) {
                 snapshots[0] = getFiltered(snapshots[0], Arrays.asList(statementSpec.getFilterRootNode()));
             }
             EventBean[] rows = snapshots[0].toArray(new EventBean[snapshots[0].size()]);
             results = resultSetProcessor.processViewResult(rows, null, true);
-        }
-        else
-        {
+        } else {
             Viewable[] viewablePerStream = new Viewable[numStreams];
             for (int i = 0; i < numStreams; i++) {
                 FireAndForgetInstance instance = processors[i].getProcessorInstance(agentInstanceContext);
@@ -330,15 +320,13 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             JoinSetFilter joinFilter;
             if (joinSetComposerDesc.getPostJoinFilterEvaluator() != null) {
                 joinFilter = new JoinSetFilter(joinSetComposerDesc.getPostJoinFilterEvaluator());
-            }
-            else {
+            } else {
                 joinFilter = null;
             }
 
             EventBean[][] oldDataPerStream = new EventBean[numStreams][];
             EventBean[][] newDataPerStream = new EventBean[numStreams][];
-            for (int i = 0; i < numStreams; i++)
-            {
+            for (int i = 0; i < numStreams; i++) {
                 newDataPerStream[i] = snapshots[i].toArray(new EventBean[snapshots[i].size()]);
             }
             UniformPair<Set<MultiKey<EventBean>>> result = joinComposer.join(newDataPerStream, oldDataPerStream, agentInstanceContext);
@@ -348,16 +336,14 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
             results = resultSetProcessor.processJoinResult(result.getFirst(), null, true);
         }
 
-        if (statementSpec.getSelectClauseSpec().isDistinct())
-        {
+        if (statementSpec.getSelectClauseSpec().isDistinct()) {
             results.setFirst(EventBeanUtility.getDistinctByProp(results.getFirst(), eventBeanReader));
         }
 
         return new EPPreparedQueryResult(resultSetProcessor.getResultEventType(), results.getFirst());
     }
 
-    private Collection<EventBean> getFiltered(Collection<EventBean> snapshot, List<ExprNode> filterExpressions)
-    {
+    private Collection<EventBean> getFiltered(Collection<EventBean> snapshot, List<ExprNode> filterExpressions) {
         ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(Math.min(snapshot.size(), 16));
         ExprNodeUtility.applyFilterExpressionsIterable(snapshot, filterExpressions, agentInstanceContext, deque);
         return deque;
@@ -375,8 +361,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod
         return agentInstanceContext;
     }
 
-    private static class ContextPartitionResult
-    {
+    private static class ContextPartitionResult {
         private final Collection<EventBean> events;
         private final AgentInstanceContext context;
 

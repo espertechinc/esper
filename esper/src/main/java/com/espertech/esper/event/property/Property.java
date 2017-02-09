@@ -27,11 +27,11 @@ import java.util.Map;
  * handle the different types of properties for such events: indexed, mapped, simple, nested, or a combination of
  * those.
  */
-public interface Property
-{
+public interface Property {
     /**
      * Returns the property type.
-     * @param eventType is the event type representing the JavaBean
+     *
+     * @param eventType           is the event type representing the JavaBean
      * @param eventAdapterService for event adapters
      * @return property type class
      */
@@ -39,7 +39,8 @@ public interface Property
 
     /**
      * Returns the property type plus its generic type parameter, if any.
-     * @param eventType is the event type representing the JavaBean
+     *
+     * @param eventType           is the event type representing the JavaBean
      * @param eventAdapterService for event adapters
      * @return type and generic descriptor
      */
@@ -47,7 +48,8 @@ public interface Property
 
     /**
      * Returns value getter for the property of an event of the given event type.
-     * @param eventType is the type of event to make a getter for
+     *
+     * @param eventType           is the type of event to make a getter for
      * @param eventAdapterService factory for event beans and event types
      * @return fast property value getter for property
      */
@@ -55,16 +57,18 @@ public interface Property
 
     /**
      * Returns the property type for use with Map event representations.
+     *
      * @param optionalMapPropTypes a map-within-map type definition, if supplied, or null if not supplied
-     * @param eventAdapterService for resolving further map event types that are property types
+     * @param eventAdapterService  for resolving further map event types that are property types
      * @return property type @param optionalMapPropTypes
      */
     public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService);
 
     /**
      * Returns the getter-method for use with Map event representations.
+     *
      * @param optionalMapPropTypes a map-within-map type definition, if supplied, or null if not supplied
-     * @param eventAdapterService for resolving further map event types that are property types
+     * @param eventAdapterService  for resolving further map event types that are property types
      * @return getter for maps
      */
     public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService);
@@ -73,7 +77,8 @@ public interface Property
 
     /**
      * Returns the property type for use with DOM event representations.
-     * @param complexProperty a element-within-element type definition
+     *
+     * @param complexProperty     a element-within-element type definition
      * @param eventAdapterService for resolving further element event types if defined
      * @return property type
      */
@@ -81,34 +86,39 @@ public interface Property
 
     /**
      * Returns the getter-method for use with XML DOM event representations.
-     * @param complexProperty a element-within-element type definition
+     *
+     * @param complexProperty     a element-within-element type definition
      * @param eventAdapterService for resolving or creating further event types that are property types
-     * @param xmlEventType the event type
-     * @param propertyExpression the full property expression
+     * @param xmlEventType        the event type
+     * @param propertyExpression  the full property expression
      * @return getter
      */
     public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression);
 
     /**
      * Returns the getter-method for use with XML DOM event representations.
+     *
      * @return getter
      */
     public EventPropertyGetter getGetterDOM();
 
     /**
      * Write the EPL-representation of the property.
+     *
      * @param writer to write to
      */
     public void toPropertyEPL(StringWriter writer);
 
     /**
      * Return a String-array of atomic property names.
+     *
      * @return array of atomic names in a property expression
      */
     public String[] toPropertyArray();
 
     /**
      * Returns true for dynamic properties.
+     *
      * @return false for not-dynamic properties, true for dynamic properties.
      */
     public boolean isDynamic();

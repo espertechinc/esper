@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.example.transaction;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FindMissingEventListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        if (oldEvents == null)
-        {
+public class FindMissingEventListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (oldEvents == null) {
             // we don't care about events entering the window (new events)
             // this is because we must wait for C to arri
             return;
@@ -32,12 +29,9 @@ public class FindMissingEventListener implements UpdateListener
         TxnEventA eventA = (TxnEventA) oldEvents[0].get("A");
         TxnEventB eventB = (TxnEventB) oldEvents[0].get("B");
 
-        if (eventA != null)
-        {
+        if (eventA != null) {
             log.debug("Missing TxnEventC event detected for TxnEventA " + eventA.toString());
-        }
-        else
-        {
+        } else {
             log.debug("Missing TxnEventC event detected for TxnEventB " + eventB.toString());
         }
     }

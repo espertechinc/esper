@@ -24,8 +24,7 @@ import java.util.Set;
 
 public class TableUpdateStrategyFactory {
     public static TableUpdateStrategy validateGetTableUpdateStrategy(TableMetadata tableMetadata, EventBeanUpdateHelper updateHelper, boolean isOnMerge)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // determine affected indexes
         Set<String> affectedIndexNames = null;
         boolean uniqueIndexUpdated = false;

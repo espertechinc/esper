@@ -15,7 +15,6 @@ import com.espertech.esper.pattern.EvalRootState;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class StatementResourceService {
 
@@ -85,8 +84,7 @@ public class StatementResourceService {
             if (contextStartEndpoints != null) {
                 contextStartEndpoints.remove(path);
             }
-        }
-        else {
+        } else {
             if (contextEndEndpoints != null) {
                 contextEndEndpoints.remove(path);
             }
@@ -99,8 +97,7 @@ public class StatementResourceService {
                 contextStartEndpoints = new HashMap<ContextStatePathKey, EvalRootState>();
             }
             contextStartEndpoints.put(path, rootState);
-        }
-        else {
+        } else {
             if (contextEndEndpoints == null) {
                 contextEndEndpoints = new HashMap<ContextStatePathKey, EvalRootState>();
             }

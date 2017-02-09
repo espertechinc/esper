@@ -16,15 +16,13 @@ import java.io.StringWriter;
 /**
  * Interface representing a permutation expression for use in match-recognize.
  */
-public class MatchRecognizeRegExPermutation extends MatchRecognizeRegEx implements Serializable
-{
+public class MatchRecognizeRegExPermutation extends MatchRecognizeRegEx implements Serializable {
     private static final long serialVersionUID = -734937123541485671L;
 
     public void writeEPL(StringWriter writer) {
         String delimiter = "";
         writer.write("match_recognize_permute(");
-        for (MatchRecognizeRegEx node : this.getChildren())
-        {
+        for (MatchRecognizeRegEx node : this.getChildren()) {
             writer.append(delimiter);
             node.writeEPL(writer);
             delimiter = ",";

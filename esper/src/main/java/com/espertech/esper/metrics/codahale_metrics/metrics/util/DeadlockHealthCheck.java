@@ -37,7 +37,7 @@ public class DeadlockHealthCheck extends HealthCheck {
      * Creates a new {@link DeadlockHealthCheck} with the given {@link VirtualMachineMetrics}
      * instance.
      *
-     * @param vm    a {@link VirtualMachineMetrics} instance
+     * @param vm a {@link VirtualMachineMetrics} instance
      */
     public DeadlockHealthCheck(VirtualMachineMetrics vm) {
         super("deadlocks");

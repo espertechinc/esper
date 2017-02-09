@@ -22,8 +22,7 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByWTableImpl extends AggSvcGroupByWTableBase
-{
+public class AggSvcGroupByWTableImpl extends AggSvcGroupByWTableBase {
     public AggSvcGroupByWTableImpl(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGrouped tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents) {
         super(tableMetadata, methodPairs, accessors, join, tableStateInstance, targetStates, accessStateExpr, agents);
     }

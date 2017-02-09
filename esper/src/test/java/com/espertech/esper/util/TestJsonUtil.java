@@ -60,9 +60,9 @@ public class TestJsonUtil extends TestCase {
 
         json = "{'booleanArray': [true, false, true], 'integerArray': [1], 'objectArray': [1, 'abc']}";
         DEF defOne = (DEF) JsonUtil.parsePopulate(json, DEF.class, engineImportService);
-        EPAssertionUtil.assertEqualsExactOrder(new boolean[] {true, false, true}, defOne.getBooleanArray());
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {1}, defOne.getIntegerArray());
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {1, "abc"}, defOne.getObjectArray());
+        EPAssertionUtil.assertEqualsExactOrder(new boolean[]{true, false, true}, defOne.getBooleanArray());
+        EPAssertionUtil.assertEqualsExactOrder(new Object[]{1}, defOne.getIntegerArray());
+        EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, "abc"}, defOne.getObjectArray());
 
         json = "{defString:'a'}";
         DEF defTwo = (DEF) JsonUtil.parsePopulate(json, DEF.class, engineImportService);
@@ -127,8 +127,7 @@ public class TestJsonUtil extends TestCase {
         try {
             JsonUtil.parsePopulate(json, container, engineImportService);
             fail();
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             assertEquals(expected, ex.getMessage());
         }
     }

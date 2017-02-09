@@ -19,21 +19,20 @@ import java.util.Map;
  * Abstract Pair class to assist with creating correct
  * {@link java.util.Map.Entry Map.Entry} implementations.
  *
- * @since Commons Collections 3.0
- * @version $Revision$ $Date$
- *
  * @author James Strachan
  * @author Michael A. Smith
  * @author Neil O'Toole
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @since Commons Collections 3.0
  */
 public abstract class AbstractMapEntry extends AbstractKeyValue implements Map.Entry {
 
     /**
      * Constructs a new entry with the given key and given value.
      *
-     * @param key  the key for the entry, may be null
-     * @param value  the value for the entry, may be null
+     * @param key   the key for the entry, may be null
+     * @param value the value for the entry, may be null
      */
     protected AbstractMapEntry(Object key, Object value) {
         super(key, value);
@@ -41,13 +40,14 @@ public abstract class AbstractMapEntry extends AbstractKeyValue implements Map.E
 
     // Map.Entry interface
     //-------------------------------------------------------------------------
+
     /**
      * Sets the value stored in this <code>Map.Entry</code>.
      * <p>
      * This <code>Map.Entry</code> is not connected to a Map, so only the
      * local data is changed.
      *
-     * @param value  the new value
+     * @param value the new value
      * @return the previous value
      */
     public Object setValue(Object value) {
@@ -61,20 +61,20 @@ public abstract class AbstractMapEntry extends AbstractKeyValue implements Map.E
      * <p>
      * Implemented per API documentation of {@link java.util.Map.Entry#equals(Object)}
      *
-     * @param obj  the object to compare to
+     * @param obj the object to compare to
      * @return true if equal key and value
      */
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof Map.Entry == false) {
+        if (!(obj instanceof Map.Entry)) {
             return false;
         }
         Map.Entry other = (Map.Entry) obj;
         return
-            (getKey() == null ? other.getKey() == null : getKey().equals(other.getKey())) &&
-            (getValue() == null ? other.getValue() == null : getValue().equals(other.getValue()));
+                (getKey() == null ? other.getKey() == null : getKey().equals(other.getKey())) &&
+                        (getValue() == null ? other.getValue() == null : getValue().equals(other.getValue()));
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class AbstractMapEntry extends AbstractKeyValue implements Map.E
      */
     public int hashCode() {
         return (getKey() == null ? 0 : getKey().hashCode()) ^
-               (getValue() == null ? 0 : getValue().hashCode());
+                (getValue() == null ? 0 : getValue().hashCode());
     }
 
 }

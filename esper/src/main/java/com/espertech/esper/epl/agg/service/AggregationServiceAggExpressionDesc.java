@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AggregationServiceAggExpressionDesc
-{
+public class AggregationServiceAggExpressionDesc {
     private ExprAggregateNode aggregationNode;
     private AggregationMethodFactory factory;
 
@@ -25,48 +24,48 @@ public class AggregationServiceAggExpressionDesc
 
     /**
      * Ctor.
+     *
      * @param aggregationNode expression
-     * @param factory method factory
+     * @param factory         method factory
      */
-    public AggregationServiceAggExpressionDesc(ExprAggregateNode aggregationNode, AggregationMethodFactory factory)
-    {
+    public AggregationServiceAggExpressionDesc(ExprAggregateNode aggregationNode, AggregationMethodFactory factory) {
         this.aggregationNode = aggregationNode;
         this.factory = factory;
     }
 
     /**
      * Returns the equivalent aggregation functions.
+     *
      * @return list of agg nodes
      */
-    public List<ExprAggregateNode> getEquivalentNodes()
-    {
+    public List<ExprAggregateNode> getEquivalentNodes() {
         return equivalentNodes;
     }
 
     /**
      * Returns the method factory.
+     *
      * @return factory
      */
-    public AggregationMethodFactory getFactory()
-    {
+    public AggregationMethodFactory getFactory() {
         return factory;
     }
 
     /**
      * Assigns a column number.
+     *
      * @param columnNum column number
      */
-    public void setColumnNum(Integer columnNum)
-    {
+    public void setColumnNum(Integer columnNum) {
         this.columnNum = columnNum;
     }
 
     /**
      * Add an equivalent aggregation function node
+     *
      * @param aggNodeToAdd node to add
      */
-    public void addEquivalent(ExprAggregateNode aggNodeToAdd)
-    {
+    public void addEquivalent(ExprAggregateNode aggNodeToAdd) {
         if (equivalentNodes == null) {
             equivalentNodes = new ArrayList<ExprAggregateNode>();
         }
@@ -75,10 +74,10 @@ public class AggregationServiceAggExpressionDesc
 
     /**
      * Returns the expression.
+     *
      * @return expression
      */
-    public ExprAggregateNode getAggregationNode()
-    {
+    public ExprAggregateNode getAggregationNode() {
         return aggregationNode;
     }
 
@@ -88,16 +87,15 @@ public class AggregationServiceAggExpressionDesc
 
     /**
      * Assigns a future to the expression
+     *
      * @param service the future
      */
-    public void assignFuture(AggregationResultFuture service)
-    {
+    public void assignFuture(AggregationResultFuture service) {
         aggregationNode.setAggregationResultFuture(service, columnNum);
         if (equivalentNodes == null) {
             return;
         }
-        for (ExprAggregateNode equivalentAggNode : equivalentNodes)
-        {
+        for (ExprAggregateNode equivalentAggNode : equivalentNodes) {
             equivalentAggNode.setAggregationResultFuture(service, columnNum);
         }
     }

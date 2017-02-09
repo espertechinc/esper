@@ -13,5 +13,6 @@ package com.espertech.esper.core.context.util;
 public interface ContextPartitionImportCallback {
 
     public void existing(int agentInstanceId, int exportedAgentInstanceId);
+
     public void allocated(int agentInstanceId, int exportedAgentInstanceId);
 }

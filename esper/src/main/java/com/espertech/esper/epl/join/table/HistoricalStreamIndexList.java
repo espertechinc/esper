@@ -32,8 +32,7 @@ import java.util.*;
  * query planning phase, and by providing the right lookup strategy and indexing strategy during
  * query execution node creation.
  */
-public class HistoricalStreamIndexList
-{
+public class HistoricalStreamIndexList {
     private final int historicalStreamNum;
     private final EventType[] typesPerStream;
     private final QueryGraph queryGraph;
@@ -44,12 +43,12 @@ public class HistoricalStreamIndexList
 
     /**
      * Ctor.
+     *
      * @param historicalStreamNum number of the historical stream
-     * @param typesPerStream event types for each stream
-     * @param queryGraph relationship between key and index properties
+     * @param typesPerStream      event types for each stream
+     * @param queryGraph          relationship between key and index properties
      */
-    public HistoricalStreamIndexList(int historicalStreamNum, EventType[] typesPerStream, QueryGraph queryGraph)
-    {
+    public HistoricalStreamIndexList(int historicalStreamNum, EventType[] typesPerStream, QueryGraph queryGraph) {
         this.historicalStreamNum = historicalStreamNum;
         this.typesPerStream = typesPerStream;
         this.queryGraph = queryGraph;
@@ -59,23 +58,22 @@ public class HistoricalStreamIndexList
     /**
      * Used during query plan phase to indicate that an index must be provided for use in lookup of historical events by using a
      * stream's events.
+     *
      * @param streamViewStreamNum the stream providing lookup events
      */
-    public void addIndex(int streamViewStreamNum)
-    {
+    public void addIndex(int streamViewStreamNum) {
         pollingStreams.add(streamViewStreamNum);
     }
 
     /**
      * Get the strategies to use for polling from a given stream.
+     *
      * @param streamViewStreamNum the stream providing the polling events
      * @return looking and indexing strategy
      */
-    public Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> getStrategy(int streamViewStreamNum)
-    {
+    public Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> getStrategy(int streamViewStreamNum) {
         // If there is only a single polling stream, then build a single index
-        if (pollingStreams.size() == 1)
-        {
+        if (pollingStreams.size() == 1) {
             return JoinSetComposerPrototypeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum);
         }
 
@@ -85,11 +83,9 @@ public class HistoricalStreamIndexList
         //  (b) indexed property types are the same
         //  (c) key property types are the same (because of coercion)
         // A index lookup strategy is always specific to the providing stream.
-        if (indexesUsedByStreams == null)
-        {
+        if (indexesUsedByStreams == null) {
             indexesUsedByStreams = new LinkedHashMap<HistoricalStreamIndexDesc, List<Integer>>();
-            for (int pollingStream : pollingStreams)
-            {
+            for (int pollingStream : pollingStreams) {
                 QueryGraphValue queryGraphValue = queryGraph.getGraphValue(pollingStream, historicalStreamNum);
                 QueryGraphValuePairHashKeyIndex hashKeyProps = queryGraphValue.getHashKeyProps();
                 String[] indexProperties = hashKeyProps.getIndexed();
@@ -99,8 +95,7 @@ public class HistoricalStreamIndexList
 
                 HistoricalStreamIndexDesc desc = new HistoricalStreamIndexDesc(indexProperties, indexTypes, keyTypes);
                 List<Integer> usedByStreams = indexesUsedByStreams.get(desc);
-                if (usedByStreams == null)
-                {
+                if (usedByStreams == null) {
                     usedByStreams = new LinkedList<Integer>();
                     indexesUsedByStreams.put(desc, usedByStreams);
                 }
@@ -109,15 +104,13 @@ public class HistoricalStreamIndexList
 
             // There are multiple indexes required:
             // Build a master indexing strategy that forms multiple indexes and numbers each.
-            if (indexesUsedByStreams.size() > 1)
-            {
+            if (indexesUsedByStreams.size() > 1) {
                 final int numIndexes = indexesUsedByStreams.size();
                 final PollResultIndexingStrategy[] indexingStrategies = new PollResultIndexingStrategy[numIndexes];
 
                 // create an indexing strategy for each index
                 int count = 0;
-                for (Map.Entry<HistoricalStreamIndexDesc, List<Integer>> desc : indexesUsedByStreams.entrySet())
-                {
+                for (Map.Entry<HistoricalStreamIndexDesc, List<Integer>> desc : indexesUsedByStreams.entrySet()) {
                     int sampleStreamViewStreamNum = desc.getValue().get(0);
                     indexingStrategies[count] = JoinSetComposerPrototypeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[sampleStreamViewStreamNum], historicalStreamNum, sampleStreamViewStreamNum).getSecond();
                     count++;
@@ -126,16 +119,14 @@ public class HistoricalStreamIndexList
                 // create a master indexing strategy that utilizes each indexing strategy to create a set of indexes
                 final int streamNum = streamViewStreamNum;
                 masterIndexingStrategy = new PollResultIndexingStrategy() {
-                    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
-                    {
+                    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {
                         EventTable[] tables = new EventTable[numIndexes];
-                        for (int i = 0; i < numIndexes; i++)
-                        {
+                        for (int i = 0; i < numIndexes; i++) {
                             tables[i] = indexingStrategies[i].index(pollResult, isActiveCache, statementContext)[0];
                         }
 
                         EventTableOrganization organization = new EventTableOrganization(null, false, false, streamNum, null, EventTableOrganizationType.MULTIINDEX);
-                        return new EventTable[] {new MultiIndexEventTable(tables, organization)};
+                        return new EventTable[]{new MultiIndexEventTable(tables, organization)};
                     }
 
                     public String toQueryPlan() {
@@ -153,18 +144,15 @@ public class HistoricalStreamIndexList
         }
 
         // there is one type of index
-        if (indexesUsedByStreams.size() == 1)
-        {
+        if (indexesUsedByStreams.size() == 1) {
             return JoinSetComposerPrototypeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum);
         }
 
         // determine which index number the polling stream must use
         int indexUsed = 0;
         boolean found = false;
-        for (List<Integer> desc : indexesUsedByStreams.values())
-        {
-            if (desc.contains(streamViewStreamNum))
-            {
+        for (List<Integer> desc : indexesUsedByStreams.values()) {
+            if (desc.contains(streamViewStreamNum)) {
                 found = true;
                 break;
             }
@@ -178,10 +166,8 @@ public class HistoricalStreamIndexList
         final int indexNumber = indexUsed;
         final HistoricalIndexLookupStrategy innerLookupStrategy = JoinSetComposerPrototypeFactory.determineIndexing(queryGraph, typesPerStream[historicalStreamNum], typesPerStream[streamViewStreamNum], historicalStreamNum, streamViewStreamNum).getFirst();
 
-        HistoricalIndexLookupStrategy lookupStrategy = new HistoricalIndexLookupStrategy()
-        {
-            public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] index, ExprEvaluatorContext context)
-            {
+        HistoricalIndexLookupStrategy lookupStrategy = new HistoricalIndexLookupStrategy() {
+            public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] index, ExprEvaluatorContext context) {
                 MultiIndexEventTable multiIndex = (MultiIndexEventTable) index[0];
                 EventTable indexToUse = multiIndex.getTables()[indexNumber];
                 return innerLookupStrategy.lookup(lookupEvent, new EventTable[]{indexToUse}, context);
@@ -192,24 +178,20 @@ public class HistoricalStreamIndexList
             }
         };
 
-        return new Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> (lookupStrategy, masterIndexingStrategy);
+        return new Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy>(lookupStrategy, masterIndexingStrategy);
     }
 
-    private Class[] getPropertyTypes(EventType eventType, String[] properties)
-    {
+    private Class[] getPropertyTypes(EventType eventType, String[] properties) {
         Class[] types = new Class[properties.length];
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             types[i] = JavaClassHelper.getBoxedType(eventType.getPropertyType(properties[i]));
         }
         return types;
     }
 
-    private Class[] getPropertyTypes(List<QueryGraphValueEntryHashKeyed> hashKeys)
-    {
+    private Class[] getPropertyTypes(List<QueryGraphValueEntryHashKeyed> hashKeys) {
         Class[] types = new Class[hashKeys.size()];
-        for (int i = 0; i < hashKeys.size(); i++)
-        {
+        for (int i = 0; i < hashKeys.size(); i++) {
             types[i] = JavaClassHelper.getBoxedType(hashKeys.get(i).getKeyExpr().getExprEvaluator().getType());
         }
         return types;

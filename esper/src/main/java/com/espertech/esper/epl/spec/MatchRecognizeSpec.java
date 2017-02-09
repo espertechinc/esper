@@ -14,15 +14,14 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.rowregex.RowRegexExprNode;
 import com.espertech.esper.util.MetaDefItem;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Specification for match_recognize.
  */
-public class MatchRecognizeSpec implements MetaDefItem, Serializable
-{
+public class MatchRecognizeSpec implements MetaDefItem, Serializable {
     private List<ExprNode> partitionByExpressions;
     private List<MatchRecognizeMeasureItem> measures;
     private RowRegexExprNode pattern;
@@ -44,24 +43,25 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Interval part of null.
+     *
      * @return interval
      */
-    public MatchRecognizeInterval getInterval()
-    {
+    public MatchRecognizeInterval getInterval() {
         return interval;
     }
 
     /**
      * Sets the interval.
+     *
      * @param interval to set
      */
-    public void setInterval(MatchRecognizeInterval interval)
-    {
+    public void setInterval(MatchRecognizeInterval interval) {
         this.interval = interval;
     }
 
     /**
      * True for all-matches.
+     *
      * @return indicator all-matches
      */
     public boolean isAllMatches() {
@@ -70,6 +70,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Set to true for all-matches.
+     *
      * @param allMatches indicator all-matches
      */
     public void setAllMatches(boolean allMatches) {
@@ -78,6 +79,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Returns partition expressions.
+     *
      * @return partition expressions
      */
     public List<ExprNode> getPartitionByExpressions() {
@@ -86,6 +88,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Returns partition expressions.
+     *
      * @param partitionByExpressions partition expressions
      */
     public void setPartitionByExpressions(List<ExprNode> partitionByExpressions) {
@@ -94,15 +97,16 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Add a measure item.
+     *
      * @param item to add
      */
-    public void addMeasureItem(MatchRecognizeMeasureItem item)
-    {
+    public void addMeasureItem(MatchRecognizeMeasureItem item) {
         measures.add(item);
     }
 
     /**
      * Returns the define items.
+     *
      * @return define items
      */
     public List<MatchRecognizeDefineItem> getDefines() {
@@ -111,6 +115,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Sets the pattern.
+     *
      * @param pattern to set
      */
     public void setPattern(RowRegexExprNode pattern) {
@@ -119,6 +124,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Adds a define item.
+     *
      * @param define to add
      */
     public void addDefine(MatchRecognizeDefineItem define) {
@@ -127,6 +133,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Returns measures.
+     *
      * @return measures
      */
     public List<MatchRecognizeMeasureItem> getMeasures() {
@@ -135,6 +142,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Returns the pattern.
+     *
      * @return pattern
      */
     public RowRegexExprNode getPattern() {
@@ -143,6 +151,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Returns the skip.
+     *
      * @return skip
      */
     public MatchRecognizeSkip getSkip() {
@@ -151,6 +160,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Sets the skip.
+     *
      * @param skip to set
      */
     public void setSkip(MatchRecognizeSkip skip) {
@@ -159,6 +169,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Set measures.
+     *
      * @param measures to set
      */
     public void setMeasures(List<MatchRecognizeMeasureItem> measures) {
@@ -167,6 +178,7 @@ public class MatchRecognizeSpec implements MetaDefItem, Serializable
 
     /**
      * Set defines.
+     *
      * @param defines to set
      */
     public void setDefines(List<MatchRecognizeDefineItem> defines) {

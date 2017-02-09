@@ -56,9 +56,10 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
     }
 
     @Override
-    public UniformPair<EventBean[]> processViewResult(EventBean[] newData, EventBean[] oldData, boolean isSynthesize)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();}
+    public UniformPair<EventBean[]> processViewResult(EventBean[] newData, EventBean[] oldData, boolean isSynthesize) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qResultSetProcessGroupedRowPerGroup();
+        }
 
         Object[][] newDataMultiKey = generateGroupKeysView(newData, unboundHelper.getBuffer(), true);
         Object[][] oldDataMultiKey = generateGroupKeysView(oldData, unboundHelper.getBuffer(), false);
@@ -87,10 +88,14 @@ public class ResultSetProcessorRowPerGroupRollupUnbound extends ResultSetProcess
         EventBean[] selectNewEvents = generateOutputEventsView(unboundHelper.getBuffer(), true, isSynthesize);
 
         if ((selectNewEvents != null) || (selectOldEvents != null)) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(selectNewEvents, selectOldEvents);
+            }
             return new UniformPair<EventBean[]>(selectNewEvents, selectOldEvents);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(null, null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aResultSetProcessGroupedRowPerGroup(null, null);
+        }
         return null;
     }
 

@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * Writes a {@link java.io.Serializable} object to {@link java.io.DataOutput}.
  * <p>
- *     The output contains the byte array length integer followed by the byte array of the serialized object.
+ * The output contains the byte array length integer followed by the byte array of the serialized object.
  * </p>
  */
 public class ObjectToDataOutputCollectorSerializable implements ObjectToDataOutputCollector {

@@ -23,8 +23,7 @@ import java.util.*;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGrouped
-{
+public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGrouped {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
@@ -42,19 +41,19 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
 
     /**
      * Ctor.
-     * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
-     * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
-     * @param accessors accessor definitions
+     *
+     * @param evaluators         - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
+     * @param prototypes         - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
+     *                           aggregation states for each group
+     * @param accessors          accessor definitions
      * @param accessAggregations access aggs
-     * @param isJoin true for join, false for single-stream
+     * @param isJoin             true for join, false for single-stream
      */
-    public AggSvcGroupByRefcountedWAccessImpl(ExprEvaluator evaluators[],
-                                       AggregationMethodFactory prototypes[],
-                                       AggregationAccessorSlotPair[] accessors,
-                                       AggregationStateFactory[] accessAggregations,
-                                       boolean isJoin)
-    {
+    public AggSvcGroupByRefcountedWAccessImpl(ExprEvaluator[] evaluators,
+                                              AggregationMethodFactory[] prototypes,
+                                              AggregationAccessorSlotPair[] accessors,
+                                              AggregationStateFactory[] accessAggregations,
+                                              boolean isJoin) {
         super(evaluators, prototypes);
         this.aggregatorsPerGroup = new HashMap<Object, AggregationMethodPairRow>();
         this.accessors = accessors;
@@ -63,14 +62,14 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         removedKeys = new ArrayList<Object>();
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         aggregatorsPerGroup.clear();
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupByKey);}
+    public void applyEnter(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupByKey);
+        }
         handleRemovedKeys();
 
         AggregationMethodPairRow row = aggregatorsPerGroup.get(groupByKey);
@@ -78,15 +77,12 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         // The aggregators for this group do not exist, need to create them from the prototypes
         AggregationMethod[] groupAggregators;
         AggregationState[] groupStates;
-        if (row == null)
-        {
+        if (row == null) {
             groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
-        }
-        else
-        {
+        } else {
             groupAggregators = row.getMethods();
             groupStates = row.getStates();
             row.increaseRefcount();
@@ -95,39 +91,46 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         // For this row, evaluate sub-expressions, enter result
         currentAggregatorMethods = groupAggregators;
         currentAggregatorStates = groupStates;
-        for (int j = 0; j < evaluators.length; j++)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, j, groupAggregators[j], aggregators[j].getAggregationExpression());}
+        for (int j = 0; j < evaluators.length; j++) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, j, groupAggregators[j], aggregators[j].getAggregationExpression());
+            }
             Object columnResult = evaluators[j].evaluate(eventsPerStream, true, exprEvaluatorContext);
             groupAggregators[j].enter(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(true, j, groupAggregators[j]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(true, j, groupAggregators[j]);
+            }
         }
 
         for (int i = 0; i < currentAggregatorStates.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());
+            }
             currentAggregatorStates[i].applyEnter(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, currentAggregatorStates[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, currentAggregatorStates[i]);
+            }
         }
 
         internalHandleGroupUpdate(groupByKey, row);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);
+        }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupByKey);}
+    public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupByKey);
+        }
         AggregationMethodPairRow row = aggregatorsPerGroup.get(groupByKey);
 
         // The aggregators for this group do not exist, need to create them from the prototypes
         AggregationMethod[] groupAggregators;
         AggregationState[] groupStates;
-        if (row != null)
-        {
+        if (row != null) {
             groupAggregators = row.getMethods();
             groupStates = row.getStates();
-        }
-        else
-        {
+        } else {
             groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
@@ -137,39 +140,45 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         // For this row, evaluate sub-expressions, enter result
         currentAggregatorMethods = groupAggregators;
         currentAggregatorStates = groupStates;
-        for (int j = 0; j < evaluators.length; j++)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, j, groupAggregators[j], aggregators[j].getAggregationExpression());}
+        for (int j = 0; j < evaluators.length; j++) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, j, groupAggregators[j], aggregators[j].getAggregationExpression());
+            }
             Object columnResult = evaluators[j].evaluate(eventsPerStream, false, exprEvaluatorContext);
             groupAggregators[j].leave(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(false, j, groupAggregators[j]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(false, j, groupAggregators[j]);
+            }
         }
 
         for (int i = 0; i < currentAggregatorStates.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());
+            }
             currentAggregatorStates[i].applyLeave(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, currentAggregatorStates[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, currentAggregatorStates[i]);
+            }
         }
 
         row.decreaseRefcount();
-        if (row.getRefcount() <= 0)
-        {
+        if (row.getRefcount() <= 0) {
             removedKeys.add(groupByKey);
         }
 
         internalHandleGroupUpdate(groupByKey, row);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);
+        }
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         AggregationMethodPairRow row = aggregatorsPerGroup.get(groupByKey);
 
         if (row != null) {
             currentAggregatorMethods = row.getMethods();
             currentAggregatorStates = row.getStates();
-        }
-        else {
+        } else {
             currentAggregatorMethods = null;
         }
 
@@ -181,12 +190,10 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
         this.currentGroupKey = groupByKey;
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (column < aggregators.length) {
             return currentAggregatorMethods[column].getValue();
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getValue(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
         }
@@ -195,8 +202,7 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
     public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvents(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -205,8 +211,7 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
     public Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableScalar(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -215,8 +220,7 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
     public EventBean getEventBean(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvent(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -250,10 +254,9 @@ public class AggSvcGroupByRefcountedWAccessImpl extends AggregationServiceBaseGr
     }
 
     protected void handleRemovedKeys() {
-        if (!removedKeys.isEmpty())     // we collect removed keys lazily on the next enter to reduce the chance of empty-group queries creating empty aggregators temporarily
-        {
-            for (Object removedKey : removedKeys)
-            {
+        // we collect removed keys lazily on the next enter to reduce the chance of empty-group queries creating empty aggregators temporarily
+        if (!removedKeys.isEmpty()) {
+            for (Object removedKey : removedKeys) {
                 aggregatorsPerGroup.remove(removedKey);
                 internalHandleGroupRemove(removedKey);
             }

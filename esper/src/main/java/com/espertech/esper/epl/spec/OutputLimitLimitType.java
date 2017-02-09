@@ -13,8 +13,7 @@ package com.espertech.esper.epl.spec;
 /**
  * Enum for describing the type of output limit within an interval.
  */
-public enum OutputLimitLimitType
-{
+public enum OutputLimitLimitType {
     /**
      * Output first event, relative to the output batch.
      */

@@ -12,43 +12,38 @@ package com.espertech.esper.type;
 
 import com.espertech.esper.util.LikeUtil;
 
-import java.io.Serializable;
-
 /**
  *
  */
-public class StringPatternSetLike implements StringPatternSet
-{
+public class StringPatternSetLike implements StringPatternSet {
     private final String likeString;
     private final LikeUtil likeUtil;
     private static final long serialVersionUID = -707941336445095011L;
 
     /**
      * Ctor.
+     *
      * @param likeString pattern to match
      */
-    public StringPatternSetLike(String likeString)
-    {
+    public StringPatternSetLike(String likeString) {
         this.likeString = likeString;
         likeUtil = new LikeUtil(likeString, '\\', false);
     }
 
     /**
      * Match the string returning true for a match, using SQL-like semantics.
+     *
      * @param stringToMatch string to match
      * @return true for match
      */
-    public boolean match(String stringToMatch)
-    {
-        if (stringToMatch == null)
-        {
+    public boolean match(String stringToMatch) {
+        if (stringToMatch == null) {
             return false;
         }
         return likeUtil.compare(stringToMatch);
     }
 
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -59,8 +54,7 @@ public class StringPatternSetLike implements StringPatternSet
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return likeString.hashCode();
     }
 }

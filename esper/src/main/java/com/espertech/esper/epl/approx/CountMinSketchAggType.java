@@ -10,12 +10,13 @@
  */
 package com.espertech.esper.epl.approx;
 
+import java.util.Locale;
+
 public enum CountMinSketchAggType {
     STATE("countMinSketch"),
     ADD("countMinSketchAdd"),
     FREQ("countMinSketchFrequency"),
-    TOPK("countMinSketchTopk")
-    ;
+    TOPK("countMinSketchTopk");
 
     private final String funcName;
 
@@ -28,9 +29,9 @@ public enum CountMinSketchAggType {
     }
 
     public static CountMinSketchAggType fromNameMayMatch(String name) {
-        String nameLower = name.toLowerCase();
+        String nameLower = name.toLowerCase(Locale.ENGLISH);
         for (CountMinSketchAggType value : CountMinSketchAggType.values()) {
-            if (value.funcName.toLowerCase().equals(nameLower)) {
+            if (value.funcName.toLowerCase(Locale.ENGLISH).equals(nameLower)) {
                 return value;
             }
         }

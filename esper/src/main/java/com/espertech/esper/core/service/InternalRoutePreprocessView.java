@@ -24,74 +24,63 @@ import java.util.Iterator;
 /**
  * View for use with pre-processing statement such as "update istream" for indicating previous and current event.
  */
-public class InternalRoutePreprocessView extends ViewSupport
-{
+public class InternalRoutePreprocessView extends ViewSupport {
     private static final Logger log = LoggerFactory.getLogger(InternalRoutePreprocessView.class);
     private final EventType eventType;
     private final StatementResultService statementResultService;
 
     /**
      * Ctor.
-     * @param eventType the type of event to indicator
+     *
+     * @param eventType              the type of event to indicator
      * @param statementResultService determines whether listeners or subscribers are attached.
      */
-    public InternalRoutePreprocessView(EventType eventType, StatementResultService statementResultService)
-    {
+    public InternalRoutePreprocessView(EventType eventType, StatementResultService statementResultService) {
         this.eventType = eventType;
-        this.statementResultService =  statementResultService;
+        this.statementResultService = statementResultService;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
             log.debug(".update Received update, " +
                     "  newData.length==" + ((newData == null) ? 0 : newData.length) +
                     "  oldData.length==" + ((oldData == null) ? 0 : oldData.length));
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return CollectionUtil.NULL_EVENT_ITERATOR;
     }
 
     /**
      * Returns true if a subscriber or listener is attached.
+     *
      * @return indicator
      */
-    public boolean isIndicate()
-    {
-        return (statementResultService.isMakeNatural() || statementResultService.isMakeSynthetic());
+    public boolean isIndicate() {
+        return statementResultService.isMakeNatural() || statementResultService.isMakeSynthetic();
     }
 
     /**
      * Indicate an modifed event and its previous version.
+     *
      * @param newEvent modified event
      * @param oldEvent previous version event
      */
-    public void indicate(EventBean newEvent, EventBean oldEvent)
-    {
-        try
-        {
-            if (statementResultService.isMakeNatural())
-            {
-                NaturalEventBean natural = new NaturalEventBean(eventType, new Object[] {newEvent.getUnderlying()}, newEvent);
-                NaturalEventBean naturalOld = new NaturalEventBean(eventType, new Object[] {oldEvent.getUnderlying()}, oldEvent);
+    public void indicate(EventBean newEvent, EventBean oldEvent) {
+        try {
+            if (statementResultService.isMakeNatural()) {
+                NaturalEventBean natural = new NaturalEventBean(eventType, new Object[]{newEvent.getUnderlying()}, newEvent);
+                NaturalEventBean naturalOld = new NaturalEventBean(eventType, new Object[]{oldEvent.getUnderlying()}, oldEvent);
                 this.updateChildren(new NaturalEventBean[]{natural}, new NaturalEventBean[]{naturalOld});
-            }
-            else
-            {
+            } else {
                 this.updateChildren(new EventBean[]{newEvent}, new EventBean[]{oldEvent});
             }
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             log.error("Unexpected error updating child view: " + ex.getMessage());
         }
     }

@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 import java.io.StringWriter;
 
 @SuppressWarnings({"ALL"})
-public class EPStatementFormatter
-{
+public class EPStatementFormatter {
     private final static String SYSTEM_NEWLINE = System.getProperty("line.separator");
     private final static String SPACE = " ";
 
@@ -132,8 +131,7 @@ public class EPStatementFormatter
     private void setDelimiter() {
         if (isNewline) {
             delimiter = newlineString;
-        }
-        else {
+        } else {
             delimiter = SPACE;
         }
     }
@@ -149,8 +147,7 @@ public class EPStatementFormatter
         if (delimiter != null) {
             if (!topLevel) {
                 writer.write(SPACE);
-            }
-            else {
+            } else {
                 writer.write(delimiter);
             }
         }

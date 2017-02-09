@@ -15,24 +15,20 @@ import java.io.StringWriter;
 /**
  * Current timestamp supplies the current engine time in an expression.
  */
-public class CurrentTimestampExpression extends ExpressionBase
-{
+public class CurrentTimestampExpression extends ExpressionBase {
     private static final long serialVersionUID = -8873610275384531172L;
 
     /**
      * Ctor.
      */
-    public CurrentTimestampExpression()
-    {
+    public CurrentTimestampExpression() {
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("current_timestamp()");
     }
 }

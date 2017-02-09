@@ -17,8 +17,7 @@ import java.util.Map;
 /**
  * Enumeration of event representation.
  */
-public enum EventUnderlyingType
-{
+public enum EventUnderlyingType {
     /**
      * Event representation is object-array (Object[]).
      */
@@ -48,10 +47,10 @@ public enum EventUnderlyingType
 
     /**
      * Returns the default property resolution style.
+     *
      * @return is the case-sensitive resolution
      */
-    public static EventUnderlyingType getDefault()
-    {
+    public static EventUnderlyingType getDefault() {
         return MAP;
     }
 

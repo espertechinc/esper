@@ -25,14 +25,12 @@ import com.espertech.esper.epl.expression.core.ExprWildcard;
 import com.espertech.esper.epl.expression.methodagg.ExprCountNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryCount implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryCount implements AggregationMethodFactory {
     protected final ExprCountNode parent;
     protected final boolean ignoreNulls;
     protected final Class countedValueType;
 
-    public AggregationMethodFactoryCount(ExprCountNode parent, boolean ignoreNulls, Class countedValueType)
-    {
+    public AggregationMethodFactoryCount(ExprCountNode parent, boolean ignoreNulls, Class countedValueType) {
         this.parent = parent;
         this.ignoreNulls = ignoreNulls;
         this.countedValueType = countedValueType;
@@ -42,8 +40,7 @@ public class AggregationMethodFactoryCount implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return Long.class;
     }
 
@@ -96,10 +93,9 @@ public class AggregationMethodFactoryCount implements AggregationMethodFactory
     }
 
     public static ExprEvaluator getMethodAggregationEvaluatorCountBy(ExprNode[] childNodes, boolean join, EventType[] typesPerStream)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (childNodes[0] instanceof ExprWildcard && childNodes.length == 2) {
-            return ExprMethodAggUtil.getDefaultEvaluator(new ExprNode[] {childNodes[1]}, join, typesPerStream);
+            return ExprMethodAggUtil.getDefaultEvaluator(new ExprNode[]{childNodes[1]}, join, typesPerStream);
         }
         if (childNodes[0] instanceof ExprWildcard && childNodes.length == 1) {
             return ExprMethodAggUtil.getDefaultEvaluator(new ExprNode[0], join, typesPerStream);
@@ -107,15 +103,13 @@ public class AggregationMethodFactoryCount implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(childNodes, join, typesPerStream);
     }
 
-    private final AggregationMethod makeCountAggregator(boolean isIgnoreNull, boolean hasFilter)
-    {
+    private final AggregationMethod makeCountAggregator(boolean isIgnoreNull, boolean hasFilter) {
         if (!hasFilter) {
             if (isIgnoreNull) {
                 return new AggregatorCountNonNull();
             }
             return new AggregatorCount();
-        }
-        else {
+        } else {
             if (isIgnoreNull) {
                 return new AggregatorCountNonNullFilter();
             }

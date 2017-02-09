@@ -16,18 +16,17 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 /**
  * Helper for walking a pattern match-until clause.
  */
-public class ASTMatchUntilHelper
-{
+public class ASTMatchUntilHelper {
     /**
      * Validate.
-     * @param lowerBounds is the lower bounds, or null if none supplied
-     * @param upperBounds is the upper bounds, or null if none supplied
+     *
+     * @param lowerBounds      is the lower bounds, or null if none supplied
+     * @param upperBounds      is the upper bounds, or null if none supplied
      * @param isAllowLowerZero true to allow zero value for lower range
      * @return true if closed range of constants and the constants are the same value
      * @throws ASTWalkException if the AST is incorrect
      */
-    public static boolean validate(ExprNode lowerBounds, ExprNode upperBounds, boolean isAllowLowerZero) throws ASTWalkException
-    {
+    public static boolean validate(ExprNode lowerBounds, ExprNode upperBounds, boolean isAllowLowerZero) throws ASTWalkException {
         boolean isConstants = true;
         Object constantLower = null;
         String numericMessage = "Match-until bounds expect a numeric or expression value";
@@ -36,8 +35,7 @@ public class ASTMatchUntilHelper
             if (constantLower == null || !(constantLower instanceof Number)) {
                 throw ASTWalkException.from(numericMessage);
             }
-        }
-        else {
+        } else {
             isConstants = lowerBounds == null;
         }
 
@@ -47,8 +45,7 @@ public class ASTMatchUntilHelper
             if (constantUpper == null || !(constantUpper instanceof Number)) {
                 throw ASTWalkException.from(numericMessage);
             }
-        }
-        else {
+        } else {
             isConstants = isConstants && upperBounds == null;
         }
 
@@ -77,8 +74,7 @@ public class ASTMatchUntilHelper
                 if (bound < 0) {
                     throw ASTWalkException.from("Incorrect range specification, a bounds value of negative value is not allowed");
                 }
-            }
-            else {
+            } else {
                 if (bound <= 0) {
                     throw ASTWalkException.from("Incorrect range specification, a bounds value of zero or negative value is not allowed");
                 }

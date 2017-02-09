@@ -6,31 +6,24 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class NamedWindowQueryMain
-{
+public class NamedWindowQueryMain {
     private static final Logger log = LoggerFactory.getLogger(NamedWindowQueryMain.class);
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         NamedWindowQueryMain main = new NamedWindowQueryMain();
 
-        try
-        {
+        try {
             main.runExample(false, "NamedWindowQuery");
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.error("Unexpected error occured running example:" + ex.getMessage(), ex);
         }
     }
 
-    public void runExample(boolean isRunFromUnitTest, String engineURI)
-    {
+    public void runExample(boolean isRunFromUnitTest, String engineURI) {
         int numEventsToLoad = 100000;
         int numFireAndForgetExecutions = 100;
         int numOnEventQueryExecutions = 100000;
-        if (isRunFromUnitTest)
-        {
+        if (isRunFromUnitTest) {
             numEventsToLoad = 1000;
             numFireAndForgetExecutions = 5;
             numOnEventQueryExecutions = 5;
@@ -66,8 +59,7 @@ public class NamedWindowQueryMain
 
         log.info("Generating " + numEventsToLoad + " sensor events for the named window");
         List<Map<String, Object>> events = new ArrayList<Map<String, Object>>();
-        for (int i = 0; i < numEventsToLoad; i++)
-        {
+        for (int i = 0; i < numEventsToLoad; i++) {
             double temperature = random.nextDouble() * 10 + 80;
             String sensor = sensors[random.nextInt(sensors.length)];
 
@@ -80,8 +72,7 @@ public class NamedWindowQueryMain
         log.info("Completed generating sensor events");
 
         log.info("Sending " + events.size() + " sensor events into engine");
-        for (Map<String, Object> theEvent : events)
-        {
+        for (Map<String, Object> theEvent : events) {
             epService.getEPRuntime().sendEvent(theEvent, "SensorEvent");
         }
         log.info("Completed sending sensor events");
@@ -95,16 +86,14 @@ public class NamedWindowQueryMain
 
         log.info("Executing fire-and-forget query " + numFireAndForgetExecutions + " times");
         long startTime = System.currentTimeMillis();
-        for (int i = 0; i < numFireAndForgetExecutions; i++)
-        {
+        for (int i = 0; i < numFireAndForgetExecutions; i++) {
             EPOnDemandQueryResult result = onDemandQuery.execute();
-            if (result.getArray().length != 1)
-            {
+            if (result.getArray().length != 1) {
                 throw new RuntimeException("Failed assertion of result, expected a single row returned from query");
             }
         }
         long endTime = System.currentTimeMillis();
-        double deltaSec = (endTime - startTime) / 1000.0;        
+        double deltaSec = (endTime - startTime) / 1000.0;
         log.info("Executing fire-and-forget query " + numFireAndForgetExecutions + " times took " + deltaSec + " seconds");
 
         // prepare on-select
@@ -120,8 +109,7 @@ public class NamedWindowQueryMain
 
         log.info("Executing on-select query " + numOnEventQueryExecutions + " times");
         startTime = System.currentTimeMillis();
-        for (int i = 0; i < numOnEventQueryExecutions; i++)
-        {
+        for (int i = 0; i < numOnEventQueryExecutions; i++) {
             Map<String, Object> queryParams = new HashMap<String, Object>();
             queryParams.put("querytemp", sampleTemperature);
 
@@ -132,8 +120,7 @@ public class NamedWindowQueryMain
         log.info("Executing on-select query " + numOnEventQueryExecutions + " times took " + deltaSec + " seconds");
     }
 
-    public void update(String result)
-    {
+    public void update(String result) {
         // No action taken here
         // System.out.println(result);
     }

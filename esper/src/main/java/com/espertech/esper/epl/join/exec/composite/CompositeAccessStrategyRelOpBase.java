@@ -28,8 +28,7 @@ public abstract class CompositeAccessStrategyRelOpBase {
 
         if (lookupStream != -1) {
             events = new EventBean[lookupStream + 1];
-        }
-        else {
+        } else {
             events = new EventBean[numStreams + 1];
         }
         this.lookupStream = lookupStream;
@@ -44,8 +43,7 @@ public abstract class CompositeAccessStrategyRelOpBase {
     public Object evaluatePerStream(EventBean[] eventPerStream, ExprEvaluatorContext context) {
         if (isNWOnTrigger) {
             return key.evaluate(eventPerStream, true, context);
-        }
-        else {
+        } else {
             System.arraycopy(eventPerStream, 0, events, 1, eventPerStream.length);
             return key.evaluate(events, true, context);
         }

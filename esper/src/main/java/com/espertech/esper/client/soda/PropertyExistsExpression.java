@@ -15,33 +15,29 @@ import java.io.StringWriter;
 /**
  * Property-exists checks if a dynamic property exists.
  */
-public class PropertyExistsExpression extends ExpressionBase
-{
+public class PropertyExistsExpression extends ExpressionBase {
     private static final long serialVersionUID = 415089848067641931L;
 
     /**
      * Ctor - for use to create an expression tree, without child expression.
      */
-    public PropertyExistsExpression()
-    {
+    public PropertyExistsExpression() {
     }
 
     /**
      * Ctor.
+     *
      * @param propertyName is the name of the property to check existence
      */
-    public PropertyExistsExpression(String propertyName)
-    {
+    public PropertyExistsExpression(String propertyName) {
         this.getChildren().add(Expressions.getPropExpr(propertyName));
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("exists(");
         this.getChildren().get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         writer.write(")");

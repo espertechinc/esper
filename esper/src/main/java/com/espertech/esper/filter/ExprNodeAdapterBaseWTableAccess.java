@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.table.mgmt.TableService;
 
-public class ExprNodeAdapterBaseWTableAccess extends ExprNodeAdapterBase
-{
+public class ExprNodeAdapterBaseWTableAccess extends ExprNodeAdapterBase {
     private final ExprNodeAdapterBase evalBase;
     private final TableService tableService;
 
@@ -30,9 +29,8 @@ public class ExprNodeAdapterBaseWTableAccess extends ExprNodeAdapterBase
     public boolean evaluate(EventBean theEvent) {
         try {
             return evalBase.evaluate(theEvent);
-        }
-        finally {
-             tableService.getTableExprEvaluatorContext().releaseAcquiredLocks();
+        } finally {
+            tableService.getTableExprEvaluatorContext().releaseAcquiredLocks();
         }
     }
 }

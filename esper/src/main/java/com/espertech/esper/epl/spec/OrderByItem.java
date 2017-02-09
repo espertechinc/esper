@@ -19,8 +19,7 @@ import java.util.Collection;
 /**
  * Specification object to an element in the order-by expression.
  */
-public class OrderByItem implements MetaDefItem, Serializable
-{
+public class OrderByItem implements MetaDefItem, Serializable {
     public static final OrderByItem[] EMPTY_ORDERBY_ARRAY = new OrderByItem[0];
 
     private ExprNode exprNode;
@@ -29,30 +28,30 @@ public class OrderByItem implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param exprNode is the order-by expression node
+     *
+     * @param exprNode  is the order-by expression node
      * @param ascending is true for ascending, or false for descending sort
      */
-    public OrderByItem(ExprNode exprNode, boolean ascending)
-    {
+    public OrderByItem(ExprNode exprNode, boolean ascending) {
         this.exprNode = exprNode;
         isDescending = ascending;
     }
 
     /**
      * Returns the order-by expression node.
+     *
      * @return expression node.
      */
-    public ExprNode getExprNode()
-    {
+    public ExprNode getExprNode() {
         return exprNode;
     }
 
     /**
      * Returns true for ascending, false for descending.
+     *
      * @return indicator if ascending or descending
      */
-    public boolean isDescending()
-    {
+    public boolean isDescending() {
         return isDescending;
     }
 

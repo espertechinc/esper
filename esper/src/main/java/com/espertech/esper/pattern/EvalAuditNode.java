@@ -13,8 +13,7 @@ package com.espertech.esper.pattern;
 /**
  * This class represents an 'or' operator in the evaluation tree representing any event expressions.
  */
-public class EvalAuditNode extends EvalNodeBase
-{
+public class EvalAuditNode extends EvalNodeBase {
     private final EvalAuditFactoryNode factoryNode;
     private final EvalNode childNode;
 
@@ -34,8 +33,7 @@ public class EvalAuditNode extends EvalNodeBase
 
     public EvalStateNode newState(Evaluator parentNode,
                                   EvalStateNodeNumber stateNodeNumber,
-                                  long stateNodeId)
-    {
+                                  long stateNodeId) {
         return new EvalAuditStateNode(parentNode, this, stateNodeNumber, stateNodeId);
     }
 }

@@ -13,10 +13,10 @@ package com.espertech.esper.epl.named;
 /**
  * Observer named window events.
  */
-public interface NamedWindowLifecycleObserver
-{
+public interface NamedWindowLifecycleObserver {
     /**
      * Observer named window changes.
+     *
      * @param theEvent indicates named window action
      */
     public void observe(NamedWindowLifecycleEvent theEvent);

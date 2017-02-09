@@ -14,6 +14,8 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 
 public interface AIRegistryTableAccess extends ExprTableAccessEvalStrategy {
     public void assignService(int num, ExprTableAccessEvalStrategy value);
+
     public void deassignService(int num);
+
     public int getAgentInstanceCount();
 }

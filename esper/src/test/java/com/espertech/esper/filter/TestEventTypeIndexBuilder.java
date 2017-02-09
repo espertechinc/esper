@@ -18,8 +18,7 @@ import com.espertech.esper.supportunit.filter.SupportFilterHandle;
 import com.espertech.esper.supportunit.filter.SupportFilterSpecBuilder;
 import junit.framework.TestCase;
 
-public class TestEventTypeIndexBuilder extends TestCase
-{
+public class TestEventTypeIndexBuilder extends TestCase {
     private EventTypeIndex eventTypeIndex;
     private EventTypeIndexBuilder indexBuilder;
 
@@ -34,8 +33,7 @@ public class TestEventTypeIndexBuilder extends TestCase
 
     private FilterServiceGranularLockFactoryReentrant lockFactory = new FilterServiceGranularLockFactoryReentrant();
 
-    public void setUp()
-    {
+    public void setUp() {
         eventTypeIndex = new EventTypeIndex(lockFactory);
         indexBuilder = new EventTypeIndexBuilder(eventTypeIndex, true);
 
@@ -49,8 +47,7 @@ public class TestEventTypeIndexBuilder extends TestCase
         callbackTwo = new SupportFilterHandle();
     }
 
-    public void testAddRemove()
-    {
+    public void testAddRemove() {
         assertNull(eventTypeIndex.get(typeOne));
         assertNull(eventTypeIndex.get(typeTwo));
 

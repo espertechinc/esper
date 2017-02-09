@@ -13,7 +13,6 @@ package com.espertech.esper.view.ext;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
-import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.view.*;
@@ -24,8 +23,7 @@ import java.util.List;
 /**
  * Factory for rank window views.
  */
-public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     private final static String NAME = "Rank";
 
     private List<ExprNode> viewParameters;
@@ -59,17 +57,14 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
 
     protected boolean useCollatorSort;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParams) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParams) throws ViewParameterException {
         this.viewParameters = viewParams;
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         eventType = parentEventType;
         String message = NAME + " view requires a list of expressions providing unique keys, a numeric size parameter and a list of expressions providing sort keys";
-        if (viewParameters.size() < 3)
-        {
+        if (viewParameters.size() < 3) {
             throw new ViewParameterException(message);
         }
 
@@ -95,12 +90,10 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         }
 
         // validate non-constant for unique-keys and sort-keys
-        for (int i = 0; i < indexNumericSize; i++)
-        {
+        for (int i = 0; i < indexNumericSize; i++) {
             ViewFactorySupport.assertReturnsNonConstant(NAME, validated[i], i);
         }
-        for (int i = indexNumericSize+1; i < validated.length; i++)
-        {
+        for (int i = indexNumericSize + 1; i < validated.length; i++) {
             ViewFactorySupport.assertReturnsNonConstant(NAME, validated[i], i);
         }
 
@@ -117,15 +110,11 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         isDescendingValues = new boolean[sortCriteriaExpressions.length];
 
         int count = 0;
-        for (int i = indexNumericSize + 1; i < validated.length; i++)
-        {
-            if (validated[i] instanceof ExprOrderedExpr)
-            {
+        for (int i = indexNumericSize + 1; i < validated.length; i++) {
+            if (validated[i] instanceof ExprOrderedExpr) {
                 isDescendingValues[count] = ((ExprOrderedExpr) validated[i]).isDescending();
                 sortCriteriaExpressions[count] = validated[i].getChildNodes()[0];
-            }
-            else
-            {
+            } else {
                 sortCriteriaExpressions[count] = validated[i];
             }
             count++;
@@ -139,8 +128,7 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         }
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         IStreamSortRankRandomAccess rankedRandomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprSortedRankedAccess(agentInstanceViewFactoryContext);
         return new RankWindowView(this, uniqueCriteriaExpressions, uniqueEvals, sortCriteriaExpressions, sortEvals, isDescendingValues, sortWindowSize, rankedRandomAccess, useCollatorSort, agentInstanceViewFactoryContext);
@@ -150,41 +138,33 @@ public class RankWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return new RandomAccessByIndexGetter();
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof SortWindowView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof SortWindowView)) {
             return false;
         }
 
         SortWindowView other = (SortWindowView) view;
         int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
         if ((other.getSortWindowSize() != sortWindowSize) ||
-            (!compare(other.getIsDescendingValues(), isDescendingValues)) ||
-            (!ExprNodeUtility.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions)) )
-        {
+                (!compare(other.getIsDescendingValues(), isDescendingValues)) ||
+                (!ExprNodeUtility.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions))) {
             return false;
         }
 
         return other.isEmpty();
     }
 
-    private boolean compare(boolean[] one, boolean[] two)
-    {
-        if (one.length != two.length)
-        {
+    private boolean compare(boolean[] one, boolean[] two) {
+        if (one.length != two.length) {
             return false;
         }
 
-        for (int i = 0; i < one.length; i++)
-        {
-            if (one[i] != two[i])
-            {
+        for (int i = 0; i < one.length; i++) {
+            if (one[i] != two[i]) {
                 return false;
             }
         }

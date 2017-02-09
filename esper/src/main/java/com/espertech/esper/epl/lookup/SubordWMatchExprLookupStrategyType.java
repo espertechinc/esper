@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.lookup;
 
-public enum SubordWMatchExprLookupStrategyType
-{
+public enum SubordWMatchExprLookupStrategyType {
     FULLTABLESCAN_UNFILTERED,
     FULLTABLESCAN_FILTERED,
     INDEXED_FILTERED,

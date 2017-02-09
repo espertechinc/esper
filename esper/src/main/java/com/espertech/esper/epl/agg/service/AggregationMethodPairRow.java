@@ -16,20 +16,19 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 /**
  * A row in aggregation state.
  */
-public class AggregationMethodPairRow
-{
+public class AggregationMethodPairRow {
     private long refcount;
     private final AggregationMethod[] methods;
     private final AggregationState[] states;
 
     /**
      * Ctor.
+     *
      * @param refcount number of items in state
-     * @param methods aggregations
-     * @param states for first/last/window type access
+     * @param methods  aggregations
+     * @param states   for first/last/window type access
      */
-    public AggregationMethodPairRow(long refcount, AggregationMethod[] methods, AggregationState[] states)
-    {
+    public AggregationMethodPairRow(long refcount, AggregationMethod[] methods, AggregationState[] states) {
         this.refcount = refcount;
         this.methods = methods;
         this.states = states;
@@ -37,44 +36,42 @@ public class AggregationMethodPairRow
 
     /**
      * Returns number of data points.
+     *
      * @return data points
      */
-    public long getRefcount()
-    {
+    public long getRefcount() {
         return refcount;
     }
 
     /**
      * Returns aggregation state.
+     *
      * @return state
      */
-    public AggregationMethod[] getMethods()
-    {
+    public AggregationMethod[] getMethods() {
         return methods;
     }
 
     /**
      * Increase number of data points by one.
      */
-    public void increaseRefcount()
-    {
+    public void increaseRefcount() {
         refcount++;
     }
 
     /**
      * Decrease number of data points by one.
      */
-    public void decreaseRefcount()
-    {
+    public void decreaseRefcount() {
         refcount--;
     }
 
     /**
      * Returns the states for first/last/window aggregation functions.
+     *
      * @return states
      */
-    public AggregationState[] getStates()
-    {
+    public AggregationState[] getStates() {
         return states;
     }
 }

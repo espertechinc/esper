@@ -10,25 +10,21 @@
  */
 package com.espertech.esper.type;
 
+import com.espertech.esper.collection.Pair;
 import junit.framework.TestCase;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-import com.espertech.esper.collection.Pair;
-
-public class TestStringPatternSetUtil extends TestCase
-{
+public class TestStringPatternSetUtil extends TestCase {
     private List<Pair<StringPatternSet, Boolean>> patterns = new LinkedList<Pair<StringPatternSet, Boolean>>();
 
-    public void testEmpty()
-    {
+    public void testEmpty() {
         assertTrue(StringPatternSetUtil.evaluate(true, patterns, "abc"));
         assertFalse(StringPatternSetUtil.evaluate(false, patterns, "abc"));
     }
 
-    public void testCombinationLike()
-    {
+    public void testCombinationLike() {
         patterns.add(new Pair<StringPatternSet, Boolean>(new StringPatternSetLike("%123%"), true));
         patterns.add(new Pair<StringPatternSet, Boolean>(new StringPatternSetLike("%abc%"), false));
         patterns.add(new Pair<StringPatternSet, Boolean>(new StringPatternSetLike("%def%"), true));
@@ -37,8 +33,7 @@ public class TestStringPatternSetUtil extends TestCase
         runAssertion();
     }
 
-    public void testCombinationRegex()
-    {
+    public void testCombinationRegex() {
         patterns.add(new Pair<StringPatternSet, Boolean>(new StringPatternSetRegex("(.)*123(.)*"), true));
         patterns.add(new Pair<StringPatternSet, Boolean>(new StringPatternSetRegex("(.)*abc(.)*"), false));
         patterns.add(new Pair<StringPatternSet, Boolean>(new StringPatternSetRegex("(.)*def(.)*"), true));
@@ -47,8 +42,7 @@ public class TestStringPatternSetUtil extends TestCase
         runAssertion();
     }
 
-    private void runAssertion()
-    {
+    private void runAssertion() {
         assertTrue(StringPatternSetUtil.evaluate(false, patterns, "123"));
         assertFalse(StringPatternSetUtil.evaluate(false, patterns, "123abc"));
         assertTrue(StringPatternSetUtil.evaluate(false, patterns, "123abcdef"));

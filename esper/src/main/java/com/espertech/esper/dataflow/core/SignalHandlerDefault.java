@@ -13,8 +13,8 @@ package com.espertech.esper.dataflow.core;
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 
 public class SignalHandlerDefault implements SignalHandler {
-    protected static final SignalHandlerDefault INSTANCE = new SignalHandlerDefault(); 
+    protected static final SignalHandlerDefault INSTANCE = new SignalHandlerDefault();
 
-    public void handleSignal(EPDataFlowSignal signal) {        
+    public void handleSignal(EPDataFlowSignal signal) {
     }
 }

@@ -15,11 +15,9 @@ import com.espertech.esper.epl.agg.service.AggregatorUtil;
 /**
  * Sum for any number value.
  */
-public class AggregatorSumNumIntegerFilter extends AggregatorSumNumInteger
-{
+public class AggregatorSumNumIntegerFilter extends AggregatorSumNumInteger {
     @Override
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;
@@ -28,8 +26,7 @@ public class AggregatorSumNumIntegerFilter extends AggregatorSumNumInteger
     }
 
     @Override
-    public void leave(Object parameters)
-    {
+    public void leave(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

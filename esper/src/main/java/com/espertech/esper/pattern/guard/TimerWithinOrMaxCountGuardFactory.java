@@ -20,8 +20,7 @@ import com.espertech.esper.util.MetaDefItem;
 import java.io.Serializable;
 import java.util.List;
 
-public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefItem, Serializable
-{
+public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefItem, Serializable {
     private static final long serialVersionUID = 6650243610865501435L;
 
     /**
@@ -39,10 +38,9 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
      */
     protected transient MatchedEventConvertor convertor;
 
-    public void setGuardParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws GuardParameterException
-    {
+    public void setGuardParameters(List<ExprNode> parameters, MatchedEventConvertor convertor) throws GuardParameterException {
         String message = "Timer-within-or-max-count guard requires two parameters: "
-                    + "numeric or time period parameter and an integer-value expression parameter";
+                + "numeric or time period parameter and an integer-value expression parameter";
 
         if (parameters.size() != 2) {
             throw new GuardParameterException(message);
@@ -65,8 +63,7 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
         if (timeExpr instanceof ExprTimePeriod) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) timeExpr;
             return timePeriod.nonconstEvaluator().deltaUseEngineTime(convertor.convert(beginState), context.getAgentInstanceContext());
-        }
-        else {
+        } else {
             Object time = PatternExpressionUtil.evaluate("Timer-Within-Or-Max-Count guard", beginState, timeExpr, convertor, context.getAgentInstanceContext());
             if (null == time) {
                 throw new EPException("Timer-within-or-max first parameter evaluated to a null-value");
@@ -76,15 +73,14 @@ public class TimerWithinOrMaxCountGuardFactory implements GuardFactory, MetaDefI
     }
 
     public int computeNumCountTo(MatchedEventMap beginState, PatternAgentInstanceContext context) {
-        Object numCountToVal = PatternExpressionUtil.evaluate("Timer-Within-Or-Max-Count guard", beginState, numCountToExpr, convertor,context.getAgentInstanceContext());
+        Object numCountToVal = PatternExpressionUtil.evaluate("Timer-Within-Or-Max-Count guard", beginState, numCountToExpr, convertor, context.getAgentInstanceContext());
         if (null == numCountToVal) {
             throw new EPException("Timer-within-or-max second parameter evaluated to a null-value");
         }
         return (Integer) numCountToVal;
     }
 
-    public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap beginState, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState)
-    {
+    public Guard makeGuard(PatternAgentInstanceContext context, MatchedEventMap beginState, Quitable quitable, EvalStateNodeNumber stateNodeId, Object guardState) {
         return new TimerWithinOrMaxCountGuard(computeTime(beginState, context), computeNumCountTo(beginState, context), quitable);
     }
 }

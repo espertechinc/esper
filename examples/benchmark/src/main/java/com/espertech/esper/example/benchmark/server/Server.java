@@ -41,7 +41,7 @@ import java.util.concurrent.*;
  * By default the benchmark registers a subscriber to the statement(s). Use -Desper.benchmark.ul to use
  * an UpdateListener instead. Note that the subscriber contains suitable update(..) methods for the default
  * proposed statement in the statements.properties files but might not be suitable if you change statements due
- * to the strong binding with statement results. 
+ * to the strong binding with statement results.
  *
  * @author Alexandre Vasseur http://avasseur.blogspot.com
  */
@@ -60,13 +60,13 @@ public class Server extends Thread {
     public static final int DEFAULT_THREADCORE = Runtime.getRuntime().availableProcessors();
     public static final int DEFAULT_QUEUEMAX = -1;
     public static final int DEFAULT_SLEEP = 0;
-    public static final int DEFAULT_SIMULATION_RATE = -1;//-1: no simulation
-    public static final int DEFAULT_SIMULATION_THREAD = -1;//-1: no simulation
+    public static final int DEFAULT_SIMULATION_RATE = -1; //-1: no simulation
+    public static final int DEFAULT_SIMULATION_THREAD = -1; //-1: no simulation
     public static final int DEFAULT_STAT = 5;
     public static final String DEFAULT_MODE = "NOOP";
     public static final Properties MODES = new Properties();
 
-    private ThreadPoolExecutor executor;//can be null
+    private ThreadPoolExecutor executor; //can be null
 
     private CEPProvider.ICEPProvider cepProvider;
 
@@ -110,7 +110,7 @@ public class Server extends Thread {
         // register statements
         String suffix = Server.MODES.getProperty("_SUFFIX");
         if ("NOOP".equals(mode)) {
-            ;
+            // no action
         } else {
             String stmtString = Server.MODES.getProperty(mode) + " " + suffix;
             System.out.println("Using " + mode + " : " + stmtString);
@@ -138,7 +138,7 @@ public class Server extends Thread {
             System.out.println("Using ThreadPoolExecutor, cpu#" + Runtime.getRuntime().availableProcessors() + ", threadCore#" + threadCore + " queue#" + queueMax);
             BlockingQueue<Runnable> queue;
             if (queueMax == 0) {
-                queue = new SynchronousQueue<Runnable>(true);//enforce fairness
+                queue = new SynchronousQueue<Runnable>(true); //enforce fairness
             } else {
                 queue = new LinkedBlockingQueue<Runnable>(queueMax);
             }
@@ -207,11 +207,10 @@ public class Server extends Thread {
                 sim.join();
             }
         } catch (InterruptedException e) {
-            ;
         }
     }
 
-    public static void main(String argv[]) throws IOException {
+    public static void main(String[] argv) throws IOException {
         // load modes
         MODES.load(Server.class.getClassLoader().getResourceAsStream("statements.properties"));
         MODES.put("NOOP", "");
@@ -261,7 +260,6 @@ public class Server extends Thread {
         try {
             bs.join();
         } catch (InterruptedException e) {
-            ;
         }
     }
 

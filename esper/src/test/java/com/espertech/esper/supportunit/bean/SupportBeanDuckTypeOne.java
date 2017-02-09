@@ -10,12 +10,10 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public class SupportBeanDuckTypeOne implements SupportBeanDuckType
-{
+public class SupportBeanDuckTypeOne implements SupportBeanDuckType {
     private String stringValue;
 
-    public SupportBeanDuckTypeOne(String stringValue)
-    {
+    public SupportBeanDuckTypeOne(String stringValue) {
         this.stringValue = stringValue;
     }
 

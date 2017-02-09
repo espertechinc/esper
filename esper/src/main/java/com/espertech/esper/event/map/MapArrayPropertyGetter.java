@@ -21,8 +21,7 @@ import java.util.Map;
 /**
  * Getter for Map-entries with well-defined fragment type.
  */
-public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventPropertyGetterAndIndexed
-{
+public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventPropertyGetterAndIndexed {
     private final String propertyName;
     private final int index;
     private final EventAdapterService eventAdapterService;
@@ -30,26 +29,24 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
 
     /**
      * Ctor.
-     * @param propertyNameAtomic property name
-     * @param index array index
+     *
+     * @param propertyNameAtomic  property name
+     * @param index               array index
      * @param eventAdapterService factory for event beans and event types
-     * @param fragmentType type of the entry returned
+     * @param fragmentType        type of the entry returned
      */
-    public MapArrayPropertyGetter(String propertyNameAtomic, int index, EventAdapterService eventAdapterService, EventType fragmentType)
-    {
+    public MapArrayPropertyGetter(String propertyNameAtomic, int index, EventAdapterService eventAdapterService, EventType fragmentType) {
         this.propertyName = propertyNameAtomic;
         this.index = index;
         this.fragmentType = fragmentType;
         this.eventAdapterService = eventAdapterService;
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         return getMapInternal(map, index);
     }
 
@@ -58,25 +55,21 @@ public class MapArrayPropertyGetter implements MapEventPropertyGetter, MapEventP
         return getMapInternal(map, index);
     }
 
-    public Object get(EventBean obj) throws PropertyAccessException
-    {
+    public Object get(EventBean obj) throws PropertyAccessException {
         Map<String, Object> map = BaseNestableEventUtil.checkedCastUnderlyingMap(obj);
         return getMap(map);
     }
 
-    private Object getMapInternal(Map<String, Object> map, int index) throws PropertyAccessException
-    {
+    private Object getMapInternal(Map<String, Object> map, int index) throws PropertyAccessException {
         Object value = map.get(propertyName);
         return BaseNestableEventUtil.getIndexedValue(value, index);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true;
     }
 
-    public Object getFragment(EventBean obj) throws PropertyAccessException
-    {
+    public Object getFragment(EventBean obj) throws PropertyAccessException {
         Object fragmentUnderlying = get(obj);
         return BaseNestableEventUtil.getFragmentNonPojo(eventAdapterService, fragmentUnderlying, fragmentType);
     }

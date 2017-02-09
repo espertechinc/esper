@@ -65,8 +65,7 @@ public class ExprEvaluatorProxy implements java.lang.reflect.InvocationHandler {
                 if (resultBeans != null) {
                     if (resultBeans.isEmpty()) {
                         outStr = "{}";
-                    }
-                    else {
+                    } else {
                         StringWriter buf = new StringWriter();
                         int count = 0;
                         for (EventBean theEvent : resultBeans) {

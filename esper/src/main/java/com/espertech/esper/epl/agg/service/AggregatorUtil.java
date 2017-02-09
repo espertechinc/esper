@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.agg.service;
 
-public class AggregatorUtil
-{
+public class AggregatorUtil {
     public static boolean checkFilter(Object[] object) {
         Boolean pass = (Boolean) object[1];
         return pass != null && pass;

@@ -13,7 +13,6 @@ package com.espertech.esper.client.soda;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Object model of a data flow operator declaration.
@@ -29,11 +28,12 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Ctor
-     * @param annotations annotations
+     *
+     * @param annotations  annotations
      * @param operatorName operator name
-     * @param input input stream definitions
-     * @param output output stream definitions
-     * @param parameters parameters
+     * @param input        input stream definitions
+     * @param output       output stream definitions
+     * @param parameters   parameters
      */
     public DataFlowOperator(List<AnnotationPart> annotations, String operatorName, List<DataFlowOperatorInput> input, List<DataFlowOperatorOutput> output, List<DataFlowOperatorParameter> parameters) {
         this.annotations = annotations;
@@ -51,6 +51,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Returns the annotations.
+     *
      * @return annotations
      */
     public List<AnnotationPart> getAnnotations() {
@@ -59,6 +60,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Sets the annotations.
+     *
      * @param annotations to set
      */
     public void setAnnotations(List<AnnotationPart> annotations) {
@@ -67,6 +69,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Returns the operator name.
+     *
      * @return operator name
      */
     public String getOperatorName() {
@@ -75,6 +78,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Sets the operator name.
+     *
      * @param operatorName operator name
      */
     public void setOperatorName(String operatorName) {
@@ -83,6 +87,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Returns the input stream definitions, if any.
+     *
      * @return input streams
      */
     public List<DataFlowOperatorInput> getInput() {
@@ -91,6 +96,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Sets the input stream definitions, if any.
+     *
      * @param input input streams
      */
     public void setInput(List<DataFlowOperatorInput> input) {
@@ -99,6 +105,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Returns the output stream definitions, if any.
+     *
      * @return output streams
      */
     public List<DataFlowOperatorOutput> getOutput() {
@@ -107,6 +114,7 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Sets the output stream definitions, if any.
+     *
      * @param output streams
      */
     public void setOutput(List<DataFlowOperatorOutput> output) {
@@ -116,8 +124,9 @@ public class DataFlowOperator implements Serializable {
     /**
      * Returns operator parameters.
      * <p>
-     *     Object values may be expressions, constants, JSON values or EPL statements.
+     * Object values may be expressions, constants, JSON values or EPL statements.
      * </p>
+     *
      * @return map of parameters
      */
     public List<DataFlowOperatorParameter> getParameters() {
@@ -127,8 +136,9 @@ public class DataFlowOperator implements Serializable {
     /**
      * Sets operator parameters.
      * <p>
-     *     Object values may be expressions, constants, JSON values or EPL statements.
+     * Object values may be expressions, constants, JSON values or EPL statements.
      * </p>
+     *
      * @param parameters map of parameters
      */
     public void setParameters(List<DataFlowOperatorParameter> parameters) {
@@ -137,7 +147,8 @@ public class DataFlowOperator implements Serializable {
 
     /**
      * Render to string.
-     * @param writer to render
+     *
+     * @param writer    to render
      * @param formatter for formatting
      */
     public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
@@ -172,8 +183,7 @@ public class DataFlowOperator implements Serializable {
         if (parameters.isEmpty()) {
             writer.write(" {}");
             formatter.endDataFlowOperatorDetails(writer);
-        }
-        else {
+        } else {
             writer.write(" {");
             formatter.beginDataFlowOperatorDetails(writer);
             String delimiter = ",";
@@ -201,8 +211,7 @@ public class DataFlowOperator implements Serializable {
                 delimiterNames = ", ";
             }
             writer.write(")");
-        }
-        else {
+        } else {
             writer.write(inputItem.getInputStreamNames().get(0));
         }
     }

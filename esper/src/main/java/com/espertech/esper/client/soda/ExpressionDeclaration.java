@@ -34,10 +34,11 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Ctor.
-     * @param name of expression
+     *
+     * @param name           of expression
      * @param parameterNames expression paramater names
-     * @param expression the expression body
-     * @param alias indicator whether this is an expression alias or not
+     * @param expression     the expression body
+     * @param alias          indicator whether this is an expression alias or not
      */
     public ExpressionDeclaration(String name, List<String> parameterNames, Expression expression, boolean alias) {
         this.name = name;
@@ -48,15 +49,16 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Returns expression name.
+     *
      * @return name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Sets expression name.
+     *
      * @param name name to set
      */
     public void setName(String name) {
@@ -65,6 +67,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Returns the expression body.
+     *
      * @return expression body
      */
     public Expression getExpression() {
@@ -73,6 +76,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Sets the expression body.
+     *
      * @param expression body to set
      */
     public void setExpression(Expression expression) {
@@ -81,6 +85,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Returns the paramater names.
+     *
      * @return paramater names
      */
     public List<String> getParameterNames() {
@@ -89,6 +94,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Returns indicator whether the expression is an alias or not.
+     *
      * @return alias indicator
      */
     public boolean isAlias() {
@@ -97,6 +103,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Sets indicator whether the expression is an alias or not.
+     *
      * @param alias alias indicator
      */
     public void setAlias(boolean alias) {
@@ -105,6 +112,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Sets the paramater names.
+     *
      * @param parameterNames paramater names to set
      */
     public void setParameterNames(List<String> parameterNames) {
@@ -113,9 +121,10 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Print.
-     * @param writer to print to
+     *
+     * @param writer                 to print to
      * @param expressionDeclarations expression declarations
-     * @param formatter for newline-whitespace formatting
+     * @param formatter              for newline-whitespace formatting
      */
     public static void toEPL(StringWriter writer, List<ExpressionDeclaration> expressionDeclarations, EPStatementFormatter formatter) {
         if ((expressionDeclarations == null) || (expressionDeclarations.isEmpty())) {
@@ -133,6 +142,7 @@ public class ExpressionDeclaration implements Serializable {
 
     /**
      * Print part.
+     *
      * @param writer to write to
      */
     public void toEPL(StringWriter writer) {
@@ -145,8 +155,7 @@ public class ExpressionDeclaration implements Serializable {
         if (!alias) {
             if (parameterNames != null && parameterNames.size() == 1) {
                 writer.append(parameterNames.get(0));
-            }
-            else if (parameterNames != null && !parameterNames.isEmpty()) {
+            } else if (parameterNames != null && !parameterNames.isEmpty()) {
                 String delimiter = "";
                 writer.append("(");
                 for (String name : parameterNames) {

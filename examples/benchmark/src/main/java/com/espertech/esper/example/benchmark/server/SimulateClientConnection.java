@@ -7,14 +7,13 @@
  **************************************************************************************/
 package com.espertech.esper.example.benchmark.server;
 
+import com.espertech.esper.example.benchmark.MarketData;
 import com.espertech.esper.example.benchmark.Symbols;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import com.espertech.esper.example.benchmark.MarketData;
 
 /**
  * A thread started by the Server when running in simulation mode.
@@ -24,7 +23,7 @@ import com.espertech.esper.example.benchmark.MarketData;
  */
 public class SimulateClientConnection extends Thread {
 
-    static Map<Integer, SimulateClientConnection> CLIENT_CONNECTIONS = Collections.synchronizedMap(new HashMap<Integer, SimulateClientConnection>());
+    final static Map<Integer, SimulateClientConnection> CLIENT_CONNECTIONS = Collections.synchronizedMap(new HashMap<Integer, SimulateClientConnection>());
 
     public static void dumpStats(int statSec) {
         long totalCount = 0;
@@ -52,15 +51,15 @@ public class SimulateClientConnection extends Thread {
     private long countLast10s = 0;
     private long lastThroughputTick = System.currentTimeMillis();
     private int myID;
-    private static int ID = 0;
+    private static int id = 0;
 
     public SimulateClientConnection(int simulationRate, ThreadPoolExecutor executor, CEPProvider.ICEPProvider cepProvider, int statSec) {
-        super("EsperServer-cnx-" + ID++);
+        super("EsperServer-cnx-" + id++);
         this.simulationRate = simulationRate;
         this.executor = executor;
         this.cepProvider = cepProvider;
         this.statSec = statSec;
-        myID = ID - 1;
+        myID = id - 1;
 
         // simulationRate event / s
         // 10ms ~ simulationRate / 1E2

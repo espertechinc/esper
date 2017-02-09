@@ -22,8 +22,7 @@ import java.util.Collection;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordSortedTableLookupStrategy implements SubordTableLookupStrategy
-{
+public class SubordSortedTableLookupStrategy implements SubordTableLookupStrategy {
     protected final SortedAccessStrategy strategy;
 
     /**

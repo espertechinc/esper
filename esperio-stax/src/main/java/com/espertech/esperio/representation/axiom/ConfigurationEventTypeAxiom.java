@@ -10,17 +10,16 @@
  */
 package com.espertech.esperio.representation.axiom;
 
-import com.espertech.esper.client.util.ClassForNameProviderDefault;
-import com.espertech.esper.util.MetaDefItem;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.event.EventAdapterException;
 import com.espertech.esper.client.ConfigurationException;
+import com.espertech.esper.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.event.EventAdapterException;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.MetaDefItem;
 
 import javax.xml.namespace.QName;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Configuration object for enabling the engine to process events represented as Axiom OMNode document nodes.
@@ -35,8 +34,7 @@ import java.util.HashMap;
  * For XPath expressions that must refer to namespace prefixes those prefixes and their
  * namespace name must be supplied to the engine. A default namespace can be supplied as well.
  */
-public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
-{
+public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable {
     private String rootElementName;
 
     // Root element namespace.
@@ -56,8 +54,7 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
     /**
      * Ctor.
      */
-    public ConfigurationEventTypeAxiom()
-    {
+    public ConfigurationEventTypeAxiom() {
         xPathProperties = new HashMap<String, XPathPropertyDesc>();
         namespacePrefixes = new HashMap<String, String>();
         resolvePropertiesAbsolute = true;
@@ -65,77 +62,77 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
 
     /**
      * Returns the root element name.
+     *
      * @return root element name
      */
-    public String getRootElementName()
-    {
+    public String getRootElementName() {
         return rootElementName;
     }
 
     /**
      * Sets the root element name.
+     *
      * @param rootElementName is the name of the root element
      */
-    public void setRootElementName(String rootElementName)
-    {
+    public void setRootElementName(String rootElementName) {
         this.rootElementName = rootElementName;
     }
 
     /**
      * Returns the root element namespace.
+     *
      * @return root element namespace
      */
-    public String getRootElementNamespace()
-    {
+    public String getRootElementNamespace() {
         return rootElementNamespace;
     }
 
     /**
      * Sets the root element namespace.
+     *
      * @param rootElementNamespace is the namespace for the root element
      */
-    public void setRootElementNamespace(String rootElementNamespace)
-    {
+    public void setRootElementNamespace(String rootElementNamespace) {
         this.rootElementNamespace = rootElementNamespace;
     }
 
     /**
      * Returns the default namespace.
+     *
      * @return default namespace
      */
-    public String getDefaultNamespace()
-    {
+    public String getDefaultNamespace() {
         return defaultNamespace;
     }
 
     /**
      * Sets the default namespace.
+     *
      * @param defaultNamespace is the default namespace
      */
-    public void setDefaultNamespace(String defaultNamespace)
-    {
+    public void setDefaultNamespace(String defaultNamespace) {
         this.defaultNamespace = defaultNamespace;
     }
 
     /**
      * Returns a map of property name and descriptor for XPath-expression properties.
+     *
      * @return XPath property information
      */
-    public Map<String, XPathPropertyDesc> getXPathProperties()
-    {
+    public Map<String, XPathPropertyDesc> getXPathProperties() {
         return xPathProperties;
     }
 
     /**
      * Adds an event property for which the engine uses the supplied XPath expression against
      * a DOM document node to resolve a property value.
-     * @param name of the event property
+     *
+     * @param name  of the event property
      * @param xpath is an arbitrary xpath expression
-     * @param type is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
-     * XPathConstants.NUMBER, STRING and BOOLEAN.
+     * @param type  is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
+     *              XPathConstants.NUMBER, STRING and BOOLEAN.
      */
-    public void addXPathProperty(String name, String xpath, QName type)
-    {
+    public void addXPathProperty(String name, String xpath, QName type) {
         XPathPropertyDesc desc = new XPathPropertyDesc(name, xpath, type);
         xPathProperties.put(name, desc);
     }
@@ -143,24 +140,20 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
     /**
      * Adds an event property for which the engine uses the supplied XPath expression against
      * a DOM document node to resolve a property value.
-     * @param name of the event property
-     * @param xpath is an arbitrary xpath expression
-     * @param type is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
-     * XPathConstants.NUMBER, STRING and BOOLEAN.
+     *
+     * @param name       of the event property
+     * @param xpath      is an arbitrary xpath expression
+     * @param type       is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
+     *                   XPathConstants.NUMBER, STRING and BOOLEAN.
      * @param castToType is the type name of the type that the return value of the xpath expression is casted to
      */
-    public void addXPathProperty(String name, String xpath, QName type, String castToType)
-    {
+    public void addXPathProperty(String name, String xpath, QName type, String castToType) {
         Class castToTypeClass = null;
 
-        if (castToType != null)
-        {
-            try
-            {
+        if (castToType != null) {
+            try {
                 castToTypeClass = JavaClassHelper.getClassForSimpleName(castToType, ClassForNameProviderDefault.INSTANCE);
-            }
-            catch (EventAdapterException ex)
-            {
+            } catch (EventAdapterException ex) {
                 throw new ConfigurationException("Invalid cast-to type for xpath expression named '" + name + "': " + ex.getMessage());
             }
         }
@@ -171,29 +164,29 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
 
     /**
      * Returns the namespace prefixes in a map of prefix as key and namespace name as value.
+     *
      * @return namespace prefixes
      */
-    public Map<String, String> getNamespacePrefixes()
-    {
+    public Map<String, String> getNamespacePrefixes() {
         return namespacePrefixes;
     }
 
     /**
      * Add a prefix and namespace name for use in XPath expressions refering to that prefix.
-     * @param prefix is the prefix of the namespace
+     *
+     * @param prefix    is the prefix of the namespace
      * @param namespace is the namespace name
      */
-    public void addNamespacePrefix(String prefix, String namespace)
-    {
+    public void addNamespacePrefix(String prefix, String namespace) {
         namespacePrefixes.put(prefix, namespace);
     }
 
     /**
      * Indicates whether properties are compiled into absolute or deep XPath expressions (see setter method for more detail).
+     *
      * @return true for absolute properties, false for deep properties
      */
-    public boolean isResolvePropertiesAbsolute()
-    {
+    public boolean isResolvePropertiesAbsolute() {
         return resolvePropertiesAbsolute;
     }
 
@@ -206,18 +199,17 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
      * When set to false, indicates that when properties are compiled to XPath expressions that the
      * compilation should generate a deep XPath expression such as "//symbol" for the
      * simple symbol property, or "//request/symbol" for a "request.symbol" nested property.
+     *
      * @param resolvePropertiesAbsolute true for absolute XPath for properties (default), false for deep XPath
      */
-    public void setResolvePropertiesAbsolute(boolean resolvePropertiesAbsolute)
-    {
+    public void setResolvePropertiesAbsolute(boolean resolvePropertiesAbsolute) {
         this.resolvePropertiesAbsolute = resolvePropertiesAbsolute;
     }
 
     /**
      * Descriptor class for event properties that are resolved via XPath-expression.
      */
-    public static class XPathPropertyDesc implements Serializable
-    {
+    public static class XPathPropertyDesc implements Serializable {
         private String name;
         private String xpath;
         private QName type;
@@ -225,12 +217,12 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
 
         /**
          * Ctor.
-         * @param name is the event property name
+         *
+         * @param name  is the event property name
          * @param xpath is an arbitrary XPath expression
-         * @param type is a javax.xml.xpath.XPathConstants constant
+         * @param type  is a javax.xml.xpath.XPathConstants constant
          */
-        public XPathPropertyDesc(String name, String xpath, QName type)
-        {
+        public XPathPropertyDesc(String name, String xpath, QName type) {
             this.name = name;
             this.xpath = xpath;
             this.type = type;
@@ -238,13 +230,13 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
 
         /**
          * Ctor.
-         * @param name is the event property name
-         * @param xpath is an arbitrary XPath expression
-         * @param type is a javax.xml.xpath.XPathConstants constant
+         *
+         * @param name               is the event property name
+         * @param xpath              is an arbitrary XPath expression
+         * @param type               is a javax.xml.xpath.XPathConstants constant
          * @param optionalCastToType if non-null then the return value of the xpath expression is cast to this value
          */
-        public XPathPropertyDesc(String name, String xpath, QName type, Class optionalCastToType)
-        {
+        public XPathPropertyDesc(String name, String xpath, QName type, Class optionalCastToType) {
             this.name = name;
             this.xpath = xpath;
             this.type = type;
@@ -253,37 +245,37 @@ public class ConfigurationEventTypeAxiom implements MetaDefItem, Serializable
 
         /**
          * Returns the event property name.
+         *
          * @return event property name
          */
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
         /**
          * Returns the XPath expression.
+         *
          * @return XPath expression
          */
-        public String getXpath()
-        {
+        public String getXpath() {
             return xpath;
         }
 
         /**
          * Returns the javax.xml.xpath.XPathConstants constant representing the event property type.
+         *
          * @return type infomation
          */
-        public QName getType()
-        {
+        public QName getType() {
             return type;
         }
 
         /**
          * Returns the class that the return value of the xpath expression is cast to, or null if no casting.
+         *
          * @return class to cast result of xpath expression to
          */
-        public Class getOptionalCastToType()
-        {
+        public Class getOptionalCastToType() {
             return optionalCastToType;
         }
     }

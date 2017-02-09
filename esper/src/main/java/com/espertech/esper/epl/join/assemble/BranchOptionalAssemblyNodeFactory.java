@@ -15,20 +15,18 @@ import com.espertech.esper.util.IndentWriter;
 /**
  * Assembly factory node for an event stream that is a branch with a single optional child node below it.
  */
-public class BranchOptionalAssemblyNodeFactory extends BaseAssemblyNodeFactory
-{
+public class BranchOptionalAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     /**
      * Ctor.
-     * @param streamNum - is the stream number
+     *
+     * @param streamNum  - is the stream number
      * @param numStreams - is the number of streams
      */
-    public BranchOptionalAssemblyNodeFactory(int streamNum, int numStreams)
-    {
+    public BranchOptionalAssemblyNodeFactory(int streamNum, int numStreams) {
         super(streamNum, numStreams);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("BranchOptionalAssemblyNode streamNum=" + streamNum);
     }
 

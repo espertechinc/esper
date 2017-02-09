@@ -14,15 +14,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
-public class MatchMakerMain implements Runnable
-{
+public class MatchMakerMain implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MatchMakerMain.class);
 
     private final String engineURI;
     private final boolean continuousSimulation;
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         new MatchMakerMain("MatchMaker", false).run();
     }
 
@@ -31,8 +29,7 @@ public class MatchMakerMain implements Runnable
         this.continuousSimulation = continuousSimulation;
     }
 
-    public void run()
-    {
+    public void run() {
         log.info("Setting up EPL");
         // This code runs as part of the automated regression test suite; Therefore disable internal timer theading to safe resources
         Configuration config = new Configuration();
@@ -45,44 +42,41 @@ public class MatchMakerMain implements Runnable
         new MatchMakingMonitor(epService, listener);
 
         log.info("Sending user information");
-        MobileUserBean user_1 = new MobileUserBean(1, 10, 10,
+        MobileUserBean userOne = new MobileUserBean(1, 10, 10,
                 Gender.MALE, HairColor.BLONDE, AgeRange.AGE_4,
                 Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_1);
-        epService.getEPRuntime().sendEvent(user_1);
+        epService.getEPRuntime().sendEvent(userOne);
 
-        MobileUserBean user_2 = new MobileUserBean(2, 10, 10,
+        MobileUserBean userTwo = new MobileUserBean(2, 10, 10,
                 Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_1,
                 Gender.MALE, HairColor.BLONDE, AgeRange.AGE_4);
-        epService.getEPRuntime().sendEvent(user_2);
+        epService.getEPRuntime().sendEvent(userTwo);
 
         log.info("Sending some near locations");
-        user_1.setLocation(8.99999, 10);
-        epService.getEPRuntime().sendEvent(user_1);
+        userOne.setLocation(8.99999, 10);
+        epService.getEPRuntime().sendEvent(userOne);
 
-        user_1.setLocation(9, 10);
-        epService.getEPRuntime().sendEvent(user_1);
+        userOne.setLocation(9, 10);
+        epService.getEPRuntime().sendEvent(userOne);
 
-        user_1.setLocation(11, 10);
-        epService.getEPRuntime().sendEvent(user_1);
+        userOne.setLocation(11, 10);
+        epService.getEPRuntime().sendEvent(userOne);
 
-        user_1.setLocation(11.0000001, 10);
-        epService.getEPRuntime().sendEvent(user_1);
+        userOne.setLocation(11.0000001, 10);
+        epService.getEPRuntime().sendEvent(userOne);
 
-        user_2.setLocation(10.0000001, 9);
-        epService.getEPRuntime().sendEvent(user_2);
+        userTwo.setLocation(10.0000001, 9);
+        epService.getEPRuntime().sendEvent(userTwo);
 
-        user_1 = new MobileUserBean(1, 10, 10,
+        userOne = new MobileUserBean(1, 10, 10,
                 Gender.MALE, HairColor.RED, AgeRange.AGE_6,
                 Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_5);
-        epService.getEPRuntime().sendEvent(user_1);
+        epService.getEPRuntime().sendEvent(userOne);
 
         // Test all combinations
-        for (Gender gender : Gender.values())
-        {
-            for (HairColor color : HairColor.values())
-            {
-                for (AgeRange age : AgeRange.values())
-                {
+        for (Gender gender : Gender.values()) {
+            for (HairColor color : HairColor.values()) {
+                for (AgeRange age : AgeRange.values()) {
                     // Try user preferences
                     MobileUserBean userA = new MobileUserBean(2, 10, 10,
                             Gender.FEMALE, HairColor.BLACK, AgeRange.AGE_5,
@@ -92,24 +86,22 @@ public class MatchMakerMain implements Runnable
                 }
             }
         }
-        
+
         Random random = new Random();
         int maxEvents;
         if (continuousSimulation) {
             maxEvents = Integer.MAX_VALUE;
-        }
-        else {
+        } else {
             maxEvents = 100000;
             log.info("Sending 100k of random locations");
         }
 
-        for (int i = 1; i < maxEvents; i++)
-        {
+        for (int i = 1; i < maxEvents; i++) {
             int x = 10 + random.nextInt(i) / 100000;
             int y = 10 + random.nextInt(i) / 100000;
 
-            user_2.setLocation(x, y);
-            epService.getEPRuntime().sendEvent(user_2);
+            userTwo.setLocation(x, y);
+            epService.getEPRuntime().sendEvent(userTwo);
 
             if (continuousSimulation) {
                 try {
@@ -118,7 +110,7 @@ public class MatchMakerMain implements Runnable
                     log.debug("Interrupted", e);
                 }
             }
-        }        
+        }
 
         log.info("Done.");
     }

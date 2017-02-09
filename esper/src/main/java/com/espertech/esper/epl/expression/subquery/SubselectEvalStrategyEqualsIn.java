@@ -21,8 +21,7 @@ import java.util.Collection;
 /**
  * Represents a in-subselect evaluation strategy.
  */
-public class SubselectEvalStrategyEqualsIn implements SubselectEvalStrategy
-{
+public class SubselectEvalStrategyEqualsIn implements SubselectEvalStrategy {
     private final boolean isNotIn;
     private final boolean mustCoerce;
     private final SimpleNumberCoercer coercer;
@@ -32,23 +31,20 @@ public class SubselectEvalStrategyEqualsIn implements SubselectEvalStrategy
 
     /**
      * Ctor.
-     * @param notIn false for =, true for !=
-     * @param mustCoerce coercion required
-     * @param coercionType type to coerce to
-     * @param valueExpr LHS
+     *
+     * @param notIn            false for =, true for !=
+     * @param mustCoerce       coercion required
+     * @param coercionType     type to coerce to
+     * @param valueExpr        LHS
      * @param selectClauseExpr select clause or null
-     * @param filterExpr filter or null
+     * @param filterExpr       filter or null
      */
-    public SubselectEvalStrategyEqualsIn(boolean notIn, boolean mustCoerce, Class coercionType, ExprEvaluator valueExpr, ExprEvaluator selectClauseExpr, ExprEvaluator filterExpr)
-    {
+    public SubselectEvalStrategyEqualsIn(boolean notIn, boolean mustCoerce, Class coercionType, ExprEvaluator valueExpr, ExprEvaluator selectClauseExpr, ExprEvaluator filterExpr) {
         isNotIn = notIn;
         this.mustCoerce = mustCoerce;
-        if (mustCoerce)
-        {
+        if (mustCoerce) {
             coercer = SimpleNumberCoercerFactory.getCoercer(null, coercionType);
-        }
-        else
-        {
+        } else {
             coercer = null;
         }
         this.valueExpr = valueExpr;
@@ -56,14 +52,11 @@ public class SubselectEvalStrategyEqualsIn implements SubselectEvalStrategy
         this.selectClauseExpr = selectClauseExpr;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (matchingEvents == null)
-        {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
+        if (matchingEvents == null) {
             return isNotIn;
         }
-        if (matchingEvents.size() == 0)
-        {
+        if (matchingEvents.size() == 0) {
             return isNotIn;
         }
 
@@ -74,58 +67,43 @@ public class SubselectEvalStrategyEqualsIn implements SubselectEvalStrategy
         EventBean[] events = new EventBean[eventsPerStream.length + 1];
         System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
 
-        if (filterExpr == null)
-        {
-            if (leftResult == null)
-            {
+        if (filterExpr == null) {
+            if (leftResult == null) {
                 return null;
             }
 
             // Evaluate each select until we have a match
             boolean hasNonNullRow = false;
             boolean hasNullRow = false;
-            for (EventBean theEvent : matchingEvents)
-            {
+            for (EventBean theEvent : matchingEvents) {
                 events[0] = theEvent;
 
                 Object rightResult;
-                if (selectClauseExpr != null)
-                {
+                if (selectClauseExpr != null) {
                     rightResult = selectClauseExpr.evaluate(events, true, exprEvaluatorContext);
-                }
-                else
-                {
+                } else {
                     rightResult = events[0].getUnderlying();
                 }
 
-                if (rightResult != null)
-                {
+                if (rightResult != null) {
                     hasNonNullRow = true;
-                    if (!mustCoerce)
-                    {
-                        if (leftResult.equals(rightResult))
-                        {
+                    if (!mustCoerce) {
+                        if (leftResult.equals(rightResult)) {
                             return !isNotIn;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Number left = coercer.coerceBoxed((Number) leftResult);
                         Number right = coercer.coerceBoxed((Number) rightResult);
-                        if (left.equals(right))
-                        {
+                        if (left.equals(right)) {
                             return !isNotIn;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     hasNullRow = true;
                 }
             }
 
-            if ((!hasNonNullRow) || (hasNullRow))
-            {
+            if ((!hasNonNullRow) || hasNullRow) {
                 return null;
             }
             return isNotIn;
@@ -133,59 +111,44 @@ public class SubselectEvalStrategyEqualsIn implements SubselectEvalStrategy
 
         // Filter and check each row.
         boolean hasNullRow = false;
-        for (EventBean subselectEvent : matchingEvents)
-        {
+        for (EventBean subselectEvent : matchingEvents) {
             // Prepare filter expression event list
             events[0] = subselectEvent;
 
             // Eval filter expression
             Boolean pass = (Boolean) filterExpr.evaluate(events, true, exprEvaluatorContext);
-            if ((pass == null) || (!pass))
-            {
+            if ((pass == null) || (!pass)) {
                 continue;
             }
-            if (leftResult == null)
-            {
+            if (leftResult == null) {
                 return null;
             }
 
             Object rightResult;
-            if (selectClauseExpr != null)
-            {
+            if (selectClauseExpr != null) {
                 rightResult = selectClauseExpr.evaluate(events, true, exprEvaluatorContext);
-            }
-            else
-            {
+            } else {
                 rightResult = events[0].getUnderlying();
             }
 
-            if (rightResult == null)
-            {
+            if (rightResult == null) {
                 hasNullRow = true;
-            }
-            else
-            {
-                if (!mustCoerce)
-                {
-                    if (leftResult.equals(rightResult))
-                    {
+            } else {
+                if (!mustCoerce) {
+                    if (leftResult.equals(rightResult)) {
                         return !isNotIn;
                     }
-                }
-                else
-                {
+                } else {
                     Number left = coercer.coerceBoxed((Number) leftResult);
                     Number right = coercer.coerceBoxed((Number) rightResult);
-                    if (left.equals(right))
-                    {
+                    if (left.equals(right)) {
                         return !isNotIn;
                     }
                 }
             }
         }
 
-        if (hasNullRow)
-        {
+        if (hasNullRow) {
             return null;
         }
 

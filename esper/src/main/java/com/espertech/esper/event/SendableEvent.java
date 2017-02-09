@@ -14,5 +14,6 @@ import com.espertech.esper.client.EPRuntime;
 
 public interface SendableEvent {
     public void send(EPRuntime runtime);
+
     public Object getUnderlying();
 }

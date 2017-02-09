@@ -37,8 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SelectExprInsertEventBeanFactory
-{
+public class SelectExprInsertEventBeanFactory {
     public static SelectExprProcessor getInsertUnderlyingNonJoin(EventAdapterService eventAdapterService,
                                                                  EventType eventType,
                                                                  boolean isUsingWildcard,
@@ -51,8 +50,7 @@ public class SelectExprInsertEventBeanFactory
                                                                  String[] columnNamesAsProvided,
                                                                  boolean allowNestableTargetFragmentTypes,
                                                                  String statementName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // handle single-column coercion to underlying, i.e. "insert into MapDefinedEvent select doSomethingReturnMap() from MyEvent"
         if (expressionReturnTypes.length == 1 &&
                 expressionReturnTypes[0] instanceof Class &&
@@ -63,14 +61,11 @@ public class SelectExprInsertEventBeanFactory
 
             if (eventType instanceof MapEventType) {
                 return new SelectExprInsertNativeExpressionCoerceMap(eventType, expressionNodes[0], eventAdapterService);
-            }
-            else if (eventType instanceof ObjectArrayEventType) {
+            } else if (eventType instanceof ObjectArrayEventType) {
                 return new SelectExprInsertNativeExpressionCoerceObjectArray(eventType, expressionNodes[0], eventAdapterService);
-            }
-            else if (eventType instanceof AvroSchemaEventType) {
+            } else if (eventType instanceof AvroSchemaEventType) {
                 return new SelectExprInsertNativeExpressionCoerceAvro(eventType, expressionNodes[0], eventAdapterService);
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Unrecognied event type " + eventType);
             }
         }
@@ -85,8 +80,7 @@ public class SelectExprInsertEventBeanFactory
             EventBeanManufacturer eventManufacturer;
             try {
                 eventManufacturer = eventAdapterService.getManufacturer(eventType, new WriteablePropertyDescriptor[0], engineImportService, true);
-            }
-            catch (EventBeanManufactureException e) {
+            } catch (EventBeanManufactureException e) {
                 throw new ExprValidationException(e.getMessage(), e);
             }
             return new SelectExprInsertNativeNoEval(eventType, eventManufacturer);
@@ -101,16 +95,14 @@ public class SelectExprInsertEventBeanFactory
 
         try {
             return initializeSetterManufactor(eventType, writableProps, isUsingWildcard, typeService, expressionNodes, columnNames, expressionReturnTypes, engineImportService, eventAdapterService, statementName);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             if (!(eventType instanceof BeanEventType)) {
                 throw ex;
             }
             // Try constructor injection
             try {
                 return initializeCtorInjection((BeanEventType) eventType, expressionNodes, expressionReturnTypes, engineImportService, eventAdapterService);
-            }
-            catch (ExprValidationException ctorEx) {
+            } catch (ExprValidationException ctorEx) {
                 if (writableProps.isEmpty()) {
                     throw ctorEx;
                 }
@@ -120,9 +112,8 @@ public class SelectExprInsertEventBeanFactory
     }
 
     public static SelectExprProcessor getInsertUnderlyingJoinWildcard(EventAdapterService eventAdapterService, EventType eventType,
-                            String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, String statementName, String engineURI)
-        throws ExprValidationException
-    {
+                                                                      String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, String statementName, String engineURI)
+            throws ExprValidationException {
         Set<WriteablePropertyDescriptor> writableProps = eventAdapterService.getWriteableProperties(eventType, false);
         boolean isEligible = checkEligible(eventType, writableProps, false);
         if (!isEligible) {
@@ -131,8 +122,7 @@ public class SelectExprInsertEventBeanFactory
 
         try {
             return initializeJoinWildcardInternal(eventType, writableProps, streamNames, streamTypes, engineImportService, eventAdapterService, statementName, engineURI);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             if (!(eventType instanceof BeanEventType)) {
                 throw ex;
             }
@@ -146,8 +136,7 @@ public class SelectExprInsertEventBeanFactory
                 }
 
                 return initializeCtorInjection((BeanEventType) eventType, evaluators, resultTypes, engineImportService, eventAdapterService);
-            }
-            catch (ExprValidationException ctorEx) {
+            } catch (ExprValidationException ctorEx) {
                 if (writableProps.isEmpty()) {
                     throw ctorEx;
                 }
@@ -174,34 +163,27 @@ public class SelectExprInsertEventBeanFactory
     }
 
     private static SelectExprProcessor initializeSetterManufactor(EventType eventType, Set<WriteablePropertyDescriptor> writables, boolean isUsingWildcard, StreamTypeService typeService, ExprEvaluator[] expressionNodes, String[] columnNames, Object[] expressionReturnTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(eventType);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<ExprEvaluator> evaluatorsList = new ArrayList<ExprEvaluator>();
         List<TypeWidener> widenersList = new ArrayList<TypeWidener>();
 
         // loop over all columns selected, if any
-        for (int i = 0; i < columnNames.length; i++)
-        {
+        for (int i = 0; i < columnNames.length; i++) {
             WriteablePropertyDescriptor selectedWritable = null;
             TypeWidener widener = null;
             ExprEvaluator evaluator = expressionNodes[i];
 
-            for (WriteablePropertyDescriptor desc : writables)
-            {
-                if (!desc.getPropertyName().equals(columnNames[i]))
-                {
+            for (WriteablePropertyDescriptor desc : writables) {
+                if (!desc.getPropertyName().equals(columnNames[i])) {
                     continue;
                 }
 
                 Object columnType = expressionReturnTypes[i];
-                if (columnType == null)
-                {
+                if (columnType == null) {
                     TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], null, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
-                }
-                else if (columnType instanceof EventType)
-                {
+                } else if (columnType instanceof EventType) {
                     EventType columnEventType = (EventType) columnType;
                     final Class returnType = columnEventType.getUnderlyingType();
                     widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], columnEventType.getUnderlyingType(), desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
@@ -222,36 +204,29 @@ public class SelectExprInsertEventBeanFactory
 
                     // find stream
                     int streamNum = 0;
-                    for (int j = 0; j < typeService.getEventTypes().length; j++)
-                    {
-                        if (typeService.getEventTypes()[j] == columnEventType)
-                        {
+                    for (int j = 0; j < typeService.getEventTypes().length; j++) {
+                        if (typeService.getEventTypes()[j] == columnEventType) {
                             streamNum = j;
                             break;
                         }
                     }
                     final int streamNumEval = streamNum;
                     evaluator = new ExprEvaluator() {
-                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                        {
+                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                             EventBean theEvent = eventsPerStream[streamNumEval];
-                            if (theEvent != null)
-                            {
+                            if (theEvent != null) {
                                 return theEvent.getUnderlying();
                             }
                             return null;
                         }
 
-                        public Class getType()
-                        {
+                        public Class getType() {
                             return returnType;
                         }
 
                     };
-                }
-                // handle case where the select-clause contains an fragment array
-                else if (columnType instanceof EventType[])
-                {
+                } else if (columnType instanceof EventType[]) {
+                    // handle case where the select-clause contains an fragment array
                     EventType columnEventType = ((EventType[]) columnType)[0];
                     final Class componentReturnType = columnEventType.getUnderlyingType();
                     final Class arrayReturnType = Array.newInstance(componentReturnType, 0).getClass();
@@ -260,8 +235,7 @@ public class SelectExprInsertEventBeanFactory
                     widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], arrayReturnType, desc.getType(), desc.getPropertyName(), allowObjectArrayToCollectionConversion, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
                     final ExprEvaluator inner = evaluator;
                     evaluator = new ExprEvaluator() {
-                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                        {
+                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                             Object result = inner.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                             if (!(result instanceof EventBean[])) {
                                 return null;
@@ -274,24 +248,19 @@ public class SelectExprInsertEventBeanFactory
                             return values;
                         }
 
-                        public Class getType()
-                        {
+                        public Class getType() {
                             return componentReturnType;
                         }
 
                     };
-                }
-                else if (!(columnType instanceof Class))
-                {
+                } else if (!(columnType instanceof Class)) {
                     String message = "Invalid assignment of column '" + columnNames[i] +
                             "' of type '" + columnType +
                             "' to event property '" + desc.getPropertyName() +
                             "' typed as '" + desc.getType().getName() +
                             "', column and parameter types mismatch";
                     throw new ExprValidationException(message);
-                }
-                else
-                {
+                } else {
                     widener = TypeWidenerFactory.getCheckPropertyAssignType(columnNames[i], (Class) columnType, desc.getType(), desc.getPropertyName(), false, typeWidenerCustomizer, statementName, typeService.getEngineURIQualifier());
                 }
 
@@ -299,8 +268,7 @@ public class SelectExprInsertEventBeanFactory
                 break;
             }
 
-            if (selectedWritable == null)
-            {
+            if (selectedWritable == null) {
                 String message = "Column '" + columnNames[i] +
                         "' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?)";
                 throw new ExprValidationException(message);
@@ -313,13 +281,10 @@ public class SelectExprInsertEventBeanFactory
         }
 
         // handle wildcard
-        if (isUsingWildcard)
-        {
+        if (isUsingWildcard) {
             EventType sourceType = typeService.getEventTypes()[0];
-            for (EventPropertyDescriptor eventPropDescriptor : sourceType.getPropertyDescriptors())
-            {
-                if (eventPropDescriptor.isRequiresIndex() || (eventPropDescriptor.isRequiresMapkey()))
-                {
+            for (EventPropertyDescriptor eventPropDescriptor : sourceType.getPropertyDescriptors()) {
+                if (eventPropDescriptor.isRequiresIndex() || (eventPropDescriptor.isRequiresMapkey())) {
                     continue;
                 }
 
@@ -327,10 +292,8 @@ public class SelectExprInsertEventBeanFactory
                 TypeWidener widener = null;
                 ExprEvaluator evaluator = null;
 
-                for (WriteablePropertyDescriptor writableDesc : writables)
-                {
-                    if (!writableDesc.getPropertyName().equals(eventPropDescriptor.getPropertyName()))
-                    {
+                for (WriteablePropertyDescriptor writableDesc : writables) {
+                    if (!writableDesc.getPropertyName().equals(eventPropDescriptor.getPropertyName())) {
                         continue;
                     }
 
@@ -341,26 +304,22 @@ public class SelectExprInsertEventBeanFactory
                     final Class propertyType = eventPropDescriptor.getPropertyType();
                     evaluator = new ExprEvaluator() {
 
-                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData,ExprEvaluatorContext exprEvaluatorContext)
-                        {
+                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                             EventBean theEvent = eventsPerStream[0];
-                            if (theEvent != null)
-                            {
+                            if (theEvent != null) {
                                 return theEvent.get(propertyName);
                             }
                             return null;
                         }
 
-                        public Class getType()
-                        {
+                        public Class getType() {
                             return propertyType;
                         }
                     };
                     break;
                 }
 
-                if (selectedWritable == null)
-                {
+                if (selectedWritable == null) {
                     String message = "Event property '" + eventPropDescriptor.getPropertyName() +
                             "' could not be assigned to any of the properties of the underlying type (missing column names, event property, setter method or constructor?)";
                     throw new ExprValidationException(message);
@@ -378,12 +337,9 @@ public class SelectExprInsertEventBeanFactory
         TypeWidener[] wideners = widenersList.toArray(new TypeWidener[widenersList.size()]);
 
         EventBeanManufacturer eventManufacturer;
-        try
-        {
+        try {
             eventManufacturer = eventAdapterService.getManufacturer(eventType, writableProperties, engineImportService, false);
-        }
-        catch (EventBeanManufactureException e)
-        {
+        } catch (EventBeanManufactureException e) {
             throw new ExprValidationException(e.getMessage(), e);
         }
 
@@ -391,7 +347,7 @@ public class SelectExprInsertEventBeanFactory
     }
 
     private static SelectExprProcessor initializeCtorInjection(BeanEventType beanEventType, ExprEvaluator[] exprEvaluators, Object[] expressionReturnTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         Pair<FastConstructor, ExprEvaluator[]> pair = InstanceManufacturerUtil.getManufacturer(beanEventType.getUnderlyingType(), engineImportService, exprEvaluators, expressionReturnTypes);
         EventBeanManufacturerCtor eventManufacturer = new EventBeanManufacturerCtor(pair.getFirst(), beanEventType, eventAdapterService);
@@ -399,23 +355,19 @@ public class SelectExprInsertEventBeanFactory
     }
 
     private static SelectExprProcessor initializeJoinWildcardInternal(EventType eventType, Set<WriteablePropertyDescriptor> writables, String[] streamNames, EventType[] streamTypes, EngineImportService engineImportService, EventAdapterService eventAdapterService, String statementName, String engineURI)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(eventType);
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<ExprEvaluator> evaluatorsList = new ArrayList<ExprEvaluator>();
         List<TypeWidener> widenersList = new ArrayList<TypeWidener>();
 
         // loop over all columns selected, if any
-        for (int i = 0; i < streamNames.length; i++)
-        {
+        for (int i = 0; i < streamNames.length; i++) {
             WriteablePropertyDescriptor selectedWritable = null;
             TypeWidener widener = null;
 
-            for (WriteablePropertyDescriptor desc : writables)
-            {
-                if (!desc.getPropertyName().equals(streamNames[i]))
-                {
+            for (WriteablePropertyDescriptor desc : writables) {
+                if (!desc.getPropertyName().equals(streamNames[i])) {
                     continue;
                 }
 
@@ -424,8 +376,7 @@ public class SelectExprInsertEventBeanFactory
                 break;
             }
 
-            if (selectedWritable == null)
-            {
+            if (selectedWritable == null) {
                 String message = "Stream underlying object for stream '" + streamNames[i] +
                         "' could not be assigned to any of the properties of the underlying type (missing column names, event property or setter method?)";
                 throw new ExprValidationException(message);
@@ -434,18 +385,15 @@ public class SelectExprInsertEventBeanFactory
             final int streamNum = i;
             final Class returnType = streamTypes[streamNum].getUnderlyingType();
             ExprEvaluator evaluator = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                {
+                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                     EventBean theEvent = eventsPerStream[streamNum];
-                    if (theEvent != null)
-                    {
+                    if (theEvent != null) {
                         return theEvent.getUnderlying();
                     }
                     return null;
                 }
 
-                public Class getType()
-                {
+                public Class getType() {
                     return returnType;
                 }
 
@@ -463,12 +411,9 @@ public class SelectExprInsertEventBeanFactory
         TypeWidener[] wideners = widenersList.toArray(new TypeWidener[widenersList.size()]);
 
         EventBeanManufacturer eventManufacturer;
-        try
-        {
+        try {
             eventManufacturer = eventAdapterService.getManufacturer(eventType, writableProperties, engineImportService, false);
-        }
-        catch (EventBeanManufactureException e)
-        {
+        } catch (EventBeanManufactureException e) {
             throw new ExprValidationException(e.getMessage(), e);
         }
 
@@ -577,11 +522,9 @@ public class SelectExprInsertEventBeanFactory
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
             Object[] values = new Object[exprEvaluators.length];
 
-            for (int i = 0; i < exprEvaluators.length; i++)
-            {
+            for (int i = 0; i < exprEvaluators.length; i++) {
                 Object evalResult = exprEvaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                if ((evalResult != null) && (wideners[i] != null))
-                {
+                if ((evalResult != null) && (wideners[i] != null)) {
                     evalResult = wideners[i].widen(evalResult);
                 }
                 values[i] = evalResult;
@@ -600,8 +543,7 @@ public class SelectExprInsertEventBeanFactory
         public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
             Object[] values = new Object[exprEvaluators.length];
 
-            for (int i = 0; i < exprEvaluators.length; i++)
-            {
+            for (int i = 0; i < exprEvaluators.length; i++) {
                 Object evalResult = exprEvaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                 values[i] = evalResult;
             }

@@ -28,8 +28,7 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.view.window.ExternallyTimedBatchView}.
  */
-public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFactory, DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFactory, DataWindowViewFactory, DataWindowViewWithPrevious {
     private List<ExprNode> viewParameters;
 
     private EventType eventType;
@@ -46,13 +45,11 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
      */
     protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         final String windowName = getViewName();
         ExprNode[] validated = ViewFactorySupport.validate(windowName, parentEventType, statementContext, viewParameters, true);
         if (viewParameters.size() < 2 || viewParameters.size() > 3) {
@@ -72,7 +69,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         // validate optional parameters
         if (validated.length == 3) {
             Object constant = ViewFactorySupport.validateAndEvaluate(windowName, statementContext, validated[2]);
-            if ((!(constant instanceof Number)) || (JavaClassHelper.isFloatingPointNumber((Number)constant))) {
+            if ((!(constant instanceof Number)) || (JavaClassHelper.isFloatingPointNumber((Number) constant))) {
                 throw new ViewParameterException("Externally-timed batch view requires a Long-typed reference point in msec as a third parameter");
             }
             optionalReferencePoint = ((Number) constant).longValue();
@@ -85,30 +82,25 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         return new RelativeAccessByEventNIndexGetterImpl();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new ExternallyTimedBatchView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, optionalReferencePoint, viewUpdatedCollection, agentInstanceViewFactoryContext);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof ExternallyTimedBatchView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof ExternallyTimedBatchView)) {
             return false;
         }
 
         ExternallyTimedBatchView myView = (ExternallyTimedBatchView) view;
         ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
-            (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression)))
-        {
+                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression))) {
             return false;
         }
         return myView.isEmpty();

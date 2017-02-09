@@ -12,10 +12,8 @@ package com.espertech.esper.example.autoid;
 
 import junit.framework.TestCase;
 
-public class TestAutoIdSimMain extends TestCase
-{
-    public void testRun() throws Exception
-    {
+public class TestAutoIdSimMain extends TestCase {
+    public void testRun() throws Exception {
         AutoIdSimMain main = new AutoIdSimMain(10, "AutoIdSample", false);
         main.run();
     }

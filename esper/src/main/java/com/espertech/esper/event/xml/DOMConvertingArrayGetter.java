@@ -10,8 +10,8 @@
  */
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
@@ -22,29 +22,26 @@ import java.lang.reflect.Array;
 /**
  * Getter for converting a Node child nodes into an array.
  */
-public class DOMConvertingArrayGetter implements EventPropertyGetter
-{
+public class DOMConvertingArrayGetter implements EventPropertyGetter {
     private final DOMPropertyGetter getter;
     private final Class componentType;
     private final SimpleTypeParser parser;
 
     /**
      * Ctor.
+     *
      * @param domPropertyGetter getter
-     * @param returnType component type
+     * @param returnType        component type
      */
-    public DOMConvertingArrayGetter(DOMPropertyGetter domPropertyGetter, Class returnType)
-    {
+    public DOMConvertingArrayGetter(DOMPropertyGetter domPropertyGetter, Class returnType) {
         this.getter = domPropertyGetter;
         this.componentType = returnType;
         this.parser = SimpleTypeParserFactory.getParser(returnType);
     }
 
-    public Object get(EventBean obj) throws PropertyAccessException
-    {
+    public Object get(EventBean obj) throws PropertyAccessException {
         // The underlying is expected to be a map
-        if (!(obj.getUnderlying() instanceof Node))
-        {
+        if (!(obj.getUnderlying() instanceof Node)) {
             throw new PropertyAccessException("Mismatched property getter to event bean type, " +
                     "the underlying data object is not of type Node");
         }
@@ -52,17 +49,14 @@ public class DOMConvertingArrayGetter implements EventPropertyGetter
         Node node = (Node) obj.getUnderlying();
 
         Node[] result = getter.getValueAsNodeArray(node);
-        if (result == null)
-        {
+        if (result == null) {
             return null;
         }
 
         Object array = Array.newInstance(componentType, result.length);
-        for (int i = 0; i < result.length; i++)
-        {
+        for (int i = 0; i < result.length; i++) {
             String text = result[i].getTextContent();
-            if ((text == null) || (text.length() == 0))
-            {
+            if ((text == null) || (text.length() == 0)) {
                 continue;
             }
 
@@ -73,13 +67,11 @@ public class DOMConvertingArrayGetter implements EventPropertyGetter
         return array;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true;
     }
 
-    public Object getFragment(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
     }
 }

@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * A single entry in an order-by clause consisting of an expression and order ascending or descending flag.
  */
-public class OrderByElement implements Serializable
-{
+public class OrderByElement implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private Expression expression;
@@ -31,60 +30,59 @@ public class OrderByElement implements Serializable
 
     /**
      * Ctor.
+     *
      * @param expression is the expression to order by
      * @param descending true for descending sort, false for ascending sort
      */
-    public OrderByElement(Expression expression, boolean descending)
-    {
+    public OrderByElement(Expression expression, boolean descending) {
         this.expression = expression;
         this.descending = descending;
     }
 
     /**
      * Returns the order-by value expression.
+     *
      * @return expression
      */
-    public Expression getExpression()
-    {
+    public Expression getExpression() {
         return expression;
     }
 
     /**
      * Sets the order-by value expression.
+     *
      * @param expression provides order-by values
      */
-    public void setExpression(Expression expression)
-    {
+    public void setExpression(Expression expression) {
         this.expression = expression;
     }
 
     /**
      * Returns true for descending sorts for this column, false for ascending sort.
+     *
      * @return true for descending sort
      */
-    public boolean isDescending()
-    {
+    public boolean isDescending() {
         return descending;
     }
 
     /**
      * Set to true for descending sorts for this column, false for ascending sort.
+     *
      * @param descending true for descending sort
      */
-    public void setDescending(boolean descending)
-    {
+    public void setDescending(boolean descending) {
         this.descending = descending;
     }
 
     /**
      * Renders the clause in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-        if (descending)
-        {
+        if (descending) {
             writer.write(" desc");
         }
     }

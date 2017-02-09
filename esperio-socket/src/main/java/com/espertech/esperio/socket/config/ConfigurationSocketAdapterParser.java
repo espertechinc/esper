@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class ConfigurationSocketAdapterParser {
     /**
@@ -95,7 +96,7 @@ public class ConfigurationSocketAdapterParser {
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setPort(Integer.parseInt(port));
-        socketConfig.setDataType(DataType.valueOf(dataType.toUpperCase()));
+        socketConfig.setDataType(DataType.valueOf(dataType.toUpperCase(Locale.ENGLISH)));
         socketConfig.setHostname(hostname);
         socketConfig.setStream(stream);
         socketConfig.setPropertyOrder(propertyOrder);

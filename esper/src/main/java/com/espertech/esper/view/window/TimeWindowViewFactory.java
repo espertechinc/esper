@@ -25,22 +25,19 @@ import java.util.List;
 /**
  * Factory for {@link TimeWindowView}.
  */
-public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         if (expressionParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
         timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -48,22 +45,18 @@ public class TimeWindowViewFactory implements DataWindowViewFactory, DataWindowV
         return new RandomAccessByIndexGetter();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new TimeWindowView(agentInstanceViewFactoryContext, this, timeDeltaComputation, randomAccess);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof TimeWindowView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof TimeWindowView)) {
             return false;
         }
 

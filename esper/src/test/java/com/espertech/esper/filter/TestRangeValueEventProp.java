@@ -10,21 +10,19 @@
  */
 package com.espertech.esper.filter;
 
-import com.espertech.esper.pattern.MatchedEventMapMeta;
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.MatchedEventMapImpl;
+import com.espertech.esper.pattern.MatchedEventMapMeta;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
-public class TestRangeValueEventProp extends TestCase
-{
+public class TestRangeValueEventProp extends TestCase {
     private FilterSpecParamRangeValue params[] = new FilterSpecParamRangeValue[5];
 
-    public void setUp()
-    {
+    public void setUp() {
         params[0] = new RangeValueEventProp("a", "b");
         params[1] = new RangeValueEventProp("asName", "b");
         params[2] = new RangeValueEventProp("asName", "boolPrimitive");
@@ -32,12 +30,11 @@ public class TestRangeValueEventProp extends TestCase
         params[4] = new RangeValueEventProp("asName", "intPrimitive");
     }
 
-    public void testGetFilterValue()
-    {
+    public void testGetFilterValue() {
         SupportBean eventBean = new SupportBean();
         eventBean.setIntPrimitive(1000);
         EventBean theEvent = SupportEventBeanFactory.createObject(eventBean);
-        MatchedEventMap matchedEvents = new MatchedEventMapImpl(new MatchedEventMapMeta(new String[] {"asName"}, false));
+        MatchedEventMap matchedEvents = new MatchedEventMapImpl(new MatchedEventMapMeta(new String[]{"asName"}, false));
         matchedEvents.add(0, theEvent);
 
         tryInvalidGetFilterValue(matchedEvents, params[0]);
@@ -45,26 +42,19 @@ public class TestRangeValueEventProp extends TestCase
         assertEquals(1000.0, params[3].getFilterValue(matchedEvents, null));
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         assertFalse(params[0].equals(params[1]));
         assertFalse(params[2].equals(params[3]));
         assertTrue(params[3].equals(params[4]));
     }
 
-    private void tryInvalidGetFilterValue(MatchedEventMap matchedEvents, FilterSpecParamRangeValue value)
-    {
-        try
-        {
+    private void tryInvalidGetFilterValue(MatchedEventMap matchedEvents, FilterSpecParamRangeValue value) {
+        try {
             value.getFilterValue(matchedEvents, null);
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // expected
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // expected
         }
     }

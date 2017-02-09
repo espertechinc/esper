@@ -64,25 +64,18 @@ public class JoinSetComposerPrototypeHistorical2StreamImpl implements JoinSetCom
                 indexStrategies.getFirst(), indexStrategies.getSecond());
 
         // for strictly historical joins, create a query strategy for the non-subordinate historical view
-        if (isAllHistoricalNoSubordinate)
-        {
+        if (isAllHistoricalNoSubordinate) {
             boolean isOuterJoin = false;
-            if (outerJoinDescList.length > 0)
-            {
+            if (outerJoinDescList.length > 0) {
                 OuterJoinDesc outerJoinDesc = outerJoinDescList[0];
-                if (outerJoinDesc.getOuterJoinType().equals(OuterJoinType.FULL))
-                {
+                if (outerJoinDesc.getOuterJoinType().equals(OuterJoinType.FULL)) {
                     isOuterJoin = true;
-                }
-                else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.LEFT)) &&
-                        (polledViewNum == 0))
-                {
-                        isOuterJoin = true;
-                }
-                else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.RIGHT)) &&
-                        (polledViewNum == 1))
-                {
-                        isOuterJoin = true;
+                } else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.LEFT)) &&
+                        (polledViewNum == 0)) {
+                    isOuterJoin = true;
+                } else if ((outerJoinDesc.getOuterJoinType().equals(OuterJoinType.RIGHT)) &&
+                        (polledViewNum == 1)) {
+                    isOuterJoin = true;
                 }
             }
             viewable = (HistoricalEventViewable) streamViews[streamViewNum];

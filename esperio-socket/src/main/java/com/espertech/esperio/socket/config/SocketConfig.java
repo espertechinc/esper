@@ -1,4 +1,3 @@
-
 package com.espertech.esperio.socket.config;
 
 public class SocketConfig {

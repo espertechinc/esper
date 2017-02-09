@@ -25,8 +25,7 @@ import java.util.*;
  * Index that organizes events by the event property values into a single TreeMap sortable non-nested index
  * with Object keys that store the property values.
  */
-public class PropertySortedEventTableImpl extends PropertySortedEventTable
-{
+public class PropertySortedEventTableImpl extends PropertySortedEventTable {
     /**
      * Index table.
      */
@@ -39,8 +38,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         return value;
     }
 
-    public PropertySortedEventTableImpl(EventPropertyGetter propertyGetter, EventTableOrganization organization)
-    {
+    public PropertySortedEventTableImpl(EventPropertyGetter propertyGetter, EventTableOrganization organization) {
         super(propertyGetter, organization);
         propertyIndex = new TreeMap<Object, Set<EventBean>>();
         nullKeyedValues = new LinkedHashSet<EventBean>();
@@ -48,8 +46,9 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
 
     /**
      * Returns the set of events that have the same property value as the given event.
-     * @param keyStart to compare against
-     * @param keyEnd to compare against
+     *
+     * @param keyStart           to compare against
+     * @param keyEnd             to compare against
      * @param allowRangeReversal indicate whether "a between 60 and 50" should return no results (equivalent to a&gt;= X and a &lt;=Y) or should return results (equivalent to 'between' and 'in'
      * @return set of events with property value, or null if none found (never returns zero-sized set)
      */
@@ -59,15 +58,13 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         }
         keyStart = coerce(keyStart);
         keyEnd = coerce(keyEnd);
-        SortedMap<Object,Set<EventBean>> submap;
+        SortedMap<Object, Set<EventBean>> submap;
         try {
             submap = propertyIndex.subMap(keyStart, includeStart, keyEnd, includeEnd);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             if (allowRangeReversal) {
                 submap = propertyIndex.subMap(keyEnd, includeStart, keyStart, includeEnd);
-            }
-            else {
+            } else {
                 return Collections.emptySet();
             }
         }
@@ -80,15 +77,13 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         }
         keyStart = coerce(keyStart);
         keyEnd = coerce(keyEnd);
-        SortedMap<Object,Set<EventBean>> submap;
+        SortedMap<Object, Set<EventBean>> submap;
         try {
             submap = propertyIndex.subMap(keyStart, includeStart, keyEnd, includeEnd);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             if (allowRangeReversal) {
                 submap = propertyIndex.subMap(keyEnd, includeStart, keyStart, includeEnd);
-            }
-            else {
+            } else {
                 return Collections.emptyList();
             }
         }
@@ -101,8 +96,8 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         }
         keyStart = coerce(keyStart);
         keyEnd = coerce(keyEnd);
-        SortedMap<Object,Set<EventBean>> submapOne = propertyIndex.headMap(keyStart, !includeStart);
-        SortedMap<Object,Set<EventBean>> submapTwo = propertyIndex.tailMap(keyEnd, !includeEnd);
+        SortedMap<Object, Set<EventBean>> submapOne = propertyIndex.headMap(keyStart, !includeStart);
+        SortedMap<Object, Set<EventBean>> submapTwo = propertyIndex.tailMap(keyEnd, !includeEnd);
         return normalize(submapOne, submapTwo);
     }
 
@@ -112,8 +107,8 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         }
         keyStart = coerce(keyStart);
         keyEnd = coerce(keyEnd);
-        SortedMap<Object,Set<EventBean>> submapOne = propertyIndex.headMap(keyStart, !includeStart);
-        SortedMap<Object,Set<EventBean>> submapTwo = propertyIndex.tailMap(keyEnd, !includeEnd);
+        SortedMap<Object, Set<EventBean>> submapOne = propertyIndex.headMap(keyStart, !includeStart);
+        SortedMap<Object, Set<EventBean>> submapTwo = propertyIndex.tailMap(keyEnd, !includeEnd);
         return normalizeCollection(submapOne, submapTwo);
     }
 
@@ -193,8 +188,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         return propertyIndex;
     }
 
-    public void add(EventBean theEvent)
-    {
+    public void add(EventBean theEvent) {
         Object key = getIndexedValue(theEvent);
 
         key = coerce(key);
@@ -205,8 +199,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         }
 
         Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
+        if (events == null) {
             events = new LinkedHashSet<EventBean>();
             propertyIndex.put(key, events);
         }
@@ -214,8 +207,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         events.add(theEvent);
     }
 
-    public void remove(EventBean theEvent)
-    {
+    public void remove(EventBean theEvent) {
         Object key = getIndexedValue(theEvent);
 
         if (key == null) {
@@ -226,39 +218,33 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
         key = coerce(key);
 
         Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
+        if (events == null) {
             return;
         }
 
-        if (!events.remove(theEvent))
-        {
+        if (!events.remove(theEvent)) {
             // Not an error, its possible that an old-data event is artificial (such as for statistics) and
             // thus did not correspond to a new-data event raised earlier.
             return;
         }
 
-        if (events.isEmpty())
-        {
+        if (events.isEmpty()) {
             propertyIndex.remove(key);
         }
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return propertyIndex.isEmpty();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         if (nullKeyedValues.isEmpty()) {
             return new PropertySortedEventTableIterator(propertyIndex);
         }
         return new SuperIterator<EventBean>(new PropertySortedEventTableIterator(propertyIndex), nullKeyedValues.iterator());
     }
 
-    public void clear()
-    {
+    public void clear() {
         propertyIndex.clear();
     }
 
@@ -270,55 +256,43 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable
 
         if (lookupValueBase instanceof RangeIndexLookupValueEquals) {
             RangeIndexLookupValueEquals equals = (RangeIndexLookupValueEquals) lookupValueBase;
-            return propertyIndex.get(equals.getValue());    
+            return propertyIndex.get(equals.getValue());
         }
 
         RangeIndexLookupValueRange lookupValue = (RangeIndexLookupValueRange) lookupValueBase;
         if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_CLOSED) {
             Range range = (Range) lookupValue.getValue();
             return lookupRange(range.getLowEndpoint(), true, range.getHighEndpoint(), true, lookupValue.isAllowRangeReverse());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_HALF_OPEN) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_HALF_OPEN) {
             Range range = (Range) lookupValue.getValue();
             return lookupRange(range.getLowEndpoint(), true, range.getHighEndpoint(), false, lookupValue.isAllowRangeReverse());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_HALF_CLOSED) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_HALF_CLOSED) {
             Range range = (Range) lookupValue.getValue();
             return lookupRange(range.getLowEndpoint(), false, range.getHighEndpoint(), true, lookupValue.isAllowRangeReverse());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_OPEN) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.RANGE_OPEN) {
             Range range = (Range) lookupValue.getValue();
             return lookupRange(range.getLowEndpoint(), false, range.getHighEndpoint(), false, lookupValue.isAllowRangeReverse());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_CLOSED) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_CLOSED) {
             Range range = (Range) lookupValue.getValue();
             return lookupRangeInverted(range.getLowEndpoint(), true, range.getHighEndpoint(), true);
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_HALF_OPEN) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_HALF_OPEN) {
             Range range = (Range) lookupValue.getValue();
             return lookupRangeInverted(range.getLowEndpoint(), true, range.getHighEndpoint(), false);
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_HALF_CLOSED) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_HALF_CLOSED) {
             Range range = (Range) lookupValue.getValue();
             return lookupRangeInverted(range.getLowEndpoint(), false, range.getHighEndpoint(), true);
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_OPEN) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.NOT_RANGE_OPEN) {
             Range range = (Range) lookupValue.getValue();
             return lookupRangeInverted(range.getLowEndpoint(), false, range.getHighEndpoint(), false);
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.GREATER) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.GREATER) {
             return lookupGreater(lookupValue.getValue());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
             return lookupGreaterEqual(lookupValue.getValue());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.LESS) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.LESS) {
             return lookupLess(lookupValue.getValue());
-        }
-        else if (lookupValue.getOperator() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
+        } else if (lookupValue.getOperator() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
             return lookupLessEqual(lookupValue.getValue());
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unrecognized operator '" + lookupValue.getOperator() + "'");
         }
     }

@@ -65,8 +65,7 @@ public class EnumEvalSequenceEqual extends EnumEvalBase implements EnumEval {
                 }
 
                 return true;
-            }
-            else {
+            } else {
                 log.warn("Enumeration method 'sequenceEqual' expected a Collection-type return value from its parameter but received '" + otherObj.getClass() + "'");
                 return false;
             }

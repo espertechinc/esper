@@ -15,9 +15,8 @@ import com.espertech.esper.example.transaction.TxnEventBase;
 import java.io.IOException;
 import java.util.List;
 
-/** Interface to output events in your preferred format.
- *
- *
+/**
+ * Interface to output events in your preferred format.
  */
 public interface OutputStream {
     public void output(List<TxnEventBase> bucket) throws IOException;

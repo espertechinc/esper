@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.core;
 
-public enum ResultSetProcessorType
-{
+public enum ResultSetProcessorType {
     HANDTHROUGH,
     UNAGGREGATED_UNGROUPED,
     FULLYAGGREGATED_UNGROUPED,

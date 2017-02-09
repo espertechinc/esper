@@ -11,12 +11,11 @@
 package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 
-public class SupportExprNodeUtil
-{
-    public static void validate(ExprNode node) throws ExprValidationException{
+public class SupportExprNodeUtil {
+    public static void validate(ExprNode node) throws ExprValidationException {
         node.validate(SupportExprValidationContextFactory.makeEmpty());
     }
 }

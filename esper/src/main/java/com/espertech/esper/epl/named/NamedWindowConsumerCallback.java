@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventBean;
 
 import java.util.Iterator;
 
-public interface NamedWindowConsumerCallback
-{
+public interface NamedWindowConsumerCallback {
     public Iterator<EventBean> getIterator();
+
     public void stopped(NamedWindowConsumerView namedWindowConsumerView);
 }

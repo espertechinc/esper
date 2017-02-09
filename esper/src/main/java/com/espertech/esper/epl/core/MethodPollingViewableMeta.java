@@ -15,8 +15,7 @@ import com.espertech.esper.epl.variable.VariableReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MethodPollingViewableMeta
-{
+public class MethodPollingViewableMeta {
     private final Class declaringClass;
     private final Map<String, Object> optionalMapType;
     private final LinkedHashMap<String, Object> optionalOaType;

@@ -12,8 +12,7 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class SupportBean_N implements Serializable
-{
+public class SupportBean_N implements Serializable {
     private int intPrimitive;
     private Integer intBoxed;
     private double doublePrimitive;
@@ -21,8 +20,7 @@ public class SupportBean_N implements Serializable
     private boolean boolPrimitive;
     private Boolean boolBoxed;
 
-    public SupportBean_N(int intPrimitive, Integer intBoxed, double doublePrimitive, Double doubleBoxed, boolean boolPrimitive, Boolean boolBoxed)
-    {
+    public SupportBean_N(int intPrimitive, Integer intBoxed, double doublePrimitive, Double doubleBoxed, boolean boolPrimitive, Boolean boolBoxed) {
         this.intPrimitive = intPrimitive;
         this.intBoxed = intBoxed;
         this.doublePrimitive = doublePrimitive;
@@ -31,45 +29,37 @@ public class SupportBean_N implements Serializable
         this.boolBoxed = boolBoxed;
     }
 
-    public SupportBean_N(int intPrimitive, Integer intBoxed)
-    {
+    public SupportBean_N(int intPrimitive, Integer intBoxed) {
         this.intPrimitive = intPrimitive;
         this.intBoxed = intBoxed;
     }
 
-    public int getIntPrimitive()
-    {
+    public int getIntPrimitive() {
         return intPrimitive;
     }
 
-    public Integer getIntBoxed()
-    {
+    public Integer getIntBoxed() {
         return intBoxed;
     }
 
-    public double getDoublePrimitive()
-    {
+    public double getDoublePrimitive() {
         return doublePrimitive;
     }
 
-    public Double getDoubleBoxed()
-    {
+    public Double getDoubleBoxed() {
         return doubleBoxed;
     }
 
-    public boolean isBoolPrimitive()
-    {
+    public boolean isBoolPrimitive() {
         return boolPrimitive;
     }
 
-    public Boolean getBoolBoxed()
-    {
+    public Boolean getBoolBoxed() {
         return boolBoxed;
     }
 
-    public String toString()
-    {
-        return  "intPrim=" + intPrimitive +
+    public String toString() {
+        return "intPrim=" + intPrimitive +
                 " intBoxed=" + intBoxed +
                 " doublePrim=" + doublePrimitive +
                 " doubleBoxed=" + doubleBoxed +

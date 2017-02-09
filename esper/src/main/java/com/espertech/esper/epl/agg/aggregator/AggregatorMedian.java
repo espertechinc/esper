@@ -15,61 +15,48 @@ import com.espertech.esper.collection.SortedDoubleVector;
 /**
  * Median aggregation.
  */
-public class AggregatorMedian implements AggregationMethod
-{
+public class AggregatorMedian implements AggregationMethod {
     protected SortedDoubleVector vector;
 
-    public void clear()
-    {
+    public void clear() {
         vector.clear();
     }
 
     /**
      * Ctor.
      */
-    public AggregatorMedian()
-    {
+    public AggregatorMedian() {
         this.vector = new SortedDoubleVector();
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         double value = ((Number) object).doubleValue();
         vector.add(value);
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
         double value = ((Number) object).doubleValue();
         vector.remove(value);
     }
 
-    public Object getValue()
-    {
-        if (vector.size() == 0)
-        {
+    public Object getValue() {
+        if (vector.size() == 0) {
             return null;
         }
-        if (vector.size() == 1)
-        {
+        if (vector.size() == 1) {
             return vector.getValue(0);
         }
 
         int middle = vector.size() >> 1;
-        if (vector.size() % 2 == 0)
-        {
+        if (vector.size() % 2 == 0) {
             return (vector.getValue(middle - 1) + vector.getValue(middle)) / 2;
-        }
-        else
-        {
+        } else {
             return vector.getValue(middle);
         }
     }

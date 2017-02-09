@@ -13,7 +13,6 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.SingleEventIterator;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
-import com.espertech.esper.event.arr.ObjectArrayEventBean;
 
 import java.util.Collections;
 import java.util.Iterator;

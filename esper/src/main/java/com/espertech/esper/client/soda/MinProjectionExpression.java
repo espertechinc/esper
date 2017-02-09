@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Minimum of the (distinct) values returned by an expression.
  */
-public class MinProjectionExpression extends ExpressionBase
-{
+public class MinProjectionExpression extends ExpressionBase {
     private boolean distinct;
     private static final long serialVersionUID = -5521787388585609418L;
     private boolean ever;
@@ -29,51 +28,47 @@ public class MinProjectionExpression extends ExpressionBase
 
     /**
      * Ctor - for use to create an expression tree, without inner expression
+     *
      * @param isDistinct true if distinct
      */
-    public MinProjectionExpression(boolean isDistinct)
-    {
+    public MinProjectionExpression(boolean isDistinct) {
         this.distinct = isDistinct;
     }
 
     /**
      * Ctor - for use to create an expression tree, without inner expression
+     *
      * @param isDistinct true if distinct
-     * @param isEver ever-indicator
+     * @param isEver     ever-indicator
      */
-    public MinProjectionExpression(boolean isDistinct, boolean isEver)
-    {
+    public MinProjectionExpression(boolean isDistinct, boolean isEver) {
         this.distinct = isDistinct;
         this.ever = isEver;
     }
 
     /**
      * Ctor - adds the expression to project.
+     *
      * @param expression returning values to project
      * @param isDistinct true if distinct
      */
-    public MinProjectionExpression(Expression expression, boolean isDistinct)
-    {
+    public MinProjectionExpression(Expression expression, boolean isDistinct) {
         this.distinct = isDistinct;
         this.getChildren().add(expression);
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         String name;
         if (this.getChildren().size() > 1) {
             name = "fmin";
-        }
-        else {
+        } else {
             if (ever) {
                 name = "minever";
-            }
-            else {
+            } else {
                 name = "min";
             }
         }
@@ -82,33 +77,34 @@ public class MinProjectionExpression extends ExpressionBase
 
     /**
      * Returns true if the projection considers distinct values only.
+     *
      * @return true if distinct
      */
-    public boolean isDistinct()
-    {
+    public boolean isDistinct() {
         return distinct;
     }
 
     /**
      * Returns true if the projection considers distinct values only.
+     *
      * @return true if distinct
      */
-    public boolean getDistinct()
-    {
+    public boolean getDistinct() {
         return distinct;
     }
 
     /**
      * Set the distinct flag indicating the projection considers distinct values only.
+     *
      * @param distinct true for distinct, false for not distinct
      */
-    public void setDistinct(boolean distinct)
-    {
+    public void setDistinct(boolean distinct) {
         this.distinct = distinct;
     }
 
     /**
      * Returns true for max-ever
+     *
      * @return indicator for "ever"
      */
     public boolean isEver() {
@@ -117,6 +113,7 @@ public class MinProjectionExpression extends ExpressionBase
 
     /**
      * Set to true for max-ever
+     *
      * @param ever indicator for "ever"
      */
     public void setEver(boolean ever) {

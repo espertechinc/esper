@@ -14,16 +14,16 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.ExpressionResultCacheService;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementType;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.schedule.TimeProvider;
 
 /**
  * Returns the context for expression evaluation.
  */
-public interface ExprEvaluatorContext
-{
+public interface ExprEvaluatorContext {
     public String getStatementName();
+
     public Object getStatementUserObject();
 
     public String getEngineURI();
@@ -34,6 +34,7 @@ public interface ExprEvaluatorContext
 
     /**
      * Returns the time provider.
+     *
      * @return time provider
      */
     public TimeProvider getTimeProvider();

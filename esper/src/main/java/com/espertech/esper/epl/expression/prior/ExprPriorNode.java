@@ -19,8 +19,7 @@ import java.io.StringWriter;
 /**
  * Represents the 'prior' prior event function in an expression node tree.
  */
-public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator {
     private Class resultType;
     private int streamNumber;
     private int constantIndexNumber;
@@ -49,19 +48,15 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator
         return innerEvaluator;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 2)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("Prior node must have 2 parameters");
         }
-        if (!(this.getChildNodes()[0].isConstantResult()))
-        {
+        if (!(this.getChildNodes()[0].isConstantResult())) {
             throw new ExprValidationException("Prior function requires a constant-value integer-typed index expression as the first parameter");
         }
         ExprNode constantNode = this.getChildNodes()[0];
-        if (constantNode.getExprEvaluator().getType() != Integer.class)
-        {
+        if (constantNode.getExprEvaluator().getType() != Integer.class) {
             throw new ExprValidationException("Prior function requires an integer index parameter");
         }
 
@@ -75,14 +70,11 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator
             ExprIdentNode identNode = (ExprIdentNode) this.getChildNodes()[1];
             streamNumber = identNode.getStreamId();
             resultType = innerEvaluator.getType();
-        }
-        else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
+        } else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
             ExprStreamUnderlyingNode streamNode = (ExprStreamUnderlyingNode) this.getChildNodes()[1];
             streamNumber = streamNode.getStreamId();
             resultType = innerEvaluator.getType();
-        }
-        else
-        {
+        } else {
             throw new ExprValidationException("Previous function requires an event property as parameter");
         }
 
@@ -94,18 +86,15 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprPrior(this);
             Object result = priorStrategy.evaluate(eventsPerStream, isNewData, exprEvaluatorContext, streamNumber, innerEvaluator, constantIndexNumber);
@@ -127,10 +116,8 @@ public class ExprPriorNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprPriorNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprPriorNode)) {
             return false;
         }
 

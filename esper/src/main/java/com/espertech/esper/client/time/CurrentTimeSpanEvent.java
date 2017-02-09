@@ -25,8 +25,7 @@ import java.io.Serializable;
  * External clocking must be enabled via {@link TimerControlEvent} before this class can be used
  * to externally feed time.
  */
-public final class CurrentTimeSpanEvent extends TimerEvent implements Serializable
-{
+public final class CurrentTimeSpanEvent extends TimerEvent implements Serializable {
     private static final long serialVersionUID = -1288617544919785502L;
     private long targetTime;
     private Long optionalResolution;
@@ -36,6 +35,7 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
      * <p>
      * Use this constructor to have the engine decide the resolution at which time advances, according to
      * present statement schedules.
+     *
      * @param targetTime target time
      */
     public CurrentTimeSpanEvent(long targetTime) {
@@ -46,7 +46,8 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
      * Constructor taking a target time to advance to and a resoultion to use to advance time.
      * <p>
      * Use this constructor to dictate a resolution at which time advances.
-     * @param targetTime target time
+     *
+     * @param targetTime         target time
      * @param optionalResolution should be a positive value
      */
     public CurrentTimeSpanEvent(long targetTime, long optionalResolution) {
@@ -56,6 +57,7 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
 
     /**
      * Returns the target time to advance engine time to.
+     *
      * @return target time
      */
     public long getTargetTime() {
@@ -64,6 +66,7 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
 
     /**
      * Sets the target time to advance engine time to.
+     *
      * @param targetTime target time
      */
     public void setTargetTime(long targetTime) {
@@ -72,6 +75,7 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
 
     /**
      * Returns the resolution for advancing time, or null if none provided.
+     *
      * @return resolution
      */
     public Long getOptionalResolution() {
@@ -80,6 +84,7 @@ public final class CurrentTimeSpanEvent extends TimerEvent implements Serializab
 
     /**
      * Sets the resolution for advancing time, or provide a null value if no resolution is desired.
+     *
      * @param optionalResolution resolution
      */
     public void setOptionalResolution(Long optionalResolution) {

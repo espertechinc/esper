@@ -12,8 +12,7 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
 
-public class AggregationMultiFunctionAnalysisResult
-{
+public class AggregationMultiFunctionAnalysisResult {
     private final AggregationAccessorSlotPair[] accessorPairs;
     private final AggregationStateFactory[] stateFactories;
 

@@ -20,12 +20,10 @@ import java.util.Set;
  * Implementation for a table lookup strategy that returns exactly one row
  * but leaves that row as an undefined value.
  */
-public class SubordTableLookupStrategyNullRow implements SubordTableLookupStrategy
-{
+public class SubordTableLookupStrategyNullRow implements SubordTableLookupStrategy {
     private static Set<EventBean> singleNullRowEventSet = new HashSet<EventBean>();
 
-    static
-    {
+    static {
         singleNullRowEventSet.add(null);
     }
 

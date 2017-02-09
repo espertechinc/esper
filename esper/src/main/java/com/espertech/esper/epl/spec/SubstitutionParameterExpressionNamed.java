@@ -12,8 +12,7 @@ package com.espertech.esper.epl.spec;
 
 import java.io.StringWriter;
 
-public class SubstitutionParameterExpressionNamed extends SubstitutionParameterExpressionBase
-{
+public class SubstitutionParameterExpressionNamed extends SubstitutionParameterExpressionBase {
     private static final long serialVersionUID = -67840305248984147L;
     private final String name;
 

@@ -29,7 +29,8 @@ public class ContextDescriptorConditionFilter implements ContextDescriptorCondit
 
     /**
      * Ctor.
-     * @param filter event filter
+     *
+     * @param filter         event filter
      * @param optionalAsName tag name of the filtered events
      */
     public ContextDescriptorConditionFilter(Filter filter, String optionalAsName) {
@@ -39,6 +40,7 @@ public class ContextDescriptorConditionFilter implements ContextDescriptorCondit
 
     /**
      * Returns the event stream filter.
+     *
      * @return filter
      */
     public Filter getFilter() {
@@ -47,6 +49,7 @@ public class ContextDescriptorConditionFilter implements ContextDescriptorCondit
 
     /**
      * Returns the tag name assigned, if any.
+     *
      * @return tag name
      */
     public String getOptionalAsName() {
@@ -55,6 +58,7 @@ public class ContextDescriptorConditionFilter implements ContextDescriptorCondit
 
     /**
      * Sets the event stream filter.
+     *
      * @param filter filter to set
      */
     public void setFilter(Filter filter) {
@@ -63,6 +67,7 @@ public class ContextDescriptorConditionFilter implements ContextDescriptorCondit
 
     /**
      * Returns the tag name assigned, if any.
+     *
      * @param optionalAsName tag name
      */
     public void setOptionalAsName(String optionalAsName) {

@@ -16,15 +16,15 @@ package com.espertech.esper.collection.apachecommons;
 /**
  * Provides an implementation of an empty map iterator.
  *
- * @since Commons Collections 3.1
- * @version $Revision$ $Date$
- *
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @since Commons Collections 3.1
  */
 public class EmptyMapIterator extends AbstractEmptyIterator implements MapIterator, ResettableIterator {
 
     /**
      * Singleton instance of the iterator.
+     *
      * @since Commons Collections 3.1
      */
     public static final MapIterator INSTANCE = new EmptyMapIterator();

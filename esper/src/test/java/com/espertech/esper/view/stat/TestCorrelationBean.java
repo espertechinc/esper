@@ -13,12 +13,10 @@ package com.espertech.esper.view.stat;
 import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
 import junit.framework.TestCase;
 
-public class TestCorrelationBean extends TestCase
-{
+public class TestCorrelationBean extends TestCase {
     private final int PRECISION_DIGITS = 6;
 
-    public void testCORREL()
-    {
+    public void testCORREL() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
         assertEquals(Double.NaN, stat.getCorrelation());
@@ -33,19 +31,19 @@ public class TestCorrelationBean extends TestCase
         assertEquals(2, stat.getN());
 
         stat.addPoint(1.5, 14);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(),0.993399268, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(), 0.993399268, PRECISION_DIGITS));
         assertEquals(3, stat.getN());
 
         stat.addPoint(1.4, 14);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(),0.992631989, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(), 0.992631989, PRECISION_DIGITS));
         assertEquals(4, stat.getN());
 
         stat.removePoint(1.5, 14);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(),1, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(), 1, PRECISION_DIGITS));
         assertEquals(3, stat.getN());
 
         stat.addPoint(100, 1);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(),-0.852632057, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getCorrelation(), -0.852632057, PRECISION_DIGITS));
         assertEquals(4, stat.getN());
     }
 }

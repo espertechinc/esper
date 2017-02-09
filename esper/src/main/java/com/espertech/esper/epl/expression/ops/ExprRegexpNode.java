@@ -23,8 +23,7 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Represents the regexp-clause in an expression tree.
  */
-public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator {
     private final boolean isNot;
 
     private Pattern pattern;
@@ -35,10 +34,10 @@ public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Ctor.
+     *
      * @param not is true if the it's a "not regexp" expression, of false for regular regexp
      */
-    public ExprRegexpNode(boolean not)
-    {
+    public ExprRegexpNode(boolean not) {
         this.isNot = not;
     }
 
@@ -47,120 +46,106 @@ public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 2)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("The regexp operator requires 2 child expressions");
         }
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // check pattern child node
         Class patternChildType = evaluators[1].getType();
-        if (patternChildType != String.class)
-        {
+        if (patternChildType != String.class) {
             throw new ExprValidationException("The regexp operator requires a String-type pattern expression");
         }
-        if (this.getChildNodes()[1].isConstantResult())
-        {
+        if (this.getChildNodes()[1].isConstantResult()) {
             isConstantPattern = true;
         }
 
         // check eval child node - can be String or numeric
         Class evalChildType = evaluators[0].getType();
         isNumericValue = JavaClassHelper.isNumeric(evalChildType);
-        if ((evalChildType != String.class) && (!isNumericValue))
-        {
+        if ((evalChildType != String.class) && (!isNumericValue)) {
             throw new ExprValidationException("The regexp operator requires a String or numeric type left-hand expression");
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprRegexp(this);}
-        if (pattern == null)
-        {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprRegexp(this);
+        }
+        if (pattern == null) {
             String patternText = (String) evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (patternText == null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprRegexp(null);}
+            if (patternText == null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprRegexp(null);
+                }
                 return null;
             }
-            try
-            {
+            try {
                 pattern = Pattern.compile(patternText);
-            }
-            catch (PatternSyntaxException ex)
-            {
+            } catch (PatternSyntaxException ex) {
                 throw new EPException("Error compiling regex pattern '" + patternText + '\'', ex);
             }
-        }
-        else
-        {
-            if (!isConstantPattern)
-            {
+        } else {
+            if (!isConstantPattern) {
                 String patternText = (String) evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-                if (patternText == null)
-                {
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprRegexp(null);}
+                if (patternText == null) {
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aExprRegexp(null);
+                    }
                     return null;
                 }
-                try
-                {
+                try {
                     pattern = Pattern.compile(patternText);
-                }
-                catch (PatternSyntaxException ex)
-                {
+                } catch (PatternSyntaxException ex) {
                     throw new EPException("Error compiling regex pattern '" + patternText + '\'', ex);
                 }
             }
         }
 
         Object evalValue = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (evalValue == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprRegexp(null);}
+        if (evalValue == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprRegexp(null);
+            }
             return null;
         }
 
-        if (isNumericValue)
-        {
+        if (isNumericValue) {
             evalValue = evalValue.toString();
         }
 
         Boolean result = pattern.matcher((CharSequence) evalValue).matches();
 
-        if (isNot)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprRegexp(!result);}
+        if (isNot) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprRegexp(!result);
+            }
             return !result;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprRegexp(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprRegexp(result);
+        }
         return result;
     }
 
-    public boolean equalsNode(ExprNode node_)
-    {
-        if (!(node_ instanceof ExprRegexpNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprRegexpNode)) {
             return false;
         }
 
-        ExprRegexpNode other = (ExprRegexpNode) node_;
-        if (this.isNot != other.isNot)
-        {
+        ExprRegexpNode other = (ExprRegexpNode) node;
+        if (this.isNot != other.isNot) {
             return false;
         }
         return true;
@@ -181,10 +166,10 @@ public class ExprRegexpNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Returns true if this is a "not regexp", or false if just a regexp
+     *
      * @return indicator whether negated or not
      */
-    public boolean isNot()
-    {
+    public boolean isNot() {
         return isNot;
     }
 }

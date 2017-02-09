@@ -22,18 +22,17 @@ import java.io.StringWriter;
 /**
  * This class represents a guard in the evaluation tree representing an event expressions.
  */
-public class EvalGuardFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalGuardFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = -6426206281275755119L;
     private PatternGuardSpec patternGuardSpec;
     private transient GuardFactory guardFactory;
 
     /**
      * Constructor.
+     *
      * @param patternGuardSpec - factory for guard construction
      */
-    protected EvalGuardFactoryNode(PatternGuardSpec patternGuardSpec)
-    {
+    protected EvalGuardFactoryNode(PatternGuardSpec patternGuardSpec) {
         this.patternGuardSpec = patternGuardSpec;
     }
 
@@ -44,35 +43,34 @@ public class EvalGuardFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Returns the guard object specification to use for instantiating the guard factory and guard.
+     *
      * @return guard specification
      */
-    public PatternGuardSpec getPatternGuardSpec()
-    {
+    public PatternGuardSpec getPatternGuardSpec() {
         return patternGuardSpec;
     }
 
     /**
      * Supplies the guard factory to the node.
+     *
      * @param guardFactory is the guard factory
      */
-    public void setGuardFactory(GuardFactory guardFactory)
-    {
+    public void setGuardFactory(GuardFactory guardFactory) {
         this.guardFactory = guardFactory;
     }
 
     /**
      * Returns the guard factory.
+     *
      * @return guard factory
      */
-    public GuardFactory getGuardFactory()
-    {
+    public GuardFactory getGuardFactory() {
         return guardFactory;
     }
 
-    public final String toString()
-    {
-        return ("EvalGuardNode guardFactory=" + guardFactory +
-                "  children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalGuardNode guardFactory=" + guardFactory +
+                "  children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {
@@ -92,10 +90,9 @@ public class EvalGuardFactoryNode extends EvalNodeFactoryBase
     public void toPrecedenceFreeEPL(StringWriter writer) {
         getChildNodes().get(0).toEPL(writer, getPrecedence());
         if (patternGuardSpec.getObjectNamespace().equals(GuardEnum.WHILE_GUARD.getNamespace()) &&
-            patternGuardSpec.getObjectName().equals(GuardEnum.WHILE_GUARD.getName())) {
+                patternGuardSpec.getObjectName().equals(GuardEnum.WHILE_GUARD.getName())) {
             writer.write(" while ");
-        }
-        else {
+        } else {
             writer.write(" where ");
             writer.write(patternGuardSpec.getObjectNamespace());
             writer.write(":");

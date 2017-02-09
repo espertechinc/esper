@@ -19,5 +19,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface DataFlowOpParameter {
     public String name() default "";
+
     public boolean all() default false;
 }

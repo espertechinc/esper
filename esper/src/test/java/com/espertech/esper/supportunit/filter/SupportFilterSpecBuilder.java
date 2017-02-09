@@ -16,30 +16,23 @@ import com.espertech.esper.filter.*;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SupportFilterSpecBuilder
-{
-    public static FilterSpecCompiled build(EventType eventType, Object[] objects)
-    {
-        return new FilterSpecCompiled(eventType, "SomeAliasNameForType", new List[] {buildList(eventType, objects)}, null);
+public class SupportFilterSpecBuilder {
+    public static FilterSpecCompiled build(EventType eventType, Object[] objects) {
+        return new FilterSpecCompiled(eventType, "SomeAliasNameForType", new List[]{buildList(eventType, objects)}, null);
     }
 
-    public static List<FilterSpecParam> buildList(EventType eventType, Object[] objects)
-    {
+    public static List<FilterSpecParam> buildList(EventType eventType, Object[] objects) {
         List<FilterSpecParam> filterParams = new LinkedList<FilterSpecParam>();
 
         int index = 0;
-        while (objects.length > index)
-        {
+        while (objects.length > index) {
             String propertyName = (String) objects[index++];
             FilterOperator filterOperator = (FilterOperator) objects[index++];
 
-            if (!(filterOperator.isRangeOperator()))
-            {
+            if (!(filterOperator.isRangeOperator())) {
                 Object filterForConstant = objects[index++];
                 filterParams.add(new FilterSpecParamConstant(makeLookupable(eventType, propertyName), filterOperator, filterForConstant));
-            }
-            else
-            {
+            } else {
                 double min = ((Number) objects[index++]).doubleValue();
                 double max = ((Number) objects[index++]).doubleValue();
                 filterParams.add(new FilterSpecParamRange(makeLookupable(eventType, propertyName), filterOperator,

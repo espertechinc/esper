@@ -20,8 +20,7 @@ import java.util.Iterator;
 /**
  * Implementation of access function for single-stream (not joins).
  */
-public class AggregationStateMinMaxByEver implements AggregationState, AggregationStateSorted
-{
+public class AggregationStateMinMaxByEver implements AggregationState, AggregationStateSorted {
     protected final AggregationStateMinMaxByEverSpec spec;
     protected EventBean currentMinMaxBean;
     protected Object currentMinMax;
@@ -35,8 +34,7 @@ public class AggregationStateMinMaxByEver implements AggregationState, Aggregati
         currentMinMaxBean = null;
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean theEvent = eventsPerStream[spec.getStreamId()];
         if (theEvent == null) {
             return;
@@ -45,16 +43,14 @@ public class AggregationStateMinMaxByEver implements AggregationState, Aggregati
         if (currentMinMax == null) {
             currentMinMax = comparable;
             currentMinMaxBean = theEvent;
-        }
-        else {
+        } else {
             int compareResult = spec.getComparator().compare(currentMinMax, comparable);
             if (spec.isMax()) {
                 if (compareResult < 0) {
                     currentMinMax = comparable;
                     currentMinMaxBean = theEvent;
                 }
-            }
-            else {
+            } else {
                 if (compareResult > 0) {
                     currentMinMax = comparable;
                     currentMinMaxBean = theEvent;
@@ -63,8 +59,7 @@ public class AggregationStateMinMaxByEver implements AggregationState, Aggregati
         }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         // this is an ever-type aggregation
     }
 

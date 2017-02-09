@@ -29,8 +29,7 @@ public class CompositeIndexEnterRemoveKeyed implements CompositeIndexEnterRemove
     public CompositeIndexEnterRemoveKeyed(EventType eventType, String[] keysProps, Class[] keyCoercionTypes) {
         this.keyCoercionTypes = keyCoercionTypes;
         propertyGetters = new EventPropertyGetter[keysProps.length];
-        for (int i = 0; i < keysProps.length; i++)
-        {
+        for (int i = 0; i < keysProps.length; i++) {
             propertyGetters[i] = EventBeanUtility.getAssertPropertyGetter(eventType, keysProps[i]);
         }
     }

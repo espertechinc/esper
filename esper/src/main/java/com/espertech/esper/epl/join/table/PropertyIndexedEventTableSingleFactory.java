@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
  * Index factory that organizes events by the event property values into hash buckets. Based on a HashMap
  * with {@link com.espertech.esper.collection.MultiKeyUntyped} keys that store the property values.
  */
-public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
-{
+public class PropertyIndexedEventTableSingleFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String propertyName;
     protected final boolean unique;
@@ -29,8 +28,7 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
 
     protected final EventPropertyGetter propertyGetter;
 
-    public PropertyIndexedEventTableSingleFactory(int streamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName)
-    {
+    public PropertyIndexedEventTableSingleFactory(int streamNum, EventType eventType, String propertyName, boolean unique, String optionalIndexName) {
         this.streamNum = streamNum;
         this.propertyName = propertyName;
         this.unique = unique;
@@ -41,20 +39,18 @@ public class PropertyIndexedEventTableSingleFactory implements EventTableFactory
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
-        EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[] {propertyName}, EventTableOrganizationType.HASH);
+        EventTableOrganization organization = new EventTableOrganization(optionalIndexName, unique, false, streamNum, new String[]{propertyName}, EventTableOrganizationType.HASH);
         if (unique) {
-            return new EventTable[] {new PropertyIndexedEventTableSingleUnique(propertyGetter, organization)};
-        }
-        else {
-            return new EventTable[] {new PropertyIndexedEventTableSingleUnadorned(propertyGetter, organization)};
+            return new EventTable[]{new PropertyIndexedEventTableSingleUnique(propertyGetter, organization)};
+        } else {
+            return new EventTable[]{new PropertyIndexedEventTableSingleUnadorned(propertyGetter, organization)};
         }
     }
 
     public Class getEventTableClass() {
         if (unique) {
             return PropertyIndexedEventTableSingleUnique.class;
-        }
-        else {
+        } else {
             return PropertyIndexedEventTableSingle.class;
         }
     }

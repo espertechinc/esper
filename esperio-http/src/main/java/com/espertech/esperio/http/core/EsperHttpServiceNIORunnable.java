@@ -1,33 +1,12 @@
 package com.espertech.esperio.http.core;
 
-import com.espertech.esperio.http.config.Service;
-import com.espertech.esperio.http.config.GetHandler;
-import com.espertech.esperio.http.EsperHttpRequestHandler;
-import com.espertech.esperio.http.EventLogger;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.io.InterruptedIOException;
-import java.io.IOException;
-
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.*;
-import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
-import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InterruptedIOException;
 
 public class EsperHttpServiceNIORunnable implements Runnable {
     private static Logger log = LoggerFactory.getLogger(EsperHttpServiceNIORunnable.class);
@@ -54,7 +33,7 @@ public class EsperHttpServiceNIORunnable implements Runnable {
                 break;
             } catch (IOException e) {
                 if (!shutdown) {
-                    log.error("I/O error initialising connection thread for service '" + serviceName + "' : "+ e.getMessage());
+                    log.error("I/O error initialising connection thread for service '" + serviceName + "' : " + e.getMessage());
                 }
                 break;
             }

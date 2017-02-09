@@ -18,8 +18,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class RegexPartitionTerminationStateComparator implements Comparator<RegexNFAStateEntry>
-{
+public class RegexPartitionTerminationStateComparator implements Comparator<RegexNFAStateEntry> {
     private final int[] multimatchStreamNumToVariable;
     private final LinkedHashMap<String, Pair<Integer, Boolean>> variableStreams;
 
@@ -53,8 +52,7 @@ public class RegexPartitionTerminationStateComparator implements Comparator<Rege
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 EventBean termStreamEvent = terminationState.getEventsPerStream()[stream];
                 EventBean endStreamEvent = endState.getEventsPerStream()[stream];
                 if (!EventBeanUtility.eventsAreEqualsAllowNull(endStreamEvent, termStreamEvent)) {

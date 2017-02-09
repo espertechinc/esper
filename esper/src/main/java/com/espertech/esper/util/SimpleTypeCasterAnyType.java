@@ -12,46 +12,39 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.collection.Pair;
 
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Cast implementation for non-numeric values that caches allowed casts assuming there is a small set of casts allowed. 
+ * Cast implementation for non-numeric values that caches allowed casts assuming there is a small set of casts allowed.
  */
-public class SimpleTypeCasterAnyType implements SimpleTypeCaster
-{
+public class SimpleTypeCasterAnyType implements SimpleTypeCaster {
     private Class typeToCastTo;
     private CopyOnWriteArraySet<Pair<Class, Boolean>> pairs = new CopyOnWriteArraySet<Pair<Class, Boolean>>();
 
     /**
      * Ctor.
+     *
      * @param typeToCastTo is the target type
      */
-    public SimpleTypeCasterAnyType(Class typeToCastTo)
-    {
+    public SimpleTypeCasterAnyType(Class typeToCastTo) {
         this.typeToCastTo = typeToCastTo;
     }
 
-    public boolean isNumericCast()
-    {
+    public boolean isNumericCast() {
         return false;
     }
 
-    public Object cast(Object object)
-    {
-        if (object.getClass() == typeToCastTo)
-        {
+    public Object cast(Object object) {
+        if (object.getClass() == typeToCastTo) {
             return object;
         }
 
         // check cache to see if this is cast-able
-        for (Pair<Class, Boolean> pair : pairs)
-        {
-            if (pair.getFirst() == typeToCastTo)
-            {
-                if (!pair.getSecond())
-                {
+        for (Pair<Class, Boolean> pair : pairs) {
+            if (pair.getFirst() == typeToCastTo) {
+                if (!pair.getSecond()) {
                     return null;
                 }
                 return object;
@@ -59,15 +52,11 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster
         }
 
         // Not found in cache, add to cache;
-        synchronized(this)
-        {
+        synchronized (this) {
             // search cache once more
-            for (Pair<Class, Boolean> pair : pairs)
-            {
-                if (pair.getFirst() == typeToCastTo)
-                {
-                    if (!pair.getSecond())
-                    {
+            for (Pair<Class, Boolean> pair : pairs) {
+                if (pair.getFirst() == typeToCastTo) {
+                    if (!pair.getSecond()) {
                         return null;
                     }
                     return object;
@@ -79,8 +68,7 @@ public class SimpleTypeCasterAnyType implements SimpleTypeCaster
             Set<Class> classesToCheck = new HashSet<Class>();
             JavaClassHelper.getSuper(object.getClass(), classesToCheck);
 
-            if (classesToCheck.contains(typeToCastTo))
-            {
+            if (classesToCheck.contains(typeToCastTo)) {
                 pairs.add(new Pair<Class, Boolean>(object.getClass(), true));
                 return object;
             }

@@ -26,7 +26,6 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.AuditPath;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 
 public class TableOnSelectView extends TableOnViewBase {
@@ -46,7 +45,9 @@ public class TableOnSelectView extends TableOnViewBase {
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_SELECT, triggerEvents, matchingEvents);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_SELECT, triggerEvents, matchingEvents);
+        }
 
         EventBean[] newData;
 
@@ -59,18 +60,15 @@ public class TableOnSelectView extends TableOnViewBase {
 
         // process matches
         UniformPair<EventBean[]> pair = resultSetProcessor.processJoinResult(newEvents, Collections.<MultiKey<EventBean>>emptySet(), false);
-        newData = (pair != null ? pair.getFirst() : null);
+        newData = pair != null ? pair.getFirst() : null;
 
         if (parent.isDistinct()) {
             newData = EventBeanUtility.getDistinctByProp(newData, parent.getEventBeanReader());
         }
 
-        if (parent.getInternalEventRouter() != null)
-        {
-            if (newData != null)
-            {
-                for (int i = 0; i < newData.length; i++)
-                {
+        if (parent.getInternalEventRouter() != null) {
+            if (newData != null) {
+                for (int i = 0; i < newData.length; i++) {
                     if (audit) {
                         AuditPath.auditInsertInto(getExprEvaluatorContext().getEngineURI(), getExprEvaluatorContext().getStatementName(), newData[i]);
                     }
@@ -80,11 +78,9 @@ public class TableOnSelectView extends TableOnViewBase {
         }
 
         // The on-select listeners receive the events selected
-        if ((newData != null) && (newData.length > 0))
-        {
+        if ((newData != null) && (newData.length > 0)) {
             // And post only if we have listeners/subscribers that need the data
-            if (parent.getStatementResultService().isMakeNatural() || parent.getStatementResultService().isMakeSynthetic())
-            {
+            if (parent.getStatementResultService().isMakeNatural() || parent.getStatementResultService().isMakeSynthetic()) {
                 updateChildren(newData, null);
             }
         }
@@ -99,18 +95,16 @@ public class TableOnSelectView extends TableOnViewBase {
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
     @Override
-    public EventType getEventType()
-    {
-        if (resultSetProcessor != null)
-        {
+    public EventType getEventType() {
+        if (resultSetProcessor != null) {
             return resultSetProcessor.getResultEventType();
-        }
-        else
-        {
+        } else {
             return super.getEventType();
         }
     }

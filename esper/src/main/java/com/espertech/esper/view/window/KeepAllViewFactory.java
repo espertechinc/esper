@@ -23,17 +23,14 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.view.window.KeepAllView}.
  */
-public class KeepAllViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class KeepAllViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         ViewFactorySupport.validateNoParameters(getViewName(), expressionParameters);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -41,21 +38,17 @@ public class KeepAllViewFactory implements DataWindowViewFactory, DataWindowView
         return new RandomAccessByIndexGetter();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new KeepAllView(agentInstanceViewFactoryContext, this, randomAccess);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof KeepAllView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof KeepAllView)) {
             return false;
         }
 

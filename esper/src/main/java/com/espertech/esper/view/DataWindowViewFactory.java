@@ -15,7 +15,6 @@ package com.espertech.esper.view;
  * <p>
  * Please {@link DataWindowView} for details on views that meet data window requirements.
  */
-public interface DataWindowViewFactory extends ViewFactory
-{
-    
+public interface DataWindowViewFactory extends ViewFactory {
+
 }

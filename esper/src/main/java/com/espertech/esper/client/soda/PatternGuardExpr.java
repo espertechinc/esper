@@ -18,10 +18,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Guard is the where timer-within pattern object for use in pattern expressions. 
+ * Guard is the where timer-within pattern object for use in pattern expressions.
  */
-public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr
-{
+public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr {
     private static final long serialVersionUID = 0L;
 
     private String treeObjectName;
@@ -29,49 +28,49 @@ public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
-     * @param namespace is the guard object namespace
-     * @param name is the guard object name
+     *
+     * @param namespace  is the guard object namespace
+     * @param name       is the guard object name
      * @param parameters is guard object parameters
      */
-    public PatternGuardExpr(String namespace, String name, List<Expression> parameters)
-    {
+    public PatternGuardExpr(String namespace, String name, List<Expression> parameters) {
         super(namespace, name, parameters);
         this.guarded = new ArrayList<PatternExpr>();
     }
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
-     * @param namespace is the guard object namespace
-     * @param name is the guard object name
+     *
+     * @param namespace  is the guard object namespace
+     * @param name       is the guard object name
      * @param parameters is guard object parameters
-     * @param guarded is the guarded pattern expression
+     * @param guarded    is the guarded pattern expression
      */
-    public PatternGuardExpr(String namespace, String name, Expression[] parameters, PatternExpr guarded)
-    {
+    public PatternGuardExpr(String namespace, String name, Expression[] parameters, PatternExpr guarded) {
         this(namespace, name, Arrays.asList(parameters), guarded);
     }
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
-     * @param namespace is the guard object namespace
-     * @param name is the guard object name
-     * @param parameters is guard object parameters
+     *
+     * @param namespace      is the guard object namespace
+     * @param name           is the guard object name
+     * @param parameters     is guard object parameters
      * @param guardedPattern is the guarded pattern expression
      */
-    public PatternGuardExpr(String namespace, String name, List<Expression> parameters, PatternExpr guardedPattern)
-    {
+    public PatternGuardExpr(String namespace, String name, List<Expression> parameters, PatternExpr guardedPattern) {
         super(namespace, name, parameters);
         this.guarded = new ArrayList<PatternExpr>();
         guarded.add(guardedPattern);
     }
 
-    public List<PatternExpr> getChildren()
-    {
+    public List<PatternExpr> getChildren() {
         return guarded;
     }
 
     /**
      * Set sub pattern.
+     *
      * @param guarded sub expression
      */
     public void setGuarded(List<PatternExpr> guarded) {
@@ -80,19 +79,18 @@ public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr
 
     /**
      * Get sub expression
+     *
      * @return sub pattern
      */
     public List<PatternExpr> getGuarded() {
         return guarded;
     }
 
-    public String getTreeObjectName()
-    {
+    public String getTreeObjectName() {
         return treeObjectName;
     }
 
-    public void setTreeObjectName(String treeObjectName)
-    {
+    public void setTreeObjectName(String treeObjectName) {
         this.treeObjectName = treeObjectName;
     }
 
@@ -105,8 +103,7 @@ public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr
             writer.write("(");
             toPrecedenceFreeEPL(writer, formatter);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer, formatter);
         }
     }
@@ -114,7 +111,8 @@ public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr
     /**
      * Renders the expressions and all it's child expression, in full tree depth, as a string in
      * language syntax.
-     * @param writer is the output to use
+     *
+     * @param writer    is the output to use
      * @param formatter for newline-whitespace formatting
      */
     public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {
@@ -123,8 +121,7 @@ public class PatternGuardExpr extends EPBaseNamedObject implements PatternExpr
             writer.write(" while (");
             this.getParameters().get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             writer.write(")");
-        }
-        else {
+        } else {
             writer.write(" where ");
             super.toEPL(writer);
         }

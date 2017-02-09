@@ -19,19 +19,16 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-public class SampleJMSMessageListener implements MessageListener
-{
+public class SampleJMSMessageListener implements MessageListener {
     private static Logger log = LoggerFactory.getLogger(SampleJMSMessageListener.class);
     private EPRuntime engine;
     private int count;
 
-    public SampleJMSMessageListener(EPRuntime engine)
-    {
+    public SampleJMSMessageListener(EPRuntime engine) {
         this.engine = engine;
     }
 
-    public void onMessage(Message message)
-    {
+    public void onMessage(Message message) {
         BytesMessage bytesMsg = (BytesMessage) message;
         String body = getBody(bytesMsg);
 
@@ -45,22 +42,17 @@ public class SampleJMSMessageListener implements MessageListener
         count++;
     }
 
-    public int getCount()
-    {
+    public int getCount() {
         return count;
     }
 
-    private String getBody(BytesMessage bytesMsg)
-    {
-        try
-        {
+    private String getBody(BytesMessage bytesMsg) {
+        try {
             long length = bytesMsg.getBodyLength();
-            byte[] buf = new byte[(int)length];
+            byte[] buf = new byte[(int) length];
             bytesMsg.readBytes(buf);
             return new String(buf);
-        }
-        catch (JMSException e)
-        {
+        } catch (JMSException e) {
             String text = "Error getting message body";
             log.error(text, e);
             throw new RuntimeException(text, e);

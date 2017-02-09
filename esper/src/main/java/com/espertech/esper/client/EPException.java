@@ -11,37 +11,36 @@
 package com.espertech.esper.client;
 
 /**
- * This exception is thrown to indicate a problem in administration and runtime. 
+ * This exception is thrown to indicate a problem in administration and runtime.
  */
-public class EPException extends RuntimeException
-{
+public class EPException extends RuntimeException {
     private static final long serialVersionUID = 359488863761406599L;
 
     /**
      * Ctor.
+     *
      * @param message - error message
      */
-    public EPException(final String message)
-    {
+    public EPException(final String message) {
         super(message);
     }
 
     /**
      * Ctor for an inner exception and message.
+     *
      * @param message - error message
-     * @param cause - inner exception
+     * @param cause   - inner exception
      */
-    public EPException(final String message, final Throwable cause)
-    {
+    public EPException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     /**
      * Ctor - just an inner exception.
+     *
      * @param cause - inner exception
      */
-    public EPException(final Throwable cause)
-    {
+    public EPException(final Throwable cause) {
         super(cause);
     }
 }

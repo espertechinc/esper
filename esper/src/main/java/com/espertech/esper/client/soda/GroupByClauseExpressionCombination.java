@@ -17,13 +17,13 @@ import java.util.List;
  * A combination of expressions is for example "(a, b)", wherein the list of expressions provided
  * together logically make up a grouping level.
  */
-public class GroupByClauseExpressionCombination implements GroupByClauseExpression
-{
+public class GroupByClauseExpressionCombination implements GroupByClauseExpression {
     private static final long serialVersionUID = -971482121074669985L;
     private List<Expression> expressions;
 
     /**
      * Ctor.
+     *
      * @param expressions combination of expressions
      */
     public GroupByClauseExpressionCombination(List<Expression> expressions) {
@@ -38,6 +38,7 @@ public class GroupByClauseExpressionCombination implements GroupByClauseExpressi
 
     /**
      * Returns the combined expressions.
+     *
      * @return expressions
      */
     public List<Expression> getExpressions() {
@@ -46,6 +47,7 @@ public class GroupByClauseExpressionCombination implements GroupByClauseExpressi
 
     /**
      * Sets the combined expressions.
+     *
      * @param expressions expressions
      */
     public void setExpressions(List<Expression> expressions) {

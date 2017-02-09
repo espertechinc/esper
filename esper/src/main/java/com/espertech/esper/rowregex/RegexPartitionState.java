@@ -13,13 +13,18 @@ package com.espertech.esper.rowregex;
 import java.util.Iterator;
 import java.util.List;
 
-public interface RegexPartitionState
-{
+public interface RegexPartitionState {
     public RegexPartitionStateRandomAccess getRandomAccess();
+
     public Iterator<RegexNFAStateEntry> getCurrentStatesIterator();
+
     public void setCurrentStates(List<RegexNFAStateEntry> currentStates);
+
     public Object getOptionalKeys();
+
     public int getNumStates();
+
     public List<RegexNFAStateEntry> getCurrentStatesForPrint();
+
     public boolean isEmptyCurrentState();
 }

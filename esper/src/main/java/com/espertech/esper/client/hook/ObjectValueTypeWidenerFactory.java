@@ -16,17 +16,18 @@ public interface ObjectValueTypeWidenerFactory {
     /**
      * Returns a type widener or coercer.
      * <p>
-     *     Implementations can provide custom widening behavior from an object to a a widened, coerced or related object value.
+     * Implementations can provide custom widening behavior from an object to a a widened, coerced or related object value.
      * </p>
      * <p>
-     *     Implementations should check whether an object value is assignable with or without coercion or widening.
+     * Implementations should check whether an object value is assignable with or without coercion or widening.
      * </p>
      * <p>
-     *     This method can return null to use the default widening behavior.
+     * This method can return null to use the default widening behavior.
      * </p>
      * <p>
-     *     Throw {@link UnsupportedOperationException} to indicate an unsupported widening or coercion(default behavior checking still applies if no exception is thrown)
+     * Throw {@link UnsupportedOperationException} to indicate an unsupported widening or coercion(default behavior checking still applies if no exception is thrown)
      * </p>
+     *
      * @param context context
      * @return coercer/widener
      * @throws UnsupportedOperationException to indicate an unsupported assignment (where not already covered by the default checking)

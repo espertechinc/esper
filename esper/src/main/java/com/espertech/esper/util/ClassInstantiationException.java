@@ -15,26 +15,25 @@ import com.espertech.esper.client.EPException;
 /**
  * Exception to represent an error instantiating a class from a class name.
  */
-public class ClassInstantiationException extends EPException
-{
+public class ClassInstantiationException extends EPException {
     private static final long serialVersionUID = 7562672676472269666L;
 
     /**
      * Ctor.
+     *
      * @param message supplies the detailed description
      */
-    public ClassInstantiationException(final String message)
-    {
+    public ClassInstantiationException(final String message) {
         super(message);
     }
 
     /**
      * Ctor.
+     *
      * @param message supplies the detailed description
-     * @param cause the exception cause
+     * @param cause   the exception cause
      */
-    public ClassInstantiationException(final String message, final Throwable cause)
-    {
+    public ClassInstantiationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 }

@@ -10,13 +10,11 @@
  */
 package com.espertech.esperio.db.core;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.epl.db.DatabaseConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RunnableDMLContext
-{
+public class RunnableDMLContext {
     private static Logger log = LoggerFactory.getLogger(RunnableDMLContext.class);
 
     private final String name;
@@ -25,8 +23,7 @@ public class RunnableDMLContext
     private final Integer retry;
     private final Double retryWait;
 
-    public RunnableDMLContext(String name, DatabaseConnectionFactory connectionFactory, DMLStatement dmlStatement, Integer retry, Double retryWait)
-    {
+    public RunnableDMLContext(String name, DatabaseConnectionFactory connectionFactory, DMLStatement dmlStatement, Integer retry, Double retryWait) {
         this.name = name;
         this.connectionFactory = connectionFactory;
         this.dmlStatement = dmlStatement;
@@ -34,13 +31,11 @@ public class RunnableDMLContext
         this.retryWait = retryWait;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public DatabaseConnectionFactory getConnectionFactory()
-    {
+    public DatabaseConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
@@ -48,13 +43,11 @@ public class RunnableDMLContext
         return dmlStatement;
     }
 
-    public Integer getRetry()
-    {
+    public Integer getRetry() {
         return retry;
     }
 
-    public Double getRetryWait()
-    {
+    public Double getRetryWait() {
         return retryWait;
     }
 }

@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.core.start;
 
-public class EPStatementStartAuditUtil
-{
+public class EPStatementStartAuditUtil {
 }

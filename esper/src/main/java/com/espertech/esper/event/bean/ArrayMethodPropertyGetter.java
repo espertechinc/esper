@@ -23,25 +23,23 @@ import java.lang.reflect.Method;
 /**
  * Getter for an array property identified by a given index, using vanilla reflection.
  */
-public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed
-{
+public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndIndexed {
     private final Method method;
     private final int index;
 
     /**
      * Constructor.
-     * @param method is the method to use to retrieve a value from the object
-     * @param index is tge index within the array to get the property from
+     *
+     * @param method              is the method to use to retrieve a value from the object
+     * @param index               is tge index within the array to get the property from
      * @param eventAdapterService factory for event beans and event types
      */
-    public ArrayMethodPropertyGetter(Method method, int index, EventAdapterService eventAdapterService)
-    {
+    public ArrayMethodPropertyGetter(Method method, int index, EventAdapterService eventAdapterService) {
         super(eventAdapterService, method.getReturnType().getComponentType(), null);
         this.index = index;
         this.method = method;
 
-        if (index < 0)
-        {
+        if (index < 0) {
             throw new IllegalArgumentException("Invalid negative index value");
         }
     }
@@ -50,60 +48,44 @@ public class ArrayMethodPropertyGetter extends BaseNativePropertyGetter implemen
         return getBeanPropInternal(eventBean.getUnderlying(), index);
     }
 
-    public Object getBeanProp(Object object) throws PropertyAccessException
-    {
+    public Object getBeanProp(Object object) throws PropertyAccessException {
         return getBeanPropInternal(object, index);
     }
 
-    private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException
-    {
-        try
-        {
+    private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
+        try {
             Object value = method.invoke(object, (Object[]) null);
-            if (Array.getLength(value) <= index)
-            {
+            if (Array.getLength(value) <= index) {
                 return null;
             }
             return Array.get(value, index);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(method, e);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw PropertyUtility.getIllegalAccessException(method, e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(method, e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "ArrayMethodPropertyGetter " +
                 " method=" + method.toString() +
                 " index=" + index;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

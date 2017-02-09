@@ -24,8 +24,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 
-public class AggregationMethodFactoryPlugIn implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryPlugIn implements AggregationMethodFactory {
     protected final ExprPlugInAggNode parent;
     protected final AggregationFunctionFactory aggregationFunctionFactory;
     protected final Class aggregatedValueType;

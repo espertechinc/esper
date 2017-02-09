@@ -10,30 +10,23 @@
  */
 package com.espertech.esper.epl.join.assemble;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.util.IndentWriter;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Assembly node factory for an event stream that is a branch with a single required child node below it.
  */
-public class BranchRequiredAssemblyNodeFactory extends BaseAssemblyNodeFactory
-{
+public class BranchRequiredAssemblyNodeFactory extends BaseAssemblyNodeFactory {
     /**
      * Ctor.
-     * @param streamNum - is the stream number
+     *
+     * @param streamNum  - is the stream number
      * @param numStreams - is the number of streams
      */
-    public BranchRequiredAssemblyNodeFactory(int streamNum, int numStreams)
-    {
+    public BranchRequiredAssemblyNodeFactory(int streamNum, int numStreams) {
         super(streamNum, numStreams);
     }
 
-    public void print(IndentWriter indentWriter)
-    {
+    public void print(IndentWriter indentWriter) {
         indentWriter.println("BranchRequiredAssemblyNode streamNum=" + streamNum);
     }
 

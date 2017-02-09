@@ -16,7 +16,6 @@ import com.espertech.esper.epl.core.ResultSetProcessor;
 /**
  * Factory for output processing views.
  */
-public interface OutputProcessViewFactory
-{
+public interface OutputProcessViewFactory {
     public OutputProcessViewBase makeView(ResultSetProcessor resultSetProcessor, AgentInstanceContext agentInstanceContext);
 }

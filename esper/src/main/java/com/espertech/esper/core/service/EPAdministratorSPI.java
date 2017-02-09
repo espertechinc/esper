@@ -21,10 +21,10 @@ import com.espertech.esper.pattern.EvalFactoryNode;
 /**
  * Administrative SPI.
  */
-public interface EPAdministratorSPI extends EPAdministrator
-{
+public interface EPAdministratorSPI extends EPAdministrator {
     /**
      * Compile expression.
+     *
      * @param expression to compile
      * @return compiled expression
      * @throws EPException if compile failed
@@ -33,6 +33,7 @@ public interface EPAdministratorSPI extends EPAdministrator
 
     /**
      * Compile expression.
+     *
      * @param expression to compile
      * @return compiled expression
      * @throws EPException if compile failed
@@ -41,6 +42,7 @@ public interface EPAdministratorSPI extends EPAdministrator
 
     /**
      * Compile pattern.
+     *
      * @param expression to compile
      * @return compiled expression
      * @throws EPException if compile failed
@@ -49,6 +51,7 @@ public interface EPAdministratorSPI extends EPAdministrator
 
     /**
      * Compile pattern.
+     *
      * @param expression to compile
      * @return compiled expression
      * @throws EPException if compile failed
@@ -57,6 +60,7 @@ public interface EPAdministratorSPI extends EPAdministrator
 
     /**
      * Compile pattern.
+     *
      * @param expression to compile
      * @return compiled expression
      * @throws EPException if compile failed
@@ -65,6 +69,7 @@ public interface EPAdministratorSPI extends EPAdministrator
 
     /**
      * Compile annotation expressions.
+     *
      * @param annotationExpression to compile
      * @return model representation
      */
@@ -72,6 +77,7 @@ public interface EPAdministratorSPI extends EPAdministrator
 
     /**
      * Compile match recognize pattern expression.
+     *
      * @param matchRecogPatternExpression to compile
      * @return model representation
      */
@@ -83,11 +89,18 @@ public interface EPAdministratorSPI extends EPAdministrator
     public void destroy();
 
     public StatementSpecRaw compileEPLToRaw(String epl);
+
     public EPStatementObjectModel mapRawToSODA(StatementSpecRaw raw);
+
     public StatementSpecRaw mapSODAToRaw(EPStatementObjectModel model);
+
     public EPStatement createEPLStatementId(String eplStatement, String statementName, Object userObject, int statementId) throws EPException;
+
     public EPStatement createModelStatementId(EPStatementObjectModel sodaStatement, String statementName, Object userObject, int statementId) throws EPException;
+
     public EPStatement createPatternStatementId(String pattern, String statementName, Object userObject, int statementId) throws EPException;
+
     public EPStatement createPreparedEPLStatementId(EPPreparedStatementImpl prepared, String statementName, Object userObject, int statementId) throws EPException;
+
     public String getStatementNameForId(int statementId);
 }

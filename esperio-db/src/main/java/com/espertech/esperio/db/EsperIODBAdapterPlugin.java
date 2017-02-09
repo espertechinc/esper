@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 
-public class EsperIODBAdapterPlugin implements PluginLoader
-{
+public class EsperIODBAdapterPlugin implements PluginLoader {
     private static Logger log = LoggerFactory.getLogger(EsperIODBAdapterPlugin.class);
 
     private static final String ESPERIO_DB_CONFIG_FILE = "esperio.db.configuration.file";
@@ -28,18 +27,15 @@ public class EsperIODBAdapterPlugin implements PluginLoader
     private EsperIODBAdapter dbadapter;
     private PluginLoaderInitContext context;
 
-    public void init(PluginLoaderInitContext context)
-    {
+    public void init(PluginLoaderInitContext context) {
         this.context = context;
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         ConfigurationDBAdapter adapterConfig;
         if (context.getConfigXml() != null) {
             adapterConfig = fromXml(context.getConfigXml());
-        }
-        else {
+        } else {
             adapterConfig = fromExternalFile();
         }
 
@@ -48,10 +44,8 @@ public class EsperIODBAdapterPlugin implements PluginLoader
         dbadapter.start();
     }
 
-    public void destroy()
-    {
-        if (dbadapter != null)
-        {
+    public void destroy() {
+        if (dbadapter != null) {
             dbadapter.destroy();
         }
         dbadapter = null;
@@ -66,8 +60,7 @@ public class EsperIODBAdapterPlugin implements PluginLoader
 
         // obtain config file name
         String configFile = context.getProperties().getProperty(ESPERIO_DB_CONFIG_FILE);
-        if (configFile == null)
-        {
+        if (configFile == null) {
             String message = "Required initialization property '" + ESPERIO_DB_CONFIG_FILE + "' is not provided";
             log.error(message);
             throw new RuntimeException(message);
@@ -75,19 +68,15 @@ public class EsperIODBAdapterPlugin implements PluginLoader
 
         // resolve config file
         URL urlConfigFile;
-        try
-        {
+        try {
             urlConfigFile = resolveURL(configFile);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             String message = "Error resolving config file from classpath or as a URL: " + ex.getMessage();
             log.error(message, ex);
             throw new RuntimeException(message, ex);
         }
 
-        if (urlConfigFile == null)
-        {
+        if (urlConfigFile == null) {
             String message = "Configuration file could not be resolved from '" + urlConfigFile + "'";
             log.error(message);
             throw new RuntimeException(message);
@@ -95,12 +84,9 @@ public class EsperIODBAdapterPlugin implements PluginLoader
 
         // parse config file
         ConfigurationDBAdapter config = new ConfigurationDBAdapter();
-        try
-        {
+        try {
             config.configure(urlConfigFile);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             String message = "Configuration file read error for config file '" + urlConfigFile + "': " + ex.getMessage();
             log.error(message, ex);
             throw new RuntimeException(message, ex);
@@ -109,17 +95,14 @@ public class EsperIODBAdapterPlugin implements PluginLoader
         return config;
     }
 
-    private URL resolveURL(String config) throws Exception
-    {
+    private URL resolveURL(String config) throws Exception {
         URL url = this.getClass().getClassLoader().getResource(config);
-        if (url != null)
-        {
+        if (url != null) {
             return url;
         }
 
         url = Thread.currentThread().getContextClassLoader().getResource(config);
-        if (url != null)
-        {
+        if (url != null) {
             return url;
         }
 

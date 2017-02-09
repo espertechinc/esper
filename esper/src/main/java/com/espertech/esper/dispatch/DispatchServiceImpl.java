@@ -18,43 +18,32 @@ import java.util.ArrayDeque;
 /**
  * Implements dispatch service using a thread-local linked list of Dispatchable instances.
  */
-public class DispatchServiceImpl implements DispatchService
-{
-    private final ThreadLocal<ArrayDeque<Dispatchable>> threadDispatchQueue = new ThreadLocal<ArrayDeque<Dispatchable>>()
-    {
-        protected synchronized ArrayDeque<Dispatchable> initialValue()
-        {
+public class DispatchServiceImpl implements DispatchService {
+    private final ThreadLocal<ArrayDeque<Dispatchable>> threadDispatchQueue = new ThreadLocal<ArrayDeque<Dispatchable>>() {
+        protected synchronized ArrayDeque<Dispatchable> initialValue() {
             return new ArrayDeque<Dispatchable>();
         }
     };
 
-    public void dispatch()
-    {
+    public void dispatch() {
         dispatchFromQueue(threadDispatchQueue.get());
     }
 
-    public void addExternal(Dispatchable dispatchable)
-    {
+    public void addExternal(Dispatchable dispatchable) {
         ArrayDeque<Dispatchable> dispatchQueue = threadDispatchQueue.get();
         addToQueue(dispatchable, dispatchQueue);
     }
 
-    private static void addToQueue(Dispatchable dispatchable, ArrayDeque<Dispatchable> dispatchQueue)
-    {
+    private static void addToQueue(Dispatchable dispatchable, ArrayDeque<Dispatchable> dispatchQueue) {
         dispatchQueue.add(dispatchable);
     }
 
-    private static void dispatchFromQueue(ArrayDeque<Dispatchable> dispatchQueue)
-    {
-        while(true)
-        {
+    private static void dispatchFromQueue(ArrayDeque<Dispatchable> dispatchQueue) {
+        while (true) {
             Dispatchable next = dispatchQueue.poll();
-            if (next != null)
-            {
+            if (next != null) {
                 next.execute();
-            }
-            else
-            {
+            } else {
                 break;
             }
         }

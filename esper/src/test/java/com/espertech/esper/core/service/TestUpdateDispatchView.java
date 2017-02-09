@@ -10,30 +10,28 @@
  */
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.ConfigurationEngineDefaults;
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.dispatch.DispatchService;
 import com.espertech.esper.dispatch.DispatchServiceImpl;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.supportunit.core.SupportEPStatementSPI;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.core.thread.ThreadingServiceImpl;
-import com.espertech.esper.epl.metric.MetricReportingPath;
 import com.espertech.esper.util.support.SupportExprEvaluatorContext;
 import junit.framework.TestCase;
 
-public class TestUpdateDispatchView extends TestCase
-{
+public class TestUpdateDispatchView extends TestCase {
     private UpdateDispatchViewBlockingWait updateDispatchView;
     private SupportUpdateListener listenerOne;
     private SupportUpdateListener listenerTwo;
     private DispatchService dispatchService;
     private StatementResultServiceImpl statementResultService;
 
-    public void setUp()
-    {
+    public void setUp() {
         MetricReportingPath.setMetricsEnabled(false);
         listenerOne = new SupportUpdateListener();
         listenerTwo = new SupportUpdateListener();
@@ -52,8 +50,7 @@ public class TestUpdateDispatchView extends TestCase
         updateDispatchView = new UpdateDispatchViewBlockingWait(statementResultService, dispatchService, 1000);
     }
 
-    public void testUpdateOnceAndDispatch()
-    {
+    public void testUpdateOnceAndDispatch() {
         EventBean[] oldData = makeEvents("old");
         EventBean[] newData = makeEvents("new");
         updateDispatchView.newResult(new UniformPair<EventBean[]>(newData, oldData));
@@ -65,8 +62,7 @@ public class TestUpdateDispatchView extends TestCase
         assertTrue(listenerTwo.getLastOldData()[0] == oldData[0]);
     }
 
-    public void testUpdateTwiceAndDispatch()
-    {
+    public void testUpdateTwiceAndDispatch() {
         EventBean[] oldDataOne = makeEvents("old1");
         EventBean[] newDataOne = makeEvents("new1");
         updateDispatchView.newResult(new UniformPair<EventBean[]>(newDataOne, oldDataOne));
@@ -82,8 +78,7 @@ public class TestUpdateDispatchView extends TestCase
         assertTrue(listenerTwo.getLastOldData()[1] == oldDataTwo[0]);
     }
 
-    private EventBean[] makeEvents(String text)
-    {
-        return new EventBean[] { SupportEventBeanFactory.createObject(text) };
+    private EventBean[] makeEvents(String text) {
+        return new EventBean[]{SupportEventBeanFactory.createObject(text)};
     }
 }

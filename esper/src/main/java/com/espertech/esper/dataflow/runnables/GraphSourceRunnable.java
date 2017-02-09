@@ -61,11 +61,9 @@ public class GraphSourceRunnable implements BaseRunnable, DataFlowSignalListener
     public void run() {
         try {
             runLoop();
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             log.debug("Interruped runnable: " + ex.getMessage(), ex);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.error("Exception encountered: " + ex.getMessage(), ex);
             handleException(ex);
         }
@@ -76,12 +74,10 @@ public class GraphSourceRunnable implements BaseRunnable, DataFlowSignalListener
     public void runSync() throws InterruptedException {
         try {
             runLoop();
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             log.debug("Interruped runnable: " + ex.getMessage(), ex);
             throw ex;
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.error("Exception encountered: " + ex.getMessage(), ex);
             handleException(ex);
             throw ex;
@@ -97,7 +93,7 @@ public class GraphSourceRunnable implements BaseRunnable, DataFlowSignalListener
     }
 
     private void runLoop() throws InterruptedException {
-        while(true) {
+        while (true) {
             if (audit) {
                 AuditPath.auditLog(engineURI, statementName, AuditEnum.DATAFLOW_SOURCE, "dataflow " + dataFlowName + " operator " + operatorName + "(" + operatorNumber + ") invoking source.next()");
             }

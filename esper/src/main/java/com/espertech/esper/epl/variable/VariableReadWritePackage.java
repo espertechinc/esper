@@ -31,15 +31,14 @@ import java.util.*;
 /**
  * A convenience class for dealing with reading and updating multiple variable values.
  */
-public class VariableReadWritePackage
-{
+public class VariableReadWritePackage {
     private static final Logger log = LoggerFactory.getLogger(VariableReadWritePackage.class);
 
     private final VariableTriggerSetDesc[] assignments;
     private final VariableMetaData[] metaData;
     private final VariableReader[] readersForGlobalVars;
     private final boolean[] mustCoerce;
-    private final WriteDesc writers[];
+    private final WriteDesc[] writers;
     private final Map<EventTypeSPI, EventBeanCopyMethod> copyMethods;
 
     private final EventAdapterService eventAdapterService;
@@ -48,14 +47,14 @@ public class VariableReadWritePackage
 
     /**
      * Ctor.
-     * @param assignments the list of variable assignments
-     * @param variableService variable service
+     *
+     * @param assignments         the list of variable assignments
+     * @param variableService     variable service
      * @param eventAdapterService event adapters
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException when variables cannot be found
      */
     public VariableReadWritePackage(List<OnTriggerSetAssignment> assignments, VariableService variableService, EventAdapterService eventAdapterService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.metaData = new VariableMetaData[assignments.size()];
         this.readersForGlobalVars = new VariableReader[assignments.size()];
         this.mustCoerce = new boolean[assignments.size()];
@@ -69,8 +68,7 @@ public class VariableReadWritePackage
         int count = 0;
         List<VariableTriggerSetDesc> assignmentList = new ArrayList<VariableTriggerSetDesc>();
 
-        for (OnTriggerSetAssignment expressionWithAssignments : assignments)
-        {
+        for (OnTriggerSetAssignment expressionWithAssignments : assignments) {
             Pair<String, ExprNode> possibleVariableAssignment = ExprNodeUtility.checkGetAssignmentToVariableOrProp(expressionWithAssignments.getExpression());
             if (possibleVariableAssignment == null) {
                 throw new ExprValidationException("Missing variable assignment expression in assignment number " + count);
@@ -123,8 +121,7 @@ public class VariableReadWritePackage
                 writtenProps.getPropertiesCopied().add(subPropertyName);
 
                 writers[count] = new WriteDesc(spi, variableName, writer, getter);
-            }
-            else {
+            } else {
 
                 // determine types
                 Class expressionType = possibleVariableAssignment.getSecond().getExprEvaluator().getType();
@@ -132,12 +129,11 @@ public class VariableReadWritePackage
                 if (variableMetadata.getEventType() != null) {
                     if ((expressionType != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(expressionType, variableMetadata.getEventType().getUnderlyingType()))) {
                         throw new VariableValueException("Variable '" + variableName
-                            + "' of declared event type '" + variableMetadata.getEventType().getName() + "' underlying type '" + variableMetadata.getEventType().getUnderlyingType().getName() +
+                                + "' of declared event type '" + variableMetadata.getEventType().getName() + "' underlying type '" + variableMetadata.getEventType().getUnderlyingType().getName() +
                                 "' cannot be assigned a value of type '" + expressionType.getName() + "'");
                     }
                     variableTypes.put(variableName, variableMetadata.getEventType().getUnderlyingType());
-                }
-                else {
+                } else {
 
                     Class variableType = variableMetadata.getType();
                     variableTypes.put(variableName, variableType);
@@ -145,16 +141,13 @@ public class VariableReadWritePackage
                     // determine if the expression type can be assigned
                     if (variableType != java.lang.Object.class) {
                         if ((JavaClassHelper.getBoxedType(expressionType) != variableType) &&
-                            (expressionType != null))
-                        {
+                                (expressionType != null)) {
                             if ((!JavaClassHelper.isNumeric(variableType)) ||
-                                (!JavaClassHelper.isNumeric(expressionType)))
-                            {
+                                    (!JavaClassHelper.isNumeric(expressionType))) {
                                 throw new ExprValidationException(VariableServiceUtil.getAssigmentExMessage(variableName, variableType, expressionType));
                             }
 
-                            if (!(JavaClassHelper.canCoerce(expressionType, variableType)))
-                            {
+                            if (!(JavaClassHelper.canCoerce(expressionType, variableType))) {
                                 throw new ExprValidationException(VariableServiceUtil.getAssigmentExMessage(variableName, variableType, expressionType));
                             }
 
@@ -179,9 +172,9 @@ public class VariableReadWritePackage
             List<String> propsWritten = entry.getValue().getPropertiesCopied();
             String[] props = propsWritten.toArray(new String[propsWritten.size()]);
             EventBeanCopyMethod copyMethod = entry.getKey().getCopyMethod(props);
-            if (copyMethod == null){
+            if (copyMethod == null) {
                 throw new ExprValidationException("Variable '" + entry.getValue().getVariableName()
-                    + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(entry.getKey().getUnderlyingType()) +
+                        + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(entry.getKey().getUnderlyingType()) +
                         "' cannot be assigned to");
             }
             copyMethods.put(entry.getKey(), copyMethod);
@@ -193,16 +186,16 @@ public class VariableReadWritePackage
      * events per stream.
      * <p>
      * Populates an optional map of new values if a non-null map is passed.
-     * @param variableService variable service
-     * @param eventsPerStream events per stream
-     * @param valuesWritten null or an empty map to populate with written values
+     *
+     * @param variableService      variable service
+     * @param eventsPerStream      events per stream
+     * @param valuesWritten        null or an empty map to populate with written values
      * @param exprEvaluatorContext expression evaluation context
      */
     public void writeVariables(VariableService variableService,
-                                 EventBean[] eventsPerStream,
-                                 Map<String, Object> valuesWritten,
-                                 ExprEvaluatorContext exprEvaluatorContext)
-    {
+                               EventBean[] eventsPerStream,
+                               Map<String, Object> valuesWritten,
+                               ExprEvaluatorContext exprEvaluatorContext) {
         Set<String> variablesBeansCopied = null;
         if (!copyMethods.isEmpty()) {
             variablesBeansCopied = new HashSet<String>();
@@ -212,13 +205,11 @@ public class VariableReadWritePackage
         // Since expressions can contain variables themselves, these need to be unchangeable for the duration
         // as there could be multiple statements that do "var1 = var1 + 1".
         variableService.getReadWriteLock().writeLock().lock();
-        try
-        {
+        try {
             variableService.setLocalVersion();
 
             int count = 0;
-            for (VariableTriggerSetDesc assignment : assignments)
-            {
+            for (VariableTriggerSetDesc assignment : assignments) {
                 VariableMetaData variableMetaData = metaData[count];
                 int agentInstanceId = variableMetaData.getContextPartitionName() == null ? EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID : exprEvaluatorContext.getAgentInstanceId();
                 Object value = assignment.evaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
@@ -228,8 +219,7 @@ public class VariableReadWritePackage
                     EventBean current = (EventBean) reader.getValue();
                     if (current == null) {
                         value = null;
-                    }
-                    else {
+                    } else {
                         WriteDesc writeDesc = writers[count];
                         boolean copy = variablesBeansCopied.add(writeDesc.getVariableName());
                         if (copy) {
@@ -239,36 +229,28 @@ public class VariableReadWritePackage
                         variableService.write(variableMetaData.getVariableNumber(), agentInstanceId, current);
                         writeDesc.getWriter().write(value, current);
                     }
-                }
-                else if (variableMetaData.getEventType() != null) {
+                } else if (variableMetaData.getEventType() != null) {
                     EventBean eventBean = eventAdapterService.adapterForType(value, variableMetaData.getEventType());
                     variableService.write(variableMetaData.getVariableNumber(), agentInstanceId, eventBean);
-                }
-                else {
-                    if ((value != null) && (mustCoerce[count]))
-                    {
+                } else {
+                    if ((value != null) && (mustCoerce[count])) {
                         value = JavaClassHelper.coerceBoxed((Number) value, variableMetaData.getType());
                     }
                     variableService.write(variableMetaData.getVariableNumber(), agentInstanceId, value);
                 }
-                
+
                 count++;
 
-                if (valuesWritten != null)
-                {
+                if (valuesWritten != null) {
                     valuesWritten.put(assignment.variableName, value);
                 }
             }
 
             variableService.commit();
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             log.error("Error evaluating on-set variable expressions: " + ex.getMessage(), ex);
             variableService.rollback();
-        }
-        finally
-        {
+        } finally {
             variableService.getReadWriteLock().writeLock().unlock();
         }
     }
@@ -276,25 +258,24 @@ public class VariableReadWritePackage
 
     /**
      * Returns a map of variable names and type of variable.
+     *
      * @return variables
      */
-    public Map<String, Object> getVariableTypes()
-    {
+    public Map<String, Object> getVariableTypes() {
         return variableTypes;
     }
 
     /**
      * Iterate returning all values.
+     *
      * @param agentInstanceId context partition id
      * @return map of values
      */
-    public Map<String, Object> iterate(int agentInstanceId)
-    {
+    public Map<String, Object> iterate(int agentInstanceId) {
         Map<String, Object> values = new HashMap<String, Object>();
 
         int count = 0;
-        for (VariableTriggerSetDesc assignment : assignments)
-        {
+        for (VariableTriggerSetDesc assignment : assignments) {
             Object value;
             if (readersForGlobalVars[count] == null) {
                 VariableReader reader = variableService.getReader(assignment.variableName, agentInstanceId);
@@ -302,22 +283,18 @@ public class VariableReadWritePackage
                     continue;
                 }
                 value = reader.getValue();
-            }
-            else {
+            } else {
                 value = readersForGlobalVars[count].getValue();
             }
 
             if (value == null) {
                 values.put(assignment.variableName, null);
-            }
-            else if (writers[count] != null) {
+            } else if (writers[count] != null) {
                 EventBean current = (EventBean) value;
                 values.put(assignment.variableName, writers[count].getGetter().get(current));
-            }
-            else if (value instanceof EventBean) {
+            } else if (value instanceof EventBean) {
                 values.put(assignment.variableName, ((EventBean) value).getUnderlying());
-            }
-            else {
+            } else {
                 values.put(assignment.variableName, value);
             }
             count++;
@@ -329,19 +306,16 @@ public class VariableReadWritePackage
         private final String variableName;
         private final List<String> propertiesCopied;
 
-        public CopyMethodDesc(String variableName, List<String> propertiesCopied)
-        {
+        public CopyMethodDesc(String variableName, List<String> propertiesCopied) {
             this.variableName = variableName;
             this.propertiesCopied = propertiesCopied;
         }
 
-        public String getVariableName()
-        {
+        public String getVariableName() {
             return variableName;
         }
 
-        public List<String> getPropertiesCopied()
-        {
+        public List<String> getPropertiesCopied() {
             return propertiesCopied;
         }
     }
@@ -353,31 +327,26 @@ public class VariableReadWritePackage
         private final EventPropertyWriter writer;
         private final EventPropertyGetter getter;
 
-        public WriteDesc(EventTypeSPI type, String variableName, EventPropertyWriter writer, EventPropertyGetter getter)
-        {
+        public WriteDesc(EventTypeSPI type, String variableName, EventPropertyWriter writer, EventPropertyGetter getter) {
             this.type = type;
             this.variableName = variableName;
             this.writer = writer;
             this.getter = getter;
         }
 
-        public String getVariableName()
-        {
+        public String getVariableName() {
             return variableName;
         }
 
-        public EventPropertyWriter getWriter()
-        {
+        public EventPropertyWriter getWriter() {
             return writer;
         }
 
-        public EventTypeSPI getType()
-        {
+        public EventTypeSPI getType() {
             return type;
         }
 
-        public EventPropertyGetter getGetter()
-        {
+        public EventPropertyGetter getGetter() {
             return getter;
         }
     }
@@ -386,8 +355,7 @@ public class VariableReadWritePackage
         private String variableName;
         private ExprEvaluator evaluator;
 
-        public VariableTriggerSetDesc(String variableName, ExprEvaluator evaluator)
-        {
+        public VariableTriggerSetDesc(String variableName, ExprEvaluator evaluator) {
             this.variableName = variableName;
             this.evaluator = evaluator;
         }

@@ -16,7 +16,6 @@ import com.espertech.esper.view.Viewable;
 /**
  * Interface for a prototype populating a join tuple result set from new data and old data for each stream.
  */
-public interface JoinSetComposerPrototype
-{
+public interface JoinSetComposerPrototype {
     public JoinSetComposerDesc create(Viewable[] streamViews, boolean isFireAndForget, AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient);
 }

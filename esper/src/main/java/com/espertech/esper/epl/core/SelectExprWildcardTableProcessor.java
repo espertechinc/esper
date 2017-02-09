@@ -19,16 +19,14 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 /**
  * Processor for select-clause expressions that handles wildcards for single streams with no insert-into.
  */
-public class SelectExprWildcardTableProcessor implements SelectExprProcessor
-{
+public class SelectExprWildcardTableProcessor implements SelectExprProcessor {
     private final TableMetadata metadata;
 
     public SelectExprWildcardTableProcessor(String tableName, TableService tableService) {
         metadata = tableService.getTableMetadata(tableName);
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean event = eventsPerStream[0];
         if (event == null) {
             return null;
@@ -36,8 +34,7 @@ public class SelectExprWildcardTableProcessor implements SelectExprProcessor
         return metadata.getPublicEventBean(event, eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return metadata.getPublicEventType();
     }
 }

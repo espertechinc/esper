@@ -29,16 +29,15 @@ import java.util.*;
 /**
  * Window sorting by values in the specified field extending a specified number of elements
  * from the lowest value up or the highest value down and retaining only the last unique value per key.
- *
+ * <p>
  * The type of the field to be sorted in the event must implement the Comparable interface.
- *
+ * <p>
  * The natural order in which events arrived is used as the second sorting criteria. Thus should events arrive
  * with equal sort values the oldest event leaves the sort window first.
- *
+ * <p>
  * Old values removed from a another view are removed from the sort view.
  */
-public class RankWindowView extends ViewSupport implements DataWindowView, CloneableView
-{
+public class RankWindowView extends ViewSupport implements DataWindowView, CloneableView {
     private final RankWindowViewFactory rankWindowViewFactory;
     protected final ExprEvaluator[] sortCriteriaEvaluators;
     private final ExprNode[] sortCriteriaExpressions;
@@ -65,8 +64,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                           int sortWindowSize,
                           IStreamSortRankRandomAccess optionalRankedRandomAccess,
                           boolean isSortUsingCollator,
-                          AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+                          AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.rankWindowViewFactory = rankWindowViewFactory;
         this.uniqueCriteriaExpressions = uniqueCriteriaExpressions;
         this.uniqueCriteriaEvaluators = uniqueCriteriaEvaluators;
@@ -82,28 +80,25 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         uniqueKeySortKeys = new HashMap<Object, Object>();
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return rankWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, rankWindowViewFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, rankWindowViewFactory.getViewName(), newData, oldData);
+        }
 
         OneEventCollection removedEvents = new OneEventCollection();
 
         // Remove old data
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 Object uniqueKey = getUniqueValues(oldData[i]);
                 Object existingSortKey = uniqueKeySortKeys.get(uniqueKey);
 
@@ -122,10 +117,8 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         }
 
         // Add new data
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 Object uniqueKey = getUniqueValues(newData[i]);
                 Object newSortKey = getSortValues(newData[i]);
                 Object existingSortKey = uniqueKeySortKeys.get(uniqueKey);
@@ -133,10 +126,8 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                 // not currently found: its a new entry
                 if (existingSortKey == null) {
                     compareAndAddOrPassthru(newData[i], uniqueKey, newSortKey, removedEvents);
-                }
-                // same unique-key event found already, remove and add again
-                else {
-
+                } else {
+                    // same unique-key event found already, remove and add again
                     // key did not change, perform in-place substitute of event
                     if (existingSortKey.equals(newSortKey)) {
                         EventBean replaced = inplaceReplaceSortedEvents(existingSortKey, uniqueKey, newData[i]);
@@ -144,8 +135,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                             removedEvents.add(replaced);
                         }
                         internalHandleReplacedKey(newSortKey, newData[i], replaced);
-                    }
-                    else {
+                    } else {
                         EventBean removed = removeFromSortedEvents(existingSortKey, uniqueKey);
                         if (removed != null) {
                             numberOfEvents--;
@@ -159,14 +149,13 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         }
 
         // Remove data that sorts to the bottom of the window
-        if (numberOfEvents > sortWindowSize)
-        {
-            while(numberOfEvents > sortWindowSize) {
+        if (numberOfEvents > sortWindowSize) {
+            while (numberOfEvents > sortWindowSize) {
                 Object lastKey = sortedEvents.lastKey();
                 Object existing = sortedEvents.get(lastKey);
                 if (existing instanceof List) {
                     List<EventBean> existingList = (List<EventBean>) existing;
-                    while(numberOfEvents > sortWindowSize && !existingList.isEmpty()) {
+                    while (numberOfEvents > sortWindowSize && !existingList.isEmpty()) {
                         EventBean newestEvent = existingList.remove(0);
                         Object uniqueKey = getUniqueValues(newestEvent);
                         uniqueKeySortKeys.remove(uniqueKey);
@@ -177,8 +166,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                     if (existingList.isEmpty()) {
                         sortedEvents.remove(lastKey);
                     }
-                }
-                else {
+                } else {
                     EventBean lastSortedEvent = (EventBean) existing;
                     Object uniqueKey = getUniqueValues(lastSortedEvent);
                     uniqueKeySortKeys.remove(uniqueKey);
@@ -191,24 +179,27 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         }
 
         // If there are child views, fireStatementStopped update method
-        if (optionalRankedRandomAccess != null)
-        {
+        if (optionalRankedRandomAccess != null) {
             optionalRankedRandomAccess.refresh(sortedEvents, numberOfEvents, sortWindowSize);
         }
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             EventBean[] expiredArr = null;
-            if (!removedEvents.isEmpty())
-            {
+            if (!removedEvents.isEmpty()) {
                 expiredArr = removedEvents.toArray();
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, rankWindowViewFactory.getViewName(), newData, expiredArr);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, rankWindowViewFactory.getViewName(), newData, expiredArr);
+            }
             updateChildren(newData, expiredArr);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleReplacedKey(Object newSortKey, EventBean newEvent, EventBean oldEvent) {
@@ -231,17 +222,15 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
             // this new event will fall outside of the ranks or coincides with the last entry, so its an old event already
             if (compared < 0) {
                 removedEvents.add(eventBean);
-            }
-            // this new event is higher in sort key then the last entry so we are interested
-            else {
+            } else {
+                // this new event is higher in sort key then the last entry so we are interested
                 uniqueKeySortKeys.put(uniqueKey, newSortKey);
                 numberOfEvents++;
                 CollectionUtil.addEventByKeyLazyListMapBack(newSortKey, eventBean, sortedEvents);
                 internalHandleAddedKey(newSortKey, eventBean);
             }
-        }
-        // not yet filled, need to add
-        else {
+        } else {
+            // not yet filled, need to add
             uniqueKeySortKeys.put(uniqueKey, newSortKey);
             numberOfEvents++;
             CollectionUtil.addEventByKeyLazyListMapBack(newSortKey, eventBean, sortedEvents);
@@ -257,7 +246,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
             if (existing instanceof List) {
                 List<EventBean> existingList = (List<EventBean>) existing;
                 Iterator<EventBean> it = existingList.iterator();
-                for (;it.hasNext();) {
+                for (; it.hasNext(); ) {
                     EventBean eventForRank = it.next();
                     if (getUniqueValues(eventForRank).equals(uniqueKeyToRemove)) {
                         it.remove();
@@ -269,8 +258,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                 if (existingList.isEmpty()) {
                     sortedEvents.remove(sortKey);
                 }
-            }
-            else {
+            } else {
                 removedOldEvent = (EventBean) existing;
                 sortedEvents.remove(sortKey);
             }
@@ -286,7 +274,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
             if (existing instanceof List) {
                 List<EventBean> existingList = (List<EventBean>) existing;
                 Iterator<EventBean> it = existingList.iterator();
-                for (;it.hasNext();) {
+                for (; it.hasNext(); ) {
                     EventBean eventForRank = it.next();
                     if (getUniqueValues(eventForRank).equals(uniqueKeyToReplace)) {
                         it.remove();
@@ -295,8 +283,7 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
                     }
                 }
                 existingList.add(newData);  // add to back as this is now the newest event
-            }
-            else {
+            } else {
                 replaced = (EventBean) existing;
                 sortedEvents.put(sortKey, newData);
             }
@@ -304,13 +291,11 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         return replaced;
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new RankWindowIterator(sortedEvents);
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " uniqueFieldName=" + Arrays.toString(uniqueCriteriaExpressions) +
                 " sortFieldName=" + Arrays.toString(sortCriteriaExpressions) +
@@ -326,23 +311,19 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
         return getCriteriaKey(eventsPerStream, sortCriteriaEvaluators, theEvent, agentInstanceViewFactoryContext);
     }
 
-    public static Object getCriteriaKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext)
-    {
+    public static Object getCriteriaKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, EventBean theEvent, ExprEvaluatorContext evalContext) {
         eventsPerStream[0] = theEvent;
         if (evaluators.length > 1) {
             return getCriteriaMultiKey(eventsPerStream, evaluators, evalContext);
-        }
-        else {
+        } else {
             return evaluators[0].evaluate(eventsPerStream, true, evalContext);
         }
     }
 
-    public static MultiKeyUntyped getCriteriaMultiKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext evalContext)
-    {
+    public static MultiKeyUntyped getCriteriaMultiKey(EventBean[] eventsPerStream, ExprEvaluator[] evaluators, ExprEvaluatorContext evalContext) {
         Object[] result = new Object[evaluators.length];
         int count = 0;
-        for(ExprEvaluator expr : evaluators)
-        {
+        for (ExprEvaluator expr : evaluators) {
             result[count++] = expr.evaluate(eventsPerStream, true, evalContext);
         }
         return new MultiKeyUntyped(result);
@@ -350,12 +331,11 @@ public class RankWindowView extends ViewSupport implements DataWindowView, Clone
 
     /**
      * True to indicate the sort window is empty, or false if not empty.
+     *
      * @return true if empty sort window
      */
-    public boolean isEmpty()
-    {
-        if (sortedEvents == null)
-        {
+    public boolean isEmpty() {
+        if (sortedEvents == null) {
             return true;
         }
         return sortedEvents.isEmpty();

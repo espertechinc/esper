@@ -13,6 +13,5 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Expression for use as wildcard (*).
  */
-public interface ExprWildcard
-{
+public interface ExprWildcard {
 }

@@ -22,7 +22,8 @@ public class EPDataFlowCancellationException extends EPException {
 
     /**
      * Ctor.
-     * @param message cancel message
+     *
+     * @param message      cancel message
      * @param dataFlowName data flow name
      */
     public EPDataFlowCancellationException(String message, String dataFlowName) {
@@ -32,8 +33,9 @@ public class EPDataFlowCancellationException extends EPException {
 
     /**
      * Ctor.
-     * @param message cancel message
-     * @param cause cause
+     *
+     * @param message      cancel message
+     * @param cause        cause
      * @param dataFlowName data flow name
      */
     public EPDataFlowCancellationException(String message, Throwable cause, String dataFlowName) {
@@ -43,7 +45,8 @@ public class EPDataFlowCancellationException extends EPException {
 
     /**
      * Ctor.
-     * @param cause cause
+     *
+     * @param cause        cause
      * @param dataFlowName data flow name
      */
     public EPDataFlowCancellationException(Throwable cause, String dataFlowName) {
@@ -53,6 +56,7 @@ public class EPDataFlowCancellationException extends EPException {
 
     /**
      * Returns the data flow name.
+     *
      * @return name
      */
     public String getDataFlowName() {

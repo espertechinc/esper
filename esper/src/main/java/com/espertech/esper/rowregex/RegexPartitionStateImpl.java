@@ -19,26 +19,26 @@ import java.util.List;
 /**
  * All current state holding partial NFA matches.
  */
-public class RegexPartitionStateImpl implements RegexPartitionState
-{
+public class RegexPartitionStateImpl implements RegexPartitionState {
     private RegexPartitionStateRandomAccess randomAccess;
     private List<RegexNFAStateEntry> currentStates = new ArrayList<RegexNFAStateEntry>();
     private Object optionalKeys;
 
     /**
      * Ctor.
+     *
      * @param randomAccess for handling "prev" functions, if any
      * @param optionalKeys keys for "partition", if any
      */
-    public RegexPartitionStateImpl(RegexPartitionStateRandomAccess randomAccess, Object optionalKeys)
-    {
+    public RegexPartitionStateImpl(RegexPartitionStateRandomAccess randomAccess, Object optionalKeys) {
         this.randomAccess = randomAccess;
         this.optionalKeys = optionalKeys;
     }
 
     /**
      * Ctor.
-     * @param getter for "prev" access
+     *
+     * @param getter        for "prev" access
      * @param currentStates existing state
      */
     public RegexPartitionStateImpl(RegexPartitionStateRandomAccessGetter getter,
@@ -48,15 +48,15 @@ public class RegexPartitionStateImpl implements RegexPartitionState
 
     /**
      * Ctor.
-     * @param getter for "prev" access
+     *
+     * @param getter        for "prev" access
      * @param currentStates existing state
-     * @param optionalKeys partition keys if any
+     * @param optionalKeys  partition keys if any
      */
     public RegexPartitionStateImpl(RegexPartitionStateRandomAccessGetter getter,
                                    List<RegexNFAStateEntry> currentStates,
                                    Object optionalKeys) {
-        if (getter != null)
-        {
+        if (getter != null) {
             randomAccess = new RegexPartitionStateRandomAccessImpl(getter);
         }
         this.currentStates = currentStates;
@@ -65,6 +65,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
 
     /**
      * Returns the random access for "prev".
+     *
      * @return access
      */
     public RegexPartitionStateRandomAccess getRandomAccess() {
@@ -73,6 +74,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
 
     /**
      * Returns partial matches.
+     *
      * @return state
      */
     public Iterator<RegexNFAStateEntry> getCurrentStatesIterator() {
@@ -81,6 +83,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
 
     /**
      * Sets partial matches.
+     *
      * @param currentStates state to set
      */
     public void setCurrentStates(List<RegexNFAStateEntry> currentStates) {
@@ -89,6 +92,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
 
     /**
      * Returns partition keys, if any.
+     *
      * @return keys
      */
     public Object getOptionalKeys() {
@@ -97,35 +101,33 @@ public class RegexPartitionStateImpl implements RegexPartitionState
 
     /**
      * Remove an event from random access for "prev".
+     *
      * @param oldEvents to remove
      */
-    public void removeEventFromPrev(EventBean[] oldEvents)
-    {
-        if (randomAccess != null)
-        {
+    public void removeEventFromPrev(EventBean[] oldEvents) {
+        if (randomAccess != null) {
             randomAccess.remove(oldEvents);
         }
     }
 
     /**
      * Remove an event from random access for "prev".
+     *
      * @param oldEvent to remove
      */
-    public void removeEventFromPrev(EventBean oldEvent)
-    {
-        if (randomAccess != null)
-        {
+    public void removeEventFromPrev(EventBean oldEvent) {
+        if (randomAccess != null) {
             randomAccess.remove(oldEvent);
         }
     }
 
     /**
      * Remove an event from state.
+     *
      * @param oldEvent to remove
      * @return true for removed, false for not found
      */
-    public int removeEventFromState(EventBean oldEvent)
-    {
+    public int removeEventFromState(EventBean oldEvent) {
         int currentSize = currentStates.size();
         List<RegexNFAStateEntry> keepList = removeEventFromState(oldEvent, currentStates.iterator());
         if (randomAccess != null) {
@@ -151,26 +153,21 @@ public class RegexPartitionStateImpl implements RegexPartitionState
         return currentStates.isEmpty();
     }
 
-    public static List<RegexNFAStateEntry> removeEventFromState(EventBean oldEvent, Iterator<RegexNFAStateEntry> states)
-    {
+    public static List<RegexNFAStateEntry> removeEventFromState(EventBean oldEvent, Iterator<RegexNFAStateEntry> states) {
         List<RegexNFAStateEntry> keepList = new ArrayList<RegexNFAStateEntry>();
-        for (;states.hasNext();)
-        {
+        for (; states.hasNext(); ) {
             RegexNFAStateEntry entry = states.next();
             boolean keep = true;
 
             EventBean[] state = entry.getEventsPerStream();
-            for (EventBean aState : state)
-            {
-                if (aState != null && aState.equals(oldEvent))
-                {
+            for (EventBean aState : state) {
+                if (aState != null && aState.equals(oldEvent)) {
                     keep = false;
                     break;
                 }
             }
 
-            if (keep)
-            {
+            if (keep) {
                 MultimatchState[] multimatch = entry.getOptionalMultiMatches();
                 if (multimatch != null) {
                     for (MultimatchState aMultimatch : multimatch) {
@@ -182,8 +179,7 @@ public class RegexPartitionStateImpl implements RegexPartitionState
                 }
             }
 
-            if (keep)
-            {
+            if (keep) {
                 keepList.add(entry);
             }
         }

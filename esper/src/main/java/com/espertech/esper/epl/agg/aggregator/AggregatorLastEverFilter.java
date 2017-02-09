@@ -15,11 +15,9 @@ import com.espertech.esper.epl.agg.service.AggregatorUtil;
 /**
  * Aggregator for the very last value.
  */
-public class AggregatorLastEverFilter extends AggregatorLastEver
-{
+public class AggregatorLastEverFilter extends AggregatorLastEver {
     @Override
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

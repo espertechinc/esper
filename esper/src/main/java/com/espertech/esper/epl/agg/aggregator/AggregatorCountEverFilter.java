@@ -15,15 +15,13 @@ import com.espertech.esper.epl.agg.service.AggregatorUtil;
 /**
  * Aggregator for the count-ever value.
  */
-public class AggregatorCountEverFilter extends AggregatorCountEver
-{
+public class AggregatorCountEverFilter extends AggregatorCountEver {
     public AggregatorCountEverFilter() {
         super();
     }
 
     @Override
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

@@ -18,16 +18,14 @@ import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.supportunit.view.SupportSchemaNeutralView;
 import junit.framework.TestCase;
 
-public class TestZeroDepthStream extends TestCase
-{
+public class TestZeroDepthStream extends TestCase {
     private ZeroDepthStreamIterable stream;
     private SupportSchemaNeutralView testChildView;
     private EventType eventType;
 
     private EventBean eventBean;
 
-    public void setUp()
-    {
+    public void setUp() {
         eventType = SupportEventTypeFactory.createBeanType(SupportBean_A.class);
 
         stream = new ZeroDepthStreamIterable(eventType);
@@ -39,8 +37,7 @@ public class TestZeroDepthStream extends TestCase
         eventBean = SupportEventBeanFactory.createObject(new SupportBean_A("a1"));
     }
 
-    public void testInsert()
-    {
+    public void testInsert() {
         testChildView.clearLastNewData();
         stream.insert(eventBean);
 

@@ -10,29 +10,27 @@
  */
 package com.espertech.esper.example.stockticker;
 
-import java.util.LinkedList;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import junit.framework.TestCase;
-import com.espertech.esper.example.stockticker.monitor.StockTickerResultListener;
-import com.espertech.esper.example.stockticker.monitor.StockTickerMonitor;
-import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
-import com.espertech.esper.example.stockticker.eventbean.StockTick;
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.Configuration;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
+import com.espertech.esper.example.stockticker.eventbean.StockTick;
+import com.espertech.esper.example.stockticker.monitor.StockTickerMonitor;
+import com.espertech.esper.example.stockticker.monitor.StockTickerResultListener;
+import junit.framework.TestCase;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TestStockTickerMultithreaded extends TestCase implements StockTickerRegressionConstants
-{
+import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+public class TestStockTickerMultithreaded extends TestCase implements StockTickerRegressionConstants {
     StockTickerResultListener listener;
     private EPServiceProvider epService;
 
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         listener = new StockTickerResultListener();
 
         Configuration configuration = new Configuration();
@@ -44,8 +42,7 @@ public class TestStockTickerMultithreaded extends TestCase implements StockTicke
         new StockTickerMonitor(epService, listener);
     }
 
-    public void testMultithreaded()
-    {
+    public void testMultithreaded() {
         //performTest(3, 1000000, 100000, 60);  // on fast systems
         performTest(3, 50000, 10000, 15);   // for unit tests on slow machines
     }
@@ -53,12 +50,11 @@ public class TestStockTickerMultithreaded extends TestCase implements StockTicke
     public void performTest(int numberOfThreads,
                             int numberOfTicksToSend,
                             int ratioPriceOutOfLimit,
-                            int numberOfSecondsWaitForCompletion)
-    {
+                            int numberOfSecondsWaitForCompletion) {
         final int totalNumTicks = numberOfTicksToSend + 2 * TestStockTickerGenerator.NUM_STOCK_NAMES;
 
         log.info(".performTest Generating data, numberOfTicksToSend=" + numberOfTicksToSend +
-                 "  ratioPriceOutOfLimit=" + ratioPriceOutOfLimit);
+                "  ratioPriceOutOfLimit=" + ratioPriceOutOfLimit);
 
         StockTickerEventGenerator generator = new StockTickerEventGenerator();
         LinkedList stream = generator.makeEventStream(numberOfTicksToSend, ratioPriceOutOfLimit, TestStockTickerGenerator.NUM_STOCK_NAMES,
@@ -66,8 +62,7 @@ public class TestStockTickerMultithreaded extends TestCase implements StockTicke
                 StockTickerRegressionConstants.PRICE_LOWER_LIMIT, StockTickerRegressionConstants.PRICE_UPPER_LIMIT, true);
 
         log.info(".performTest Send limit and initial tick events - singlethreaded");
-        for (int i = 0; i < TestStockTickerGenerator.NUM_STOCK_NAMES * 2; i++)
-        {
+        for (int i = 0; i < TestStockTickerGenerator.NUM_STOCK_NAMES * 2; i++) {
             Object theEvent = stream.removeFirst();
             epService.getEPRuntime().sendEvent(theEvent);
         }
@@ -75,8 +70,7 @@ public class TestStockTickerMultithreaded extends TestCase implements StockTicke
         log.info(".performTest Loading thread pool work queue, numberOfRunnables=" + stream.size());
 
         ThreadPoolExecutor pool = new ThreadPoolExecutor(0, numberOfThreads, 99999, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-        for (Object theEvent : stream)
-        {
+        for (Object theEvent : stream) {
             SendEventRunnable runnable = new SendEventRunnable(epService, theEvent);
             pool.execute(runnable);
         }

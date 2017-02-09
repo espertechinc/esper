@@ -13,10 +13,10 @@ package com.espertech.esper.timer;
 /**
  * Service interface for repeated callbacks at regular intervals.
  */
-public interface TimerService
-{
+public interface TimerService {
     /**
      * Set the callback method to invoke for clock ticks.
+     *
      * @param timerCallback is the callback
      */
     public void setCallback(TimerCallback timerCallback);
@@ -29,8 +29,9 @@ public interface TimerService
 
     /**
      * Stop internal clock.
+     *
      * @param warnIfNotStarted use true to indicate whether to warn if the clock is not started, use false to not warn
-     * and expect the clock to be not started.
+     *                         and expect the clock to be not started.
      */
     public void stopInternalClock(boolean warnIfNotStarted);
 
@@ -46,24 +47,28 @@ public interface TimerService
 
     /**
      * Return maximum drift.
+     *
      * @return drift
      */
     public long getMaxDrift();
 
     /**
      * Return last drift.
+     *
      * @return drift
      */
     public long getLastDrift();
 
     /**
      * Return total drift.
+     *
      * @return drift
      */
     public long getTotalDrift();
 
     /**
      * Return invocation count.
+     *
      * @return count
      */
     public long getInvocationCount();

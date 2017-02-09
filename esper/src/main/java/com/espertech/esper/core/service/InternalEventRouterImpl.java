@@ -38,8 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Routing implementation that allows to pre-process events.
  */
-public class InternalEventRouterImpl implements InternalEventRouter
-{
+public class InternalEventRouterImpl implements InternalEventRouter {
     private static final Logger log = LoggerFactory.getLogger(InternalEventRouterImpl.class);
 
     private final String engineURI;
@@ -51,8 +50,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
     /**
      * Ctor.
      */
-    public InternalEventRouterImpl(String engineURI)
-    {
+    public InternalEventRouterImpl(String engineURI) {
         this.engineURI = engineURI;
         this.preprocessors = new ConcurrentHashMap<EventType, NullableObject<InternalEventRouterPreprocessor>>();
         this.descriptors = new LinkedHashMap<UpdateDesc, IRDescEntry>();
@@ -60,21 +58,21 @@ public class InternalEventRouterImpl implements InternalEventRouter
 
     /**
      * Return true to indicate that there is pre-processing to take place.
+     *
      * @return preprocessing indicator
      */
-    public boolean isHasPreprocessing()
-    {
+    public boolean isHasPreprocessing() {
         return hasPreprocessing;
     }
 
     /**
      * Pre-process the event.
-     * @param theEvent to preprocess
+     *
+     * @param theEvent             to preprocess
      * @param exprEvaluatorContext expression evaluation context
      * @return preprocessed event
      */
-    public EventBean preprocess(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean preprocess(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         return getPreprocessedEvent(theEvent, exprEvaluatorContext);
     }
 
@@ -82,55 +80,46 @@ public class InternalEventRouterImpl implements InternalEventRouter
         this.insertIntoListener = insertIntoListener;
     }
 
-    public void route(EventBean theEvent, EPStatementHandle statementHandle, InternalEventRouteDest routeDest, ExprEvaluatorContext exprEvaluatorContext, boolean addToFront)
-    {
-        if (!hasPreprocessing)
-        {
+    public void route(EventBean theEvent, EPStatementHandle statementHandle, InternalEventRouteDest routeDest, ExprEvaluatorContext exprEvaluatorContext, boolean addToFront) {
+        if (!hasPreprocessing) {
             if (insertIntoListener != null) {
                 boolean route = insertIntoListener.inserted(theEvent, statementHandle);
                 if (route) {
                     routeDest.route(theEvent, statementHandle, addToFront);
                 }
-            }
-            else {
+            } else {
                 routeDest.route(theEvent, statementHandle, addToFront);
             }
             return;
         }
 
         EventBean preprocessed = getPreprocessedEvent(theEvent, exprEvaluatorContext);
-        if (preprocessed != null)
-        {
+        if (preprocessed != null) {
             if (insertIntoListener != null) {
                 boolean route = insertIntoListener.inserted(theEvent, statementHandle);
                 if (route) {
                     routeDest.route(preprocessed, statementHandle, addToFront);
                 }
-            }
-            else {
+            } else {
                 routeDest.route(preprocessed, statementHandle, addToFront);
             }
         }
     }
 
     public InternalEventRouterDesc getValidatePreprocessing(EventType eventType, UpdateDesc desc, Annotation[] annotations)
-            throws ExprValidationException
-    {
-        if (log.isDebugEnabled())
-        {
+            throws ExprValidationException {
+        if (log.isDebugEnabled()) {
             log.debug("Validating route preprocessing for type '" + eventType.getName() + "'");
         }
 
-        if (!(eventType instanceof EventTypeSPI))
-        {
+        if (!(eventType instanceof EventTypeSPI)) {
             throw new ExprValidationException("Update statements require the event type to implement the " + EventTypeSPI.class + " interface");
         }
         EventTypeSPI eventTypeSPI = (EventTypeSPI) eventType;
 
         TypeWidener[] wideners = new TypeWidener[desc.getAssignments().size()];
         List<String> properties = new ArrayList<String>();
-        for (int i = 0; i < desc.getAssignments().size(); i++)
-        {
+        for (int i = 0; i < desc.getAssignments().size(); i++) {
             OnTriggerSetAssignment xxx = desc.getAssignments().get(i);
             Pair<String, ExprNode> assignmentPair = ExprNodeUtility.checkGetAssignmentToProp(xxx.getExpression());
             if (assignmentPair == null) {
@@ -138,8 +127,7 @@ public class InternalEventRouterImpl implements InternalEventRouter
             }
             EventPropertyDescriptor writableProperty = eventTypeSPI.getWritableProperty(assignmentPair.getFirst());
 
-            if (writableProperty == null)
-            {
+            if (writableProperty == null) {
                 throw new ExprValidationException("Property '" + assignmentPair.getFirst() + "' is not available for write access");
             }
 
@@ -150,16 +138,14 @@ public class InternalEventRouterImpl implements InternalEventRouter
 
         // check copy-able
         EventBeanCopyMethod copyMethod = eventTypeSPI.getCopyMethod(properties.toArray(new String[properties.size()]));
-        if (copyMethod == null)
-        {
+        if (copyMethod == null) {
             throw new ExprValidationException("The update-clause requires the underlying event representation to support copy (via Serializable by default)");
         }
 
         return new InternalEventRouterDesc(desc, copyMethod, wideners, eventType, annotations);
     }
 
-    public synchronized void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect)
-    {
+    public synchronized void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect) {
         descriptors.put(internalEventRouterDesc.getUpdateDesc(), new IRDescEntry(internalEventRouterDesc, outputView, agentInstanceLock, hasSubselect));
 
         // remove all preprocessors for this type as well as any known child types, forcing re-init on next use
@@ -168,10 +154,8 @@ public class InternalEventRouterImpl implements InternalEventRouter
         hasPreprocessing = true;
     }
 
-    public synchronized void removePreprocessing(EventType eventType, UpdateDesc desc)
-    {
-        if (log.isInfoEnabled())
-        {
+    public synchronized void removePreprocessing(EventType eventType, UpdateDesc desc) {
+        if (log.isInfoEnabled()) {
             log.info("Removing route preprocessing for type '" + eventType.getName());
         }
 
@@ -179,48 +163,36 @@ public class InternalEventRouterImpl implements InternalEventRouter
         removePreprocessors(eventType);
 
         descriptors.remove(desc);
-        if (descriptors.isEmpty())
-        {
+        if (descriptors.isEmpty()) {
             hasPreprocessing = false;
             preprocessors.clear();
         }
     }
 
-    private EventBean getPreprocessedEvent(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    private EventBean getPreprocessedEvent(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         NullableObject<InternalEventRouterPreprocessor> processor = preprocessors.get(theEvent.getEventType());
-        if (processor == null)
-        {
-            synchronized (this)
-            {
+        if (processor == null) {
+            synchronized (this) {
                 processor = initialize(theEvent.getEventType());
                 preprocessors.put(theEvent.getEventType(), processor);
             }
         }
 
-        if (processor.getObject() == null)
-        {
+        if (processor.getObject() == null) {
             return theEvent;
-        }
-        else
-        {
+        } else {
             return processor.getObject().process(theEvent, exprEvaluatorContext);
         }
     }
 
-    private void removePreprocessors(EventType eventType)
-    {
+    private void removePreprocessors(EventType eventType) {
         preprocessors.remove(eventType);
 
         // find each child type entry
-        for (EventType type : preprocessors.keySet())
-        {
-            if (type.getDeepSuperTypes() != null)
-            {
-                for (Iterator<EventType> it = type.getDeepSuperTypes(); it.hasNext();)
-                {
-                    if (it.next() == eventType)
-                    {
+        for (EventType type : preprocessors.keySet()) {
+            if (type.getDeepSuperTypes() != null) {
+                for (Iterator<EventType> it = type.getDeepSuperTypes(); it.hasNext(); ) {
+                    if (it.next() == eventType) {
                         preprocessors.remove(type);
                     }
                 }
@@ -228,24 +200,18 @@ public class InternalEventRouterImpl implements InternalEventRouter
         }
     }
 
-    private NullableObject<InternalEventRouterPreprocessor> initialize(EventType eventType)
-    {
+    private NullableObject<InternalEventRouterPreprocessor> initialize(EventType eventType) {
         EventTypeSPI eventTypeSPI = (EventTypeSPI) eventType;
         List<InternalEventRouterEntry> desc = new ArrayList<InternalEventRouterEntry>();
 
         // determine which ones to process for this types, and what priority and drop
         Set<String> eventPropertiesWritten = new HashSet<String>();
-        for (Map.Entry<UpdateDesc, IRDescEntry> entry : descriptors.entrySet())
-        {
+        for (Map.Entry<UpdateDesc, IRDescEntry> entry : descriptors.entrySet()) {
             boolean applicable = entry.getValue().getEventType() == eventType;
-            if (!applicable)
-            {
-                if (eventType.getDeepSuperTypes() != null)
-                {
-                    for (Iterator<EventType> it = eventType.getDeepSuperTypes(); it.hasNext();)
-                    {
-                        if (it.next() == entry.getValue().getEventType())
-                        {
+            if (!applicable) {
+                if (eventType.getDeepSuperTypes() != null) {
+                    for (Iterator<EventType> it = eventType.getDeepSuperTypes(); it.hasNext(); ) {
+                        if (it.next() == entry.getValue().getEventType()) {
                             applicable = true;
                             break;
                         }
@@ -253,30 +219,25 @@ public class InternalEventRouterImpl implements InternalEventRouter
                 }
             }
 
-            if (!applicable)
-            {
+            if (!applicable) {
                 continue;
             }
 
             int priority = 0;
             boolean isDrop = false;
             Annotation[] annotations = entry.getValue().getAnnotations();
-            for (int i = 0; i < annotations.length; i++)
-            {
-                if (annotations[i] instanceof Priority)
-                {
+            for (int i = 0; i < annotations.length; i++) {
+                if (annotations[i] instanceof Priority) {
                     priority = ((Priority) annotations[i]).value();
                 }
-                if (annotations[i] instanceof Drop)
-                {
+                if (annotations[i] instanceof Drop) {
                     isDrop = true;
                 }
             }
 
             List<String> properties = new ArrayList<String>();
             ExprNode[] expressions = new ExprNode[entry.getKey().getAssignments().size()];
-            for (int i = 0; i < entry.getKey().getAssignments().size(); i++)
-            {
+            for (int i = 0; i < entry.getKey().getAssignments().size(); i++) {
                 OnTriggerSetAssignment assignment = entry.getKey().getAssignments().get(i);
                 Pair<String, ExprNode> assignmentPair = ExprNodeUtility.checkGetAssignmentToProp(assignment.getExpression());
                 expressions[i] = assignmentPair.getSecond();
@@ -288,15 +249,13 @@ public class InternalEventRouterImpl implements InternalEventRouter
         }
 
         EventBeanCopyMethod copyMethod = eventTypeSPI.getCopyMethod(eventPropertiesWritten.toArray(new String[eventPropertiesWritten.size()]));
-        if (copyMethod == null)
-        {
+        if (copyMethod == null) {
             return new NullableObject<InternalEventRouterPreprocessor>(null);
         }
         return new NullableObject<InternalEventRouterPreprocessor>(new InternalEventRouterPreprocessor(copyMethod, desc));
     }
 
-    private static class IRDescEntry
-    {
+    private static class IRDescEntry {
         private final InternalEventRouterDesc internalEventRouterDesc;
         private final InternalRoutePreprocessView outputView;
         private final StatementAgentInstanceLock agentInstanceLock;
@@ -309,18 +268,15 @@ public class InternalEventRouterImpl implements InternalEventRouter
             this.hasSubselect = hasSubselect;
         }
 
-        public EventType getEventType()
-        {
+        public EventType getEventType() {
             return internalEventRouterDesc.getEventType();
         }
 
-        public Annotation[] getAnnotations()
-        {
+        public Annotation[] getAnnotations() {
             return internalEventRouterDesc.getAnnotations();
         }
 
-        public TypeWidener[] getWideners()
-        {
+        public TypeWidener[] getWideners() {
             return internalEventRouterDesc.getWideners();
         }
 

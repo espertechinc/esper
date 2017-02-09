@@ -30,18 +30,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class TestAMQPGraphs extends TestCase
-{
-	private EPServiceProvider epService;
+public class TestAMQPGraphs extends TestCase {
+    private EPServiceProvider epService;
 
-	protected void setUp()
-	{
+    protected void setUp() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         configuration.addImport(AMQPSource.class);
         configuration.addImport(AMQPSink.class);
-		epService = EPServiceProviderManager.getDefaultProvider(configuration);
-		epService.initialize();
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
         epService.getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
     }
 
@@ -68,12 +66,12 @@ public class TestAMQPGraphs extends TestCase
 
         AMQPSupportSendRunnable runnable = new AMQPSupportSendRunnable("localhost", queueName, getEvents(3), 0);
         runnable.run();
-        
+
         Object[] received = captureOp.get(3, TimeUnit.SECONDS);
         EPAssertionUtil.assertPropsPerRow(received, fields, new Object[][]{{"E10", 0, 0d}, {"E11", 1, 1d}, {"E12", 2, 2d}});
 
         df.cancel();
-	}
+    }
 
     public void testAMQPOutput() throws Exception {
 
@@ -90,7 +88,7 @@ public class TestAMQPGraphs extends TestCase
                 "}";
         epService.getEPAdministrator().createEPL(graph);
 
-        DefaultSupportSourceOp source = new DefaultSupportSourceOp(new Object[] {makeEvent("E10", 0, 0), makeEvent("E11", 1, 1), makeEvent("E12", 2, 2)});
+        DefaultSupportSourceOp source = new DefaultSupportSourceOp(new Object[]{makeEvent("E10", 0, 0), makeEvent("E11", 1, 1), makeEvent("E12", 2, 2)});
         EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions();
         options.operatorProvider(new DefaultSupportGraphOpProvider(source));
         EPDataFlowInstance df = epService.getEPRuntime().getDataFlowRuntime().instantiate("WriteAMQPGraph", options);
@@ -108,7 +106,7 @@ public class TestAMQPGraphs extends TestCase
         runner.join();
 
         df.cancel();
-	}
+    }
 
     private Map[] toMapArray(List<Object> rows) {
         Map[] maps = new Map[rows.size()];
@@ -121,7 +119,7 @@ public class TestAMQPGraphs extends TestCase
     private List<Object> getEvents(int count) {
         List<Object> events = new ArrayList<Object>();
         for (int i = 0; i < count; i++) {
-            events.add(makeEvent("E" + (i + 10), i, (double)i));
+            events.add(makeEvent("E" + (i + 10), i, (double) i));
         }
         return events;
     }
@@ -150,8 +148,7 @@ public class TestAMQPGraphs extends TestCase
             while (received.size() < numEvents) {
                 try {
                     Thread.sleep(100);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

@@ -10,18 +10,15 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public class SupportOverrideOneB extends SupportOverrideOne
-{
+public class SupportOverrideOneB extends SupportOverrideOne {
     private String valOneB;
 
-    public SupportOverrideOneB(String valOneB, String valOne, String valBase)
-    {
+    public SupportOverrideOneB(String valOneB, String valOne, String valBase) {
         super(valOne, valBase);
         this.valOneB = valOneB;
     }
 
-    public String getVal()
-    {
+    public String getVal() {
         return valOneB;
     }
 }

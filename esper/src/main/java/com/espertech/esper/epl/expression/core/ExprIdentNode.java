@@ -13,15 +13,22 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Represents an stream property identifier in a filter expressiun tree.
  */
-public interface ExprIdentNode extends ExprNode, ExprFilterOptimizableNode, ExprStreamRefNode
-{
+public interface ExprIdentNode extends ExprNode, ExprFilterOptimizableNode, ExprStreamRefNode {
     public String getUnresolvedPropertyName();
+
     public String getFullUnresolvedName();
+
     public int getStreamId();
+
     public String getResolvedPropertyNameRoot();
+
     public String getResolvedPropertyName();
+
     public String getStreamOrPropertyName();
+
     public void setStreamOrPropertyName(String streamOrPropertyName);
+
     public String getResolvedStreamName();
+
     public ExprIdentNodeEvaluator getExprEvaluatorIdent();
 }

@@ -20,8 +20,7 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 /**
  * An output strategy that handles routing (insert-into) and stream selection.
  */
-public class OutputStrategyPostProcessFactory
-{
+public class OutputStrategyPostProcessFactory {
     private final boolean isRoute;
     private final SelectClauseStreamSelectorEnum insertIntoStreamSelector;
     private final SelectClauseStreamSelectorEnum selectStreamDirEnum;

@@ -298,15 +298,15 @@ class ConfigurationParser {
                 String xPath = getRequiredAttribute(propertyElement, "xpath");
                 String propertyType = getRequiredAttribute(propertyElement, "type");
                 QName xpathConstantType;
-                if (propertyType.toUpperCase().equals("NUMBER")) {
+                if (propertyType.toUpperCase(Locale.ENGLISH).equals("NUMBER")) {
                     xpathConstantType = XPathConstants.NUMBER;
-                } else if (propertyType.toUpperCase().equals("STRING")) {
+                } else if (propertyType.toUpperCase(Locale.ENGLISH).equals("STRING")) {
                     xpathConstantType = XPathConstants.STRING;
-                } else if (propertyType.toUpperCase().equals("BOOLEAN")) {
+                } else if (propertyType.toUpperCase(Locale.ENGLISH).equals("BOOLEAN")) {
                     xpathConstantType = XPathConstants.BOOLEAN;
-                } else if (propertyType.toUpperCase().equals("NODE")) {
+                } else if (propertyType.toUpperCase(Locale.ENGLISH).equals("NODE")) {
                     xpathConstantType = XPathConstants.NODE;
-                } else if (propertyType.toUpperCase().equals("NODESET")) {
+                } else if (propertyType.toUpperCase(Locale.ENGLISH).equals("NODESET")) {
                     xpathConstantType = XPathConstants.NODESET;
                 } else {
                     throw new IllegalArgumentException("Invalid xpath property type for property '" +
@@ -367,13 +367,13 @@ class ConfigurationParser {
 
         ConfigurationEventTypeLegacy legacyDesc = new ConfigurationEventTypeLegacy();
         if (accessorStyle != null) {
-            legacyDesc.setAccessorStyle(ConfigurationEventTypeLegacy.AccessorStyle.valueOf(accessorStyle.toUpperCase()));
+            legacyDesc.setAccessorStyle(ConfigurationEventTypeLegacy.AccessorStyle.valueOf(accessorStyle.toUpperCase(Locale.ENGLISH)));
         }
         if (codeGeneration != null) {
-            legacyDesc.setCodeGeneration(ConfigurationEventTypeLegacy.CodeGeneration.valueOf(codeGeneration.toUpperCase()));
+            legacyDesc.setCodeGeneration(ConfigurationEventTypeLegacy.CodeGeneration.valueOf(codeGeneration.toUpperCase(Locale.ENGLISH)));
         }
         if (propertyResolution != null) {
-            legacyDesc.setPropertyResolutionStyle(Configuration.PropertyResolutionStyle.valueOf(propertyResolution.toUpperCase()));
+            legacyDesc.setPropertyResolutionStyle(Configuration.PropertyResolutionStyle.valueOf(propertyResolution.toUpperCase(Locale.ENGLISH)));
         }
         legacyDesc.setFactoryMethod(factoryMethod);
         legacyDesc.setCopyMethod(copyMethod);
@@ -435,7 +435,7 @@ class ConfigurationParser {
                 configDBRef.setDriverManagerConnection(className, url, userName, password, properties);
             } else if (subElement.getNodeName().equals("connection-lifecycle")) {
                 String value = getRequiredAttribute(subElement, "value");
-                configDBRef.setConnectionLifecycleEnum(ConfigurationDBRef.ConnectionLifecycleEnum.valueOf(value.toUpperCase()));
+                configDBRef.setConnectionLifecycleEnum(ConfigurationDBRef.ConnectionLifecycleEnum.valueOf(value.toUpperCase(Locale.ENGLISH)));
             } else if (subElement.getNodeName().equals("connection-settings")) {
                 if (subElement.getAttributes().getNamedItem("auto-commit") != null) {
                     String autoCommit = subElement.getAttributes().getNamedItem("auto-commit").getTextContent();
@@ -455,11 +455,11 @@ class ConfigurationParser {
                 }
             } else if (subElement.getNodeName().equals("column-change-case")) {
                 String value = getRequiredAttribute(subElement, "value");
-                ConfigurationDBRef.ColumnChangeCaseEnum parsed = ConfigurationDBRef.ColumnChangeCaseEnum.valueOf(value.toUpperCase());
+                ConfigurationDBRef.ColumnChangeCaseEnum parsed = ConfigurationDBRef.ColumnChangeCaseEnum.valueOf(value.toUpperCase(Locale.ENGLISH));
                 configDBRef.setColumnChangeCase(parsed);
             } else if (subElement.getNodeName().equals("metadata-origin")) {
                 String value = getRequiredAttribute(subElement, "value");
-                ConfigurationDBRef.MetadataOriginEnum parsed = ConfigurationDBRef.MetadataOriginEnum.valueOf(value.toUpperCase());
+                ConfigurationDBRef.MetadataOriginEnum parsed = ConfigurationDBRef.MetadataOriginEnum.valueOf(value.toUpperCase(Locale.ENGLISH));
                 configDBRef.setMetadataOrigin(parsed);
             } else if (subElement.getNodeName().equals("sql-types-mapping")) {
                 String sqlType = getRequiredAttribute(subElement, "sql-type");
@@ -477,7 +477,7 @@ class ConfigurationParser {
                 ConfigurationCacheReferenceType refTypeEnum = ConfigurationCacheReferenceType.getDefault();
                 if (subElement.getAttributes().getNamedItem("ref-type") != null) {
                     String refType = subElement.getAttributes().getNamedItem("ref-type").getTextContent();
-                    refTypeEnum = ConfigurationCacheReferenceType.valueOf(refType.toUpperCase());
+                    refTypeEnum = ConfigurationCacheReferenceType.valueOf(refType.toUpperCase(Locale.ENGLISH));
                 }
                 configDBRef.setExpiryTimeCache(Double.parseDouble(maxAge), Double.parseDouble(purgeInterval), refTypeEnum);
             } else if (subElement.getNodeName().equals("lru-cache")) {
@@ -501,7 +501,7 @@ class ConfigurationParser {
                 ConfigurationCacheReferenceType refTypeEnum = ConfigurationCacheReferenceType.getDefault();
                 if (subElement.getAttributes().getNamedItem("ref-type") != null) {
                     String refType = subElement.getAttributes().getNamedItem("ref-type").getTextContent();
-                    refTypeEnum = ConfigurationCacheReferenceType.valueOf(refType.toUpperCase());
+                    refTypeEnum = ConfigurationCacheReferenceType.valueOf(refType.toUpperCase(Locale.ENGLISH));
                 }
                 configMethodRef.setExpiryTimeCache(Double.parseDouble(maxAge), Double.parseDouble(purgeInterval), refTypeEnum);
             } else if (subElement.getNodeName().equals("lru-cache")) {
@@ -563,11 +563,11 @@ class ConfigurationParser {
         ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable = ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED;
         String valueCacheStr = getOptionalAttribute(element, "value-cache");
         if (valueCacheStr != null) {
-            valueCache = ConfigurationPlugInSingleRowFunction.ValueCache.valueOf(valueCacheStr.toUpperCase());
+            valueCache = ConfigurationPlugInSingleRowFunction.ValueCache.valueOf(valueCacheStr.toUpperCase(Locale.ENGLISH));
         }
         String filterOptimizableStr = getOptionalAttribute(element, "filter-optimizable");
         if (filterOptimizableStr != null) {
-            filterOptimizable = ConfigurationPlugInSingleRowFunction.FilterOptimizable.valueOf(filterOptimizableStr.toUpperCase());
+            filterOptimizable = ConfigurationPlugInSingleRowFunction.FilterOptimizable.valueOf(filterOptimizableStr.toUpperCase(Locale.ENGLISH));
         }
         String rethrowExceptionsStr = getOptionalAttribute(element, "rethrow-exceptions");
         boolean rethrowExceptions = false;
@@ -741,7 +741,7 @@ class ConfigurationParser {
             String propertyRevision = element.getAttributes().getNamedItem("property-revision").getTextContent();
             ConfigurationRevisionEventType.PropertyRevision propertyRevisionEnum;
             try {
-                propertyRevisionEnum = ConfigurationRevisionEventType.PropertyRevision.valueOf(propertyRevision.trim().toUpperCase());
+                propertyRevisionEnum = ConfigurationRevisionEventType.PropertyRevision.valueOf(propertyRevision.trim().toUpperCase(Locale.ENGLISH));
                 revEventType.setPropertyRevision(propertyRevisionEnum);
             } catch (RuntimeException ex) {
                 throw new ConfigurationException("Invalid enumeration value for property-revision attribute '" + propertyRevision + "'");
@@ -781,7 +781,7 @@ class ConfigurationParser {
             String typeVar = element.getAttributes().getNamedItem("type-variance").getTextContent();
             ConfigurationVariantStream.TypeVariance typeVarianceEnum;
             try {
-                typeVarianceEnum = ConfigurationVariantStream.TypeVariance.valueOf(typeVar.trim().toUpperCase());
+                typeVarianceEnum = ConfigurationVariantStream.TypeVariance.valueOf(typeVar.trim().toUpperCase(Locale.ENGLISH));
                 variantStream.setTypeVariance(typeVarianceEnum);
             } catch (RuntimeException ex) {
                 throw new ConfigurationException("Invalid enumeration value for type-variance attribute '" + typeVar + "'");
@@ -857,7 +857,7 @@ class ConfigurationParser {
                 configuration.getEngineDefaults().getExceptionHandling().addClasses(getHandlerFactories(subElement));
                 String enableUndeployRethrowStr = getOptionalAttribute(subElement, "undeploy-rethrow-policy");
                 if (enableUndeployRethrowStr != null) {
-                    configuration.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.valueOf(enableUndeployRethrowStr.toUpperCase()));
+                    configuration.getEngineDefaults().getExceptionHandling().setUndeployRethrowPolicy(ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy.valueOf(enableUndeployRethrowStr.toUpperCase(Locale.ENGLISH)));
                 }
             }
             if (subElement.getNodeName().equals("conditionHandling")) {
@@ -893,7 +893,7 @@ class ConfigurationParser {
                 if (subElement.getAttributes().getNamedItem("locking") != null) {
                     String value = subElement.getAttributes().getNamedItem("locking").getTextContent();
                     configuration.getEngineDefaults().getThreading().setListenerDispatchLocking(
-                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase()));
+                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase(Locale.ENGLISH)));
                 }
             }
             if (subElement.getNodeName().equals("insert-into-dispatch")) {
@@ -910,7 +910,7 @@ class ConfigurationParser {
                 if (subElement.getAttributes().getNamedItem("locking") != null) {
                     String value = subElement.getAttributes().getNamedItem("locking").getTextContent();
                     configuration.getEngineDefaults().getThreading().setInsertIntoDispatchLocking(
-                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase()));
+                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase(Locale.ENGLISH)));
                 }
             }
             if (subElement.getNodeName().equals("named-window-consumer-dispatch")) {
@@ -927,7 +927,7 @@ class ConfigurationParser {
                 if (subElement.getAttributes().getNamedItem("locking") != null) {
                     String value = subElement.getAttributes().getNamedItem("locking").getTextContent();
                     configuration.getEngineDefaults().getThreading().setNamedWindowConsumerDispatchLocking(
-                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase()));
+                            ConfigurationEngineDefaults.Threading.Locking.valueOf(value.toUpperCase(Locale.ENGLISH)));
                 }
             }
             if (subElement.getNodeName().equals("internal-timer")) {
@@ -1089,11 +1089,11 @@ class ConfigurationParser {
                     throw new ConfigurationException("No value attribute supplied for stream-selector element");
                 }
                 StreamSelector defaultSelector;
-                if (valueText.toUpperCase().trim().equals("ISTREAM")) {
+                if (valueText.toUpperCase(Locale.ENGLISH).trim().equals("ISTREAM")) {
                     defaultSelector = StreamSelector.ISTREAM_ONLY;
-                } else if (valueText.toUpperCase().trim().equals("RSTREAM")) {
+                } else if (valueText.toUpperCase(Locale.ENGLISH).trim().equals("RSTREAM")) {
                     defaultSelector = StreamSelector.RSTREAM_ONLY;
-                } else if (valueText.toUpperCase().trim().equals("IRSTREAM")) {
+                } else if (valueText.toUpperCase(Locale.ENGLISH).trim().equals("IRSTREAM")) {
                     defaultSelector = StreamSelector.RSTREAM_ISTREAM_BOTH;
                 } else {
                     throw new ConfigurationException("Value attribute for stream-selector element invalid, " +
@@ -1114,9 +1114,9 @@ class ConfigurationParser {
                     throw new ConfigurationException("No value attribute supplied for time-source element");
                 }
                 ConfigurationEngineDefaults.TimeSourceType timeSourceType;
-                if (valueText.toUpperCase().trim().equals("NANO")) {
+                if (valueText.toUpperCase(Locale.ENGLISH).trim().equals("NANO")) {
                     timeSourceType = ConfigurationEngineDefaults.TimeSourceType.NANO;
-                } else if (valueText.toUpperCase().trim().equals("MILLI")) {
+                } else if (valueText.toUpperCase(Locale.ENGLISH).trim().equals("MILLI")) {
                     timeSourceType = ConfigurationEngineDefaults.TimeSourceType.MILLI;
                 } else {
                     throw new ConfigurationException("Value attribute for time-source element invalid, " +
@@ -1131,7 +1131,7 @@ class ConfigurationParser {
                     throw new ConfigurationException("No value attribute supplied for time-unit element");
                 }
                 try {
-                    TimeUnit timeUnit = TimeUnit.valueOf(valueText.toUpperCase());
+                    TimeUnit timeUnit = TimeUnit.valueOf(valueText.toUpperCase(Locale.ENGLISH));
                     configuration.getEngineDefaults().getTimeSource().setTimeUnit(timeUnit);
                 } catch (Throwable t) {
                     throw new ConfigurationException("Value attribute for time-unit element invalid: " + t.getMessage(), t);
@@ -1270,12 +1270,12 @@ class ConfigurationParser {
         }
         String threadingProfileStr = getOptionalAttribute(parentElement, "threading-profile");
         if (threadingProfileStr != null) {
-            ConfigurationEngineDefaults.ThreadingProfile profile = ConfigurationEngineDefaults.ThreadingProfile.valueOf(threadingProfileStr.toUpperCase());
+            ConfigurationEngineDefaults.ThreadingProfile profile = ConfigurationEngineDefaults.ThreadingProfile.valueOf(threadingProfileStr.toUpperCase(Locale.ENGLISH));
             configuration.getEngineDefaults().getExecution().setThreadingProfile(profile);
         }
         String filterServiceProfileStr = getOptionalAttribute(parentElement, "filter-service-profile");
         if (filterServiceProfileStr != null) {
-            ConfigurationEngineDefaults.FilterServiceProfile profile = ConfigurationEngineDefaults.FilterServiceProfile.valueOf(filterServiceProfileStr.toUpperCase());
+            ConfigurationEngineDefaults.FilterServiceProfile profile = ConfigurationEngineDefaults.FilterServiceProfile.valueOf(filterServiceProfileStr.toUpperCase(Locale.ENGLISH));
             configuration.getEngineDefaults().getExecution().setFilterServiceProfile(profile);
         }
         String filterServiceMaxFilterWidthStr = getOptionalAttribute(parentElement, "filter-service-max-filter-width");
@@ -1344,14 +1344,14 @@ class ConfigurationParser {
                 Node styleNode = subElement.getAttributes().getNamedItem("style");
                 if (styleNode != null) {
                     String styleText = styleNode.getTextContent();
-                    Configuration.PropertyResolutionStyle value = Configuration.PropertyResolutionStyle.valueOf(styleText.toUpperCase());
+                    Configuration.PropertyResolutionStyle value = Configuration.PropertyResolutionStyle.valueOf(styleText.toUpperCase(Locale.ENGLISH));
                     configuration.getEngineDefaults().getEventMeta().setClassPropertyResolutionStyle(value);
                 }
 
                 Node accessorStyleNode = subElement.getAttributes().getNamedItem("accessor-style");
                 if (accessorStyleNode != null) {
                     String accessorStyleText = accessorStyleNode.getTextContent();
-                    ConfigurationEventTypeLegacy.AccessorStyle value = ConfigurationEventTypeLegacy.AccessorStyle.valueOf(accessorStyleText.toUpperCase());
+                    ConfigurationEventTypeLegacy.AccessorStyle value = ConfigurationEventTypeLegacy.AccessorStyle.valueOf(accessorStyleText.toUpperCase(Locale.ENGLISH));
                     configuration.getEngineDefaults().getEventMeta().setDefaultAccessorStyle(value);
                 }
             }
@@ -1360,7 +1360,7 @@ class ConfigurationParser {
                 Node typeNode = subElement.getAttributes().getNamedItem("type");
                 if (typeNode != null) {
                     String typeText = typeNode.getTextContent();
-                    EventUnderlyingType value = EventUnderlyingType.valueOf(typeText.toUpperCase());
+                    EventUnderlyingType value = EventUnderlyingType.valueOf(typeText.toUpperCase(Locale.ENGLISH));
                     configuration.getEngineDefaults().getEventMeta().setDefaultEventRepresentation(value);
                 }
             }

@@ -21,8 +21,7 @@ import java.util.Collections;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategyLocking implements SubordTableLookupStrategy
-{
+public class SubordIndexedTableLookupStrategyLocking implements SubordTableLookupStrategy {
     private final SubordTableLookupStrategy inner;
     private final StatementAgentInstanceLock statementLock;
 
@@ -38,12 +37,10 @@ public class SubordIndexedTableLookupStrategyLocking implements SubordTableLooku
             Collection<EventBean> result = inner.lookup(events, context);
             if (result != null) {
                 return new ArrayDeque<EventBean>(result);
-            }
-            else {
+            } else {
                 return Collections.emptyList();
             }
-        }
-        finally {
+        } finally {
             statementLock.releaseReadLock();
         }
     }

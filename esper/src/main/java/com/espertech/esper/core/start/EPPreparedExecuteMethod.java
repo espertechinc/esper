@@ -17,8 +17,7 @@ import com.espertech.esper.core.service.EPPreparedQueryResult;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public interface EPPreparedExecuteMethod
-{
+public interface EPPreparedExecuteMethod {
     public EPPreparedQueryResult execute(ContextPartitionSelector[] contextPartitionSelectors);
 
     public EventType getEventType();

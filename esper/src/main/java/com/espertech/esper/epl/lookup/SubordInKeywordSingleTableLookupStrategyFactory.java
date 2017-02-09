@@ -20,15 +20,13 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordInKeywordSingleTableLookupStrategyFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordInKeywordSingleTableLookupStrategyFactory implements SubordTableLookupStrategyFactory {
     protected final ExprEvaluator[] evaluators;
     protected boolean isNWOnTrigger;
     protected int streamCountOuter;
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordInKeywordSingleTableLookupStrategyFactory(boolean isNWOnTrigger, int streamCountOuter, ExprNode[] exprNodes)
-    {
+    public SubordInKeywordSingleTableLookupStrategyFactory(boolean isNWOnTrigger, int streamCountOuter, ExprNode[] exprNodes) {
         this.streamCountOuter = streamCountOuter;
         this.evaluators = ExprNodeUtility.getEvaluators(exprNodes);
         this.isNWOnTrigger = isNWOnTrigger;
@@ -38,8 +36,7 @@ public class SubordInKeywordSingleTableLookupStrategyFactory implements SubordTa
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordInKeywordSingleTableLookupStrategyNW(evaluators, (PropertyIndexedEventTableSingle) eventTable[0], strategyDesc);
-        }
-        else {
+        } else {
             return new SubordInKeywordSingleTableLookupStrategy(streamCountOuter, evaluators, (PropertyIndexedEventTableSingle) eventTable[0], strategyDesc);
         }
     }

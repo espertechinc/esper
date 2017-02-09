@@ -13,22 +13,24 @@ package com.espertech.esper.client.annotation;
 /**
  * Annotation for defining an external data window name and open/close functon.
  */
-public @interface ExternalDW
-{
+public @interface ExternalDW {
     /**
      * Name
+     *
      * @return name
      */
     String name();
 
     /**
      * Open function.
+     *
      * @return open function.
      */
     String functionOpen() default "";
 
     /**
      * Close function.
+     *
      * @return close function
      */
     String functionClose() default "";
@@ -36,13 +38,14 @@ public @interface ExternalDW
     /**
      * Indicator whether unique-key semantics should apply.
      * <p>
-     *     This indicator is false by default meaning that the implementation should not assume unique-data-window semantics,
-     *     and would not need to post the previous value of the key as a remove stream event.
+     * This indicator is false by default meaning that the implementation should not assume unique-data-window semantics,
+     * and would not need to post the previous value of the key as a remove stream event.
      * </p>
      * <p>
-     *     Setting this indicator is interpreted by an implementation to assume unique-data-window semantics,
-     *     thereby instructing to post the previous value for the currently-updated key as a remove stream event.
+     * Setting this indicator is interpreted by an implementation to assume unique-data-window semantics,
+     * thereby instructing to post the previous value for the currently-updated key as a remove stream event.
      * </p>
+     *
      * @return unique-key semantics
      */
     boolean unique() default false;

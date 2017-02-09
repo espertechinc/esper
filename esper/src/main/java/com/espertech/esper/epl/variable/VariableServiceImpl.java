@@ -45,7 +45,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <li>lock-less read of the current and prior version, locked reads for older versions
  * <li>atomicity by keeping multiple versions for each variable and a threadlocal that receives the current version each call
  * <li>one write lock for all variables (required to coordinate with single global version number),
- *   however writes are very fast (entry to collection plus increment an int) and therefore blocking should not be an issue
+ * however writes are very fast (entry to collection plus increment an int) and therefore blocking should not be an issue
  * </ol>
  * <p>
  * As an alternative to a version-based design, a read-lock for the variable space could also be used, with the following
@@ -85,8 +85,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * The state handler gets invoked when a variable changes value, and when a variable gets created
  * to obtain the current value from persistence, if any.
  */
-public class VariableServiceImpl implements VariableService
-{
+public class VariableServiceImpl implements VariableService {
     private static Logger log = LoggerFactory.getLogger(VariableServiceImpl.class);
 
     /**
@@ -127,26 +126,26 @@ public class VariableServiceImpl implements VariableService
 
     /**
      * Ctor.
+     *
      * @param millisecondLifetimeOldVersions number of milliseconds a version may hang around before expiry
-     * @param timeProvider provides the current time
-     * @param optionalStateHandler a optional plug-in that may store variable state and retrieve state upon creation
-     * @param eventAdapterService event adapters
+     * @param timeProvider                   provides the current time
+     * @param optionalStateHandler           a optional plug-in that may store variable state and retrieve state upon creation
+     * @param eventAdapterService            event adapters
      */
-    public VariableServiceImpl(long millisecondLifetimeOldVersions, TimeProvider timeProvider, EventAdapterService eventAdapterService, VariableStateHandler optionalStateHandler)
-    {
+    public VariableServiceImpl(long millisecondLifetimeOldVersions, TimeProvider timeProvider, EventAdapterService eventAdapterService, VariableStateHandler optionalStateHandler) {
         this(0, millisecondLifetimeOldVersions, timeProvider, eventAdapterService, optionalStateHandler);
     }
 
     /**
      * Ctor.
-     * @param startVersion the first version number to start from
+     *
+     * @param startVersion                   the first version number to start from
      * @param millisecondLifetimeOldVersions number of milliseconds a version may hang around before expiry
-     * @param timeProvider provides the current time
-     * @param optionalStateHandler a optional plug-in that may store variable state and retrieve state upon creation
-     * @param eventAdapterService for finding event types
+     * @param timeProvider                   provides the current time
+     * @param optionalStateHandler           a optional plug-in that may store variable state and retrieve state upon creation
+     * @param eventAdapterService            for finding event types
      */
-    protected VariableServiceImpl(int startVersion, long millisecondLifetimeOldVersions, TimeProvider timeProvider, EventAdapterService eventAdapterService, VariableStateHandler optionalStateHandler)
-    {
+    protected VariableServiceImpl(int startVersion, long millisecondLifetimeOldVersions, TimeProvider timeProvider, EventAdapterService eventAdapterService, VariableStateHandler optionalStateHandler) {
         this.millisecondLifetimeOldVersions = millisecondLifetimeOldVersions;
         this.timeProvider = timeProvider;
         this.eventAdapterService = eventAdapterService;
@@ -187,13 +186,11 @@ public class VariableServiceImpl implements VariableService
         changeCallbacksPerCP.set(number, null);
     }
 
-    public void setLocalVersion()
-    {
+    public void setLocalVersion() {
         versionThreadLocal.getCurrentThread().setVersion(currentVersionNumber);
     }
 
-    public void registerCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback)
-    {
+    public void registerCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback) {
         VariableMetaData metaData = variables.get(variableName);
         if (metaData == null) {
             return;
@@ -217,8 +214,7 @@ public class VariableServiceImpl implements VariableService
         callbacks.add(variableChangeCallback);
     }
 
-    public void unregisterCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback)
-    {
+    public void unregisterCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback) {
         VariableMetaData metaData = variables.get(variableName);
         if (metaData == null) {
             return;
@@ -239,15 +235,14 @@ public class VariableServiceImpl implements VariableService
         }
     }
 
-    public void createNewVariable(String optionalContextName, String variableName, String variableType, boolean constant, boolean array, boolean arrayOfPrimitive, Object value, EngineImportService engineImportService) throws VariableExistsException, VariableTypeException
-    {
+    public void createNewVariable(String optionalContextName, String variableName, String variableType, boolean constant, boolean array, boolean arrayOfPrimitive, Object value, EngineImportService engineImportService) throws VariableExistsException, VariableTypeException {
         // Determime the variable type
         Class primitiveType = JavaClassHelper.getPrimitiveClassForName(variableType);
         Class type = JavaClassHelper.getClassForSimpleName(variableType, engineImportService.getClassForNameProvider());
         Class arrayType = null;
         EventType eventType = null;
         if (type == null) {
-            if (variableType.toLowerCase().equals("object")) {
+            if (variableType.toLowerCase(Locale.ENGLISH).equals("object")) {
                 type = Object.class;
             }
             if (type == null) {
@@ -269,14 +264,13 @@ public class VariableServiceImpl implements VariableService
             }
             if (type == null) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                    variableType + "' is not a recognized type");
+                        variableType + "' is not a recognized type");
             }
             if (array && eventType != null) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
                         variableType + "' cannot be declared as an array type");
             }
-        }
-        else {
+        } else {
             if (array) {
                 if (arrayOfPrimitive) {
                     if (primitiveType == null) {
@@ -284,8 +278,7 @@ public class VariableServiceImpl implements VariableService
                                 variableType + "' is not a primitive type");
                     }
                     arrayType = JavaClassHelper.getArrayType(primitiveType);
-                }
-                else {
+                } else {
                     arrayType = JavaClassHelper.getArrayType(type);
                 }
             }
@@ -294,7 +287,7 @@ public class VariableServiceImpl implements VariableService
         if ((eventType == null) && (!JavaClassHelper.isJavaBuiltinDataType(type)) && (type != Object.class) && !type.isArray() && !type.isEnum()) {
             if (array) {
                 throw new VariableTypeException("Cannot create variable '" + variableName + "', type '" +
-                    variableType + "' cannot be declared as an array, only scalar types can be array");
+                        variableType + "' cannot be declared as an array, only scalar types can be array");
             }
             eventType = eventAdapterService.addBeanType(type.getName(), type, false, false, false);
         }
@@ -307,8 +300,7 @@ public class VariableServiceImpl implements VariableService
     }
 
     private synchronized void createNewVariable(String variableName, String optionalContextName, Class type, EventType eventType, boolean constant, Object value)
-            throws VariableExistsException, VariableTypeException
-    {
+            throws VariableExistsException, VariableTypeException {
         // check type
         Class variableType = JavaClassHelper.getBoxedType(type);
 
@@ -334,8 +326,7 @@ public class VariableServiceImpl implements VariableService
             variableNumber = emptySpot;
             variableVersionsPerCP.set(emptySpot, new ConcurrentHashMap<Integer, VariableReader>());
             changeCallbacksPerCP.set(emptySpot, null);
-        }
-        else {
+        } else {
             variableNumber = currentVariableNumber;
             variableVersionsPerCP.add(new ConcurrentHashMap<Integer, VariableReader>());
             changeCallbacksPerCP.add(null);
@@ -351,17 +342,14 @@ public class VariableServiceImpl implements VariableService
                         "' cannot be assigned a value of type '" + value.getClass().getName() + "'");
             }
             coercedValue = eventAdapterService.adapterForType(value, eventType);
-        }
-        else if (variableType == java.lang.Object.class) {
+        } else if (variableType == java.lang.Object.class) {
             // no validation
-        }
-        else {
+        } else {
             // allow string assignments to non-string variables
             if ((coercedValue != null) && (coercedValue instanceof String)) {
                 try {
                     coercedValue = JavaClassHelper.parse(variableType, (String) coercedValue);
-                }
-                catch (Exception ex){
+                } catch (Exception ex) {
                     throw new VariableTypeException("Variable '" + variableName
                             + "' of declared type " + JavaClassHelper.getClassNameFullyQualPretty(variableType) +
                             " cannot be initialized by value '" + coercedValue + "': " + ex.toString());
@@ -377,7 +365,7 @@ public class VariableServiceImpl implements VariableService
                     throw getVariableTypeException(variableName, variableType, coercedValue.getClass());
                 }
                 // coerce
-                coercedValue = JavaClassHelper.coerceBoxed((Number)coercedValue, variableType);
+                coercedValue = JavaClassHelper.coerceBoxed((Number) coercedValue, variableType);
             }
         }
 
@@ -402,8 +390,7 @@ public class VariableServiceImpl implements VariableService
                 if (priorValue.getFirst()) {
                     initialState = priorValue.getSecond();
                 }
-            }
-            else {
+            } else {
                 optionalStateHandler.setState(variableName, metaData.getVariableNumber(), agentInstanceId, initialState);
             }
         }
@@ -434,8 +421,7 @@ public class VariableServiceImpl implements VariableService
         return variables.get(variableName);
     }
 
-    public VariableReader getReader(String variableName, int agentInstanceIdAccessor)
-    {
+    public VariableReader getReader(String variableName, int agentInstanceIdAccessor) {
         VariableMetaData metaData = variables.get(variableName);
         if (metaData == null) {
             return null;
@@ -455,23 +441,19 @@ public class VariableServiceImpl implements VariableService
         return metaData.getContextPartitionName();
     }
 
-    public void write(int variableNumber, int agentInstanceId, Object newValue)
-    {
+    public void write(int variableNumber, int agentInstanceId, Object newValue) {
         VariableVersionThreadEntry entry = versionThreadLocal.getCurrentThread();
-        if (entry.getUncommitted() == null)
-        {
+        if (entry.getUncommitted() == null) {
             entry.setUncommitted(new HashMap<Integer, Pair<Integer, Object>>());
         }
         entry.getUncommitted().put(variableNumber, new Pair<Integer, Object>(agentInstanceId, newValue));
     }
 
-    public ReadWriteLock getReadWriteLock()
-    {
+    public ReadWriteLock getReadWriteLock() {
         return readWriteLock;
     }
 
-    public void commit()
-    {
+    public void commit() {
         VariableVersionThreadEntry entry = versionThreadLocal.getCurrentThread();
         if (entry.getUncommitted() == null) {
             return;
@@ -511,8 +493,7 @@ public class VariableServiceImpl implements VariableService
             }
 
             // Check current state - see if the variable exists in the state handler
-            if (optionalStateHandler != null)
-            {
+            if (optionalStateHandler != null) {
                 String name = versions.getName();
                 int agentInstanceId = reader.getVariableMetaData().getContextPartitionName() == null ? EPStatementStartMethod.DEFAULT_AGENT_INSTANCE_ID : uncommittedEntry.getValue().getFirst();
                 optionalStateHandler.setState(name, uncommittedEntry.getKey(), agentInstanceId, newValue);
@@ -524,8 +505,7 @@ public class VariableServiceImpl implements VariableService
         entry.setUncommitted(null);    // clean out uncommitted variables
     }
 
-    public void rollback()
-    {
+    public void rollback() {
         VariableVersionThreadEntry entry = versionThreadLocal.getCurrentThread();
         entry.setUncommitted(null);
     }
@@ -533,8 +513,7 @@ public class VariableServiceImpl implements VariableService
     /**
      * Rollover includes creating a new
      */
-    private void rollOver()
-    {
+    private void rollOver() {
         for (Map<Integer, VariableReader> entryCP : variableVersionsPerCP) {
             for (Map.Entry<Integer, VariableReader> entry : entryCP.entrySet()) {
                 String name = entry.getValue().getVariableMetaData().getVariableName();
@@ -552,13 +531,11 @@ public class VariableServiceImpl implements VariableService
         }
     }
 
-    public void checkAndWrite(String variableName, int agentInstanceId, Object newValue) throws VariableValueException
-    {
+    public void checkAndWrite(String variableName, int agentInstanceId, Object newValue) throws VariableValueException {
         VariableMetaData metaData = variables.get(variableName);
         int variableNumber = metaData.getVariableNumber();
 
-        if (newValue == null)
-        {
+        if (newValue == null) {
             write(variableNumber, agentInstanceId, null);
             return;
         }
@@ -566,9 +543,9 @@ public class VariableServiceImpl implements VariableService
         Class valueType = newValue.getClass();
 
         if (metaData.getEventType() != null) {
-            if ((!JavaClassHelper.isSubclassOrImplementsInterface(newValue.getClass(), metaData.getEventType().getUnderlyingType()))) {
+            if (!JavaClassHelper.isSubclassOrImplementsInterface(newValue.getClass(), metaData.getEventType().getUnderlyingType())) {
                 throw new VariableValueException("Variable '" + variableName
-                    + "' of declared event type '" + metaData.getEventType().getName() + "' underlying type '" + metaData.getEventType().getUnderlyingType().getName() +
+                        + "' of declared event type '" + metaData.getEventType().getName() + "' underlying type '" + metaData.getEventType().getUnderlyingType().getName() +
                         "' cannot be assigned a value of type '" + valueType.getName() + "'");
             }
             EventBean eventBean = eventAdapterService.adapterForType(newValue, metaData.getEventType());
@@ -577,21 +554,18 @@ public class VariableServiceImpl implements VariableService
         }
 
         Class variableType = metaData.getType();
-        if ((valueType.equals(variableType)) || (variableType == Object.class))
-        {
+        if ((valueType.equals(variableType)) || (variableType == Object.class)) {
             write(variableNumber, agentInstanceId, newValue);
             return;
         }
-        
+
         if ((!JavaClassHelper.isNumeric(variableType)) ||
-            (!JavaClassHelper.isNumeric(valueType)))
-        {
+                (!JavaClassHelper.isNumeric(valueType))) {
             throw new VariableValueException(VariableServiceUtil.getAssigmentExMessage(variableName, variableType, valueType));
         }
 
         // determine if the expression type can be assigned
-        if (!(JavaClassHelper.canCoerce(valueType, variableType)))
-        {
+        if (!(JavaClassHelper.canCoerce(valueType, variableType))) {
             throw new VariableValueException(VariableServiceUtil.getAssigmentExMessage(variableName, variableType, valueType));
         }
 
@@ -599,8 +573,7 @@ public class VariableServiceImpl implements VariableService
         write(variableNumber, agentInstanceId, valueCoerced);
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringWriter writer = new StringWriter();
         for (Map.Entry<String, VariableMetaData> entryMeta : variables.entrySet()) {
             int variableNum = entryMeta.getValue().getVariableNumber();
@@ -612,8 +585,7 @@ public class VariableServiceImpl implements VariableService
         return writer.toString();
     }
 
-    public Map<String, VariableReader> getVariableReadersNonCP()
-    {
+    public Map<String, VariableReader> getVariableReadersNonCP() {
         Map<String, VariableReader> result = new HashMap<String, VariableReader>();
         for (Map.Entry<String, VariableMetaData> entryMeta : variables.entrySet()) {
             int variableNum = entryMeta.getValue().getVariableNumber();

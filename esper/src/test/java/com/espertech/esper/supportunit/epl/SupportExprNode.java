@@ -15,39 +15,33 @@ import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class SupportExprNode extends ExprNodeBase implements ExprEvaluator
-{
+public class SupportExprNode extends ExprNodeBase implements ExprEvaluator {
     private static int validateCount;
 
     private Class type;
     private Object value;
     private int validateCountSnapshot;
 
-    public static void setValidateCount(int validateCount)
-    {
+    public static void setValidateCount(int validateCount) {
         SupportExprNode.validateCount = validateCount;
     }
 
-    public SupportExprNode(Class type)
-    {
+    public SupportExprNode(Class type) {
         this.type = type;
         this.value = null;
     }
 
-    public SupportExprNode(Object value)
-    {
+    public SupportExprNode(Object value) {
         this.type = value.getClass();
         this.value = value;
     }
 
-    public SupportExprNode(Object value, Class type)
-    {
+    public SupportExprNode(Object value, Class type) {
         this.value = value;
         this.type = type;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
@@ -58,43 +52,33 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return type;
     }
 
-    public int getValidateCountSnapshot()
-    {
+    public int getValidateCountSnapshot() {
         return validateCountSnapshot;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return value;
     }
 
-    public void setValue(Object value)
-    {
+    public void setValue(Object value) {
         this.value = value;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        if (value instanceof String)
-        {
+        if (value instanceof String) {
             writer.append("\"" + value + "\"");
-        }
-        else
-        {
-            if (value == null)
-            {
+        } else {
+            if (value == null) {
                 writer.append("null");
-            }
-            else {
+            } else {
                 writer.append(value.toString());
             }
         }
@@ -104,8 +88,7 @@ public class SupportExprNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         if (!(node instanceof SupportExprNode)) {
             return false;
         }

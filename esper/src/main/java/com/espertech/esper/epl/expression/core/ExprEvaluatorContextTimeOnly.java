@@ -22,8 +22,7 @@ import com.espertech.esper.schedule.TimeProvider;
 /**
  * Represents a minimal engine-level context for expression evaluation, not allowing for agents instances and result cache.
  */
-public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext
-{
+public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext {
     private final TimeProvider timeProvider;
     private final ExpressionResultCacheService expressionResultCacheService;
 
@@ -34,6 +33,7 @@ public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext
 
     /**
      * Returns the time provider.
+     *
      * @return time provider
      */
     public TimeProvider getTimeProvider() {

@@ -10,9 +10,6 @@
  */
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.event.MappedEventBean;
-
 import java.util.Map;
 
 public class MapEventBeanPropertyWriterMapProp extends MapEventBeanPropertyWriter {

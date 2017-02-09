@@ -27,7 +27,8 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
 
     /**
      * Ctor.
-     * @param propertyMap the property to look at
+     *
+     * @param propertyMap          the property to look at
      * @param eventBeanEntryGetter the getter for the map entry
      */
     public MapEventBeanEntryPropertyGetter(String propertyMap, EventPropertyGetter eventBeanEntryGetter) {
@@ -35,13 +36,11 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
         this.eventBeanEntryGetter = eventBeanEntryGetter;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = map.get(propertyMap);
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
 
@@ -50,30 +49,25 @@ public class MapEventBeanEntryPropertyGetter implements MapEventPropertyGetter {
         return eventBeanEntryGetter.get(theEvent);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Map<String, Object> map = BaseNestableEventUtil.checkedCastUnderlyingMap(obj);
 
         // If the map does not contain the key, this is allowed and represented as null
         Object value = map.get(propertyMap);
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
 

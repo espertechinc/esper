@@ -12,18 +12,12 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.annotation.HintEnum;
-import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementVariableRef;
 import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.core.ResultSetProcessorType;
-import com.espertech.esper.epl.core.StreamTypeServiceImpl;
-import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
@@ -32,11 +26,9 @@ import com.espertech.esper.epl.util.EPLValidationUtil;
 /**
  * Factory for factories for output processing views.
  */
-public class OutputProcessViewFactoryFactory
-{
+public class OutputProcessViewFactoryFactory {
     public static OutputProcessViewFactory make(StatementSpecCompiled statementSpec, InternalEventRouter internalEventRouter, StatementContext statementContext, EventType resultEventType, OutputProcessViewCallback optionalOutputProcessViewCallback, TableService tableService, ResultSetProcessorType resultSetProcessorType, ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, StatementVariableRef statementVariableRef)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // determine direct-callback
         if (optionalOutputProcessViewCallback != null) {
             return new OutputProcessViewFactoryCallback(optionalOutputProcessViewCallback);
@@ -45,15 +37,13 @@ public class OutputProcessViewFactoryFactory
         // determine routing
         boolean isRouted = false;
         boolean routeToFront = false;
-        if (statementSpec.getInsertIntoDesc() != null)
-        {
+        if (statementSpec.getInsertIntoDesc() != null) {
             isRouted = true;
             routeToFront = statementContext.getNamedWindowMgmtService().isNamedWindow(statementSpec.getInsertIntoDesc().getEventTypeName());
         }
 
         OutputStrategyPostProcessFactory outputStrategyPostProcessFactory = null;
-        if ((statementSpec.getInsertIntoDesc() != null) || (statementSpec.getSelectStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ONLY))
-        {
+        if ((statementSpec.getInsertIntoDesc() != null) || (statementSpec.getSelectStreamSelectorEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ONLY)) {
             SelectClauseStreamSelectorEnum insertIntoStreamSelector = null;
             String tableName = null;
 
@@ -77,23 +67,15 @@ public class OutputProcessViewFactoryFactory
         boolean isGrouped = statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByNodes().length > 0;
 
         OutputProcessViewFactory outputProcessViewFactory;
-        if (outputLimitSpec == null)
-        {
-            if (!isDistinct)
-            {
+        if (outputLimitSpec == null) {
+            if (!isDistinct) {
                 outputProcessViewFactory = new OutputProcessViewDirectFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory);
-            }
-            else
-            {
+            } else {
                 outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory, isDistinct, null, null, resultEventType);
             }
-        }
-        else if (outputLimitSpec.getRateType() == OutputLimitRateType.AFTER)
-        {
+        } else if (outputLimitSpec.getRateType() == OutputLimitRateType.AFTER) {
             outputProcessViewFactory = new OutputProcessViewDirectDistinctOrAfterFactory(statementContext, outputStrategyPostProcessFactory, resultSetProcessorHelperFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType);
-        }
-        else
-        {
+        } else {
             try {
                 boolean isWithHavingClause = statementSpec.getHavingExprRootNode() != null;
                 boolean isStartConditionOnCreation = hasOnlyTables(statementSpec.getStreamSpecs());
@@ -111,31 +93,25 @@ public class OutputProcessViewFactoryFactory
 
                 if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.SNAPSHOT) {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.SNAPSHOT;
-                }
-                // For FIRST without groups we are using a special logic that integrates the first-flag, in order to still conveniently use all sorts of output conditions.
-                // FIRST with group-by is handled by setting the output condition to null (OutputConditionNull) and letting the ResultSetProcessor handle first-per-group.
-                // Without having-clause there is no required order of processing, thus also use regular policy.
-                else if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST && statementSpec.getGroupByExpressions() == null) {
+                } else if (outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.FIRST && statementSpec.getGroupByExpressions() == null) {
+                    // For FIRST without groups we are using a special logic that integrates the first-flag, in order to still conveniently use all sorts of output conditions.
+                    // FIRST with group-by is handled by setting the output condition to null (OutputConditionNull) and letting the ResultSetProcessor handle first-per-group.
+                    // Without having-clause there is no required order of processing, thus also use regular policy.
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_FIRST;
-                }
-                else if (isUnaggregatedUngrouped && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST) {
+                } else if (isUnaggregatedUngrouped && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST) {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
-                }
-                else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL && !hasOrderBy) {
+                } else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.ALL && !hasOrderBy) {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
-                }
-                else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST && !hasOrderBy) {
+                } else if (hasOptHint && outputLimitSpec.getDisplayLimit() == OutputLimitLimitType.LAST && !hasOrderBy) {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_LASTALL_UNORDERED;
-                }
-                else {
+                } else {
                     conditionType = OutputProcessViewConditionFactory.ConditionType.POLICY_NONFIRST;
                 }
 
                 SelectClauseStreamSelectorEnum selectClauseStreamSelectorEnum = statementSpec.getSelectStreamSelectorEnum();
                 boolean terminable = outputLimitSpec.getRateType() == OutputLimitRateType.TERM || outputLimitSpec.isAndAfterTerminate();
                 outputProcessViewFactory = new OutputProcessViewConditionFactory(statementContext, outputStrategyPostProcessFactory, isDistinct, outputLimitSpec.getAfterTimePeriodExpr(), outputLimitSpec.getAfterNumberOfEvents(), resultEventType, outputConditionFactory, streamCount, conditionType, outputLimitSpec.getDisplayLimit(), terminable, hasAfter, isUnaggregatedUngrouped, selectClauseStreamSelectorEnum, resultSetProcessorHelperFactory);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 throw new ExprValidationException("Error in the output rate limiting clause: " + ex.getMessage(), ex);
             }
         }

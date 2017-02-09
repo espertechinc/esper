@@ -18,8 +18,7 @@ import java.io.StringWriter;
  * <p>
  * Event row regular expressions are organized into a tree-like structure with nodes representing sub-expressions.
  */
-public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Serializable
-{
+public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Serializable {
     private static final long serialVersionUID = 7046630048071556077L;
     private MatchRecogizePatternElementType type;
     private MatchRecognizeRegExRepeat optionalRepeat;
@@ -32,6 +31,7 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
 
     /**
      * Ctor.
+     *
      * @param type multiplicity
      */
     public MatchRecognizeRegExNested(MatchRecogizePatternElementType type) {
@@ -40,7 +40,8 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
 
     /**
      * Ctor.
-     * @param type multiplicity
+     *
+     * @param type           multiplicity
      * @param optionalRepeat repetition
      */
     public MatchRecognizeRegExNested(MatchRecogizePatternElementType type, MatchRecognizeRegExRepeat optionalRepeat) {
@@ -50,6 +51,7 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
 
     /**
      * Returns multiplicity.
+     *
      * @return multiplicity
      */
     public MatchRecogizePatternElementType getType() {
@@ -58,6 +60,7 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
 
     /**
      * Sets multiplicity.
+     *
      * @param type multiplicity to set
      */
     public void setType(MatchRecogizePatternElementType type) {
@@ -66,6 +69,7 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
 
     /**
      * Returns the repetition
+     *
      * @return repetition
      */
     public MatchRecognizeRegExRepeat getOptionalRepeat() {
@@ -74,6 +78,7 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
 
     /**
      * Sets the repetition
+     *
      * @param optionalRepeat repetition
      */
     public void setOptionalRepeat(MatchRecognizeRegExRepeat optionalRepeat) {
@@ -83,8 +88,7 @@ public class MatchRecognizeRegExNested extends MatchRecognizeRegEx implements Se
     public void writeEPL(StringWriter writer) {
         writer.append("(");
         String delimiter = "";
-        for (MatchRecognizeRegEx node : this.getChildren())
-        {
+        for (MatchRecognizeRegEx node : this.getChildren()) {
             writer.append(delimiter);
             node.writeEPL(writer);
             delimiter = " ";

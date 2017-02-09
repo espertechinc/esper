@@ -14,18 +14,21 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public interface OutputProcessViewConditionDeltaSet
-{
+public interface OutputProcessViewConditionDeltaSet {
     int getNumChangesetRows();
+
     void addView(UniformPair<EventBean[]> events);
+
     void addJoin(UniformPair<Set<MultiKey<EventBean>>> events);
+
     void clear();
+
     List<UniformPair<Set<MultiKey<EventBean>>>> getJoinEventsSet();
+
     List<UniformPair<EventBean[]>> getViewEventsSet();
+
     void destroy();
 }

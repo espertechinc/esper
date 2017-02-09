@@ -17,29 +17,26 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 /**
  * Getter for a dynamic mappeds property for maps.
  */
-public class ObjectArrayMappedPropertyGetter implements ObjectArrayEventPropertyGetterAndMapped
-{
+public class ObjectArrayMappedPropertyGetter implements ObjectArrayEventPropertyGetterAndMapped {
     private final int propertyIndex;
     private final String key;
 
     /**
      * Ctor.
+     *
      * @param propertyIndex property index
-     * @param key get the element at
+     * @param key           get the element at
      */
-    public ObjectArrayMappedPropertyGetter(int propertyIndex, String key)
-    {
+    public ObjectArrayMappedPropertyGetter(int propertyIndex, String key) {
         this.propertyIndex = propertyIndex;
         this.key = key;
     }
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         return getObjectArrayInternal(array, key);
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         Object value = array[propertyIndex];
         return BaseNestableEventUtil.getMappedPropertyExists(value, key);
     }
@@ -49,25 +46,21 @@ public class ObjectArrayMappedPropertyGetter implements ObjectArrayEventProperty
         return getObjectArrayInternal(data, mapKey);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         Object[] data = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
         return getObjectArray(data);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Object[] data = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
         return isObjectArrayExistsProperty(data);
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 
-    private Object getObjectArrayInternal(Object[] objectArray, String providedKey) throws PropertyAccessException
-    {
+    private Object getObjectArrayInternal(Object[] objectArray, String providedKey) throws PropertyAccessException {
         Object value = objectArray[propertyIndex];
         return BaseNestableEventUtil.getMappedPropertyValue(value, providedKey);
     }

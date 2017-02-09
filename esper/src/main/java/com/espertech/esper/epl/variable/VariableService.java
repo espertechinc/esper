@@ -23,8 +23,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * <p>
  * See implementation class for further details.
  */
-public interface VariableService
-{
+public interface VariableService {
     /**
      * Sets the variable version that subsequent reads consider.
      */
@@ -32,6 +31,7 @@ public interface VariableService
 
     /**
      * Lock for use in atomic writes to the variable space.
+     *
      * @return read write lock for external coordinated write
      */
     public ReadWriteLock getReadWriteLock();
@@ -42,7 +42,8 @@ public interface VariableService
     /**
      * Returns a reader that provides access to variable values. The reader considers the
      * version currently set via setLocalVersion.
-     * @param variableName the variable that the reader should read
+     *
+     * @param variableName            the variable that the reader should read
      * @param agentInstanceIdAccessor agent instance id of accessor
      * @return reader
      */
@@ -50,16 +51,18 @@ public interface VariableService
 
     /**
      * Registers a callback invoked when the variable is written with a new value.
-     * @param variableName variable name
-     * @param agentInstanceId agent instance id
+     *
+     * @param variableName           variable name
+     * @param agentInstanceId        agent instance id
      * @param variableChangeCallback a callback
      */
     public void registerCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback);
 
     /**
      * Removes a callback.
-     * @param variableName variable name
-     * @param agentInstanceId agent instance id
+     *
+     * @param variableName           variable name
+     * @param agentInstanceId        agent instance id
      * @param variableChangeCallback a callback
      */
     public void unregisterCallback(String variableName, int agentInstanceId, VariableChangeCallback variableChangeCallback);
@@ -68,8 +71,9 @@ public interface VariableService
      * Writes a new variable value.
      * <p>
      * Must be followed by either a commit or rollback.
-     * @param variableNumber the index number of the variable to write (from VariableReader)
-     * @param newValue the new value
+     *
+     * @param variableNumber  the index number of the variable to write (from VariableReader)
+     * @param newValue        the new value
      * @param agentInstanceId agent instance id
      */
     public void write(int variableNumber, int agentInstanceId, Object newValue);
@@ -78,9 +82,10 @@ public interface VariableService
      * Check type of the value supplied and writes the new variable value.
      * <p>
      * Must be followed by either a commit or rollback.
-     * @param variableName variable name
+     *
+     * @param variableName    variable name
      * @param agentInstanceId agent instance id
-     * @param newValue the new value
+     * @param newValue        the new value
      */
     public void checkAndWrite(String variableName, int agentInstanceId, Object newValue);
 
@@ -96,6 +101,7 @@ public interface VariableService
 
     /**
      * Returns a map of variable name and reader, for thread-safe iteration.
+     *
      * @return variable names and readers
      */
     public Map<String, VariableReader> getVariableReadersNonCP();
@@ -104,6 +110,7 @@ public interface VariableService
 
     /**
      * Removes a variable.
+     *
      * @param name to remove
      */
     public void removeVariableIfFound(String name);
@@ -113,7 +120,8 @@ public interface VariableService
     public String isContextVariable(String propertyName);
 
     public void allocateVariableState(String variableName, int agentInstanceId, StatementExtensionSvcContext extensionServicesContext, boolean isRecoveringResilient);
+
     public void deallocateVariableState(String variableName, int agentInstanceId);
 
-    public ConcurrentHashMap<Integer,VariableReader> getReadersPerCP(String variableName);
+    public ConcurrentHashMap<Integer, VariableReader> getReadersPerCP(String variableName);
 }

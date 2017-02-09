@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * Descriptor for create-table statements.
  */
-public class CreateTableDesc implements MetaDefItem, Serializable
-{
+public class CreateTableDesc implements MetaDefItem, Serializable {
     private static final long serialVersionUID = -2708705726609018664L;
 
     private final String tableName;

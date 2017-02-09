@@ -21,17 +21,16 @@ import java.util.List;
  * Visitor that collects {@link com.espertech.esper.epl.expression.subquery.ExprSubselectNode} instances only
  * directly under alias expressions, and declared expressions, stopping at nested declared expressions.
  */
-public class ExprNodeSubselectDeclaredNoTraverseVisitor implements ExprNodeVisitorWithParent
-{
+public class ExprNodeSubselectDeclaredNoTraverseVisitor implements ExprNodeVisitorWithParent {
     private final ExprDeclaredNode declaration;
     private final List<ExprSubselectNode> subselects;
 
     /**
      * Ctor.
+     *
      * @param declaration declare node
      */
-    public ExprNodeSubselectDeclaredNoTraverseVisitor(ExprDeclaredNode declaration)
-    {
+    public ExprNodeSubselectDeclaredNoTraverseVisitor(ExprDeclaredNode declaration) {
         this.declaration = declaration;
         subselects = new ArrayList<ExprSubselectNode>(1);
     }
@@ -42,14 +41,14 @@ public class ExprNodeSubselectDeclaredNoTraverseVisitor implements ExprNodeVisit
 
     /**
      * Returns a list of lookup expression nodes.
+     *
      * @return lookup nodes
      */
     public List<ExprSubselectNode> getSubselects() {
         return subselects;
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return exprNode != declaration && !(exprNode instanceof ExprDeclaredNode);
     }
 

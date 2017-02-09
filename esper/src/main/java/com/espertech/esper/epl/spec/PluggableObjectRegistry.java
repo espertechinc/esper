@@ -12,7 +12,6 @@ package com.espertech.esper.epl.spec;
 
 import com.espertech.esper.collection.Pair;
 
-public interface PluggableObjectRegistry
-{
-    public Pair<Class,PluggableObjectEntry> lookup(String nameSpace, String name);
+public interface PluggableObjectRegistry {
+    public Pair<Class, PluggableObjectEntry> lookup(String nameSpace, String name);
 }

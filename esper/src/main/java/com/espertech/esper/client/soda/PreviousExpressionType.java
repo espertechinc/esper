@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 /**
  * Previous function type.
  */
-public enum PreviousExpressionType
-{
+public enum PreviousExpressionType {
     /**
      * Returns a previous event with the index counting from the last event towards the first event.
      */

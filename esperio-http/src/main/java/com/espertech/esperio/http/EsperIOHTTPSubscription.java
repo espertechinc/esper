@@ -2,28 +2,27 @@ package com.espertech.esperio.http;
 
 import com.espertech.esper.adapter.BaseSubscription;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.EventBeanReader;
+import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.filter.FilterHandleCallback;
-import com.espertech.esper.util.PlaceholderParser;
 import com.espertech.esper.util.PlaceholderParseException;
+import com.espertech.esper.util.PlaceholderParser;
 import com.espertech.esperio.http.core.URIUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.ConfigurationException;
-import java.util.*;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.io.IOException;
+import java.util.*;
 
-public class EsperIOHTTPSubscription extends BaseSubscription
-{
+public class EsperIOHTTPSubscription extends BaseSubscription {
     private static Logger log = LoggerFactory.getLogger(EsperIOHTTPSubscription.class);
 
     private String uuid = UUID.randomUUID().toString();
@@ -42,31 +41,27 @@ public class EsperIOHTTPSubscription extends BaseSubscription
         if (uriWithReplacements.indexOf("${") == -1) {
             uriPrecompiled = new URI(uriWithReplacements);
             fragments = null;
-        }
-        else {
+        } else {
             try {
                 fragments = PlaceholderParser.parsePlaceholder(uriWithReplacements);
-            }
-            catch (PlaceholderParseException e) {
+            } catch (PlaceholderParseException e) {
                 throw new ConfigurationException("URI with placeholders '" + uriWithReplacements + "' could not be parsed");
             }
             uriPrecompiled = null;
         }
     }
 
-    public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches)
-    {
+    public void matchFound(EventBean theEvent, Collection<FilterHandleCallback> allStmtMatches) {
         EventTypeSPI spi = (EventTypeSPI) theEvent.getEventType();
         EventBeanReader reader = spi.getReader();
         Object[] props = reader.read(theEvent);
-        String names[] = spi.getPropertyNames();
+        String[] names = spi.getPropertyNames();
         Map<String, String> parameters = formPairs(names, props, "stream", stream);
 
         URI requestURI;
         if (uriPrecompiled != null) {
             requestURI = URIUtil.withQuery(uriPrecompiled, parameters);
-        }
-        else {
+        } else {
             String uri = formURI(parameters, fragments);
             try {
                 requestURI = new URI(uri);
@@ -97,26 +92,22 @@ public class EsperIOHTTPSubscription extends BaseSubscription
                 String val = parameters.get(param.getValue());
                 if (val == null) {
                     buf.append("null");
-                }
-                else {
+                } else {
                     buf.append(val);
                 }
-            }
-            else {
+            } else {
                 PlaceholderParser.TextFragment param = (PlaceholderParser.TextFragment) fragment;
                 buf.append(param.getValue());
             }
-         }
+        }
         return buf.toString();
     }
 
-    public boolean isSubSelect()
-    {
+    public boolean isSubSelect() {
         return false;
     }
 
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return -1;
     }
 
@@ -132,8 +123,7 @@ public class EsperIOHTTPSubscription extends BaseSubscription
             Object value = values[i];
             if (value == null) {
                 map.put(key, "");
-            }
-            else {
+            } else {
                 map.put(key, value.toString());
             }
         }

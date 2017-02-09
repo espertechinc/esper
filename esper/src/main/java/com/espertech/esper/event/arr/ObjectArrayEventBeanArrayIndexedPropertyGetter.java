@@ -17,47 +17,41 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 /**
  * Getter for array events.
  */
-public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
     private final int index;
 
     /**
      * Ctor.
+     *
      * @param propertyIndex property index
-     * @param index array index
+     * @param index         array index
      */
-    public ObjectArrayEventBeanArrayIndexedPropertyGetter(int propertyIndex, int index)
-    {
+    public ObjectArrayEventBeanArrayIndexedPropertyGetter(int propertyIndex, int index) {
         this.propertyIndex = propertyIndex;
         this.index = index;
     }
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         EventBean[] wrapper = (EventBean[]) array[propertyIndex];
         return BaseNestableEventUtil.getArrayPropertyUnderlying(wrapper, index);
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         return true;
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         return getObjectArray(array);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         EventBean[] wrapper = (EventBean[]) array[propertyIndex];
         return BaseNestableEventUtil.getArrayPropertyBean(wrapper, index);

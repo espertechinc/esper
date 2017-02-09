@@ -15,20 +15,19 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.JavaClassHelper;
 
-public class ExprTableNodeUtil
-{
+public class ExprTableNodeUtil {
     public static void validateExpressions(String tableName,
                                            Class[] providedTypes,
                                            String providedName,
                                            ExprNode[] providedExpr,
                                            Class[] expectedTypes,
                                            String expectedName
-                                           ) throws ExprValidationException {
+    ) throws ExprValidationException {
         if (expectedTypes.length != providedTypes.length) {
             String actual = (providedTypes.length == 0 ?
-                    "no" : ""+providedTypes.length) + " " + providedName + " expressions";
+                    "no" : "" + providedTypes.length) + " " + providedName + " expressions";
             String expected = (expectedTypes.length == 0 ?
-                    "no" : ""+expectedTypes.length) + " " + expectedName + " expressions";
+                    "no" : "" + expectedTypes.length) + " " + expectedName + " expressions";
             throw new ExprValidationException("Incompatible number of " +
                     providedName +
                     " expressions for use with table '" +

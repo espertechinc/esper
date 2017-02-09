@@ -298,7 +298,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
             return null;
         }
 
-        Object keys[] = new Object[resultSet.size()];
+        Object[] keys = new Object[resultSet.size()];
 
         int count = 0;
         for (MultiKey<EventBean> eventsPerStream : resultSet) {
@@ -315,7 +315,7 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
         }
 
         EventBean[] eventsPerStream = new EventBean[1];
-        Object keys[] = new Object[events.length];
+        Object[] keys = new Object[events.length];
 
         for (int i = 0; i < events.length; i++) {
             eventsPerStream[0] = events[i];
@@ -885,7 +885,8 @@ public class ResultSetProcessorAggregateGrouped implements ResultSetProcessor, A
                 // there is no remove stream currently for output first
                 generateOutputBatchedArr(workCollection, false, generateSynthetic, resultNewEvents, resultNewSortKeys);
             }
-        } else {// there is a having-clause, apply after aggregations
+        } else {
+            // there is a having-clause, apply after aggregations
             for (UniformPair<Set<MultiKey<EventBean>>> pair : joinEventsSet) {
                 Set<MultiKey<EventBean>> newData = pair.getFirst();
                 Set<MultiKey<EventBean>> oldData = pair.getSecond();

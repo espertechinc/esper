@@ -37,23 +37,20 @@ public class FireAndForgetInstanceNamedWindow extends FireAndForgetInstance {
         EPPreparedExecuteTableHelper.assignTableAccessStrategies(insert.getServices(), insert.getOptionalTableNodes(), processorInstance.getTailViewInstance().getAgentInstanceContext());
         try {
             EventBean event = insert.getInsertHelper().process(new EventBean[0], true, true, insert.getExprEvaluatorContext());
-            EventBean[] inserted = new EventBean[] {event};
+            EventBean[] inserted = new EventBean[]{event};
 
             AgentInstanceContext ctx = processorInstance.getTailViewInstance().getAgentInstanceContext();
             StatementAgentInstanceLock ailock = ctx.getAgentInstanceLock();
             ailock.acquireWriteLock();
             try {
                 processorInstance.getRootViewInstance().update(inserted, null);
-            }
-            catch (EPException ex) {
+            } catch (EPException ex) {
                 processorInstance.getRootViewInstance().update(null, inserted);
-            }
-            finally {
+            } finally {
                 ailock.releaseWriteLock();
             }
             return inserted;
-        }
-        finally {
+        } finally {
             insert.getServices().getTableService().getTableExprEvaluatorContext().releaseAcquiredLocks();
         }
     }

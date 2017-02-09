@@ -12,30 +12,26 @@ package com.espertech.esper.util;
 
 import com.espertech.esper.client.EPException;
 
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Utility class for loading or resolving external resources via URL and class path.
  */
-public class ResourceLoader
-{
+public class ResourceLoader {
     /**
      * Resolve a resource into a URL using the URL string or classpath-relative filename and
      * using a name for any exceptions thrown.
-     * @param resourceName is the name for use in exceptions
+     *
+     * @param resourceName           is the name for use in exceptions
      * @param urlOrClasspathResource is a URL string or classpath-relative filename
      * @return URL or null if resolution was unsuccessful
      */
-    public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource, ClassLoader classLoader)
-    {
+    public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource, ClassLoader classLoader) {
         URL url;
-        try
-        {
+        try {
             url = new URL(urlOrClasspathResource);
-        }
-        catch (MalformedURLException ex)
-        {
+        } catch (MalformedURLException ex) {
             url = getClasspathResourceAsURL(resourceName, urlOrClasspathResource, classLoader);
         }
         return url;
@@ -61,11 +57,10 @@ public class ResourceLoader
      * If no input stream was returned, throw an Exception.
      *
      * @param resourceName is the name for use in exceptions
-     * @param resource is the classpath-relative filename to resolve into a URL
+     * @param resource     is the classpath-relative filename to resolve into a URL
      * @return URL for resource
      */
-    public static URL getClasspathResourceAsURL(String resourceName, String resource, ClassLoader classLoader)
-    {
+    public static URL getClasspathResourceAsURL(String resourceName, String resource, ClassLoader classLoader) {
         String stripped = resource.startsWith("/") ?
                 resource.substring(1) : resource;
 
@@ -79,12 +74,11 @@ public class ResourceLoader
         if (url == null) {
             url = ResourceLoader.class.getClassLoader().getResource(stripped);
         }
-        if (url == null ) {
+        if (url == null) {
             throw new EPException(resourceName + " resource '" + resource + "' not found");
         }
         return url;
     }
-
 
 
 }

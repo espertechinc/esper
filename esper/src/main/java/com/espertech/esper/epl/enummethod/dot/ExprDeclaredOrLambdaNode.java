@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
-public interface ExprDeclaredOrLambdaNode
-{
+public interface ExprDeclaredOrLambdaNode {
     public boolean validated();
 }
 

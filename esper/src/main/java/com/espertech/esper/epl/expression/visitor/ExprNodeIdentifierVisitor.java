@@ -12,62 +12,57 @@ package com.espertech.esper.epl.expression.visitor;
 
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Visitor that collects event property identifier information under expression nodes.
  * The visitor can be configued to not visit aggregation nodes thus ignoring
  * properties under aggregation nodes such as sum, avg, min/max etc.
  */
-public class ExprNodeIdentifierVisitor implements ExprNodeVisitor
-{
+public class ExprNodeIdentifierVisitor implements ExprNodeVisitor {
     private final List<Pair<Integer, String>> exprProperties;
     private final boolean isVisitAggregateNodes;
 
     /**
      * Ctor.
+     *
      * @param visitAggregateNodes true to indicate that the visitor should visit aggregate nodes, or false
-     * if the visitor ignores aggregate nodes
+     *                            if the visitor ignores aggregate nodes
      */
-    public ExprNodeIdentifierVisitor(boolean visitAggregateNodes)
-    {
+    public ExprNodeIdentifierVisitor(boolean visitAggregateNodes) {
         this.isVisitAggregateNodes = visitAggregateNodes;
         this.exprProperties = new LinkedList<Pair<Integer, String>>();
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         if (exprNode instanceof ExprLambdaGoesNode) {
             return false;
         }
-        
-        if (isVisitAggregateNodes)
-        {
+
+        if (isVisitAggregateNodes) {
             return true;
         }
 
-        return (!(exprNode instanceof ExprAggregateNode));
+        return !(exprNode instanceof ExprAggregateNode);
     }
 
     /**
      * Returns list of event property stream numbers and names that uniquely identify which
      * property is from whcih stream, and the name of each.
+     *
      * @return list of event property statement-unique info
      */
-    public List<Pair<Integer, String>> getExprProperties()
-    {
+    public List<Pair<Integer, String>> getExprProperties() {
         return exprProperties;
     }
 
-    public void visit(ExprNode exprNode)
-    {
-        if (!(exprNode instanceof ExprIdentNode))
-        {
+    public void visit(ExprNode exprNode) {
+        if (!(exprNode instanceof ExprIdentNode)) {
             return;
         }
 

@@ -28,20 +28,18 @@ public class EsperSocketService {
         return serviceName;
     }
 
-    public void start(String serviceName, EPServiceProviderSPI engineSPI) throws IOException  {
+    public void start(String serviceName, EPServiceProviderSPI engineSPI) throws IOException {
 
         if (serviceConfig.getHostname() != null) {
             InetAddress inetAddress = InetAddress.getByName(serviceConfig.getHostname());
             int backlog = serviceConfig.getBacklog() == null ? 2 : serviceConfig.getBacklog();
             log.info("Esper socket adapter accepting connections on port " + serviceConfig.getPort() + " and host '" + serviceConfig.getHostname() + "' backlog " + backlog + " for socket named '" + serviceName + "'");
             serverSocket = new ServerSocket(serviceConfig.getPort(), backlog, inetAddress);
-        }
-        else {
+        } else {
             if (serviceConfig.getBacklog() != null) {
                 log.info("Esper socket adapter accepting connections on port " + serviceConfig.getPort() + " backlog " + serviceConfig.getBacklog() + " for socket named '" + serviceName + "'");
                 serverSocket = new ServerSocket(serviceConfig.getPort(), serviceConfig.getBacklog());
-            }
-            else {
+            } else {
                 log.info("Esper socket adapter accepting connections on port " + serviceConfig.getPort() + " for socket named '" + serviceName + "'");
                 serverSocket = new ServerSocket(serviceConfig.getPort());
             }
@@ -68,10 +66,9 @@ public class EsperSocketService {
         socketThread.interrupt();
         try {
             socketThread.join(10000);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.debug("Interrupted", e);
-        }        
+        }
     }
 
     public int getPort() {

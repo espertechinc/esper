@@ -13,12 +13,12 @@ package com.espertech.esper.epl.agg.factory;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.aggregator.AggregatorAvedev;
 import com.espertech.esper.epl.agg.aggregator.AggregatorAvedevFilter;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -26,8 +26,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprAvedevNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryAvedev implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryAvedev implements AggregationMethodFactory {
     protected final ExprAvedevNode parent;
     protected final Class aggregatedValueType;
     protected final ExprNode[] positionalParameters;
@@ -42,8 +41,7 @@ public class AggregationMethodFactoryAvedev implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return Double.class;
     }
 
@@ -86,12 +84,10 @@ public class AggregationMethodFactoryAvedev implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(positionalParameters, join, typesPerStream);
     }
 
-    private AggregationMethod makeAvedevAggregator(boolean hasFilter)
-    {
+    private AggregationMethod makeAvedevAggregator(boolean hasFilter) {
         if (!hasFilter) {
             return new AggregatorAvedev();
-        }
-        else {
+        } else {
             return new AggregatorAvedevFilter();
         }
     }

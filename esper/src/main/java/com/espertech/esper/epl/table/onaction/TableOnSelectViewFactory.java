@@ -22,8 +22,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.event.EventBeanReader;
 
-public class TableOnSelectViewFactory implements TableOnViewFactory
-{
+public class TableOnSelectViewFactory implements TableOnViewFactory {
     private final TableMetadata tableMetadata;
     private final InternalEventRouter internalEventRouter;
     private final EPStatementHandle statementHandle;

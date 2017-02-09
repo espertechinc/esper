@@ -23,8 +23,7 @@ import java.util.*;
  * Contains the filter criteria to sift through events. The filter criteria are the event class to look for and
  * a set of parameters (attribute names, operators and constant/range values).
  */
-public final class FilterSpecCompiled
-{
+public final class FilterSpecCompiled {
     private final static FilterSpecParamComparator COMPARATOR_PARAMETERS = new FilterSpecParamComparator();
 
     private final EventType filterForEventType;
@@ -35,15 +34,15 @@ public final class FilterSpecCompiled
     /**
      * Constructor - validates parameter list against event type, throws exception if invalid
      * property names or mismatcing filter operators are found.
-     * @param eventType is the event type
-     * @param filterParameters is a list of filter parameters
-     * @param eventTypeName is the name of the event type
+     *
+     * @param eventType                 is the event type
+     * @param filterParameters          is a list of filter parameters
+     * @param eventTypeName             is the name of the event type
      * @param optionalPropertyEvaluator optional if evaluating properties returned by filtered events
      * @throws IllegalArgumentException if validation invalid
      */
     public FilterSpecCompiled(EventType eventType, String eventTypeName, List<FilterSpecParam>[] filterParameters,
-                              PropertyEvaluator optionalPropertyEvaluator)
-    {
+                              PropertyEvaluator optionalPropertyEvaluator) {
         this.filterForEventType = eventType;
         this.filterForEventTypeName = eventTypeName;
         this.parameters = sortRemoveDups(filterParameters);
@@ -52,52 +51,49 @@ public final class FilterSpecCompiled
 
     /**
      * Returns type of event to filter for.
+     *
      * @return event type
      */
-    public final EventType getFilterForEventType()
-    {
+    public final EventType getFilterForEventType() {
         return filterForEventType;
     }
 
     /**
      * Returns list of filter parameters.
+     *
      * @return list of filter params
      */
-    public final FilterSpecParam[][] getParameters()
-    {
+    public final FilterSpecParam[][] getParameters() {
         return parameters;
     }
 
     /**
      * Returns the event type name.
+     *
      * @return event type name
      */
-    public String getFilterForEventTypeName()
-    {
+    public String getFilterForEventTypeName() {
         return filterForEventTypeName;
     }
 
     /**
      * Return the evaluator for property value if any is attached, or none if none attached.
+     *
      * @return property evaluator
      */
-    public PropertyEvaluator getOptionalPropertyEvaluator()
-    {
+    public PropertyEvaluator getOptionalPropertyEvaluator() {
         return optionalPropertyEvaluator;
     }
 
     /**
      * Returns the result event type of the filter specification.
+     *
      * @return event type
      */
-    public EventType getResultEventType()
-    {
-        if (optionalPropertyEvaluator != null)
-        {
+    public EventType getResultEventType() {
+        if (optionalPropertyEvaluator != null) {
             return optionalPropertyEvaluator.getFragmentEventType();
-        }
-        else
-        {
+        } else {
             return filterForEventType;
         }
     }
@@ -105,13 +101,13 @@ public final class FilterSpecCompiled
     /**
      * Returns the values for the filter, using the supplied result events to ask filter parameters
      * for the value to filter for.
-     * @param matchedEvents contains the result events to use for determining filter values
+     *
+     * @param matchedEvents        contains the result events to use for determining filter values
      * @param agentInstanceContext context
-     * @param addendum context addendum
+     * @param addendum             context addendum
      * @return filter values
      */
-    public FilterValueSet getValueSet(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext, FilterValueSetParam[][] addendum)
-    {
+    public FilterValueSet getValueSet(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext, FilterValueSetParam[][] addendum) {
         FilterValueSetParam[][] valueList = new FilterValueSetParam[parameters.length][];
         for (int i = 0; i < parameters.length; i++) {
             valueList[i] = new FilterValueSetParam[parameters[i].length];
@@ -127,8 +123,7 @@ public final class FilterSpecCompiled
     private static void populateValueSet(FilterValueSetParam[] valueList, MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext, FilterSpecParam[] specParams) {
         // Ask each filter specification parameter for the actual value to filter for
         int count = 0;
-        for (FilterSpecParam specParam : specParams)
-        {
+        for (FilterSpecParam specParam : specParams) {
             Object filterForValue = specParam.getFilterValue(matchedEvents, agentInstanceContext);
             FilterValueSetParam valueParam = new FilterValueSetParamImpl(specParam.getLookupable(), specParam.getFilterOperator(), filterForValue);
             valueList[count] = valueParam;
@@ -137,42 +132,34 @@ public final class FilterSpecCompiled
     }
 
     @SuppressWarnings({"StringConcatenationInsideStringBufferAppend"})
-    public final String toString()
-    {
+    public final String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("FilterSpecCompiled type=" + this.filterForEventType);
         buffer.append(" parameters=" + Arrays.toString(parameters));
         return buffer.toString();
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof FilterSpecCompiled))
-        {
+        if (!(obj instanceof FilterSpecCompiled)) {
             return false;
         }
 
         FilterSpecCompiled other = (FilterSpecCompiled) obj;
-        if (!equalsTypeAndFilter(other))
-        {
+        if (!equalsTypeAndFilter(other)) {
             return false;
         }
 
-        if ((this.optionalPropertyEvaluator == null) && (other.optionalPropertyEvaluator == null))
-        {
+        if ((this.optionalPropertyEvaluator == null) && (other.optionalPropertyEvaluator == null)) {
             return true;
-        }       
-        if ((this.optionalPropertyEvaluator != null) && (other.optionalPropertyEvaluator == null))
-        {
+        }
+        if ((this.optionalPropertyEvaluator != null) && (other.optionalPropertyEvaluator == null)) {
             return false;
         }
-        if ((this.optionalPropertyEvaluator == null) && (other.optionalPropertyEvaluator != null))
-        {
+        if ((this.optionalPropertyEvaluator == null) && (other.optionalPropertyEvaluator != null)) {
             return false;
         }
 
@@ -181,17 +168,15 @@ public final class FilterSpecCompiled
 
     /**
      * Compares only the type and filter portion and not the property evaluation portion.
+     *
      * @param other filter to compare
      * @return true if same
      */
-    public boolean equalsTypeAndFilter(FilterSpecCompiled other)
-    {
-        if (this.filterForEventType != other.filterForEventType)
-        {
+    public boolean equalsTypeAndFilter(FilterSpecCompiled other) {
+        if (this.filterForEventType != other.filterForEventType) {
             return false;
         }
-        if (this.parameters.length != other.parameters.length)
-        {
+        if (this.parameters.length != other.parameters.length) {
             return false;
         }
 
@@ -211,8 +196,7 @@ public final class FilterSpecCompiled
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int hashCode = filterForEventType.hashCode();
         for (FilterSpecParam[] paramLine : parameters) {
             for (FilterSpecParam param : paramLine) {
@@ -246,7 +230,7 @@ public final class FilterSpecCompiled
         }
 
         if (parameters.size() == 1) {
-            return new FilterSpecParam[] {parameters.get(0)};
+            return new FilterSpecParam[]{parameters.get(0)};
         }
 
         ArrayDeque<FilterSpecParam> result = new ArrayDeque<FilterSpecParam>();

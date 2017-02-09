@@ -10,29 +10,24 @@
  */
 package com.espertech.esper.example.matchmaker.eventbean;
 
-public class MatchAlertBean
-{
+public class MatchAlertBean {
     private int otherUserId;
     private int selfUserId;
 
-    public MatchAlertBean(int otherUserId, int selfUserId)
-    {
+    public MatchAlertBean(int otherUserId, int selfUserId) {
         this.otherUserId = otherUserId;
         this.selfUserId = selfUserId;
     }
 
-    public int getSelfUserId()
-    {
+    public int getSelfUserId() {
         return selfUserId;
     }
 
-    public int getOtherUserId()
-    {
+    public int getOtherUserId() {
         return otherUserId;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "User id of self is " + selfUserId + ", user id of other user is " + otherUserId;
     }
 }

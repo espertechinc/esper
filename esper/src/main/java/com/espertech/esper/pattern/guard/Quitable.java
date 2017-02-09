@@ -11,13 +11,11 @@
 package com.espertech.esper.pattern.guard;
 
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
-import com.espertech.esper.pattern.PatternContext;
 
 /**
  * Receiver for quit events for use by guards.
  */
-public interface Quitable
-{
+public interface Quitable {
     /**
      * Indicate guard quitted.
      */
@@ -28,6 +26,7 @@ public interface Quitable
      * <p>
      * The pattern context is the same context as provided to the guard factory and
      * is provided by the quitable so the guard instance does not need to retain the pattern context.
+     *
      * @return pattern context
      */
     public PatternAgentInstanceContext getContext();

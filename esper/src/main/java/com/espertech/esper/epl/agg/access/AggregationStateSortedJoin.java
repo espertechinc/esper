@@ -16,8 +16,7 @@ import com.espertech.esper.collection.RefCountedSetAtomicInteger;
 /**
  * Implementation of access function for single-stream (not joins).
  */
-public class AggregationStateSortedJoin extends AggregationStateSortedImpl
-{
+public class AggregationStateSortedJoin extends AggregationStateSortedImpl {
     protected final RefCountedSetAtomicInteger refs;
 
     public AggregationStateSortedJoin(AggregationStateSortedSpec spec) {

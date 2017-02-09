@@ -32,8 +32,7 @@ import java.util.Set;
 /**
  * View for the on-select statement that handles selecting events from a named window.
  */
-public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
-{
+public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView {
     private final NamedWindowOnSelectViewFactory parent;
     private final ResultSetProcessor resultSetProcessor;
     private EventBean[] lastResult;
@@ -51,9 +50,10 @@ public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
         this.tableStateInstanceInsertInto = tableStateInstanceInsertInto;
     }
 
-    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_SELECT, triggerEvents, matchingEvents);}
+    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_SELECT, triggerEvents, matchingEvents);
+        }
 
         EventBean[] newData;
 
@@ -66,10 +66,9 @@ public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
 
         // process matches
         UniformPair<EventBean[]> pair = resultSetProcessor.processJoinResult(newEvents, oldEvents, false);
-        newData = (pair != null ? pair.getFirst() : null);
+        newData = pair != null ? pair.getFirst() : null;
 
-        if (parent.isDistinct())
-        {
+        if (parent.isDistinct()) {
             newData = EventBeanUtility.getDistinctByProp(newData, parent.getEventBeanReader());
         }
 
@@ -82,9 +81,7 @@ public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
                     tableStateInstanceInsertInto.addEventUnadorned(aNewData);
                 }
             }
-        }
-        else if (parent.getInternalEventRouter() != null)
-        {
+        } else if (parent.getInternalEventRouter() != null) {
             if (newData != null) {
                 for (EventBean aNewData : newData) {
                     if (audit) {
@@ -96,11 +93,9 @@ public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
         }
 
         // The on-select listeners receive the events selected
-        if ((newData != null) && (newData.length > 0))
-        {
+        if ((newData != null) && (newData.length > 0)) {
             // And post only if we have listeners/subscribers that need the data
-            if (parent.getStatementResultService().isMakeNatural() || parent.getStatementResultService().isMakeSynthetic())
-            {
+            if (parent.getStatementResultService().isMakeNatural() || parent.getStatementResultService().isMakeSynthetic()) {
                 updateChildren(newData, null);
             }
         }
@@ -114,18 +109,17 @@ public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
             this.rootView.update(null, matchingEvents);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
     public static Set<MultiKey<EventBean>> buildJoinResult(EventBean[] triggerEvents, EventBean[] matchingEvents) {
         LinkedHashSet events = new LinkedHashSet<MultiKey<EventBean>>();
-        for (int i = 0; i < triggerEvents.length; i++)
-        {
+        for (int i = 0; i < triggerEvents.length; i++) {
             EventBean triggerEvent = triggerEvents[0];
-            if (matchingEvents != null)
-            {
-                for (int j = 0; j < matchingEvents.length; j++)
-                {
+            if (matchingEvents != null) {
+                for (int j = 0; j < matchingEvents.length; j++) {
                     EventBean[] eventsPerStream = new EventBean[2];
                     eventsPerStream[0] = matchingEvents[j];
                     eventsPerStream[1] = triggerEvent;
@@ -136,20 +130,15 @@ public class NamedWindowOnSelectView extends NamedWindowOnExprBaseView
         return events;
     }
 
-    public EventType getEventType()
-    {
-        if (resultSetProcessor != null)
-        {
+    public EventType getEventType() {
+        if (resultSetProcessor != null) {
             return resultSetProcessor.getResultEventType();
-        }
-        else
-        {
+        } else {
             return rootView.getEventType();
         }
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new ArrayEventIterator(lastResult);
     }
 }

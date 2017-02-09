@@ -32,15 +32,13 @@ public class InKeywordTableLookupUtil {
             if (found != null && !found.isEmpty()) {
                 if (result == null) {
                     result = found;
-                }
-                else if (first) {
+                } else if (first) {
                     LinkedHashSet<EventBean> copy = new LinkedHashSet<EventBean>();
                     copy.addAll(result);
                     copy.addAll(found);
                     result = copy;
                     first = false;
-                }
-                else {
+                } else {
                     result.addAll(found);
                 }
             }
@@ -59,15 +57,13 @@ public class InKeywordTableLookupUtil {
             if (found != null && !found.isEmpty()) {
                 if (result == null) {
                     result = found;
-                }
-                else if (first) {
+                } else if (first) {
                     LinkedHashSet<EventBean> copy = new LinkedHashSet<EventBean>();
                     copy.addAll(result);
                     copy.addAll(found);
                     result = copy;
                     first = false;
-                }
-                else {
+                } else {
                     result.addAll(found);
                 }
             }

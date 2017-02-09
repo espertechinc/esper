@@ -12,11 +12,9 @@ package com.espertech.esper.util;
 
 import junit.framework.TestCase;
 
-public class TestSimpleTypeParserFactory extends TestCase
-{
-    public void testGetParser() throws Exception
-    {
-        Object[][] tests = new Object[][] {
+public class TestSimpleTypeParserFactory extends TestCase {
+    public void testGetParser() throws Exception {
+        Object[][] tests = new Object[][]{
                 {Boolean.class, "TrUe", true},
                 {Boolean.class, "false", false},
                 {boolean.class, "false", false},
@@ -27,8 +25,8 @@ public class TestSimpleTypeParserFactory extends TestCase
                 {Long.class, " -2 ", -2L},
                 {Long.class, " -2L ", -2L},
                 {Long.class, " -2l ", -2L},
-                {Short.class, " -3 ", (short)-3},
-                {short.class, "111", (short)111},
+                {Short.class, " -3 ", (short) -3},
+                {short.class, "111", (short) 111},
                 {Double.class, " -3d ", -3d},
                 {double.class, "111.38373", 111.38373d},
                 {Double.class, " -3.1D ", -3.1D},
@@ -36,17 +34,16 @@ public class TestSimpleTypeParserFactory extends TestCase
                 {float.class, "111.38373", 111.38373f},
                 {Float.class, " -3.1F ", -3.1f},
                 {Byte.class, " -3 ", (byte) -3},
-                {byte.class, " 1 ", (byte)1},
+                {byte.class, " 1 ", (byte) 1},
                 {char.class, "ABC", 'A'},
                 {Character.class, " AB", ' '},
                 {String.class, "AB", "AB"},
                 {String.class, " AB ", " AB "},
-                };
+        };
 
-        for (int i = 0; i < tests.length; i++)
-        {
-            SimpleTypeParser parser = SimpleTypeParserFactory.getParser((Class)tests[i][0]);
-            assertEquals("error in row:" + i, tests[i][2], parser.parse((String)tests[i][1]));
+        for (int i = 0; i < tests.length; i++) {
+            SimpleTypeParser parser = SimpleTypeParserFactory.getParser((Class) tests[i][0]);
+            assertEquals("error in row:" + i, tests[i][2], parser.parse((String) tests[i][1]));
         }
     }
 }

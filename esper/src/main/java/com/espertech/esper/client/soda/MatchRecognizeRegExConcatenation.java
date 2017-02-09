@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.client.soda;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.io.Serializable;
 import java.io.StringWriter;
 
@@ -20,14 +18,12 @@ import java.io.StringWriter;
  * <p>
  * Event row regular expressions are organized into a tree-like structure with nodes representing sub-expressions.
  */
-public class MatchRecognizeRegExConcatenation extends MatchRecognizeRegEx implements Serializable
-{
+public class MatchRecognizeRegExConcatenation extends MatchRecognizeRegEx implements Serializable {
     private static final long serialVersionUID = -4238896158904878087L;
-    
+
     public void writeEPL(StringWriter writer) {
         String delimiter = "";
-        for (MatchRecognizeRegEx node : this.getChildren())
-        {
+        for (MatchRecognizeRegEx node : this.getChildren()) {
             writer.append(delimiter);
             node.writeEPL(writer);
             delimiter = " ";

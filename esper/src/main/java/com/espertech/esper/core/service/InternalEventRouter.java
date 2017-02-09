@@ -21,27 +21,28 @@ import java.lang.annotation.Annotation;
 /**
  * Interface for a service that routes events within the engine for further processing.
  */
-public interface InternalEventRouter
-{
+public interface InternalEventRouter {
     public InternalEventRouterDesc getValidatePreprocessing(EventType eventType, UpdateDesc desc, Annotation[] annotations)
-                throws ExprValidationException;
+            throws ExprValidationException;
 
     public void addPreprocessing(InternalEventRouterDesc internalEventRouterDesc, InternalRoutePreprocessView outputView, StatementAgentInstanceLock agentInstanceLock, boolean hasSubselect);
 
     /**
      * Remove preprocessing.
+     *
      * @param eventType type to remove for
-     * @param desc update statement specification
+     * @param desc      update statement specification
      */
     public void removePreprocessing(EventType eventType, UpdateDesc desc);
 
     /**
      * Route the event such that the event is processed as required.
-     * @param theEvent to route
-     * @param statementHandle provides statement resources
+     *
+     * @param theEvent             to route
+     * @param statementHandle      provides statement resources
      * @param exprEvaluatorContext context for expression evalauation
-     * @param routeDest routing destination
-     * @param addToFront indicator whether to add to front queue
+     * @param routeDest            routing destination
+     * @param addToFront           indicator whether to add to front queue
      */
     public void route(EventBean theEvent, EPStatementHandle statementHandle, InternalEventRouteDest routeDest, ExprEvaluatorContext exprEvaluatorContext, boolean addToFront);
 

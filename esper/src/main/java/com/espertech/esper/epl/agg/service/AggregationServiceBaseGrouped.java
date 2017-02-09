@@ -16,30 +16,28 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
  * All aggregation services require evaluation nodes which supply the value to be aggregated (summed, averaged, etc.)
  * and aggregation state factories to make new aggregation states.
  */
-public abstract class AggregationServiceBaseGrouped implements AggregationService
-{
+public abstract class AggregationServiceBaseGrouped implements AggregationService {
     /**
      * Evaluation nodes under.
      */
-    protected ExprEvaluator evaluators[];
+    protected ExprEvaluator[] evaluators;
 
     /**
      * Aggregation states and factories.
      */
-    protected AggregationMethodFactory aggregators[];
+    protected AggregationMethodFactory[] aggregators;
 
     /**
      * Ctor.
-     * @param evaluators - are the child node of each aggregation function used for computing the value to be aggregated
+     *
+     * @param evaluators  - are the child node of each aggregation function used for computing the value to be aggregated
      * @param aggregators - aggregation states/factories
      */
-    public AggregationServiceBaseGrouped(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[])
-    {
+    public AggregationServiceBaseGrouped(ExprEvaluator[] evaluators, AggregationMethodFactory[] aggregators) {
         this.evaluators = evaluators;
         this.aggregators = aggregators;
 
-        if (evaluators.length != aggregators.length)
-        {
+        if (evaluators.length != aggregators.length) {
             throw new IllegalArgumentException("Expected the same number of evaluates as computer prototypes");
         }
     }

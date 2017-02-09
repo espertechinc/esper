@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.avro.core;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
 import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactoryContext;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
@@ -32,8 +32,7 @@ public class AvroTypeWidenerCustomizerWHook implements TypeWidenerCustomizer {
         try {
             ObjectValueTypeWidenerFactoryContext context = new ObjectValueTypeWidenerFactoryContext(columnType, writeablePropertyName, eventType, statementName, engineURI);
             widener = factory.make(context);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new ExprValidationException("Widener not available: " + t.getMessage(), t);
         }
 

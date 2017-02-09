@@ -19,20 +19,19 @@ import java.util.Map;
 /**
  * A getter for use with Map-based events simply returns the value for the key.
  */
-public class MapEventBeanPropertyGetter implements MapEventPropertyGetter
-{
+public class MapEventBeanPropertyGetter implements MapEventPropertyGetter {
     private final String propertyName;
 
     /**
      * Ctor.
+     *
      * @param propertyName property to get
      */
     public MapEventBeanPropertyGetter(String propertyName) {
         this.propertyName = propertyName;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         Object eventBean = map.get(propertyName);
 
         if (eventBean == null) {
@@ -43,23 +42,19 @@ public class MapEventBeanPropertyGetter implements MapEventPropertyGetter
         return theEvent.getUnderlying();
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Map<String, Object> map = BaseNestableEventUtil.checkedCastUnderlyingMap(obj);
         return map.get(propertyName);
     }

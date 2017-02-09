@@ -20,8 +20,7 @@ import java.util.Set;
 /**
  * This class represents the state of a match-until node in the evaluation state tree.
  */
-public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
-{
+public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator {
     protected final EvalMatchUntilNode evalMatchUntilNode;
     protected MatchedEventMap beginState;
     protected final ArrayList<EventBean>[] matchedEventArrays;
@@ -34,12 +33,12 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode         is the parent evaluator to call to indicate truth value
      * @param evalMatchUntilNode is the factory node associated to the state
      */
     public EvalMatchUntilStateNode(Evaluator parentNode,
-                                         EvalMatchUntilNode evalMatchUntilNode)
-    {
+                                   EvalMatchUntilNode evalMatchUntilNode) {
         super(parentNode);
 
         this.matchedEventArrays = (ArrayList<EventBean>[]) new ArrayList[evalMatchUntilNode.getFactoryNode().getTagsArrayed().length];
@@ -67,8 +66,7 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
         if (quit) {
             quit();
             this.getParentEvaluator().evaluateFalse(this, true);
-        }
-        else {
+        } else {
             if (stateMatcher != null) {
                 stateMatcher.removeMatch(matchEvent);
             }
@@ -83,24 +81,23 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
         return evalMatchUntilNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternMatchUntilStart(evalMatchUntilNode, beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternMatchUntilStart(evalMatchUntilNode, beginState);
+        }
         this.beginState = beginState;
 
         EvalNode childMatcher = evalMatchUntilNode.getChildNodeSub();
         stateMatcher = childMatcher.newState(this, null, 0L);
 
-        if (evalMatchUntilNode.getChildNodeUntil() != null)
-        {
+        if (evalMatchUntilNode.getChildNodeUntil() != null) {
             EvalNode childUntil = evalMatchUntilNode.getChildNodeUntil();
             stateUntil = childUntil.newState(this, null, 0L);
         }
 
         // start until first, it controls the expression
         // if the same event fires both match and until, the match should not count
-        if (stateUntil != null)
-        {
+        if (stateUntil != null) {
             stateUntil.start(beginState);
         }
 
@@ -111,32 +108,30 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
         if (stateMatcher != null) {
             stateMatcher.start(beginState);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternMatchUntilStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternMatchUntilStart();
+        }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternMatchUntilEvaluateTrue(evalMatchUntilNode, matchEvent, fromNode == stateUntil);}
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternMatchUntilEvaluateTrue(evalMatchUntilNode, matchEvent, fromNode == stateUntil);
+        }
         boolean isMatcher = false;
-        if (fromNode == stateMatcher)
-        {
+        if (fromNode == stateMatcher) {
             // Add the additional tagged events to the list for later posting
             isMatcher = true;
             numMatches++;
             int[] tags = evalMatchUntilNode.getFactoryNode().getTagsArrayed();
-            for (int i = 0; i < tags.length; i++)
-            {
+            for (int i = 0; i < tags.length; i++) {
                 Object theEvent = matchEvent.getMatchingEventAsObject(tags[i]);
-                if (theEvent != null)
-                {
-                    if (matchedEventArrays[i] == null)
-                    {
+                if (theEvent != null) {
+                    if (matchedEventArrays[i] == null) {
                         matchedEventArrays[i] = new ArrayList<EventBean>();
                     }
                     if (theEvent instanceof EventBean) {
                         matchedEventArrays[i].add((EventBean) theEvent);
-                    }
-                    else {
+                    } else {
                         EventBean[] arrayEvents = (EventBean[]) theEvent;
                         matchedEventArrays[i].addAll(Arrays.asList(arrayEvents));
                     }
@@ -145,83 +140,63 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
             }
         }
 
-        if (isQuitted)
-        {
-            if (isMatcher)
-            {
+        if (isQuitted) {
+            if (isMatcher) {
                 stateMatcher = null;
-            }
-            else
-            {
+            } else {
                 stateUntil = null;
             }
         }
 
         // handle matcher evaluating true
-        if (isMatcher)
-        {
-            if ((isTightlyBound()) && (numMatches == lowerbounds))
-            {
+        if (isMatcher) {
+            if ((isTightlyBound()) && (numMatches == lowerbounds)) {
                 quitInternal();
                 MatchedEventMap consolidated = consolidate(matchEvent, matchedEventArrays, evalMatchUntilNode.getFactoryNode().getTagsArrayed());
                 this.getParentEvaluator().evaluateTrue(consolidated, this, true);
-            }
-            else
-            {
+            } else {
                 // restart or keep started if not bounded, or not upper bounds, or upper bounds not reached
                 boolean restart = (!isBounded()) ||
-                                  (upperbounds == null) ||
-                                  (upperbounds > numMatches);
-                if (stateMatcher == null)
-                {
-                    if (restart)
-                    {
+                        (upperbounds == null) ||
+                        (upperbounds > numMatches);
+                if (stateMatcher == null) {
+                    if (restart) {
                         EvalNode childMatcher = evalMatchUntilNode.getChildNodeSub();
                         stateMatcher = childMatcher.newState(this, null, 0L);
                         stateMatcher.start(beginState);
                     }
-                }
-                else
-                {
-                    if (!restart)
-                    {
+                } else {
+                    if (!restart) {
                         stateMatcher.quit();
                         stateMatcher = null;
                     }
                 }
             }
-        }
-        else
-        // handle until-node
-        {
+        } else {
+            // handle until-node
             quitInternal();
 
             // consolidate multiple matched events into a single event
             MatchedEventMap consolidated = consolidate(matchEvent, matchedEventArrays, evalMatchUntilNode.getFactoryNode().getTagsArrayed());
 
-            if ((lowerbounds != null) && (numMatches < lowerbounds))
-            {
+            if ((lowerbounds != null) && (numMatches < lowerbounds)) {
                 this.getParentEvaluator().evaluateFalse(this, true);
-            }
-            else
-            {
+            } else {
                 this.getParentEvaluator().evaluateTrue(consolidated, this, true);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternMatchUntilEvaluateTrue(stateMatcher == null && stateUntil == null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternMatchUntilEvaluateTrue(stateMatcher == null && stateUntil == null);
+        }
     }
 
-    public static MatchedEventMap consolidate(MatchedEventMap beginState, ArrayList<EventBean>[] matchedEventList, int[] tagsArrayed)
-    {
-        if (tagsArrayed == null)
-        {
+    public static MatchedEventMap consolidate(MatchedEventMap beginState, ArrayList<EventBean>[] matchedEventList, int[] tagsArrayed) {
+        if (tagsArrayed == null) {
             return beginState;
         }
 
-        for (int i = 0; i < tagsArrayed.length; i++)
-        {
-            if (matchedEventList[i] == null)
-            {
+        for (int i = 0; i < tagsArrayed.length; i++) {
+            if (matchedEventList[i] == null) {
                 continue;
             }
             EventBean[] eventsForTag = matchedEventList[i].toArray(new EventBean[matchedEventList[i].size()]);
@@ -231,39 +206,42 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
         return beginState;
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternMatchUntilEvalFalse(evalMatchUntilNode, fromNode == stateUntil);}
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternMatchUntilEvalFalse(evalMatchUntilNode, fromNode == stateUntil);
+        }
         boolean isMatcher = false;
-        if (fromNode == stateMatcher)
-        {
+        if (fromNode == stateMatcher) {
             isMatcher = true;
         }
 
         if (isMatcher) {
             stateMatcher.quit();
             stateMatcher = null;
-        }
-        else {
+        } else {
             stateUntil.quit();
             stateUntil = null;
         }
         this.getParentEvaluator().evaluateFalse(this, true);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternMatchUntilEvalFalse();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternMatchUntilEvalFalse();
+        }
     }
 
-    public final void quit()
-    {
+    public final void quit() {
         if (stateMatcher == null && stateUntil == null) {
             return;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternMatchUntilQuit(evalMatchUntilNode);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternMatchUntilQuit(evalMatchUntilNode);
+        }
         quitInternal();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternMatchUntilQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternMatchUntilQuit();
+        }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitMatchUntil(evalMatchUntilNode.getFactoryNode(), this, matchedEventArrays, beginState);
         if (stateMatcher != null) {
             stateMatcher.accept(visitor);
@@ -273,8 +251,7 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalMatchUntilStateNode";
     }
 
@@ -303,13 +280,11 @@ public class EvalMatchUntilStateNode extends EvalStateNode implements Evaluator
     }
 
     private void quitInternal() {
-        if (stateMatcher != null)
-        {
+        if (stateMatcher != null) {
             stateMatcher.quit();
             stateMatcher = null;
         }
-        if (stateUntil != null)
-        {
+        if (stateUntil != null) {
             stateUntil.quit();
             stateUntil = null;
         }

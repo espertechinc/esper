@@ -22,22 +22,24 @@ import java.util.List;
  * Certain types of nodes have certain requirements towards the number or types of nodes that
  * are expected as pattern sub-expressions to an pattern expression.
  */
-public interface PatternExpr extends Serializable
-{
+public interface PatternExpr extends Serializable {
     /**
      * Returns the list of pattern sub-expressions (child expressions) to the current pattern expression node.
+     *
      * @return pattern child expressions or empty list if there are no child expressions
      */
     public List<PatternExpr> getChildren();
 
     /**
      * Sets the list of pattern sub-expressions (child expressions) to the current pattern expression node.
+     *
      * @param children pattern child expressions or empty list if there are no child expressions
      */
     public void setChildren(List<PatternExpr> children);
 
     /**
      * Returns the precedence.
+     *
      * @return precedence
      */
     public PatternExprPrecedenceEnum getPrecedence();
@@ -45,20 +47,23 @@ public interface PatternExpr extends Serializable
     /**
      * Renders the pattern expression and all it's child expressions, in full tree depth, as a string in
      * language syntax.
-     * @param writer is the output to use
+     *
+     * @param writer           is the output to use
      * @param parentPrecedence precedence
-     * @param formatter formatter
-     */    
+     * @param formatter        formatter
+     */
     public void toEPL(StringWriter writer, PatternExprPrecedenceEnum parentPrecedence, EPStatementFormatter formatter);
 
     /**
      * Returns the id for the pattern expression, for use by tools.
+     *
      * @return id
      */
     public String getTreeObjectName();
 
     /**
      * Sets and id for the pattern expression, for use by tools.
+     *
      * @param objectName id
      */
     public void setTreeObjectName(String objectName);

@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class represents an 'not' operator in the evaluation tree representing any event expressions.
  */
-public class EvalNotNode extends EvalNodeBase
-{
+public class EvalNotNode extends EvalNodeBase {
     protected final EvalNotFactoryNode factoryNode;
     private final EvalNode childNode;
 
@@ -36,8 +35,7 @@ public class EvalNotNode extends EvalNodeBase
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalNotStateNode(parentNode, this);
     }
 

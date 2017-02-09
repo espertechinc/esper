@@ -10,23 +10,21 @@
  */
 package com.espertech.esper.client.soda;
 
-import java.io.StringWriter;
-
 /**
  * Fire-and-forget (on-demand) insert DML.
  * <p>
- *     The insert-into clause holds the named window name and column names.
- *     The select-clause list holds the values to be inserted.
+ * The insert-into clause holds the named window name and column names.
+ * The select-clause list holds the values to be inserted.
  * </p>
  */
-public class FireAndForgetInsert implements FireAndForgetClause
-{
+public class FireAndForgetInsert implements FireAndForgetClause {
     private static final long serialVersionUID = -3565886245820109541L;
 
     private boolean useValuesKeyword = true;
 
     /**
      * Ctor.
+     *
      * @param useValuesKeyword whether to use the "values" keyword or whether the syntax is based on select
      */
     public FireAndForgetInsert(boolean useValuesKeyword) {
@@ -41,6 +39,7 @@ public class FireAndForgetInsert implements FireAndForgetClause
 
     /**
      * Returns indicator whether to use the values keyword.
+     *
      * @return indicator
      */
     public boolean isUseValuesKeyword() {
@@ -49,6 +48,7 @@ public class FireAndForgetInsert implements FireAndForgetClause
 
     /**
      * Sets indicator whether to use the values keyword.
+     *
      * @param useValuesKeyword indicator
      */
     public void setUseValuesKeyword(boolean useValuesKeyword) {

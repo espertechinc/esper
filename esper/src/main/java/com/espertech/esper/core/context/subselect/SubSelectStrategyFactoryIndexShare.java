@@ -47,8 +47,7 @@ import java.util.concurrent.locks.Lock;
 /**
  * Entry holding lookup resource references for use by {@link SubSelectActivationCollection}.
  */
-public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFactory
-{
+public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFactory {
     private final NamedWindowProcessor optionalNamedWindowProcessor;
     private final TableMetadata optionalTableMetadata;
     private final ExprEvaluator filterExprEval;
@@ -77,8 +76,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
                     optionalTableMetadata.addIndexReference(queryPlan.getIndexDescs()[i].getIndexName(), statementName);
                 }
             }
-        }
-        else {
+        } else {
             isLogging = optionalNamedWindowProcessor.getRootView().isQueryPlanLogging();
             log = NamedWindowRootView.getQueryPlanLog();
             queryPlan = SubordinateQueryPlanner.planSubquery(outerEventTypesSelect, joinedPropPlan, false, fullTableScan, optionalIndexHint, true, subqueryNum,
@@ -115,16 +113,13 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
             if (groupByKeys == null) {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredUngrouped(aggregationService, filterExprEval, null);
-                }
-                else {
+                } else {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredUngrouped(aggregationService, filterExprEval, null);
                 }
-            }
-            else {
+            } else {
                 if (filterExprEval == null) {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorUnfilteredGrouped(aggregationService, filterExprEval, groupByKeys);
-                }
-                else {
+                } else {
                     subselectAggregationPreprocessor = new SubselectAggregationPreprocessorFilteredGrouped(aggregationService, filterExprEval, groupByKeys);
                 }
             }
@@ -138,8 +133,7 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
                     NamedWindowRootView.getQueryPlanLog().info("shared, full table scan");
                 }
                 subqueryLookup = new SubordFullTableScanLookupStrategyLocking(instance.getRootViewInstance().getDataWindowContents(), agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock());
-            }
-            else {
+            } else {
                 EventTable[] tables = null;
                 if (!optionalNamedWindowProcessor.isVirtualDataWindow()) {
                     tables = SubordinateQueryPlannerUtil.realizeTables(queryPlan.getIndexDescs(), instance.getRootViewInstance().getEventType(), instance.getRootViewInstance().getIndexRepository(), instance.getRootViewInstance().getDataWindowContents(), agentInstanceContext, isRecoveringResilient);
@@ -147,15 +141,13 @@ public class SubSelectStrategyFactoryIndexShare implements SubSelectStrategyFact
                 SubordTableLookupStrategy strategy = queryPlan.getLookupStrategyFactory().makeStrategy(tables, instance.getRootViewInstance().getVirtualDataWindow());
                 subqueryLookup = new SubordIndexedTableLookupStrategyLocking(strategy, instance.getTailViewInstance().getAgentInstanceContext().getAgentInstanceLock());
             }
-        }
-        else {
+        } else {
             TableStateInstance state = tableService.getState(optionalTableMetadata.getTableName(), agentInstanceContext.getAgentInstanceId());
             Lock lock = agentInstanceContext.getStatementContext().isWritesToTables() ?
                     state.getTableLevelRWLock().writeLock() : state.getTableLevelRWLock().readLock();
             if (queryPlan == null) {
                 subqueryLookup = new SubordFullTableScanTableLookupStrategy(lock, state.getIterableTableScan());
-            }
-            else {
+            } else {
                 EventTable[] indexes = new EventTable[queryPlan.getIndexDescs().length];
                 for (int i = 0; i < indexes.length; i++) {
                     indexes[i] = state.getIndexRepository().getIndexByDesc(queryPlan.getIndexDescs()[i].getIndexMultiKey());

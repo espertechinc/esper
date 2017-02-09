@@ -20,7 +20,8 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
-import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.CreateVariableDesc;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -36,8 +37,7 @@ import java.util.Collections;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateVariable extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateVariable extends EPStatementStartMethodBase {
     private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateVariable.class);
 
     public EPStatementStartMethodCreateVariable(StatementSpecCompiled statementSpec) {
@@ -51,8 +51,7 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
 
         // Get assignment value
         Object value = null;
-        if (createDesc.getAssignment() != null)
-        {
+        if (createDesc.getAssignment() != null) {
             // Evaluate assignment expression
             StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[0], new String[0], new boolean[0], services.getEngineURI(), false);
             ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
@@ -64,14 +63,12 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
         // Create variable
         try {
             services.getVariableService().createNewVariable(statementSpec.getOptionalContextName(), createDesc.getVariableName(), createDesc.getVariableType(), createDesc.isConstant(), createDesc.isArray(), createDesc.isArrayOfPrimitive(), value, services.getEngineImportService());
-        }
-        catch (VariableExistsException ex) {
+        } catch (VariableExistsException ex) {
             // for new statement we don't allow creating the same variable
             if (isNewStatement) {
                 throw new ExprValidationException("Cannot create variable: " + ex.getMessage(), ex);
             }
-        }
-        catch (VariableDeclarationException ex) {
+        } catch (VariableDeclarationException ex) {
             throw new ExprValidationException("Cannot create variable: " + ex.getMessage(), ex);
         }
 
@@ -80,16 +77,14 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             public void destroy() {
                 try {
                     services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
-                }
-                catch (RuntimeException ex) {
+                } catch (RuntimeException ex) {
                     log.error("Error removing variable '" + createDesc.getVariableName() + "': " + ex.getMessage());
                 }
             }
         });
 
-        EPStatementStopMethod stopMethod = new EPStatementStopMethod(){
-            public void stop()
-            {
+        EPStatementStopMethod stopMethod = new EPStatementStopMethod() {
+            public void stop() {
             }
         };
 
@@ -109,10 +104,9 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
             destroyMethod.addCallback(new DestroyCallback() {
                 public void destroy() {
                     contextManagementService.destroyedStatement(statementSpec.getOptionalContextName(), statementContext.getStatementName(), statementContext.getStatementId());
-                    }
-                });
-        }
-        else {
+                }
+            });
+        } else {
             StatementAgentInstanceFactoryCreateVariableResult resultOfStart = (StatementAgentInstanceFactoryCreateVariableResult) contextFactory.newContext(getDefaultAgentInstanceContext(statementContext), isRecoveringResilient);
             outputView = resultOfStart.getFinalView();
 

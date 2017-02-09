@@ -20,33 +20,36 @@ import java.util.concurrent.locks.ReadWriteLock;
  * Index for filter parameter constants to match using the equals (=) operator.
  * The implementation is based on a regular HashMap.
  */
-public final class FilterParamIndexEqualsIs extends FilterParamIndexEqualsBase
-{
+public final class FilterParamIndexEqualsIs extends FilterParamIndexEqualsBase {
     public FilterParamIndexEqualsIs(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock) {
         super(lookupable, readWriteLock, FilterOperator.IS);
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         Object attributeValue = lookupable.getGetter().get(theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);
+        }
 
         EventEvaluator evaluator = null;
         constantsMapRWLock.readLock().lock();
         try {
             evaluator = constantsMap.get(attributeValue);
-        }
-        finally {
+        } finally {
             constantsMapRWLock.readLock().unlock();
         }
 
         // No listener found for the value, return
         if (evaluator == null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(false);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aFilterReverseIndex(false);
+            }
             return;
         }
 
         evaluator.matchEvent(theEvent, matches);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilterReverseIndex(true);
+        }
     }
 }

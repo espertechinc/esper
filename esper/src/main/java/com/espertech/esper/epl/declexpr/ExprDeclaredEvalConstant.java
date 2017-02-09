@@ -32,8 +32,12 @@ public class ExprDeclaredEvalConstant implements ExprEvaluator {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDeclared(prototype);}
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDeclared(value);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprDeclared(prototype);
+        }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprDeclared(value);
+        }
         return value;
     }
 

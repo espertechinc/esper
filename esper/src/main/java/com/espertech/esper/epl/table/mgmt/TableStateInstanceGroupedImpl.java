@@ -54,8 +54,7 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
         if (indexGetters.size() == 1) {
             Map<Object, EventBean> tableMap = (Map<Object, EventBean>) (Map<Object, ?>) rows;
             table = new PropertyIndexedEventTableSingleUnique(indexGetters.get(0), organization, tableMap);
-        }
-        else {
+        } else {
             EventPropertyGetter[] getters = indexGetters.toArray(new EventPropertyGetter[indexGetters.size()]);
             Map<MultiKeyUntyped, EventBean> tableMap = (Map<MultiKeyUntyped, EventBean>) (Map<?, ?>) rows;
             table = new PropertyIndexedEventTableUnique(getters, organization, tableMap);
@@ -78,29 +77,35 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
     }
 
     public void addEvent(EventBean theEvent) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qTableAddEvent(theEvent); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qTableAddEvent(theEvent);
+        }
         try {
             for (EventTable table : indexRepository.getTables()) {
                 table.add(theEvent);
             }
-        }
-        catch (EPException ex) {
+        } catch (EPException ex) {
             for (EventTable table : indexRepository.getTables()) {
                 table.remove(theEvent);
             }
             throw ex;
-        }
-        finally {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aTableAddEvent(); }
+        } finally {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aTableAddEvent();
+            }
         }
     }
 
     public void deleteEvent(EventBean matchingEvent) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qTableDeleteEvent(matchingEvent); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qTableDeleteEvent(matchingEvent);
+        }
         for (EventTable table : indexRepository.getTables()) {
             table.remove(matchingEvent);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aTableDeleteEvent(); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aTableDeleteEvent();
+        }
     }
 
     public Iterable<EventBean> getIterableTableScan() {

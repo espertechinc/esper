@@ -16,8 +16,7 @@ import java.util.List;
 /**
  * Table access expression.
  */
-public class TableAccessExpression extends ExpressionBase
-{
+public class TableAccessExpression extends ExpressionBase {
     private static final long serialVersionUID = 8878898170678366785L;
 
     private String tableName;
@@ -28,15 +27,15 @@ public class TableAccessExpression extends ExpressionBase
     /**
      * Ctor.
      */
-    public TableAccessExpression()
-    {
+    public TableAccessExpression() {
     }
 
     /**
      * Ctor.
-     * @param tableName the table name
-     * @param keyExpressions the list of key expressions for each table primary key in the same order as declared
-     * @param optionalColumn optional column name
+     *
+     * @param tableName         the table name
+     * @param keyExpressions    the list of key expressions for each table primary key in the same order as declared
+     * @param optionalColumn    optional column name
      * @param optionalAggregate optional aggregation function
      */
     public TableAccessExpression(String tableName, List<Expression> keyExpressions, String optionalColumn, Expression optionalAggregate) {
@@ -46,13 +45,11 @@ public class TableAccessExpression extends ExpressionBase
         this.optionalAggregate = optionalAggregate;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write(tableName);
         if (keyExpressions != null && !keyExpressions.isEmpty()) {
             writer.write("[");
@@ -71,6 +68,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Returns the table name.
+     *
      * @return table name
      */
     public String getTableName() {
@@ -79,6 +77,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Sets the table name.
+     *
      * @param tableName table name
      */
     public void setTableName(String tableName) {
@@ -87,6 +86,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Returns the primary key expressions.
+     *
      * @return primary key expressions
      */
     public List<Expression> getKeyExpressions() {
@@ -95,6 +95,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Sets the primary key expressions.
+     *
      * @param keyExpressions primary key expressions
      */
     public void setKeyExpressions(List<Expression> keyExpressions) {
@@ -103,6 +104,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Returns the optional table column name to access.
+     *
      * @return table column name or null if accessing row
      */
     public String getOptionalColumn() {
@@ -111,6 +113,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Sets the optional table column name to access.
+     *
      * @param optionalColumn table column name or null if accessing row
      */
     public void setOptionalColumn(String optionalColumn) {
@@ -119,6 +122,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Returns the optional table column aggregation accessor to use.
+     *
      * @return table column aggregation accessor
      */
     public Expression getOptionalAggregate() {
@@ -127,6 +131,7 @@ public class TableAccessExpression extends ExpressionBase
 
     /**
      * Sets the optional table column aggregation accessor to use.
+     *
      * @param optionalAggregate table column aggregation accessor
      */
     public void setOptionalAggregate(Expression optionalAggregate) {

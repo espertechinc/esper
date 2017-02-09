@@ -31,24 +31,22 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 
-public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode
-{
+public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode {
     private static final long serialVersionUID = -6088874732989061687L;
 
     private final AggregationStateType stateType;
     private transient EventType containedType;
     private transient Class scalarCollectionComponentType;
 
-    public ExprAggMultiFunctionLinearAccessNode(AggregationStateType stateType)
-    {
+    public ExprAggMultiFunctionLinearAccessNode(AggregationStateType stateType) {
         super(false);
         this.stateType = stateType;
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         return validateAggregationInternal(validationContext, null);
     }
 
@@ -63,17 +61,14 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         // handle table-access expression (state provided, accessor needed)
         if (optionalBinding != null) {
             desc = handleTableAccess(positionalParams, stateType, validationContext, optionalBinding);
-        }
-        // handle create-table statements (state creator and default accessor, limited to certain options)
-        else if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE) {
+        } else if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE) {
+            // handle create-table statements (state creator and default accessor, limited to certain options)
             desc = handleCreateTable(positionalParams, stateType, validationContext);
-        }
-        // handle into-table (state provided, accessor and agent needed, validation done by factory)
-        else if (validationContext.getIntoTableName() != null) {
+        } else if (validationContext.getIntoTableName() != null) {
+            // handle into-table (state provided, accessor and agent needed, validation done by factory)
             desc = handleIntoTable(positionalParams, stateType, validationContext);
-        }
-        // handle standalone
-        else {
+        } else {
+            // handle standalone
             desc = handleNonIntoTable(positionalParams, stateType, validationContext);
         }
 
@@ -97,7 +92,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         // validate wildcard use
         boolean isWildcard = childNodes.length == 0 || childNodes.length > 0 && childNodes[0] instanceof ExprWildcard;
         if (isWildcard) {
-            ExprAggMultiFunctionUtil.validateWildcardStreamNumbers(validationContext.getStreamTypeService(), stateType.toString().toLowerCase());
+            ExprAggMultiFunctionUtil.validateWildcardStreamNumbers(validationContext.getStreamTypeService(), stateType.toString().toLowerCase(Locale.ENGLISH));
             streamNum = 0;
             containedType = streamTypeService.getEventTypes()[0];
             resultType = containedType.getUnderlyingType();
@@ -107,9 +102,8 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             if ((stateType == AggregationStateType.WINDOW) && istreamOnly && !streamTypeService.isOnDemandStreams()) {
                 throw makeUnboundValidationEx(stateType);
             }
-        }
-        // validate "stream.*"
-        else if (childNodes.length > 0 && childNodes[0] instanceof ExprStreamUnderlyingNode) {
+        } else if (childNodes.length > 0 && childNodes[0] instanceof ExprStreamUnderlyingNode) {
+            // validate "stream.*"
             streamNum = ExprAggMultiFunctionUtil.validateStreamWildcardGetStreamNum(childNodes[0]);
             istreamOnly = getIstreamOnly(streamTypeService, streamNum);
             if ((stateType == AggregationStateType.WINDOW) && istreamOnly && !streamTypeService.isOnDemandStreams()) {
@@ -120,12 +114,11 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             resultType = type.getUnderlyingType();
             TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(type);
             evaluator = ExprNodeUtility.makeUnderlyingEvaluator(streamNum, resultType, tableMetadata);
-        }
-        // validate when neither wildcard nor "stream.*"
-        else {
+        } else {
+            // validate when neither wildcard nor "stream.*"
             ExprNode child = childNodes[0];
             Set<Integer> streams = ExprNodeUtility.getIdentStreamNumbers(child);
-            if ((streams.isEmpty() || (streams.size() > 1))) {
+            if (streams.isEmpty() || (streams.size() > 1)) {
                 throw new ExprValidationException(getErrorPrefix(stateType) + " requires that any child expressions evaluate properties of the same stream; Use 'firstever' or 'lastever' or 'nth' instead");
             }
             streamNum = streams.iterator().next();
@@ -137,8 +130,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             evaluator = childNodes[0].getExprEvaluator();
             if (streamNum >= streamTypeService.getEventTypes().length) {
                 containedType = streamTypeService.getEventTypes()[0];
-            }
-            else {
+            } else {
                 containedType = streamTypeService.getEventTypes()[streamNum];
             }
             scalarCollectionComponentType = resultType;
@@ -163,18 +155,14 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
                 constant = (Integer) evaluatorIndex.getExprEvaluator().evaluate(null, true, null);
             }
             accessor = new AggregationAccessorFirstLastIndexWEval(streamNum, evaluator, evaluatorIndex.getExprEvaluator(), constant, isFirst);
-        }
-        else {
+        } else {
             if (stateType == AggregationStateType.FIRST) {
                 accessor = new AggregationAccessorFirstWEval(streamNum, evaluator);
-            }
-            else if (stateType == AggregationStateType.LAST) {
+            } else if (stateType == AggregationStateType.LAST) {
                 accessor = new AggregationAccessorLastWEval(streamNum, evaluator);
-            }
-            else if (stateType == AggregationStateType.WINDOW) {
+            } else if (stateType == AggregationStateType.WINDOW) {
                 accessor = new AggregationAccessorWindowWEval(streamNum, evaluator, resultType);
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Access type is undefined or not known as code '" + stateType + "'");
             }
         }
@@ -201,7 +189,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     }
 
     private LinearAggregationFactoryDesc handleCreateTable(ExprNode[] childNodes, AggregationStateType stateType, ExprValidationContext validationContext) throws ExprValidationException {
-        String message = "For tables columns, the " + stateType.name().toLowerCase() + " aggregation function requires the 'window(*)' declaration";
+        String message = "For tables columns, the " + stateType.name().toLowerCase(Locale.ENGLISH) + " aggregation function requires the 'window(*)' declaration";
         if (stateType != AggregationStateType.WINDOW) {
             throw new ExprValidationException(message);
         }
@@ -236,12 +224,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
                 throw new ExprValidationException(getErrorPrefix(stateType) + " with wildcard requires a single stream");
             }
             streamNum = 0;
-        }
-        else if (childNodes[0] instanceof ExprStreamUnderlyingNode) {
+        } else if (childNodes[0] instanceof ExprStreamUnderlyingNode) {
             ExprStreamUnderlyingNode und = (ExprStreamUnderlyingNode) childNodes[0];
             streamNum = und.getStreamId();
-        }
-        else {
+        } else {
             throw new ExprValidationException(message);
         }
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
@@ -250,8 +236,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         AggregationAgent agent;
         if (streamNum == 0) {
             agent = AggregationAgentDefault.INSTANCE;
-        }
-        else {
+        } else {
             agent = new AggregationAgentRewriteStream(streamNum);
         }
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, JavaClassHelper.getArrayType(componentType), containedType, null, null, agent);
@@ -259,12 +244,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     }
 
     private LinearAggregationFactoryDesc handleTableAccess(ExprNode[] childNodes, AggregationStateType stateType, ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccess)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (stateType == AggregationStateType.FIRST || stateType == AggregationStateType.LAST) {
             return handleTableAccessFirstLast(childNodes, stateType, validationContext, tableAccess);
-        }
-        else if (stateType == AggregationStateType.WINDOW) {
+        } else if (stateType == AggregationStateType.WINDOW) {
             return handleTableAccessWindow(childNodes, stateType, validationContext, tableAccess);
         }
         throw new IllegalStateException("Unrecognized type " + stateType);
@@ -297,8 +280,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
             AggregationAccessor accessor;
             if (stateType == AggregationStateType.FIRST) {
                 accessor = new AggregationAccessorFirstWEval(0, paramNodeEval);
-            }
-            else {
+            } else {
                 accessor = new AggregationAccessorLastWEval(0, paramNodeEval);
             }
             ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, paramNodeEval.getType(), original.getContainedEventType(), null, null, null);
@@ -323,11 +305,10 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     }
 
     private LinearAggregationFactoryDesc handleTableAccessWindow(ExprNode[] childNodes, AggregationStateType stateType, ExprValidationContext validationContext, TableMetadataColumnAggregation tableAccess)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess original = (ExprAggMultiFunctionLinearAccessNodeFactoryAccess) tableAccess.getFactory();
         if (childNodes.length == 0 ||
-           (childNodes.length == 1 && childNodes[0] instanceof ExprWildcard)) {
+                (childNodes.length == 1 && childNodes[0] instanceof ExprWildcard)) {
             Class componentType = original.getContainedEventType().getUnderlyingType();
             AggregationAccessor accessor = new AggregationAccessorWindowNoEval(componentType);
             ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, JavaClassHelper.getArrayType(componentType), original.getContainedEventType(), null, null, null);
@@ -357,11 +338,11 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
     @Override
     public String getAggregationFunctionName() {
-        return stateType.toString().toLowerCase();
+        return stateType.toString().toLowerCase(Locale.ENGLISH);
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        writer.append(stateType.toString().toLowerCase());
+        writer.append(stateType.toString().toLowerCase(Locale.ENGLISH));
         ExprNodeUtility.toExpressionStringParams(writer, this.getChildNodes());
     }
 
@@ -408,6 +389,6 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
     }
 
     private static String getErrorPrefix(AggregationStateType stateType) {
-        return ExprAggMultiFunctionUtil.getErrorPrefix(stateType.toString().toLowerCase());
+        return ExprAggMultiFunctionUtil.getErrorPrefix(stateType.toString().toLowerCase(Locale.ENGLISH));
     }
 }

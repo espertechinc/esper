@@ -10,19 +10,18 @@
  */
 package com.espertech.esper.collection;
 
-import com.espertech.esper.util.MetaDefItem;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.util.MetaDefItem;
 
-import java.util.Arrays;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Functions as a key value for Maps where keys need to be composite values, and includes an {@link com.espertech.esper.client.EventBean} handle
  * The class allows a Map that uses MultiKeyUntyped entries for key values to use multiple objects as keys.
  * It calculates the hashCode from the key objects on construction and caches the hashCode.
  */
-public final class MultiKeyUntypedEventPair implements MetaDefItem, Serializable
-{
+public final class MultiKeyUntypedEventPair implements MetaDefItem, Serializable {
     private transient final Object[] keys;
     private transient EventBean eventBean = null;
     private final int hashCode;
@@ -30,19 +29,17 @@ public final class MultiKeyUntypedEventPair implements MetaDefItem, Serializable
 
     /**
      * Constructor for multiple keys supplied in an object array.
-     * @param keys is an array of key objects
+     *
+     * @param keys      is an array of key objects
      * @param eventBean for pair
      */
-    public MultiKeyUntypedEventPair(Object[] keys, EventBean eventBean)
-    {
-        if (keys == null)
-        {
+    public MultiKeyUntypedEventPair(Object[] keys, EventBean eventBean) {
+        if (keys == null) {
             throw new IllegalArgumentException("The array of keys must not be null");
         }
 
         int total = 0;
-        for (int i = 0; i < keys.length; i++)
-        {
+        for (int i = 0; i < keys.length; i++) {
             if (keys[i] != null) {
                 total *= 31;
                 total ^= keys[i].hashCode();
@@ -56,40 +53,37 @@ public final class MultiKeyUntypedEventPair implements MetaDefItem, Serializable
 
     /**
      * Returns the event.
+     *
      * @return event
      */
-    public EventBean getEventBean()
-    {
+    public EventBean getEventBean() {
         return eventBean;
     }
 
     /**
      * Returns the number of key objects.
+     *
      * @return size of key object array
      */
-    public final int size()
-    {
+    public final int size() {
         return keys.length;
     }
 
     /**
      * Returns the key object at the specified position.
+     *
      * @param index is the array position
      * @return key object at position
      */
-    public final Object get(int index)
-    {
+    public final Object get(int index) {
         return keys[index];
     }
 
-    public final boolean equals(Object other)
-    {
-        if (other == this)
-        {
+    public final boolean equals(Object other) {
+        if (other == this) {
             return true;
         }
-        if (other instanceof MultiKeyUntypedEventPair)
-        {
+        if (other instanceof MultiKeyUntypedEventPair) {
             MultiKeyUntypedEventPair otherKeys = (MultiKeyUntypedEventPair) other;
             return Arrays.equals(keys, otherKeys.keys);
         }
@@ -98,20 +92,18 @@ public final class MultiKeyUntypedEventPair implements MetaDefItem, Serializable
 
     /**
      * Returns keys.
+     *
      * @return keys object array
      */
-    public Object[] getKeys()
-    {
+    public Object[] getKeys() {
         return keys;
     }
 
-    public final int hashCode()
-    {
+    public final int hashCode() {
         return hashCode;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "MultiKeyUntyped" + Arrays.asList(keys).toString();
     }
 

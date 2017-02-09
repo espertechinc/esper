@@ -12,10 +12,13 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.core.StreamTypeService;
-import com.espertech.esper.epl.enummethod.dot.*;
+import com.espertech.esper.epl.enummethod.dot.EnumMethodEnum;
+import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
+import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
+import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 
@@ -27,13 +30,12 @@ public class ExprDotEvalTakeWhileAndLast extends ExprDotEvalEnumMethodBase {
         EventType firstParamType;
         if (inputEventType == null) {
             firstParamType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(0), collectionComponentType, eventAdapterService);
-        }
-        else {
+        } else {
             firstParamType = inputEventType;
         }
 
         if (goesToNames.size() == 1) {
-            return new EventType[] {firstParamType};
+            return new EventType[]{firstParamType};
         }
 
         ObjectArrayEventType indexEventType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(1), int.class, eventAdapterService);

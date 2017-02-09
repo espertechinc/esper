@@ -18,27 +18,24 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class TestStringRangeComparator extends TestCase
-{
-    public void testComparator()
-    {
+public class TestStringRangeComparator extends TestCase {
+    public void testComparator() {
         SortedSet<StringRange> sorted = new TreeSet<StringRange>(new StringRangeComparator());
 
         final String[][] TEST_SET =
                 {
-                    {"B", "G"},
-                    {"B", "F"},
-                    {null, "E"},
-                    {"A", "F"},
-                    {"A", "G"},
-                 };
+                        {"B", "G"},
+                        {"B", "F"},
+                        {null, "E"},
+                        {"A", "F"},
+                        {"A", "G"},
+                };
 
-        final int[] EXPECTED_INDEX = {2,3,4,1,0};
+        final int[] EXPECTED_INDEX = {2, 3, 4, 1, 0};
 
         // Sort
         StringRange ranges[] = new StringRange[TEST_SET.length];
-        for (int i = 0; i < TEST_SET.length; i++)
-        {
+        for (int i = 0; i < TEST_SET.length; i++) {
             ranges[i] = new StringRange(TEST_SET[i][0], TEST_SET[i][1]);
             sorted.add(ranges[i]);
         }
@@ -46,8 +43,7 @@ public class TestStringRangeComparator extends TestCase
 
         // Check results
         int count = 0;
-        for (Iterator<StringRange> i = sorted.iterator(); i.hasNext();)
-        {
+        for (Iterator<StringRange> i = sorted.iterator(); i.hasNext(); ) {
             StringRange range = i.next();
             int indexExpected = EXPECTED_INDEX[count];
             StringRange expected = ranges[indexExpected];

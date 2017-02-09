@@ -10,29 +10,27 @@
  */
 package com.espertech.esper.view.std;
 
-import com.espertech.esper.collection.MultiKeyUntyped;
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.supportunit.view.SupportMapView;
 import com.espertech.esper.supportunit.view.SupportSchemaNeutralView;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
+import junit.framework.TestCase;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestAddPropertyValueView extends TestCase
-{
+public class TestAddPropertyValueView extends TestCase {
     private AddPropertyValueOptionalView myView;
     private SupportMapView parentView;
     private SupportSchemaNeutralView childView;
     private EventType parentEventType;
 
-    public void setUp()
-    {
+    public void setUp() {
         Map<String, Object> schema = new HashMap<String, Object>();
         schema.put("STDDEV", Double.class);
         parentEventType = SupportEventTypeFactory.createMapType(schema);
@@ -42,7 +40,7 @@ public class TestAddPropertyValueView extends TestCase
         EventType mergeEventType = SupportEventAdapterService.getService().createAnonymousWrapperType("test", parentEventType, addProps);
 
         // Set up length window view and a test child view
-        myView = new AddPropertyValueOptionalView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), new String[] {"symbol"}, "IBM", mergeEventType);
+        myView = new AddPropertyValueOptionalView(SupportStatementContextFactory.makeAgentInstanceViewFactoryContext(), new String[]{"symbol"}, "IBM", mergeEventType);
 
         parentView = new SupportMapView(schema);
         parentView.addView(myView);
@@ -51,8 +49,7 @@ public class TestAddPropertyValueView extends TestCase
         myView.addView(childView);
     }
 
-    public void testViewUpdate()
-    {
+    public void testViewUpdate() {
         Map<String, Object> eventData = new HashMap<String, Object>();
 
         // Generate some events
@@ -64,8 +61,8 @@ public class TestAddPropertyValueView extends TestCase
         EventBean eventBeanThree = SupportEventBeanFactory.createMapFromValues(new HashMap<String, Object>(eventData), parentEventType);
 
         // Send events
-        parentView.update(new EventBean[] { eventBeanOne, eventBeanTwo},
-                          new EventBean[] { eventBeanThree });
+        parentView.update(new EventBean[]{eventBeanOne, eventBeanTwo},
+                new EventBean[]{eventBeanThree});
 
         // Checks
         EventBean[] newData = childView.getLastNewData();
@@ -81,15 +78,13 @@ public class TestAddPropertyValueView extends TestCase
         assertEquals(99999, oldData[0].get("STDDEV"));
     }
 
-    public void testCopyView() throws Exception
-    {
+    public void testCopyView() throws Exception {
         AddPropertyValueOptionalView copied = (AddPropertyValueOptionalView) myView.cloneView();
         assertEquals(myView.getPropertyNames(), copied.getPropertyNames());
         assertEquals(myView.getPropertyValues(), copied.getPropertyValues());
     }
 
-    public void testAddProperty()
-    {
+    public void testAddProperty() {
         Map<String, Object> eventData = new HashMap<String, Object>();
         eventData.put("STDDEV", 100);
         EventBean eventBean = SupportEventBeanFactory.createMapFromValues(eventData, parentEventType);
@@ -97,7 +92,7 @@ public class TestAddPropertyValueView extends TestCase
         Map<String, Object> addProps = new HashMap<String, Object>();
         addProps.put("test", Integer.class);
         EventType newEventType = SupportEventAdapterService.getService().createAnonymousWrapperType("test", parentEventType, addProps);
-        EventBean newBean = AddPropertyValueOptionalView.addProperty(eventBean, new String[] {"test"}, new MultiKeyUntyped(new Object[] {2}), newEventType, SupportEventAdapterService.getService());
+        EventBean newBean = AddPropertyValueOptionalView.addProperty(eventBean, new String[]{"test"}, new MultiKeyUntyped(new Object[]{2}), newEventType, SupportEventAdapterService.getService());
 
         assertEquals(2, newBean.get("test"));
         assertEquals(100, newBean.get("STDDEV"));

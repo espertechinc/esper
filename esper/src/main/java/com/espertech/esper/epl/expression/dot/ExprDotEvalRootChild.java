@@ -24,8 +24,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Collection;
 
-public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumeration
-{
+public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumeration {
     private final ExprDotNode dotNode;
     private final ExprDotEvalRootChildInnerEval innerEvaluator;
     private final ExprDotEval[] evalIteratorEventBean;
@@ -36,32 +35,25 @@ public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumera
         if (rootLambdaEvaluator != null) {
             if (typeInfo instanceof EventMultiValuedEPType) {
                 innerEvaluator = new InnerEvaluatorEnumerableEventCollection(rootLambdaEvaluator, ((EventMultiValuedEPType) typeInfo).getComponent());
-            }
-            else if (typeInfo instanceof EventEPType) {
+            } else if (typeInfo instanceof EventEPType) {
                 innerEvaluator = new InnerEvaluatorEnumerableEventBean(rootLambdaEvaluator, ((EventEPType) typeInfo).getType());
-            }
-            else {
+            } else {
                 innerEvaluator = new InnerEvaluatorEnumerableScalarCollection(rootLambdaEvaluator, ((ClassMultiValuedEPType) typeInfo).getComponent());
             }
-        }
-        else {
+        } else {
             if (checkedUnpackEvent) {
                 innerEvaluator = new InnerEvaluatorScalarUnpackEvent(rootNodeEvaluator);
-            }
-            else {
+            } else {
                 Class returnType = rootNodeEvaluator.getType();
                 if (hasEnumerationMethod && returnType.isArray()) {
                     if (returnType.getComponentType().isPrimitive()) {
                         innerEvaluator = new InnerEvaluatorArrPrimitiveToColl(rootNodeEvaluator);
-                    }
-                    else {
+                    } else {
                         innerEvaluator = new InnerEvaluatorArrObjectToColl(rootNodeEvaluator);
                     }
-                }
-                else if (hasEnumerationMethod && JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
+                } else if (hasEnumerationMethod && JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
                     innerEvaluator = new InnerEvaluatorColl(rootNodeEvaluator);
-                }
-                else {
+                } else {
                     innerEvaluator = new InnerEvaluatorScalar(rootNodeEvaluator);
                 }
             }
@@ -70,19 +62,23 @@ public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumera
         this.evalIteratorEventBean = evalIteratorEventBean;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return EPTypeHelper.getNormalizedClass(evalUnpacking[evalUnpacking.length - 1].getTypeInfo());
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDot(dotNode);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprDot(dotNode);
+        }
         Object inner = innerEvaluator.evaluate(eventsPerStream, isNewData, context);
         if (inner != null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDotChain(innerEvaluator.getTypeInfo(), inner, evalUnpacking);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprDotChain(innerEvaluator.getTypeInfo(), inner, evalUnpacking);
+            }
             inner = ExprDotNodeUtility.evaluateChain(evalUnpacking, inner, eventsPerStream, isNewData, context);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDotChain(); }
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprDotChain();
+            }
         }
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aExprDot(inner);
@@ -93,9 +89,13 @@ public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumera
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Object inner = innerEvaluator.evaluateGetROCollectionEvents(eventsPerStream, isNewData, context);
         if (inner != null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDotChain(innerEvaluator.getTypeInfo(), inner, evalUnpacking);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprDotChain(innerEvaluator.getTypeInfo(), inner, evalUnpacking);
+            }
             inner = ExprDotNodeUtility.evaluateChain(evalIteratorEventBean, inner, eventsPerStream, isNewData, context);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDotChain();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprDotChain();
+            }
             if (inner instanceof Collection) {
                 return (Collection<EventBean>) inner;
             }
@@ -106,9 +106,13 @@ public class ExprDotEvalRootChild implements ExprEvaluator, ExprEvaluatorEnumera
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Object inner = innerEvaluator.evaluateGetROCollectionScalar(eventsPerStream, isNewData, context);
         if (inner != null) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDotChain(innerEvaluator.getTypeInfo(), inner, evalUnpacking);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprDotChain(innerEvaluator.getTypeInfo(), inner, evalUnpacking);
+            }
             inner = ExprDotNodeUtility.evaluateChain(evalIteratorEventBean, inner, eventsPerStream, isNewData, context);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDotChain();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprDotChain();
+            }
             if (inner instanceof Collection) {
                 return (Collection) inner;
             }

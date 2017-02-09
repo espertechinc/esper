@@ -31,30 +31,23 @@ import java.text.NumberFormat;
 import java.util.Properties;
 import java.util.Random;
 
-public class ServerShellClientMain
-{
+public class ServerShellClientMain {
     private static Logger log = LoggerFactory.getLogger(ServerShellClientMain.class);
 
-    public static void main(String[] args) throws Exception
-    {
-        try
-        {
+    public static void main(String[] args) throws Exception {
+        try {
             new ServerShellClientMain();
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             log.error("Error starting server shell client : " + t.getMessage(), t);
             System.exit(-1);
         }
     }
 
-    public ServerShellClientMain() throws Exception
-    {
+    public ServerShellClientMain() throws Exception {
         log.info("Loading properties");
         Properties properties = new Properties();
         InputStream propertiesIS = ServerShellClientMain.class.getClassLoader().getResourceAsStream(ServerShellConstants.CONFIG_FILENAME);
-        if (propertiesIS == null)
-        {
+        if (propertiesIS == null) {
             throw new RuntimeException("Properties file '" + ServerShellConstants.CONFIG_FILENAME + "' not found in classpath");
         }
         properties.load(propertiesIS);
@@ -66,7 +59,7 @@ public class ServerShellClientMain
         MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
         ObjectName mBeanName = new ObjectName(ServerShellConstants.MGMT_MBEAN_NAME);
         EPServiceProviderJMXMBean proxy = (EPServiceProviderJMXMBean) MBeanServerInvocationHandler.newProxyInstance(
-                     mbsc, mBeanName, EPServiceProviderJMXMBean.class, true);
+                mbsc, mBeanName, EPServiceProviderJMXMBean.class, true);
 
         // Connect to JMS
         log.info("Connecting to JMS server");
@@ -92,8 +85,7 @@ public class ServerShellClientMain
         NumberFormat format = NumberFormat.getInstance();
 
         // Send messages
-        for (int i = 0; i < 1000; i++)
-        {
+        for (int i = 0; i < 1000; i++) {
             String ipAddress = ipAddresses[random.nextInt(ipAddresses.length)];
             double duration = 10 * random.nextDouble();
             String durationStr = format.format(duration);
@@ -104,8 +96,7 @@ public class ServerShellClientMain
             bytesMessage.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
             producer.send(bytesMessage);
 
-            if (i % 100 == 0)
-            {
+            if (i % 100 == 0) {
                 log.info("Sent " + i + " messages");
             }
         }

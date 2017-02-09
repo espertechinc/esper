@@ -18,9 +18,8 @@ import java.io.StringWriter;
 /**
  * Expression for use within crontab to specify a wildcard.
  */
-public class ExprWildcardImpl extends ExprNodeBase implements ExprEvaluator, ExprWildcard
-{
-    private static final WildcardParameter wildcardParameter = new WildcardParameter();
+public class ExprWildcardImpl extends ExprNodeBase implements ExprEvaluator, ExprWildcard {
+    private static final WildcardParameter WILDCARD_PARAMETER = new WildcardParameter();
     private static final long serialVersionUID = -6098833102154556698L;
 
     public ExprWildcardImpl() {
@@ -34,33 +33,27 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprEvaluator, Exp
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return true;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         return node instanceof ExprWildcardImpl;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return WildcardParameter.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        return wildcardParameter;
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        return WILDCARD_PARAMETER;
     }
 }

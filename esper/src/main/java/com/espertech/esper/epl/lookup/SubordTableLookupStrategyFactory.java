@@ -17,8 +17,7 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
  * Strategy for looking up, in some sort of table or index, or a set of events, potentially based on the
  * events properties, and returning a set of matched events.
  */
-public interface SubordTableLookupStrategyFactory
-{
+public interface SubordTableLookupStrategyFactory {
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw);
 
     public String toQueryPlan();

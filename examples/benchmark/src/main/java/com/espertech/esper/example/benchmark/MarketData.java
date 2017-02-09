@@ -21,17 +21,18 @@ import java.nio.CharBuffer;
 public class MarketData {
 
     public final static int SIZE = Symbols.SIZE + Double.SIZE + Integer.SIZE + Long.SIZE;
+
     static {
-        System.out.println("MarketData event = " + SIZE + " bit = " + SIZE/8 + " bytes");
-        System.out.println("  100 Mbit/s <==> " + (int) (100*1024*1024/SIZE/1000) + "k evt/s");
-        System.out.println("    1 Gbit/s <==> " + (int) (1024*1024*1024/SIZE/1000) + "k evt/s");
+        System.out.println("MarketData event = " + SIZE + " bit = " + SIZE / 8 + " bytes");
+        System.out.println("  100 Mbit/s <==> " + (int) (100 * 1024 * 1024 / SIZE / 1000) + "k evt/s");
+        System.out.println("    1 Gbit/s <==> " + (int) (1024 * 1024 * 1024 / SIZE / 1000) + "k evt/s");
     }
 
-    private  String ticker;
-    private  double price;
-    private  int volume;
+    private String ticker;
+    private double price;
+    private int volume;
 
-    private long time;//ms
+    private long time; //ms
     private final long inTime;
 
     public MarketData(String ticker, double price, int volume) {
@@ -84,7 +85,7 @@ public class MarketData {
     public void toByteBuffer(ByteBuffer b) {
         //symbol
         CharBuffer cb = b.asCharBuffer();
-        cb.put(ticker);//we know ticker is a fixed length string
+        cb.put(ticker); //we know ticker is a fixed length string
         b.position(b.position() + cb.position() * 2);
         //price, volume
         b.putDouble(price);
@@ -110,7 +111,7 @@ public class MarketData {
     }
 
     public String toString() {
-        return ticker+" : "+time+" : "+price+" : "+volume;
+        return ticker + " : " + time + " : " + price + " : " + volume;
     }
 
     public Object clone() throws CloneNotSupportedException {

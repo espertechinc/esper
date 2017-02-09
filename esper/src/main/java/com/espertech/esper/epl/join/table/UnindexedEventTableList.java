@@ -22,24 +22,25 @@ import java.util.List;
  * Simple table of events without an index, based on a List implementation rather then a set
  * since we know there cannot be duplicates (such as a poll returning individual rows).
  */
-public class UnindexedEventTableList implements EventTable
-{
+public class UnindexedEventTableList implements EventTable {
     private List<EventBean> eventSet;
     private int streamNum;
 
     /**
      * Ctor.
-     * @param eventSet is a list initializing the table
+     *
+     * @param eventSet  is a list initializing the table
      * @param streamNum stream number
      */
-    public UnindexedEventTableList(List<EventBean> eventSet, int streamNum)
-    {
+    public UnindexedEventTableList(List<EventBean> eventSet, int streamNum) {
         this.eventSet = eventSet;
         this.streamNum = streamNum;
     }
 
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
+        }
         if (newData != null) {
             Collections.addAll(eventSet, newData);
         }
@@ -48,11 +49,12 @@ public class UnindexedEventTableList implements EventTable
                 eventSet.remove(removeEvent);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexAddRemove();
+        }
     }
 
-    public void add(EventBean[] events)
-    {
+    public void add(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -66,8 +68,7 @@ public class UnindexedEventTableList implements EventTable
         }
     }
 
-    public void remove(EventBean[] events)
-    {
+    public void remove(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -93,22 +94,18 @@ public class UnindexedEventTableList implements EventTable
         eventSet.remove(event);
     }
 
-    public Iterator<EventBean> iterator()
-    {
-        if (eventSet == null)
-        {
+    public Iterator<EventBean> iterator() {
+        if (eventSet == null) {
             return CollectionUtil.NULL_EVENT_ITERATOR;
         }
         return eventSet.iterator();
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return eventSet.isEmpty();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return toQueryPlan();
     }
 
@@ -116,8 +113,7 @@ public class UnindexedEventTableList implements EventTable
         return this.getClass().getSimpleName();
     }
 
-    public void clear()
-    {
+    public void clear() {
         eventSet.clear();
     }
 

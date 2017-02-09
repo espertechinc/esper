@@ -19,8 +19,7 @@ import java.util.List;
 /**
  * Method to call to stop an EPStatement.
  */
-public class EPStatementStopMethodImpl implements EPStatementStopMethod
-{
+public class EPStatementStopMethodImpl implements EPStatementStopMethod {
     private final StatementContext statementContext;
     private final StopCallback[] stopCallbacks;
 
@@ -30,7 +29,7 @@ public class EPStatementStopMethodImpl implements EPStatementStopMethod
     }
 
     public void stop() {
-        for (StopCallback stopCallback : stopCallbacks){
+        for (StopCallback stopCallback : stopCallbacks) {
             StatementAgentInstanceUtil.stopSafe(stopCallback, statementContext);
         }
     }

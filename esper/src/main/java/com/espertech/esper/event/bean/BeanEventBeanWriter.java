@@ -18,25 +18,22 @@ import org.slf4j.LoggerFactory;
 /**
  * Writer for a set of event properties to a bean event.
  */
-public class BeanEventBeanWriter implements EventBeanWriter
-{
+public class BeanEventBeanWriter implements EventBeanWriter {
     private static final Logger log = LoggerFactory.getLogger(BeanEventBeanWriter.class);
 
     private final BeanEventPropertyWriter[] writers;
 
     /**
      * Writes to use.
+     *
      * @param writers writers
      */
-    public BeanEventBeanWriter(BeanEventPropertyWriter[] writers)
-    {
+    public BeanEventBeanWriter(BeanEventPropertyWriter[] writers) {
         this.writers = writers;
     }
 
-    public void write(Object[] values, EventBean theEvent)
-    {
-        for (int i = 0; i < values.length; i++)
-        {
+    public void write(Object[] values, EventBean theEvent) {
+        for (int i = 0; i < values.length; i++) {
             writers[i].write(values[i], theEvent);
         }
     }

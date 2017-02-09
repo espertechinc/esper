@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class represents an observer expression in the evaluation tree representing an pattern expression.
  */
-public class EvalObserverNode extends EvalNodeBase
-{
+public class EvalObserverNode extends EvalNodeBase {
     protected final EvalObserverFactoryNode factoryNode;
 
     public EvalObserverNode(PatternAgentInstanceContext context, EvalObserverFactoryNode factoryNode) {
@@ -31,8 +30,7 @@ public class EvalObserverNode extends EvalNodeBase
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalObserverStateNode(parentNode, this);
     }
 

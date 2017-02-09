@@ -19,12 +19,12 @@ public class TestTriviaCases extends TestCase {
 
         /**
          * Comment-in for debugging.
-        engine.getEPAdministrator().createEPL("select * from TriviaQuestion").addListener(new PrintUpdateListener());
-        engine.getEPAdministrator().createEPL("select * from PlayerAnswer").addListener(new PrintUpdateListener());
-        engine.getEPAdministrator().createEPL("select * from TriggerScore").addListener(new PrintUpdateListener());
-        engine.getEPAdministrator().createEPL("select * from PlayerFastestAnswerWindow").addListener(new PrintUpdateListener());
-        engine.getEPAdministrator().createEPL("select * from TriggerPlayerScore").addListener(new PrintUpdateListener());
-        engine.getEPAdministrator().createEPL("select * from PlayerScoreWindow").addListener(new PrintUpdateListener());
+         engine.getEPAdministrator().createEPL("select * from TriviaQuestion").addListener(new PrintUpdateListener());
+         engine.getEPAdministrator().createEPL("select * from PlayerAnswer").addListener(new PrintUpdateListener());
+         engine.getEPAdministrator().createEPL("select * from TriggerScore").addListener(new PrintUpdateListener());
+         engine.getEPAdministrator().createEPL("select * from PlayerFastestAnswerWindow").addListener(new PrintUpdateListener());
+         engine.getEPAdministrator().createEPL("select * from TriggerPlayerScore").addListener(new PrintUpdateListener());
+         engine.getEPAdministrator().createEPL("select * from PlayerScoreWindow").addListener(new PrintUpdateListener());
          */
     }
 
@@ -50,7 +50,7 @@ public class TestTriviaCases extends TestCase {
     }
 
     // Test FARequest -> Annulment -> Answer
-    public void test1PRequestFAAnnulAnswer()throws Exception {
+    public void test1PRequestFAAnnulAnswer() throws Exception {
         engine.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         engine.getEPRuntime().sendEvent(EventFactory.makeTriviaQuestion("Q1", "What clock never ticks?", "The un-clog", 0), "TriviaQuestion");
 
@@ -66,7 +66,7 @@ public class TestTriviaCases extends TestCase {
     }
 
     // Test Answer -> Annulment
-    public void test1PAnnulment()throws Exception {
+    public void test1PAnnulment() throws Exception {
         // send Q + A
         engine.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         engine.getEPRuntime().sendEvent(EventFactory.makeTriviaQuestion("Q1", "What clock never ticks?", "The un-clog", 0), "TriviaQuestion");
@@ -80,7 +80,7 @@ public class TestTriviaCases extends TestCase {
     }
 
     // Test Answer:P1 -> FARequest:P2 -> Answer:P2
-    public void test1PReceiveFAQ()throws Exception {
+    public void test1PReceiveFAQ() throws Exception {
         // send Q + A
         engine.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         engine.getEPRuntime().sendEvent(EventFactory.makeTriviaQuestion("Q1", "What clock never ticks?", "The un-clog", 0), "TriviaQuestion");
@@ -100,7 +100,7 @@ public class TestTriviaCases extends TestCase {
     }
 
     // Test 100-bonus fastest player: honest tie
-    public void test3PFastedBonusTied()throws Exception {
+    public void test3PFastedBonusTied() throws Exception {
         engine.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         engine.getEPRuntime().sendEvent(EventFactory.makeTriviaQuestion("Q1", "What is the square root of 2", "1.41421356", 0), "TriviaQuestion");
         long msec = System.currentTimeMillis();
@@ -115,7 +115,7 @@ public class TestTriviaCases extends TestCase {
     }
 
     // Test 100-bonus fasted player:  no-tie, OOO + incorrect
-    public void test3PFastedBonusUnordered()throws Exception {
+    public void test3PFastedBonusUnordered() throws Exception {
         engine.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         engine.getEPRuntime().sendEvent(EventFactory.makeTriviaQuestion("Q1", "What is the square root of 2", "1.41421356", 0), "TriviaQuestion");
         engine.getEPRuntime().sendEvent(EventFactory.makePlayerAnswer("P1", "Q1", "1.41421356", System.currentTimeMillis() + 10), "PlayerAnswer");
@@ -131,7 +131,7 @@ public class TestTriviaCases extends TestCase {
     }
 
     // Test 100-bonus fasted player: no-tie OOO
-    public void test2PFastedBonusOrdered()throws Exception {
+    public void test2PFastedBonusOrdered() throws Exception {
         engine.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         engine.getEPRuntime().sendEvent(EventFactory.makeTriviaQuestion("Q1", "What is the square root of 2", "1.41421356", 0), "TriviaQuestion");
         engine.getEPRuntime().sendEvent(EventFactory.makePlayerAnswer("P1", "Q1", "1.41421356", System.currentTimeMillis()), "PlayerAnswer");
@@ -161,7 +161,7 @@ public class TestTriviaCases extends TestCase {
 
     private int getScore(String playerId) {
         EPStatement stmt = engine.getEPAdministrator().getStatement("Score window");
-        for (Iterator<EventBean> it = stmt.iterator(); it.hasNext();) {
+        for (Iterator<EventBean> it = stmt.iterator(); it.hasNext(); ) {
             EventBean next = it.next();
             if (next.get("playerId").equals(playerId)) {
                 return (Integer) next.get("score");
@@ -173,7 +173,7 @@ public class TestTriviaCases extends TestCase {
 
     private void assertNotScore(String playerId) {
         EPStatement stmt = engine.getEPAdministrator().getStatement("Score window");
-        for (Iterator<EventBean> it = stmt.iterator(); it.hasNext();) {
+        for (Iterator<EventBean> it = stmt.iterator(); it.hasNext(); ) {
             EventBean next = it.next();
             if (next.get("playerId").equals(playerId)) {
                 fail();

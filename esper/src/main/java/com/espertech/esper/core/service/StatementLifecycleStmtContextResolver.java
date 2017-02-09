@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.core.service;
 
-public interface StatementLifecycleStmtContextResolver
-{
+public interface StatementLifecycleStmtContextResolver {
     public StatementContext getStatementContextById(int statementId);
 }

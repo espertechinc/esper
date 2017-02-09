@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.event.NaturalEventBean;
 
-public class TableOnMergeViewChangeHandler
-{
+public class TableOnMergeViewChangeHandler {
     private final TableMetadata tableMetadata;
     private OneEventCollection coll;
 

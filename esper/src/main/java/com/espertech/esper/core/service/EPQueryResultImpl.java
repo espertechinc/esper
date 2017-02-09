@@ -10,41 +10,37 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.collection.ArrayEventIterator;
+import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.EPOnDemandQueryResult;
+import com.espertech.esper.collection.ArrayEventIterator;
 
 import java.util.Iterator;
 
 /**
  * Query result.
  */
-public class EPQueryResultImpl implements EPOnDemandQueryResult
-{
+public class EPQueryResultImpl implements EPOnDemandQueryResult {
     private EPPreparedQueryResult queryResult;
 
     /**
      * Ctor.
+     *
      * @param queryResult is the prepared query
      */
-    public EPQueryResultImpl(EPPreparedQueryResult queryResult)
-    {
+    public EPQueryResultImpl(EPPreparedQueryResult queryResult) {
         this.queryResult = queryResult;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new ArrayEventIterator(queryResult.getResult());
     }
 
-    public EventBean[] getArray()
-    {
+    public EventBean[] getArray() {
         return queryResult.getResult();
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return queryResult.getEventType();
     }
 }

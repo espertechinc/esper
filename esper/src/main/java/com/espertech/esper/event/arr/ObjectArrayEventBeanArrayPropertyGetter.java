@@ -17,46 +17,40 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 /**
  * Returns the event bean or the underlying array.
  */
-public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayEventBeanArrayPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
     private final Class underlyingType;
 
     /**
      * Ctor.
-     * @param propertyIndex property to get
+     *
+     * @param propertyIndex  property to get
      * @param underlyingType type of property
      */
-    public ObjectArrayEventBeanArrayPropertyGetter(int propertyIndex, Class underlyingType)
-    {
+    public ObjectArrayEventBeanArrayPropertyGetter(int propertyIndex, Class underlyingType) {
         this.propertyIndex = propertyIndex;
         this.underlyingType = underlyingType;
     }
 
-    public Object getObjectArray(Object[] arrayEvent) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] arrayEvent) throws PropertyAccessException {
         Object innerValue = arrayEvent[propertyIndex];
         return BaseNestableEventUtil.getArrayPropertyAsUnderlyingsArray(underlyingType, (EventBean[]) innerValue);
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         return getObjectArray(array);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         return array[propertyIndex];
     }

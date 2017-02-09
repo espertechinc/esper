@@ -20,75 +20,67 @@ import java.io.StringWriter;
 /**
  * Represents an OR expression in a filter expression tree.
  */
-public class ExprOrNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprOrNode extends ExprNodeBase implements ExprEvaluator {
     private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = -1079540621551505814L;
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // Sub-nodes must be returning boolean
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Class childType = child.getType();
-            if (!JavaClassHelper.isBoolean(childType))
-            {
+            if (!JavaClassHelper.isBoolean(childType)) {
                 throw new ExprValidationException("Incorrect use of OR clause, sub-expressions do not return boolean");
             }
         }
 
-        if (this.getChildNodes().length <= 1)
-        {
+        if (this.getChildNodes().length <= 1) {
             throw new ExprValidationException("The OR operator requires at least 2 child expressions");
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprOr(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprOr(this);
+        }
         Boolean result = false;
         // At least one child must evaluate to true
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Boolean evaluated = (Boolean) child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (evaluated == null)
-            {
+            if (evaluated == null) {
                 result = null;
-            }
-            else {
-                if (evaluated)
-                {
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprOr(true);}
+            } else {
+                if (evaluated) {
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aExprOr(true);
+                    }
                     return true;
                 }
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprOr(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprOr(result);
+        }
         return result;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         String appendStr = "";
-        for (ExprNode child : this.getChildNodes())
-        {
+        for (ExprNode child : this.getChildNodes()) {
             writer.append(appendStr);
             child.toEPL(writer, getPrecedence());
             appendStr = " or ";
@@ -99,10 +91,8 @@ public class ExprOrNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.OR;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprOrNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprOrNode)) {
             return false;
         }
 

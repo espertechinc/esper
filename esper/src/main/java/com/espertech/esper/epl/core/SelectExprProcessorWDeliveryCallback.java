@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Interface for processors of select-clause items, implementors are computing results based on matching events.
  */
-public class SelectExprProcessorWDeliveryCallback implements SelectExprProcessor
-{
+public class SelectExprProcessorWDeliveryCallback implements SelectExprProcessor {
     private final EventType eventType;
     private final BindProcessor bindProcessor;
     private final SelectExprProcessorDeliveryCallback selectExprProcessorCallback;

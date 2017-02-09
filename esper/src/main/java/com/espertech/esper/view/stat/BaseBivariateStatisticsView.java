@@ -28,8 +28,7 @@ import java.util.Iterator;
  * View for computing statistics that require 2 input variable arrays containing X and Y datapoints.
  * Subclasses compute correlation or regression values, for instance.
  */
-public abstract class BaseBivariateStatisticsView extends ViewSupport implements DerivedValueView
-{
+public abstract class BaseBivariateStatisticsView extends ViewSupport implements DerivedValueView {
     private final static String NAME = "Statistics";
 
     protected final ViewFactory viewFactory;
@@ -64,11 +63,12 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
 
     /**
      * Populate bean.
-     * @param baseStatisticsBean results
+     *
+     * @param baseStatisticsBean  results
      * @param eventAdapterService event adapters
-     * @param eventType type
-     * @param additionalProps additional props
-     * @param decoration decoration values
+     * @param eventType           type
+     * @param additionalProps     additional props
+     * @param decoration          decoration values
      * @return bean
      */
     protected abstract EventBean populateMap(BaseStatisticsBean baseStatisticsBean, EventAdapterService eventAdapterService,
@@ -76,12 +76,13 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
 
     /**
      * Constructor requires the name of the two fields to use in the parent view to compute the statistics.
-     * @param expressionX is the expression to get the X values from
-     * @param expressionY is the expression to get the Y values from
+     *
+     * @param expressionX          is the expression to get the X values from
+     * @param expressionY          is the expression to get the Y values from
      * @param agentInstanceContext contains required view services
-     * @param eventType type of event
-     * @param additionalProps additional props
-     * @param viewFactory view factory
+     * @param eventType            type of event
+     * @param additionalProps      additional props
+     * @param viewFactory          view factory
      */
     public BaseBivariateStatisticsView(ViewFactory viewFactory,
                                        AgentInstanceContext agentInstanceContext,
@@ -89,8 +90,7 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
                                        ExprNode expressionY,
                                        EventType eventType,
                                        StatViewAdditionalProps additionalProps
-                                       )
-    {
+    ) {
         this.viewFactory = viewFactory;
         this.agentInstanceContext = agentInstanceContext;
         this.expressionX = expressionX;
@@ -101,32 +101,29 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
         this.additionalProps = additionalProps;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, NAME, newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, NAME, newData, oldData);
+        }
 
         // If we have child views, keep a reference to the old values, so we can fireStatementStopped them as old data event.
         EventBean oldValues = null;
-        if (lastNewEvent == null)
-        {
-            if (this.hasViews())
-            {
+        if (lastNewEvent == null) {
+            if (this.hasViews()) {
                 oldValues = populateMap(statisticsBean, agentInstanceContext.getStatementContext().getEventAdapterService(), eventType, additionalProps, lastValuesEventNew);
             }
         }
 
         // add data points to the bean
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 eventsPerStream[0] = newData[i];
                 Number xnum = (Number) expressionXEval.evaluate(eventsPerStream, true, agentInstanceContext);
                 Number ynum = (Number) expressionYEval.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (xnum != null && ynum != null) {
-                    double X = xnum.doubleValue();
-                    double Y = ynum.doubleValue();
-                    statisticsBean.addPoint(X, Y);
+                    double x = xnum.doubleValue();
+                    double y = ynum.doubleValue();
+                    statisticsBean.addPoint(x, y);
                 }
             }
 
@@ -141,46 +138,47 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
         }
 
         // remove data points from the bean
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 eventsPerStream[0] = oldData[i];
                 Number xnum = (Number) expressionXEval.evaluate(eventsPerStream, true, agentInstanceContext);
                 Number ynum = (Number) expressionYEval.evaluate(eventsPerStream, true, agentInstanceContext);
                 if (xnum != null && ynum != null) {
-                    double X = xnum.doubleValue();
-                    double Y = ynum.doubleValue();
-                    statisticsBean.removePoint(X, Y);
+                    double x = xnum.doubleValue();
+                    double y = ynum.doubleValue();
+                    statisticsBean.removePoint(x, y);
                 }
             }
         }
 
         // If there are child view, fireStatementStopped update method
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             EventBean newDataMap = populateMap(statisticsBean, agentInstanceContext.getStatementContext().getEventAdapterService(), eventType, additionalProps, lastValuesEventNew);
-            EventBean[] newEvents = new EventBean[] {newDataMap};
+            EventBean[] newEvents = new EventBean[]{newDataMap};
             EventBean[] oldEvents;
             if (lastNewEvent == null) {
-                oldEvents = new EventBean[] {oldValues};
-            }
-            else {
-                oldEvents = new EventBean[] {lastNewEvent};
+                oldEvents = new EventBean[]{oldValues};
+            } else {
+                oldEvents = new EventBean[]{lastNewEvent};
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, NAME, newEvents, oldEvents);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, NAME, newEvents, oldEvents);
+            }
             updateChildren(newEvents, oldEvents);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
 
             lastNewEvent = newDataMap;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new SingleEventIterator(populateMap(statisticsBean,
                 agentInstanceContext.getStatementContext().getEventAdapterService(),
                 eventType, additionalProps, lastValuesEventNew));
@@ -188,19 +186,19 @@ public abstract class BaseBivariateStatisticsView extends ViewSupport implements
 
     /**
      * Returns the expression supplying X data points.
+     *
      * @return X expression
      */
-    public final ExprNode getExpressionX()
-    {
+    public final ExprNode getExpressionX() {
         return expressionX;
     }
 
     /**
      * Returns the expression supplying Y data points.
+     *
      * @return Y expression
      */
-    public final ExprNode getExpressionY()
-    {
+    public final ExprNode getExpressionY() {
         return expressionY;
     }
 

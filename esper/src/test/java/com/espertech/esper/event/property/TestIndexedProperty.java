@@ -10,22 +10,20 @@
  */
 package com.espertech.esper.event.property;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
-public class TestIndexedProperty extends TestCase
-{
+public class TestIndexedProperty extends TestCase {
     private IndexedProperty[] indexed;
     private EventBean theEvent;
     private BeanEventType eventType;
 
-    public void setUp()
-    {
+    public void setUp() {
         indexed = new IndexedProperty[4];
         indexed[0] = new IndexedProperty("indexed", 0);
         indexed[1] = new IndexedProperty("indexed", 1);
@@ -36,11 +34,9 @@ public class TestIndexedProperty extends TestCase
         eventType = (BeanEventType) theEvent.getEventType();
     }
 
-    public void testGetGetter()
-    {
-        int[] expected = new int[] {1, 2, 10, 20};
-        for (int i = 0; i < indexed.length; i++)
-        {
+    public void testGetGetter() {
+        int[] expected = new int[]{1, 2, 10, 20};
+        for (int i = 0; i < indexed.length; i++) {
             EventPropertyGetter getter = indexed[i].getGetter(eventType, SupportEventAdapterService.getService());
             assertEquals(expected[i], getter.get(theEvent));
         }
@@ -50,11 +46,9 @@ public class TestIndexedProperty extends TestCase
         assertNull(ind.getGetter(eventType, SupportEventAdapterService.getService()));
     }
 
-    public void testGetPropertyType()
-    {
-        Class[] expected = new Class[] {int.class, int.class, int.class, int.class};
-        for (int i = 0; i < indexed.length; i++)
-        {
+    public void testGetPropertyType() {
+        Class[] expected = new Class[]{int.class, int.class, int.class, int.class};
+        for (int i = 0; i < indexed.length; i++) {
             assertEquals(expected[i], indexed[i].getPropertyType(eventType, SupportEventAdapterService.getService()));
         }
 

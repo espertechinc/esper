@@ -30,8 +30,7 @@ import java.util.*;
 /**
  * Provides a set of merge-strategies for merging individual properties (rather then overlaying groups).
  */
-public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implements ValueAddEventProcessor
-{
+public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implements ValueAddEventProcessor {
     private static final Logger log = LoggerFactory.getLogger(VAERevisionProcessorMerge.class);
 
     private final RevisionTypeDesc infoFullType;
@@ -40,20 +39,19 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
 
     /**
      * Ctor.
+     *
      * @param revisioneventTypeName name
-     * @param spec specification
-     * @param statementStopService for stop handling
-     * @param eventAdapterService for nested property handling
-     * @param eventTypeIdGenerator type id gen
+     * @param spec                  specification
+     * @param statementStopService  for stop handling
+     * @param eventAdapterService   for nested property handling
+     * @param eventTypeIdGenerator  type id gen
      */
-    public VAERevisionProcessorMerge(String revisioneventTypeName, RevisionSpec spec, StatementStopService statementStopService, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator)
-    {
+    public VAERevisionProcessorMerge(String revisioneventTypeName, RevisionSpec spec, StatementStopService statementStopService, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator) {
         super(spec, revisioneventTypeName, eventAdapterService);
 
         // on statement stop, remove versions
         statementStopService.addSubscriber(new StatementStopCallback() {
-            public void statementStopped()
-            {
+            public void statementStopped() {
                 statePerKey.clear();
             }
         });
@@ -64,39 +62,32 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         Map<String, RevisionPropertyTypeDesc> propertyDesc = new HashMap<String, RevisionPropertyTypeDesc>();
         int count = 0;
 
-        for (String property : spec.getChangesetPropertyNames())
-        {
+        for (String property : spec.getChangesetPropertyNames()) {
             EventPropertyGetter fullGetter = spec.getBaseEventType().getGetter(property);
             int propertyNumber = count;
             final RevisionGetterParameters parameters = new RevisionGetterParameters(property, propertyNumber, fullGetter, null);
 
             // if there are no groups (full event property only), then simply use the full event getter
             EventPropertyGetter revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException
-                    {
-                        RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
-                        return riv.getVersionedValue(parameters);
-                    }
+                public Object get(EventBean eventBean) throws PropertyAccessException {
+                    RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
+                    return riv.getVersionedValue(parameters);
+                }
 
-                    public boolean isExistsProperty(EventBean eventBean)
-                    {
-                        return true;
-                    }
+                public boolean isExistsProperty(EventBean eventBean) {
+                    return true;
+                }
 
-                    public Object getFragment(EventBean eventBean)
-                    {
-                        return null; // fragments no provided by revision events
-                    }
-                };
+                public Object getFragment(EventBean eventBean) {
+                    return null; // fragments no provided by revision events
+                }
+            };
 
             Class type = spec.getBaseEventType().getPropertyType(property);
-            if (type == null)
-            {
-                for (EventType deltaType : spec.getDeltaTypes())
-                {
+            if (type == null) {
+                for (EventType deltaType : spec.getDeltaTypes()) {
                     Class dtype = deltaType.getPropertyType(property);
-                    if (dtype != null)
-                    {
+                    if (dtype != null) {
                         type = dtype;
                         break;
                     }
@@ -108,58 +99,47 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         }
 
         count = 0;
-        for (String property : spec.getKeyPropertyNames())
-        {
+        for (String property : spec.getKeyPropertyNames()) {
             final int keyPropertyNumber = count;
 
             EventPropertyGetter revisionGetter;
             if (spec.getKeyPropertyNames().length == 1) {
                 revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException
-                    {
+                    public Object get(EventBean eventBean) throws PropertyAccessException {
                         RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
                         return riv.getKey();
                     }
 
-                    public boolean isExistsProperty(EventBean eventBean)
-                    {
+                    public boolean isExistsProperty(EventBean eventBean) {
                         return true;
                     }
 
-                    public Object getFragment(EventBean eventBean)
-                    {
+                    public Object getFragment(EventBean eventBean) {
                         return null;
                     }
                 };
-            }
-            else {
+            } else {
                 revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException
-                    {
+                    public Object get(EventBean eventBean) throws PropertyAccessException {
                         RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
                         return ((MultiKeyUntyped) riv.getKey()).getKeys()[keyPropertyNumber];
                     }
 
-                    public boolean isExistsProperty(EventBean eventBean)
-                    {
+                    public boolean isExistsProperty(EventBean eventBean) {
                         return true;
                     }
 
-                    public Object getFragment(EventBean eventBean)
-                    {
+                    public Object getFragment(EventBean eventBean) {
                         return null;
                     }
                 };
             }
 
             Class type = spec.getBaseEventType().getPropertyType(property);
-            if (type == null)
-            {
-                for (EventType deltaType : spec.getDeltaTypes())
-                {
+            if (type == null) {
+                for (EventType deltaType : spec.getDeltaTypes()) {
                     Class dtype = deltaType.getPropertyType(property);
-                    if (dtype != null)
-                    {
+                    if (dtype != null) {
                         type = dtype;
                         break;
                     }
@@ -171,28 +151,20 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         }
 
         // compile for each event type a list of getters and indexes within the overlay
-        for (EventType deltaType : spec.getDeltaTypes())
-        {
+        for (EventType deltaType : spec.getDeltaTypes()) {
             RevisionTypeDesc typeDesc = makeTypeDesc(deltaType, spec.getPropertyRevision());
             typeDescriptors.put(deltaType, typeDesc);
         }
         infoFullType = makeTypeDesc(spec.getBaseEventType(), spec.getPropertyRevision());
 
         // how to handle updates to a full event
-        if (spec.getPropertyRevision() == ConfigurationRevisionEventType.PropertyRevision.MERGE_DECLARED)
-        {
+        if (spec.getPropertyRevision() == ConfigurationRevisionEventType.PropertyRevision.MERGE_DECLARED) {
             updateStrategy = new UpdateStrategyDeclared(spec);
-        }
-        else if (spec.getPropertyRevision() == ConfigurationRevisionEventType.PropertyRevision.MERGE_NON_NULL)
-        {
+        } else if (spec.getPropertyRevision() == ConfigurationRevisionEventType.PropertyRevision.MERGE_NON_NULL) {
             updateStrategy = new UpdateStrategyNonNull(spec);
-        }
-        else if (spec.getPropertyRevision() == ConfigurationRevisionEventType.PropertyRevision.MERGE_EXISTS)
-        {
+        } else if (spec.getPropertyRevision() == ConfigurationRevisionEventType.PropertyRevision.MERGE_EXISTS) {
             updateStrategy = new UpdateStrategyExists(spec);
-        }
-        else
-        {
+        } else {
             throw new IllegalArgumentException("Unknown revision type '" + spec.getPropertyRevision() + "'");
         }
 
@@ -200,24 +172,20 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         revisionEventType = new RevisionEventType(metadata, eventTypeIdGenerator.getTypeId(revisioneventTypeName), propertyDesc, eventAdapterService);
     }
 
-    public EventBean getValueAddEventBean(EventBean theEvent)
-    {
+    public EventBean getValueAddEventBean(EventBean theEvent) {
         return new RevisionEventBeanMerge(revisionEventType, theEvent);
     }
 
-    public void onUpdate(EventBean[] newData, EventBean[] oldData, NamedWindowRootViewInstance namedWindowRootView, EventTableIndexRepository indexRepository)
-    {
+    public void onUpdate(EventBean[] newData, EventBean[] oldData, NamedWindowRootViewInstance namedWindowRootView, EventTableIndexRepository indexRepository) {
         // If new data is filled, it is not a delete
-        if ((newData == null) || (newData.length == 0))
-        {
+        if ((newData == null) || (newData.length == 0)) {
             // we are removing an event
             RevisionEventBeanMerge revisionEvent = (RevisionEventBeanMerge) oldData[0];
             Object key = revisionEvent.getKey();
             statePerKey.remove(key);
 
             // Insert into indexes for fast deletion, if there are any
-            for (EventTable table : indexRepository.getTables())
-            {
+            for (EventTable table : indexRepository.getTables()) {
                 table.remove(oldData);
             }
 
@@ -236,45 +204,35 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         Object key = null;
         RevisionTypeDesc typesDesc;
         boolean isBaseEventType = false;
-        if (underyingEventType == revisionSpec.getBaseEventType())
-        {
+        if (underyingEventType == revisionSpec.getBaseEventType()) {
             typesDesc = infoFullType;
             key = PropertyUtility.getKeys(underlyingEvent, infoFullType.getKeyPropertyGetters());
             isBaseEventType = true;
-        }
-        else
-        {
+        } else {
             typesDesc = typeDescriptors.get(underyingEventType);
 
             // if this type cannot be found, check all supertypes, if any
-            if (typesDesc == null)
-            {
+            if (typesDesc == null) {
                 Iterator<EventType> superTypes = underyingEventType.getDeepSuperTypes();
-                if (superTypes != null)
-                {
+                if (superTypes != null) {
                     EventType superType;
-                    for (;superTypes.hasNext();)
-                    {
+                    for (; superTypes.hasNext(); ) {
                         superType = superTypes.next();
-                        if (superType == revisionSpec.getBaseEventType())
-                        {
+                        if (superType == revisionSpec.getBaseEventType()) {
                             typesDesc = infoFullType;
                             key = PropertyUtility.getKeys(underlyingEvent, infoFullType.getKeyPropertyGetters());
                             isBaseEventType = true;
                             break;
                         }
                         typesDesc = typeDescriptors.get(superType);
-                        if (typesDesc != null)
-                        {
+                        if (typesDesc != null) {
                             typeDescriptors.put(underyingEventType, typesDesc);
                             key = PropertyUtility.getKeys(underlyingEvent, typesDesc.getKeyPropertyGetters());
                             break;
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 key = PropertyUtility.getKeys(underlyingEvent, typesDesc.getKeyPropertyGetters());
             }
         }
@@ -283,14 +241,12 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         RevisionStateMerge revisionState = statePerKey.get(key);
 
         // Delta event and no full
-        if ((!isBaseEventType) && (revisionState == null))
-        {
+        if ((!isBaseEventType) && (revisionState == null)) {
             return; // Ignore the event, its a delta and we don't currently have a full event for it
         }
 
         // New full event
-        if (revisionState == null)
-        {
+        if (revisionState == null) {
             revisionState = new RevisionStateMerge(underlyingEvent, null, null);
             statePerKey.put(key, revisionState);
 
@@ -301,14 +257,13 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
             revisionEvent.setLatest(true);
 
             // Insert into indexes for fast deletion, if there are any
-            for (EventTable table : indexRepository.getTables())
-            {
+            for (EventTable table : indexRepository.getTables()) {
                 table.add(newData);
             }
 
             // post to data window
             revisionState.setLastEvent(revisionEvent);
-            namedWindowRootView.updateChildren(new EventBean[] {revisionEvent}, null);
+            namedWindowRootView.updateChildren(new EventBean[]{revisionEvent}, null);
             return;
         }
 
@@ -330,8 +285,7 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         EventBean[] oldDataPost = new EventBean[]{lastEvent};
 
         // update indexes
-        for (EventTable table : indexRepository.getTables())
-        {
+        for (EventTable table : indexRepository.getTables()) {
             table.remove(oldDataPost);
             table.add(newDataPost);
         }
@@ -342,76 +296,59 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         namedWindowRootView.updateChildren(newDataPost, oldDataPost);
     }
 
-    public Collection<EventBean> getSnapshot(EPStatementAgentInstanceHandle createWindowStmtHandle, Viewable parent)
-    {
+    public Collection<EventBean> getSnapshot(EPStatementAgentInstanceHandle createWindowStmtHandle, Viewable parent) {
         createWindowStmtHandle.getStatementAgentInstanceLock().acquireReadLock();
-        try
-        {
+        try {
             Iterator<EventBean> it = parent.iterator();
-            if (!it.hasNext())
-            {
+            if (!it.hasNext()) {
                 return Collections.EMPTY_LIST;
             }
             ArrayDeque<EventBean> list = new ArrayDeque<EventBean>();
-            while (it.hasNext())
-            {
+            while (it.hasNext()) {
                 RevisionEventBeanMerge fullRevision = (RevisionEventBeanMerge) it.next();
                 Object key = fullRevision.getKey();
                 RevisionStateMerge state = statePerKey.get(key);
                 list.add(state.getLastEvent());
             }
             return list;
-        }
-        finally
-        {
+        } finally {
             createWindowStmtHandle.getStatementAgentInstanceLock().releaseReadLock();
         }
     }
 
-    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository)
-    {
-        for (EventBean anOldData : oldData)
-        {
+    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository) {
+        for (EventBean anOldData : oldData) {
             RevisionEventBeanMerge theEvent = (RevisionEventBeanMerge) anOldData;
 
             // If the remove event is the latest event, remove from all caches
-            if (theEvent.isLatest())
-            {
+            if (theEvent.isLatest()) {
                 Object key = theEvent.getKey();
                 statePerKey.remove(key);
 
-                for (EventTable table : indexRepository.getTables())
-                {
+                for (EventTable table : indexRepository.getTables()) {
                     table.remove(oldData);
                 }
             }
         }
     }
 
-    private RevisionTypeDesc makeTypeDesc(EventType eventType, ConfigurationRevisionEventType.PropertyRevision propertyRevision)
-    {
+    private RevisionTypeDesc makeTypeDesc(EventType eventType, ConfigurationRevisionEventType.PropertyRevision propertyRevision) {
         EventPropertyGetter[] keyPropertyGetters = PropertyUtility.getGetters(eventType, revisionSpec.getKeyPropertyNames());
 
         int len = revisionSpec.getChangesetPropertyNames().length;
         List<EventPropertyGetter> listOfGetters = new ArrayList<EventPropertyGetter>();
         List<Integer> listOfIndexes = new ArrayList<Integer>();
 
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             String propertyName = revisionSpec.getChangesetPropertyNames()[i];
             EventPropertyGetter getter = null;
 
-            if (propertyRevision != ConfigurationRevisionEventType.PropertyRevision.MERGE_EXISTS)
-            {
+            if (propertyRevision != ConfigurationRevisionEventType.PropertyRevision.MERGE_EXISTS) {
                 getter = eventType.getGetter(revisionSpec.getChangesetPropertyNames()[i]);
-            }
-            else
-            {
+            } else {
                 // only declared properties may be used a dynamic properties to avoid confusion of properties suddenly appearing
-                for (String propertyNamesDeclared : eventType.getPropertyNames())
-                {
-                    if (propertyNamesDeclared.equals(propertyName))
-                    {
+                for (String propertyNamesDeclared : eventType.getPropertyNames()) {
+                    if (propertyNamesDeclared.equals(propertyName)) {
                         // use dynamic properties
                         getter = eventType.getGetter(revisionSpec.getChangesetPropertyNames()[i] + "?");
                         break;
@@ -419,8 +356,7 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
                 }
             }
 
-            if (getter != null)
-            {
+            if (getter != null) {
                 listOfGetters.add(getter);
                 listOfIndexes.add(i);
             }
@@ -428,8 +364,7 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
 
         EventPropertyGetter[] changesetPropertyGetters = listOfGetters.toArray(new EventPropertyGetter[listOfGetters.size()]);
         int[] changesetPropertyIndex = new int[listOfIndexes.size()];
-        for (int i = 0; i < listOfIndexes.size(); i++)
-        {
+        for (int i = 0; i < listOfIndexes.size(); i++) {
             changesetPropertyIndex[i] = listOfIndexes.get(i);
         }
 

@@ -17,13 +17,13 @@ import java.io.Serializable;
 /**
  * Specification for the skip-part of match_recognize.
  */
-public class MatchRecognizeSkip implements MetaDefItem, Serializable
-{
+public class MatchRecognizeSkip implements MetaDefItem, Serializable {
     private MatchRecognizeSkipEnum skip;
     private static final long serialVersionUID = 579228626022249216L;
 
     /**
      * Ctor.
+     *
      * @param skip enum
      */
     public MatchRecognizeSkip(MatchRecognizeSkipEnum skip) {
@@ -32,6 +32,7 @@ public class MatchRecognizeSkip implements MetaDefItem, Serializable
 
     /**
      * Skip enum.
+     *
      * @return skip value
      */
     public MatchRecognizeSkipEnum getSkip() {
@@ -40,10 +41,10 @@ public class MatchRecognizeSkip implements MetaDefItem, Serializable
 
     /**
      * Sets the skip value.
+     *
      * @param skip to set
      */
-    public void setSkip(MatchRecognizeSkipEnum skip)
-    {
+    public void setSkip(MatchRecognizeSkipEnum skip) {
         this.skip = skip;
     }
 }

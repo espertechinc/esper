@@ -14,6 +14,8 @@ import com.espertech.esper.rowregex.RegexExprPreviousEvalStrategy;
 
 public interface AIRegistryMatchRecognizePrevious extends RegexExprPreviousEvalStrategy {
     public void assignService(int num, RegexExprPreviousEvalStrategy value);
+
     public void deassignService(int num);
+
     public int getAgentInstanceCount();
 }

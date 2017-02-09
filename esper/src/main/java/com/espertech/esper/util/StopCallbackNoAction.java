@@ -13,9 +13,9 @@ package com.espertech.esper.util;
 /**
  * Stop callback that performs no action.
  */
-public class StopCallbackNoAction implements StopCallback
-{
+public class StopCallbackNoAction implements StopCallback {
     public final static StopCallback INSTANCE = new StopCallbackNoAction();
 
-    public void stop() {}
+    public void stop() {
+    }
 }

@@ -24,13 +24,14 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Ctor.
-     * @param operatorName operator name
-     * @param operatorPrettyPrint operator pretty print
-     * @param operatorNumber operator number
+     *
+     * @param operatorName          operator name
+     * @param operatorPrettyPrint   operator pretty print
+     * @param operatorNumber        operator number
      * @param submittedOverallCount count of submitted events
      * @param submittedPerPortCount count of events submitted per port
-     * @param timeOverall time spent submitting events
-     * @param timePerPort time spent submitting events per port
+     * @param timeOverall           time spent submitting events
+     * @param timePerPort           time spent submitting events per port
      */
     public EPDataFlowInstanceOperatorStat(String operatorName, String operatorPrettyPrint, int operatorNumber, long submittedOverallCount, long[] submittedPerPortCount, long timeOverall, long[] timePerPort) {
         this.operatorName = operatorName;
@@ -44,6 +45,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns operator name.
+     *
      * @return op name
      */
     public String getOperatorName() {
@@ -52,6 +54,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns count of submitted events.
+     *
      * @return count
      */
     public long getSubmittedOverallCount() {
@@ -60,6 +63,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns count of submitted events per port.
+     *
      * @return count per port
      */
     public long[] getSubmittedPerPortCount() {
@@ -68,6 +72,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns operator pretty print
+     *
      * @return textual representation of op
      */
     public String getOperatorPrettyPrint() {
@@ -76,6 +81,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns the operator number.
+     *
      * @return op number
      */
     public int getOperatorNumber() {
@@ -84,6 +90,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns total time spent submitting events
+     *
      * @return time
      */
     public long getTimeOverall() {
@@ -92,6 +99,7 @@ public class EPDataFlowInstanceOperatorStat {
 
     /**
      * Returns total time spent submitting events per port
+     *
      * @return time per port
      */
     public long[] getTimePerPort() {

@@ -17,26 +17,29 @@ package com.espertech.esper.collection.apachecommons;
  * Abstract pair class to assist with creating <code>KeyValue</code>
  * and {@link java.util.Map.Entry Map.Entry} implementations.
  *
- * @since Commons Collections 3.0
- * @version $Revision$ $Date$
- *
  * @author James Strachan
  * @author Michael A. Smith
  * @author Neil O'Toole
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @since Commons Collections 3.0
  */
 public abstract class AbstractKeyValue implements KeyValue {
 
-    /** The key */
+    /**
+     * The key
+     */
     protected Object key;
-    /** The value */
+    /**
+     * The value
+     */
     protected Object value;
 
     /**
      * Constructs a new pair with the specified key and given value.
      *
-     * @param key  the key for the entry, may be null
-     * @param value  the value for the entry, may be null
+     * @param key   the key for the entry, may be null
+     * @param value the value for the entry, may be null
      */
     protected AbstractKeyValue(Object key, Object value) {
         super();
@@ -69,10 +72,10 @@ public abstract class AbstractKeyValue implements KeyValue {
      */
     public String toString() {
         return new StringBuffer()
-            .append(getKey())
-            .append('=')
-            .append(getValue())
-            .toString();
+                .append(getKey())
+                .append('=')
+                .append(getValue())
+                .toString();
     }
 
 }

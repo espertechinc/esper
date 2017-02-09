@@ -10,29 +10,25 @@
  */
 package com.espertech.esper.epl.db;
 
-import com.espertech.esper.client.util.ClassForNameProviderDefault;
+import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.epl.core.EngineImportService;
-import junit.framework.TestCase;
 import com.espertech.esper.supportunit.epl.SupportDatabaseService;
-import com.espertech.esper.client.ConfigurationDBRef;
-
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.util.Properties;
-
+import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestDatabaseDMConnFactory extends TestCase
-{
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Properties;
+
+public class TestDatabaseDMConnFactory extends TestCase {
     private DatabaseDMConnFactory databaseDMConnFactoryOne;
     private DatabaseDMConnFactory databaseDMConnFactoryTwo;
     private DatabaseDMConnFactory databaseDMConnFactoryThree;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         EngineImportService engineImportService = SupportEngineImportServiceFactory.make();
 
         // driver-manager config 1
@@ -58,8 +54,7 @@ public class TestDatabaseDMConnFactory extends TestCase
         databaseDMConnFactoryThree = new DatabaseDMConnFactory((ConfigurationDBRef.DriverManagerConnection) config.getConnectionFactoryDesc(), config.getConnectionSettings(), engineImportService);
     }
 
-    public void testGetConnection() throws Exception
-    {
+    public void testGetConnection() throws Exception {
         Connection connection = databaseDMConnFactoryOne.getConnection();
         tryAndCloseConnection(connection);
 
@@ -70,8 +65,7 @@ public class TestDatabaseDMConnFactory extends TestCase
         tryAndCloseConnection(connection);
     }
 
-    private void tryAndCloseConnection(Connection connection) throws Exception
-    {
+    private void tryAndCloseConnection(Connection connection) throws Exception {
         Statement stmt = connection.createStatement();
         stmt.execute("select 1 from dual");
         ResultSet result = stmt.getResultSet();

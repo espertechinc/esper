@@ -44,7 +44,7 @@ import java.util.concurrent.locks.Lock;
 
 public class TableServiceImpl implements TableService {
 
-    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+    private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     private final Map<String, TableMetadata> tables = new HashMap<String, TableMetadata>();
     private final TableExprEvaluatorContext tableExprEvaluatorContext = new TableExprEvaluatorContext();
@@ -57,8 +57,7 @@ public class TableServiceImpl implements TableService {
     }
 
     public TableUpdateStrategy getTableUpdateStrategy(TableMetadata tableMetadata, EventBeanUpdateHelper updateHelper, boolean isOnMerge)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         return TableUpdateStrategyFactory.validateGetTableUpdateStrategy(tableMetadata, updateHelper, isOnMerge);
     }
 
@@ -89,8 +88,7 @@ public class TableServiceImpl implements TableService {
                     return new TableStateInstanceUngroupedImpl(metadata, agentInstanceContext);
                 }
             };
-        }
-        else {
+        } else {
             tableStateFactory = new TableStateFactory() {
                 public TableStateInstance makeTableState(AgentInstanceContext agentInstanceContext) {
                     return new TableStateInstanceGroupedImpl(metadata, agentInstanceContext);
@@ -123,7 +121,7 @@ public class TableServiceImpl implements TableService {
     }
 
     public static Logger getQueryPlanLog() {
-        return queryPlanLog;
+        return QUERY_PLAN_LOG;
     }
 
     public TableMetadata getTableMetadataFromEventType(EventType type) {
@@ -137,8 +135,7 @@ public class TableServiceImpl implements TableService {
     public Pair<ExprNode, List<ExprChainedSpec>> getTableNodeChainable(StreamTypeService streamTypeService,
                                                                        List<ExprChainedSpec> chainSpec,
                                                                        EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         chainSpec = new ArrayList<ExprChainedSpec>(chainSpec);
 
         String unresolvedPropertyName = chainSpec.get(0).getName();
@@ -172,8 +169,7 @@ public class TableServiceImpl implements TableService {
     }
 
     public ExprTableIdentNode getTableIdentNode(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyName)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         String propertyPrefixed = unresolvedPropertyName;
         if (streamOrPropertyName != null) {
             propertyPrefixed = streamOrPropertyName + "." + unresolvedPropertyName;
@@ -210,25 +206,22 @@ public class TableServiceImpl implements TableService {
         Lock lock = writesToTables ? instance.getTableLevelRWLock().writeLock() : instance.getTableLevelRWLock().readLock();
         if (instance instanceof TableStateInstanceGrouped) {
             return new TableAndLockProviderGroupedImpl(new TableAndLockGrouped(lock, (TableStateInstanceGrouped) instance));
-        }
-        else {
+        } else {
             return new TableAndLockProviderUngroupedImpl(new TableAndLockUngrouped(lock, (TableStateInstanceUngrouped) instance));
         }
     }
 
     private StreamTableColWStreamName findTableColumnMayByPrefixed(StreamTypeService streamTypeService, String streamAndPropName)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         int indexDot = streamAndPropName.indexOf(".");
         if (indexDot == -1) {
             StreamTableColPair pair = findTableColumnAcrossStreams(streamTypeService, streamAndPropName);
             if (pair != null) {
                 return new StreamTableColWStreamName(pair, null);
             }
-        }
-        else {
+        } else {
             String streamName = streamAndPropName.substring(0, indexDot);
-            String colName = streamAndPropName.substring(indexDot+1);
+            String colName = streamAndPropName.substring(indexDot + 1);
             int streamNum = streamTypeService.getStreamNumForStreamName(streamName);
             if (streamNum == -1) {
                 return null;
@@ -246,8 +239,7 @@ public class TableServiceImpl implements TableService {
     }
 
     private StreamTableColPair findTableColumnAcrossStreams(StreamTypeService streamTypeService, String columnName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         StreamTableColPair found = null;
         for (int i = 0; i < streamTypeService.getEventTypes().length; i++) {
             EventType type = streamTypeService.getEventTypes()[i];

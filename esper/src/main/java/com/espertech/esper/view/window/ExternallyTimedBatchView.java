@@ -29,8 +29,7 @@ import java.util.Set;
 /**
  * Batch window based on timestamp of arriving events.
  */
-public class ExternallyTimedBatchView extends ViewSupport implements DataWindowView, CloneableView
-{
+public class ExternallyTimedBatchView extends ViewSupport implements DataWindowView, CloneableView {
     private final ExternallyTimedBatchViewFactory factory;
     private final ExprNode timestampExpression;
     private final ExprEvaluator timestampExpressionEval;
@@ -48,18 +47,19 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
 
     /**
      * Constructor.
-     * @param timestampExpression is the field name containing a long timestamp value
-     * that should be in ascending order for the natural order of events and is intended to reflect
-     * System.currentTimeInMillis but does not necessarily have to.
-     * out of the window as oldData in the update method. The view compares
-     * each events timestamp against the newest event timestamp and those with a delta
-     * greater then secondsBeforeExpiry are pushed out of the window.
-     * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param factory for copying this view in a group-by
+     *
+     * @param timestampExpression             is the field name containing a long timestamp value
+     *                                        that should be in ascending order for the natural order of events and is intended to reflect
+     *                                        System.currentTimeInMillis but does not necessarily have to.
+     *                                        out of the window as oldData in the update method. The view compares
+     *                                        each events timestamp against the newest event timestamp and those with a delta
+     *                                        greater then secondsBeforeExpiry are pushed out of the window.
+     * @param viewUpdatedCollection           is a collection that the view must update when receiving events
+     * @param factory                         for copying this view in a group-by
      * @param agentInstanceViewFactoryContext context for expression evalauation
-     * @param optionalReferencePoint ref point
-     * @param timeDeltaComputation time delta
-     * @param timestampExpressionEval timestamp expr eval
+     * @param optionalReferencePoint          ref point
+     * @param timeDeltaComputation            time delta
+     * @param timestampExpressionEval         timestamp expr eval
      */
     public ExternallyTimedBatchView(ExternallyTimedBatchViewFactory factory,
                                     ExprNode timestampExpression,
@@ -67,8 +67,7 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
                                     ExprTimePeriodEvalDeltaConst timeDeltaComputation,
                                     Long optionalReferencePoint,
                                     ViewUpdatedCollection viewUpdatedCollection,
-                                    AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+                                    AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.factory = factory;
         this.timestampExpression = timestampExpression;
         this.timestampExpressionEval = timestampExpressionEval;
@@ -78,29 +77,28 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
         this.referenceTimestamp = optionalReferencePoint;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return factory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**
      * Returns the field name to get timestamp values from.
+     *
      * @return field name for timestamp values
      */
-    public final ExprNode getTimestampExpression()
-    {
+    public final ExprNode getTimestampExpression() {
         return timestampExpression;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, factory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, factory.getViewName(), newData, oldData);
+        }
 
         // remove points from data window
         if (oldData != null && oldData.length != 0) {
@@ -123,15 +121,13 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
 
                 if (oldestTimestamp == null) {
                     oldestTimestamp = timestamp;
-                }
-                else {
+                } else {
                     ExprTimePeriodEvalDeltaResult delta = timeDeltaComputation.deltaAddWReference(oldestTimestamp, referenceTimestamp);
                     this.referenceTimestamp = delta.getLastReference();
                     if (timestamp - oldestTimestamp >= delta.getDelta()) {
                         if (batchNewData == null) {
                             batchNewData = window.toArray(new EventBean[window.size()]);
-                        }
-                        else {
+                        } else {
                             batchNewData = EventBeanUtility.addToArray(batchNewData, window);
                         }
                         window.clear();
@@ -149,9 +145,13 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
             if (viewUpdatedCollection != null) {
                 viewUpdatedCollection.update(batchNewData, lastBatch);
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), newData, lastBatch);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), newData, lastBatch);
+            }
             updateChildren(batchNewData, lastBatch);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
             lastBatch = batchNewData;
             determineOldestTimestamp();
         }
@@ -159,30 +159,35 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
             if (viewUpdatedCollection != null) {
                 viewUpdatedCollection.update(null, oldData);
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), null, oldData);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), null, oldData);
+            }
             updateChildren(null, oldData);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return window.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " timestampExpression=" + timestampExpression;
     }
+
     /**
      * Returns true to indicate the window is empty, or false if the view is not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return window.isEmpty();
     }
 
@@ -201,8 +206,7 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
     protected void determineOldestTimestamp() {
         if (window.isEmpty()) {
             oldestTimestamp = null;
-        }
-        else {
+        } else {
             oldestTimestamp = getLongValue(window.iterator().next());
         }
     }
@@ -219,8 +223,7 @@ public class ExternallyTimedBatchView extends ViewSupport implements DataWindowV
         // no action require
     }
 
-    private long getLongValue(EventBean obj)
-    {
+    private long getLongValue(EventBean obj) {
         eventsPerStream[0] = obj;
         Number num = (Number) timestampExpressionEval.evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         return num.longValue();

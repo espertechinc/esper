@@ -15,8 +15,7 @@ import com.espertech.esper.client.soda.StreamSelector;
 /**
  * Enumeration for representing select-clause selection of the remove stream or the insert stream, or both.
  */
-public enum SelectClauseStreamSelectorEnum
-{
+public enum SelectClauseStreamSelectorEnum {
     /**
      * Indicates selection of the remove stream only.
      */
@@ -42,50 +41,36 @@ public enum SelectClauseStreamSelectorEnum
 
     /**
      * Maps the SODA-selector to the internal representation
+     *
      * @param selector is the SODA-selector to map
      * @return internal stream selector
      */
-    public static SelectClauseStreamSelectorEnum mapFromSODA(StreamSelector selector)
-    {
-        if (selector == StreamSelector.ISTREAM_ONLY)
-        {
+    public static SelectClauseStreamSelectorEnum mapFromSODA(StreamSelector selector) {
+        if (selector == StreamSelector.ISTREAM_ONLY) {
             return SelectClauseStreamSelectorEnum.ISTREAM_ONLY;
-        }
-        else if (selector == StreamSelector.RSTREAM_ONLY)
-        {
+        } else if (selector == StreamSelector.RSTREAM_ONLY) {
             return SelectClauseStreamSelectorEnum.RSTREAM_ONLY;
-        }
-        else if (selector == StreamSelector.RSTREAM_ISTREAM_BOTH)
-        {
+        } else if (selector == StreamSelector.RSTREAM_ISTREAM_BOTH) {
             return SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH;
-        }
-        else
-        {
+        } else {
             throw new IllegalArgumentException("Invalid selector '" + selector + "' encountered");
         }
     }
 
     /**
      * Maps the internal stream selector to the SODA-representation
+     *
      * @param selector is the internal selector to map
      * @return SODA stream selector
      */
-    public static StreamSelector mapFromSODA(SelectClauseStreamSelectorEnum selector)
-    {
-        if (selector == SelectClauseStreamSelectorEnum.ISTREAM_ONLY)
-        {
+    public static StreamSelector mapFromSODA(SelectClauseStreamSelectorEnum selector) {
+        if (selector == SelectClauseStreamSelectorEnum.ISTREAM_ONLY) {
             return StreamSelector.ISTREAM_ONLY;
-        }
-        else if (selector == SelectClauseStreamSelectorEnum.RSTREAM_ONLY)
-        {
+        } else if (selector == SelectClauseStreamSelectorEnum.RSTREAM_ONLY) {
             return StreamSelector.RSTREAM_ONLY;
-        }
-        else if (selector == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH)
-        {
+        } else if (selector == SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH) {
             return StreamSelector.RSTREAM_ISTREAM_BOTH;
-        }
-        else
-        {
+        } else {
             throw new IllegalArgumentException("Invalid selector '" + selector + "' encountered");
         }
     }

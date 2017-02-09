@@ -24,18 +24,17 @@ import java.util.Iterator;
  * Only the very last event object is kept by this view. The update method invoked by the parent view supplies
  * new data in an object array, of which the view keeps the very last instance as the 'last' or newest event.
  * The view always has the same schema as the parent view and attaches to anything, and accepts no parameters.
- *
+ * <p>
  * Thus if 5 pieces of new data arrive, the child view receives 5 elements of new data
  * and also 4 pieces of old data which is the first 4 elements of new data.
  * I.e. New data elements immediatly gets to be old data elements.
- *
- *  Old data received from parent is not handled, it is ignored.
-  * We thus post old data as follows:
- *      last event is not null +
- *      new data from index zero to N-1, where N is the index of the last element in new data
+ * <p>
+ * Old data received from parent is not handled, it is ignored.
+ * We thus post old data as follows:
+ * last event is not null +
+ * new data from index zero to N-1, where N is the index of the last element in new data
  */
-public class LastElementView extends ViewSupport implements CloneableView, DataWindowView
-{
+public class LastElementView extends ViewSupport implements CloneableView, DataWindowView {
     private final LastElementViewFactory viewFactory;
 
     /**
@@ -47,35 +46,29 @@ public class LastElementView extends ViewSupport implements CloneableView, DataW
         this.viewFactory = viewFactory;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new LastElementView(viewFactory);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, LastElementViewFactory.NAME, newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, LastElementViewFactory.NAME, newData, oldData);
+        }
         OneEventCollection oldDataToPost = null;
 
-        if ((newData != null) && (newData.length != 0))
-        {
-            if (lastEvent != null)
-            {
+        if ((newData != null) && (newData.length != 0)) {
+            if (lastEvent != null) {
                 oldDataToPost = new OneEventCollection();
                 oldDataToPost.add(lastEvent);
             }
-            if (newData.length > 1)
-            {
-                for (int i = 0; i < newData.length - 1; i++)
-                {
-                    if (oldDataToPost == null)
-                    {
+            if (newData.length > 1) {
+                for (int i = 0; i < newData.length - 1; i++) {
+                    if (oldDataToPost == null) {
                         oldDataToPost = new OneEventCollection();
                     }
                     oldDataToPost.add(newData[i]);
@@ -84,14 +77,10 @@ public class LastElementView extends ViewSupport implements CloneableView, DataW
             lastEvent = newData[newData.length - 1];
         }
 
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
-                if (oldData[i] == lastEvent)
-                {
-                    if (oldDataToPost == null)
-                    {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
+                if (oldData[i] == lastEvent) {
+                    if (oldDataToPost == null) {
                         oldDataToPost = new OneEventCollection();
                     }
                     oldDataToPost.add(oldData[i]);
@@ -101,32 +90,36 @@ public class LastElementView extends ViewSupport implements CloneableView, DataW
         }
 
         // If there are child views, fireStatementStopped update method
-        if (this.hasViews())
-        {
-            if ((oldDataToPost != null) && (!oldDataToPost.isEmpty()))
-            {
+        if (this.hasViews()) {
+            if ((oldDataToPost != null) && (!oldDataToPost.isEmpty())) {
                 EventBean[] oldDataArray = oldDataToPost.toArray();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, LastElementViewFactory.NAME, newData, oldDataArray);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, LastElementViewFactory.NAME, newData, oldDataArray);
+                }
                 updateChildren(newData, oldDataArray);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
-            }
-            else
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, LastElementViewFactory.NAME, newData, null);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
+            } else {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, LastElementViewFactory.NAME, newData, null);
+                }
                 updateChildren(newData, null);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new SingleEventIterator(lastEvent);
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 

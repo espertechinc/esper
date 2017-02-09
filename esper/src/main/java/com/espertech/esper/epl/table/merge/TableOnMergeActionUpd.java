@@ -17,7 +17,6 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.onaction.TableOnMergeViewChangeHandler;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategyReceiver;
-import com.espertech.esper.event.arr.ObjectArrayEventBean;
 
 import java.util.Collections;
 

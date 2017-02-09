@@ -16,6 +16,5 @@ package com.espertech.esper.client.annotation;
  * <p>
  * Ensure the engine configuration for prioritized execution is set before using this annotation.
  */
-public @interface Drop
-{
+public @interface Drop {
 }

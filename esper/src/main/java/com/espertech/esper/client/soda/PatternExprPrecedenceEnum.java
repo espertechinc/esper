@@ -62,6 +62,7 @@ public enum PatternExprPrecedenceEnum {
 
     /**
      * Returns precedence.
+     *
      * @return precedence
      */
     public int getLevel() {

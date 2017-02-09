@@ -21,8 +21,7 @@ import java.util.Arrays;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategyPropFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordIndexedTableLookupStrategyPropFactory implements SubordTableLookupStrategyFactory {
     private final String[] properties;
 
     /**
@@ -39,33 +38,31 @@ public class SubordIndexedTableLookupStrategyPropFactory implements SubordTableL
 
     /**
      * Ctor.
-     * @param eventTypes is the event types per stream
+     *
+     * @param eventTypes       is the event types per stream
      * @param keyStreamNumbers is the stream number per property
-     * @param properties is the key properties
-     * @param isNWOnTrigger indicator whether named window trigger
+     * @param properties       is the key properties
+     * @param isNWOnTrigger    indicator whether named window trigger
      */
-    public SubordIndexedTableLookupStrategyPropFactory(boolean isNWOnTrigger, EventType[] eventTypes, int[] keyStreamNumbers, String[] properties)
-    {
+    public SubordIndexedTableLookupStrategyPropFactory(boolean isNWOnTrigger, EventType[] eventTypes, int[] keyStreamNumbers, String[] properties) {
         this.keyStreamNums = keyStreamNumbers;
         this.properties = properties;
         this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.MULTIPROP, properties);
 
         propertyGetters = new EventPropertyGetter[properties.length];
-        for (int i = 0; i < keyStreamNumbers.length; i++)
-        {
+        for (int i = 0; i < keyStreamNumbers.length; i++) {
             int streamNumber = keyStreamNumbers[i];
             String property = properties[i];
             EventType eventType = eventTypes[streamNumber];
             propertyGetters[i] = eventType.getGetter(property);
 
-            if (propertyGetters[i] == null)
-            {
+            if (propertyGetters[i] == null) {
                 throw new IllegalArgumentException("Property named '" + properties[i] + "' is invalid for type " + eventType);
             }
         }
 
         for (int i = 0; i < keyStreamNums.length; i++) {
-            keyStreamNums[i] += (isNWOnTrigger ? 1 : 0); // for on-trigger the key will be provided in a {1,2,...} stream and not {0,...}
+            keyStreamNums[i] += isNWOnTrigger ? 1 : 0; // for on-trigger the key will be provided in a {1,2,...} stream and not {0,...}
         }
     }
 
@@ -75,10 +72,10 @@ public class SubordIndexedTableLookupStrategyPropFactory implements SubordTableL
 
     /**
      * Returns properties to use from lookup event to look up in index.
+     *
      * @return properties to use from lookup event
      */
-    public String[] getProperties()
-    {
+    public String[] getProperties() {
         return properties;
     }
 

@@ -15,15 +15,17 @@ import com.espertech.esper.core.service.EngineLevelExtensionServicesContext;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.MatchedEventMap;
-import com.espertech.esper.schedule.*;
+import com.espertech.esper.schedule.ScheduleComputeHelper;
+import com.espertech.esper.schedule.ScheduleHandleCallback;
+import com.espertech.esper.schedule.ScheduleSpec;
+import com.espertech.esper.schedule.SchedulingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Observer implementation for indicating that a certain time arrived, similar to "crontab".
  */
-public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
-{
+public class TimerAtObserver implements EventObserver, ScheduleHandleCallback {
     private final ScheduleSpec scheduleSpec;
     private final long scheduleSlot;
     private final MatchedEventMap beginState;
@@ -34,12 +36,12 @@ public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
 
     /**
      * Ctor.
-     * @param scheduleSpec - specification containing the crontab schedule
-     * @param beginState - start state
+     *
+     * @param scheduleSpec           - specification containing the crontab schedule
+     * @param beginState             - start state
      * @param observerEventEvaluator - receiver for events
      */
-    public TimerAtObserver(ScheduleSpec scheduleSpec, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator)
-    {
+    public TimerAtObserver(ScheduleSpec scheduleSpec, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator) {
         this.scheduleSpec = scheduleSpec;
         this.beginState = beginState;
         this.observerEventEvaluator = observerEventEvaluator;
@@ -50,18 +52,19 @@ public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
         return beginState;
     }
 
-    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverScheduledEval();}
+    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternObserverScheduledEval();
+        }
         observerEventEvaluator.observerEvaluateTrue(beginState, true);
         isTimerActive = false;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverScheduledEval();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternObserverScheduledEval();
+        }
     }
 
-    public void startObserve()
-    {
-        if (isTimerActive)
-        {
+    public void startObserve() {
+        if (isTimerActive) {
             throw new IllegalStateException("Timer already active");
         }
 
@@ -73,10 +76,8 @@ public class TimerAtObserver implements EventObserver, ScheduleHandleCallback
         isTimerActive = true;
     }
 
-    public void stopObserve()
-    {
-        if (isTimerActive)
-        {
+    public void stopObserve() {
+        if (isTimerActive) {
             observerEventEvaluator.getContext().getPatternContext().getSchedulingService().remove(scheduleHandle, scheduleSlot);
             isTimerActive = false;
             scheduleHandle = null;

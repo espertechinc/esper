@@ -17,8 +17,7 @@ import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 
-public class TableOnDeleteViewFactory implements TableOnViewFactory
-{
+public class TableOnDeleteViewFactory implements TableOnViewFactory {
     private final StatementResultService statementResultService;
     private final TableMetadata tableMetadata;
 

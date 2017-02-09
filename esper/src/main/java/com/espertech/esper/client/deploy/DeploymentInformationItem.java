@@ -11,22 +11,20 @@
 package com.espertech.esper.client.deploy;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Set;
 
 /**
  * Statement level information for deployed modules.
  */
-public class DeploymentInformationItem implements Serializable
-{
+public class DeploymentInformationItem implements Serializable {
     private static final long serialVersionUID = 6877181100706738876L;
     private String statementName;
     private String expression;
 
     /**
      * Ctor.
+     *
      * @param statementName name of statement
-     * @param expression EPL text
+     * @param expression    EPL text
      */
     public DeploymentInformationItem(String statementName, String expression) {
         this.statementName = statementName;
@@ -35,6 +33,7 @@ public class DeploymentInformationItem implements Serializable
 
     /**
      * Returns statement name.
+     *
      * @return name
      */
     public String getStatementName() {
@@ -43,6 +42,7 @@ public class DeploymentInformationItem implements Serializable
 
     /**
      * Returns EPL text.
+     *
      * @return expression
      */
     public String getExpression() {
@@ -51,6 +51,6 @@ public class DeploymentInformationItem implements Serializable
 
     public String toString() {
         return "name '" + statementName + "' " +
-               " expression " + expression;
+                " expression " + expression;
     }
 }

@@ -13,42 +13,39 @@ package com.espertech.esper.client.soda;
 import java.io.StringWriter;
 
 /**
- * Logical AND for use in pattern expressions. 
+ * Logical AND for use in pattern expressions.
  */
-public class PatternAndExpr extends PatternExprBase
-{
+public class PatternAndExpr extends PatternExprBase {
     private static final long serialVersionUID = -3845778460131464052L;
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
      */
-    public PatternAndExpr()
-    {
+    public PatternAndExpr() {
     }
 
     /**
      * Ctor.
-     * @param first a first pattern expression in the AND relationship
-     * @param second a second pattern expression in the AND relationship
+     *
+     * @param first        a first pattern expression in the AND relationship
+     * @param second       a second pattern expression in the AND relationship
      * @param patternExprs further optional pattern expressions in the AND relationship
      */
-    public PatternAndExpr(PatternExpr first, PatternExpr second, PatternExpr ...patternExprs)
-    {
+    public PatternAndExpr(PatternExpr first, PatternExpr second, PatternExpr... patternExprs) {
         this.addChild(first);
         this.addChild(second);
-        for (int i = 0; i < patternExprs.length; i++)
-        {
+        for (int i = 0; i < patternExprs.length; i++) {
             this.addChild(patternExprs[i]);
         }
     }
 
     /**
      * Adds a pattern expression to the AND relationship between patterns.
+     *
      * @param expr to add
      * @return pattern expression
      */
-    public PatternAndExpr add(PatternExpr expr)
-    {
+    public PatternAndExpr add(PatternExpr expr) {
         this.getChildren().add(expr);
         return this;
     }
@@ -57,11 +54,9 @@ public class PatternAndExpr extends PatternExprBase
         return PatternExprPrecedenceEnum.AND;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {
         String delimiter = "";
-        for (PatternExpr child : this.getChildren())
-        {
+        for (PatternExpr child : this.getChildren()) {
             writer.write(delimiter);
             child.toEPL(writer, getPrecedence(), formatter);
             delimiter = " and ";

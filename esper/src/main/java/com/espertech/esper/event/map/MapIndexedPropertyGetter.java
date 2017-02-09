@@ -19,46 +19,40 @@ import java.util.Map;
 /**
  * Getter for a dynamic indexed property for maps.
  */
-public class MapIndexedPropertyGetter implements MapEventPropertyGetter
-{
+public class MapIndexedPropertyGetter implements MapEventPropertyGetter {
     private final int index;
     private final String fieldName;
 
     /**
      * Ctor.
+     *
      * @param fieldName property name
-     * @param index index to get the element at
+     * @param index     index to get the element at
      */
-    public MapIndexedPropertyGetter(String fieldName, int index)
-    {
+    public MapIndexedPropertyGetter(String fieldName, int index) {
         this.index = index;
         this.fieldName = fieldName;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         Object value = map.get(fieldName);
         return BaseNestableEventUtil.getIndexedValue(value, index);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         Object value = map.get(fieldName);
         return BaseNestableEventUtil.isExistsIndexedValue(value, index);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return isMapExistsProperty(BaseNestableEventUtil.checkedCastUnderlyingMap(eventBean));
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 }

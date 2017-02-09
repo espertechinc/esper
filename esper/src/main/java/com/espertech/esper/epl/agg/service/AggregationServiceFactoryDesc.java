@@ -14,8 +14,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeGroupKey;
 
 import java.util.List;
 
-public class AggregationServiceFactoryDesc
-{
+public class AggregationServiceFactoryDesc {
     private final AggregationServiceFactory aggregationServiceFactory;
     private final List<AggregationServiceAggExpressionDesc> expressions;
     private final List<ExprAggregateNodeGroupKey> groupKeyExpressions;

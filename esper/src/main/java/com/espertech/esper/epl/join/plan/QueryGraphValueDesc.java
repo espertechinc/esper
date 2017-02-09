@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class QueryGraphValueDesc
-{
+public class QueryGraphValueDesc {
     private final ExprNode[] indexExprs;
     private final QueryGraphValueEntry entry;
 

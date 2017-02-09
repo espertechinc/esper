@@ -10,12 +10,10 @@
  */
 package com.espertech.esper.epl.lookup;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class EventTableCreateIndexDesc
-{
+public class EventTableCreateIndexDesc {
     private final List<IndexedPropDesc> hashProps;
     private final List<IndexedPropDesc> btreeProps;
     private final boolean unique;

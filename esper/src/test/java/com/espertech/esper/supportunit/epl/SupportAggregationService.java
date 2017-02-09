@@ -12,48 +12,37 @@ package com.espertech.esper.supportunit.epl;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.agg.service.AggregationServiceVisitor;
-import com.espertech.esper.epl.agg.service.AggregationServiceVisitorWGroupDetail;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SupportAggregationService implements AggregationService
-{
+public class SupportAggregationService implements AggregationService {
     private List<Pair<EventBean[], Object>> leaveList = new LinkedList<Pair<EventBean[], Object>>();
     private List<Pair<EventBean[], Object>> enterList = new LinkedList<Pair<EventBean[], Object>>();
 
-    public void applyEnter(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext) {
         enterList.add(new Pair<EventBean[], Object>(eventsPerStream, optionalGroupKeyPerRow));
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext) {
         leaveList.add(new Pair<EventBean[], Object>(eventsPerStream, optionalGroupKeyPerRow));
     }
 
-    public List<Pair<EventBean[], Object>> getLeaveList()
-    {
+    public List<Pair<EventBean[], Object>> getLeaveList() {
         return leaveList;
     }
 
-    public List<Pair<EventBean[], Object>> getEnterList()
-    {
+    public List<Pair<EventBean[], Object>> getEnterList() {
         return enterList;
     }
 
-    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return null;
     }
 
@@ -61,8 +50,7 @@ public class SupportAggregationService implements AggregationService
         return null;
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
     }
 
     public EventBean getEventBean(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {

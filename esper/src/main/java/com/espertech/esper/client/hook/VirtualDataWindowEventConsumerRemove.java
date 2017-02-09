@@ -17,9 +17,10 @@ public class VirtualDataWindowEventConsumerRemove extends VirtualDataWindowEvent
 
     /**
      * Ctor.
+     *
      * @param namedWindowName named window name
-     * @param consumerObject identifying object for consumer
-     * @param statementName statement name
+     * @param consumerObject  identifying object for consumer
+     * @param statementName   statement name
      * @param agentInstanceId agent instance id
      */
     public VirtualDataWindowEventConsumerRemove(String namedWindowName, Object consumerObject, String statementName, int agentInstanceId) {

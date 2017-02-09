@@ -10,19 +10,19 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.ConfigurationInformation;
+import com.espertech.esper.client.EPServiceProvider;
 
 /**
  * Interface for a factory class to provide services in a services context for an engine instance.
  */
-public interface EPServicesContextFactory
-{
+public interface EPServicesContextFactory {
     /**
      * Factory method for a new set of engine services.
-     * @param epServiceProvider is the engine instance
+     *
+     * @param epServiceProvider     is the engine instance
      * @param configurationSnapshot is a snapshot of configs at the time of engine creation
      * @return services context
      */
-    public EPServicesContext createServicesContext(EPServiceProvider epServiceProvider, ConfigurationInformation configurationSnapshot);    
+    public EPServicesContext createServicesContext(EPServiceProvider epServiceProvider, ConfigurationInformation configurationSnapshot);
 }

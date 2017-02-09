@@ -16,10 +16,9 @@ import java.util.List;
 
 /**
  * Filter defines the event type to be filtered for, and an optional expression that returns true if
- * the filter should consider the event, or false to reject the event. 
+ * the filter should consider the event, or false to reject the event.
  */
-public class Filter implements Serializable
-{
+public class Filter implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String eventTypeName;
@@ -33,117 +32,114 @@ public class Filter implements Serializable
     }
 
     /**
-
      * Creates a filter to the given named event type.
+     *
      * @param eventTypeName is the event type name to filter for
      * @return filter
      */
-    public static Filter create(String eventTypeName)
-    {
+    public static Filter create(String eventTypeName) {
         return new Filter(eventTypeName);
     }
 
     /**
      * Creates a filter to the given named event type and filter expression.
+     *
      * @param eventTypeName is the event type name to filter for
-     * @param filter is the expression filtering out events
+     * @param filter        is the expression filtering out events
      * @return filter is the filter expression
      */
-    public static Filter create(String eventTypeName, Expression filter)
-    {
+    public static Filter create(String eventTypeName, Expression filter) {
         return new Filter(eventTypeName, filter);
     }
 
     /**
      * Ctor.
+     *
      * @param eventTypeName is the event type name
      */
-    public Filter(String eventTypeName)
-    {
+    public Filter(String eventTypeName) {
         this.eventTypeName = eventTypeName;
     }
 
     /**
      * Ctor.
+     *
      * @param eventTypeName is the event type name
-     * @param filter is the filter expression
+     * @param filter        is the filter expression
      */
-    public Filter(String eventTypeName, Expression filter)
-    {
+    public Filter(String eventTypeName, Expression filter) {
         this.eventTypeName = eventTypeName;
         this.filter = filter;
     }
 
     /**
      * Returns the name of the event type to filter for.
+     *
      * @return event type name
      */
-    public String getEventTypeName()
-    {
+    public String getEventTypeName() {
         return eventTypeName;
     }
 
     /**
      * Sets the name of the event type to filter for.
+     *
      * @param eventTypeName name of the event type to filter for
      */
-    public void setEventTypeName(String eventTypeName)
-    {
+    public void setEventTypeName(String eventTypeName) {
         this.eventTypeName = eventTypeName;
     }
 
     /**
      * Returns the optional filter expression that tests the event, or null if no filter expression was defined.
+     *
      * @return filter expression
      */
-    public Expression getFilter()
-    {
+    public Expression getFilter() {
         return filter;
     }
 
     /**
      * Sets the optional filter expression that tests the event, or null if no filter expression is needed.
+     *
      * @param filter is the filter expression to set
      */
-    public void setFilter(Expression filter)
-    {
+    public void setFilter(Expression filter) {
         this.filter = filter;
     }
 
     /**
      * Returns contained-event spec.
+     *
      * @return spec
      */
-    public List<ContainedEventSelect> getOptionalPropertySelects()
-    {
+    public List<ContainedEventSelect> getOptionalPropertySelects() {
         return optionalPropertySelects;
     }
 
     /**
      * Sets the contained-event selection, if any.
+     *
      * @param optionalPropertySelects spec
      */
-    public void setOptionalPropertySelects(List<ContainedEventSelect> optionalPropertySelects)
-    {
+    public void setOptionalPropertySelects(List<ContainedEventSelect> optionalPropertySelects) {
         this.optionalPropertySelects = optionalPropertySelects;
     }
 
     /**
      * Returns a textual representation of the filter.
-     * @param writer to output to
+     *
+     * @param writer    to output to
      * @param formatter for newline-whitespace formatting
      */
-    public void toEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         writer.write(eventTypeName);
-        if (filter != null)
-        {
+        if (filter != null) {
             writer.write('(');
             filter.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             writer.write(')');
         }
-        if (optionalPropertySelects != null)
-        {
+        if (optionalPropertySelects != null) {
             ContainedEventSelect.toEPL(writer, formatter, optionalPropertySelects);
         }
     }

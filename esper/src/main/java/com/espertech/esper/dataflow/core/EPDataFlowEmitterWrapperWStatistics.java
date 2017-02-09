@@ -39,8 +39,7 @@ public class EPDataFlowEmitterWrapperWStatistics implements EPDataFlowEmitter {
         if (!cpuStatistics) {
             facility.submitPort(portNumber, object);
             statisticsProvider.countSubmitPort(producerOpNum, portNumber);
-        }
-        else {
+        } else {
             long nanoTime = System.nanoTime();
             facility.submitPort(portNumber, object);
             long nanoTimDelta = System.nanoTime() - nanoTime;

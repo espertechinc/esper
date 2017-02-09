@@ -27,8 +27,7 @@ import java.util.*;
  * Factory for creating a dispatch strategy based on the subscriber object
  * and the columns produced by a select-clause.
  */
-public class ResultDeliveryStrategyFactory
-{
+public class ResultDeliveryStrategyFactory {
     private static final Comparator<? super Method> METHOD_PREFERECE_COMPARATOR = new Comparator<Method>() {
         public int compare(Method o1, Method o2) {
             int v1 = value(o1);
@@ -44,11 +43,12 @@ public class ResultDeliveryStrategyFactory
     /**
      * Creates a strategy implementation that indicates to subscribers
      * the statement results based on the select-clause columns.
-     * @param subscriber to indicate to
-     * @param selectClauseTypes are the types of each column in the select clause
+     *
+     * @param subscriber          to indicate to
+     * @param selectClauseTypes   are the types of each column in the select clause
      * @param selectClauseColumns the names of each column in the select clause
-     * @param statement statement
-     * @param methodName method name
+     * @param statement           statement
+     * @param methodName          method name
      * @return strategy for dispatching naturals
      * @throws EPSubscriberException if the subscriber is invalid
      */
@@ -57,8 +57,7 @@ public class ResultDeliveryStrategyFactory
                                                 String[] selectClauseColumns,
                                                 String engineURI,
                                                 EngineImportService engineImportService)
-            throws EPSubscriberException
-    {
+            throws EPSubscriberException {
         if (selectClauseTypes == null) {
             selectClauseTypes = new Class[0];
             selectClauseColumns = new String[0];
@@ -75,11 +74,9 @@ public class ResultDeliveryStrategyFactory
         // Locate update methods
         Method subscriptionMethod = null;
         Map<Method, Class[]> updateMethods = new LinkedHashMap<Method, Class[]>();
-        for (Method method : sorted)
-        {
+        for (Method method : sorted) {
             if ((method.getName().equals(methodName)) &&
-                (Modifier.isPublic(method.getModifiers())))
-            {
+                    (Modifier.isPublic(method.getModifiers()))) {
                 // Determine parameter types without EPStatement (the normalized parameters)
                 Class[] normalizedParameters = getMethodParameterTypesWithoutEPStatement(method);
                 updateMethods.put(method, normalizedParameters);
@@ -87,8 +84,7 @@ public class ResultDeliveryStrategyFactory
         }
 
         // none found
-        if (updateMethods.size() == 0)
-        {
+        if (updateMethods.size() == 0) {
             String message = "Subscriber object does not provide a public method by name 'update'";
             throw new EPSubscriberException(message);
         }
@@ -101,8 +97,7 @@ public class ResultDeliveryStrategyFactory
         boolean isTypeArrayDelivery = false;
 
         // find an exact-matching method: no conversions and not even unboxing/boxing
-        for (Map.Entry<Method, Class[]> methodNormParameterEntry : updateMethods.entrySet())
-        {
+        for (Map.Entry<Method, Class[]> methodNormParameterEntry : updateMethods.entrySet()) {
             Class[] normalized = methodNormParameterEntry.getValue();
             if (normalized.length == selectClauseTypes.length) {
                 boolean fits = true;
@@ -121,8 +116,7 @@ public class ResultDeliveryStrategyFactory
 
         // when not yet resolved, find an exact-matching method with boxing/unboxing
         if (subscriptionMethod == null) {
-            for (Map.Entry<Method, Class[]> methodNormParameterEntry : updateMethods.entrySet())
-            {
+            for (Map.Entry<Method, Class[]> methodNormParameterEntry : updateMethods.entrySet()) {
                 Class[] normalized = methodNormParameterEntry.getValue();
                 if (normalized.length == selectClauseTypes.length) {
                     boolean fits = true;
@@ -170,38 +164,32 @@ public class ResultDeliveryStrategyFactory
         if (subscriptionMethod == null) {
             for (Map.Entry<Method, Class[]> methodNormParameterEntry : updateMethods.entrySet()) {
                 Class[] normalized = methodNormParameterEntry.getValue();
-                if ((normalized.length == 1) && (normalized[0] == Map.class))
-                {
+                if ((normalized.length == 1) && (normalized[0] == Map.class)) {
                     isSingleRowMap = true;
                     subscriptionMethod = methodNormParameterEntry.getKey();
                     break;
                 }
-                if ((normalized.length == 1) && (normalized[0] == Object[].class))
-                {
+                if ((normalized.length == 1) && (normalized[0] == Object[].class)) {
                     isSingleRowObjectArr = true;
                     subscriptionMethod = methodNormParameterEntry.getKey();
                     break;
                 }
 
-                if ((normalized.length == 2) && (normalized[0] == Map[].class) && (normalized[1] == Map[].class))
-                {
+                if ((normalized.length == 2) && (normalized[0] == Map[].class) && (normalized[1] == Map[].class)) {
                     subscriptionMethod = methodNormParameterEntry.getKey();
                     isMapArrayDelivery = true;
                     break;
                 }
-                if ((normalized.length == 2) && (normalized[0] == Object[][].class) && (normalized[1] == Object[][].class))
-                {
+                if ((normalized.length == 2) && (normalized[0] == Object[][].class) && (normalized[1] == Object[][].class)) {
                     subscriptionMethod = methodNormParameterEntry.getKey();
                     isObjectArrayDelivery = true;
                     break;
                 }
                 // Handle uniform underlying or column type array dispatch
                 if ((normalized.length == 2) && (normalized[0].equals(normalized[1])) && (normalized[0].isArray())
-                        && (selectClauseTypes.length == 1))
-                {
+                        && (selectClauseTypes.length == 1)) {
                     Class componentType = normalized[0].getComponentType();
-                    if (JavaClassHelper.isAssignmentCompatible(selectClauseTypes[0], componentType))
-                    {
+                    if (JavaClassHelper.isAssignmentCompatible(selectClauseTypes[0], componentType)) {
                         subscriptionMethod = methodNormParameterEntry.getKey();
                         isTypeArrayDelivery = true;
                         break;
@@ -214,38 +202,30 @@ public class ResultDeliveryStrategyFactory
             }
         }
 
-        if (subscriptionMethod == null)
-        {
-            if (updateMethods.size() > 1)
-            {
+        if (subscriptionMethod == null) {
+            if (updateMethods.size() > 1) {
                 String parametersDesc = JavaClassHelper.getParameterAsString(selectClauseTypes);
                 String message = "No suitable subscriber method named 'update' found, expecting a method that takes " +
                         selectClauseTypes.length + " parameter of type " + parametersDesc;
                 throw new EPSubscriberException(message);
-            }
-            else
-            {
+            } else {
                 Map.Entry<Method, Class[]> firstUpdateMethod = updateMethods.entrySet().iterator().next();
                 Class[] parametersNormalized = firstUpdateMethod.getValue();
                 String parametersDescNormalized = JavaClassHelper.getParameterAsString(selectClauseTypes);
-                if (parametersNormalized.length != selectClauseTypes.length)
-                {
+                if (parametersNormalized.length != selectClauseTypes.length) {
                     if (selectClauseTypes.length > 0) {
                         String message = "No suitable subscriber method named 'update' found, expecting a method that takes " +
                                 selectClauseTypes.length + " parameter of type " + parametersDescNormalized;
                         throw new EPSubscriberException(message);
-                    }
-                    else {
+                    } else {
                         String message = "No suitable subscriber method named 'update' found, expecting a method that takes no parameters";
                         throw new EPSubscriberException(message);
                     }
                 }
-                for (int i = 0; i < parametersNormalized.length; i++)
-                {
+                for (int i = 0; i < parametersNormalized.length; i++) {
                     Class boxedExpressionType = JavaClassHelper.getBoxedType(selectClauseTypes[i]);
                     Class boxedParameterType = JavaClassHelper.getBoxedType(parametersNormalized[i]);
-                    if ((boxedExpressionType != null) && (!JavaClassHelper.isAssignmentCompatible(boxedExpressionType, boxedParameterType)))
-                    {
+                    if ((boxedExpressionType != null) && (!JavaClassHelper.isAssignmentCompatible(boxedExpressionType, boxedParameterType))) {
                         String message = "Subscriber method named 'update' for parameter number " + (i + 1) + " is not assignable, " +
                                 "expecting type '" + JavaClassHelper.getParameterAsString(selectClauseTypes[i]) + "' but found type '"
                                 + JavaClassHelper.getParameterAsString(parametersNormalized[i]) + "'";
@@ -257,23 +237,18 @@ public class ResultDeliveryStrategyFactory
 
         // Invalid if there is a another footprint for the subscription method that does not include EPStatement if present
         boolean firstParameterIsEPStatement = isFirstParameterEPStatement(subscriptionMethod);
-        if (isMapArrayDelivery)
-        {
+        if (isMapArrayDelivery) {
             return firstParameterIsEPStatement ?
                     new ResultDeliveryStrategyMapWStmt(statement, subscriber, subscriptionMethod, selectClauseColumns, engineImportService) :
                     new ResultDeliveryStrategyMap(statement, subscriber, subscriptionMethod, selectClauseColumns, engineImportService);
-        }
-        else if (isObjectArrayDelivery)
-        {
+        } else if (isObjectArrayDelivery) {
             return firstParameterIsEPStatement ?
                     new ResultDeliveryStrategyObjectArrWStmt(statement, subscriber, subscriptionMethod, engineImportService) :
                     new ResultDeliveryStrategyObjectArr(statement, subscriber, subscriptionMethod, engineImportService);
-        }
-        else if (isTypeArrayDelivery)
-        {
+        } else if (isTypeArrayDelivery) {
             return firstParameterIsEPStatement ?
-                new ResultDeliveryStrategyTypeArrWStmt(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[1].getComponentType(), engineImportService) :
-                new ResultDeliveryStrategyTypeArr(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[0].getComponentType(), engineImportService);
+                    new ResultDeliveryStrategyTypeArrWStmt(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[1].getComponentType(), engineImportService) :
+                    new ResultDeliveryStrategyTypeArr(statement, subscriber, subscriptionMethod, subscriptionMethod.getParameterTypes()[0].getComponentType(), engineImportService);
         }
 
         // Try to find the "start", "end" and "updateRStream" methods
@@ -282,24 +257,20 @@ public class ResultDeliveryStrategyFactory
         Method rStreamMethod = null;
         try {
             startMethod = subscriber.getClass().getMethod("updateStart", EPStatement.class, int.class, int.class);
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             try {
                 startMethod = subscriber.getClass().getMethod("updateStart", int.class, int.class);
-            }
-            catch (NoSuchMethodException ex) {
+            } catch (NoSuchMethodException ex) {
                 // expected
             }
         }
 
         try {
             endMethod = subscriber.getClass().getMethod("updateEnd", EPStatement.class);
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             try {
                 endMethod = subscriber.getClass().getMethod("updateEnd");
-            }
-            catch (NoSuchMethodException ex) {
+            } catch (NoSuchMethodException ex) {
                 // expected
             }
         }
@@ -307,14 +278,12 @@ public class ResultDeliveryStrategyFactory
         try {
             // must be exactly the same footprint (may include EPStatement), since delivery convertor used for both
             rStreamMethod = subscriber.getClass().getMethod("updateRStream", subscriptionMethod.getParameterTypes());
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             // we don't have an "updateRStream" expected, make sure there isn't one with/without EPStatement
             if (isFirstParameterEPStatement(subscriptionMethod)) {
                 Class[] classes = updateMethods.get(subscriptionMethod);
                 validateNonMatchUpdateRStream(subscriber, classes);
-            }
-            else {
+            } else {
                 Class[] classes = new Class[subscriptionMethod.getParameterTypes().length + 1];
                 classes[0] = EPStatement.class;
                 System.arraycopy(subscriptionMethod.getParameterTypes(), 0, classes, 1, subscriptionMethod.getParameterTypes().length);
@@ -323,25 +292,19 @@ public class ResultDeliveryStrategyFactory
         }
 
         DeliveryConvertor convertor;
-        if (isSingleRowMap)
-        {
+        if (isSingleRowMap) {
             convertor = firstParameterIsEPStatement ?
                     new DeliveryConvertorMapWStatement(selectClauseColumns, statement) :
                     new DeliveryConvertorMap(selectClauseColumns);
-        }
-        else if (isSingleRowObjectArr)
-        {
+        } else if (isSingleRowObjectArr) {
             convertor = firstParameterIsEPStatement ?
                     new DeliveryConvertorObjectArrWStatement(statement) :
                     DeliveryConvertorObjectArr.INSTANCE;
-        }
-        else
-        {
+        } else {
             if (checkWidening) {
                 Class[] normalizedParameters = updateMethods.get(subscriptionMethod);
                 convertor = determineWideningDeliveryConvertor(firstParameterIsEPStatement, statement, selectClauseTypes, normalizedParameters, subscriptionMethod, engineURI);
-            }
-            else {
+            } else {
                 convertor = firstParameterIsEPStatement ?
                         new DeliveryConvertorNullWStatement(statement) :
                         DeliveryConvertorNull.INSTANCE;
@@ -383,8 +346,7 @@ public class ResultDeliveryStrategyFactory
         }
         try {
             return TypeWidenerFactory.getCheckPropertyAssignType("Select-Clause Column " + columnNum, selectClauseType, parameterType, "Method Parameter " + columnNum, false, null, statementName, engineURI);
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw new EPException("Unexpected exception assigning select clause columns to subscriber method " + method + ": " + e.getMessage(), e);
         }
     }
@@ -395,8 +357,7 @@ public class ResultDeliveryStrategyFactory
             if (m != null) {
                 throw new EPSubscriberException("Subscriber 'updateRStream' method footprint must match 'update' method footprint");
             }
-        }
-        catch (NoSuchMethodException ex) {
+        } catch (NoSuchMethodException ex) {
             // expected
         }
     }

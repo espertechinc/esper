@@ -30,7 +30,7 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
     private CompositeIndexQuery next;
 
     public CompositeIndexQueryKeyed(boolean isNWOnTrigger, int lookupStream, int numStreams, List<QueryGraphValueEntryHashKeyed> hashKeys, Class[] keyCoercionTypes) {
-        this.keyCoercionTypes  = keyCoercionTypes;
+        this.keyCoercionTypes = keyCoercionTypes;
         this.evaluators = new ExprEvaluator[hashKeys.size()];
         this.isNWOnTrigger = isNWOnTrigger;
         this.lookupStream = lookupStream;
@@ -40,8 +40,7 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         }
         if (lookupStream != -1) {
             events = new EventBean[lookupStream + 1];
-        }
-        else {
+        } else {
             events = new EventBean[numStreams + 1];
         }
     }
@@ -76,8 +75,7 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         EventBean[] eventsToUse;
         if (isNWOnTrigger) {
             eventsToUse = eventsPerStream;
-        }
-        else {
+        } else {
             System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
             eventsToUse = events;
         }
@@ -95,8 +93,7 @@ public class CompositeIndexQueryKeyed implements CompositeIndexQuery {
         EventBean[] eventsToUse;
         if (isNWOnTrigger) {
             eventsToUse = eventsPerStream;
-        }
-        else {
+        } else {
             System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
             eventsToUse = events;
         }

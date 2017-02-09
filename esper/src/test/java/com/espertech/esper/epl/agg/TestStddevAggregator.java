@@ -14,10 +14,8 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.aggregator.AggregatorStddev;
 import junit.framework.TestCase;
 
-public class TestStddevAggregator extends TestCase
-{
-    public void testAggregateFunction()
-    {
+public class TestStddevAggregator extends TestCase {
+    public void testAggregateFunction() {
         AggregationMethod agg = new AggregatorStddev();
 
         assertNull(agg.getValue());
@@ -26,19 +24,19 @@ public class TestStddevAggregator extends TestCase
         assertNull(agg.getValue());
 
         agg.enter(8);
-        double result = (Double)agg.getValue();
+        double result = (Double) agg.getValue();
         assertEquals("1.4142", Double.toString(result).substring(0, 6));
 
         agg.enter(5);
-        result = (Double)agg.getValue();
+        result = (Double) agg.getValue();
         assertEquals("2.5166", Double.toString(result).substring(0, 6));
 
         agg.enter(9);
-        result = (Double)agg.getValue();
+        result = (Double) agg.getValue();
         assertEquals("2.1602", Double.toString(result).substring(0, 6));
 
         agg.leave(10);
-        result = (Double)agg.getValue();
+        result = (Double) agg.getValue();
         assertEquals("2.0816", Double.toString(result).substring(0, 6));
     }
 

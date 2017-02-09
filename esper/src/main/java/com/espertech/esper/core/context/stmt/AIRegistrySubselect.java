@@ -14,6 +14,8 @@ import com.espertech.esper.epl.expression.subquery.ExprSubselectStrategy;
 
 public interface AIRegistrySubselect extends ExprSubselectStrategy {
     public void assignService(int num, ExprSubselectStrategy value);
+
     public void deassignService(int num);
+
     public int getAgentInstanceCount();
 }

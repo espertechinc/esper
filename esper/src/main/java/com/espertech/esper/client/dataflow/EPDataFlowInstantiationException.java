@@ -21,6 +21,7 @@ public class EPDataFlowInstantiationException extends EPException {
 
     /**
      * Ctor.
+     *
      * @param message the message
      */
     public EPDataFlowInstantiationException(String message) {
@@ -29,8 +30,9 @@ public class EPDataFlowInstantiationException extends EPException {
 
     /**
      * Ctor.
+     *
      * @param message the message
-     * @param cause the inner exception
+     * @param cause   the inner exception
      */
     public EPDataFlowInstantiationException(String message, Throwable cause) {
         super(message, cause);
@@ -38,6 +40,7 @@ public class EPDataFlowInstantiationException extends EPException {
 
     /**
      * Ctor.
+     *
      * @param cause the inner exception
      */
     public EPDataFlowInstantiationException(Throwable cause) {

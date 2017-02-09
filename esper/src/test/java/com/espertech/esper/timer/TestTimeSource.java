@@ -11,24 +11,21 @@
 package com.espertech.esper.timer;
 
 import junit.framework.TestCase;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Ensure that TimeSourceMills and TimeSourceMills
  * agree on wall clock time.
+ *
  * @author Jerry Shea
  */
-public class TestTimeSource extends TestCase
-{
-    public void tearDown()
-    {
-        TimeSourceServiceImpl.IS_SYSTEM_CURRENT_TIME = true;
+public class TestTimeSource extends TestCase {
+    public void tearDown() {
+        TimeSourceServiceImpl.isSystemCurrentTime = true;
     }
 
-    public void testWallClock() throws InterruptedException
-    {
+    public void testWallClock() throws InterruptedException {
         // allow a tolerance as TimeSourceMillis resolution may be around 16ms
         final long TOLERANCE_MILLISECS = 50, DELAY_MILLISECS = 100;
 
@@ -45,19 +42,19 @@ public class TestTimeSource extends TestCase
         assertTimeWithinTolerance(TOLERANCE_MILLISECS, nanos, millis);
     }
 
-	private void assertTimeWithinTolerance(final long TOLERANCE_MILLISECS,
-			TimeSourceService nanos, TimeSourceService millis) {
+    private void assertTimeWithinTolerance(final long TOLERANCE_MILLISECS,
+                                           TimeSourceService nanos, TimeSourceService millis) {
 
-        TimeSourceServiceImpl.IS_SYSTEM_CURRENT_TIME = true;
-		long nanosWallClockTime = nanos.getTimeMillis();
+        TimeSourceServiceImpl.isSystemCurrentTime = true;
+        long nanosWallClockTime = nanos.getTimeMillis();
 
-        TimeSourceServiceImpl.IS_SYSTEM_CURRENT_TIME = false;
+        TimeSourceServiceImpl.isSystemCurrentTime = false;
         long millisWallClockTime = millis.getTimeMillis();
 
         long diff = nanosWallClockTime - millisWallClockTime;
-        log.info("diff="+diff+" between "+nanos+" and "+millis);
-        assertTrue("Diff "+diff+" >= "+TOLERANCE_MILLISECS, Math.abs(diff) < TOLERANCE_MILLISECS);
-	}
+        log.info("diff=" + diff + " between " + nanos + " and " + millis);
+        assertTrue("Diff " + diff + " >= " + TOLERANCE_MILLISECS, Math.abs(diff) < TOLERANCE_MILLISECS);
+    }
 
     private static final Logger log = LoggerFactory.getLogger(TestTimeSource.class);
 }

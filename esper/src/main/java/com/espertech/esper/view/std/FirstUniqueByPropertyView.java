@@ -21,7 +21,10 @@ import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This view retains the first event for each multi-key of distinct property values.
@@ -30,69 +33,60 @@ import java.util.*;
  * <p>
  * The view swallows any insert stream events that provide no new distinct set of property values.
  */
-public class FirstUniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView
-{
+public class FirstUniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView {
     private final FirstUniqueByPropertyViewFactory viewFactory;
     protected final ExprEvaluator[] uniqueCriteriaEval;
     private EventBean[] eventsPerStream = new EventBean[1];
     protected final Map<Object, EventBean> firstEvents = new HashMap<Object, EventBean>();
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
-    public FirstUniqueByPropertyView(FirstUniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public FirstUniqueByPropertyView(FirstUniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.viewFactory = viewFactory;
         this.uniqueCriteriaEval = ExprNodeUtility.getEvaluators(viewFactory.criteriaExpressions);
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return viewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**
      * Returns the expressions supplying the unique value to keep the most recent record for.
+     *
      * @return expressions for unique value
      */
-    public final ExprNode[] getUniqueCriteria()
-    {
+    public final ExprNode[] getUniqueCriteria() {
         return viewFactory.criteriaExpressions;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, FirstUniqueByPropertyViewFactory.NAME, newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, FirstUniqueByPropertyViewFactory.NAME, newData, oldData);
+        }
 
         EventBean[] newDataToPost = null;
         EventBean[] oldDataToPost = null;
 
-        if (oldData != null)
-        {
-            for (EventBean oldEvent : oldData)
-            {
+        if (oldData != null) {
+            for (EventBean oldEvent : oldData) {
                 // Obtain unique value
                 Object key = getUniqueKey(oldEvent);
 
                 // If the old event is the current unique event, remove and post as old data
                 EventBean lastValue = firstEvents.get(key);
 
-                if (lastValue != oldEvent)
-                {
+                if (lastValue != oldEvent) {
                     continue;
                 }
 
-                if (oldDataToPost == null)
-                {
+                if (oldDataToPost == null) {
                     oldDataToPost = new EventBean[]{oldEvent};
-                }
-                else
-                {
+                } else {
                     oldDataToPost = EventBeanUtility.addToArray(oldDataToPost, oldEvent);
                 }
 
@@ -101,16 +95,13 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
             }
         }
 
-        if (newData != null)
-        {
-            for (EventBean newEvent : newData)
-            {
+        if (newData != null) {
+            for (EventBean newEvent : newData) {
                 // Obtain unique value
                 Object key = getUniqueKey(newEvent);
 
                 // already-seen key
-                if (firstEvents.containsKey(key))
-                {
+                if (firstEvents.containsKey(key)) {
                     continue;
                 }
 
@@ -119,25 +110,27 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
                 internalHandleAdded(key, newEvent);
 
                 // Post the new value
-                if (newDataToPost == null)
-                {
+                if (newDataToPost == null) {
                     newDataToPost = new EventBean[]{newEvent};
-                }
-                else
-                {
+                } else {
                     newDataToPost = EventBeanUtility.addToArray(newDataToPost, newEvent);
                 }
             }
         }
 
-        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null)))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, FirstUniqueByPropertyViewFactory.NAME, newDataToPost, oldDataToPost);}
+        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null))) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, FirstUniqueByPropertyViewFactory.NAME, newDataToPost, oldDataToPost);
+            }
             updateChildren(newDataToPost, oldDataToPost);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleRemoved(Object key, EventBean lastValue) {
@@ -148,26 +141,22 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
         // no action required
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return firstEvents.values().iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " uniqueCriteria=" + Arrays.toString(viewFactory.criteriaExpressions);
     }
 
-    protected Object getUniqueKey(EventBean theEvent)
-    {
+    protected Object getUniqueKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
         if (uniqueCriteriaEval.length == 1) {
             return uniqueCriteriaEval[0].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
 
         Object[] values = new Object[uniqueCriteriaEval.length];
-        for (int i = 0; i < uniqueCriteriaEval.length; i++)
-        {
+        for (int i = 0; i < uniqueCriteriaEval.length; i++) {
             values[i] = uniqueCriteriaEval[i].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
         return new MultiKeyUntyped(values);
@@ -175,10 +164,10 @@ public class FirstUniqueByPropertyView extends ViewSupport implements CloneableV
 
     /**
      * Returns true if empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return firstEvents.isEmpty();
     }
 

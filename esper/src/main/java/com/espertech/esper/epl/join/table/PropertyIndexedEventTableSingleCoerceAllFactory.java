@@ -12,26 +12,25 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
 
-public class PropertyIndexedEventTableSingleCoerceAllFactory extends PropertyIndexedEventTableSingleCoerceAddFactory
-{
+public class PropertyIndexedEventTableSingleCoerceAllFactory extends PropertyIndexedEventTableSingleCoerceAddFactory {
     /**
      * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
+     *
+     * @param streamNum    is the stream number of the indexed stream
+     * @param eventType    is the event type of the indexed stream
      * @param coercionType are the classes to coerce indexed values to
      * @param propertyName property name
      */
-    public PropertyIndexedEventTableSingleCoerceAllFactory(int streamNum, EventType eventType, String propertyName, Class coercionType)
-    {
+    public PropertyIndexedEventTableSingleCoerceAllFactory(int streamNum, EventType eventType, String propertyName, Class coercionType) {
         super(streamNum, eventType, propertyName, coercionType);
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
-        return new EventTable[] {new PropertyIndexedEventTableSingleCoerceAll(propertyGetter, organization, coercer, coercionType)};
+        return new EventTable[]{new PropertyIndexedEventTableSingleCoerceAll(propertyGetter, organization, coercer, coercionType)};
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[] {propertyName}, EventTableOrganizationType.HASH);
+        return new EventTableOrganization(optionalIndexName, unique, true, streamNum, new String[]{propertyName}, EventTableOrganizationType.HASH);
     }
 }

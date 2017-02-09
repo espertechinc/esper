@@ -21,8 +21,7 @@ import java.util.List;
 /**
  * Visitor that collects {@link com.espertech.esper.epl.expression.subquery.ExprSubselectNode} instances.
  */
-public class ExprNodeSubselectDeclaredDotVisitor implements ExprNodeVisitor
-{
+public class ExprNodeSubselectDeclaredDotVisitor implements ExprNodeVisitor {
     private final List<ExprSubselectNode> subselects;
     private final List<ExprDotNode> chainedExpressionsDot;
     private final List<ExprDeclaredNode> declaredExpressions;
@@ -30,8 +29,7 @@ public class ExprNodeSubselectDeclaredDotVisitor implements ExprNodeVisitor
     /**
      * Ctor.
      */
-    public ExprNodeSubselectDeclaredDotVisitor()
-    {
+    public ExprNodeSubselectDeclaredDotVisitor() {
         subselects = new ArrayList<ExprSubselectNode>(1);
         chainedExpressionsDot = new ArrayList<ExprDotNode>(1);
         declaredExpressions = new ArrayList<ExprDeclaredNode>(1);
@@ -45,6 +43,7 @@ public class ExprNodeSubselectDeclaredDotVisitor implements ExprNodeVisitor
 
     /**
      * Returns a list of lookup expression nodes.
+     *
      * @return lookup nodes
      */
     public List<ExprSubselectNode> getSubselects() {
@@ -59,25 +58,21 @@ public class ExprNodeSubselectDeclaredDotVisitor implements ExprNodeVisitor
         return declaredExpressions;
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 
     public void visit(ExprNode exprNode) {
 
-        if (exprNode instanceof ExprDotNode)
-        {
+        if (exprNode instanceof ExprDotNode) {
             chainedExpressionsDot.add((ExprDotNode) exprNode);
         }
 
-        if (exprNode instanceof ExprDeclaredNode)
-        {
+        if (exprNode instanceof ExprDeclaredNode) {
             declaredExpressions.add((ExprDeclaredNode) exprNode);
         }
 
-        if (!(exprNode instanceof ExprSubselectNode))
-        {
+        if (!(exprNode instanceof ExprSubselectNode)) {
             return;
         }
 

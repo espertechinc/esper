@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 /**
  * Enumeration to represents the index type.
  */
-public enum CreateIndexColumnType
-{
+public enum CreateIndexColumnType {
     /**
      * Hash-index.
      */

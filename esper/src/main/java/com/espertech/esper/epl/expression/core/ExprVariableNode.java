@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Represents a variable in an expression tree.
  */
-public interface ExprVariableNode extends ExprConstantNode
-{
+public interface ExprVariableNode extends ExprConstantNode {
     public String getVariableNameWithSubProp();
+
     public String getVariableName();
 }

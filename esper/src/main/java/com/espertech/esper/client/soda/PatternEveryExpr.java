@@ -13,25 +13,23 @@ package com.espertech.esper.client.soda;
 import java.io.StringWriter;
 
 /**
- * Pattern 'every' expression that controls the lifecycle of pattern sub-expressions. 
+ * Pattern 'every' expression that controls the lifecycle of pattern sub-expressions.
  */
-public class PatternEveryExpr extends PatternExprBase
-{
+public class PatternEveryExpr extends PatternExprBase {
     private static final long serialVersionUID = 6325304538100271837L;
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
      */
-    public PatternEveryExpr()
-    {
+    public PatternEveryExpr() {
     }
 
     /**
      * Ctor.
+     *
      * @param inner is the pattern expression to control lifecycle on
      */
-    public PatternEveryExpr(PatternExpr inner)
-    {
+    public PatternEveryExpr(PatternExpr inner) {
         addChild(inner);
     }
 
@@ -39,8 +37,7 @@ public class PatternEveryExpr extends PatternExprBase
         return PatternExprPrecedenceEnum.EVERY_NOT;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {
         writer.write("every ");
         PatternExprPrecedenceEnum precedence = getPrecedence();
         if (this.getChildren().get(0) instanceof PatternEveryExpr) {

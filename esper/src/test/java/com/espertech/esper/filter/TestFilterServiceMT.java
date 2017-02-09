@@ -23,29 +23,23 @@ import java.util.concurrent.*;
 /**
  * Test for multithread-safety for manageing statements, i.e. creating and stopping statements
  */
-public class TestFilterServiceMT extends TestCase
-{
+public class TestFilterServiceMT extends TestCase {
     public void testFilterService() throws Exception {
         runAssertionAddRemoveFilter(new FilterServiceLockCoarse(false));
         runAssertionAddRemoveFilter(new FilterServiceLockFine(false));
     }
 
-    private void runAssertionAddRemoveFilter(final FilterService service) throws Exception
-    {
+    private void runAssertionAddRemoveFilter(final FilterService service) throws Exception {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
-        FilterSpecCompiled spec = SupportFilterSpecBuilder.build(eventType, new Object[] {"string", FilterOperator.EQUAL, "HELLO"});
+        FilterSpecCompiled spec = SupportFilterSpecBuilder.build(eventType, new Object[]{"string", FilterOperator.EQUAL, "HELLO"});
         final FilterValueSet filterValues = spec.getValueSet(null, null, null);
 
         Callable callables[] = new Callable[5];
-        for (int i = 0; i < callables.length; i++)
-        {
-            callables[i] = new Callable()
-            {
-                public Object call() throws Exception
-                {
+        for (int i = 0; i < callables.length; i++) {
+            callables[i] = new Callable() {
+                public Object call() throws Exception {
                     SupportFilterHandle handle = new SupportFilterHandle();
-                    for (int i = 0; i < 10000; i++)
-                    {
+                    for (int i = 0; i < 10000; i++) {
                         FilterServiceEntry entry = service.add(filterValues, handle);
                         service.remove(handle, entry);
                     }
@@ -58,13 +52,11 @@ public class TestFilterServiceMT extends TestCase
         EPAssertionUtil.assertAllBooleanTrue(result);
     }
 
-    private Object[] tryMT(Callable[] callables) throws Exception
-    {
+    private Object[] tryMT(Callable[] callables) throws Exception {
         ExecutorService threadPool = Executors.newFixedThreadPool(callables.length);
 
         Future futures[] = new Future[callables.length];
-        for (int i = 0; i < callables.length; i++)
-        {
+        for (int i = 0; i < callables.length; i++) {
             futures[i] = threadPool.submit(callables[i]);
         }
 
@@ -72,8 +64,7 @@ public class TestFilterServiceMT extends TestCase
         threadPool.awaitTermination(10, TimeUnit.SECONDS);
 
         Object[] results = new Object[futures.length];
-        for (int i = 0; i < futures.length; i++)
-        {
+        for (int i = 0; i < futures.length; i++) {
             results[i] = futures[i].get();
         }
         return results;

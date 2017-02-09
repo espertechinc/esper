@@ -31,58 +31,49 @@ import java.util.Map;
  * <p>
  * Dynamic properties always exist, have an Object type and are resolved to a method during runtime.
  */
-public class DynamicMappedProperty extends PropertyBase implements DynamicProperty, PropertyWithKey
-{
+public class DynamicMappedProperty extends PropertyBase implements DynamicProperty, PropertyWithKey {
     private final String key;
 
     /**
      * Ctor.
+     *
      * @param propertyName is the property name
-     * @param key is the mapped access key
+     * @param key          is the mapped access key
      */
-    public DynamicMappedProperty(String propertyName, String key)
-    {
+    public DynamicMappedProperty(String propertyName, String key) {
         super(propertyName);
         this.key = key;
     }
 
-    public boolean isDynamic()
-    {
+    public boolean isDynamic() {
         return true;
     }
 
-    public String[] toPropertyArray()
-    {
-        return new String[] {this.getPropertyNameAtomic()};
+    public String[] toPropertyArray() {
+        return new String[]{this.getPropertyNameAtomic()};
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return new DynamicMappedPropertyGetter(propertyNameAtomic, key, eventAdapterService);
     }
 
-    public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return Object.class;
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType beanEventType, EventAdapterService eventAdapterService)
-    {
+    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType beanEventType, EventAdapterService eventAdapterService) {
         return GenericPropertyDesc.getObjectGeneric();
     }
 
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService)
-    {
+    public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
         return Object.class;
     }
 
-    public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService)
-    {
+    public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
         return new MapMappedPropertyGetter(this.getPropertyNameAtomic(), key);
     }
 
-    public void toPropertyEPL(StringWriter writer)
-    {
+    public void toPropertyEPL(StringWriter writer) {
         writer.append(propertyNameAtomic);
         writer.append("('");
         writer.append(key);
@@ -90,18 +81,15 @@ public class DynamicMappedProperty extends PropertyBase implements DynamicProper
         writer.append('?');
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression)
-    {
+    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         return new DOMMapGetter(propertyNameAtomic, key, null);
     }
 
-    public SchemaItem getPropertyTypeSchema(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService)
-    {
+    public SchemaItem getPropertyTypeSchema(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService) {
         return null;  // always returns Node
     }
 
-    public EventPropertyGetter getGetterDOM()
-    {
+    public EventPropertyGetter getGetterDOM() {
         return new DOMMapGetter(propertyNameAtomic, key, null);
     }
 

@@ -48,8 +48,7 @@ public class TableStateRowFactory {
 
         if (groupKeyIndexes.length == 1) {
             data[groupKeyIndexes[0]] = groupByKey;
-        }
-        else {
+        } else {
             if (groupKeyIndexes.length > 1) {
                 Object[] keys = ((MultiKeyUntyped) groupByKey).getKeys();
                 for (int i = 0; i < groupKeyIndexes.length; i++) {

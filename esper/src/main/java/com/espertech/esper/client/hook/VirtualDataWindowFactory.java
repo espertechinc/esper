@@ -22,6 +22,7 @@ public interface VirtualDataWindowFactory {
 
     /**
      * Invoked once after instantiation of the factory, exactly once per named window.
+     *
      * @param factoryContext factory context provides contextual information such as event type, named window name and parameters.
      */
     public void initialize(VirtualDataWindowFactoryContext factoryContext);
@@ -31,11 +32,12 @@ public interface VirtualDataWindowFactory {
      * return a virtual data window to handle the specific event type, named window or paramaters
      * as provided in the context.
      * <p>
-     *     This method is invoked for each named window instance after the initialize method.
-     *     If using context partitions, the method is invoked once per context partition per named window.
+     * This method is invoked for each named window instance after the initialize method.
+     * If using context partitions, the method is invoked once per context partition per named window.
      * </p>
+     *
      * @param context provides contextual information such as event type, named window name and parameters
-     * and including context partition information
+     *                and including context partition information
      * @return virtual data window
      */
     public VirtualDataWindow create(VirtualDataWindowContext context);
@@ -43,11 +45,11 @@ public interface VirtualDataWindowFactory {
     /**
      * Invoked to indicate the named window is destroyed.
      * <p>
-     *     This method is invoked once per named window (and not once per context partition).
+     * This method is invoked once per named window (and not once per context partition).
      * </p>
      * <p>
-     *     For reference, the VirtualDataWindow destroy method is called once per context partition,
-     *     before this method is invoked.
+     * For reference, the VirtualDataWindow destroy method is called once per context partition,
+     * before this method is invoked.
      * </p>
      */
     public void destroyAllContextPartitions();
@@ -55,6 +57,7 @@ public interface VirtualDataWindowFactory {
     /**
      * Return the names of properties that taken together (combined, composed, not individually) are the unique keys of a row,
      * return null if there are no unique keys that can be identified.
+     *
      * @return set of unique key property names
      */
     public Set<String> getUniqueKeyPropertyNames();

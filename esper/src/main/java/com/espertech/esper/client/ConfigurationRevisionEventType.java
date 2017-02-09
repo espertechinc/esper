@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.client;
 
-import java.util.Set;
-import java.util.HashSet;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Configuration information for revision event types.
@@ -23,8 +23,7 @@ import java.io.Serializable;
  * Events of the base event type arrive before delta events; Delta events arriving before the base event
  * for the same key value are not processed, as delta events as well as base events represent new versions.
  */
-public class ConfigurationRevisionEventType implements Serializable
-{
+public class ConfigurationRevisionEventType implements Serializable {
     private Set<String> nameBaseEventTypes;
     private Set<String> nameDeltaEventTypes;
     private PropertyRevision propertyRevision;
@@ -34,8 +33,7 @@ public class ConfigurationRevisionEventType implements Serializable
     /**
      * Ctor.
      */
-    public ConfigurationRevisionEventType()
-    {
+    public ConfigurationRevisionEventType() {
         nameBaseEventTypes = new HashSet<String>();
         nameDeltaEventTypes = new HashSet<String>();
         propertyRevision = PropertyRevision.OVERLAY_DECLARED;
@@ -43,85 +41,84 @@ public class ConfigurationRevisionEventType implements Serializable
 
     /**
      * Add a base event type by it's name.
+     *
      * @param nameBaseEventType the name of the base event type to add
      */
-    public void addNameBaseEventType(String nameBaseEventType)
-    {
+    public void addNameBaseEventType(String nameBaseEventType) {
         nameBaseEventTypes.add(nameBaseEventType);
     }
 
     /**
      * Returns the set of event type names that are base event types.
+     *
      * @return names of base event types
      */
-    public Set<String> getNameBaseEventTypes()
-    {
+    public Set<String> getNameBaseEventTypes() {
         return nameBaseEventTypes;
     }
 
     /**
      * Returns the set of names of delta event types.
+     *
      * @return names of delta event types
      */
-    public Set<String> getNameDeltaEventTypes()
-    {
+    public Set<String> getNameDeltaEventTypes() {
         return nameDeltaEventTypes;
     }
 
     /**
      * Add a delta event type by it's name.
+     *
      * @param nameDeltaEventType the name of the delta event type to add
      */
-    public void addNameDeltaEventType(String nameDeltaEventType)
-    {
+    public void addNameDeltaEventType(String nameDeltaEventType) {
         nameDeltaEventTypes.add(nameDeltaEventType);
     }
 
     /**
      * Returns the enumeration value defining the strategy to use for overlay or merging
      * multiple versions of an event (instances of base and delta events).
+     *
      * @return strategy enumerator
      */
-    public PropertyRevision getPropertyRevision()
-    {
+    public PropertyRevision getPropertyRevision() {
         return propertyRevision;
     }
 
     /**
      * Sets the enumeration value defining the strategy to use for overlay or merging
      * multiple versions of an event (instances of base and delta events).
+     *
      * @param propertyRevision strategy enumerator
      */
-    public void setPropertyRevision(PropertyRevision propertyRevision)
-    {
+    public void setPropertyRevision(PropertyRevision propertyRevision) {
         this.propertyRevision = propertyRevision;
     }
 
     /**
      * Returns the key property names, which are the names of the properties that supply key values for relating
      * base and delta events.
+     *
      * @return array of names of key properties
      */
-    public String[] getKeyPropertyNames()
-    {
+    public String[] getKeyPropertyNames() {
         return keyPropertyNames;
     }
 
     /**
      * Sets the key property names, which are the names of the properties that supply key values for relating
      * base and delta events.
+     *
      * @param keyPropertyNames array of names of key properties
      */
-    public void setKeyPropertyNames(String[] keyPropertyNames)
-    {
+    public void setKeyPropertyNames(String[] keyPropertyNames) {
         this.keyPropertyNames = keyPropertyNames;
     }
 
     /**
      * Enumeration for specifying a strategy to use to merge or overlay properties.
      */
-    public enum PropertyRevision
-    {
+    public enum PropertyRevision {
         /**
          * A fast strategy for revising events that groups properties provided by base and delta events and overlays contributed properties to compute a revision.
          * <p>

@@ -12,8 +12,8 @@ package com.espertech.esper.client.soda;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Match-recognize clause.
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class MatchRecognizeClause implements Serializable {
 
     private static final long serialVersionUID = -344174798312697242L;
-    
+
     private List<Expression> partitionExpressions = new ArrayList<Expression>();
     private List<SelectClauseExpression> measures = new ArrayList<SelectClauseExpression>();
     private boolean all;
@@ -38,10 +38,10 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Renders the clause in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         writer.write(" match_recognize (");
 
         if (partitionExpressions.size() > 0) {
@@ -74,7 +74,7 @@ public class MatchRecognizeClause implements Serializable {
         pattern.writeEPL(writer);
         writer.write(")");
 
-        if ((intervalClause != null) && (intervalClause.getExpression() != null)){
+        if ((intervalClause != null) && (intervalClause.getExpression() != null)) {
             writer.write(" interval ");
             intervalClause.getExpression().toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             if (intervalClause.isOrTerminated()) {
@@ -99,6 +99,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Get partition expressions.
+     *
      * @return partition expressions
      */
     public List<Expression> getPartitionExpressions() {
@@ -107,6 +108,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Set partition expressions.
+     *
      * @param partitionExpressions partition expressions
      */
     public void setPartitionExpressions(List<Expression> partitionExpressions) {
@@ -115,6 +117,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Returns measures.
+     *
      * @return measures
      */
     public List<SelectClauseExpression> getMeasures() {
@@ -123,6 +126,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Sets measures.
+     *
      * @param measures to set
      */
     public void setMeasures(List<SelectClauseExpression> measures) {
@@ -131,6 +135,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Indicator whether all matches.
+     *
      * @return all matches
      */
     public boolean isAll() {
@@ -139,6 +144,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Sets indicator whether all matches.
+     *
      * @param all all matches
      */
     public void setAll(boolean all) {
@@ -147,6 +153,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Returns skip-clause.
+     *
      * @return skip-clause
      */
     public MatchRecognizeSkipClause getSkipClause() {
@@ -155,6 +162,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Sets the skip-clause.
+     *
      * @param skipClause to set
      */
     public void setSkipClause(MatchRecognizeSkipClause skipClause) {
@@ -163,6 +171,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Returns the defines-clause
+     *
      * @return defines-clause
      */
     public List<MatchRecognizeDefine> getDefines() {
@@ -171,6 +180,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Sets the defines-clause
+     *
      * @param defines to set
      */
     public void setDefines(List<MatchRecognizeDefine> defines) {
@@ -179,6 +189,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Returns the interval clause.
+     *
      * @return interval clause
      */
     public MatchRecognizeIntervalClause getIntervalClause() {
@@ -187,6 +198,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Sets the interval clause.
+     *
      * @param intervalClause interval clause
      */
     public void setIntervalClause(MatchRecognizeIntervalClause intervalClause) {
@@ -195,6 +207,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Returns regex-pattern.
+     *
      * @return pattern
      */
     public MatchRecognizeRegEx getPattern() {
@@ -203,6 +216,7 @@ public class MatchRecognizeClause implements Serializable {
 
     /**
      * Sets regex-pattern.
+     *
      * @param pattern to set
      */
     public void setPattern(MatchRecognizeRegEx pattern) {

@@ -13,38 +13,37 @@ package com.espertech.esper.epl.spec;
 /**
  * For use in select clauses for specifying a selected stream: select a.* from MyEvent as a, MyOther as b
  */
-public class SelectClauseStreamRawSpec implements SelectClauseElementRaw
-{
+public class SelectClauseStreamRawSpec implements SelectClauseElementRaw {
     private String streamName;
     private String optionalAsName;
     private static final long serialVersionUID = 3679315688549186789L;
 
     /**
      * Ctor.
-     * @param streamName is the stream name of the stream to select
+     *
+     * @param streamName     is the stream name of the stream to select
      * @param optionalAsName is the column name
      */
-    public SelectClauseStreamRawSpec(String streamName, String optionalAsName)
-    {
+    public SelectClauseStreamRawSpec(String streamName, String optionalAsName) {
         this.streamName = streamName;
         this.optionalAsName = optionalAsName;
     }
 
     /**
      * Returns the stream name (e.g. select streamName from MyEvent as streamName).
+     *
      * @return name
      */
-    public String getStreamName()
-    {
+    public String getStreamName() {
         return streamName;
     }
 
-     /**
-      * Returns the column name.
-      * @return name
-      */
-    public String getOptionalAsName()
-    {
+    /**
+     * Returns the column name.
+     *
+     * @return name
+     */
+    public String getOptionalAsName() {
         return optionalAsName;
     }
 }

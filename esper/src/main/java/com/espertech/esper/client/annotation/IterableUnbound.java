@@ -14,6 +14,5 @@ package com.espertech.esper.client.annotation;
  * Annotation for use in EPL statements for making an unbound stream iterable returning the last event without
  * requiring a data window to be declared.
  */
-public @interface IterableUnbound
-{
+public @interface IterableUnbound {
 }

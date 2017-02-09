@@ -12,5 +12,6 @@ package com.espertech.esper.epl.enummethod.eval;
 
 public interface ExprDotEvalSumMethodFactory {
     public ExprDotEvalSumMethod getSumAggregator();
+
     public Class getValueType();
 }

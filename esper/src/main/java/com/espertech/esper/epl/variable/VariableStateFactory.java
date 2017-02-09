@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.variable;
 
-public interface VariableStateFactory
-{
+public interface VariableStateFactory {
     public Object getInitialState();
 }

@@ -10,15 +10,14 @@
  */
 package com.espertech.esper.supportunit.guard;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.pattern.observer.ObserverEventEvaluator;
 
-public class SupportObserverEvaluator implements ObserverEventEvaluator
-{
+import java.util.LinkedList;
+import java.util.List;
+
+public class SupportObserverEvaluator implements ObserverEventEvaluator {
     private List<MatchedEventMap> matchEvents = new LinkedList<MatchedEventMap>();
     private int evaluateFalseCounter;
     private PatternAgentInstanceContext context;
@@ -27,30 +26,25 @@ public class SupportObserverEvaluator implements ObserverEventEvaluator
         this.context = context;
     }
 
-    public void observerEvaluateTrue(MatchedEventMap matchEvent, boolean quitted)
-    {
+    public void observerEvaluateTrue(MatchedEventMap matchEvent, boolean quitted) {
         matchEvents.add(matchEvent);
     }
 
-    public void observerEvaluateFalse(boolean restartable)
-    {
+    public void observerEvaluateFalse(boolean restartable) {
         evaluateFalseCounter++;
     }
 
-    public List<MatchedEventMap> getAndClearMatchEvents()
-    {
+    public List<MatchedEventMap> getAndClearMatchEvents() {
         List<MatchedEventMap> original = matchEvents;
         matchEvents = new LinkedList<MatchedEventMap>();
         return original;
     }
 
-    public List<MatchedEventMap> getMatchEvents()
-    {
+    public List<MatchedEventMap> getMatchEvents() {
         return matchEvents;
     }
 
-    public int getAndResetEvaluateFalseCounter()
-    {
+    public int getAndResetEvaluateFalseCounter() {
         int value = evaluateFalseCounter;
         evaluateFalseCounter = 0;
         return value;

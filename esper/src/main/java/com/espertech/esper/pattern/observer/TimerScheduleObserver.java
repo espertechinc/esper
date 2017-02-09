@@ -26,8 +26,7 @@ import java.util.Calendar;
 /**
  * Observer implementation for indicating that a certain time arrived, similar to "crontab".
  */
-public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallback
-{
+public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallback {
     protected final long scheduleSlot;
     protected MatchedEventMap beginState;
     protected final ObserverEventEvaluator observerEventEvaluator;
@@ -45,8 +44,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
 
     protected EPStatementHandleCallback scheduleHandle;
 
-    public TimerScheduleObserver(TimerScheduleSpec spec, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, boolean isFilterChildNonQuitting)
-    {
+    public TimerScheduleObserver(TimerScheduleSpec spec, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator, boolean isFilterChildNonQuitting) {
         this.beginState = beginState;
         this.observerEventEvaluator = observerEventEvaluator;
         this.scheduleSlot = observerEventEvaluator.getContext().getPatternContext().getScheduleBucket().allocateSlot();
@@ -58,9 +56,10 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         return beginState;
     }
 
-    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverScheduledEval();}
+    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternObserverScheduledEval();
+        }
 
         // compute reschedule time
         isTimerActive = false;
@@ -74,17 +73,20 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         if (nextScheduledTime == -1) {
             stopObserve();
             observerEventEvaluator.observerEvaluateFalse(false);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverScheduledEval();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aPatternObserverScheduledEval();
+            }
             return;
         }
 
         schedulingService.add(nextScheduledTime, scheduleHandle, scheduleSlot);
         isTimerActive = true;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverScheduledEval();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternObserverScheduledEval();
+        }
     }
 
-    public void startObserve()
-    {
+    public void startObserve() {
         if (isTimerActive) {
             throw new IllegalStateException("Timer already active");
         }
@@ -96,8 +98,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
             if (spec.getOptionalDate() == null) {
                 anchorTime = Calendar.getInstance(observerEventEvaluator.getContext().getStatementContext().getEngineImportService().getTimeZone());
                 anchorRemainder = timeAbacus.calendarSet(schedulingService.getTime(), anchorTime);
-            }
-            else {
+            } else {
                 anchorTime = spec.getOptionalDate();
                 anchorRemainder = spec.getOptionalRemainder() == null ? 0 : spec.getOptionalRemainder();
             }
@@ -115,8 +116,7 @@ public class TimerScheduleObserver implements EventObserver, ScheduleHandleCallb
         isTimerActive = true;
     }
 
-    public void stopObserve()
-    {
+    public void stopObserve() {
         if (isTimerActive) {
             observerEventEvaluator.getContext().getPatternContext().getSchedulingService().remove(scheduleHandle, scheduleSlot);
         }

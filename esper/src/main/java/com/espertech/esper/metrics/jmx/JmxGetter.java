@@ -20,5 +20,6 @@ import java.lang.annotation.Target;
 public @interface JmxGetter {
 
     public String name();
+
     public String description() default "";
 }

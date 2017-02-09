@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.epl.view;
 
-public final class OutputConditionTerm extends OutputConditionBase implements OutputCondition
-{
+public final class OutputConditionTerm extends OutputConditionBase implements OutputCondition {
     public OutputConditionTerm(OutputCallback outputCallback) {
         super(outputCallback);
     }
 
-    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {}
+    public void updateOutputCondition(int newEventsCount, int oldEventsCount) {
+    }
 
     public void stop() {
         // no action required

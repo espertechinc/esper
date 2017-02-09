@@ -14,5 +14,6 @@ import java.util.Collection;
 
 public interface ContextPartitionVisitorWithPath extends ContextPartitionVisitor {
     public void resetSubPaths();
+
     public Collection<Integer> getSubpaths();
 }

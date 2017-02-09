@@ -21,51 +21,49 @@ import java.util.List;
 /**
  * Holds property information for joined properties in a lookup.
  */
-public class IndexedPropDesc implements Comparable
-{
+public class IndexedPropDesc implements Comparable {
     private final String indexPropName;
     private final Class coercionType;
 
     /**
      * Ctor.
+     *
      * @param indexPropName is the property name of the indexed field
-     * @param coercionType is the type to coerce to
+     * @param coercionType  is the type to coerce to
      */
-    public IndexedPropDesc(String indexPropName, Class coercionType)
-    {
+    public IndexedPropDesc(String indexPropName, Class coercionType) {
         this.indexPropName = indexPropName;
         this.coercionType = coercionType;
     }
 
     /**
      * Returns the property name of the indexed field.
+     *
      * @return property name of indexed field
      */
-    public String getIndexPropName()
-    {
+    public String getIndexPropName() {
         return indexPropName;
     }
 
     /**
      * Returns the coercion type of key to index field.
+     *
      * @return type to coerce to
      */
-    public Class getCoercionType()
-    {
+    public Class getCoercionType() {
         return coercionType;
     }
 
     /**
      * Returns the index property names given an array of descriptors.
+     *
      * @param descList descriptors of joined properties
      * @return array of index property names
      */
-    public static String[] getIndexProperties(IndexedPropDesc[] descList)
-    {
+    public static String[] getIndexProperties(IndexedPropDesc[] descList) {
         String[] result = new String[descList.length];
         int count = 0;
-        for (IndexedPropDesc desc : descList)
-        {
+        for (IndexedPropDesc desc : descList) {
             result[count++] = desc.getIndexPropName();
         }
         return result;
@@ -74,8 +72,7 @@ public class IndexedPropDesc implements Comparable
     public static String[] getIndexProperties(List<IndexedPropDesc> descList) {
         String[] result = new String[descList.size()];
         int count = 0;
-        for (IndexedPropDesc desc : descList)
-        {
+        for (IndexedPropDesc desc : descList) {
             result[count++] = desc.getIndexPropName();
         }
         return result;
@@ -92,45 +89,38 @@ public class IndexedPropDesc implements Comparable
 
     /**
      * Returns the key coercion types.
+     *
      * @param descList a list of descriptors
      * @return key coercion types
      */
-    public static Class[] getCoercionTypes(IndexedPropDesc[] descList)
-    {
+    public static Class[] getCoercionTypes(IndexedPropDesc[] descList) {
         Class[] result = new Class[descList.length];
         int count = 0;
-        for (IndexedPropDesc desc : descList)
-        {
+        for (IndexedPropDesc desc : descList) {
             result[count++] = desc.getCoercionType();
         }
         return result;
     }
 
-    public int compareTo(Object o)
-    {
+    public int compareTo(Object o) {
         IndexedPropDesc other = (IndexedPropDesc) o;
         return indexPropName.compareTo(other.getIndexPropName());
     }
 
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
-        {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
         IndexedPropDesc that = (IndexedPropDesc) o;
 
-        if (!coercionType.equals(that.coercionType))
-        {
+        if (!coercionType.equals(that.coercionType)) {
             return false;
         }
-        if (!indexPropName.equals(that.indexPropName))
-        {
+        if (!indexPropName.equals(that.indexPropName)) {
             return false;
         }
         return true;
@@ -156,9 +146,8 @@ public class IndexedPropDesc implements Comparable
         }
         return true;
     }
-    
-    public int hashCode()
-    {
+
+    public int hashCode() {
         int result;
         result = indexPropName.hashCode();
         result = 31 * result + coercionType.hashCode();

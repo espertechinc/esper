@@ -40,7 +40,7 @@ public class EnumEvalTakeWhileLastEvents extends EnumEvalBase implements EnumEva
             }
             return Collections.singletonList(item);
         }
-        
+
         int size = target.size();
         EventBean[] all = new EventBean[size];
         int count = 0;

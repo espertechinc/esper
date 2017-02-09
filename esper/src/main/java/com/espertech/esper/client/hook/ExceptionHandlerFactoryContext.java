@@ -19,6 +19,7 @@ public class ExceptionHandlerFactoryContext {
 
     /**
      * Ctor.
+     *
      * @param engineURI engine URI
      */
     public ExceptionHandlerFactoryContext(String engineURI) {
@@ -27,6 +28,7 @@ public class ExceptionHandlerFactoryContext {
 
     /**
      * Returns the engine URI.
+     *
      * @return engine URI
      */
     public String getEngineURI() {

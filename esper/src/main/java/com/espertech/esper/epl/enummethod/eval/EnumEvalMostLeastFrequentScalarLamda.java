@@ -48,8 +48,7 @@ public class EnumEvalMostLeastFrequentScalarLamda extends EnumEvalBase implement
 
             if (existing == null) {
                 existing = 1;
-            }
-            else {
+            } else {
                 existing++;
             }
             items.put(item, existing);

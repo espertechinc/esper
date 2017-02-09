@@ -15,34 +15,38 @@ package com.espertech.esper.type;
  * the different basic Java data types that occur in an event expression.
  * Placeholders represent all literal values in event expressions and set values in prepared event expressions.
  */
-public interface PrimitiveValue
-{
+public interface PrimitiveValue {
     /**
      * Returns a value object.
+     *
      * @return value object
      */
     public Object getValueObject();
 
     /**
      * Parse the string literal value into the specific data type.
+     *
      * @param value is the textual value to parse
      */
     public void parse(String value);
 
     /**
      * Parse the string literal values supplied in the array into the specific data type.
+     *
      * @param values are the textual values to parse
      */
     public void parse(String[] values);
 
     /**
      * Returns the type of primitive value this instance represents.
+     *
      * @return enum type of primitive
      */
     public PrimitiveValueType getType();
 
     /**
      * Set a boolean value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -50,6 +54,7 @@ public interface PrimitiveValue
 
     /**
      * Set a byte value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -57,6 +62,7 @@ public interface PrimitiveValue
 
     /**
      * Set a double value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -64,6 +70,7 @@ public interface PrimitiveValue
 
     /**
      * Set a float value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -71,6 +78,7 @@ public interface PrimitiveValue
 
     /**
      * Set an int value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -78,6 +86,7 @@ public interface PrimitiveValue
 
     /**
      * Set a long value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -85,6 +94,7 @@ public interface PrimitiveValue
 
     /**
      * Set a short value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */
@@ -92,6 +102,7 @@ public interface PrimitiveValue
 
     /**
      * Set a string value.
+     *
      * @param x is the value to set
      * @throws UnsupportedOperationException to indicate that the value cannot convert from boolean
      */

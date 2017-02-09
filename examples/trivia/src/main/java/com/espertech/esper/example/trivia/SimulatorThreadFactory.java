@@ -15,26 +15,24 @@ public class SimulatorThreadFactory implements ThreadFactory {
 
     /**
      * Ctor.
+     *
      * @param engineURI engine URI
-     * @param name thread name
+     * @param name      thread name
      */
-    public SimulatorThreadFactory(String engineURI, String name)
-    {
+    public SimulatorThreadFactory(String engineURI, String name) {
         this.engineURI = engineURI;
         this.name = name;
         String threadGroupName = "com.espertech.esper-" + name + "-" + engineURI + "-ThreadGroup";
         this.threadGroup = new ThreadGroup(threadGroupName);
     }
 
-    public Thread newThread(Runnable runnable)
-    {
+    public Thread newThread(Runnable runnable) {
         String threadName = "com.espertech.esper-" + name + "-" + engineURI + "-Thread-" + currThreadCount;
         currThreadCount++;
         Thread t = new Thread(threadGroup, runnable, threadName);
         t.setDaemon(true);
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".newThread Creating thread '" + threadName + " : " + t);
         }
         return t;

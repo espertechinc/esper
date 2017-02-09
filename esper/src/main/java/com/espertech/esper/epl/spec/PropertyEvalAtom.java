@@ -18,8 +18,7 @@ import java.io.Serializable;
 /**
  * Atom in a specification for property evaluation.
  */
-public class PropertyEvalAtom implements MetaDefItem, Serializable
-{
+public class PropertyEvalAtom implements MetaDefItem, Serializable {
     private final ExprNode splitterExpression;
     private final String optionalResultEventType;
     private final String optionalAsName;
@@ -29,14 +28,14 @@ public class PropertyEvalAtom implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param optionalAsName column name assigned, if any
-     * @param optionalSelectClause select clause, if any
-     * @param optionalWhereClause where clause, if any
-     * @param splitterExpression for nested events
+     *
+     * @param optionalAsName          column name assigned, if any
+     * @param optionalSelectClause    select clause, if any
+     * @param optionalWhereClause     where clause, if any
+     * @param splitterExpression      for nested events
      * @param optionalResultEventType result event type if split
      */
-    public PropertyEvalAtom(ExprNode splitterExpression, String optionalResultEventType, String optionalAsName, SelectClauseSpecRaw optionalSelectClause, ExprNode optionalWhereClause)
-    {
+    public PropertyEvalAtom(ExprNode splitterExpression, String optionalResultEventType, String optionalAsName, SelectClauseSpecRaw optionalSelectClause, ExprNode optionalWhereClause) {
         this.splitterExpression = splitterExpression;
         this.optionalResultEventType = optionalResultEventType;
         this.optionalAsName = optionalAsName;
@@ -46,28 +45,28 @@ public class PropertyEvalAtom implements MetaDefItem, Serializable
 
     /**
      * Returns the column name if assigned.
+     *
      * @return column name
      */
-    public String getOptionalAsName()
-    {
+    public String getOptionalAsName() {
         return optionalAsName;
     }
 
     /**
      * Returns the select clause if specified.
+     *
      * @return select clause
      */
-    public SelectClauseSpecRaw getOptionalSelectClause()
-    {
+    public SelectClauseSpecRaw getOptionalSelectClause() {
         return optionalSelectClause;
     }
 
     /**
      * Returns the where clause, if specified.
+     *
      * @return filter expression
      */
-    public ExprNode getOptionalWhereClause()
-    {
+    public ExprNode getOptionalWhereClause() {
         return optionalWhereClause;
     }
 

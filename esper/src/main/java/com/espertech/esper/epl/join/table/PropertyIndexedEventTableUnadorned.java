@@ -16,8 +16,7 @@ import com.espertech.esper.collection.MultiKeyUntyped;
 
 import java.util.*;
 
-public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTable
-{
+public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTable {
     protected final Map<MultiKeyUntyped, Set<EventBean>> propertyIndex;
 
     public PropertyIndexedEventTableUnadorned(EventPropertyGetter[] propertyGetters, EventTableOrganization organization) {
@@ -27,22 +26,20 @@ public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTabl
 
     /**
      * Returns the set of events that have the same property value as the given event.
+     *
      * @param keys to compare against
      * @return set of events with property value, or null if none found (never returns zero-sized set)
      */
-    public Set<EventBean> lookup(Object[] keys)
-    {
+    public Set<EventBean> lookup(Object[] keys) {
         MultiKeyUntyped key = new MultiKeyUntyped(keys);
         return propertyIndex.get(key);
     }
 
-    public void add(EventBean theEvent)
-    {
+    public void add(EventBean theEvent) {
         MultiKeyUntyped key = getMultiKey(theEvent);
 
         Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
+        if (events == null) {
             events = new LinkedHashSet<EventBean>();
             propertyIndex.put(key, events);
         }
@@ -50,41 +47,34 @@ public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTabl
         events.add(theEvent);
     }
 
-    public void remove(EventBean theEvent)
-    {
+    public void remove(EventBean theEvent) {
         MultiKeyUntyped key = getMultiKey(theEvent);
 
         Set<EventBean> events = propertyIndex.get(key);
-        if (events == null)
-        {
+        if (events == null) {
             return;
         }
 
-        if (!events.remove(theEvent))
-        {
+        if (!events.remove(theEvent)) {
             // Not an error, its possible that an old-data event is artificial (such as for statistics) and
             // thus did not correspond to a new-data event raised earlier.
             return;
         }
 
-        if (events.isEmpty())
-        {
+        if (events.isEmpty()) {
             propertyIndex.remove(key);
         }
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return propertyIndex.isEmpty();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new PropertyIndexedEventTableIterator<MultiKeyUntyped>(propertyIndex);
     }
 
-    public void clear()
-    {
+    public void clear() {
         propertyIndex.clear();
     }
 

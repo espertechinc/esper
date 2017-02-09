@@ -22,8 +22,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 /**
  * Factory for aggregation methods.
  */
-public interface AggregationMethodFactory
-{
+public interface AggregationMethodFactory {
     public boolean isAccessAggregation();
 
     public AggregationMethod make();

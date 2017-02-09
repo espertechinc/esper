@@ -24,8 +24,7 @@ import com.espertech.esper.event.EventTypeSPI;
  * Output process view that does not enforce any output policies and may simply
  * hand over events to child views, but works with distinct and after-output policies
  */
-public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcessViewDirectFactory
-{
+public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcessViewDirectFactory {
     private final boolean isDistinct;
     protected final ExprTimePeriod afterTimePeriod;
     protected final Integer afterConditionNumberOfEvents;
@@ -38,15 +37,12 @@ public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcess
         this.afterTimePeriod = afterTimePeriod;
         this.afterConditionNumberOfEvents = afterConditionNumberOfEvents;
 
-        if (isDistinct)
-        {
-            if (resultEventType instanceof EventTypeSPI)
-            {
+        if (isDistinct) {
+            if (resultEventType instanceof EventTypeSPI) {
                 EventTypeSPI eventTypeSPI = (EventTypeSPI) resultEventType;
                 eventBeanReader = eventTypeSPI.getReader();
             }
-            if (eventBeanReader == null)
-            {
+            if (eventBeanReader == null) {
                 eventBeanReader = new EventBeanReaderDefaultImpl(resultEventType);
             }
         }
@@ -57,12 +53,9 @@ public class OutputProcessViewDirectDistinctOrAfterFactory extends OutputProcess
 
         boolean isAfterConditionSatisfied = true;
         Long afterConditionTime = null;
-        if (afterConditionNumberOfEvents != null)
-        {
+        if (afterConditionNumberOfEvents != null) {
             isAfterConditionSatisfied = false;
-        }
-        else if (afterTimePeriod != null)
-        {
+        } else if (afterTimePeriod != null) {
             isAfterConditionSatisfied = false;
             long delta = afterTimePeriod.nonconstEvaluator().deltaUseEngineTime(null, agentInstanceContext);
             afterConditionTime = agentInstanceContext.getStatementContext().getTimeProvider().getTime() + delta;

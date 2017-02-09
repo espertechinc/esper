@@ -16,16 +16,15 @@ import java.util.Set;
 /**
  * Service for holding expiration dates to adjust.
  */
-public class ScheduleAdjustmentService
-{
+public class ScheduleAdjustmentService {
     private Set<ScheduleAdjustmentCallback> callbacks;
 
     /**
      * Add a callback
+     *
      * @param callback to add
      */
-    public synchronized void addCallback(ScheduleAdjustmentCallback callback)
-    {
+    public synchronized void addCallback(ScheduleAdjustmentCallback callback) {
         if (callbacks == null) {
             callbacks = new HashSet<ScheduleAdjustmentCallback>();
         }
@@ -34,10 +33,10 @@ public class ScheduleAdjustmentService
 
     /**
      * Make callbacks to adjust expiration dates.
+     *
      * @param delta to adjust for
      */
-    public void adjust(long delta)
-    {
+    public void adjust(long delta) {
         if (callbacks == null) {
             return;
         }

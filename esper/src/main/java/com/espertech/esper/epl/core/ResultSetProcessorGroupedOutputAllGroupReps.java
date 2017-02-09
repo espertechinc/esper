@@ -18,7 +18,10 @@ import java.util.Map;
 public interface ResultSetProcessorGroupedOutputAllGroupReps extends ResultSetProcessorOutputHelper {
 
     Object put(Object mk, EventBean[] array);
+
     void remove(Object key);
-    Iterator<Map.Entry<Object,EventBean[]>> entryIterator();
+
+    Iterator<Map.Entry<Object, EventBean[]>> entryIterator();
+
     void destroy();
 }

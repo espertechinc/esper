@@ -1,9 +1,9 @@
 package com.espertech.esperio.socket;
 
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class SupportSocketClientObject {
 
@@ -15,8 +15,7 @@ public class SupportSocketClientObject {
         outStream = new ObjectOutputStream(requestSocket.getOutputStream());
     }
 
-    public void send(Object object) throws IOException
-    {
+    public void send(Object object) throws IOException {
         outStream.writeObject(object);
         outStream.flush();
     }

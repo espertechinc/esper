@@ -21,8 +21,7 @@ import java.util.Map;
 /**
  * Processor for select-clause expressions that handles wildcards. Computes results based on matching events.
  */
-public class SelectExprJoinWildcardProcessorMap implements SelectExprProcessor
-{
+public class SelectExprJoinWildcardProcessorMap implements SelectExprProcessor {
     private final String[] streamNames;
     private final EventType resultEventType;
     private final EventAdapterService eventAdapterService;
@@ -33,13 +32,10 @@ public class SelectExprJoinWildcardProcessorMap implements SelectExprProcessor
         this.eventAdapterService = eventAdapterService;
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         Map<String, Object> tuple = new HashMap<String, Object>();
-        for (int i = 0; i < streamNames.length; i++)
-        {
-            if (streamNames[i] == null)
-            {
+        for (int i = 0; i < streamNames.length; i++) {
+            if (streamNames[i] == null) {
                 throw new IllegalStateException("Event name for stream " + i + " is null");
             }
             tuple.put(streamNames[i], eventsPerStream[i]);
@@ -48,8 +44,7 @@ public class SelectExprJoinWildcardProcessorMap implements SelectExprProcessor
         return eventAdapterService.adapterForTypedMap(tuple, resultEventType);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 }

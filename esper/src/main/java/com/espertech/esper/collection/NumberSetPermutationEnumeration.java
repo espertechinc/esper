@@ -17,33 +17,29 @@ import java.util.Enumeration;
  * values, all permutations of order these values can come in, ie.
  * Example: {0, 2, 3} results in 6 enumeration values ending in {3, 2, 0}.
  */
-public class NumberSetPermutationEnumeration implements Enumeration<int[]>
-{
+public class NumberSetPermutationEnumeration implements Enumeration<int[]> {
     private final int[] numberSet;
     private final PermutationEnumeration permutationEnumeration;
 
     /**
      * Ctor.
+     *
      * @param numberSet - set of integer numbers to permutate and provide each combination.
      */
-    public NumberSetPermutationEnumeration(int[] numberSet)
-    {
+    public NumberSetPermutationEnumeration(int[] numberSet) {
         this.numberSet = numberSet;
         permutationEnumeration = new PermutationEnumeration(numberSet.length);
     }
 
-    public boolean hasMoreElements()
-    {
+    public boolean hasMoreElements() {
         return permutationEnumeration.hasMoreElements();
     }
 
-    public int[] nextElement()
-    {
+    public int[] nextElement() {
         int[] permutation = permutationEnumeration.nextElement();
 
         int[] result = new int[numberSet.length];
-        for (int i = 0; i < numberSet.length; i++)
-        {
+        for (int i = 0; i < numberSet.length; i++) {
             result[i] = numberSet[permutation[i]];
         }
 

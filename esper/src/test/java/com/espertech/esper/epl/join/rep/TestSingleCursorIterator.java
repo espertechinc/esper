@@ -10,50 +10,40 @@
  */
 package com.espertech.esper.epl.join.rep;
 
-import junit.framework.*;
+import com.espertech.esper.client.EventBean;
+import junit.framework.TestCase;
+
 import java.util.NoSuchElementException;
 
-import com.espertech.esper.client.EventBean;
-
-public class TestSingleCursorIterator extends TestCase
-{
+public class TestSingleCursorIterator extends TestCase {
     private SingleCursorIterator filledIterator;
     private SingleCursorIterator emptyIterator;
     private Cursor cursor;
 
-    public void setUp()
-    {
+    public void setUp() {
         cursor = makeAnonymousCursor();
         filledIterator = new SingleCursorIterator(cursor);
         emptyIterator = new SingleCursorIterator(null);
     }
 
-    public void testNext()
-    {
+    public void testNext() {
         assertSame(cursor, filledIterator.next());
-        try
-        {
+        try {
             filledIterator.next();
             TestCase.fail();
-        }
-        catch (NoSuchElementException ex)
-        {
+        } catch (NoSuchElementException ex) {
             // Expected exception
         }
 
-        try
-        {
+        try {
             emptyIterator.next();
             TestCase.fail();
-        }
-        catch (NoSuchElementException ex)
-        {
+        } catch (NoSuchElementException ex) {
             // Expected exception
         }
     }
 
-    public void testHasNext()
-    {
+    public void testHasNext() {
         assertTrue(filledIterator.hasNext());
         filledIterator.next();
         assertFalse(filledIterator.hasNext());
@@ -61,35 +51,27 @@ public class TestSingleCursorIterator extends TestCase
         assertFalse(emptyIterator.hasNext());
     }
 
-    public void testRemove()
-    {
-        try
-        {
+    public void testRemove() {
+        try {
             filledIterator.remove();
             assertTrue(false);
-        }
-        catch (UnsupportedOperationException ex)
-        {
+        } catch (UnsupportedOperationException ex) {
             // Expected exception
         }
     }
 
-    private Cursor makeAnonymousCursor()
-    {
+    private Cursor makeAnonymousCursor() {
         return new Cursor(null, 0, null) {
 
-            public EventBean getLookupEvent()
-            {
+            public EventBean getLookupEvent() {
                 return null;
             }
 
-            public int getLookupStream()
-            {
+            public int getLookupStream() {
                 return 0;
             }
 
-            public int getIndexedStream()
-            {
+            public int getIndexedStream() {
                 return 0;
             }
         };

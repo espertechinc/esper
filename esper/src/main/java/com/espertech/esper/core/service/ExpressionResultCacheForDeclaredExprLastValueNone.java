@@ -11,11 +11,6 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.RollingTwoValueBuffer;
-import com.espertech.esper.event.EventBeanUtility;
-
-import java.lang.ref.SoftReference;
-import java.util.IdentityHashMap;
 
 public class ExpressionResultCacheForDeclaredExprLastValueNone implements ExpressionResultCacheForDeclaredExprLastValue {
 

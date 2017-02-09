@@ -22,10 +22,11 @@ public class EPLMethodInvocationContext {
 
     /**
      * Ctor.
-     * @param statementName the statement name
-     * @param contextPartitionId context partition id if using contexts, or -1 if not using context partitions
-     * @param engineURI the engine URI
-     * @param functionName the name of the plug-in single row function, or the method name if not a plug-in single row function
+     *
+     * @param statementName       the statement name
+     * @param contextPartitionId  context partition id if using contexts, or -1 if not using context partitions
+     * @param engineURI           the engine URI
+     * @param functionName        the name of the plug-in single row function, or the method name if not a plug-in single row function
      * @param statementUserObject the statement user object or null if not assigned
      */
     public EPLMethodInvocationContext(String statementName, int contextPartitionId, String engineURI, String functionName, Object statementUserObject) {
@@ -38,6 +39,7 @@ public class EPLMethodInvocationContext {
 
     /**
      * Returns the statement name.
+     *
      * @return statement name
      */
     public String getStatementName() {
@@ -46,6 +48,7 @@ public class EPLMethodInvocationContext {
 
     /**
      * Returns the context partition id, or -1 if no contexts
+     *
      * @return context partition id
      */
     public int getContextPartitionId() {
@@ -54,6 +57,7 @@ public class EPLMethodInvocationContext {
 
     /**
      * Returns the engine URI
+     *
      * @return engine URI
      */
     public String getEngineURI() {
@@ -62,6 +66,7 @@ public class EPLMethodInvocationContext {
 
     /**
      * Returns the function name that appears in the EPL statement.
+     *
      * @return function name
      */
     public String getFunctionName() {
@@ -70,6 +75,7 @@ public class EPLMethodInvocationContext {
 
     /**
      * Returns the statement user object or null if not assigned
+     *
      * @return statement user object
      */
     public Object getStatementUserObject() {

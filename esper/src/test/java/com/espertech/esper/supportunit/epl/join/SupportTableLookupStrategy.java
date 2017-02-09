@@ -18,17 +18,14 @@ import com.espertech.esper.epl.lookup.LookupStrategyDesc;
 
 import java.util.Set;
 
-public class SupportTableLookupStrategy implements JoinExecTableLookupStrategy
-{
+public class SupportTableLookupStrategy implements JoinExecTableLookupStrategy {
     private final int numResults;
 
-    public SupportTableLookupStrategy(int numResults)
-    {
+    public SupportTableLookupStrategy(int numResults) {
         this.numResults = numResults;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
         return SupportJoinResultNodeFactory.makeEventSet(numResults);
     }
 

@@ -15,12 +15,12 @@ import java.util.Set;
 /**
  * Service provider interface for filter service.
  */
-public interface FilterServiceSPI extends FilterService
-{
+public interface FilterServiceSPI extends FilterService {
     public boolean isSupportsTakeApply();
 
     /**
      * Take a set of statements of out the active filters, returning a save-set of filters.
+     *
      * @param statementId statement ids to remove
      * @return filters
      */
@@ -28,18 +28,21 @@ public interface FilterServiceSPI extends FilterService
 
     /**
      * Apply a set of previously taken filters.
+     *
      * @param filterSet to apply
      */
     public void apply(FilterSet filterSet);
 
     /**
      * Add activity listener.void acquireWriteLock();
+     *
      * @param filterServiceListener to add
      */
     public void addFilterServiceListener(FilterServiceListener filterServiceListener);
 
     /**
      * Remove activity listener.
+     *
      * @param filterServiceListener to remove
      */
     public void removeFilterServiceListener(FilterServiceListener filterServiceListener);
@@ -49,6 +52,7 @@ public interface FilterServiceSPI extends FilterService
     public int getCountTypes();
 
     public void acquireWriteLock();
+
     public void releaseWriteLock();
 
     /**

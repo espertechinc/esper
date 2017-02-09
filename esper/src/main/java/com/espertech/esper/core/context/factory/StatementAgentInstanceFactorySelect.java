@@ -108,8 +108,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         return viewResourceDelegate;
     }
 
-    public StatementAgentInstanceFactorySelectResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactorySelectResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         final List<StopCallback> stopCallbacks = new ArrayList<StopCallback>(2);
 
         Viewable finalView;
@@ -161,8 +160,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
             // compile view factories adding "prior" as necessary
             List<ViewFactory>[] viewFactoryChains = new List[numStreams];
-            for (int i = 0; i < numStreams; i++)
-            {
+            for (int i = 0; i < numStreams; i++) {
                 List<ViewFactory> viewFactoryChain = unmaterializedViewChain[i].getViewFactoryChain();
 
                 // add "prior" view factory
@@ -176,9 +174,8 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             }
 
             // create view factory chain context: holds stream-specific services
-            AgentInstanceViewFactoryChainContext viewFactoryChainContexts[] = new AgentInstanceViewFactoryChainContext[numStreams];
-            for (int i = 0; i < numStreams; i++)
-            {
+            AgentInstanceViewFactoryChainContext[] viewFactoryChainContexts = new AgentInstanceViewFactoryChainContext[numStreams];
+            for (int i = 0; i < numStreams; i++) {
                 viewFactoryChainContexts[i] = AgentInstanceViewFactoryChainContext.create(viewFactoryChains[i], agentInstanceContext, viewResourceDelegate.getPerStream()[i]);
             }
 
@@ -236,13 +233,10 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             // for just 1 event stream without joins, handle the one-table process separately.
             final JoinPreloadMethod joinPreloadMethod;
             JoinSetComposerDesc joinSetComposer = null;
-            if (streamViews.length == 1)
-            {
+            if (streamViews.length == 1) {
                 finalView = handleSimpleSelect(streamViews[0], resultSetProcessor, agentInstanceContext, evalRootMatchRemover, suppressSameEventMatches, discardPartialsOnMatch);
                 joinPreloadMethod = null;
-            }
-            else
-            {
+            } else {
                 JoinPlanResult joinPlanResult = handleJoin(typeService.getStreamNames(), streamViews, resultSetProcessor,
                         agentInstanceContext, stopCallbacks, joinAnalysisResult, isRecoveringResilient);
                 finalView = joinPlanResult.getViewable();
@@ -262,13 +256,11 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 NamedWindowTailViewInstance[] namedWindowTailViews = new NamedWindowTailViewInstance[statementSpec.getStreamSpecs().length];
                 List<ExprNode>[] namedWindowFilters = new List[statementSpec.getStreamSpecs().length];
 
-                for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
-                {
+                for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
                     final int streamNum = i;
                     StreamSpecCompiled streamSpec = statementSpec.getStreamSpecs()[i];
 
-                    if (streamSpec instanceof NamedWindowConsumerStreamSpec)
-                    {
+                    if (streamSpec instanceof NamedWindowConsumerStreamSpec) {
                         hasNamedWindow = true;
                         final NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) streamSpec;
                         NamedWindowProcessor processor = services.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
@@ -287,8 +279,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                                     LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
                                     namedWindowPostloadFilters[i] = FilterSpecCompiler.makeFilterSpec(types.getEventTypes()[0], types.getStreamNames()[0],
                                             namedSpec.getFilterExpressions(), null, tagged, tagged, types, null, statementContext, Collections.singleton(0));
-                                }
-                                catch (Exception ex) {
+                                } catch (Exception ex) {
                                     log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
                                 }
                             }
@@ -317,20 +308,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                                     }
                                 });
                             }
-                        }
-                        else {
+                        } else {
                             log.info("Named window access is out-of-context, the named window '" + namedSpec.getWindowName() + "' has been declared for a different context then the current statement, the aggregation and join state will not be initialized for statement expression [" + statementContext.getExpression() + "]");
                         }
 
                         preloadList.add(new StatementAgentInstancePreload() {
                             public void executePreload() {
                                 // in a join, preload indexes, if any
-                                if (joinPreloadMethod != null)
-                                {
+                                if (joinPreloadMethod != null) {
                                     joinPreloadMethod.preloadFromBuffer(streamNum);
-                                }
-                                else
-                                {
+                                } else {
                                     if (agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable() != null) {
                                         agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable().execute();
                                     }
@@ -341,8 +328,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 }
 
                 // last, for aggregation we need to send the current join results to the result set processor
-                if ((hasNamedWindow) && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorFactory().hasAggregation())
-                {
+                if (hasNamedWindow && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorFactory().hasAggregation()) {
                     preloadList.add(new StatementAgentInstancePreload() {
                         public void executePreload() {
                             joinPreloadMethod.preloadAggregation(resultSetProcessor);
@@ -352,16 +338,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
 
                 if (isRecoveringResilient) {
                     postLoadJoin = new StatementAgentInstancePostLoadSelect(streamViews, joinSetComposer, namedWindowTailViews, namedWindowPostloadFilters, namedWindowFilters, statementContext.getAnnotations(), agentInstanceContext);
-                }
-                else if (joinSetComposer != null) {
+                } else if (joinSetComposer != null) {
                     postLoadJoin = new StatementAgentInstancePostLoadIndexVisiting(joinSetComposer.getJoinSetComposer());
                 }
             }
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
             StatementAgentInstanceUtil.stopSafe(stopCallback, statementContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextPartitionAllocate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aContextPartitionAllocate();
+            }
             throw ex;
         }
 
@@ -462,13 +448,11 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                                         AgentInstanceContext agentInstanceContext,
                                         EvalRootMatchRemover evalRootMatchRemover,
                                         boolean suppressSameEventMatches,
-                                        boolean discardPartialsOnMatch)
-    {
+                                        boolean discardPartialsOnMatch) {
         Viewable finalView = view;
 
         // Add filter view that evaluates the filter expression
-        if (statementSpec.getFilterRootNode() != null)
-        {
+        if (statementSpec.getFilterRootNode() != null) {
             FilterExprView filterView = new FilterExprView(statementSpec.getFilterRootNode(), statementSpec.getFilterRootNode().getExprEvaluator(), agentInstanceContext);
             finalView.addView(filterView);
             finalView = filterView;
@@ -499,8 +483,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             EPStatementAgentInstanceHandle handle = agentInstanceContext.getEpStatementAgentInstanceHandle();
             if (dispatches.size() == 1) {
                 handle.setOptionalDispatchable(dispatches.getFirst());
-            }
-            else {
+            } else {
                 final EPStatementDispatch[] dispatchArray = dispatches.toArray(new EPStatementDispatch[dispatches.size()]);
                 handle.setOptionalDispatchable(new EPStatementDispatch() {
                     public void execute() {
@@ -521,18 +504,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
     }
 
     private JoinPlanResult handleJoin(String[] streamNames,
-                                                         Viewable[] streamViews,
-                                                         ResultSetProcessor resultSetProcessor,
-                                                         AgentInstanceContext agentInstanceContext,
-                                                         List<StopCallback> stopCallbacks,
-                                                         StreamJoinAnalysisResult joinAnalysisResult,
-                                                         boolean isRecoveringResilient)
-    {
+                                      Viewable[] streamViews,
+                                      ResultSetProcessor resultSetProcessor,
+                                      AgentInstanceContext agentInstanceContext,
+                                      List<StopCallback> stopCallbacks,
+                                      StreamJoinAnalysisResult joinAnalysisResult,
+                                      boolean isRecoveringResilient) {
         final JoinSetComposerDesc joinSetComposerDesc = joinSetComposerPrototype.create(streamViews, false, agentInstanceContext, isRecoveringResilient);
 
-        stopCallbacks.add(new StopCallback(){
-            public void stop()
-            {
+        stopCallbacks.add(new StopCallback() {
+            public void stop() {
                 joinSetComposerDesc.getJoinSetComposer().destroy();
             }
         });
@@ -553,19 +534,16 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
         JoinPreloadMethod preloadMethod;
         if (joinAnalysisResult.isUnidirectional()) {
             preloadMethod = new JoinPreloadMethodNull();
-        }
-        else {
+        } else {
             if (!joinSetComposerDesc.getJoinSetComposer().allowsInit()) {
                 preloadMethod = new JoinPreloadMethodNull();
-            }
-            else {
+            } else {
                 preloadMethod = new JoinPreloadMethodImpl(streamNames.length, joinSetComposerDesc.getJoinSetComposer());
             }
         }
 
         // Create buffer for each view. Point buffer to dispatchable for join.
-        for (int i = 0; i < statementSpec.getStreamSpecs().length; i++)
-        {
+        for (int i = 0; i < statementSpec.getStreamSpecs().length; i++) {
             BufferView buffer = new BufferView(i);
             streamViews[i].addView(buffer);
             buffer.setObserver(joinStatementDispatch);

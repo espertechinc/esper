@@ -1,15 +1,13 @@
 package com.espertech.esper.example.ohlc;
 
-public class OHLCBarValue
-{
+public class OHLCBarValue {
     private long minuteValue;
     private Double first;
     private Double last;
     private Double max;
     private Double min;
 
-    public OHLCBarValue(long minuteValue, Double first, Double last, Double max, Double min)
-    {
+    public OHLCBarValue(long minuteValue, Double first, Double last, Double max, Double min) {
         this.minuteValue = minuteValue;
         this.first = first;
         this.last = last;
@@ -17,28 +15,23 @@ public class OHLCBarValue
         this.min = min;
     }
 
-    public long getMinuteValue()
-    {
+    public long getMinuteValue() {
         return minuteValue;
     }
 
-    public Double getFirst()
-    {
+    public Double getFirst() {
         return first;
     }
 
-    public Double getLast()
-    {
+    public Double getLast() {
         return last;
     }
 
-    public Double getMax()
-    {
+    public Double getMax() {
         return max;
     }
 
-    public Double getMin()
-    {
+    public Double getMin() {
         return min;
     }
 }

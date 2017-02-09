@@ -24,8 +24,7 @@ public class ExprNodePropOrStreamSet {
         if (desc instanceof ExprNodePropOrStreamPropDesc) {
             allocateProperties();
             properties.add((ExprNodePropOrStreamPropDesc) desc);
-        }
-        else if (desc instanceof ExprNodePropOrStreamExprDesc) {
+        } else if (desc instanceof ExprNodePropOrStreamExprDesc) {
             allocateExpressions();
             expressions.add((ExprNodePropOrStreamExprDesc) desc);
         }
@@ -55,11 +54,12 @@ public class ExprNodePropOrStreamSet {
 
     /**
      * Remove from the provided list those that are matching any of the contained-herein
+     *
      * @param items target list
      */
     public void removeFromList(List<ExprNodePropOrStreamDesc> items) {
         Iterator<ExprNodePropOrStreamDesc> item = items.iterator();
-        for (;item.hasNext();) {
+        for (; item.hasNext(); ) {
             if (findItem(item.next())) {
                 item.remove();
             }

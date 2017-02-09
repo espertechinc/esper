@@ -26,14 +26,12 @@ import java.util.Set;
 /**
  * Index lookup strategy into a poll-based cache result.
  */
-public class HistoricalIndexLookupStrategyIndex implements HistoricalIndexLookupStrategy
-{
+public class HistoricalIndexLookupStrategyIndex implements HistoricalIndexLookupStrategy {
     private final EventBean[] eventsPerStream;
     private final int lookupStream;
     private final ExprEvaluator[] evaluators;
 
-    public HistoricalIndexLookupStrategyIndex(EventType eventType, int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys)
-    {
+    public HistoricalIndexLookupStrategyIndex(EventType eventType, int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys) {
         this.evaluators = new ExprEvaluator[hashKeys.size()];
         for (int i = 0; i < hashKeys.size(); i++) {
             evaluators[i] = hashKeys.get(i).getKeyExpr().getExprEvaluator();
@@ -42,17 +40,14 @@ public class HistoricalIndexLookupStrategyIndex implements HistoricalIndexLookup
         this.lookupStream = lookupStream;
     }
 
-    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext exprEvaluatorContext) {
         // The table may not be indexed as the cache may not actively cache, in which case indexing doesn't makes sense
-        if (indexTable[0] instanceof PropertyIndexedEventTable)
-        {
+        if (indexTable[0] instanceof PropertyIndexedEventTable) {
             PropertyIndexedEventTable index = (PropertyIndexedEventTable) indexTable[0];
             Object[] keys = getKeys(lookupEvent, exprEvaluatorContext);
 
             Set<EventBean> events = index.lookup(keys);
-            if (events != null)
-            {
+            if (events != null) {
                 return events.iterator();
             }
             return null;
@@ -61,8 +56,7 @@ public class HistoricalIndexLookupStrategyIndex implements HistoricalIndexLookup
         return indexTable[0].iterator();
     }
 
-    private Object[] getKeys(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    private Object[] getKeys(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         eventsPerStream[lookupStream] = theEvent;
         Object[] keys = new Object[evaluators.length];
         for (int i = 0; i < evaluators.length; i++) {

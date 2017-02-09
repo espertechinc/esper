@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Inbound work unit processing a map event.
  */
-public class InboundUnitSendAvro implements InboundUnitRunnable
-{
+public class InboundUnitSendAvro implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendAvro.class);
     private final Object genericRecordDotData;
     private final String eventTypeName;
@@ -29,28 +28,24 @@ public class InboundUnitSendAvro implements InboundUnitRunnable
 
     /**
      * Ctor.
+     *
      * @param genericRecordDotData to send
-     * @param eventTypeName type name
-     * @param services to wrap
-     * @param runtime to process
+     * @param eventTypeName        type name
+     * @param services             to wrap
+     * @param runtime              to process
      */
-    public InboundUnitSendAvro(Object genericRecordDotData, String eventTypeName, EPServicesContext services, EPRuntimeImpl runtime)
-    {
+    public InboundUnitSendAvro(Object genericRecordDotData, String eventTypeName, EPServicesContext services, EPRuntimeImpl runtime) {
         this.eventTypeName = eventTypeName;
         this.genericRecordDotData = genericRecordDotData;
         this.services = services;
         this.runtime = runtime;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             EventBean eventBean = services.getEventAdapterService().adapterForAvro(genericRecordDotData, eventTypeName);
             runtime.processWrappedEvent(eventBean);
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing Object-array event: " + e.getMessage(), e);
         }
     }

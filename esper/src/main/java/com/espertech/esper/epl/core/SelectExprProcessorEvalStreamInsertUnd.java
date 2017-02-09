@@ -14,11 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class SelectExprProcessorEvalStreamInsertUnd implements ExprEvaluator
-{
+public class SelectExprProcessorEvalStreamInsertUnd implements ExprEvaluator {
     private final ExprStreamUnderlyingNode undNode;
     private final int streamNum;
     private final Class returnType;

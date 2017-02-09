@@ -17,37 +17,36 @@ import java.util.List;
 /**
  * Return result for unmap operators unmapping an intermal statement representation to the SODA object model.
  */
-public class StatementSpecUnMapResult
-{
+public class StatementSpecUnMapResult {
     private final EPStatementObjectModel objectModel;
     private final List<SubstitutionParameterExpressionBase> substitutionParams;
 
     /**
      * Ctor.
-     * @param objectModel of the statement
+     *
+     * @param objectModel        of the statement
      * @param substitutionParams a map of parameter index and parameter
      */
-    public StatementSpecUnMapResult(EPStatementObjectModel objectModel, List<SubstitutionParameterExpressionBase> substitutionParams)
-    {
+    public StatementSpecUnMapResult(EPStatementObjectModel objectModel, List<SubstitutionParameterExpressionBase> substitutionParams) {
         this.objectModel = objectModel;
         this.substitutionParams = substitutionParams;
     }
 
     /**
      * Returns the object model.
+     *
      * @return object model
      */
-    public EPStatementObjectModel getObjectModel()
-    {
+    public EPStatementObjectModel getObjectModel() {
         return objectModel;
     }
 
     /**
      * Returns the substitution paremeters keyed by the parameter's index.
+     *
      * @return map of index and parameter
      */
-    public List<SubstitutionParameterExpressionBase> getSubstitutionParams()
-    {
+    public List<SubstitutionParameterExpressionBase> getSubstitutionParams() {
         return substitutionParams;
     }
 }

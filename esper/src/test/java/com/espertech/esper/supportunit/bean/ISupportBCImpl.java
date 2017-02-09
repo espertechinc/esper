@@ -10,31 +10,26 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public class ISupportBCImpl implements ISupportB, ISupportC
-{
+public class ISupportBCImpl implements ISupportB, ISupportC {
     private String valueB;
     private String valueBaseAB;
     private String valueC;
 
-    public ISupportBCImpl(String valueB, String valueBaseAB, String valueC)
-    {
+    public ISupportBCImpl(String valueB, String valueBaseAB, String valueC) {
         this.valueB = valueB;
         this.valueBaseAB = valueBaseAB;
         this.valueC = valueC;
     }
 
-    public String getB()
-    {
+    public String getB() {
         return valueB;
     }
 
-    public String getBaseAB()
-    {
+    public String getBaseAB() {
         return valueBaseAB;
     }
 
-    public String getC()
-    {
+    public String getC() {
         return valueC;
     }
 }

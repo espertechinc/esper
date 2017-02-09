@@ -15,17 +15,14 @@ import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator
-{
+public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator {
     private boolean evaluateResult;
 
-    public SupportBoolExprNode(boolean evaluateResult)
-    {
+    public SupportBoolExprNode(boolean evaluateResult) {
         this.evaluateResult = evaluateResult;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
@@ -33,18 +30,15 @@ public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         return evaluateResult;
     }
 
@@ -55,8 +49,7 @@ public class SupportBoolExprNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         throw new UnsupportedOperationException("not implemented");
     }
 }

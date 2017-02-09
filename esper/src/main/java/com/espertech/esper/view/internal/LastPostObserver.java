@@ -15,11 +15,11 @@ import com.espertech.esper.client.EventBean;
 /**
  * Observer interface to a stream publishing new and old events.
  */
-public interface LastPostObserver
-{
+public interface LastPostObserver {
     /**
      * Receive new and old events from a stream.
-     * @param streamId - the stream number sending the events
+     *
+     * @param streamId  - the stream number sending the events
      * @param newEvents - new events
      * @param oldEvents - old events
      */

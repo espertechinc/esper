@@ -10,24 +10,20 @@
  */
 package com.espertech.esper.example.terminal.mdb;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 
-public class CountPerTypeListener implements UpdateListener
-{
+public class CountPerTypeListener implements UpdateListener {
     private OutboundSender outboundSender;
 
-    public CountPerTypeListener(OutboundSender outboundSender)
-    {
+    public CountPerTypeListener(OutboundSender outboundSender) {
         this.outboundSender = outboundSender;
     }
 
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
         StringBuilder buffer = new StringBuilder();
 
-        for (int i = 0; i < newEvents.length; i++)
-        {
+        for (int i = 0; i < newEvents.length; i++) {
             String type = (String) newEvents[i].get("type");
             long count = (Long) newEvents[i].get("countPerType");
 

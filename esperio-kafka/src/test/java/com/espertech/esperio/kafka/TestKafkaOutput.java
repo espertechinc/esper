@@ -76,7 +76,7 @@ public class TestKafkaOutput extends TestCase {
         consumer.seek(topicPartitions.iterator().next(), 0);
         int count = 0;
         boolean more = true;
-        while(more) {
+        while (more) {
             ConsumerRecords<String, String> rows = consumer.poll(1000);
             count += rows.count();
             more = !rows.isEmpty();
@@ -94,7 +94,7 @@ public class TestKafkaOutput extends TestCase {
             ConsumerRecords<String, String> rows = consumer.poll(1000);
             Iterator<ConsumerRecord<String, String>> it = rows.iterator();
             boolean found = false;
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 ConsumerRecord<String, String> row = it.next();
                 log.info("Received: {}", row.value());
                 if (row.value().contains(uniqueId)) {

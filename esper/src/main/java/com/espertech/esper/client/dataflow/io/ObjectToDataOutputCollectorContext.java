@@ -21,6 +21,7 @@ public class ObjectToDataOutputCollectorContext {
 
     /**
      * Returns the data output
+     *
      * @return data output
      */
     public DataOutput getDataOutput() {
@@ -29,6 +30,7 @@ public class ObjectToDataOutputCollectorContext {
 
     /**
      * Sets the data output
+     *
      * @param dataOutput data output
      */
     public void setDataOutput(DataOutput dataOutput) {
@@ -37,6 +39,7 @@ public class ObjectToDataOutputCollectorContext {
 
     /**
      * Returns the event object.
+     *
      * @return event object
      */
     public Object getEvent() {
@@ -45,6 +48,7 @@ public class ObjectToDataOutputCollectorContext {
 
     /**
      * Sets the event object.
+     *
      * @param event event object
      */
     public void setEvent(Object event) {

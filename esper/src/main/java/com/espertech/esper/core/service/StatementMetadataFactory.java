@@ -13,7 +13,6 @@ package com.espertech.esper.core.service;
 /**
  * Statement metadata factory.
  */
-public interface StatementMetadataFactory
-{
+public interface StatementMetadataFactory {
     public StatementMetadata create(StatementMetadataFactoryContext context);
 }

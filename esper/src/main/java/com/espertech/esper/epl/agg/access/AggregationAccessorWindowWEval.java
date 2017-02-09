@@ -23,8 +23,7 @@ import java.util.List;
 /**
  * Represents the aggregation accessor that provides the result for the "window" aggregation function.
  */
-public class AggregationAccessorWindowWEval implements AggregationAccessor
-{
+public class AggregationAccessorWindowWEval implements AggregationAccessor {
     private final int streamNum;
     private final ExprEvaluator childNode;
     private final EventBean[] eventsPerStream;
@@ -32,12 +31,12 @@ public class AggregationAccessorWindowWEval implements AggregationAccessor
 
     /**
      * Ctor.
-     * @param streamNum stream id
-     * @param childNode expression
+     *
+     * @param streamNum     stream id
+     * @param childNode     expression
      * @param componentType type
      */
-    public AggregationAccessorWindowWEval(int streamNum, ExprEvaluator childNode, Class componentType)
-    {
+    public AggregationAccessorWindowWEval(int streamNum, ExprEvaluator childNode, Class componentType) {
         this.streamNum = streamNum;
         this.childNode = childNode;
         this.eventsPerStream = new EventBean[streamNum + 1];
@@ -45,14 +44,14 @@ public class AggregationAccessorWindowWEval implements AggregationAccessor
     }
 
     public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationStateLinear linear = ((AggregationStateLinear) state);
+        AggregationStateLinear linear = (AggregationStateLinear) state;
         if (linear.size() == 0) {
             return null;
         }
         Object array = Array.newInstance(componentType, linear.size());
         Iterator<EventBean> it = linear.iterator();
         int count = 0;
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             EventBean bean = it.next();
             this.eventsPerStream[streamNum] = bean;
             Object value = childNode.evaluate(this.eventsPerStream, true, null);
@@ -63,7 +62,7 @@ public class AggregationAccessorWindowWEval implements AggregationAccessor
     }
 
     public Collection<EventBean> getEnumerableEvents(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationStateLinear linear = ((AggregationStateLinear) state);
+        AggregationStateLinear linear = (AggregationStateLinear) state;
         if (linear.size() == 0) {
             return null;
         }
@@ -71,13 +70,13 @@ public class AggregationAccessorWindowWEval implements AggregationAccessor
     }
 
     public Collection<Object> getEnumerableScalar(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationStateLinear linear = ((AggregationStateLinear) state);
+        AggregationStateLinear linear = (AggregationStateLinear) state;
         if (linear.size() == 0) {
             return null;
         }
         List<Object> values = new ArrayList<Object>(linear.size());
         Iterator<EventBean> it = linear.iterator();
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             EventBean bean = it.next();
             this.eventsPerStream[streamNum] = bean;
             Object value = childNode.evaluate(this.eventsPerStream, true, null);

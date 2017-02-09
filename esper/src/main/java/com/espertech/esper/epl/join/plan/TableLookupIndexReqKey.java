@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.join.plan;
 
-public class TableLookupIndexReqKey
-{
+public class TableLookupIndexReqKey {
     private final String name;
     private final String tableName;
 
@@ -54,8 +53,7 @@ public class TableLookupIndexReqKey
     public String toString() {
         if (tableName == null) {
             return name;
-        }
-        else {
+        } else {
             return "table '" + tableName + "' index '" + name + "'";
         }
     }

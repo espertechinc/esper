@@ -21,7 +21,7 @@ import java.util.Iterator;
  * more properties beneath them. Another example is a Map structure. Here string names can refer to data objects.
  * <p>
  * The interface presents an immutable view of events. There are no methods to change property values.
- * Events by definition are an observation of a past occurrance or state change and may not be modified. 
+ * Events by definition are an observation of a past occurrance or state change and may not be modified.
  * <p>
  * Information on the super-types (superclass and interfaces implemented by JavaBean events) is also available,
  * for Java POJO events as well as for Map event types that has supertypes.
@@ -34,8 +34,7 @@ import java.util.Iterator;
  * Implementations in addition may provide a means to access property values as event fragments, which
  * are typed events themselves.
  */
-public interface EventType
-{
+public interface EventType {
     /**
      * Get the type of an event property.
      * <p>
@@ -50,6 +49,7 @@ public interface EventType
      * or combinations thereof.
      * <p>
      * Returns unboxed (such as 'int.class') as well as boxed (java.lang.Integer) type.
+     *
      * @param propertyExpression is the property name or property expression
      * @return type of the property, the unboxed or the boxed type.
      */
@@ -64,6 +64,7 @@ public interface EventType
      * mapped properties via the syntax "name('key')",
      * nested properties via the syntax "outer.inner"
      * or combinations thereof.
+     *
      * @param propertyExpression is the property name or property expression to check
      * @return true if exists, false if not
      */
@@ -82,6 +83,7 @@ public interface EventType
      * mapped properties via the syntax "name('key')",
      * nested properties via the syntax "outer.inner"
      * or combinations thereof.
+     *
      * @param propertyExpression is the property name or property expression
      * @return a getter that can be used to obtain property values for event instances of the same event type
      */
@@ -112,6 +114,7 @@ public interface EventType
      * <p>
      * Use the {@link #getPropertyDescriptors} method to obtain a list of properties for which a fragment event type
      * may be retrieved by this method.
+     *
      * @param propertyExpression is the name of the property to return the fragment event type
      * @return fragment event type of the property
      */
@@ -121,6 +124,7 @@ public interface EventType
      * Get the class that represents the Java type of the event type.
      * Returns a Java bean event class if the schema represents a Java bean event type.
      * Returns java.util.Map is the schema represents a collection of values in a Map.
+     *
      * @return type of the event object
      */
     public Class getUnderlyingType();
@@ -132,6 +136,7 @@ public interface EventType
      * of properties returned by this method.
      * <p>
      * The method does not return property names of inner or nested types.
+     *
      * @return A string array containing the property names of this typed event data object.
      */
     public String[] getPropertyNames();
@@ -143,6 +148,7 @@ public interface EventType
      * of properties returned by this method.
      * <p>
      * The method does not return property information of inner or nested types.
+     *
      * @return descriptors for all known properties of the event type.
      */
     public EventPropertyDescriptor[] getPropertyDescriptors();
@@ -152,13 +158,14 @@ public interface EventType
      * if a property by that name was not found.
      * <p>
      * The property name parameter does accept a property expression. It therefore does not allow the indexed, mapped or nested property expression syntax
-     * and only returns the descriptor for the event type's known properties.  
+     * and only returns the descriptor for the event type's known properties.
      * <p>
      * The method does not return property information of inner or nested types.
      * <p>
      * For returning a property descriptor for nested, indexed or mapped properties
      * use {@link com.espertech.esper.event.EventTypeUtility}.
      * </p>
+     *
      * @param propertyName property name
      * @return descriptor for the named property
      */
@@ -168,6 +175,7 @@ public interface EventType
      * Returns an array of event types that are super to this event type, from which this event type inherited event properties.
      * <p>For Java bean instances underlying the event this method returns the event types for all
      * superclasses extended by the Java bean and all interfaces implemented by the Java bean.
+     *
      * @return an array of event types
      */
     public EventType[] getSuperTypes();
@@ -175,6 +183,7 @@ public interface EventType
     /**
      * Returns iterator over all super types to event type, going up the hierarchy and including all
      * Java interfaces (and their extended interfaces) and superclasses as EventType instances.
+     *
      * @return iterator of event types represeting all superclasses and implemented interfaces, all the way up to
      * java.lang.Object but excluding java.lang.Object itself
      */
@@ -186,7 +195,8 @@ public interface EventType
      * A type name is available for application-configured event types
      * and for event types that represent events of a stream populated by insert-into.
      * <p>
-     * No type name is available for anonymous statement-specific event type. 
+     * No type name is available for anonymous statement-specific event type.
+     *
      * @return type name or null if none assigned
      */
     public String getName();
@@ -199,6 +209,7 @@ public interface EventType
      * Returns null if the property name is not valid against the event type or the property is not a mapped property.
      * <p>
      * The method takes a mapped property name (and not a property expression) as a parameter.
+     *
      * @param mappedPropertyName is the property name
      * @return a getter that can be used to obtain property values for event instances of the same event type
      */
@@ -212,6 +223,7 @@ public interface EventType
      * Returns null if the property name is not valid against the event type or the property is not an indexed property.
      * <p>
      * The method takes a indexed property name (and not a property expression) as a parameter.
+     *
      * @param indexedPropertyName is the property name
      * @return a getter that can be used to obtain property values for event instances of the same event type
      */
@@ -219,18 +231,21 @@ public interface EventType
 
     /**
      * Returns the event type id assigned to the event type.
+     *
      * @return event type id
      */
     public int getEventTypeId();
 
     /**
      * Returns the property name of the property providing the start timestamp value.
+     *
      * @return start timestamp property name
      */
     public String getStartTimestampPropertyName();
 
     /**
      * Returns the property name of the property providing the end timestamp value.
+     *
      * @return end timestamp property name
      */
     public String getEndTimestampPropertyName();

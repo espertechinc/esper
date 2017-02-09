@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public class EventTableFactoryTableIdentAgentInstanceSubq extends EventTableFactoryTableIdentAgentInstance
-{
+public class EventTableFactoryTableIdentAgentInstanceSubq extends EventTableFactoryTableIdentAgentInstance {
     private final int subqueryNumber;
 
     public EventTableFactoryTableIdentAgentInstanceSubq(AgentInstanceContext agentInstanceContext, int subqueryNumber) {

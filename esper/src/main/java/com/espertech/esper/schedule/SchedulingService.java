@@ -20,14 +20,14 @@ import java.util.Collection;
  * with same or ascending values for each subsequent call. Handles with are triggered are automatically removed
  * by implementations.
  */
-public interface SchedulingService extends TimeProvider
-{
+public interface SchedulingService extends TimeProvider {
     /**
      * Add a callback for after the given milliseconds from the current time.
      * If the same callback (equals) was already added before, the method will not add a new
      * callback or change the existing callback to a new time, but throw an exception.
-     * @param afterMSec number of millisec to get a callback
-     * @param handle to add
+     *
+     * @param afterMSec    number of millisec to get a callback
+     * @param handle       to add
      * @param scheduleSlot allows ordering of concurrent callbacks
      * @throws ScheduleServiceException thrown if the add operation did not complete
      */
@@ -37,7 +37,8 @@ public interface SchedulingService extends TimeProvider
     /**
      * Remove a handle.
      * If the handle to be removed was not found an exception is thrown.
-     * @param handle to remove
+     *
+     * @param handle       to remove
      * @param scheduleSlot for which the callback was added
      * @throws ScheduleServiceException thrown if the callback was not located
      */
@@ -46,14 +47,16 @@ public interface SchedulingService extends TimeProvider
 
     /**
      * Set the time based upon which the evaluation of events invokes callbacks.
+     *
      * @param timestamp to set
      */
     public void setTime(long timestamp);
 
     /**
      * Evaluate the current time and add to the collection any handles scheduled for execution.
+     *
      * @param handles is a collection of handles populated by the service with any callbacks due
-     * for the current time
+     *                for the current time
      */
     public void evaluate(Collection<ScheduleHandle> handles);
 
@@ -64,24 +67,28 @@ public interface SchedulingService extends TimeProvider
 
     /**
      * Returns time handle count.
+     *
      * @return count
      */
     public int getTimeHandleCount();
 
     /**
      * Returns furthest in the future handle.
+     *
      * @return future handle
      */
     public Long getFurthestTimeHandle();
 
     /**
      * Returns count of handles.
+     *
      * @return count
      */
     public int getScheduleHandleCount();
 
     /**
      * Returns true if the handle has been scheduled already.
+     *
      * @param handle to check
      * @return indicator whether the handle is in use
      */

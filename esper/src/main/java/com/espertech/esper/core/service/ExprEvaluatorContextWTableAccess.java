@@ -11,14 +11,13 @@
 package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.schedule.TimeProvider;
 
-public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext
-{
+public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext {
     private final ExprEvaluatorContext context;
     private final TableService tableService;
 

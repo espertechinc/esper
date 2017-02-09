@@ -18,8 +18,7 @@ import com.espertech.esper.epl.table.mgmt.TableService;
 
 import java.util.List;
 
-public class StatementContextFactoryUtil
-{
+public class StatementContextFactoryUtil {
     public static boolean determineHasTableAccess(List<ExprSubselectNode> subselectNodes, StatementSpecRaw statementSpecRaw, EPServicesContext engineServices) {
         boolean hasTableAccess = (statementSpecRaw.getTableExpressions() != null && !statementSpecRaw.getTableExpressions().isEmpty()) ||
                 statementSpecRaw.getIntoTableSpec() != null;

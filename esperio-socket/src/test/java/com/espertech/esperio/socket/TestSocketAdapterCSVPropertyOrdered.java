@@ -21,8 +21,7 @@ import com.espertech.esperio.socket.config.DataType;
 import com.espertech.esperio.socket.config.SocketConfig;
 import junit.framework.TestCase;
 
-public class TestSocketAdapterCSVPropertyOrdered extends TestCase
-{
+public class TestSocketAdapterCSVPropertyOrdered extends TestCase {
     public static String newline = System.getProperty("line.separator");
     private SupportUpdateListener listener;
 
@@ -30,8 +29,7 @@ public class TestSocketAdapterCSVPropertyOrdered extends TestCase
         listener = new SupportUpdateListener();
     }
 
-    public void testSendCSV() throws Exception
-    {
+    public void testSendCSV() throws Exception {
         ConfigurationSocketAdapter adapterConfig = new ConfigurationSocketAdapter();
         int port = 6801;
         String engineURI = this.getClass().getSimpleName();
@@ -59,7 +57,7 @@ public class TestSocketAdapterCSVPropertyOrdered extends TestCase
 
         client.send("E1,20" + newline);
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", 20});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 20});
 
         client.close();
         adapter.destroy();

@@ -15,8 +15,7 @@ import java.io.Serializable;
 /**
  * Represents a simple value in a schema.
  */
-public class SchemaElementSimple implements SchemaElement, Serializable
-{
+public class SchemaElementSimple implements SchemaElement, Serializable {
     private static final long serialVersionUID = 7822657793312617963L;
     private final String name;
     private final String namespace;
@@ -27,15 +26,15 @@ public class SchemaElementSimple implements SchemaElement, Serializable
 
     /**
      * Ctor.
-     * @param name name
-     * @param namespace namespace
-     * @param type is the simple element type
-     * @param isArray if unbound
-     * @param typeName name of type
+     *
+     * @param name           name
+     * @param namespace      namespace
+     * @param type           is the simple element type
+     * @param isArray        if unbound
+     * @param typeName       name of type
      * @param fractionDigits fraction digits if defined
      */
-    public SchemaElementSimple(String name, String namespace, short type, String typeName, boolean isArray, Integer fractionDigits)
-    {
+    public SchemaElementSimple(String name, String namespace, short type, String typeName, boolean isArray, Integer fractionDigits) {
         this.name = name;
         this.namespace = namespace;
         this.xsSimpleType = type;
@@ -46,52 +45,49 @@ public class SchemaElementSimple implements SchemaElement, Serializable
 
     /**
      * Returns element name.
+     *
      * @return element name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Returns type.
+     *
      * @return type
      */
-    public short getXsSimpleType()
-    {
+    public short getXsSimpleType() {
         return xsSimpleType;
     }
 
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return namespace;
     }
 
-    public boolean isArray()
-    {
+    public boolean isArray() {
         return isArray;
     }
 
     /**
      * Returns the type name.
+     *
      * @return type name
      */
-    public String getTypeName()
-    {
+    public String getTypeName() {
         return typeName;
     }
 
     /**
      * Returns the fraction digits if defined.
+     *
      * @return digits
      */
-    public Integer getFractionDigits()
-    {
+    public Integer getFractionDigits() {
         return fractionDigits;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "Simple " + namespace + " " + name;
     }
 }

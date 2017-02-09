@@ -18,35 +18,34 @@ import java.io.Serializable;
 /**
  * Descriptor for an on-set assignment.
  */
-public class OnTriggerSetAssignment implements MetaDefItem, Serializable
-{
+public class OnTriggerSetAssignment implements MetaDefItem, Serializable {
     private ExprNode expression;
     private static final long serialVersionUID = -3672553372059354285L;
 
     /**
      * Ctor.
+     *
      * @param expression expression providing new variable value
      */
-    public OnTriggerSetAssignment(ExprNode expression)
-    {
+    public OnTriggerSetAssignment(ExprNode expression) {
         this.expression = expression;
     }
 
     /**
      * Returns the expression providing the new variable value, or null if none
+     *
      * @return assignment expression
      */
-    public ExprNode getExpression()
-    {
+    public ExprNode getExpression() {
         return expression;
     }
 
     /**
      * Sets the expression providing the new variable value
+     *
      * @param expression assignment expression, or null if none
      */
-    public void setExpression(ExprNode expression)
-    {
+    public void setExpression(ExprNode expression) {
         this.expression = expression;
     }
 }

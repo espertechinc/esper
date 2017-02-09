@@ -32,12 +32,10 @@ public class EvalEveryDistinctNode extends EvalNodeBase {
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         if (factoryNode.getTimeDeltaComputation() == null) {
             return new EvalEveryDistinctStateNode(parentNode, this);
-        }
-        else {
+        } else {
             return new EvalEveryDistinctStateExpireKeyNode(parentNode, this);
         }
     }

@@ -29,8 +29,7 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUDSingleStream
-{
+public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUDSingleStream {
     public EPPreparedExecuteIUDSingleStreamUpdate(StatementSpecCompiled statementSpec, EPServicesContext services, StatementContext statementContext) throws ExprValidationException {
         super(statementSpec, services, statementContext);
     }
@@ -39,23 +38,21 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
         FireAndForgetSpecUpdate updateSpec = (FireAndForgetSpecUpdate) statementSpec.getFireAndForgetSpec();
 
         StreamTypeServiceImpl assignmentTypeService = new StreamTypeServiceImpl(
-                new EventType[] {processor.getEventTypeResultSetProcessor(), null, processor.getEventTypeResultSetProcessor()},
-                new String[] {aliasName, "", EPStatementStartMethodOnTrigger.INITIAL_VALUE_STREAM_NAME},
-                new boolean[] {true, true, true}, services.getEngineURI(), true);
+                new EventType[]{processor.getEventTypeResultSetProcessor(), null, processor.getEventTypeResultSetProcessor()},
+                new String[]{aliasName, "", EPStatementStartMethodOnTrigger.INITIAL_VALUE_STREAM_NAME},
+                new boolean[]{true, true, true}, services.getEngineURI(), true);
         assignmentTypeService.setStreamZeroUnambigous(true);
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, true);
         ExprValidationContext validationContext = new ExprValidationContext(assignmentTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
 
         // validate update expressions
         try {
-            for (OnTriggerSetAssignment assignment : updateSpec.getAssignments())
-            {
+            for (OnTriggerSetAssignment assignment : updateSpec.getAssignments()) {
                 ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.UPDATEASSIGN, assignment.getExpression(), validationContext);
                 assignment.setExpression(validated);
                 EPStatementStartMethodHelperValidate.validateNoAggregations(validated, "Aggregation functions may not be used within an update-clause");
             }
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw new EPException(e.getMessage(), e);
         }
 
@@ -73,8 +70,7 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
                 tableUpdateStrategy = services.getTableService().getTableUpdateStrategy(tableProcessor.getTableMetadata(), updateHelper, false);
                 copyOnWrite = false;
             }
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw new EPException(e.getMessage(), e);
         }
 

@@ -12,8 +12,7 @@ package com.espertech.esper.supportunit.util;
 
 import java.util.List;
 
-public class OccuranceResult
-{
+public class OccuranceResult {
     private int countEntry;
     private int countTotal;
     private Long low;
@@ -21,8 +20,7 @@ public class OccuranceResult
     private long resolution;
     private List<OccuranceBucket> buckets;
 
-    public OccuranceResult(int countEntry, int countTotal, Long low, Long high, long resolution, List<OccuranceBucket> buckets)
-    {
+    public OccuranceResult(int countEntry, int countTotal, Long low, Long high, long resolution, List<OccuranceBucket> buckets) {
         this.countEntry = countEntry;
         this.countTotal = countTotal;
         this.low = low;
@@ -31,48 +29,40 @@ public class OccuranceResult
         this.buckets = buckets;
     }
 
-    public int getCountEntry()
-    {
+    public int getCountEntry() {
         return countEntry;
     }
 
-    public int getCountTotal()
-    {
+    public int getCountTotal() {
         return countTotal;
     }
 
-    public Long getLow()
-    {
+    public Long getLow() {
         return low;
     }
 
-    public Long getHigh()
-    {
+    public Long getHigh() {
         return high;
     }
 
-    public List<OccuranceBucket> getBuckets()
-    {
+    public List<OccuranceBucket> getBuckets() {
         return buckets;
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append("Total " + countTotal + " entries " + countEntry);
         buf.append("\n");
 
         int count = 0;
-        for (OccuranceBucket bucket : buckets)
-        {
+        for (OccuranceBucket bucket : buckets) {
             render(buf, 0, Integer.toString(count), low, bucket);
         }
 
         return buf.toString();
     }
 
-    private static void render(StringBuilder buf, int indent, String identifier, long start, OccuranceBucket bucket)
-    {
+    private static void render(StringBuilder buf, int indent, String identifier, long start, OccuranceBucket bucket) {
         double lowRelative = (bucket.getLow() - start) / 1d / OccuranceAnalyzer.MSEC_DIVISIOR;
         double highRelative = (bucket.getHigh() - start) / 1d / OccuranceAnalyzer.MSEC_DIVISIOR;
 
@@ -85,17 +75,14 @@ public class OccuranceResult
         buf.append("\n");
 
         int count = 0;
-        for (OccuranceBucket inner : bucket.getInnerBuckets())
-        {
-            render(buf, indent + 1, identifier + "." + count, bucket.getLow(), inner);            
+        for (OccuranceBucket inner : bucket.getInnerBuckets()) {
+            render(buf, indent + 1, identifier + "." + count, bucket.getLow(), inner);
             count++;
         }
     }
 
-    private static void addIndent(StringBuilder buf, int indent)
-    {
-        for (int i = 0; i < indent; i++)
-        {
+    private static void addIndent(StringBuilder buf, int indent) {
+        for (int i = 0; i < indent; i++) {
             buf.append(" ");
             buf.append(" ");
         }

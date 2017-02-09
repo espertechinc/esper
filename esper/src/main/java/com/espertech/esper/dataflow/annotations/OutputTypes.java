@@ -19,5 +19,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface OutputTypes {
     OutputType[] value() default {};
+
     public int portNumber() default 0;
 }

@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.lookup;
 
-public class SubordinateQueryPlanDesc
-{
+public class SubordinateQueryPlanDesc {
     private final SubordTableLookupStrategyFactory lookupStrategyFactory;
     private final SubordinateQueryIndexDesc[] indexDescs;
 

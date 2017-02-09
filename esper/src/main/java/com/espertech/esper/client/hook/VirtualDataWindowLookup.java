@@ -20,11 +20,11 @@ import java.util.Set;
  * <p>
  * An instance is associated to each EPL statement querying (join, subquery, on-action etc.) the virtual data window.
  * <p>
- *     Optimally an implementation returns only those rows matching the complete lookup context filtered field information.*
+ * Optimally an implementation returns only those rows matching the complete lookup context filtered field information.*
  * </p>
  * <p>
- *     It is legal for an implementation to return rows that are not matching lookup context filter field information.
- *     Such rows are removed by where-clause criteria, when provided.
+ * It is legal for an implementation to return rows that are not matching lookup context filter field information.
+ * Such rows are removed by where-clause criteria, when provided.
  * </p>
  */
 public interface VirtualDataWindowLookup {
@@ -35,15 +35,16 @@ public interface VirtualDataWindowLookup {
      * Keys passed are the actual query lookup values. For range lookups, the key
      * passed is an instance of {@link VirtualDataWindowKeyRange}.
      * <p>
-     *     Key values follow {@link VirtualDataWindowLookupContext}.
+     * Key values follow {@link VirtualDataWindowLookupContext}.
      * </p>
      * <p>
-     *     EventsPerStream contains the events participating in the subquery or join.
-     *     It is not necessary to use eventsPerStream and the events
-     *     are provided for additional information.
-     *     Please consider eventsPerStream for Esper internal use.
+     * EventsPerStream contains the events participating in the subquery or join.
+     * It is not necessary to use eventsPerStream and the events
+     * are provided for additional information.
+     * Please consider eventsPerStream for Esper internal use.
      * </p>
-     * @param keys lookup values
+     *
+     * @param keys            lookup values
      * @param eventsPerStream input events for the lookup
      * @return set of events
      */

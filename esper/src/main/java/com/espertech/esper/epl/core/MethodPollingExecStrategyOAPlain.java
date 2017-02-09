@@ -20,8 +20,7 @@ import net.sf.cglib.reflect.FastMethod;
 import java.util.Collections;
 import java.util.List;
 
-public class MethodPollingExecStrategyOAPlain extends MethodPollingExecStrategyBase
-{
+public class MethodPollingExecStrategyOAPlain extends MethodPollingExecStrategyBase {
     public MethodPollingExecStrategyOAPlain(EventAdapterService eventAdapterService, FastMethod method, EventType eventType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, VariableReader variableReader, String variableName, VariableService variableService) {
         super(eventAdapterService, method, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
     }

@@ -10,11 +10,9 @@
  */
 package com.espertech.esper.view;
 
-import java.util.Collection;
 import java.util.List;
 
-public class ViewServiceCreateResult
-{
+public class ViewServiceCreateResult {
     private final Viewable finalViewable;
     private final Viewable topViewable;
     private final List<View> newViews;

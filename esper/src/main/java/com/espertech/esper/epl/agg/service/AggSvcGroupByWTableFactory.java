@@ -22,8 +22,7 @@ import com.espertech.esper.epl.table.mgmt.TableStateInstanceGrouped;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByWTableFactory implements AggregationServiceFactory
-{
+public class AggSvcGroupByWTableFactory implements AggregationServiceFactory {
     private final TableMetadata tableMetadata;
     private final TableColumnMethodPair[] methodPairs;
     private final AggregationAccessorSlotPair[] accessors;
@@ -53,8 +52,7 @@ public class AggSvcGroupByWTableFactory implements AggregationServiceFactory
         if (tableMetadata.getKeyTypes().length > 1) {
             return new AggSvcGroupByWTableRollupMultiKeyImpl(tableMetadata, methodPairs, accessors, isJoin,
                     tableState, targetStates, accessStateExpr, agents, groupByRollupDesc);
-        }
-        else {
+        } else {
             return new AggSvcGroupByWTableRollupSingleKeyImpl(tableMetadata, methodPairs, accessors, isJoin,
                     tableState, targetStates, accessStateExpr, agents);
         }

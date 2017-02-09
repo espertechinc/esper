@@ -28,7 +28,7 @@ public class GroupByRollupNodeRollupOrCube extends GroupByRollupNodeBase {
 
         // find duplicate entries among child expressions
         for (int i = 0; i < childIndexes.length; i++) {
-            for (int j = i+1; j < childIndexes.length; j++) {
+            for (int j = i + 1; j < childIndexes.length; j++) {
                 validateCompare(childIndexes[i], childIndexes[j]);
             }
         }
@@ -36,8 +36,7 @@ public class GroupByRollupNodeRollupOrCube extends GroupByRollupNodeBase {
         List<int[]> rollup;
         if (cube) {
             rollup = handleCube(childIndexes);
-        }
-        else {
+        } else {
             rollup = handleRollup(childIndexes);
         }
         rollup.add(new int[0]);
@@ -54,7 +53,7 @@ public class GroupByRollupNodeRollupOrCube extends GroupByRollupNodeBase {
         List<int[]> enumerationSorted = new ArrayList<int[]>();
         int size = getChildNodes().size();
         NumberAscCombinationEnumeration e = new NumberAscCombinationEnumeration(size);
-        for (;e.hasMoreElements();) {
+        for (; e.hasMoreElements(); ) {
             enumerationSorted.add(e.nextElement());
         }
         Collections.sort(enumerationSorted, new Comparator<int[]>() {
@@ -96,7 +95,7 @@ public class GroupByRollupNodeRollupOrCube extends GroupByRollupNodeBase {
     private List<int[]> handleRollup(int[][] childIndexes) {
 
         int size = getChildNodes().size();
-        List<int[]> rollup = new ArrayList<int[]>(size+1);
+        List<int[]> rollup = new ArrayList<int[]>(size + 1);
         Set<Integer> keyset = new LinkedHashSet<Integer>();
 
         for (int i = 0; i < size; i++) {

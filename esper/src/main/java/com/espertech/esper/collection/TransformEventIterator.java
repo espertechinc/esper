@@ -19,39 +19,34 @@ import java.util.Iterator;
  * <p>
  * Works with a {@link TransformEventMethod} as the transformation method.
  */
-public class TransformEventIterator implements Iterator<EventBean>
-{
+public class TransformEventIterator implements Iterator<EventBean> {
     private Iterator<EventBean> sourceIterator;
     private TransformEventMethod transformEventMethod;
 
     /**
      * Ctor.
-     * @param sourceIterator is the source event iterator
+     *
+     * @param sourceIterator       is the source event iterator
      * @param transformEventMethod is the method to transform each event
      */
-    public TransformEventIterator(Iterator<EventBean> sourceIterator, TransformEventMethod transformEventMethod)
-    {
+    public TransformEventIterator(Iterator<EventBean> sourceIterator, TransformEventMethod transformEventMethod) {
         this.sourceIterator = sourceIterator;
         this.transformEventMethod = transformEventMethod;
     }
 
-    public boolean hasNext()
-    {
-        if (!sourceIterator.hasNext())
-        {
+    public boolean hasNext() {
+        if (!sourceIterator.hasNext()) {
             return false;
         }
         return true;
     }
 
-    public EventBean next()
-    {
+    public EventBean next() {
         EventBean theEvent = sourceIterator.next();
         return transformEventMethod.transform(theEvent);
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

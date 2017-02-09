@@ -24,8 +24,7 @@ import java.util.*;
 /**
  * Represents a subselect in an expression tree.
  */
-public class ExprSubselectRowNode extends ExprSubselectNode
-{
+public class ExprSubselectRowNode extends ExprSubselectNode {
     private static final long serialVersionUID = -7865711714805807559L;
 
     public static final ExprSubselectRowEvalStrategy UNFILTERED_UNSELECTED = new ExprSubselectRowEvalStrategyUnfilteredUnselected();
@@ -39,6 +38,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode
 
     /**
      * Ctor.
+     *
      * @param statementSpec is the lookup statement spec from the parser, unvalidated
      */
     public ExprSubselectRowNode(StatementSpecRaw statementSpec) {
@@ -55,46 +55,38 @@ public class ExprSubselectRowNode extends ExprSubselectNode
         return null;
     }
 
-    public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
         // Strategy for subselect depends on presence of filter + presence of select clause expressions
         if (filterExpr == null) {
             if (selectClause == null) {
                 TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(rawEventType);
                 if (tableMetadata != null) {
                     evalStrategy = new ExprSubselectRowEvalStrategyUnfilteredUnselectedTable(tableMetadata);
-                }
-                else {
+                } else {
                     evalStrategy = UNFILTERED_UNSELECTED;
                 }
-            }
-            else {
+            } else {
                 if (getStatementSpecCompiled().getGroupByExpressions() != null && getStatementSpecCompiled().getGroupByExpressions().getGroupByNodes().length > 0) {
                     evalStrategy = UNFILTERED_SELECTED_GROUPED;
-                }
-                else {
+                } else {
                     evalStrategy = UNFILTERED_SELECTED;
                 }
             }
-        }
-        else { // the filter expression is handled elsewhere if there is any aggregation
+        } else { // the filter expression is handled elsewhere if there is any aggregation
             if (selectClause == null) {
                 TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(rawEventType);
                 if (tableMetadata != null) {
                     evalStrategy = new ExprSubselectRowEvalStrategyFilteredUnselectedTable(tableMetadata);
-                }
-                else {
+                } else {
                     evalStrategy = FILTERED_UNSELECTED;
                 }
-            }
-            else {
+            } else {
                 evalStrategy = FILTERED_SELECTED;
             }
         }
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
         if (matchingEvents == null || matchingEvents.size() == 0) {
             return null;
         }
@@ -222,8 +214,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode
             }
             if (uniqueNames.add(assignedName)) {
                 type.put(assignedName, selectClause[i].getExprEvaluator().getType());
-            }
-            else {
+            } else {
                 throw new ExprValidationException("Column " + i + " in subquery does not have a unique column name assigned");
             }
         }

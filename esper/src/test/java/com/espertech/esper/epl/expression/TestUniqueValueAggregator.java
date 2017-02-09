@@ -14,30 +14,25 @@ import com.espertech.esper.epl.agg.aggregator.AggregatorDistinctValue;
 import com.espertech.esper.supportunit.epl.SupportAggregator;
 import junit.framework.TestCase;
 
-public class TestUniqueValueAggregator extends TestCase
-{
+public class TestUniqueValueAggregator extends TestCase {
     private AggregatorDistinctValue agg;
 
-    public void setUp()
-    {
+    public void setUp() {
         agg = new AggregatorDistinctValue(new SupportAggregator());
     }
 
-    public void testEnter()
-    {
+    public void testEnter() {
         agg.enter(1);
         agg.enter(new Integer(10));
         agg.enter(null);
     }
 
-    public void testLeave()
-    {
+    public void testLeave() {
         agg.enter(1);
         agg.leave(1);
     }
 
-    public void testGetValue()
-    {
+    public void testGetValue() {
         assertEquals(0, agg.getValue());
 
         agg.enter(10);

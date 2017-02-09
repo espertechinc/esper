@@ -23,8 +23,7 @@ import java.util.Iterator;
 /**
  * This view is a moving window extending the specified number of elements into the past.
  */
-public class LengthWindowView extends ViewSupport implements DataWindowView, CloneableView
-{
+public class LengthWindowView extends ViewSupport implements DataWindowView, CloneableView {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final LengthWindowViewFactory lengthWindowViewFactory;
     private final int size;
@@ -33,15 +32,14 @@ public class LengthWindowView extends ViewSupport implements DataWindowView, Clo
 
     /**
      * Constructor creates a moving window extending the specified number of elements into the past.
-     * @param size is the specified number of elements into the past
-     * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param lengthWindowViewFactory for copying this view in a group-by
+     *
+     * @param size                            is the specified number of elements into the past
+     * @param viewUpdatedCollection           is a collection that the view must update when receiving events
+     * @param lengthWindowViewFactory         for copying this view in a group-by
      * @param agentInstanceViewFactoryContext context
      */
-    public LengthWindowView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, LengthWindowViewFactory lengthWindowViewFactory, int size, ViewUpdatedCollection viewUpdatedCollection)
-    {
-        if (size < 1)
-        {
+    public LengthWindowView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, LengthWindowViewFactory lengthWindowViewFactory, int size, ViewUpdatedCollection viewUpdatedCollection) {
+        if (size < 1) {
             throw new IllegalArgumentException("Illegal argument for size of length window");
         }
 
@@ -51,52 +49,50 @@ public class LengthWindowView extends ViewSupport implements DataWindowView, Clo
         this.viewUpdatedCollection = viewUpdatedCollection;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return lengthWindowViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return events.isEmpty();
     }
 
     /**
      * Returns the size of the length window.
+     *
      * @return size of length window
      */
-    public final int getSize()
-    {
+    public final int getSize() {
         return size;
     }
 
     /**
      * Returns the (optional) collection handling random access to window contents for prior or previous events.
+     *
      * @return buffer for events
      */
-    public ViewUpdatedCollection getViewUpdatedCollection()
-    {
+    public ViewUpdatedCollection getViewUpdatedCollection() {
         return viewUpdatedCollection;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The event type is the parent view's event type
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, lengthWindowViewFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, lengthWindowViewFactory.getViewName(), newData, oldData);
+        }
 
         // add data points to the window
         // we don't care about removed data from a prior view
-        if (newData != null)
-        {
+        if (newData != null) {
             for (EventBean event : newData) {
                 events.add(event);
             }
@@ -105,38 +101,38 @@ public class LengthWindowView extends ViewSupport implements DataWindowView, Clo
         // Check for any events that get pushed out of the window
         int expiredCount = events.size() - size;
         EventBean[] expiredArr = null;
-        if (expiredCount > 0)
-        {
+        if (expiredCount > 0) {
             expiredArr = new EventBean[expiredCount];
-            for (int i = 0; i < expiredCount; i++)
-            {
+            for (int i = 0; i < expiredCount; i++) {
                 expiredArr[i] = events.removeFirst();
             }
         }
 
         // update event buffer for access by expressions, if any
-        if (viewUpdatedCollection != null)
-        {
+        if (viewUpdatedCollection != null) {
             viewUpdatedCollection.update(newData, expiredArr);
         }
 
         // If there are child views, call update method
-        if (this.hasViews())
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, lengthWindowViewFactory.getViewName(), newData, expiredArr);}
+        if (this.hasViews()) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, lengthWindowViewFactory.getViewName(), newData, expiredArr);
+            }
             updateChildren(newData, expiredArr);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return events.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " size=" + size;
     }
 

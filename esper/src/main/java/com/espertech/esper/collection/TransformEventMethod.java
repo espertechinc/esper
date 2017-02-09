@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 /**
  * Interface that transforms one event into another event, for use with {@link TransformEventIterator}.
  */
-public interface TransformEventMethod
-{
+public interface TransformEventMethod {
     /**
      * Transform event returning the transformed event.
+     *
      * @param theEvent to transform
      * @return transformed event
      */

@@ -89,10 +89,10 @@ public class SelectExprProcessorFactory {
             if (forClauseSpec != null) {
                 for (ForClauseItemSpec item : forClauseSpec.getClauses()) {
                     if (item.getKeyword() == null) {
-                        throw new ExprValidationException("Expected any of the " + Arrays.toString(ForClauseKeyword.values()).toLowerCase() + " for-clause keywords after reserved keyword 'for'");
+                        throw new ExprValidationException("Expected any of the " + Arrays.toString(ForClauseKeyword.values()).toLowerCase(Locale.ENGLISH) + " for-clause keywords after reserved keyword 'for'");
                     }
                     try {
-                        ForClauseKeyword keyword = ForClauseKeyword.valueOf(item.getKeyword().toUpperCase());
+                        ForClauseKeyword keyword = ForClauseKeyword.valueOf(item.getKeyword().toUpperCase(Locale.ENGLISH));
                         if ((keyword == ForClauseKeyword.GROUPED_DELIVERY) && (item.getExpressions().isEmpty())) {
                             throw new ExprValidationException("The for-clause with the " + ForClauseKeyword.GROUPED_DELIVERY.getName() + " keyword requires one or more grouping expressions");
                         }
@@ -103,7 +103,7 @@ public class SelectExprProcessorFactory {
                             throw new ExprValidationException("The for-clause with delivery keywords may only occur once in a statement");
                         }
                     } catch (RuntimeException ex) {
-                        throw new ExprValidationException("Expected any of the " + Arrays.toString(ForClauseKeyword.values()).toLowerCase() + " for-clause keywords after reserved keyword 'for'");
+                        throw new ExprValidationException("Expected any of the " + Arrays.toString(ForClauseKeyword.values()).toLowerCase(Locale.ENGLISH) + " for-clause keywords after reserved keyword 'for'");
                     }
 
                     StreamTypeService type = new StreamTypeServiceImpl(synthetic.getResultEventType(), null, false, engineURI);
@@ -154,10 +154,9 @@ public class SelectExprProcessorFactory {
             if (typeService.getStreamNames().length > 1) {
                 log.debug(".getProcessor Using SelectExprJoinWildcardProcessor");
                 return SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, insertIntoDesc, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier());
-            }
-            // Single-table selects with no insert-into
-            // don't need extra processing
-            else if (insertIntoDesc == null) {
+            } else if (insertIntoDesc == null) {
+                // Single-table selects with no insert-into
+                // don't need extra processing
                 log.debug(".getProcessor Using wildcard processor");
                 if (typeService.hasTableTypes()) {
                     String tableName = TableServiceUtil.getTableNameFromEventType(typeService.getEventTypes()[0]);
@@ -247,7 +246,7 @@ public class SelectExprProcessorFactory {
             return false;
         }
         ExprDotNode dotNode = (ExprDotNode) selectExpression;
-        if (dotNode.getChainSpec().get(0).getName().toLowerCase().equals(EngineImportService.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
+        if (dotNode.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH).equals(EngineImportService.EXT_SINGLEROW_FUNCTION_TRANSPOSE)) {
             return true;
         }
         return false;

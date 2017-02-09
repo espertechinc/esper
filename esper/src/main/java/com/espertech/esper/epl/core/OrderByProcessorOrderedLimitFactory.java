@@ -16,8 +16,7 @@ import com.espertech.esper.epl.agg.service.AggregationService;
 /**
  * Sorter and row limiter in one: sorts using a sorter and row limits
  */
-public class OrderByProcessorOrderedLimitFactory implements OrderByProcessorFactory
-{
+public class OrderByProcessorOrderedLimitFactory implements OrderByProcessorFactory {
     private final OrderByProcessorFactoryImpl orderByProcessorFactory;
     private final RowLimitProcessorFactory rowLimitProcessorFactory;
 

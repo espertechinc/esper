@@ -13,17 +13,15 @@ package com.espertech.esper.epl.expression;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import junit.framework.TestCase;
 import com.espertech.esper.supportunit.epl.SupportAggregateExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
+import junit.framework.TestCase;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-public class TestExprAggregateNode extends TestCase
-{
-    public void testGetAggregatesBottomUp()
-    {
+public class TestExprAggregateNode extends TestCase {
+    public void testGetAggregatesBottomUp() {
         /*
                                     top (ag)
                   c1                            c2

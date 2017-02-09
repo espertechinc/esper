@@ -38,6 +38,7 @@ public interface VirtualDataWindow {
      * <p>
      * The order of hash and btree properties provided by the context
      * matches the order that lookup values are provided to the lookup strategy.
+     *
      * @param desc hash and binary tree (sorted access for ranges) index fields
      * @return lookup strategy, or null to veto the statement
      */
@@ -48,11 +49,12 @@ public interface VirtualDataWindow {
      * <p>
      * Management events indicate:
      * <ul>
-     *     <li>Create/Start of an index on a virtual data window.</li>
-     *     <li>Stop/Destroy of an index.</li>
-     *     <li>Destroy of the virtual data window.</li>
-     *     <li>Add/Remove of a consumer to the virtual data window.</li>
+     * <li>Create/Start of an index on a virtual data window.</li>
+     * <li>Stop/Destroy of an index.</li>
+     * <li>Destroy of the virtual data window.</li>
+     * <li>Add/Remove of a consumer to the virtual data window.</li>
      * </ul>
+     *
      * @param theEvent to handle
      */
     public void handleEvent(VirtualDataWindowEvent theEvent);
@@ -80,6 +82,7 @@ public interface VirtualDataWindow {
      * <p>
      * For data originating from the virtual data window use the sendEvent() method with "insert-into" statement
      * to insert events.
+     *
      * @param newData the insert stream
      * @param oldData the remove stream
      */
@@ -103,6 +106,7 @@ public interface VirtualDataWindow {
      * If returning an empty iterator then consuming statements do not receive initial data, therefor in the example provide earlier
      * the "sum(field)" is initially zero and no the sum of the field values.
      * </p>
+     *
      * @return empty iterator or an iterator for all events currently held by the virtual data window.
      */
     public Iterator<EventBean> iterator();

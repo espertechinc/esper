@@ -20,49 +20,43 @@ import java.util.Map;
 /**
  * Getter for an array of event bean using a nested getter.
  */
-public class MapEventBeanArrayIndexedElementPropertyGetter implements MapEventPropertyGetter
-{
+public class MapEventBeanArrayIndexedElementPropertyGetter implements MapEventPropertyGetter {
     private final String propertyName;
     private final int index;
     private final EventPropertyGetter nestedGetter;
 
     /**
      * Ctor.
+     *
      * @param propertyName property name
-     * @param index array index
+     * @param index        array index
      * @param nestedGetter nested getter
      */
-    public MapEventBeanArrayIndexedElementPropertyGetter(String propertyName, int index, EventPropertyGetter nestedGetter)
-    {
+    public MapEventBeanArrayIndexedElementPropertyGetter(String propertyName, int index, EventPropertyGetter nestedGetter) {
         this.propertyName = propertyName;
         this.index = index;
         this.nestedGetter = nestedGetter;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         EventBean[] wrapper = (EventBean[]) map.get(propertyName);
         return BaseNestableEventUtil.getArrayPropertyValue(wrapper, index, nestedGetter);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getMap(BaseNestableEventUtil.checkedCastUnderlyingMap(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Map<String, Object> map = BaseNestableEventUtil.checkedCastUnderlyingMap(obj);
         EventBean[] wrapper = (EventBean[]) map.get(propertyName);
         return BaseNestableEventUtil.getArrayPropertyFragment(wrapper, index, nestedGetter);

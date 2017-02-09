@@ -10,27 +10,25 @@
  */
 package com.espertech.esper.view.stat;
 
-import com.espertech.esper.client.EventType;
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
 import com.espertech.esper.supportunit.view.SupportBeanClassView;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
-import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.view.ViewFieldEnum;
+import junit.framework.TestCase;
 
 import java.util.Iterator;
 
-public class TestRegressionLinestView extends TestCase
-{
+public class TestRegressionLinestView extends TestCase {
     RegressionLinestView myView;
     SupportBeanClassView childView;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         // Set up sum view and a test child view
         EventType type = RegressionLinestView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         RegressionLinestViewFactory viewFactory = new RegressionLinestViewFactory();
@@ -41,8 +39,7 @@ public class TestRegressionLinestView extends TestCase
     }
 
     // Check values against Microsoft Excel computed values
-    public void testViewComputedValues()
-    {
+    public void testViewComputedValues() {
         // Set up feed for sum view
         SupportStreamImpl stream = new SupportStreamImpl(SupportMarketDataBean.class, 3);
         stream.addView(myView);
@@ -72,21 +69,18 @@ public class TestRegressionLinestView extends TestCase
         checkNew(877.5510204, -60443.877555);
     }
 
-    public void testGetSchema()
-    {
+    public void testGetSchema() {
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.REGRESSION__SLOPE.getName()) == Double.class);
         assertTrue(myView.getEventType().getPropertyType(ViewFieldEnum.REGRESSION__YINTERCEPT.getName()) == Double.class);
     }
 
-    public void testCopyView() throws Exception
-    {
+    public void testCopyView() throws Exception {
         RegressionLinestView copied = (RegressionLinestView) myView.cloneView();
         assertTrue(myView.getExpressionX().equals(copied.getExpressionX()));
         assertTrue(myView.getExpressionY().equals(copied.getExpressionY()));
     }
 
-    private void checkNew(double slopeE, double yinterceptE)
-    {
+    private void checkNew(double slopeE, double yinterceptE) {
         Iterator<EventBean> iterator = myView.iterator();
         checkValues(iterator.next(), slopeE, yinterceptE);
         assertTrue(iterator.hasNext() == false);
@@ -96,28 +90,24 @@ public class TestRegressionLinestView extends TestCase
         checkValues(childViewValues, slopeE, yinterceptE);
     }
 
-    private void checkOld(double slopeE, double yinterceptE)
-    {
+    private void checkOld(double slopeE, double yinterceptE) {
         assertTrue(childView.getLastOldData().length == 1);
         EventBean childViewValues = childView.getLastOldData()[0];
         checkValues(childViewValues, slopeE, yinterceptE);
     }
 
-    private void checkValues(EventBean eventBean, double slopeE, double yinterceptE)
-    {
+    private void checkValues(EventBean eventBean, double slopeE, double yinterceptE) {
         double slope = getDoubleValue(ViewFieldEnum.REGRESSION__SLOPE, eventBean);
         double yintercept = getDoubleValue(ViewFieldEnum.REGRESSION__YINTERCEPT, eventBean);
-        assertTrue(DoubleValueAssertionUtil.equals(slope,  slopeE, 6));
-        assertTrue(DoubleValueAssertionUtil.equals(yintercept,  yinterceptE, 6));
+        assertTrue(DoubleValueAssertionUtil.equals(slope, slopeE, 6));
+        assertTrue(DoubleValueAssertionUtil.equals(yintercept, yinterceptE, 6));
     }
 
-    private double getDoubleValue(ViewFieldEnum field, EventBean theEvent)
-    {
+    private double getDoubleValue(ViewFieldEnum field, EventBean theEvent) {
         return (Double) theEvent.get(field.getName());
     }
 
-    private EventBean makeBean(String symbol, double price, long volume)
-    {
+    private EventBean makeBean(String symbol, double price, long volume) {
         SupportMarketDataBean bean = new SupportMarketDataBean(symbol, price, volume, "");
         return SupportEventBeanFactory.createObject(bean);
     }

@@ -17,24 +17,22 @@ import java.util.Comparator;
 /**
  * A comparator on objects that takes a boolean array for ascending/descending.
  */
-public final class ObjectCollatingComparator implements Comparator<Object>, MetaDefItem, Serializable
-{
+public final class ObjectCollatingComparator implements Comparator<Object>, MetaDefItem, Serializable {
     private static final long serialVersionUID = 2147404623473097358L;
     private final boolean isDescendingValue;
     private transient Collator collator = null;
 
     /**
      * Ctor.
+     *
      * @param isDescendingValue ascending or descending
      */
-    public ObjectCollatingComparator(boolean isDescendingValue)
-    {
+    public ObjectCollatingComparator(boolean isDescendingValue) {
         this.isDescendingValue = isDescendingValue;
         collator = Collator.getInstance();
     }
 
-    public final int compare(Object firstValue, Object secondValue)
-    {
+    public final int compare(Object firstValue, Object secondValue) {
         return MultiKeyComparator.compareValuesCollated(firstValue, secondValue, isDescendingValue, collator);
     }
 }

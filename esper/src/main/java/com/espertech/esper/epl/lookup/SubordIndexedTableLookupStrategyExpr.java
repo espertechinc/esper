@@ -23,8 +23,7 @@ import java.util.Set;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupStrategy
-{
+public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupStrategy {
     /**
      * Index to look up in.
      */
@@ -34,8 +33,7 @@ public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupSt
     private final LookupStrategyDesc strategyDesc;
     private EventBean[] events;
 
-    public SubordIndexedTableLookupStrategyExpr(int numStreamsOuter, ExprEvaluator[] evaluators, PropertyIndexedEventTable index, LookupStrategyDesc strategyDesc)
-    {
+    public SubordIndexedTableLookupStrategyExpr(int numStreamsOuter, ExprEvaluator[] evaluators, PropertyIndexedEventTable index, LookupStrategyDesc strategyDesc) {
         this.evaluators = evaluators;
         this.strategyDesc = strategyDesc;
         events = new EventBean[numStreamsOuter + 1];
@@ -44,16 +42,17 @@ public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupSt
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTable getIndex()
-    {
+    public PropertyIndexedEventTable getIndex() {
         return index;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexSubordLookup(this, index, null); }
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
+        }
 
         Object[] keys = getKeys(eventsPerStream, context);
 
@@ -67,16 +66,15 @@ public class SubordIndexedTableLookupStrategyExpr implements SubordTableLookupSt
 
     /**
      * Get the index lookup keys.
+     *
      * @param eventsPerStream is the events for each stream
-     * @param context context
+     * @param context         context
      * @return key object
      */
-    protected Object[] getKeys(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
+    protected Object[] getKeys(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
         Object[] keyValues = new Object[evaluators.length];
-        for (int i = 0; i < evaluators.length; i++)
-        {
+        for (int i = 0; i < evaluators.length; i++) {
             keyValues[i] = evaluators[i].evaluate(events, true, context);
         }
         return keyValues;

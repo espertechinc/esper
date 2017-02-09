@@ -14,8 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDeltaNonConst
-{
+public class ExprTimePeriodEvalDeltaNonConstMsec implements ExprTimePeriodEvalDeltaNonConst {
     private final ExprTimePeriodImpl exprTimePeriod;
 
     public ExprTimePeriodEvalDeltaNonConstMsec(ExprTimePeriodImpl exprTimePeriod) {

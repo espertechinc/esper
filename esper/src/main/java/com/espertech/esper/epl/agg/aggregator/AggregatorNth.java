@@ -26,6 +26,7 @@ public class AggregatorNth implements AggregationMethod {
 
     /**
      * Ctor.
+     *
      * @param sizeBuf size
      */
     public AggregatorNth(int sizeBuf) {
@@ -35,8 +36,7 @@ public class AggregatorNth implements AggregationMethod {
     public void enter(Object value) {
         Object[] arr = (Object[]) value;
         numDataPoints++;
-        if (circularBuffer == null)
-        {
+        if (circularBuffer == null) {
             clear();
         }
         circularBuffer[currentBufferElementPointer] = arr[0];

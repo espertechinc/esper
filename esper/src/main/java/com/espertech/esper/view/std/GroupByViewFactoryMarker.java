@@ -12,8 +12,7 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public interface GroupByViewFactoryMarker
-{
+public interface GroupByViewFactoryMarker {
     public ExprNode[] getCriteriaExpressions();
 
     public boolean isReclaimAged();

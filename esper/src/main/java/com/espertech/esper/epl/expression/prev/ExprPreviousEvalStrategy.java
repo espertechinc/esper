@@ -15,10 +15,12 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
-public interface ExprPreviousEvalStrategy
-{
+public interface ExprPreviousEvalStrategy {
     public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
+
     public Collection<EventBean> evaluateGetCollEvents(EventBean[] eventsPerStream, ExprEvaluatorContext context);
+
     public Collection evaluateGetCollScalar(EventBean[] eventsPerStream, ExprEvaluatorContext context);
+
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, ExprEvaluatorContext context);
 }

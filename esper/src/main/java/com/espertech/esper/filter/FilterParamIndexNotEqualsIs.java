@@ -23,24 +23,22 @@ import java.util.concurrent.locks.ReadWriteLock;
  * Index for filter parameter constants to match using the equals (=) operator.
  * The implementation is based on a regular HashMap.
  */
-public final class FilterParamIndexNotEqualsIs extends FilterParamIndexNotEqualsBase
-{
+public final class FilterParamIndexNotEqualsIs extends FilterParamIndexNotEqualsBase {
     public FilterParamIndexNotEqualsIs(FilterSpecLookupable lookupable, ReadWriteLock readWriteLock) {
         super(lookupable, readWriteLock, FilterOperator.IS_NOT);
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         Object attributeValue = lookupable.getGetter().get(theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);
+        }
 
         // Look up in hashtable
         constantsMapRWLock.readLock().lock();
         try {
-            for(Map.Entry<Object, EventEvaluator> entry : constantsMap.entrySet())
-            {
-                if (entry.getKey() == null)
-                {
+            for (Map.Entry<Object, EventEvaluator> entry : constantsMap.entrySet()) {
+                if (entry.getKey() == null) {
                     if (attributeValue != null) {
                         entry.getValue().matchEvent(theEvent, matches);
                     }
@@ -51,12 +49,13 @@ public final class FilterParamIndexNotEqualsIs extends FilterParamIndexNotEquals
                     entry.getValue().matchEvent(theEvent, matches);
                 }
             }
-        }
-        finally {
+        } finally {
             constantsMapRWLock.readLock().unlock();
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilterReverseIndex(null);
+        }
     }
 
     private static final Logger log = LoggerFactory.getLogger(FilterParamIndexNotEqualsIs.class);

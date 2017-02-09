@@ -26,12 +26,10 @@ import java.util.Collections;
 /**
  * Plan to perform an indexed table lookup.
  */
-public class InKeywordTableLookupPlanMultiIdx extends TableLookupPlan
-{
+public class InKeywordTableLookupPlanMultiIdx extends TableLookupPlan {
     private ExprNode keyExpr;
 
-    public InKeywordTableLookupPlanMultiIdx(int lookupStream, int indexedStream, TableLookupIndexReqKey[] indexNum, ExprNode keyExpr)
-    {
+    public InKeywordTableLookupPlanMultiIdx(int lookupStream, int indexedStream, TableLookupIndexReqKey[] indexNum, ExprNode keyExpr) {
         super(lookupStream, indexedStream, indexNum);
         this.keyExpr = keyExpr;
     }
@@ -44,20 +42,18 @@ public class InKeywordTableLookupPlanMultiIdx extends TableLookupPlan
         return new TableLookupKeyDesc(Collections.<QueryGraphValueEntryHashKeyed>emptyList(), Collections.<QueryGraphValueEntryRange>emptyList());
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         ExprEvaluator evaluator = keyExpr.getExprEvaluator();
         PropertyIndexedEventTableSingle[] singles = new PropertyIndexedEventTableSingle[eventTable.length];
         for (int i = 0; i < eventTable.length; i++) {
             singles[i] = (PropertyIndexedEventTableSingle) eventTable[i];
         }
-        return new InKeywordMultiTableLookupStrategyExpr(evaluator, super.getLookupStream(), singles, new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[] {ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpr)}));
+        return new InKeywordMultiTableLookupStrategyExpr(evaluator, super.getLookupStream(), singles, new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpr)}));
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName() + " " +
                 super.toString() +
-               " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpr);
+                " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpr);
     }
 }

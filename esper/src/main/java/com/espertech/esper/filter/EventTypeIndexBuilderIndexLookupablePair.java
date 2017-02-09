@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.filter;
 
-public class EventTypeIndexBuilderIndexLookupablePair
-{
+public class EventTypeIndexBuilderIndexLookupablePair {
     private final FilterParamIndexBase index;
     private final Object lookupable;
 

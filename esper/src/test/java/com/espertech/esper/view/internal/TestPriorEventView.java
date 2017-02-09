@@ -10,29 +10,26 @@
  */
 package com.espertech.esper.view.internal;
 
-import junit.framework.TestCase;
-import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.bean.SupportBean_A;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import junit.framework.TestCase;
 
-public class TestPriorEventView extends TestCase
-{
+public class TestPriorEventView extends TestCase {
     private PriorEventBufferSingle buffer;
     private PriorEventView view;
     private SupportBeanClassView childView;
 
-    public void setUp()
-    {
+    public void setUp() {
         buffer = new PriorEventBufferSingle(1);
         view = new PriorEventView(buffer);
         childView = new SupportBeanClassView(SupportMarketDataBean.class);
         view.addView(childView);
     }
 
-    public void testUpdate()
-    {
+    public void testUpdate() {
         // Send some data
         EventBean newEventsOne[] = makeBeans("a", 2);
         view.update(newEventsOne, null);
@@ -53,11 +50,9 @@ public class TestPriorEventView extends TestCase
         assertSame(newEventsOne[1], buffer.getRelativeToEvent(newEventsTwo[0], 0));
     }
 
-    private EventBean[] makeBeans(String id, int numTrades)
-    {
+    private EventBean[] makeBeans(String id, int numTrades) {
         EventBean[] trades = new EventBean[numTrades];
-        for (int i = 0; i < numTrades; i++)
-        {
+        for (int i = 0; i < numTrades; i++) {
             SupportBean_A bean = new SupportBean_A(id + i);
             trades[i] = SupportEventBeanFactory.createObject(bean);
         }

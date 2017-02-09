@@ -10,19 +10,17 @@
  */
 package com.espertech.esper.supportunit.util;
 
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
 
-public class OccuranceBucket
-{
+public class OccuranceBucket {
     private final long low;
     private final long high;
     private final int countEntry;
     private final int countTotal;
     private List<OccuranceBucket> innerBuckets;
 
-    public OccuranceBucket(long low, long high, int countEntry, int countTotal)
-    {
+    public OccuranceBucket(long low, long high, int countEntry, int countTotal) {
         this.low = low;
         this.high = high;
         this.countEntry = countEntry;
@@ -30,33 +28,27 @@ public class OccuranceBucket
         innerBuckets = Collections.EMPTY_LIST;
     }
 
-    public void setInnerBuckets(List<OccuranceBucket> innerBuckets)
-    {
+    public void setInnerBuckets(List<OccuranceBucket> innerBuckets) {
         this.innerBuckets = innerBuckets;
     }
 
-    public long getLow()
-    {
+    public long getLow() {
         return low;
     }
 
-    public long getHigh()
-    {
+    public long getHigh() {
         return high;
     }
 
-    public int getCountEntry()
-    {
+    public int getCountEntry() {
         return countEntry;
     }
 
-    public int getCountTotal()
-    {
+    public int getCountTotal() {
         return countTotal;
     }
 
-    public List<OccuranceBucket> getInnerBuckets()
-    {
+    public List<OccuranceBucket> getInnerBuckets() {
         return innerBuckets;
     }
 }

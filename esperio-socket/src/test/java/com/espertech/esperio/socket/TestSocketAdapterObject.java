@@ -22,16 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class TestSocketAdapterObject extends TestCase
-{
+public class TestSocketAdapterObject extends TestCase {
     private SupportUpdateListener listener;
 
     public void setUp() throws Exception {
         listener = new SupportUpdateListener();
     }
 
-    public void testSendObject() throws Exception
-    {
+    public void testSendObject() throws Exception {
         int port = 6800;
         String mapTypeName = "MyMapType";
 
@@ -56,7 +54,7 @@ public class TestSocketAdapterObject extends TestCase
         SupportSocketUtil.sendSingleObject(port, new SupportBean("E1", 10));
         String[] fields = "stringProp,intProp".split(",");
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1", 10});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E1", 10});
 
         SupportSocketClientObject client = new SupportSocketClientObject(port);
         client.send(new SupportBean("E2", 20));
@@ -65,7 +63,7 @@ public class TestSocketAdapterObject extends TestCase
 
         client.send(new SupportBean("E3", 30));
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E3", 30});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E3", 30});
 
         client.close();
 
@@ -74,16 +72,16 @@ public class TestSocketAdapterObject extends TestCase
 
         clientTwo.send(new SupportBean("E4", 40));
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E4", 40});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E4", 40});
 
         clientOne.send(new SupportBean("E5", 50));
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E5", 50});
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E5", 50});
 
         clientOne.send(getMapEvent(mapTypeName, "E6", 60));
         Thread.sleep(200);
-        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E6", 60});
-        
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[]{"E6", 60});
+
         clientOne.close();
         clientTwo.close();
         provider.destroy();

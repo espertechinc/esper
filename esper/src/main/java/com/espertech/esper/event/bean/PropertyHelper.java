@@ -189,7 +189,7 @@ public class PropertyHelper {
      * @param result is the list to add to
      */
     protected static void addIntrospectProperties(Class clazz, List<InternalEventPropDescriptor> result) {
-        PropertyDescriptor properties[] = introspect(clazz);
+        PropertyDescriptor[] properties = introspect(clazz);
         for (int i = 0; i < properties.length; i++) {
             PropertyDescriptor property = properties[i];
             String propertyName = property.getName();
@@ -210,7 +210,7 @@ public class PropertyHelper {
     }
 
     private static void addIntrospectPropertiesWritable(Class clazz, Set<WriteablePropertyDescriptor> result) {
-        PropertyDescriptor properties[] = introspect(clazz);
+        PropertyDescriptor[] properties = introspect(clazz);
         for (int i = 0; i < properties.length; i++) {
             PropertyDescriptor property = properties[i];
             String propertyName = property.getName();
@@ -246,7 +246,7 @@ public class PropertyHelper {
                 continue;
             }
 
-            Class<?> parameterTypes[] = methods[i].getParameterTypes();
+            Class<?>[] parameterTypes = methods[i].getParameterTypes();
             if (parameterTypes.length != 1) {
                 continue;
             }
@@ -294,7 +294,7 @@ public class PropertyHelper {
         try {
             beanInfo = Introspector.getBeanInfo(clazz);
         } catch (IntrospectionException e) {
-            return (new PropertyDescriptor[0]);
+            return new PropertyDescriptor[0];
         }
 
         return beanInfo.getPropertyDescriptors();

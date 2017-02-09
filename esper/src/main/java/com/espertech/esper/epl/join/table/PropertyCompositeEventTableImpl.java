@@ -26,8 +26,7 @@ import java.util.*;
  * - not applicable for multiple nested range as ordering not nested
  * - each add/remove and lookup would also need to construct a key object.
  */
-public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
-{
+public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable {
     private final CompositeIndexEnterRemove chain;
 
     /**
@@ -35,14 +34,12 @@ public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
      */
     protected final Map<Object, Object> index;
 
-    public PropertyCompositeEventTableImpl(Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization, boolean isHashKeyed, CompositeIndexEnterRemove chain)
-    {
+    public PropertyCompositeEventTableImpl(Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization, boolean isHashKeyed, CompositeIndexEnterRemove chain) {
         super(optKeyCoercedTypes, optRangeCoercedTypes, organization);
         this.chain = chain;
         if (isHashKeyed) {
             index = new HashMap<Object, Object>();
-        }
-        else {
+        } else {
             index = new TreeMap<Object, Object>();
         }
     }
@@ -51,30 +48,25 @@ public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
         return index;
     }
 
-    public void add(EventBean theEvent)
-    {
+    public void add(EventBean theEvent) {
         chain.enter(theEvent, index);
     }
 
-    public void remove(EventBean theEvent)
-    {
+    public void remove(EventBean theEvent) {
         chain.remove(theEvent, index);
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return index.isEmpty();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         HashSet<EventBean> result = new LinkedHashSet<EventBean>();
         chain.getAll(result, index);
         return result.iterator();
     }
 
-    public void clear()
-    {
+    public void clear() {
         index.clear();
     }
 

@@ -10,11 +10,11 @@ package com.espertech.esper.example.benchmark.client;
 /**
  * A client that sends MarketData information over a TCP socket to a remote server.
  * MarketData packets are sent using NIO
- *
+ * <p>
  * Run with no args to see available options
  *
- * @see MarketClient
  * @author Alexandre Vasseur http://avasseur.blogspot.com
+ * @see MarketClient
  */
 public class Client {
 
@@ -33,7 +33,7 @@ public class Client {
         this.rate = rate;
     }
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
         int rate = Math.max(DEFAULT_RATE, MINIMUM_RATE);
         int port = DEFAULT_PORT;
         String host = DEFAULT_HOST;
@@ -68,9 +68,9 @@ public class Client {
     private static void printUsage() {
         System.err.println("com.espertech.esper.example.benchmark.client.Client <-host hostname> <-port #> <-rate #>");
         System.err.println("defaults:");
-        System.err.println("    Rate: "+DEFAULT_RATE + " msg/s");
-        System.err.println("    Host: "+DEFAULT_HOST);
-        System.err.println("    Port: "+DEFAULT_PORT);
+        System.err.println("    Rate: " + DEFAULT_RATE + " msg/s");
+        System.err.println("    Host: " + DEFAULT_HOST);
+        System.err.println("    Port: " + DEFAULT_PORT);
         System.exit(1);
     }
 }

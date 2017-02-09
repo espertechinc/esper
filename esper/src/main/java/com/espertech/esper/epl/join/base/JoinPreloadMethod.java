@@ -16,10 +16,10 @@ import com.espertech.esper.view.internal.BufferView;
 /**
  * Method for preloading events for a given stream onto the stream's indexes, from a buffer already associated with a stream.
  */
-public interface JoinPreloadMethod
-{
+public interface JoinPreloadMethod {
     /**
      * Initialize a stream from the stream buffers data.
+     *
      * @param stream to initialize and load indexes
      */
     public void preloadFromBuffer(int stream);
@@ -27,14 +27,16 @@ public interface JoinPreloadMethod
     /**
      * Initialize the result set process for the purpose of grouping and aggregation
      * from the join result set.
+     *
      * @param resultSetProcessor is the grouping and aggregation result processing
      */
     public void preloadAggregation(ResultSetProcessor resultSetProcessor);
 
     /**
      * Sets the buffee to use.
+     *
      * @param buffer buffer to use
-     * @param i stream
+     * @param i      stream
      */
     public void setBuffer(BufferView buffer, int i);
 

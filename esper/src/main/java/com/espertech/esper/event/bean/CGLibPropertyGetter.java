@@ -23,57 +23,46 @@ import java.lang.reflect.Method;
 /**
  * Property getter using CGLib's FastMethod instance.
  */
-public class CGLibPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter
-{
+public class CGLibPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter {
     private final FastMethod fastMethod;
 
     /**
      * Constructor.
-     * @param method the underlying method
-     * @param fastMethod is the method to use to retrieve a value from the object.
+     *
+     * @param method              the underlying method
+     * @param fastMethod          is the method to use to retrieve a value from the object.
      * @param eventAdapterService factory for event beans and event types
      */
-    public CGLibPropertyGetter(Method method, FastMethod fastMethod, EventAdapterService eventAdapterService)
-    {
+    public CGLibPropertyGetter(Method method, FastMethod fastMethod, EventAdapterService eventAdapterService) {
         super(eventAdapterService, fastMethod.getReturnType(), JavaClassHelper.getGenericReturnType(method, true));
         this.fastMethod = fastMethod;
     }
 
-    public Object getBeanProp(Object object) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanProp(Object object) throws PropertyAccessException {
+        try {
             return fastMethod.invoke(object, null);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(fastMethod.getJavaMethod(), e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "CGLibPropertyGetter " +
                 "fastMethod=" + fastMethod.toString();
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

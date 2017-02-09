@@ -10,37 +10,33 @@
  */
 package com.espertech.esper.epl.expression;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprInNode;
 import com.espertech.esper.epl.expression.ops.ExprInNodeImpl;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.supportunit.epl.SupportExprNode;
-import com.espertech.esper.supportunit.bean.SupportBean;
-import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.client.EventBean;
 
-public class TestExprInNode extends TestCase
-{
+public class TestExprInNode extends TestCase {
     private ExprInNode inNodeNormal;
     private ExprInNode inNodeNotIn;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         inNodeNormal = SupportExprNodeFactory.makeInSetNode(false);
         inNodeNotIn = SupportExprNodeFactory.makeInSetNode(true);
     }
 
-    public void testGetType()  throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(Boolean.class, inNodeNormal.getExprEvaluator().getType());
         assertEquals(Boolean.class, inNodeNotIn.getExprEvaluator().getType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         inNodeNormal = SupportExprNodeFactory.makeInSetNode(true);
         inNodeNormal.validate(SupportExprValidationContextFactory.makeEmpty());
 
@@ -59,8 +55,7 @@ public class TestExprInNode extends TestCase
         tryInvalidValidate(inNodeNormal);
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         assertFalse((Boolean) inNodeNormal.evaluate(makeEvent(0), false, null));
         assertTrue((Boolean) inNodeNormal.evaluate(makeEvent(1), false, null));
         assertTrue((Boolean) inNodeNormal.evaluate(makeEvent(2), false, null));
@@ -72,8 +67,7 @@ public class TestExprInNode extends TestCase
         assertTrue((Boolean) inNodeNotIn.evaluate(makeEvent(3), false, null));
     }
 
-    public void testEquals()  throws Exception
-    {
+    public void testEquals() throws Exception {
         ExprInNode otherInNodeNormal = SupportExprNodeFactory.makeInSetNode(false);
         ExprInNode otherInNodeNotIn = SupportExprNodeFactory.makeInSetNode(true);
 
@@ -86,27 +80,22 @@ public class TestExprInNode extends TestCase
         assertFalse(inNodeNormal.equalsNode(SupportExprNodeFactory.makeCaseSyntax1Node()));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("s0.intPrimitive in (1,2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(inNodeNormal));
         assertEquals("s0.intPrimitive not in (1,2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(inNodeNotIn));
     }
 
-    private EventBean[] makeEvent(int intPrimitive)
-    {
+    private EventBean[] makeEvent(int intPrimitive) {
         SupportBean theEvent = new SupportBean();
         theEvent.setIntPrimitive(intPrimitive);
-        return new EventBean[] {SupportEventBeanFactory.createObject(theEvent)};
+        return new EventBean[]{SupportEventBeanFactory.createObject(theEvent)};
     }
 
-    private void tryInvalidValidate(ExprInNode exprInNode) throws Exception
-    {
+    private void tryInvalidValidate(ExprInNode exprInNode) throws Exception {
         try {
             exprInNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }

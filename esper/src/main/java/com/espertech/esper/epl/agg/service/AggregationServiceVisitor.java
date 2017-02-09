@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.agg.service;
 
-public interface AggregationServiceVisitor
-{
+public interface AggregationServiceVisitor {
     public void visitAggregations(int numGroups, Object... state);
 }

@@ -36,8 +36,7 @@ public class IntervalComputerFactory {
                 return new IntervalComputerConstantBefore(pair);
             }
             return new IntervalComputerBeforeWithDeltaExpr(pair);
-        }
-        else if (method == DatetimeMethodEnum.AFTER) {
+        } else if (method == DatetimeMethodEnum.AFTER) {
             if (parameters.length == 0) {
                 return new IntervalComputerAfterNoParam();
             }
@@ -46,8 +45,7 @@ public class IntervalComputerFactory {
                 return new IntervalComputerConstantAfter(pair);
             }
             return new IntervalComputerAfterWithDeltaExpr(pair);
-        }
-        else if (method == DatetimeMethodEnum.COINCIDES) {
+        } else if (method == DatetimeMethodEnum.COINCIDES) {
             if (parameters.length == 0) {
                 return new IntervalComputerCoincidesNoParam();
             }
@@ -56,8 +54,7 @@ public class IntervalComputerFactory {
                 return new IntervalComputerConstantCoincides(pair);
             }
             return new IntervalComputerCoincidesWithDeltaExpr(pair);
-        }
-        else if (method == DatetimeMethodEnum.DURING || method == DatetimeMethodEnum.INCLUDES) {
+        } else if (method == DatetimeMethodEnum.DURING || method == DatetimeMethodEnum.INCLUDES) {
             if (parameters.length == 0) {
                 if (method == DatetimeMethodEnum.DURING) {
                     return new IntervalComputerDuringNoParam();
@@ -72,36 +69,31 @@ public class IntervalComputerFactory {
                 return new IntervalComputerDuringAndIncludesMinMax(method == DatetimeMethodEnum.DURING, pair.getStart().getEvaluator(), pair.getEnd().getEvaluator());
             }
             return new IntervalComputerDuringMinMaxStartEnd(method == DatetimeMethodEnum.DURING, getEvaluators(expressions, timeAbacus));
-        }
-        else if (method == DatetimeMethodEnum.FINISHES) {
+        } else if (method == DatetimeMethodEnum.FINISHES) {
             if (parameters.length == 0) {
                 return new IntervalComputerFinishesNoParam();
             }
             validateConstantThreshold("finishes", parameters[0]);
             return new IntervalComputerFinishesThreshold(parameters[0].getEvaluator());
-        }
-        else if (method == DatetimeMethodEnum.FINISHEDBY) {
+        } else if (method == DatetimeMethodEnum.FINISHEDBY) {
             if (parameters.length == 0) {
                 return new IntervalComputerFinishedByNoParam();
             }
             validateConstantThreshold("finishedby", parameters[0]);
             return new IntervalComputerFinishedByThreshold(parameters[0].getEvaluator());
-        }
-        else if (method == DatetimeMethodEnum.MEETS) {
+        } else if (method == DatetimeMethodEnum.MEETS) {
             if (parameters.length == 0) {
                 return new IntervalComputerMeetsNoParam();
             }
             validateConstantThreshold("meets", parameters[0]);
             return new IntervalComputerMeetsThreshold(parameters[0].getEvaluator());
-        }
-        else if (method == DatetimeMethodEnum.METBY) {
+        } else if (method == DatetimeMethodEnum.METBY) {
             if (parameters.length == 0) {
                 return new IntervalComputerMetByNoParam();
             }
             validateConstantThreshold("metBy", parameters[0]);
             return new IntervalComputerMetByThreshold(parameters[0].getEvaluator());
-        }
-        else if (method == DatetimeMethodEnum.OVERLAPS || method == DatetimeMethodEnum.OVERLAPPEDBY) {
+        } else if (method == DatetimeMethodEnum.OVERLAPS || method == DatetimeMethodEnum.OVERLAPPEDBY) {
             if (parameters.length == 0) {
                 if (method == DatetimeMethodEnum.OVERLAPS) {
                     return new IntervalComputerOverlapsNoParam();
@@ -112,15 +104,13 @@ public class IntervalComputerFactory {
                 return new IntervalComputerOverlapsAndByThreshold(method == DatetimeMethodEnum.OVERLAPS, parameters[0].getEvaluator());
             }
             return new IntervalComputerOverlapsAndByMinMax(method == DatetimeMethodEnum.OVERLAPS, parameters[0].getEvaluator(), parameters[1].getEvaluator());
-        }
-        else if (method == DatetimeMethodEnum.STARTS) {
+        } else if (method == DatetimeMethodEnum.STARTS) {
             if (parameters.length == 0) {
                 return new IntervalComputerStartsNoParam();
             }
             validateConstantThreshold("starts", parameters[0]);
             return new IntervalComputerStartsThreshold(parameters[0].getEvaluator());
-        }
-        else if (method == DatetimeMethodEnum.STARTEDBY) {
+        } else if (method == DatetimeMethodEnum.STARTEDBY) {
             if (parameters.length == 0) {
                 return new IntervalComputerStartedByNoParam();
             }
@@ -166,9 +156,8 @@ public class IntervalComputerFactory {
                         }
                     };
                     return new ExprOptionalConstant(eval, l);
-                }
-                // no-month and not constant
-                else {
+                } else {
+                    // no-month and not constant
                     IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                         public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                             double sec = timePeriod.evaluateAsSeconds(eventsPerStream, isNewData, context);
@@ -177,9 +166,7 @@ public class IntervalComputerFactory {
                     };
                     return new ExprOptionalConstant(eval, null);
                 }
-            }
-            // has-month
-            else {
+            } else {
                 // has-month and constant
                 if (exprNode.isConstantResult()) {
                     final ExprTimePeriodEvalDeltaConst timerPeriodConst = timePeriod.constEvaluator(null);
@@ -189,9 +176,8 @@ public class IntervalComputerFactory {
                         }
                     };
                     return new ExprOptionalConstant(eval, null);
-                }
-                // has-month and not constant
-                else {
+                } else {
+                    // has-month and not constant
                     final ExprTimePeriodEvalDeltaNonConst timerPeriodNonConst = timePeriod.nonconstEvaluator();
                     IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                         public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -201,18 +187,16 @@ public class IntervalComputerFactory {
                     return new ExprOptionalConstant(eval, null);
                 }
             }
-        }
-        else if (ExprNodeUtility.isConstantValueExpr(exprNode)) {
+        } else if (ExprNodeUtility.isConstantValueExpr(exprNode)) {
             ExprConstantNode constantNode = (ExprConstantNode) exprNode;
-            final long l = ((Number)constantNode.getConstantValue(null)).longValue();
+            final long l = ((Number) constantNode.getConstantValue(null)).longValue();
             IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                 public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
                     return l;
                 }
             };
             return new ExprOptionalConstant(eval, l);
-        }
-        else {
+        } else {
             final ExprEvaluator evaluator = exprNode.getExprEvaluator();
             IntervalDeltaExprEvaluator eval = new IntervalDeltaExprEvaluator() {
                 public long evaluate(long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
@@ -257,8 +241,7 @@ public class IntervalComputerFactory {
             long rangeEndDelta = finish.evaluate(rightStart, eventsPerStream, newData, context);
             if (rangeStartDelta > rangeEndDelta) {
                 return IntervalComputerConstantAfter.computeInternal(leftStart, leftEnd, rightStart, rightEnd, rangeEndDelta, rangeStartDelta);
-            }
-            else {
+            } else {
                 return IntervalComputerConstantAfter.computeInternal(leftStart, leftEnd, rightStart, rightEnd, rangeStartDelta, rangeEndDelta);
             }
         }
@@ -305,8 +288,7 @@ public class IntervalComputerFactory {
             long rangeEndDelta = finish.evaluate(leftEnd, eventsPerStream, newData, context);
             if (rangeStartDelta > rangeEndDelta) {
                 return IntervalComputerConstantBefore.computeInternal(leftStart, leftEnd, rightStart, rangeEndDelta, rangeStartDelta);
-            }
-            else {
+            } else {
                 return IntervalComputerConstantBefore.computeInternal(leftStart, leftEnd, rightStart, rangeStartDelta, rangeEndDelta);
             }
         }
@@ -341,7 +323,7 @@ public class IntervalComputerFactory {
 
         public static Boolean computeInternal(long left, long leftEnd, long right, long rightEnd, long startThreshold, long endThreshold) {
             return Math.abs(left - right) <= startThreshold &&
-                   Math.abs(leftEnd - rightEnd) <= endThreshold;
+                    Math.abs(leftEnd - rightEnd) <= endThreshold;
         }
     }
 
@@ -416,8 +398,7 @@ public class IntervalComputerFactory {
 
                 long deltaEnd = rightEnd - leftEnd;
                 return !(deltaEnd <= 0 || deltaEnd > thresholdValue);
-            }
-            else {
+            } else {
                 long deltaStart = rightStart - leftStart;
                 if (deltaStart <= 0 || deltaStart > thresholdValue) {
                     return false;
@@ -446,14 +427,13 @@ public class IntervalComputerFactory {
             long max = maxEval.evaluate(rightEnd, eventsPerStream, newData, context);
             if (during) {
                 return computeInternalDuring(leftStart, leftEnd, rightStart, rightEnd, min, max, min, max);
-            }
-            else {
+            } else {
                 return computeInternalIncludes(leftStart, leftEnd, rightStart, rightEnd, min, max, min, max);
             }
         }
 
         public static boolean computeInternalDuring(long left, long leftEnd, long right, long rightEnd,
-                                        long startMin, long startMax, long endMin, long endMax) {
+                                                    long startMin, long startMax, long endMin, long endMax) {
             if (startMin <= 0) {
                 startMin = 1;
             }
@@ -467,7 +447,7 @@ public class IntervalComputerFactory {
         }
 
         public static boolean computeInternalIncludes(long left, long leftEnd, long right, long rightEnd,
-                                        long startMin, long startMax, long endMin, long endMax) {
+                                                      long startMin, long startMax, long endMin, long endMax) {
             if (startMin <= 0) {
                 startMin = 1;
             }
@@ -506,8 +486,7 @@ public class IntervalComputerFactory {
 
             if (during) {
                 return IntervalComputerDuringAndIncludesMinMax.computeInternalDuring(leftStart, leftEnd, rightStart, rightEnd, minStart, maxStart, minEnd, maxEnd);
-            }
-            else {
+            } else {
                 return IntervalComputerDuringAndIncludesMinMax.computeInternalIncludes(leftStart, leftEnd, rightStart, rightEnd, minStart, maxStart, minEnd, maxEnd);
             }
         }
@@ -655,8 +634,8 @@ public class IntervalComputerFactory {
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
             return (leftStart < rightStart) &&
-                   (rightStart < leftEnd) &&
-                   (leftEnd < rightEnd);
+                    (rightStart < leftEnd) &&
+                    (leftEnd < rightEnd);
         }
     }
 
@@ -675,17 +654,16 @@ public class IntervalComputerFactory {
             if (overlaps) {
                 long threshold = thresholdExpr.evaluate(leftStart, eventsPerStream, newData, context);
                 return computeInternalOverlaps(leftStart, leftEnd, rightStart, rightEnd, 0, threshold);
-            }
-            else {
+            } else {
                 long threshold = thresholdExpr.evaluate(rightStart, eventsPerStream, newData, context);
                 return computeInternalOverlaps(rightStart, rightEnd, leftStart, leftEnd, 0, threshold);
             }
         }
 
         public static boolean computeInternalOverlaps(long left, long leftEnd, long right, long rightEnd, long min, long max) {
-            boolean match = ((left < right) &&
-                   (right < leftEnd) &&
-                   (leftEnd < rightEnd));
+            boolean match = (left < right) &&
+                    (right < leftEnd) &&
+                    (leftEnd < rightEnd);
             if (!match) {
                 return false;
             }
@@ -712,8 +690,7 @@ public class IntervalComputerFactory {
                 long minThreshold = minEval.evaluate(leftStart, eventsPerStream, newData, context);
                 long maxThreshold = maxEval.evaluate(leftEnd, eventsPerStream, newData, context);
                 return IntervalComputerOverlapsAndByThreshold.computeInternalOverlaps(leftStart, leftEnd, rightStart, rightEnd, minThreshold, maxThreshold);
-            }
-            else {
+            } else {
                 long minThreshold = minEval.evaluate(rightStart, eventsPerStream, newData, context);
                 long maxThreshold = maxEval.evaluate(rightEnd, eventsPerStream, newData, context);
                 return IntervalComputerOverlapsAndByThreshold.computeInternalOverlaps(rightStart, rightEnd, leftStart, leftEnd, minThreshold, maxThreshold);
@@ -728,8 +705,8 @@ public class IntervalComputerFactory {
 
         public Boolean compute(long leftStart, long leftEnd, long rightStart, long rightEnd, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext context) {
             return (rightStart < leftStart) &&
-                   (leftStart < rightEnd) &&
-                   (rightEnd < leftEnd);
+                    (leftStart < rightEnd) &&
+                    (rightEnd < leftEnd);
         }
     }
 

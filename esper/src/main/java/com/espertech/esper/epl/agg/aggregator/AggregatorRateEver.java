@@ -27,7 +27,8 @@ public class AggregatorRateEver implements AggregationMethod {
 
     /**
      * Ctor.
-     * @param interval rate interval
+     *
+     * @param interval     rate interval
      * @param timeProvider time
      */
     public AggregatorRateEver(long interval, long oneSecondTime, TimeProvider timeProvider) {
@@ -37,25 +38,21 @@ public class AggregatorRateEver implements AggregationMethod {
         points = new ArrayDeque<Long>();
     }
 
-    public void clear()
-    {
+    public void clear() {
         points.clear();
     }
 
-    public void enter(Object object)
-    {
+    public void enter(Object object) {
         long timestamp = timeProvider.getTime();
         points.add(timestamp);
         removeFromHead(timestamp);
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
         // This is an "ever" aggregator and is designed for use in non-window env
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         if (!points.isEmpty()) {
             long newest = points.getLast();
             removeFromHead(newest);
@@ -71,18 +68,16 @@ public class AggregatorRateEver implements AggregationMethod {
 
     private void removeFromHead(long timestamp) {
         if (points.size() > 1) {
-            while(true) {
+            while (true) {
                 long first = points.getFirst();
                 long delta = timestamp - first;
                 if (delta >= interval) {
                     points.remove();
                     hasLeave = true;
-                }
-                else if (delta == interval) {
+                } else if (delta == interval) {
                     hasLeave = true;
                     break;
-                }
-                else {
+                } else {
                     break;
                 }
                 if (points.isEmpty()) {

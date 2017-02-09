@@ -17,40 +17,31 @@ import java.util.List;
 /**
  * Pattern matching utility.
  */
-public class StringPatternSetUtil
-{
+public class StringPatternSetUtil {
     /**
      * Executes a seriers of include/exclude patterns against a match string,
      * returning the last pattern match result as boolean in/out.
+     *
      * @param defaultValue the default value if there are no patterns or no matches change the value
-     * @param patterns to match against, true in the pair for include, false for exclude
-     * @param literal to match
+     * @param patterns     to match against, true in the pair for include, false for exclude
+     * @param literal      to match
      * @return true for included, false for excluded
      */
-    public static Boolean evaluate(boolean defaultValue, List<Pair<StringPatternSet, Boolean>> patterns, String literal)
-    {
+    public static Boolean evaluate(boolean defaultValue, List<Pair<StringPatternSet, Boolean>> patterns, String literal) {
         boolean result = defaultValue;
 
-        for (Pair<StringPatternSet, Boolean> item : patterns)
-        {
-            if (result)
-            {
-                if (!item.getSecond())
-                {
+        for (Pair<StringPatternSet, Boolean> item : patterns) {
+            if (result) {
+                if (!item.getSecond()) {
                     boolean testResult = item.getFirst().match(literal);
-                    if (testResult)
-                    {
+                    if (testResult) {
                         result = false;
                     }
                 }
-            }
-            else
-            {
-                if (item.getSecond())
-                {
+            } else {
+                if (item.getSecond()) {
                     boolean testResult = item.getFirst().match(literal);
-                    if (testResult)
-                    {
+                    if (testResult) {
                         result = true;
                     }
                 }

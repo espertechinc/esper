@@ -21,25 +21,19 @@ public class AvroFieldUtil {
                 return null;
             }
             return new AvroFieldDescriptor(field, false, false, false);
-        }
-
-        else if (property instanceof IndexedProperty) {
+        } else if (property instanceof IndexedProperty) {
             Schema.Field field = fieldSchema.getField(property.getPropertyNameAtomic());
             if (field == null || field.schema().getType() != Schema.Type.ARRAY) {
                 return null;
             }
             return new AvroFieldDescriptor(field, false, true, false);
-        }
-
-        else if (property instanceof MappedProperty) {
+        } else if (property instanceof MappedProperty) {
             Schema.Field field = fieldSchema.getField(property.getPropertyNameAtomic());
             if (field == null || field.schema().getType() != Schema.Type.MAP) {
                 return null;
             }
             return new AvroFieldDescriptor(field, false, false, true);
-        }
-
-        else if (property instanceof DynamicProperty) {
+        } else if (property instanceof DynamicProperty) {
             Schema.Field field = fieldSchema.getField(property.getPropertyNameAtomic());
             return new AvroFieldDescriptor(field, true, property instanceof DynamicIndexedProperty, property instanceof DynamicMappedProperty);
         }
@@ -59,8 +53,7 @@ public class AvroFieldUtil {
                     return null;
                 }
                 current = currentField.schema();
-            }
-            else if (levelProperty instanceof IndexedProperty) {
+            } else if (levelProperty instanceof IndexedProperty) {
                 if (current.getType() != Schema.Type.RECORD) {
                     return null;
                 }
@@ -69,8 +62,7 @@ public class AvroFieldUtil {
                     return null;
                 }
                 current = currentField.schema().getElementType();
-            }
-            else if (levelProperty instanceof MappedProperty){
+            } else if (levelProperty instanceof MappedProperty) {
                 if (current.getType() != Schema.Type.RECORD) {
                     return null;
                 }
@@ -79,8 +71,7 @@ public class AvroFieldUtil {
                     return null;
                 }
                 current = currentField.schema().getValueType();
-            }
-            else if (levelProperty instanceof DynamicProperty){
+            } else if (levelProperty instanceof DynamicProperty) {
                 dynamic = true;
                 currentField = fieldSchema.getField(levelProperty.getPropertyNameAtomic());
                 if (currentField == null) {

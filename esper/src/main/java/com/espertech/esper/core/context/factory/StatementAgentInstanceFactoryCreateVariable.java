@@ -16,7 +16,6 @@ import com.espertech.esper.core.context.mgr.ContextPropertyRegistryImpl;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.core.start.EPStatementStartMethodHelperAssignExpr;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -50,8 +49,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
         this.eventType = eventType;
     }
 
-    public StatementAgentInstanceFactoryCreateVariableResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryCreateVariableResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         StopCallback stopCallback = new StopCallback() {
             public void stop() {
                 services.getVariableService().deallocateVariableState(variableMetaData.getVariableName(), agentInstanceContext.getAgentInstanceId());
@@ -63,8 +61,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
 
         services.getVariableService().registerCallback(createDesc.getVariableName(), agentInstanceContext.getAgentInstanceId(), createView);
         statementContext.getStatementStopService().addSubscriber(new StatementStopCallback() {
-            public void statementStopped()
-            {
+            public void statementStopped() {
                 services.getVariableService().unregisterCallback(createDesc.getVariableName(), 0, createView);
             }
         });
@@ -72,7 +69,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
         // Create result set processor, use wildcard selection
         statementSpec.getSelectClauseSpec().setSelectExprList(new SelectClauseElementWildcard());
         statementSpec.setSelectStreamDirEnum(SelectClauseStreamSelectorEnum.RSTREAM_ISTREAM_BOTH);
-        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[] {createView.getEventType()}, new String[] {"create_variable"}, new boolean[] {true}, services.getEngineURI(), false);
+        StreamTypeService typeService = new StreamTypeServiceImpl(new EventType[]{createView.getEventType()}, new String[]{"create_variable"}, new boolean[]{true}, services.getEngineURI(), false);
         OutputProcessViewBase outputViewBase;
         try {
             ResultSetProcessorFactoryDesc resultSetProcessorPrototype = ResultSetProcessorFactoryFactory.getProcessorPrototype(
@@ -83,8 +80,7 @@ public class StatementAgentInstanceFactoryCreateVariable extends StatementAgentI
             OutputProcessViewFactory outputViewFactory = OutputProcessViewFactoryFactory.make(statementSpec, services.getInternalEventRouter(), agentInstanceContext.getStatementContext(), resultSetProcessor.getResultEventType(), null, services.getTableService(), resultSetProcessorPrototype.getResultSetProcessorFactory().getResultSetProcessorType(), services.getResultSetProcessorHelperFactory(), services.getStatementVariableRefService());
             outputViewBase = outputViewFactory.makeView(resultSetProcessor, agentInstanceContext);
             createView.addView(outputViewBase);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             throw new EPException("Unexpected exception in create-variable context allocation: " + ex.getMessage(), ex);
         }
 

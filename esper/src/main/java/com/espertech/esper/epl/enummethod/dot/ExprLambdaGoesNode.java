@@ -19,13 +19,11 @@ import java.util.List;
 /**
  * Represents the case-when-then-else control flow function is an expression tree.
  */
-public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, ExprDeclaredOrLambdaNode
-{
+public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, ExprDeclaredOrLambdaNode {
     private static final long serialVersionUID = 5551755641199945138L;
     private List<String> goesToNames;
 
-    public ExprLambdaGoesNode(List<String> goesToNames)
-    {
+    public ExprLambdaGoesNode(List<String> goesToNames) {
         this.goesToNames = goesToNames;
     }
 
@@ -37,8 +35,7 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, E
         return goesToNames;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
@@ -46,23 +43,19 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, E
         throw new UnsupportedOperationException();
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return null;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean equalsNode(ExprNode node_)
-    {
+    public boolean equalsNode(ExprNode node) {
         return false;
     }
 

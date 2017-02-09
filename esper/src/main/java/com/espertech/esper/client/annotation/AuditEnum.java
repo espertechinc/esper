@@ -10,16 +10,14 @@
  */
 package com.espertech.esper.client.annotation;
 
-import com.espertech.esper.epl.annotation.AnnotationUtil;
-
 import java.lang.annotation.Annotation;
+import java.util.Locale;
 
 /**
  * Enumeration of audit values. Since audits may be a comma-separate list in a single @Audit annotation
  * they are listed as enumeration values here.
  */
-public enum AuditEnum
-{
+public enum AuditEnum {
     /**
      * For use with property audit.
      */
@@ -93,23 +91,23 @@ public enum AuditEnum
     private final String value;
     private final String prettyPrintText;
 
-    private AuditEnum(String value)
-    {
-        this.value = value.toUpperCase();
-        this.prettyPrintText = value.toLowerCase();
+    private AuditEnum(String auditInput) {
+        this.value = auditInput.toUpperCase(Locale.ENGLISH);
+        this.prettyPrintText = auditInput.toLowerCase(Locale.ENGLISH);
     }
 
     /**
      * Returns the constant.
+     *
      * @return constant
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
      * Returns text used for the category of the audit log item.
+     *
      * @return category name
      */
     public String getPrettyPrintText() {
@@ -118,20 +116,17 @@ public enum AuditEnum
 
     /**
      * Check if the hint is present in the annotations provided.
+     *
      * @param annotations the annotations to inspect
      * @return indicator
      */
-    public Audit getAudit(Annotation[] annotations)
-    {
-        if (annotations == null)
-        {
+    public Audit getAudit(Annotation[] annotations) {
+        if (annotations == null) {
             return null;
         }
 
-        for (Annotation annotation : annotations)
-        {
-            if (!(annotation instanceof Audit))
-            {
+        for (Annotation annotation : annotations) {
+            if (!(annotation instanceof Audit)) {
                 continue;
             }
 
@@ -149,23 +144,22 @@ public enum AuditEnum
         return null;
     }
 
-    private static boolean isListed(String list, String lookedForValue) {
+    private static boolean isListed(String list, String lookedForValueInput) {
         if (list == null) {
             return false;
         }
 
-        lookedForValue = lookedForValue.trim().toUpperCase();
-        list = list.trim().toUpperCase();
+        String lookedForValue = lookedForValueInput.trim().toUpperCase(Locale.ENGLISH);
+        list = list.trim().toUpperCase(Locale.ENGLISH);
 
-        if (list.toUpperCase().equals(lookedForValue)) {
+        if (list.toUpperCase(Locale.ENGLISH).equals(lookedForValue)) {
             return true;
         }
 
         String[] items = list.split(",");
         for (String item : items) {
-            String listItem = item.trim().toUpperCase();
-            if (listItem.equals(lookedForValue))
-            {
+            String listItem = item.trim().toUpperCase(Locale.ENGLISH);
+            if (listItem.equals(lookedForValue)) {
                 return true;
             }
         }

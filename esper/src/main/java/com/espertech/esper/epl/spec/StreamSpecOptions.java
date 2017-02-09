@@ -21,8 +21,7 @@ import java.io.Serializable;
  * Implementation classes for views and patterns add additional information defining the
  * stream of events.
  */
-public class StreamSpecOptions implements MetaDefItem, Serializable
-{
+public class StreamSpecOptions implements MetaDefItem, Serializable {
     private static final long serialVersionUID = 0L;
 
     private final boolean isUnidirectional;
@@ -32,8 +31,7 @@ public class StreamSpecOptions implements MetaDefItem, Serializable
     /**
      * Ctor, sets all options off.
      */
-    public StreamSpecOptions()
-    {
+    public StreamSpecOptions() {
         isUnidirectional = false;
         isRetainUnion = false;
         isRetainIntersection = false;
@@ -41,14 +39,13 @@ public class StreamSpecOptions implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param isUnidirectional - true to indicate a unidirectional stream in a join, applicable for joins
-     * @param isRetainUnion - for retaining the union of multiple data windows
+     *
+     * @param isUnidirectional     - true to indicate a unidirectional stream in a join, applicable for joins
+     * @param isRetainUnion        - for retaining the union of multiple data windows
      * @param isRetainIntersection - for retaining the intersection of multiple data windows
      */
-    public StreamSpecOptions(boolean isUnidirectional, boolean isRetainUnion, boolean isRetainIntersection)
-    {
-        if (isRetainUnion && isRetainIntersection)
-        {
+    public StreamSpecOptions(boolean isUnidirectional, boolean isRetainUnion, boolean isRetainIntersection) {
+        if (isRetainUnion && isRetainIntersection) {
             throw new IllegalArgumentException("Invalid retain flags");
         }
         this.isUnidirectional = isUnidirectional;
@@ -58,28 +55,28 @@ public class StreamSpecOptions implements MetaDefItem, Serializable
 
     /**
      * Indicator for retaining the union of multiple expiry policies.
+     *
      * @return true for retain union
      */
-    public boolean isRetainUnion()
-    {
+    public boolean isRetainUnion() {
         return isRetainUnion;
     }
 
     /**
      * Indicator for retaining the intersection of multiple expiry policies.
+     *
      * @return true for retain intersection
      */
-    public boolean isRetainIntersection()
-    {
+    public boolean isRetainIntersection() {
         return isRetainIntersection;
     }
 
     /**
      * Returns true to indicate a unidirectional stream in a join, applicable for joins.
+     *
      * @return indicator whether the stream is unidirectional in a join
      */
-    public boolean isUnidirectional()
-    {
+    public boolean isUnidirectional() {
         return isUnidirectional;
     }
 }

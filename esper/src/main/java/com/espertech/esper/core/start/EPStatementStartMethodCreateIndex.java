@@ -40,8 +40,7 @@ import com.espertech.esper.view.ViewableDefaultImpl;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBase {
     public EPStatementStartMethodCreateIndex(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }
@@ -64,8 +63,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
         // for tables we add the index to metadata
         if (tableMetadata != null) {
             services.getTableService().validateAddIndex(statementContext.getStatementName(), tableMetadata, spec.getIndexName(), imk);
-        }
-        else {
+        } else {
             namedWindowProcessor.validateAddIndex(statementContext.getStatementName(), spec.getIndexName(), imk);
         }
 
@@ -84,8 +82,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
                     finalTableService.removeIndexReferencesStmtMayRemoveIndex(finalStatementName, tableMetadata);
                 }
             });
-        }
-        else {
+        } else {
             destroyMethod.addCallback(new DestroyCallback() {
                 public void destroy() {
                     namedWindowProcessor.removeIndexReferencesStmtMayRemoveIndex(imk, finalStatementName);
@@ -98,7 +95,10 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
             ContextMergeView mergeView = new ContextMergeView(indexedEventType);
             ContextManagedStatementCreateIndexDesc statement = new ContextManagedStatementCreateIndexDesc(statementSpec, statementContext, mergeView, contextFactory);
             services.getContextManagementService().addStatement(statementSpec.getOptionalContextName(), statement, isRecoveringResilient);
-            stopMethod = new EPStatementStopMethod() {public void stop() {}};
+            stopMethod = new EPStatementStopMethod() {
+                public void stop() {
+                }
+            };
 
             final ContextManagementService contextManagementService = services.getContextManagementService();
             destroyMethod.addCallback(new DestroyCallback() {
@@ -106,14 +106,12 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
                     contextManagementService.destroyedStatement(statementSpec.getOptionalContextName(), statementContext.getStatementName(), statementContext.getStatementId());
                 }
             });
-        }
-        else {
+        } else {
             AgentInstanceContext defaultAgentInstanceContext = getDefaultAgentInstanceContext(statementContext);
             StatementAgentInstanceFactoryCreateIndexResult result;
             try {
                 result = contextFactory.newContext(defaultAgentInstanceContext, isRecoveringResilient);
-            }
-            catch (EPException ex) {
+            } catch (EPException ex) {
                 if (ex.getCause() instanceof ExprValidationException) {
                     throw (ExprValidationException) ex.getCause();
                 }
@@ -135,8 +133,7 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
 
         if (tableMetadata != null) {
             services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), tableMetadata.getTableName());
-        }
-        else {
+        } else {
             services.getStatementVariableRefService().addReferences(statementContext.getStatementName(), namedWindowProcessor.getNamedWindowType().getName());
         }
 

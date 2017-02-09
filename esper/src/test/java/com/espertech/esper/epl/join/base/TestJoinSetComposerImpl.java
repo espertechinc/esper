@@ -27,20 +27,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class TestJoinSetComposerImpl extends TestCase
-{
+public class TestJoinSetComposerImpl extends TestCase {
     private JoinSetComposerImpl joinSetComposerImpl;
     private EventBean[] indexedEventOne, indexedEventTwo, newEventOne, newEventTwo;
     private UnindexedEventTable indexLeft;
     private UnindexedEventTable indexRight;
 
-    public void setUp()
-    {
-        indexedEventOne = SupportEventBeanFactory.makeEvents(new String[] { "s1_1", "s1_2"});
-        indexedEventTwo = SupportEventBeanFactory.makeEvents(new String[] { "s2_1", "s2_2"});
+    public void setUp() {
+        indexedEventOne = SupportEventBeanFactory.makeEvents(new String[]{"s1_1", "s1_2"});
+        indexedEventTwo = SupportEventBeanFactory.makeEvents(new String[]{"s2_1", "s2_2"});
 
-        newEventOne = SupportEventBeanFactory.makeEvents(new String[] { "s1_3"});
-        newEventTwo = SupportEventBeanFactory.makeEvents(new String[] { "s2_3"});
+        newEventOne = SupportEventBeanFactory.makeEvents(new String[]{"s1_3"});
+        newEventTwo = SupportEventBeanFactory.makeEvents(new String[]{"s2_3"});
 
         indexLeft = new UnindexedEventTableImpl(1);
         indexLeft.add(indexedEventOne);
@@ -53,22 +51,21 @@ public class TestJoinSetComposerImpl extends TestCase
         queryStrategies[0] = new ExecNodeQueryStrategy(0, 2, lookupLeft);
         queryStrategies[1] = new ExecNodeQueryStrategy(1, 2, lookupRight);
 
-        Map<TableLookupIndexReqKey,EventTable>[] indexes = new Map[2];
-        indexes[0] = new HashMap<TableLookupIndexReqKey,EventTable>();
-        indexes[1] = new HashMap<TableLookupIndexReqKey,EventTable>();
+        Map<TableLookupIndexReqKey, EventTable>[] indexes = new Map[2];
+        indexes[0] = new HashMap<TableLookupIndexReqKey, EventTable>();
+        indexes[1] = new HashMap<TableLookupIndexReqKey, EventTable>();
         indexes[0].put(new TableLookupIndexReqKey("idxLeft"), indexLeft);
         indexes[1].put(new TableLookupIndexReqKey("idxLeft"), indexRight);
 
         joinSetComposerImpl = new JoinSetComposerImpl(true, indexes, queryStrategies, false, null, true);
     }
 
-    public void testJoin()
-    {
+    public void testJoin() {
         // Should return all possible combinations, not matching performed, remember: duplicate pairs have been removed
         UniformPair<Set<MultiKey<EventBean>>> result = joinSetComposerImpl.join(
-                new EventBean[][] {newEventOne, newEventTwo},                 // new left and right
-                new EventBean[][] {new EventBean[] {indexedEventOne[0]}, new EventBean[] {indexedEventTwo[1]}} // old left and right
-                ,null);
+                new EventBean[][]{newEventOne, newEventTwo},                 // new left and right
+                new EventBean[][]{new EventBean[]{indexedEventOne[0]}, new EventBean[]{indexedEventTwo[1]}} // old left and right
+                , null);
 
         assertEquals(3, result.getFirst().size());      // check old events joined
         String eventStringText = toString(result.getSecond());
@@ -84,13 +81,11 @@ public class TestJoinSetComposerImpl extends TestCase
         assertTrue(eventStringText.contains("s1_2|s2_3"));
     }
 
-    private String toString(Set<MultiKey<EventBean>> events)
-    {
+    private String toString(Set<MultiKey<EventBean>> events) {
         String delimiter = "";
         StringBuilder buf = new StringBuilder();
 
-        for (MultiKey<EventBean> key : events)
-        {
+        for (MultiKey<EventBean> key : events) {
             buf.append(delimiter);
             buf.append(toString(key.getArray()));
             delimiter = ",";
@@ -98,12 +93,10 @@ public class TestJoinSetComposerImpl extends TestCase
         return buf.toString();
     }
 
-    private String toString(EventBean[] events)
-    {
+    private String toString(EventBean[] events) {
         String delimiter = "";
         StringBuilder buf = new StringBuilder();
-        for (EventBean theEvent : events)
-        {
+        for (EventBean theEvent : events) {
             buf.append(delimiter);
             buf.append(((SupportBean) theEvent.getUnderlying()).getTheString());
             delimiter = "|";

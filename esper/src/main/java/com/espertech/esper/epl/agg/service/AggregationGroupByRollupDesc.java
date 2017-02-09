@@ -37,8 +37,7 @@ public class AggregationGroupByRollupDesc {
             countNumber++;
             if (mki.length == 0) {
                 levels.add(new AggregationGroupByRollupLevel(countNumber, -1, null));
-            }
-            else {
+            } else {
                 levels.add(new AggregationGroupByRollupLevel(countNumber, countOffset, mki));
                 countOffset++;
             }

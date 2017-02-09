@@ -19,10 +19,9 @@ import java.lang.annotation.Annotation;
 import java.util.Set;
 
 /**
- * Analysis result for joins. 
+ * Analysis result for joins.
  */
-public class StreamJoinAnalysisResult
-{
+public class StreamJoinAnalysisResult {
     private final int numStreams;
     private boolean[] isUnidirectionalInd;
     private boolean[] isUnidirectionalNonDriving;
@@ -36,10 +35,10 @@ public class StreamJoinAnalysisResult
 
     /**
      * Ctor.
+     *
      * @param numStreams number of streams
      */
-    public StreamJoinAnalysisResult(int numStreams)
-    {
+    public StreamJoinAnalysisResult(int numStreams) {
         this.numStreams = numStreams;
         isPureSelfJoin = false;
         isUnidirectionalInd = new boolean[numStreams];
@@ -53,100 +52,100 @@ public class StreamJoinAnalysisResult
 
     /**
      * Sets flag.
+     *
      * @param index index
      */
-    public void setUnidirectionalInd(int index)
-    {
+    public void setUnidirectionalInd(int index) {
         isUnidirectionalInd[index] = true;
     }
 
     /**
      * Sets flag.
+     *
      * @param index index
      */
-    public void setUnidirectionalNonDriving(int index)
-    {
+    public void setUnidirectionalNonDriving(int index) {
         isUnidirectionalNonDriving[index] = true;
     }
 
     /**
      * Sets self-join.
+     *
      * @param pureSelfJoin if a self join
      */
-    public void setPureSelfJoin(boolean pureSelfJoin)
-    {
+    public void setPureSelfJoin(boolean pureSelfJoin) {
         isPureSelfJoin = pureSelfJoin;
     }
 
     /**
      * Sets child view flags.
+     *
      * @param index to set
      */
-    public void setHasChildViews(int index)
-    {
+    public void setHasChildViews(int index) {
         this.hasChildViews[index] = true;
     }
 
     /**
      * Returns unidirection ind.
+     *
      * @return unidirectional flags
      */
-    public boolean[] getUnidirectionalInd()
-    {
+    public boolean[] getUnidirectionalInd() {
         return isUnidirectionalInd;
     }
 
     /**
      * Returns non-driving unidirectional streams when partial self-joins.
+     *
      * @return indicators
      */
-    public boolean[] getUnidirectionalNonDriving()
-    {
+    public boolean[] getUnidirectionalNonDriving() {
         return isUnidirectionalNonDriving;
     }
 
     /**
      * True for self-join.
+     *
      * @return self-join
      */
-    public boolean isPureSelfJoin()
-    {
+    public boolean isPureSelfJoin() {
         return isPureSelfJoin;
     }
 
     /**
      * Returns child view flags.
+     *
      * @return flags
      */
-    public boolean[] getHasChildViews()
-    {
+    public boolean[] getHasChildViews() {
         return hasChildViews;
     }
 
     /**
      * Return named window flags.
+     *
      * @return flags
      */
-    public boolean[] getNamedWindow()
-    {
+    public boolean[] getNamedWindow() {
         return isNamedWindow;
     }
 
     /**
      * Sets named window flag
+     *
      * @param index to set
      */
-    public void setNamedWindow(int index)
-    {
+    public void setNamedWindow(int index) {
         isNamedWindow[index] = true;
     }
 
     /**
      * Returns streams num.
+     *
      * @return num
      */
-    public int getNumStreams()
-    {
+    public int getNumStreams() {
         return numStreams;
     }
 

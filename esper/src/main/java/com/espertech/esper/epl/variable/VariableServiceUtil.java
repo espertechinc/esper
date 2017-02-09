@@ -11,8 +11,8 @@
 package com.espertech.esper.epl.variable;
 
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.util.JavaClassHelper;
 
 public class VariableServiceUtil {
@@ -28,10 +28,9 @@ public class VariableServiceUtil {
             if (variableMetaData.getContextPartitionName() != null) {
                 return "Variable '" + variableMetaData.getVariableName() + "' defined for use with context '" + variableMetaData.getContextPartitionName() + "' can only be accessed within that context";
             }
-        }
-        else {
+        } else {
             if (variableMetaData.getContextPartitionName() != null &&
-                !variableMetaData.getContextPartitionName().equals(optionalStatementContextName)) {
+                    !variableMetaData.getContextPartitionName().equals(optionalStatementContextName)) {
                 return "Variable '" + variableMetaData.getVariableName() + "' defined for use with context '" + variableMetaData.getContextPartitionName() + "' is not available for use with context '" + optionalStatementContextName + "'";
             }
         }
@@ -46,16 +45,14 @@ public class VariableServiceUtil {
     }
 
     public static void checkAlreadyDeclaredVariable(String variableName, VariableService variableService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (variableService.getVariableMetaData(variableName) != null) {
             throw new ExprValidationException(getAlreadyDeclaredEx(variableName, false));
         }
     }
 
     public static void checkAlreadyDeclaredTable(String tableName, TableService tableService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (tableService.getTableMetadata(tableName) != null) {
             throw new ExprValidationException(getAlreadyDeclaredEx(tableName, true));
         }
@@ -64,8 +61,7 @@ public class VariableServiceUtil {
     public static String getAlreadyDeclaredEx(String variableOrTableName, boolean isTable) {
         if (isTable) {
             return "Table by name '" + variableOrTableName + "' has already been created";
-        }
-        else {
+        } else {
             return "Variable by name '" + variableOrTableName + "' has already been created";
         }
     }

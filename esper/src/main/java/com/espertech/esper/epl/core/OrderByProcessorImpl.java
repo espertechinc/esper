@@ -231,7 +231,7 @@ public class OrderByProcessorImpl implements OrderByProcessor {
     }
 
     private Object[] generateGroupKeys(EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        Object keys[] = new Object[generatingEvents.length];
+        Object[] keys = new Object[generatingEvents.length];
 
         int count = 0;
         for (EventBean[] eventsPerStream : generatingEvents) {

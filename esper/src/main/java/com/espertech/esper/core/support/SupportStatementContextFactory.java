@@ -17,11 +17,10 @@ import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContex
 import com.espertech.esper.core.service.*;
 import com.espertech.esper.core.service.multimatch.MultiMatchHandlerFactoryImpl;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
+import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.spec.PluggableObjectRegistryImpl;
@@ -41,8 +40,7 @@ import com.espertech.esper.view.ViewServicePreviousFactoryImpl;
 
 import java.net.URI;
 
-public class SupportStatementContextFactory
-{
+public class SupportStatementContextFactory {
     public static ExprEvaluatorContext makeEvaluatorContext() {
         return new ExprEvaluatorContextStatement(null, false);
     }
@@ -65,20 +63,17 @@ public class SupportStatementContextFactory
         return new AgentInstanceViewFactoryChainContext(agentInstanceContext, false, null, null);
     }
 
-    public static ViewFactoryContext makeViewContext()
-    {
+    public static ViewFactoryContext makeViewContext() {
         StatementContext stmtContext = makeContext();
         return new ViewFactoryContext(stmtContext, 1, "somenamespacetest", "somenametest", false, -1, false);
     }
 
-    public static StatementContext makeContext()
-    {
+    public static StatementContext makeContext() {
         SupportSchedulingServiceImpl sched = new SupportSchedulingServiceImpl();
         return makeContext(sched);
     }
 
-    public static StatementContext makeContext(int statementId)
-    {
+    public static StatementContext makeContext(int statementId) {
         SupportSchedulingServiceImpl sched = new SupportSchedulingServiceImpl();
         return makeContext(statementId, sched);
     }
@@ -87,8 +82,7 @@ public class SupportStatementContextFactory
         return makeContext(1, stub);
     }
 
-    public static StatementContext makeContext(int statementId, SchedulingService stub)
-    {
+    public static StatementContext makeContext(int statementId, SchedulingService stub) {
         Configuration config = new Configuration();
         config.getEngineDefaults().getViewResources().setAllowMultipleExpiryPolicies(true);
 
@@ -110,7 +104,7 @@ public class SupportStatementContextFactory
                 stub,
                 new ScheduleBucket(1),
                 new EPStatementHandle(statementId, "name1", "epl1", StatementType.SELECT, "epl1", false, null, 0, false, false, new MultiMatchHandlerFactoryImpl().getDefaultHandler()),
-                new ViewResolutionServiceImpl(new PluggableObjectRegistryImpl(new PluggableObjectCollection[] {ViewEnumHelper.getBuiltinViews()}), null, null),
+                new ViewResolutionServiceImpl(new PluggableObjectRegistryImpl(new PluggableObjectCollection[]{ViewEnumHelper.getBuiltinViews()}), null, null),
                 new PatternObjectResolutionServiceImpl(null),
                 null,
                 null,

@@ -62,26 +62,21 @@ public class FileSourceFactory implements DataFlowOperatorFactory {
         AdapterInputSource inputSource;
         if (adapterInputSource != null) {
             inputSource = adapterInputSource;
-        }
-        else if (file != null) {
+        } else if (file != null) {
             if (classpathFile) {
                 inputSource = new AdapterInputSource(file);
-            }
-            else {
+            } else {
                 inputSource = new AdapterInputSource(new File(file));
             }
-        }
-        else {
+        } else {
             throw new EPException("Failed to find required parameter, either the file or the adapterInputSource parameter is required");
         }
 
         if (format == null || format.equals("csv")) {
             return new FileSourceCSV(inputSource, hasHeaderLine, hasTitleLine, numLoops, propertyNames, dateFormat);
-        }
-        else if (format.equals("line")) {
+        } else if (format.equals("line")) {
             return new FileSourceLineUnformatted(inputSource, file, propertyNameLine, propertyNameFile);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unrecognized file format '" + format + "'");
         }
     }

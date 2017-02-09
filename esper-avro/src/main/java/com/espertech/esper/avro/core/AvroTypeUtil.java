@@ -35,23 +35,17 @@ public class AvroTypeUtil {
             Schema.Type type = Schema.Type.values()[ord];
             if (type == Schema.Type.INT) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(int.class);
-            }
-            else if (type == Schema.Type.LONG) {
+            } else if (type == Schema.Type.LONG) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(long.class);
-            }
-            else if (type == Schema.Type.DOUBLE) {
+            } else if (type == Schema.Type.DOUBLE) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(double.class);
-            }
-            else if (type == Schema.Type.FLOAT) {
+            } else if (type == Schema.Type.FLOAT) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(float.class);
-            }
-            else if (type == Schema.Type.BOOLEAN) {
+            } else if (type == Schema.Type.BOOLEAN) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(boolean.class);
-            }
-            else if (type == Schema.Type.BYTES) {
+            } else if (type == Schema.Type.BYTES) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(ByteBuffer.class);
-            }
-            else if (type == Schema.Type.NULL) {
+            } else if (type == Schema.Type.NULL) {
                 TYPES_PER_AVRO_ORD[ord] = new AvroTypeDesc(null);
             }
         }
@@ -64,8 +58,7 @@ public class AvroTypeUtil {
             for (Schema memberSchema : fieldSchema.getTypes()) {
                 if (memberSchema.getType() == Schema.Type.NULL) {
                     hasNull = true;
-                }
-                else {
+                } else {
                     Class type = propertyType(memberSchema);
                     if (type != null) {
                         unionTypes.add(type);
@@ -91,23 +84,17 @@ public class AvroTypeUtil {
                 return Number.class;
             }
             return Object.class;
-        }
-        else if (fieldSchema.getType() == Schema.Type.RECORD) {
+        } else if (fieldSchema.getType() == Schema.Type.RECORD) {
             return GenericData.Record.class;
-        }
-        else if (fieldSchema.getType() == Schema.Type.ARRAY) {
+        } else if (fieldSchema.getType() == Schema.Type.ARRAY) {
             return Collection.class;
-        }
-        else if (fieldSchema.getType() == Schema.Type.MAP) {
+        } else if (fieldSchema.getType() == Schema.Type.MAP) {
             return Map.class;
-        }
-        else if (fieldSchema.getType() == Schema.Type.FIXED) {
+        } else if (fieldSchema.getType() == Schema.Type.FIXED) {
             return GenericFixed.class;
-        }
-        else if (fieldSchema.getType() == Schema.Type.ENUM) {
+        } else if (fieldSchema.getType() == Schema.Type.ENUM) {
             return GenericEnumSymbol.class;
-        }
-        else if (fieldSchema.getType() == Schema.Type.STRING) {
+        } else if (fieldSchema.getType() == Schema.Type.STRING) {
             String prop = fieldSchema.getProp(PROP_JAVA_STRING_KEY);
             return prop == null || !prop.equals(PROP_JAVA_STRING_VALUE) ? CharSequence.class : String.class;
         }

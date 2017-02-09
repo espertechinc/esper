@@ -20,10 +20,8 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class TestNStreamOuterQueryPlanBuilder extends TestCase
-{
-    public void testGraphOuterJoins() throws Exception
-    {
+public class TestNStreamOuterQueryPlanBuilder extends TestCase {
+    public void testGraphOuterJoins() throws Exception {
         OuterJoinDesc[] descList = new OuterJoinDesc[2];
         descList[0] = SupportOuterJoinDescFactory.makeDesc("intPrimitive", "s0", "intBoxed", "s1", OuterJoinType.RIGHT);
         descList[1] = SupportOuterJoinDescFactory.makeDesc("simpleProperty", "s2", "theString", "s1", OuterJoinType.FULL);
@@ -31,8 +29,8 @@ public class TestNStreamOuterQueryPlanBuilder extends TestCase
         OuterInnerDirectionalGraph graph = NStreamOuterQueryPlanBuilder.graphOuterJoins(3, descList);
 
         // assert the inner and outer streams for each stream
-        assertInners(new int[][] {null,  {0, 2},  {1}}, graph);
-        assertOuters(new int[][] {{1}, {2}, {1}}, graph);
+        assertInners(new int[][]{null, {0, 2}, {1}}, graph);
+        assertOuters(new int[][]{{1}, {2}, {1}}, graph);
 
         descList[0] = SupportOuterJoinDescFactory.makeDesc("intPrimitive", "s1", "intBoxed", "s0", OuterJoinType.LEFT);
         descList[1] = SupportOuterJoinDescFactory.makeDesc("simpleProperty", "s2", "theString", "s1", OuterJoinType.RIGHT);
@@ -40,22 +38,18 @@ public class TestNStreamOuterQueryPlanBuilder extends TestCase
         graph = NStreamOuterQueryPlanBuilder.graphOuterJoins(3, descList);
 
         // assert the inner and outer streams for each stream
-        assertInners(new int[][] {{1}, null, {1}}, graph);
-        assertOuters(new int[][] {null, {0, 2}, null}, graph);
+        assertInners(new int[][]{{1}, null, {1}}, graph);
+        assertOuters(new int[][]{null, {0, 2}, null}, graph);
 
-        try
-        {
+        try {
             NStreamOuterQueryPlanBuilder.graphOuterJoins(3, new OuterJoinDesc[0]);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
-    public void testRecursiveBuild() throws Exception
-    {
+    public void testRecursiveBuild() throws Exception {
         int streamNum = 2;
         QueryGraph queryGraph = new QueryGraph(6, null, false);
         OuterInnerDirectionalGraph outerInnerGraph = new OuterInnerDirectionalGraph(6);
@@ -99,55 +93,45 @@ public class TestNStreamOuterQueryPlanBuilder extends TestCase
 
     }
 
-    public void testVerifyJoinedPerStream()
-    {
+    public void testVerifyJoinedPerStream() {
         // stream relationships not filled
-        tryVerifyJoinedPerStream(convert(new int[][] {{ 1, 2}} ));
+        tryVerifyJoinedPerStream(convert(new int[][]{{1, 2}}));
 
         // stream relationships duplicates
-        tryVerifyJoinedPerStream(convert(new int[][] {{1, 2}, {1}, {}}));
-        tryVerifyJoinedPerStream(convert(new int[][] {{1, 2}, {}, {2}}));
+        tryVerifyJoinedPerStream(convert(new int[][]{{1, 2}, {1}, {}}));
+        tryVerifyJoinedPerStream(convert(new int[][]{{1, 2}, {}, {2}}));
 
         // stream relationships out of range
-        tryVerifyJoinedPerStream(convert(new int[][] {{1, 3}, {}, {}}));
+        tryVerifyJoinedPerStream(convert(new int[][]{{1, 3}, {}, {}}));
 
         // stream relationships missing stream
-        tryVerifyJoinedPerStream(convert(new int[][] {{1}, {}, {}}));
+        tryVerifyJoinedPerStream(convert(new int[][]{{1}, {}, {}}));
     }
 
-    private void tryVerifyJoinedPerStream(Map<Integer, int[]> map)
-    {
-        try
-        {
+    private void tryVerifyJoinedPerStream(Map<Integer, int[]> map) {
+        try {
             NStreamOuterQueryPlanBuilder.verifyJoinedPerStream(0, map);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
-    private void assertInners(int[][] innersPerStream, OuterInnerDirectionalGraph graph)
-    {
-        for (int i = 0; i < innersPerStream.length; i++)
-        {
+    private void assertInners(int[][] innersPerStream, OuterInnerDirectionalGraph graph) {
+        for (int i = 0; i < innersPerStream.length; i++) {
             EPAssertionUtil.assertEqualsAnyOrder(innersPerStream[i], graph.getInner(i));
         }
     }
-    private void assertOuters(int[][] outersPerStream, OuterInnerDirectionalGraph graph)
-    {
-        for (int i = 0; i < outersPerStream.length; i++)
-        {
+
+    private void assertOuters(int[][] outersPerStream, OuterInnerDirectionalGraph graph) {
+        for (int i = 0; i < outersPerStream.length; i++) {
             EPAssertionUtil.assertEqualsAnyOrder(outersPerStream[i], graph.getOuter(i));
         }
     }
 
-    private Map<Integer, int[]> convert(int[][] array)
-    {
+    private Map<Integer, int[]> convert(int[][] array) {
         Map<Integer, int[]> result = new HashMap<Integer, int[]>();
-        for (int i = 0; i < array.length; i++)
-        {
+        for (int i = 0; i < array.length; i++) {
             result.put(i, array[i]);
         }
         return result;

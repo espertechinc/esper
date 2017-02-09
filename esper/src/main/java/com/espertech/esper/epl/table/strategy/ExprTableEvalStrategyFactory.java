@@ -24,8 +24,7 @@ public class ExprTableEvalStrategyFactory {
     public static ExprEvaluator getTableAccessEvalStrategy(ExprNode exprNode, String tableName, Integer streamNum, TableMetadataColumnAggregation agg) {
         if (!agg.getFactory().isAccessAggregation()) {
             return new ExprTableExprEvaluatorMethod(exprNode, tableName, agg.getColumnName(), streamNum, agg.getFactory().getResultType(), agg.getMethodOffset());
-        }
-        else {
+        } else {
             return new ExprTableExprEvaluatorAccess(exprNode, tableName, agg.getColumnName(), streamNum, agg.getFactory().getResultType(), agg.getAccessAccessorSlotPair(), agg.getOptionalEventType());
         }
     }
@@ -38,8 +37,7 @@ public class ExprTableEvalStrategyFactory {
         if (provider instanceof TableAndLockProviderUngrouped) {
             ungrouped = (TableAndLockProviderUngrouped) provider;
             grouped = null;
-        }
-        else {
+        } else {
             grouped = (TableAndLockProviderGrouped) provider;
             ungrouped = null;
         }

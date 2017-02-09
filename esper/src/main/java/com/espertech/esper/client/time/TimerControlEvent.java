@@ -13,15 +13,13 @@ package com.espertech.esper.client.time;
 /**
  * Event for controlling clocking, i.e. to enable and disable external clocking.
  */
-public final class TimerControlEvent extends TimerEvent
-{
+public final class TimerControlEvent extends TimerEvent {
     private static final long serialVersionUID = -5204351618041414666L;
-    
+
     /**
      * Constants controlling the clocking.
      */
-    public enum ClockType
-    {
+    public enum ClockType {
         /**
          * For external clocking.
          */
@@ -36,19 +34,19 @@ public final class TimerControlEvent extends TimerEvent
 
     /**
      * Constructor takes a clocking type as parameter.
+     *
      * @param clockType for internal or external clocking
      */
-    public TimerControlEvent(final ClockType clockType)
-    {
+    public TimerControlEvent(final ClockType clockType) {
         this.clockType = clockType;
     }
 
     /**
      * Returns clocking type.
+     *
      * @return clocking type
      */
-    public ClockType getClockType()
-    {
+    public ClockType getClockType() {
         return clockType;
     }
 }

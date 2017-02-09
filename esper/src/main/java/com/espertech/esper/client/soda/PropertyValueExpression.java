@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Expression returning a property value.
  */
-public class PropertyValueExpression extends ExpressionBase
-{
+public class PropertyValueExpression extends ExpressionBase {
     private String propertyName;
     private static final long serialVersionUID = -1736666647795932881L;
 
@@ -27,40 +26,37 @@ public class PropertyValueExpression extends ExpressionBase
     }
 
     /**
-
      * Ctor.
+     *
      * @param propertyName is the name of the property
      */
-    public PropertyValueExpression(String propertyName)
-    {
+    public PropertyValueExpression(String propertyName) {
         this.propertyName = propertyName.trim();
     }
 
     /**
      * Returns the property name.
+     *
      * @return name of the property
      */
-    public String getPropertyName()
-    {
+    public String getPropertyName() {
         return propertyName;
     }
 
     /**
      * Sets the property name.
+     *
      * @param propertyName name of the property
      */
-    public void setPropertyName(String propertyName)
-    {
+    public void setPropertyName(String propertyName) {
         this.propertyName = propertyName;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write(propertyName);
     }
 }

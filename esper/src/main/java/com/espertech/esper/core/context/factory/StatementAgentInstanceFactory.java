@@ -14,6 +14,8 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 
 public interface StatementAgentInstanceFactory {
     public StatementAgentInstanceFactoryResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient);
+
     public void assignExpressions(StatementAgentInstanceFactoryResult result);
+
     public void unassignExpressions();
 }

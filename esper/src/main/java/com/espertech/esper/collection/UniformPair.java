@@ -19,87 +19,81 @@ import java.io.Serializable;
  * the objects that form the pair equal, ie. first pair first object equals (.equals) the second pair first object,
  * and the first pair second object equals the second pair second object.
  */
-public final class UniformPair<T> implements MetaDefItem, Serializable
-{
+public final class UniformPair<T> implements MetaDefItem, Serializable {
     private T first;
     private T second;
     private static final long serialVersionUID = -4974328655156016696L;
 
     /**
      * Construct pair of values.
-     * @param first is the first value
+     *
+     * @param first  is the first value
      * @param second is the second value
      */
-    public UniformPair(final T first, final T second)
-    {
+    public UniformPair(final T first, final T second) {
         this.first = first;
         this.second = second;
     }
 
     /**
      * Returns first value within pair.
+     *
      * @return first value within pair
      */
-    public T getFirst()
-    {
+    public T getFirst() {
         return first;
     }
 
     /**
      * Returns second value within pair.
+     *
      * @return second value within pair
      */
-    public T getSecond()
-    {
+    public T getSecond() {
         return second;
     }
 
     /**
      * Set the first value of the pair to a new value.
+     *
      * @param first value to be set
      */
-    public void setFirst(T first)
-    {
+    public void setFirst(T first) {
         this.first = first;
     }
 
     /**
      * Set the second value of the pair to a new value.
+     *
      * @param second value to be set
      */
-    public void setSecond(T second)
-    {
+    public void setSecond(T second) {
         this.second = second;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof UniformPair))
-        {
+        if (!(obj instanceof UniformPair)) {
             return false;
         }
 
         UniformPair other = (UniformPair) obj;
 
-        return  (first == null ?
+        return (first == null ?
                 other.first == null : first.equals(other.first)) &&
                 (second == null ?
-                other.second == null : second.equals(other.second));
+                        other.second == null : second.equals(other.second));
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return (first == null ? 0 : first.hashCode()) ^
                 (second == null ? 0 : second.hashCode());
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "Pair [" + first + ':' + second + ']';
     }
 }

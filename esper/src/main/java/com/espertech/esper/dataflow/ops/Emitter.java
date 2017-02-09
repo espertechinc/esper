@@ -13,8 +13,8 @@ package com.espertech.esper.dataflow.ops;
 import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 import com.espertech.esper.dataflow.annotations.DataFlowContext;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
-import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.annotations.DataFlowOpProvideSignal;
+import com.espertech.esper.dataflow.annotations.DataFlowOperator;
 import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 
 @DataFlowOperator

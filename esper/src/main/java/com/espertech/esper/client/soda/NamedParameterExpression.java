@@ -15,20 +15,19 @@ import java.io.StringWriter;
 /**
  * Named parameter expression of the form "name:expression" or "name:(expression, expression...)"
  */
-public class NamedParameterExpression extends ExpressionBase
-{
+public class NamedParameterExpression extends ExpressionBase {
     private static final long serialVersionUID = 3556889255505413412L;
     private String name;
 
     /**
      * Ctor.
      */
-    public NamedParameterExpression()
-    {
+    public NamedParameterExpression() {
     }
 
     /**
      * Ctor.
+     *
      * @param name substitution parameter name
      */
     public NamedParameterExpression(String name) {
@@ -37,6 +36,7 @@ public class NamedParameterExpression extends ExpressionBase
 
     /**
      * Returns the parameter name.
+     *
      * @return name
      */
     public String getName() {
@@ -45,14 +45,14 @@ public class NamedParameterExpression extends ExpressionBase
 
     /**
      * Sets the parameter name.
+     *
      * @param name name to set
      */
     public void setName(String name) {
         this.name = name;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
@@ -64,8 +64,7 @@ public class NamedParameterExpression extends ExpressionBase
         }
 
         String delimiter = "";
-        for (Expression expr : this.getChildren())
-        {
+        for (Expression expr : this.getChildren()) {
             writer.write(delimiter);
             expr.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             delimiter = ",";

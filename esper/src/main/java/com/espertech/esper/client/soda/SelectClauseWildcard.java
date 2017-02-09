@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Represents a wildcard in the select-clause.
  */
-public class SelectClauseWildcard implements SelectClauseElement
-{
+public class SelectClauseWildcard implements SelectClauseElement {
     private static final long serialVersionUID = 7047821688887542393L;
 
     /**
@@ -27,10 +26,10 @@ public class SelectClauseWildcard implements SelectClauseElement
 
     /**
      * Renders the element in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPLElement(StringWriter writer)
-    {
+    public void toEPLElement(StringWriter writer) {
         writer.write("*");
     }
 }

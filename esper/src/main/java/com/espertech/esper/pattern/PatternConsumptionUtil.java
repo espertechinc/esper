@@ -26,14 +26,12 @@ public class PatternConsumptionUtil {
         for (Object aPartial : partial) {
             if (aPartial == null) {
                 continue;
-            }
-            else if (aPartial instanceof EventBean) {
+            } else if (aPartial instanceof EventBean) {
                 if (matchEvent.contains(aPartial)) {
                     quit = true;
                     break;
                 }
-            }
-            else if (aPartial instanceof EventBean[]) {
+            } else if (aPartial instanceof EventBean[]) {
                 EventBean[] events = (EventBean[]) aPartial;
                 for (EventBean event : events) {
                     if (matchEvent.contains(event)) {

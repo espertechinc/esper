@@ -45,7 +45,7 @@ public class MetricsRegistry {
     /**
      * Creates a new {@link MetricsRegistry} with the given {@link Clock} instance.
      *
-     * @param clock    a {@link Clock} instance
+     * @param clock a {@link Clock} instance
      */
     public MetricsRegistry(Clock clock) {
         this.clock = clock;
@@ -202,7 +202,7 @@ public class MetricsRegistry {
     public Histogram newHistogram(MetricName metricName,
                                   boolean biased) {
         return getOrAdd(metricName,
-                        new Histogram(biased ? Histogram.SampleType.BIASED : Histogram.SampleType.UNIFORM));
+                new Histogram(biased ? Histogram.SampleType.BIASED : Histogram.SampleType.UNIFORM));
     }
 
     /**
@@ -338,7 +338,7 @@ public class MetricsRegistry {
             return (Timer) existingMetric;
         }
         return getOrAdd(metricName,
-                        new Timer(newMeterTickThreadPool(), durationUnit, rateUnit, clock));
+                new Timer(newMeterTickThreadPool(), durationUnit, rateUnit, clock));
     }
 
     /**
@@ -371,7 +371,7 @@ public class MetricsRegistry {
                 new TreeMap<String, SortedMap<MetricName, Metric>>();
         for (Map.Entry<MetricName, Metric> entry : metrics.entrySet()) {
             final String qualifiedTypeName = entry.getKey().getGroup() + "." + entry.getKey()
-                                                                                    .getType();
+                    .getType();
             if (predicate.matches(entry.getKey(), entry.getValue())) {
                 final String scopedName;
                 if (entry.getKey().hasScope()) {

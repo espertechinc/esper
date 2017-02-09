@@ -23,31 +23,26 @@ import java.util.Set;
 /**
  * Index lookup strategy into a poll-based cache result.
  */
-public class HistoricalIndexLookupStrategyIndexSingle implements HistoricalIndexLookupStrategy
-{
+public class HistoricalIndexLookupStrategyIndexSingle implements HistoricalIndexLookupStrategy {
     private final EventBean[] eventsPerStream;
     private final ExprEvaluator evaluator;
     private final int lookupStream;
 
-    public HistoricalIndexLookupStrategyIndexSingle(int lookupStream, QueryGraphValueEntryHashKeyed hashKey)
-    {
+    public HistoricalIndexLookupStrategyIndexSingle(int lookupStream, QueryGraphValueEntryHashKeyed hashKey) {
         this.eventsPerStream = new EventBean[lookupStream + 1];
         this.evaluator = hashKey.getKeyExpr().getExprEvaluator();
         this.lookupStream = lookupStream;
     }
 
-    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext exprEvaluatorContext) {
         // The table may not be indexed as the cache may not actively cache, in which case indexing doesn't makes sense
-        if (indexTable[0] instanceof PropertyIndexedEventTableSingle)
-        {
+        if (indexTable[0] instanceof PropertyIndexedEventTableSingle) {
             PropertyIndexedEventTableSingle index = (PropertyIndexedEventTableSingle) indexTable[0];
             eventsPerStream[lookupStream] = lookupEvent;
             Object key = evaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
 
             Set<EventBean> events = index.lookup(key);
-            if (events != null)
-            {
+            if (events != null) {
                 return events.iterator();
             }
             return null;

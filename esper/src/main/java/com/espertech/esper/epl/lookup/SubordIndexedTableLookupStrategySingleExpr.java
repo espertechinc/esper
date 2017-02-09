@@ -22,8 +22,7 @@ import java.util.Set;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategySingleExpr implements SubordTableLookupStrategy
-{
+public class SubordIndexedTableLookupStrategySingleExpr implements SubordTableLookupStrategy {
     /**
      * Stream numbers to get key values from.
      */
@@ -41,22 +40,23 @@ public class SubordIndexedTableLookupStrategySingleExpr implements SubordTableLo
     public SubordIndexedTableLookupStrategySingleExpr(int streamCountOuter, ExprEvaluator evaluator, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc) {
         this.evaluator = evaluator;
         this.index = index;
-        this.events = new EventBean[streamCountOuter+1];
+        this.events = new EventBean[streamCountOuter + 1];
         this.strategyDesc = strategyDesc;
     }
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexSubordLookup(this, index, null); }
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
+        }
 
         Object key = getKey(eventsPerStream, context);
 
@@ -70,12 +70,12 @@ public class SubordIndexedTableLookupStrategySingleExpr implements SubordTableLo
 
     /**
      * Get the index lookup keys.
+     *
      * @param eventsPerStream is the events for each stream
-     * @param context context
+     * @param context         context
      * @return key object
      */
-    protected Object getKey(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
+    protected Object getKey(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
         return evaluator.evaluate(events, true, context);
     }

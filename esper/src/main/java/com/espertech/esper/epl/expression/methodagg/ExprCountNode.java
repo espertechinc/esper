@@ -20,23 +20,21 @@ import com.espertech.esper.epl.expression.core.ExprWildcard;
 /**
  * Represents the count(...) and count(*) and count(distinct ...) aggregate function is an expression tree.
  */
-public class ExprCountNode extends ExprAggregateNodeBase
-{
+public class ExprCountNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 1859320277242087598L;
 
     private boolean hasFilter;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprCountNode(boolean distinct)
-    {
+    public ExprCountNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (positionalParams.length > 2 || positionalParams.length == 0) {
             throw makeExceptionExpectedParamNum(1, 2);
         }
@@ -47,18 +45,15 @@ public class ExprCountNode extends ExprAggregateNodeBase
         if (positionalParams.length == 1 && positionalParams[0] instanceof ExprWildcard) {
             validateNotDistinct();
             // defaults
-        }
-        else if (positionalParams.length == 1) {
+        } else if (positionalParams.length == 1) {
             childType = positionalParams[0].getExprEvaluator().getType();
             ignoreNulls = true;
-        }
-        else if (positionalParams.length == 2) {
+        } else if (positionalParams.length == 2) {
             hasFilter = true;
             if (!(positionalParams[0] instanceof ExprWildcard)) {
                 childType = positionalParams[0].getExprEvaluator().getType();
                 ignoreNulls = true;
-            }
-            else {
+            } else {
                 validateNotDistinct();
             }
             super.validateFilter(positionalParams[1].getExprEvaluator());
@@ -66,8 +61,7 @@ public class ExprCountNode extends ExprAggregateNodeBase
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeCount(validationContext.getStatementExtensionSvcContext(), this, ignoreNulls, childType);
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "count";
     }
 
@@ -75,10 +69,8 @@ public class ExprCountNode extends ExprAggregateNodeBase
         return hasFilter;
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprCountNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprCountNode)) {
             return false;
         }
 

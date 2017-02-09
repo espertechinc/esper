@@ -6,8 +6,7 @@ import com.espertech.esper.plugin.PluginLoaderInitContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LRMovingSamplePlugin implements PluginLoader
-{
+public class LRMovingSamplePlugin implements PluginLoader {
     private static final Logger log = LoggerFactory.getLogger(LRMovingSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
@@ -16,20 +15,15 @@ public class LRMovingSamplePlugin implements PluginLoader
     private LRMovingSimMain main;
     private Thread simulationThread;
 
-    public void init(PluginLoaderInitContext context)
-    {
-        if (context.getProperties().getProperty(ENGINE_URI) != null)
-        {
+    public void init(PluginLoaderInitContext context) {
+        if (context.getProperties().getProperty(ENGINE_URI) != null) {
             engineURI = context.getProperties().getProperty(ENGINE_URI);
-        }
-        else
-        {
+        } else {
             engineURI = context.getEpServiceProvider().getURI();
         }
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         log.info("Starting RFIDAssetZone-example for engine URI '" + engineURI + "'.");
 
         try {
@@ -37,24 +31,21 @@ public class LRMovingSamplePlugin implements PluginLoader
             simulationThread = new Thread(main, this.getClass().getName() + "-simulator");
             simulationThread.setDaemon(true);
             simulationThread.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error starting RFIDAssetZone example: " + e.getMessage());
         }
 
         log.info("RFIDAssetZone-example started.");
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         if (main != null) {
             EPServiceProviderManager.getProvider(engineURI).getEPAdministrator().destroyAllStatements();
         }
         try {
             simulationThread.interrupt();
             simulationThread.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.info("Interrupted", e);
         }
         main = null;

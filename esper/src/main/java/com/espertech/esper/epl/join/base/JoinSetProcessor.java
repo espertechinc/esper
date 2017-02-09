@@ -19,12 +19,12 @@ import java.util.Set;
 /**
  * Processes a join result set constisting of sets of tuples of events.
  */
-public interface JoinSetProcessor
-{
+public interface JoinSetProcessor {
     /**
      * Process join result set.
-     * @param newEvents - set of event tuples representing new data
-     * @param oldEvents - set of event tuples representing old data
+     *
+     * @param newEvents            - set of event tuples representing new data
+     * @param oldEvents            - set of event tuples representing old data
      * @param exprEvaluatorContext expression evaluation context
      */
     public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext);

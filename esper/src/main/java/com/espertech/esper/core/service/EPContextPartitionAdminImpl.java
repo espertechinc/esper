@@ -16,8 +16,7 @@ import com.espertech.esper.core.context.util.ContextPartitionImportCallback;
 
 import java.util.*;
 
-public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI
-{
+public class EPContextPartitionAdminImpl implements EPContextPartitionAdminSPI {
     private final EPServicesContext services;
 
     public EPContextPartitionAdminImpl(EPServicesContext services) {

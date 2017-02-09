@@ -18,30 +18,25 @@ import java.util.LinkedHashMap;
 /**
  * Specification of matches available.
  */
-public class MatchEventSpec
-{
+public class MatchEventSpec {
     private final LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes;
     private final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
 
-    public MatchEventSpec(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes)
-    {
+    public MatchEventSpec(LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes) {
         this.taggedEventTypes = taggedEventTypes;
         this.arrayEventTypes = arrayEventTypes;
     }
 
-    public MatchEventSpec()
-    {
+    public MatchEventSpec() {
         this.taggedEventTypes = new LinkedHashMap<String, Pair<EventType, String>>();
         this.arrayEventTypes = new LinkedHashMap<String, Pair<EventType, String>>();
     }
 
-    public LinkedHashMap<String, Pair<EventType, String>> getArrayEventTypes()
-    {
+    public LinkedHashMap<String, Pair<EventType, String>> getArrayEventTypes() {
         return arrayEventTypes;
     }
 
-    public LinkedHashMap<String, Pair<EventType, String>> getTaggedEventTypes()
-    {
+    public LinkedHashMap<String, Pair<EventType, String>> getTaggedEventTypes() {
         return taggedEventTypes;
     }
 }

@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 /**
  * Type of schedule item.
  */
-public enum ScheduleItemType
-{
+public enum ScheduleItemType {
     /**
      * Wildcard means any value.
      */
@@ -37,17 +36,16 @@ public enum ScheduleItemType
 
     private String syntax;
 
-    private ScheduleItemType(String s)
-    {
+    private ScheduleItemType(String s) {
         this.syntax = s;
     }
 
     /**
      * Returns the syntax string.
+     *
      * @return syntax
      */
-    public String getSyntax()
-    {
+    public String getSyntax() {
         return syntax;
     }
 }

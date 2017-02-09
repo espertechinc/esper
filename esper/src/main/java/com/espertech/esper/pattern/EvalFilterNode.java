@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class represents a filter of events in the evaluation tree representing any event expressions.
  */
-public class EvalFilterNode extends EvalNodeBase
-{
+public class EvalFilterNode extends EvalNodeBase {
     protected final EvalFilterFactoryNode factoryNode;
     private final FilterValueSetParam[][] addendumFilters;
 
@@ -27,8 +26,7 @@ public class EvalFilterNode extends EvalNodeBase
         this.factoryNode = factoryNode;
         if (context.getAgentInstanceContext().getAgentInstanceFilterProxy() != null) {
             this.addendumFilters = context.getAgentInstanceContext().getAgentInstanceFilterProxy().getAddendumFilters(factoryNode.getFilterSpec());
-        }
-        else {
+        } else {
             this.addendumFilters = null;
         }
     }
@@ -42,8 +40,7 @@ public class EvalFilterNode extends EvalNodeBase
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         if (getContext().getConsumptionHandler() != null) {
             return new EvalFilterStateNodeConsumeImpl(parentNode, this);
         }

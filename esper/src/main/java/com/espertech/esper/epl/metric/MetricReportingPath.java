@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Global boolean for enabling and disable metrics reporting.
  */
-public class MetricReportingPath
-{
+public class MetricReportingPath {
     private static final Logger log = LoggerFactory.getLogger(MetricReportingPath.class);
 
     /**
@@ -27,16 +26,13 @@ public class MetricReportingPath
 
     /**
      * Sets execution path debug logging.
+     *
      * @param metricsEnabled true if metric reporting should be enabled
      */
-    public static void setMetricsEnabled(boolean metricsEnabled)
-    {
-        if (metricsEnabled)
-        {
+    public static void setMetricsEnabled(boolean metricsEnabled) {
+        if (metricsEnabled) {
             log.info("Metrics reporting has been enabled, this setting takes affect for all engine instances at engine initialization time.");
-        }
-        else
-        {
+        } else {
             log.debug("Metrics reporting has been disabled, this setting takes affect for all engine instances at engine initialization time.");
         }
         isMetricsEnabled = metricsEnabled;

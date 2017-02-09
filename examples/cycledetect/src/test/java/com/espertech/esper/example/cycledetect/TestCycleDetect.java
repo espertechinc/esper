@@ -12,10 +12,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-public class TestCycleDetect extends TestCase
-{
-    public void testAlert() throws Exception
-    {
+public class TestCycleDetect extends TestCase {
+    public void testAlert() throws Exception {
         CycleDetectMain main = new CycleDetectMain();
 
         EPServiceProvider engine = main.getEngine();
@@ -30,7 +28,7 @@ public class TestCycleDetect extends TestCase
 
         engine.getEPRuntime().sendEvent(new TransactionEvent("C", "D", 30));
         Collection vertices = (Collection) listener.assertOneGetNewAndReset().get("out");
-        EPAssertionUtil.assertEqualsAnyOrder(vertices.toArray(), new Object[] {"A", "B", "C", "D"});
+        EPAssertionUtil.assertEqualsAnyOrder(vertices.toArray(), new Object[]{"A", "B", "C", "D"});
     }
 
     public void testCycleDetection() {
@@ -70,7 +68,7 @@ public class TestCycleDetect extends TestCase
             Set<String> cycleVertices = cycleDetector.findCycles();
 
             // Loop through vertices trying to find disjoint cycles.
-            while (! cycleVertices.isEmpty()) {
+            while (!cycleVertices.isEmpty()) {
                 System.out.println("Cycle:");
 
                 // Get a vertex involved in a cycle.

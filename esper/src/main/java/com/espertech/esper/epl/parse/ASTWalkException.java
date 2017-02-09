@@ -17,8 +17,7 @@ import org.antlr.v4.runtime.Token;
 /**
  * This exception is thrown to indicate a problem in statement creation.
  */
-public class ASTWalkException extends RuntimeException
-{
+public class ASTWalkException extends RuntimeException {
     private static final long serialVersionUID = -339092618059394426L;
 
     public static ASTWalkException from(String message, Exception ex) {
@@ -43,6 +42,7 @@ public class ASTWalkException extends RuntimeException
 
     /**
      * Ctor.
+     *
      * @param message is the error message
      */
     private ASTWalkException(String message) {

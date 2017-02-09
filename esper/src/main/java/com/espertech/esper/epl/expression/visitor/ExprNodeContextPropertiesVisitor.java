@@ -16,17 +16,14 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 /**
  * Visitor that early-exists when it finds a context partition property.
  */
-public class ExprNodeContextPropertiesVisitor implements ExprNodeVisitor
-{
+public class ExprNodeContextPropertiesVisitor implements ExprNodeVisitor {
     private boolean found;
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return !found;
     }
 
-    public void visit(ExprNode exprNode)
-    {
+    public void visit(ExprNode exprNode) {
         if (!(exprNode instanceof ExprContextPropertyNode)) {
             return;
         }

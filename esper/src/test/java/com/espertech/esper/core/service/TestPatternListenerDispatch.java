@@ -10,18 +10,16 @@
  */
 package com.espertech.esper.core.service;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.client.EventBean;
-
-import java.util.Set;
-import java.util.HashSet;
-
 import junit.framework.TestCase;
 
-public class TestPatternListenerDispatch extends TestCase
-{
+import java.util.HashSet;
+import java.util.Set;
+
+public class TestPatternListenerDispatch extends TestCase {
     private PatternListenerDispatch dispatch;
 
     private EventBean eventOne = SupportEventBeanFactory.createObject("a");
@@ -29,15 +27,13 @@ public class TestPatternListenerDispatch extends TestCase
 
     private SupportUpdateListener listener = new SupportUpdateListener();
 
-    public void setUp()
-    {
+    public void setUp() {
         Set<UpdateListener> listeners = new HashSet<UpdateListener>();
         listeners.add(listener);
         dispatch = new PatternListenerDispatch(listeners);
     }
 
-    public void testSingle()
-    {
+    public void testSingle() {
         listener.reset();
 
         assertFalse(dispatch.hasData());
@@ -51,8 +47,7 @@ public class TestPatternListenerDispatch extends TestCase
         assertEquals(eventOne, listener.getLastNewData()[0]);
     }
 
-    public void testTwo()
-    {
+    public void testTwo() {
         listener.reset();
         assertFalse(dispatch.hasData());
 

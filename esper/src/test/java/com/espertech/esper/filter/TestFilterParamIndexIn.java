@@ -22,16 +22,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestFilterParamIndexIn extends TestCase
-{
+public class TestFilterParamIndexIn extends TestCase {
     private SupportEventEvaluator testEvaluator;
     private SupportBean testBean;
     private EventBean testEventBean;
     private EventType testEventType;
     private List<FilterHandle> matchesList;
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvaluator = new SupportEventEvaluator();
         testBean = new SupportBean();
         testEventBean = SupportEventBeanFactory.createObject(testBean);
@@ -39,14 +37,13 @@ public class TestFilterParamIndexIn extends TestCase
         matchesList = new LinkedList<FilterHandle>();
     }
 
-    public void testIndex()
-    {
+    public void testIndex() {
         FilterParamIndexIn index = new FilterParamIndexIn(makeLookupable("longBoxed"), new ReentrantReadWriteLock());
         assertEquals(FilterOperator.IN_LIST_OF_VALUES, index.getFilterOperator());
 
-        MultiKeyUntyped inList = new MultiKeyUntyped(new Object[] {2L, 5L});
+        MultiKeyUntyped inList = new MultiKeyUntyped(new Object[]{2L, 5L});
         index.put(inList, testEvaluator);
-        inList = new MultiKeyUntyped(new Object[] {10L, 5L});
+        inList = new MultiKeyUntyped(new Object[]{10L, 5L});
         index.put(inList, testEvaluator);
 
         verify(index, 1L, 0);
@@ -62,19 +59,15 @@ public class TestFilterParamIndexIn extends TestCase
         assertFalse(index.remove(inList));
         assertEquals(null, index.get(inList));
 
-        try
-        {
+        try {
             index.put("a", testEvaluator);
             assertTrue(false);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // Expected
         }
     }
 
-    private void verify(FilterParamIndexBase index, Long testValue, int numExpected)
-    {
+    private void verify(FilterParamIndexBase index, Long testValue, int numExpected) {
         testBean.setLongBoxed(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());

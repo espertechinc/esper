@@ -13,16 +13,17 @@ package com.espertech.esper.client.annotation;
 /**
  * Annotation for mapping of event-to-value and value-to-event for external data windows.
  */
-public @interface ExternalDWValue
-{
+public @interface ExternalDWValue {
     /**
      * Returns the function name of the function that maps event beans to value objects.
+     *
      * @return event to value mapping function name
      */
     String functionBeanToValue();
 
     /**
      * Returns the function name of the function that maps values to event objects.
+     *
      * @return value to event mapping function name
      */
     String functionValueToBean();

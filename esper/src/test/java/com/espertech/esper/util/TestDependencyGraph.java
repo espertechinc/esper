@@ -13,10 +13,8 @@ package com.espertech.esper.util;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
 
-public class TestDependencyGraph extends TestCase
-{
-    public void testGetRootNodes()
-    {
+public class TestDependencyGraph extends TestCase {
+    public void testGetRootNodes() {
         // 1 needs 3 and 4; 2 need 0
         DependencyGraph graph = new DependencyGraph(5, false);
         graph.addDependency(1, 4);

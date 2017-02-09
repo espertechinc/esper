@@ -26,8 +26,7 @@ import java.util.List;
  * a list of substitution parameters, to be mapped into an internal representation upon
  * creation.
  */
-public class EPPreparedStatementImpl implements EPPreparedStatement, EPOnDemandPreparedQueryParameterized, Serializable
-{
+public class EPPreparedStatementImpl implements EPPreparedStatement, EPOnDemandPreparedQueryParameterized, Serializable {
     private static final long serialVersionUID = 821297634350548600L;
     private final EPStatementObjectModel model;
     private final List<SubstitutionParameterExpressionBase> subParams;
@@ -36,8 +35,9 @@ public class EPPreparedStatementImpl implements EPPreparedStatement, EPOnDemandP
 
     /**
      * Ctor.
-     * @param model is the statement object model
-     * @param subParams is the substitution parameter list
+     *
+     * @param model       is the statement object model
+     * @param subParams   is the substitution parameter list
      * @param optionalEPL the EPL provided if any
      */
     public EPPreparedStatementImpl(EPStatementObjectModel model, List<SubstitutionParameterExpressionBase> subParams, String optionalEPL) {
@@ -63,8 +63,7 @@ public class EPPreparedStatementImpl implements EPPreparedStatement, EPOnDemandP
         }
     }
 
-    public void setObject(int parameterIndex, Object value) throws EPException
-    {
+    public void setObject(int parameterIndex, Object value) throws EPException {
         validateNonEmpty();
         if (subParams.get(0) instanceof SubstitutionParameterExpressionNamed) {
             throw new IllegalArgumentException("Substitution parameters are named, please use setObject(name,...) instead");
@@ -86,10 +85,10 @@ public class EPPreparedStatementImpl implements EPPreparedStatement, EPOnDemandP
 
     /**
      * Returns the statement object model for the prepared statement
+     *
      * @return object model
      */
-    public EPStatementObjectModel getModel()
-    {
+    public EPStatementObjectModel getModel() {
         return model;
     }
 

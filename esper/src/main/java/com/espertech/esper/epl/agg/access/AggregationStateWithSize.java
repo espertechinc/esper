@@ -10,11 +10,11 @@
  */
 package com.espertech.esper.epl.agg.access;
 
-public interface AggregationStateWithSize extends AggregationState
-{
+public interface AggregationStateWithSize extends AggregationState {
     /**
      * Must return the number of events currently held, if applicable.
      * Return -1 if not applicable.
+     *
      * @return number of events
      */
     public int size();

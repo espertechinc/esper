@@ -12,11 +12,11 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.pattern.MatchedEventMapImpl;
 import com.espertech.esper.pattern.MatchedEventMapMeta;
 import com.espertech.esper.supportunit.bean.SupportBean;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.filter.SupportFilterSpecBuilder;
 import com.espertech.esper.util.SimpleNumberCoercer;
@@ -28,32 +28,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-public class TestFilterSpecCompiled extends TestCase
-{
+public class TestFilterSpecCompiled extends TestCase {
     private EventType eventType;
     private String eventTypeName;
 
-    public void setUp()
-    {
+    public void setUp() {
         eventTypeName = SupportBean.class.getName();
         eventType = SupportEventAdapterService.getService().addBeanType(eventTypeName, SupportBean.class, true, true, true);
     }
 
-    public void testEquals()
-    {
-        Object[][] paramList = new Object[][] {
-            { "intPrimitive", FilterOperator.EQUAL, 2, "intBoxed", FilterOperator.EQUAL, 3 },
-            { "intPrimitive", FilterOperator.EQUAL, 3, "intBoxed", FilterOperator.EQUAL, 3 },
-            { "intPrimitive", FilterOperator.EQUAL, 2 },
-            { "intPrimitive", FilterOperator.RANGE_CLOSED, 1, 10 },
-            { "intPrimitive", FilterOperator.EQUAL, 2, "intBoxed", FilterOperator.EQUAL, 3 },
-            { },
-            { },
-            };
+    public void testEquals() {
+        Object[][] paramList = new Object[][]{
+                {"intPrimitive", FilterOperator.EQUAL, 2, "intBoxed", FilterOperator.EQUAL, 3},
+                {"intPrimitive", FilterOperator.EQUAL, 3, "intBoxed", FilterOperator.EQUAL, 3},
+                {"intPrimitive", FilterOperator.EQUAL, 2},
+                {"intPrimitive", FilterOperator.RANGE_CLOSED, 1, 10},
+                {"intPrimitive", FilterOperator.EQUAL, 2, "intBoxed", FilterOperator.EQUAL, 3},
+                {},
+                {},
+        };
 
         Vector<FilterSpecCompiled> specVec = new Vector<FilterSpecCompiled>();
-        for (Object[] param : paramList)
-        {
+        for (Object[] param : paramList) {
             FilterSpecCompiled spec = SupportFilterSpecBuilder.build(eventType, param);
             specVec.add(spec);
         }
@@ -68,18 +64,17 @@ public class TestFilterSpecCompiled extends TestCase
         assertFalse(specVec.get(2).equals(specVec.get(4)));
     }
 
-    public void testGetValueSet()
-    {
+    public void testGetValueSet() {
         List<FilterSpecParam> parameters = SupportFilterSpecBuilder.buildList(eventType, new Object[]
-                                    { "intPrimitive", FilterOperator.EQUAL, 2 });
+                {"intPrimitive", FilterOperator.EQUAL, 2});
         SimpleNumberCoercer numberCoercer = SimpleNumberCoercerFactory.getCoercer(int.class, Double.class);
         parameters.add(new FilterSpecParamEventProp(makeLookupable("doubleBoxed"), FilterOperator.EQUAL, "asName", "doublePrimitive", false, numberCoercer, Double.class, "Test"));
-        FilterSpecCompiled filterSpec = new FilterSpecCompiled(eventType, "SupportBean", new List[] {parameters}, null);
+        FilterSpecCompiled filterSpec = new FilterSpecCompiled(eventType, "SupportBean", new List[]{parameters}, null);
 
         SupportBean eventBean = new SupportBean();
         eventBean.setDoublePrimitive(999.999);
         EventBean theEvent = SupportEventBeanFactory.createObject(eventBean);
-        MatchedEventMap matchedEvents = new MatchedEventMapImpl(new MatchedEventMapMeta(new String[] {"asName"}, false));
+        MatchedEventMap matchedEvents = new MatchedEventMapImpl(new MatchedEventMapMeta(new String[]{"asName"}, false));
         matchedEvents.add(0, theEvent);
         FilterValueSet valueSet = filterSpec.getValueSet(matchedEvents, null, null);
 
@@ -104,8 +99,7 @@ public class TestFilterSpecCompiled extends TestCase
         return new FilterSpecLookupable(fieldName, eventType.getGetter(fieldName), eventType.getPropertyType(fieldName), false);
     }
 
-    public void testPresortParameters()
-    {
+    public void testPresortParameters() {
         FilterSpecCompiled spec = makeFilterValues(
                 "doublePrimitive", FilterOperator.LESS, 1.1,
                 "doubleBoxed", FilterOperator.LESS, 1.1,
@@ -124,8 +118,7 @@ public class TestFilterSpecCompiled extends TestCase
         assertEquals("doubleBoxed", copy.remove().getLookupable().getExpression());
     }
 
-    private FilterSpecCompiled makeFilterValues(Object ... filterSpecArgs)
-    {
+    private FilterSpecCompiled makeFilterValues(Object... filterSpecArgs) {
         return SupportFilterSpecBuilder.build(eventType, filterSpecArgs);
     }
 }

@@ -16,16 +16,14 @@ import com.espertech.esper.epl.expression.core.ExprStreamRefNode;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ExprNodeStreamRequiredVisitor implements ExprNodeVisitor
-{
+public class ExprNodeStreamRequiredVisitor implements ExprNodeVisitor {
     private final Set<Integer> streams;
 
     public ExprNodeStreamRequiredVisitor() {
         this.streams = new HashSet<Integer>();
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         return true;
     }
 

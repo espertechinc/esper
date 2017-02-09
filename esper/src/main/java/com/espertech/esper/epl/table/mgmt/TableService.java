@@ -34,19 +34,34 @@ public interface TableService {
     public final static String INTERNAL_RESERVED_PROPERTY = "internal-reserved";
 
     public String[] getTables();
+
     public TableExprEvaluatorContext getTableExprEvaluatorContext();
+
     public TableMetadata getTableMetadata(String tableName);
+
     public TableStateInstance getState(String name, int agentInstanceId);
+
     public void removeTableIfFound(String tableName);
+
     public ExprTableIdentNode getTableIdentNode(StreamTypeService streamTypeService, String unresolvedPropertyName, String streamOrPropertyName) throws ExprValidationException;
+
     public TableMetadata getTableMetadataFromEventType(EventType type);
-    public Pair<ExprNode,List<ExprChainedSpec>> getTableNodeChainable(StreamTypeService streamTypeService, List<ExprChainedSpec> chainSpec, EngineImportService engineImportService) throws ExprValidationException;
+
+    public Pair<ExprNode, List<ExprChainedSpec>> getTableNodeChainable(StreamTypeService streamTypeService, List<ExprChainedSpec> chainSpec, EngineImportService engineImportService) throws ExprValidationException;
+
     public Collection<Integer> getAgentInstanceIds(String tableName);
+
     public TableUpdateStrategy getTableUpdateStrategy(TableMetadata tableMetadata, EventBeanUpdateHelper updateHelper, boolean isOnMerge) throws ExprValidationException;
+
     public void addTableUpdateStrategyReceiver(TableMetadata tableMetadata, String statementName, TableUpdateStrategyReceiver receiver, EventBeanUpdateHelper updateHelper, boolean isOnMerge);
+
     public void removeTableUpdateStrategyReceivers(TableMetadata tableMetadata, String statementName);
+
     public void validateAddIndex(String createIndexStatementName, TableMetadata tableMetadata, String indexName, IndexMultiKey imk) throws ExprValidationException;
+
     public void removeIndexReferencesStmtMayRemoveIndex(String statementName, TableMetadata tableMetadata);
+
     public TableMetadata addTable(String tableName, String eplExpression, String statementName, Class[] keyTypes, Map<String, TableMetadataColumn> tableColumns, TableStateRowFactory tableStateRowFactory, int numberMethodAggregations, StatementContext statementContext, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataInternalEventToPublic eventToPublic, boolean queryPlanLogging) throws ExprValidationException;
+
     public TableAndLockProvider getStateProvider(String tableName, int agentInstanceId, boolean writesToTables);
 }

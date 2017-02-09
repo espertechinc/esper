@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Route unit for single match.
  */
-public class RouteUnitSingle implements RouteUnitRunnable
-{
+public class RouteUnitSingle implements RouteUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(RouteUnitSingle.class);
 
     private final EPRuntimeImpl epRuntime;
@@ -30,31 +29,27 @@ public class RouteUnitSingle implements RouteUnitRunnable
 
     /**
      * Ctor.
-     * @param epRuntime runtime to process
+     *
+     * @param epRuntime      runtime to process
      * @param handleCallback callback
-     * @param theEvent event
-     * @param filterVersion version of filter
+     * @param theEvent       event
+     * @param filterVersion  version of filter
      */
-    public RouteUnitSingle(EPRuntimeImpl epRuntime, EPStatementHandleCallback handleCallback, EventBean theEvent, long filterVersion)
-    {
+    public RouteUnitSingle(EPRuntimeImpl epRuntime, EPStatementHandleCallback handleCallback, EventBean theEvent, long filterVersion) {
         this.epRuntime = epRuntime;
         this.theEvent = theEvent;
         this.handleCallback = handleCallback;
         this.filterVersion = filterVersion;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             epRuntime.processStatementFilterSingle(handleCallback.getAgentInstanceHandle(), handleCallback, theEvent, filterVersion);
 
             epRuntime.dispatch();
 
             epRuntime.processThreadWorkQueue();
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing route execution: " + e.getMessage(), e);
         }
     }

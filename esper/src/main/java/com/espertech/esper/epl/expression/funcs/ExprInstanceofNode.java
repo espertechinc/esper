@@ -20,15 +20,13 @@ import com.espertech.esper.util.JavaClassHelper;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Represents the INSTANCEOF(a,b,...) function is an expression tree.
  */
-public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator {
     private final String[] classIdentifiers;
 
     private Class[] classes;
@@ -38,80 +36,75 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Ctor.
+     *
      * @param classIdentifiers is a list of type names to check type for
      */
-    public ExprInstanceofNode(String[] classIdentifiers)
-    {
+    public ExprInstanceofNode(String[] classIdentifiers) {
         this.classIdentifiers = classIdentifiers;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 1)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 1) {
             throw new ExprValidationException("Instanceof node must have 1 child expression node supplying the expression to test");
         }
-        if ((classIdentifiers == null) || (classIdentifiers.length == 0))
-        {
+        if ((classIdentifiers == null) || (classIdentifiers.length == 0)) {
             throw new ExprValidationException("Instanceof node must have 1 or more class identifiers to verify type against");
         }
 
         evaluator = this.getChildNodes()[0].getExprEvaluator();
         Set<Class> classList = getClassSet(classIdentifiers, validationContext.getEngineImportService());
-        synchronized(this) {
+        synchronized (this) {
             classes = classList.toArray(new Class[classList.size()]);
         }
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprInstanceof(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprInstanceof(this);
+        }
         Object result = evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (result == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprInstanceof(false);}
+        if (result == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprInstanceof(false);
+            }
             return false;
         }
 
         // return cached value
-        for (Pair<Class, Boolean> pair : resultCache)
-        {
-            if (pair.getFirst() == result.getClass())
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprInstanceof(pair.getSecond());}
+        for (Pair<Class, Boolean> pair : resultCache) {
+            if (pair.getFirst() == result.getClass()) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprInstanceof(pair.getSecond());
+                }
                 return pair.getSecond();
             }
         }
 
         Boolean out = checkAddType(result.getClass());
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprInstanceof(out);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprInstanceof(out);
+        }
         return out;
     }
 
     // Checks type and adds to cache
-    private synchronized Boolean checkAddType(Class type)
-    {
+    private synchronized Boolean checkAddType(Class type) {
         // check again in synchronized block
-        for (Pair<Class, Boolean> pair : resultCache)
-        {
-            if (pair.getFirst() == type)
-            {
+        for (Pair<Class, Boolean> pair : resultCache) {
+            if (pair.getFirst() == type) {
                 return pair.getSecond();
             }
         }
@@ -123,10 +116,8 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
 
         // check type against each class
         boolean fits = false;
-        for (Class clazz : classes)
-        {
-            if (classesToCheck.contains(clazz))
-            {
+        for (Class clazz : classes) {
+            if (classesToCheck.contains(clazz)) {
                 fits = true;
                 break;
             }
@@ -142,8 +133,7 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
         writer.append(",");
 
         String delimiter = "";
-        for (int i = 0; i < classIdentifiers.length; i++)
-        {
+        for (int i = 0; i < classIdentifiers.length; i++) {
             writer.append(delimiter);
             writer.append(classIdentifiers[i]);
             delimiter = ",";
@@ -155,15 +145,12 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprInstanceofNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprInstanceofNode)) {
             return false;
         }
         ExprInstanceofNode other = (ExprInstanceofNode) node;
-        if (Arrays.equals(other.classIdentifiers, classIdentifiers))
-        {
+        if (Arrays.equals(other.classIdentifiers, classIdentifiers)) {
             return true;
         }
         return false;
@@ -171,37 +158,31 @@ public class ExprInstanceofNode extends ExprNodeBase implements ExprEvaluator
 
     /**
      * Returns the list of class names or types to check instance of.
+     *
      * @return class names
      */
-    public String[] getClassIdentifiers()
-    {
+    public String[] getClassIdentifiers() {
         return classIdentifiers;
     }
 
     private Set<Class> getClassSet(String[] classIdentifiers, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Set<Class> classList = new HashSet<Class>();
-        for (String className : classIdentifiers)
-        {
+        for (String className : classIdentifiers) {
             Class clazz;
 
             // try the primitive names including "string"
             clazz = JavaClassHelper.getPrimitiveClassForName(className.trim());
-            if (clazz != null)
-            {
+            if (clazz != null) {
                 classList.add(clazz);
                 classList.add(JavaClassHelper.getBoxedType(clazz));
                 continue;
             }
 
             // try to look up the class, not a primitive type name
-            try
-            {
+            try {
                 clazz = JavaClassHelper.getClassForName(className.trim(), engineImportService.getClassForNameProvider());
-            }
-            catch (ClassNotFoundException e)
-            {
+            } catch (ClassNotFoundException e) {
                 throw new ExprValidationException("Class as listed in instanceof function by name '" + className + "' cannot be loaded", e);
             }
 

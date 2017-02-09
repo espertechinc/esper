@@ -19,8 +19,7 @@ import java.util.List;
 /**
  * Entry holding lookup resource references for use by {@link SubSelectActivationCollection}.
  */
-public class SubSelectStrategyFactoryDesc
-{
+public class SubSelectStrategyFactoryDesc {
     private final SubSelectActivationHolder subSelectActivationHolder;
     private final SubSelectStrategyFactory factory;
     private final AggregationServiceFactoryDesc aggregationServiceFactoryDesc;

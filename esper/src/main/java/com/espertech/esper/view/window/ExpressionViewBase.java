@@ -63,12 +63,11 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
                               AggregationServiceFactoryDesc aggregationServiceFactoryDesc,
                               ObjectArrayEventBean builtinEventProps,
                               Set<String> variableNames,
-                              AgentInstanceViewFactoryChainContext agentInstanceContext)
-    {
+                              AgentInstanceViewFactoryChainContext agentInstanceContext) {
         this.viewUpdatedCollection = viewUpdatedCollection;
         this.expiryExpression = expiryExpression;
         this.builtinEventProps = builtinEventProps;
-        this.eventsPerStream = new EventBean[] {null, builtinEventProps};
+        this.eventsPerStream = new EventBean[]{null, builtinEventProps};
         this.variableNames = variableNames;
         this.agentInstanceContext = agentInstanceContext;
 
@@ -86,18 +85,20 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
             }
 
             ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-                public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-                {
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(ExpressionViewBase.this, getViewName());}
+                public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().qViewScheduledEval(ExpressionViewBase.this, getViewName());
+                    }
                     scheduleCallback();
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aViewScheduledEval();
+                    }
                 }
             };
             scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
             scheduleHandle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
             agentInstanceContext.addTerminationCallback(this);
-        }
-        else {
+        } else {
             scheduleSlot = -1;
             scheduleHandle = null;
         }
@@ -105,21 +106,18 @@ public abstract class ExpressionViewBase extends ViewSupport implements DataWind
         if (aggregationServiceFactoryDesc != null) {
             aggregationService = aggregationServiceFactoryDesc.getAggregationServiceFactory().makeService(agentInstanceContext.getAgentInstanceContext(), agentInstanceContext.getAgentInstanceContext().getStatementContext().getEngineImportService(), false, null);
             aggregateNodes = aggregationServiceFactoryDesc.getExpressions();
-        }
-        else {
+        } else {
             aggregationService = null;
             aggregateNodes = Collections.emptyList();
         }
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The event type is the parent view's event type
         return parent.getEventType();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 

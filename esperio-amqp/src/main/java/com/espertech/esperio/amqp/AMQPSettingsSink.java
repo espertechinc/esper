@@ -10,8 +10,7 @@
  */
 package com.espertech.esperio.amqp;
 
-public class AMQPSettingsSink extends AMQPSettingsBase
-{
+public class AMQPSettingsSink extends AMQPSettingsBase {
     private ObjectToAMQPCollector collector;
 
     public AMQPSettingsSink() {
@@ -27,7 +26,7 @@ public class AMQPSettingsSink extends AMQPSettingsBase
 
     public String toString() {
         return super.toString() + "  AMQPSettingsSink{" +
-            "objectToAmqpTransform=" + collector +
-            '}';
+                "objectToAmqpTransform=" + collector +
+                '}';
     }
 }

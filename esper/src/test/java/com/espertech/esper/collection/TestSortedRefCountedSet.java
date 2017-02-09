@@ -16,18 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
-public class TestSortedRefCountedSet extends TestCase
-{
+public class TestSortedRefCountedSet extends TestCase {
     private SortedRefCountedSet<String> refSet;
     private Random random = new Random();
 
-    public void setUp()
-    {
+    public void setUp() {
         refSet = new SortedRefCountedSet<String>();
     }
 
-    public void testMaxMinValue()
-    {
+    public void testMaxMinValue() {
         refSet.add("a");
         refSet.add("b");
         assertEquals("ba", refSet.maxValue() + refSet.minValue());
@@ -69,8 +66,7 @@ public class TestSortedRefCountedSet extends TestCase
         assertNull(refSet.minValue());
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         refSet.add("a");
         refSet.add("b");
         refSet.add("a");
@@ -81,8 +77,7 @@ public class TestSortedRefCountedSet extends TestCase
         assertEquals("a", refSet.minValue());
     }
 
-    public void testRemove()
-    {
+    public void testRemove() {
         refSet.add("a");
         refSet.remove("a");
         assertNull(refSet.maxValue());

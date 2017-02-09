@@ -16,8 +16,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 
-public class EventAdapterServiceAnonymousTypeCache
-{
+public class EventAdapterServiceAnonymousTypeCache {
     private final int size;
     private final Deque<EventTypeSPI> recentTypes;
 
@@ -35,9 +34,9 @@ public class EventAdapterServiceAnonymousTypeCache
         // check recent types
         for (EventTypeSPI existing : recentTypes) {
             if (existing.getClass() == requiredType.getClass() &&
-                Arrays.equals(requiredType.getPropertyNames(), existing.getPropertyNames()) &&
-                Arrays.equals(requiredType.getPropertyDescriptors(), existing.getPropertyDescriptors()) &&
-                existing.equalsCompareType(requiredType)) {
+                    Arrays.equals(requiredType.getPropertyNames(), existing.getPropertyNames()) &&
+                    Arrays.equals(requiredType.getPropertyDescriptors(), existing.getPropertyDescriptors()) &&
+                    existing.equalsCompareType(requiredType)) {
                 return existing;
             }
         }

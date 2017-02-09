@@ -15,18 +15,15 @@ import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import junit.framework.TestCase;
 
-public class TestIndexFactory extends TestCase
-{
+public class TestIndexFactory extends TestCase {
     private EventType eventType;
     private FilterServiceGranularLockFactory lockFactory = new FilterServiceGranularLockFactoryReentrant();
 
-    public void setUp()
-    {
+    public void setUp() {
         eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
     }
 
-    public void testCreateIndex()
-    {
+    public void testCreateIndex() {
         // Create a "greater" index
         FilterParamIndexBase index = IndexFactory.createIndex(makeLookupable("intPrimitive"), lockFactory, FilterOperator.GREATER);
 

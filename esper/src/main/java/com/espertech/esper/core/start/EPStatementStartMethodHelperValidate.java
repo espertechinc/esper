@@ -45,19 +45,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class EPStatementStartMethodHelperValidate
-{
+public class EPStatementStartMethodHelperValidate {
     private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodHelperValidate.class);
 
     public static void validateNoDataWindowOnNamedWindow(List<ViewFactory> viewFactories) throws ExprValidationException {
-        for (ViewFactory viewFactory : viewFactories)
-        {
-            if ((viewFactory instanceof GroupByViewFactory) || ((viewFactory instanceof MergeViewFactory)))
-            {
+        for (ViewFactory viewFactory : viewFactories) {
+            if ((viewFactory instanceof GroupByViewFactory) || ((viewFactory instanceof MergeViewFactory))) {
                 continue;
             }
-            if (viewFactory instanceof DataWindowViewFactory)
-            {
+            if (viewFactory instanceof DataWindowViewFactory) {
                 throw new ExprValidationException(NamedWindowMgmtService.ERROR_MSG_NO_DATAWINDOW_ALLOWED);
             }
         }
@@ -65,27 +61,25 @@ public class EPStatementStartMethodHelperValidate
 
     /**
      * Validate filter and join expression nodes.
-     * @param statementSpec the compiled statement
-     * @param statementContext the statement services
-     * @param typeService the event types for streams
+     *
+     * @param statementSpec        the compiled statement
+     * @param statementContext     the statement services
+     * @param typeService          the event types for streams
      * @param viewResourceDelegate the delegate to verify expressions that use view resources
      */
     protected static void validateNodes(StatementSpecCompiled statementSpec,
                                         StatementContext statementContext,
                                         StreamTypeService typeService,
-                                        ViewResourceDelegateUnverified viewResourceDelegate)
-    {
+                                        ViewResourceDelegateUnverified viewResourceDelegate) {
         EngineImportService engineImportService = statementContext.getEngineImportService();
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         String intoTableName = statementSpec.getIntoTableSpec() == null ? null : statementSpec.getIntoTableSpec().getName();
 
-        if (statementSpec.getFilterRootNode() != null)
-        {
+        if (statementSpec.getFilterRootNode() != null) {
             ExprNode optionalFilterNode = statementSpec.getFilterRootNode();
 
             // Validate where clause, initializing nodes to the stream ids used
-            try
-            {
+            try {
                 ExprValidationContext validationContext = new ExprValidationContext(typeService, engineImportService, statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, intoTableName, false);
                 optionalFilterNode = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, optionalFilterNode, validationContext);
                 if (optionalFilterNode.getExprEvaluator().getType() != boolean.class && optionalFilterNode.getExprEvaluator().getType() != Boolean.class) {
@@ -96,25 +90,20 @@ public class EPStatementStartMethodHelperValidate
                 // Make sure there is no aggregation in the where clause
                 List<ExprAggregateNode> aggregateNodes = new LinkedList<ExprAggregateNode>();
                 ExprAggregateNodeUtil.getAggregatesBottomUp(optionalFilterNode, aggregateNodes);
-                if (!aggregateNodes.isEmpty())
-                {
+                if (!aggregateNodes.isEmpty()) {
                     throw new ExprValidationException("An aggregate function may not appear in a WHERE clause (use the HAVING clause)");
                 }
-            }
-            catch (ExprValidationException ex)
-            {
+            } catch (ExprValidationException ex) {
                 log.debug(".validateNodes Validation exception for filter=" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(optionalFilterNode), ex);
                 throw new EPStatementException("Error validating expression: " + ex.getMessage(), ex, statementContext.getExpression());
             }
         }
 
-        if ((statementSpec.getOutputLimitSpec() != null) && ((statementSpec.getOutputLimitSpec().getWhenExpressionNode() != null) || (statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr() != null)))
-        {
+        if ((statementSpec.getOutputLimitSpec() != null) && ((statementSpec.getOutputLimitSpec().getWhenExpressionNode() != null) || (statementSpec.getOutputLimitSpec().getAndAfterTerminateExpr() != null))) {
             // Validate where clause, initializing nodes to the stream ids used
-            try
-            {
+            try {
                 EventType outputLimitType = OutputConditionExpressionFactory.getBuiltInEventType(statementContext.getEventAdapterService());
-                StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[] {outputLimitType}, new String[]{null}, new boolean[] {true}, statementContext.getEngineURI(), false);
+                StreamTypeService typeServiceOutputWhen = new StreamTypeServiceImpl(new EventType[]{outputLimitType}, new String[]{null}, new boolean[]{true}, statementContext.getEngineURI(), false);
                 ExprValidationContext validationContext = new ExprValidationContext(typeServiceOutputWhen, engineImportService, statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, intoTableName, false);
 
                 ExprNode outputLimitWhenNode = statementSpec.getOutputLimitSpec().getWhenExpressionNode();
@@ -147,15 +136,12 @@ public class EPStatementStartMethodHelperValidate
 
                 // validate after-terminated then-expression
                 validateThenSetAssignments(statementSpec.getOutputLimitSpec().getAndAfterTerminateThenExpressions(), validationContext);
-            }
-            catch (ExprValidationException ex)
-            {
+            } catch (ExprValidationException ex) {
                 throw new EPStatementException("Error validating expression: " + ex.getMessage(), statementContext.getExpression());
             }
         }
 
-        for (int outerJoinCount = 0; outerJoinCount < statementSpec.getOuterJoinDescList().length; outerJoinCount++)
-        {
+        for (int outerJoinCount = 0; outerJoinCount < statementSpec.getOuterJoinDescList().length; outerJoinCount++) {
             OuterJoinDesc outerJoinDesc = statementSpec.getOuterJoinDescList()[outerJoinCount];
 
             // validate on-expression nodes, if provided
@@ -163,19 +149,16 @@ public class EPStatementStartMethodHelperValidate
                 UniformPair<Integer> streamIdPair = validateOuterJoinPropertyPair(statementContext, outerJoinDesc.getOptLeftNode(), outerJoinDesc.getOptRightNode(), outerJoinCount,
                         typeService, viewResourceDelegate);
 
-                if (outerJoinDesc.getAdditionalLeftNodes() != null)
-                {
+                if (outerJoinDesc.getAdditionalLeftNodes() != null) {
                     Set<Integer> streamSet = new HashSet<Integer>();
                     streamSet.add(streamIdPair.getFirst());
                     streamSet.add(streamIdPair.getSecond());
-                    for (int i = 0; i < outerJoinDesc.getAdditionalLeftNodes().length; i++)
-                    {
+                    for (int i = 0; i < outerJoinDesc.getAdditionalLeftNodes().length; i++) {
                         UniformPair<Integer> streamIdPairAdd = validateOuterJoinPropertyPair(statementContext, outerJoinDesc.getAdditionalLeftNodes()[i], outerJoinDesc.getAdditionalRightNodes()[i], outerJoinCount,
                                 typeService, viewResourceDelegate);
 
                         // make sure all additional properties point to the same two streams
-                        if ((!streamSet.contains(streamIdPairAdd.getFirst()) || (!streamSet.contains(streamIdPairAdd.getSecond()))))
-                        {
+                        if (!streamSet.contains(streamIdPairAdd.getFirst()) || (!streamSet.contains(streamIdPairAdd.getSecond()))) {
                             String message = "Outer join ON-clause columns must refer to properties of the same joined streams" +
                                     " when using multiple columns in the on-clause";
                             throw new EPStatementException("Error validating expression: " + message, statementContext.getExpression());
@@ -188,13 +171,11 @@ public class EPStatementStartMethodHelperValidate
     }
 
     private static void validateThenSetAssignments(List<OnTriggerSetAssignment> assignments, ExprValidationContext validationContext)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (assignments == null || assignments.isEmpty()) {
             return;
         }
-        for (OnTriggerSetAssignment assign : assignments)
-        {
+        for (OnTriggerSetAssignment assign : assignments) {
             ExprNode node = ExprNodeUtility.getValidatedAssignment(assign, validationContext);
             assign.setExpression(node);
             EPStatementStartMethodHelperValidate.validateNoAggregations(node, "An aggregate function may not appear in a OUTPUT LIMIT clause");
@@ -207,8 +188,7 @@ public class EPStatementStartMethodHelperValidate
             ExprIdentNode rightNode,
             int outerJoinCount,
             StreamTypeService typeService,
-            ViewResourceDelegateUnverified viewResourceDelegate)
-    {
+            ViewResourceDelegateUnverified viewResourceDelegate) {
         // Validate the outer join clause using an artificial equals-node on top.
         // Thus types are checked via equals.
         // Sets stream ids used for validated nodes.
@@ -216,13 +196,10 @@ public class EPStatementStartMethodHelperValidate
         equalsNode.addChildNode(leftNode);
         equalsNode.addChildNode(rightNode);
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
-        try
-        {
+        try {
             ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegate, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
             ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.JOINON, equalsNode, validationContext);
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             log.debug("Validation exception for outer join node=" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(equalsNode), ex);
             throw new EPStatementException("Error validating expression: " + ex.getMessage(), statementContext.getExpression());
         }
@@ -230,16 +207,14 @@ public class EPStatementStartMethodHelperValidate
         // Make sure we have left-hand-side and right-hand-side refering to different streams
         int streamIdLeft = leftNode.getStreamId();
         int streamIdRight = rightNode.getStreamId();
-        if (streamIdLeft == streamIdRight)
-        {
+        if (streamIdLeft == streamIdRight) {
             String message = "Outer join ON-clause cannot refer to properties of the same stream";
             throw new EPStatementException("Error validating expression: " + message, statementContext.getExpression());
         }
 
         // Make sure one of the properties refers to the acutual stream currently being joined
         int expectedStreamJoined = outerJoinCount + 1;
-        if ((streamIdLeft != expectedStreamJoined) && (streamIdRight != expectedStreamJoined))
-        {
+        if ((streamIdLeft != expectedStreamJoined) && (streamIdRight != expectedStreamJoined)) {
             String message = "Outer join ON-clause must refer to at least one property of the joined stream" +
                     " for stream " + expectedStreamJoined;
             throw new EPStatementException("Error validating expression: " + message, statementContext.getExpression());
@@ -247,16 +222,13 @@ public class EPStatementStartMethodHelperValidate
 
         // Make sure neither of the streams refer to a 'future' stream
         String badPropertyName = null;
-        if (streamIdLeft > outerJoinCount + 1)
-        {
+        if (streamIdLeft > outerJoinCount + 1) {
             badPropertyName = leftNode.getResolvedPropertyName();
         }
-        if (streamIdRight > outerJoinCount + 1)
-        {
+        if (streamIdRight > outerJoinCount + 1) {
             badPropertyName = rightNode.getResolvedPropertyName();
         }
-        if (badPropertyName != null)
-        {
+        if (badPropertyName != null) {
             String message = "Outer join ON-clause invalid scope for property" +
                     " '" + badPropertyName + "', expecting the current or a prior stream scope";
             throw new EPStatementException("Error validating expression: " + message, statementContext.getExpression());
@@ -273,13 +245,11 @@ public class EPStatementStartMethodHelperValidate
     }
 
     protected static void validateNoAggregations(ExprNode exprNode, String errorMsg)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Make sure there is no aggregation in the where clause
         List<ExprAggregateNode> aggregateNodes = new LinkedList<ExprAggregateNode>();
         ExprAggregateNodeUtil.getAggregatesBottomUp(exprNode, aggregateNodes);
-        if (!aggregateNodes.isEmpty())
-        {
+        if (!aggregateNodes.isEmpty()) {
             throw new ExprValidationException(errorMsg);
         }
     }

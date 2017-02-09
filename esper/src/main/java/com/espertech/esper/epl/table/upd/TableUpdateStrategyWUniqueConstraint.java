@@ -77,8 +77,7 @@ public class TableUpdateStrategyWUniqueConstraint implements TableUpdateStrategy
                 EventTable index = instance.getIndex(affectedIndexName);
                 index.add(events);
             }
-        }
-        catch (EPException ex) {
+        } catch (EPException ex) {
             // rollback
             // remove updated events
             for (String affectedIndexName : affectedIndexNames) {

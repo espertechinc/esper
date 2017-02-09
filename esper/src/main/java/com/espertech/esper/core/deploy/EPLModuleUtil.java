@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.core.deploy;
 
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
 import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.core.service.StatementEventTypeRef;
+import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
+import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.epl.parse.ParseHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeSPI;
@@ -30,23 +30,21 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 
-public class EPLModuleUtil
-{
+public class EPLModuleUtil {
     private static Logger log = LoggerFactory.getLogger(EPLModuleUtil.class);
 
     /**
      * Newline character.
      */
-    public static final String newline = System.getProperty("line.separator");
+    public static final String NEWLINE = System.getProperty("line.separator");
 
-    public static Module readInternal(InputStream stream, String resourceName) throws IOException, ParseException
-    {
+    public static Module readInternal(InputStream stream, String resourceName) throws IOException, ParseException {
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         StringWriter buffer = new StringWriter();
         String strLine;
-        while ((strLine = br.readLine()) != null)   {
+        while ((strLine = br.readLine()) != null) {
             buffer.append(strLine);
-            buffer.append(newline);
+            buffer.append(NEWLINE);
         }
         stream.close();
 
@@ -107,7 +105,7 @@ public class EPLModuleUtil
         List<ModuleItem> items = new ArrayList<ModuleItem>();
         for (ParseNode node : nodes) {
             if ((node instanceof ParseNodeComment) || (node instanceof ParseNodeExpression)) {
-                boolean isComments = (node instanceof ParseNodeComment);
+                boolean isComments = node instanceof ParseNodeComment;
                 items.add(new ModuleItem(node.getItem().getExpression(), isComments, node.getItem().getLineNum(), node.getItem().getStartChar(), node.getItem().getEndChar()));
             }
         }
@@ -115,8 +113,7 @@ public class EPLModuleUtil
         return new Module(moduleName, resourceName, uses, imports, items, buffer);
     }
 
-    public static List<EventType> undeployTypes(Set<String> referencedTypes, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, FilterService filterService)
-    {
+    public static List<EventType> undeployTypes(Set<String> referencedTypes, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, FilterService filterService) {
         List<EventType> undeployedTypes = new ArrayList<EventType>();
         for (String typeName : referencedTypes) {
 
@@ -164,22 +161,21 @@ public class EPLModuleUtil
                 break;
             }
             if ((t.getType() == EsperEPL2GrammarParser.WS) ||
-                (t.getType() == EsperEPL2GrammarParser.SL_COMMENT) ||
-                (t.getType() == EsperEPL2GrammarParser.ML_COMMENT)) {
+                    (t.getType() == EsperEPL2GrammarParser.SL_COMMENT) ||
+                    (t.getType() == EsperEPL2GrammarParser.ML_COMMENT)) {
                 beginIndex++;
                 continue;
             }
-            String tokenText = t.getText().trim().toLowerCase();
+            String tokenText = t.getText().trim().toLowerCase(Locale.ENGLISH);
             if (tokenText.equals("module")) {
-                isModule = true; isMeta = true;
-            }
-            else if (tokenText.equals("uses")) {
-                isUses = true; isMeta = true;
-            }
-            else if (tokenText.equals("import")) {
+                isModule = true;
                 isMeta = true;
-            }
-            else {
+            } else if (tokenText.equals("uses")) {
+                isUses = true;
+                isMeta = true;
+            } else if (tokenText.equals("import")) {
+                isMeta = true;
+            } else {
                 isExpression = true;
                 break;
             }
@@ -197,16 +193,15 @@ public class EPLModuleUtil
 
         // check meta tag (module, uses, import)
         StringWriter buffer = new StringWriter();
-        for (int i = beginIndex; i < tokens.size(); i++)
-        {
+        for (int i = beginIndex; i < tokens.size(); i++) {
             Token t = (Token) tokens.get(i);
             if (t.getType() == EsperEPL2GrammarParser.EOF) {
                 break;
             }
             if ((t.getType() != EsperEPL2GrammarParser.IDENT) &&
-                (t.getType() != EsperEPL2GrammarParser.DOT) && 
-                (t.getType() != EsperEPL2GrammarParser.STAR) &&
-                (!t.getText().matches("[a-zA-Z]*"))) {
+                    (t.getType() != EsperEPL2GrammarParser.DOT) &&
+                    (t.getType() != EsperEPL2GrammarParser.STAR) &&
+                    (!t.getText().matches("[a-zA-Z]*"))) {
                 throw getMessage(isModule, isUses, resourceName, t.getType());
             }
             buffer.append(t.getText().trim());
@@ -219,23 +214,19 @@ public class EPLModuleUtil
 
         if (isModule) {
             return new ParseNodeModule(item, result);
-        }
-        else if (isUses) {
+        } else if (isUses) {
             return new ParseNodeUses(item, result);
         }
         return new ParseNodeImport(item, result);
     }
 
-    private static ParseException getMessage(boolean module, boolean uses, String resourceName, int type)
-    {
+    private static ParseException getMessage(boolean module, boolean uses, String resourceName, int type) {
         String message = "Keyword '";
         if (module) {
             message += "module";
-        }
-        else if (uses) {
+        } else if (uses) {
             message += "uses";
-        }
-        else {
+        } else {
             message += "import";
         }
         message += "' must be followed by a name or package name (set of names separated by dots) for resource '" + resourceName + "'";
@@ -255,38 +246,29 @@ public class EPLModuleUtil
     public static List<EPLModuleParseItem> parse(String module) throws ParseException {
 
         CharStream input;
-        try
-        {
+        try {
             input = new NoCaseSensitiveStream(new StringReader(module));
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             log.error("Exception reading module expression: " + ex.getMessage(), ex);
             return null;
         }
 
         EsperEPL2GrammarLexer lex = ParseHelper.newLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lex);
-        try
-        {
+        try {
             tokens.fill();
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             String message = "Unexpected exception recognizing module text";
             if (ex instanceof LexerNoViableAltException) {
                 if (ParseHelper.hasControlCharacters(module)) {
                     message = "Unrecognized control characters found in text, failed to parse text";
-                }
-                else {
+                } else {
                     message += ", recognition failed for " + ex.toString();
                 }
-            }
-            else if (ex instanceof RecognitionException) {
+            } else if (ex instanceof RecognitionException) {
                 RecognitionException recog = (RecognitionException) ex;
                 message += ", recognition failed for " + recog.toString();
-            }
-            else if (ex.getMessage() != null) {
+            } else if (ex.getMessage() != null) {
                 message += ": " + ex.getMessage();
             }
             message += " [" + module + "]";
@@ -302,8 +284,8 @@ public class EPLModuleUtil
         List<Token> tokenList = tokens.getTokens();
         Set<Integer> skippedSemicolonIndexes = getSkippedSemicolons(tokenList);
         int index = -1;
-        for (Object token : tokenList) // Call getTokens first before invoking tokens.size! ANTLR problem
-        {
+        // Call getTokens first before invoking tokens.size! ANTLR problem
+        for (Object token : tokenList) {
             index++;
             Token t = (Token) token;
             boolean semi = t.getType() == EsperEPL2GrammarLexer.SEMI && !skippedSemicolonIndexes.contains(index);
@@ -313,8 +295,7 @@ public class EPLModuleUtil
                     lineNum = null;
                 }
                 current = new StringWriter();
-            }
-            else {
+            } else {
                 if ((lineNum == null) && (t.getType() != EsperEPL2GrammarParser.WS)) {
                     lineNum = t.getLine();
                     charPosStart = charPos;
@@ -337,8 +318,7 @@ public class EPLModuleUtil
         try {
             inputStream = new FileInputStream(file);
             return EPLModuleUtil.readInternal(inputStream, file.getAbsolutePath());
-        }
-        finally {
+        } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
@@ -354,23 +334,22 @@ public class EPLModuleUtil
 
         InputStream stream = null;
         ClassLoader classLoader = engineImportService.getClassLoader();
-        if (classLoader!=null) {
-            stream = classLoader.getResourceAsStream( stripped );
+        if (classLoader != null) {
+            stream = classLoader.getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-            stream = EPDeploymentAdminImpl.class.getResourceAsStream( resource );
+        if (stream == null) {
+            stream = EPDeploymentAdminImpl.class.getResourceAsStream(resource);
         }
-        if ( stream == null ) {
-            stream = EPDeploymentAdminImpl.class.getClassLoader().getResourceAsStream( stripped );
+        if (stream == null) {
+            stream = EPDeploymentAdminImpl.class.getClassLoader().getResourceAsStream(stripped);
         }
-        if ( stream == null ) {
-           throw new IOException("Failed to find resource '" + resource + "' in classpath");
+        if (stream == null) {
+            throw new IOException("Failed to find resource '" + resource + "' in classpath");
         }
 
         try {
             return EPLModuleUtil.readInternal(stream, resource);
-        }
-        finally {
+        } finally {
             try {
                 stream.close();
             } catch (IOException e) {
@@ -386,8 +365,7 @@ public class EPLModuleUtil
         Set<Integer> result = null;
 
         int index = -1;
-        for (Object token : tokens)
-        {
+        for (Object token : tokens) {
             index++;
             Token t = (Token) token;
             if (t.getType() == EsperEPL2GrammarParser.EXPRESSIONDECL) {
@@ -420,7 +398,7 @@ public class EPLModuleUtil
         }
 
         int current = indexFirstSquare;
-        while(current < indexCloseSquare) {
+        while (current < indexCloseSquare) {
             Token t = tokens.get(current);
             if (t.getType() == EsperEPL2GrammarParser.SEMI) {
                 result.add(current);
@@ -432,7 +410,7 @@ public class EPLModuleUtil
     private static int findEndSquareBrackets(int startIndex, List<Token> tokens) {
         int index = startIndex + 1;
         int squareBracketDepth = 0;
-        while(index < tokens.size()) {
+        while (index < tokens.size()) {
             Token t = tokens.get(index);
             if (t.getType() == EsperEPL2GrammarParser.RBRACK) {
                 if (squareBracketDepth == 0) {
@@ -450,7 +428,7 @@ public class EPLModuleUtil
 
     private static int indexFirstToken(int startIndex, List<Token> tokens, int tokenType) {
         int index = startIndex;
-        while(index < tokens.size()) {
+        while (index < tokens.size()) {
             Token t = tokens.get(index);
             if (t.getType() == tokenType) {
                 return index;

@@ -15,14 +15,14 @@ import java.io.StringWriter;
 /**
  * For use with on-merge clauses, deletes from a named window if matching rows are found.
  */
-public class OnMergeMatchedDeleteAction implements OnMergeMatchedAction
-{
+public class OnMergeMatchedDeleteAction implements OnMergeMatchedAction {
     private static final long serialVersionUID = 0L;
 
     private Expression whereClause;
 
     /**
      * Ctor.
+     *
      * @param whereClause condition for action, or null if none required
      */
     public OnMergeMatchedDeleteAction(Expression whereClause) {
@@ -37,6 +37,7 @@ public class OnMergeMatchedDeleteAction implements OnMergeMatchedAction
 
     /**
      * Returns the action condition, or null if undefined.
+     *
      * @return condition
      */
     public Expression getWhereClause() {
@@ -45,6 +46,7 @@ public class OnMergeMatchedDeleteAction implements OnMergeMatchedAction
 
     /**
      * Sets the action condition, or null if undefined.
+     *
      * @param whereClause to set, or null to remove the condition
      */
     public void setWhereClause(Expression whereClause) {

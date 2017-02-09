@@ -11,8 +11,6 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.epl.core.eval.SelectExprContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -22,6 +20,8 @@ import com.espertech.esper.event.avro.AvroSchemaEventType;
 
 public interface SelectExprProcessorRepresentationFactory {
     SelectExprProcessor makeSelectNoWildcard(SelectExprContext selectExprContext, EventType resultEventType, TableService tableService, String statementName, String engineURI) throws ExprValidationException;
+
     SelectExprProcessor makeRecast(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, AvroSchemaEventType insertIntoTargetType, ExprNode[] exprNodes, String statementName, String engineURI) throws ExprValidationException;
+
     SelectExprProcessor makeJoinWildcard(String[] streamNames, EventType resultEventType, EventAdapterService eventAdapterService);
 }

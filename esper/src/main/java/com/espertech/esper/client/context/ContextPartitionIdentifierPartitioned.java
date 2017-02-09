@@ -27,6 +27,7 @@ public class ContextPartitionIdentifierPartitioned extends ContextPartitionIdent
 
     /**
      * Ctor.
+     *
      * @param keys partitioning keys
      */
     public ContextPartitionIdentifierPartitioned(Object[] keys) {
@@ -35,6 +36,7 @@ public class ContextPartitionIdentifierPartitioned extends ContextPartitionIdent
 
     /**
      * Returns the partition keys.
+     *
      * @return keys
      */
     public Object[] getKeys() {
@@ -43,6 +45,7 @@ public class ContextPartitionIdentifierPartitioned extends ContextPartitionIdent
 
     /**
      * Sets the partition keys.
+     *
      * @param keys to set
      */
     public void setKeys(Object[] keys) {

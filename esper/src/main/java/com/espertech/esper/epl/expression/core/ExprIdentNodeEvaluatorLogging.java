@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.util.AuditPath;
 
-public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl
-{
+public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl {
     private final String engineURI;
     private final String propertyName;
     private final String statementName;
@@ -28,8 +27,7 @@ public class ExprIdentNodeEvaluatorLogging extends ExprIdentNodeEvaluatorImpl
         this.engineURI = engineURI;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         Object result = super.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         if (AuditPath.isInfoEnabled()) {
             AuditPath.auditLog(engineURI, statementName, AuditEnum.PROPERTY, propertyName + " value " + result);

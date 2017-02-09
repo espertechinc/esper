@@ -14,14 +14,16 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.util.JavaClassHelper;
 
+import java.util.Locale;
+
 public class InstrumentationHelper {
     private final static String PROVIDER_PROPERTY = "instrumentation_provider";
 
     public final static boolean ENABLED = false;
     public final static boolean ASSERTIONENABLED = false;
 
-    public static Instrumentation DEFAULT_INSTRUMENTATION = new InstrumentationDefault();
-    public static Instrumentation instrumentation = DEFAULT_INSTRUMENTATION;
+    public static Instrumentation defaultInstrumentation = new InstrumentationDefault();
+    public static Instrumentation instrumentation = defaultInstrumentation;
 
     public static InstrumentationAssertionService assertionService;
 
@@ -51,10 +53,9 @@ public class InstrumentationHelper {
         if (provider == null) {
             throw new RuntimeException("Failed to find '" + PROVIDER_PROPERTY + "' system property");
         }
-        if (provider.toLowerCase().trim().equals("default")) {
+        if (provider.toLowerCase(Locale.ENGLISH).trim().equals("default")) {
             assertionService = new DefaultInstrumentationAssertionService();
-        }
-        else {
+        } else {
             EPServiceProviderSPI spi = (EPServiceProviderSPI) epServiceProvider;
             assertionService = (InstrumentationAssertionService) JavaClassHelper.instantiate(InstrumentationAssertionService.class, provider, spi.getEngineImportService().getClassForNameProvider());
         }

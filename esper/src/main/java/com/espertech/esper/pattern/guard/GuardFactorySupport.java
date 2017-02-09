@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Abstract class for applications to extend to implement pattern guard objects.
  */
-public abstract class GuardFactorySupport implements GuardFactory
-{
+public abstract class GuardFactorySupport implements GuardFactory {
     private static Logger log = LoggerFactory.getLogger(GuardFactorySupport.class);
 }

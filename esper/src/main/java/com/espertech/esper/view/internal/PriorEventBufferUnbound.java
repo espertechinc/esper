@@ -11,9 +11,9 @@
 package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.collection.RollingEventBuffer;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.view.window.RandomAccessByIndex;
-import com.espertech.esper.collection.RollingEventBuffer;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,28 +25,24 @@ import java.util.Iterator;
  * Does not expect or care about the remove stream and simple keeps a rolling buffer of new data events
  * up to the maximum prior event we are asking for.
  */
-public class PriorEventBufferUnbound implements ViewUpdatedCollection, RandomAccessByIndex
-{
+public class PriorEventBufferUnbound implements ViewUpdatedCollection, RandomAccessByIndex {
     private final int maxSize;
     private final RollingEventBuffer newEvents;
 
     /**
      * Ctor.
+     *
      * @param maxPriorIndex is the highest prior-event index required by any expression
      */
-    public PriorEventBufferUnbound(int maxPriorIndex)
-    {
+    public PriorEventBufferUnbound(int maxPriorIndex) {
         this.maxSize = maxPriorIndex + 1;
         newEvents = new RollingEventBuffer(maxSize);
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         // Post new data to rolling buffer starting with the oldest
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 EventBean newEvent = newData[i];
 
                 // Add new event
@@ -55,33 +51,27 @@ public class PriorEventBufferUnbound implements ViewUpdatedCollection, RandomAcc
         }
     }
 
-    public EventBean getNewData(int index)
-    {
-        if (index >= maxSize)
-        {
+    public EventBean getNewData(int index) {
+        if (index >= maxSize) {
             throw new IllegalArgumentException("Index " + index + " not allowed, max size is " + maxSize);
         }
         return newEvents.get(index);
     }
 
-    public EventBean getOldData(int index)
-    {
+    public EventBean getOldData(int index) {
         return null;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         // No action required
     }
 
-    public EventBean getNewDataTail(int index)
-    {
+    public EventBean getNewDataTail(int index) {
         // No requirement to index from end of current buffer
         return null;
     }
 
-    public Iterator<EventBean> getWindowIterator()
-    {
+    public Iterator<EventBean> getWindowIterator() {
         // no requirement for window iterator support
         return null;
     }
@@ -90,8 +80,7 @@ public class PriorEventBufferUnbound implements ViewUpdatedCollection, RandomAcc
         return null;
     }
 
-    public int getWindowCount()
-    {
+    public int getWindowCount() {
         // no requirement for count support
         return 0;
     }

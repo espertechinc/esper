@@ -29,8 +29,9 @@ public class ContextDescriptorCategoryItem implements ContextDescriptor {
 
     /**
      * Ctor.
+     *
      * @param expression category expression
-     * @param label category label
+     * @param label      category label
      */
     public ContextDescriptorCategoryItem(Expression expression, String label) {
         this.expression = expression;
@@ -39,6 +40,7 @@ public class ContextDescriptorCategoryItem implements ContextDescriptor {
 
     /**
      * Returns the category expression.
+     *
      * @return expression
      */
     public Expression getExpression() {
@@ -47,6 +49,7 @@ public class ContextDescriptorCategoryItem implements ContextDescriptor {
 
     /**
      * Sets the category expression.
+     *
      * @param expression to set
      */
     public void setExpression(Expression expression) {
@@ -55,6 +58,7 @@ public class ContextDescriptorCategoryItem implements ContextDescriptor {
 
     /**
      * Returns the category label
+     *
      * @return category label
      */
     public String getLabel() {
@@ -63,6 +67,7 @@ public class ContextDescriptorCategoryItem implements ContextDescriptor {
 
     /**
      * Sets the category label
+     *
      * @param label category label
      */
     public void setLabel(String label) {

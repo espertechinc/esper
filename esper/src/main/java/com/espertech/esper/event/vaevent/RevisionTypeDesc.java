@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 /**
  * Per-event-type descriptor for fast access to getters for key values and changes properties.
  */
-public class RevisionTypeDesc
-{
+public class RevisionTypeDesc {
     private final EventPropertyGetter[] keyPropertyGetters;
     private final EventPropertyGetter[] changesetPropertyGetters;
     private PropertyGroupDesc group;
@@ -24,12 +23,12 @@ public class RevisionTypeDesc
 
     /**
      * Ctor.
-     * @param keyPropertyGetters key getters
+     *
+     * @param keyPropertyGetters       key getters
      * @param changesetPropertyGetters property getters
-     * @param group group this belongs to
+     * @param group                    group this belongs to
      */
-    public RevisionTypeDesc(EventPropertyGetter[] keyPropertyGetters, EventPropertyGetter[] changesetPropertyGetters, PropertyGroupDesc group)
-    {
+    public RevisionTypeDesc(EventPropertyGetter[] keyPropertyGetters, EventPropertyGetter[] changesetPropertyGetters, PropertyGroupDesc group) {
         this.keyPropertyGetters = keyPropertyGetters;
         this.changesetPropertyGetters = changesetPropertyGetters;
         this.group = group;
@@ -37,12 +36,12 @@ public class RevisionTypeDesc
 
     /**
      * Ctor.
-     * @param keyPropertyGetters key getters
+     *
+     * @param keyPropertyGetters       key getters
      * @param changesetPropertyGetters property getters
-     * @param changesetPropertyIndex indexes of properties contributed
+     * @param changesetPropertyIndex   indexes of properties contributed
      */
-    public RevisionTypeDesc(EventPropertyGetter[] keyPropertyGetters, EventPropertyGetter[] changesetPropertyGetters, int[] changesetPropertyIndex)
-    {
+    public RevisionTypeDesc(EventPropertyGetter[] keyPropertyGetters, EventPropertyGetter[] changesetPropertyGetters, int[] changesetPropertyIndex) {
         this.keyPropertyGetters = keyPropertyGetters;
         this.changesetPropertyGetters = changesetPropertyGetters;
         this.changesetPropertyIndex = changesetPropertyIndex;
@@ -50,37 +49,37 @@ public class RevisionTypeDesc
 
     /**
      * Returns key getters.
+     *
      * @return getters
      */
-    public EventPropertyGetter[] getKeyPropertyGetters()
-    {
+    public EventPropertyGetter[] getKeyPropertyGetters() {
         return keyPropertyGetters;
     }
 
     /**
      * Returns property getters.
+     *
      * @return getters
      */
-    public EventPropertyGetter[] getChangesetPropertyGetters()
-    {
+    public EventPropertyGetter[] getChangesetPropertyGetters() {
         return changesetPropertyGetters;
     }
 
     /**
      * Returns group, or null if not using property groups.
+     *
      * @return group
      */
-    public PropertyGroupDesc getGroup()
-    {
+    public PropertyGroupDesc getGroup() {
         return group;
     }
 
     /**
      * Returns indexes of properties contributed, or null if not using indexes.
+     *
      * @return indexes
      */
-    public int[] getChangesetPropertyIndex()
-    {
+    public int[] getChangesetPropertyIndex() {
         return changesetPropertyIndex;
     }
 }

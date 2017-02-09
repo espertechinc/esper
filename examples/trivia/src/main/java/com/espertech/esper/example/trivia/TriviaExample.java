@@ -31,8 +31,7 @@ public class TriviaExample {
 
         try {
             engine.getEPAdministrator().getDeploymentAdmin().readDeploy(inputFile, null, null, null);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error deploying EPL from 'trivia.epl': " + e.getMessage(), e);
         }
 

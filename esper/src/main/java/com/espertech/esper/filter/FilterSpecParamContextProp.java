@@ -18,8 +18,7 @@ import com.espertech.esper.util.SimpleNumberCoercer;
 /**
  * This class represents a filter parameter containing a reference to a context property.
  */
-public final class FilterSpecParamContextProp extends FilterSpecParam
-{
+public final class FilterSpecParamContextProp extends FilterSpecParam {
     private static final long serialVersionUID = -1651262234386299344L;
     private final String contextPropertyName;
     private transient final EventPropertyGetter getter;

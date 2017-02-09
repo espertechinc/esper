@@ -13,25 +13,23 @@ package com.espertech.esper.epl.agg.factory;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
+import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.aggregator.AggregatorNth;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
-import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 import com.espertech.esper.epl.expression.methodagg.ExprNthAggNode;
 
-public class AggregationMethodFactoryNth implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryNth implements AggregationMethodFactory {
     protected final ExprNthAggNode parent;
     protected final Class childType;
     protected final int size;
 
-    public AggregationMethodFactoryNth(ExprNthAggNode parent, Class childType, int size)
-    {
+    public AggregationMethodFactoryNth(ExprNthAggNode parent, Class childType, int size) {
         this.parent = parent;
         this.childType = childType;
         this.size = size;
@@ -41,8 +39,7 @@ public class AggregationMethodFactoryNth implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return childType;
     }
 
@@ -59,7 +56,7 @@ public class AggregationMethodFactoryNth implements AggregationMethodFactory
     }
 
     public AggregationMethod make() {
-        AggregationMethod method =  new AggregatorNth(size + 1);
+        AggregationMethod method = new AggregatorNth(size + 1);
         if (!parent.isDistinct()) {
             return method;
         }

@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.join.table;
 
-public class EventTableAndNamePair
-{
+public class EventTableAndNamePair {
     private final EventTable eventTable;
     private final String indexName;
 

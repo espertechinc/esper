@@ -24,22 +24,20 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class ASTContextHelper
-{
+public class ASTContextHelper {
     private static final Logger log = LoggerFactory.getLogger(ASTContextHelper.class);
 
-    public static CreateContextDesc walkCreateContext(EsperEPL2GrammarParser.CreateContextExprContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, FilterSpecRaw filterSpec)
-    {
+    public static CreateContextDesc walkCreateContext(EsperEPL2GrammarParser.CreateContextExprContext ctx, Map<Tree, ExprNode> astExprNodeMap, Map<Tree, EvalFactoryNode> astPatternNodeMap, PropertyEvalSpec propertyEvalSpec, FilterSpecRaw filterSpec) {
         String contextName = ctx.name.getText();
         ContextDetail contextDetail;
 
         EsperEPL2GrammarParser.CreateContextChoiceContext choice = ctx.createContextDetail().createContextChoice();
         if (choice != null) {
             contextDetail = walkChoice(choice, astExprNodeMap, astPatternNodeMap, propertyEvalSpec, filterSpec);
-        }
-        else {
+        } else {
             contextDetail = walkNested(ctx.createContextDetail().contextContextNested(), astExprNodeMap, astPatternNodeMap, propertyEvalSpec, filterSpec);
         }
         return new CreateContextDesc(contextName, contextDetail);
@@ -64,8 +62,7 @@ public class ASTContextHelper
             if (ctx.createContextDistinct() != null) {
                 if (ctx.createContextDistinct().expressionList() == null) {
                     distinctExpressions = new ExprNode[0];
-                }
-                else {
+                } else {
                     distinctExpressions = ASTExprHelper.exprCollectSubNodesPerNode(ctx.createContextDistinct().expressionList().expression(), astExprNodeMap);
                 }
             }
@@ -75,12 +72,10 @@ public class ASTContextHelper
                 boolean immediate = checkNow(ctx.i);
                 if (immediate) {
                     startEndpoint = ContextDetailConditionImmediate.INSTANCE;
-                }
-                else {
+                } else {
                     startEndpoint = getContextCondition(ctx.r1, astExprNodeMap, astPatternNodeMap, propertyEvalSpec, false);
                 }
-            }
-            else {
+            } else {
                 boolean immediate = checkNow(ctx.i);
                 startEndpoint = getContextCondition(ctx.r1, astExprNodeMap, astPatternNodeMap, propertyEvalSpec, immediate);
             }
@@ -91,7 +86,7 @@ public class ASTContextHelper
         }
 
         // partitioned
-        if (ctx.PARTITION() != null){
+        if (ctx.PARTITION() != null) {
             List<EsperEPL2GrammarParser.CreateContextPartitionItemContext> partitions = ctx.createContextPartitionItem();
             List<ContextDetailPartitionItem> rawSpecs = new ArrayList<ContextDetailPartitionItem>();
             for (EsperEPL2GrammarParser.CreateContextPartitionItemContext partition : partitions) {
@@ -110,10 +105,8 @@ public class ASTContextHelper
                 rawSpecs.add(new ContextDetailPartitionItem(filterSpec, propertyNames));
             }
             return new ContextDetailPartitioned(rawSpecs);
-        }
-
-        // hash
-        else if (ctx.COALESCE() != null){
+        } else if (ctx.COALESCE() != null) {
+            // hash
             List<EsperEPL2GrammarParser.CreateContextCoalesceItemContext> coalesces = ctx.createContextCoalesceItem();
             List<ContextDetailHashItem> rawSpecs = new ArrayList<ContextDetailHashItem>(coalesces.size());
             for (EsperEPL2GrammarParser.CreateContextCoalesceItemContext coalesce : coalesces) {
@@ -124,12 +117,12 @@ public class ASTContextHelper
             }
 
             String granularity = ctx.g.getText();
-            if (!granularity.toLowerCase().equals("granularity")) {
+            if (!granularity.toLowerCase(Locale.ENGLISH).equals("granularity")) {
                 throw ASTWalkException.from("Expected 'granularity' keyword after list of coalesce items, found '" + granularity + "' instead");
             }
             Number num = (Number) ASTConstantHelper.parse(ctx.number());
             String preallocateStr = ctx.p != null ? ctx.p.getText() : null;
-            if (preallocateStr != null && !preallocateStr.toLowerCase().equals("preallocate")) {
+            if (preallocateStr != null && !preallocateStr.toLowerCase(Locale.ENGLISH).equals("preallocate")) {
                 throw ASTWalkException.from("Expected 'preallocate' keyword after list of coalesce items, found '" + preallocateStr + "' instead");
             }
             if (!JavaClassHelper.isNumericNonFP(num.getClass()) || JavaClassHelper.getBoxedType(num.getClass()) == Long.class) {
@@ -140,7 +133,7 @@ public class ASTContextHelper
         }
 
         // categorized
-        if (ctx.createContextGroupItem() != null){
+        if (ctx.createContextGroupItem() != null) {
             List<EsperEPL2GrammarParser.CreateContextGroupItemContext> grps = ctx.createContextGroupItem();
             List<ContextDetailCategoryItem> items = new ArrayList<ContextDetailCategoryItem>();
             for (EsperEPL2GrammarParser.CreateContextGroupItemContext grp : grps) {
@@ -162,32 +155,28 @@ public class ASTContextHelper
         if (ctx.crontabLimitParameterSet() != null) {
             List<ExprNode> crontab = ASTExprHelper.exprCollectSubNodes(ctx.crontabLimitParameterSet(), 0, astExprNodeMap);
             return new ContextDetailConditionCrontab(crontab, immediate);
-        }
-        else if (ctx.patternInclusionExpression() != null) {
+        } else if (ctx.patternInclusionExpression() != null) {
             EvalFactoryNode evalNode = ASTExprHelper.patternGetRemoveTopNode(ctx.patternInclusionExpression(), astPatternNodeMap);
             boolean inclusive = false;
             if (ctx.i != null) {
                 String ident = ctx.i.getText();
-                if (ident != null && !ident.toLowerCase().equals("inclusive")) {
+                if (ident != null && !ident.toLowerCase(Locale.ENGLISH).equals("inclusive")) {
                     throw ASTWalkException.from("Expected 'inclusive' keyword after '@', found '" + ident + "' instead");
                 }
                 inclusive = true;
             }
             return new ContextDetailConditionPattern(evalNode, inclusive, immediate);
-        }
-        else if (ctx.createContextFilter() != null) {
+        } else if (ctx.createContextFilter() != null) {
             FilterSpecRaw filterSpecRaw = ASTFilterSpecHelper.walkFilterSpec(ctx.createContextFilter().eventFilterExpression(), propertyEvalSpec, astExprNodeMap);
             String asName = ctx.createContextFilter().i != null ? ctx.createContextFilter().i.getText() : null;
             if (immediate) {
                 throw ASTWalkException.from("Invalid use of 'now' with initiated-by stream, this combination is not supported");
             }
             return new ContextDetailConditionFilter(filterSpecRaw, asName);
-        }
-        else if (ctx.AFTER() != null) {
+        } else if (ctx.AFTER() != null) {
             ExprTimePeriod timePeriod = (ExprTimePeriod) ASTExprHelper.exprCollectSubNodes(ctx.timePeriod(), 0, astExprNodeMap).get(0);
             return new ContextDetailConditionTimePeriod(timePeriod, immediate);
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unrecognized child type");
         }
     }
@@ -197,7 +186,7 @@ public class ASTContextHelper
             return false;
         }
         String ident = i.getText();
-        if (!ident.toLowerCase().equals("now")) {
+        if (!ident.toLowerCase(Locale.ENGLISH).equals("now")) {
             throw ASTWalkException.from("Expected 'now' keyword after '@', found '" + ident + "' instead");
         }
         return true;

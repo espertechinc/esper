@@ -21,8 +21,7 @@ import com.espertech.esper.epl.approx.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
-public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNodeFactoryBase
-{
+public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNodeFactoryBase {
     private final ExprEvaluator addOrFrequencyEvaluator;
 
     public ExprAggCountMinSketchNodeFactoryUse(ExprAggCountMinSketchNode parent, ExprEvaluator addOrFrequencyEvaluator) {
@@ -33,14 +32,11 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
     public Class getResultType() {
         if (parent.getAggType() == CountMinSketchAggType.ADD) {
             return null;
-        }
-        else if (parent.getAggType() == CountMinSketchAggType.FREQ) {
+        } else if (parent.getAggType() == CountMinSketchAggType.FREQ) {
             return Long.class;
-        }
-        else if (parent.getAggType() == CountMinSketchAggType.TOPK) {
+        } else if (parent.getAggType() == CountMinSketchAggType.TOPK) {
             return CountMinSketchTopK[].class;
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Unrecognized code " + parent.getAggType());
         }
     }
@@ -57,11 +53,9 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
         if (parent.getAggType() == CountMinSketchAggType.ADD) {
             // modifications handled by agent
             return CountMinSketchAggAccessorDefault.INSTANCE;
-        }
-        else if (parent.getAggType() == CountMinSketchAggType.FREQ) {
+        } else if (parent.getAggType() == CountMinSketchAggType.FREQ) {
             return new CountMinSketchAggAccessorFrequency(addOrFrequencyEvaluator);
-        }
-        else if (parent.getAggType() == CountMinSketchAggType.TOPK) {
+        } else if (parent.getAggType() == CountMinSketchAggType.TOPK) {
             return CountMinSketchAggAccessorTopk.INSTANCE;
         }
         throw new IllegalStateException("Aggregation accessor not available for this function '" + parent.getAggregationFunctionName() + "'");

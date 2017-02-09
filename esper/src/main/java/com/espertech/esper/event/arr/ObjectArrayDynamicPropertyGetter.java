@@ -16,8 +16,7 @@ import com.espertech.esper.client.PropertyAccessException;
 /**
  * Getter for a dynamic property (syntax field.inner?), using vanilla reflection.
  */
-public class ObjectArrayDynamicPropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayDynamicPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final String propertyName;
 
     public ObjectArrayDynamicPropertyGetter(String propertyName) {
@@ -38,7 +37,7 @@ public class ObjectArrayDynamicPropertyGetter implements ObjectArrayEventPropert
         if (index == null) {
             return null;
         }
-        Object[] theEvent = ((Object[]) eventBean.getUnderlying());
+        Object[] theEvent = (Object[]) eventBean.getUnderlying();
         return theEvent[index];
     }
 

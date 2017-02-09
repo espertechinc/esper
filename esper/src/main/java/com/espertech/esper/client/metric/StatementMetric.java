@@ -15,8 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Reports statement-level instrumentation values.
  */
-public class StatementMetric extends MetricEvent
-{
+public class StatementMetric extends MetricEvent {
     private long timestamp;
     private String statementName;
     private AtomicLong cpuTime;
@@ -27,11 +26,11 @@ public class StatementMetric extends MetricEvent
 
     /**
      * Ctor.
-     * @param engineURI engine URI
+     *
+     * @param engineURI     engine URI
      * @param statementName statement name
      */
-    public StatementMetric(String engineURI, String statementName)
-    {
+    public StatementMetric(String engineURI, String statementName) {
         super(engineURI);
         this.statementName = statementName;
         this.cpuTime = new AtomicLong();
@@ -43,105 +42,106 @@ public class StatementMetric extends MetricEvent
 
     /**
      * Returns statement name.
+     *
      * @return statement name
      */
-    public String getStatementName()
-    {
+    public String getStatementName() {
         return statementName;
     }
 
     /**
      * Returns CPU time in nanoseconds.
+     *
      * @return cpu time
      */
-    public long getCpuTime()
-    {
+    public long getCpuTime() {
         return cpuTime.get();
     }
 
     /**
      * Sets engine timestamp.
+     *
      * @param timestamp to set
      */
-    public void setTimestamp(long timestamp)
-    {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
     /**
      * Returns engine timestamp.
+     *
      * @return timestamp
      */
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
     /**
      * Adds CPU time.
+     *
      * @param delta to add
      */
-    public void addCPUTime(long delta)
-    {
+    public void addCPUTime(long delta) {
         cpuTime.addAndGet(delta);
     }
 
     /**
      * Adds wall time.
+     *
      * @param wall to add
      */
-    public void addWallTime(long wall)
-    {
+    public void addWallTime(long wall) {
         wallTime.addAndGet(wall);
     }
 
     /**
      * Returns wall time in nanoseconds.
+     *
      * @return wall time
      */
-    public long getWallTime()
-    {
+    public long getWallTime() {
         return wallTime.get();
     }
 
     /**
      * Returns number of output rows in remove stream.
+     *
      * @return number of output rows in remove stream
      */
-    public long getNumOutputRStream()
-    {
+    public long getNumOutputRStream() {
         return numOutputRStream.get();
     }
 
     /**
      * Returns number of output rows in insert stream.
+     *
      * @return number of output rows in insert stream
      */
-    public long getNumOutputIStream()
-    {
+    public long getNumOutputIStream() {
         return numOutputIStream.get();
     }
 
     /**
      * Adds number of output rows in insert stream.
+     *
      * @param numIStream to add
      */
-    public void addNumOutputIStream(int numIStream)
-    {
+    public void addNumOutputIStream(int numIStream) {
         numOutputIStream.addAndGet(numIStream);
     }
 
     /**
      * Adds number of output rows in remove stream.
+     *
      * @param numRStream to add
      */
-    public void addNumOutputRStream(int numRStream)
-    {
+    public void addNumOutputRStream(int numRStream) {
         numOutputRStream.addAndGet(numRStream);
     }
 
     /**
      * Returns the number of input events.
+     *
      * @return number of input events
      */
     public long getNumInput() {
@@ -150,10 +150,10 @@ public class StatementMetric extends MetricEvent
 
     /**
      * Adds number of input events.
+     *
      * @param numInputAdd to add
      */
-    public void addNumInput(long numInputAdd)
-    {
+    public void addNumInput(long numInputAdd) {
         numInput.addAndGet(numInputAdd);
     }
 }

@@ -23,8 +23,7 @@ import java.util.Map;
  * This class reacts to any new data buffered by registring with the dispatch service.
  * When dispatched via execute, it takes the buffered events and hands these to the join execution strategy.
  */
-public class JoinExecStrategyDispatchable implements EPStatementDispatch, BufferObserver
-{
+public class JoinExecStrategyDispatchable implements EPStatementDispatch, BufferObserver {
     private final JoinExecutionStrategy joinExecutionStrategy;
     private final Map<Integer, FlushedEventBuffer> oldStreamBuffer;
     private final Map<Integer, FlushedEventBuffer> newStreamBuffer;
@@ -34,11 +33,11 @@ public class JoinExecStrategyDispatchable implements EPStatementDispatch, Buffer
 
     /**
      * CTor.
+     *
      * @param joinExecutionStrategy - strategy for executing the join
-     * @param numStreams - number of stream
+     * @param numStreams            - number of stream
      */
-    public JoinExecStrategyDispatchable(JoinExecutionStrategy joinExecutionStrategy, int numStreams)
-    {
+    public JoinExecStrategyDispatchable(JoinExecutionStrategy joinExecutionStrategy, int numStreams) {
         this.joinExecutionStrategy = joinExecutionStrategy;
         this.numStreams = numStreams;
 
@@ -46,10 +45,8 @@ public class JoinExecStrategyDispatchable implements EPStatementDispatch, Buffer
         newStreamBuffer = new HashMap<Integer, FlushedEventBuffer>();
     }
 
-    public void execute()
-    {
-        if (!hasNewData)
-        {
+    public void execute() {
+        if (!hasNewData) {
             return;
         }
         hasNewData = false;
@@ -57,28 +54,28 @@ public class JoinExecStrategyDispatchable implements EPStatementDispatch, Buffer
         EventBean[][] oldDataPerStream = new EventBean[numStreams][];
         EventBean[][] newDataPerStream = new EventBean[numStreams][];
 
-        for (int i = 0; i < numStreams; i++)
-        {
+        for (int i = 0; i < numStreams; i++) {
             oldDataPerStream[i] = getBufferData(oldStreamBuffer.get(i));
             newDataPerStream[i] = getBufferData(newStreamBuffer.get(i));
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinDispatch(newDataPerStream, oldDataPerStream);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qJoinDispatch(newDataPerStream, oldDataPerStream);
+        }
         joinExecutionStrategy.join(newDataPerStream, oldDataPerStream);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinDispatch();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aJoinDispatch();
+        }
     }
 
-    private static EventBean[] getBufferData(FlushedEventBuffer buffer)
-    {
-        if (buffer == null)
-        {
+    private static EventBean[] getBufferData(FlushedEventBuffer buffer) {
+        if (buffer == null) {
             return null;
         }
         return buffer.getAndFlush();
     }
 
-    public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer)
-    {
+    public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer) {
         hasNewData = true;
         newStreamBuffer.put(streamId, newEventBuffer);
         oldStreamBuffer.put(streamId, oldEventBuffer);

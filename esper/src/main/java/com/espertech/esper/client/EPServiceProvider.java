@@ -16,12 +16,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 /**
  * This class provides access to the EPRuntime and EPAdministrator implementations.
  */
-public interface EPServiceProvider
-{
+public interface EPServiceProvider {
     /**
      * Returns a class instance of EPRuntime.
      * <p>
      * If the engine instance is destroyed, the behavior is undefined and a NullPointerException is possible.
+     *
      * @return an instance of EPRuntime
      * @throws EPServiceDestroyedException thrown when the engine instance has been destroyed
      */
@@ -31,6 +31,7 @@ public interface EPServiceProvider
      * Returns a class instance of EPAdministrator.
      * <p>
      * If the engine instance is destroyed, the behavior is undefined and a NullPointerException is possible.
+     *
      * @return an instance of EPAdministrator
      * @throws EPServiceDestroyedException thrown when the engine instance has been destroyed
      */
@@ -41,6 +42,7 @@ public interface EPServiceProvider
      * <p>
      * An extension point designed for use by input and output adapters as well as
      * other extension services.
+     *
      * @return naming context providing name-to-object bindings
      * @throws EPServiceDestroyedException thrown when the engine instance has been destroyed
      */
@@ -62,6 +64,7 @@ public interface EPServiceProvider
 
     /**
      * Returns the provider URI, or "default" if this is the default provider.
+     *
      * @return provider URI
      */
     public String getURI();
@@ -82,6 +85,7 @@ public interface EPServiceProvider
 
     /**
      * Returns true if the service is in destroyed state, or false if not.
+     *
      * @return indicator whether the service has been destroyed
      */
     public boolean isDestroyed();
@@ -89,12 +93,14 @@ public interface EPServiceProvider
     /**
      * Add a listener to service provider state changes that receives a before-destroy event.
      * The listener collection applies set-semantics.
+     *
      * @param listener to add
      */
     public void addServiceStateListener(EPServiceStateListener listener);
 
     /**
      * Removate a listener to service provider state changes.
+     *
      * @param listener to remove
      * @return true to indicate the listener was removed, or fals
      */
@@ -108,12 +114,14 @@ public interface EPServiceProvider
     /**
      * Add a listener to statement state changes that receives statement-level events.
      * The listener collection applies set-semantics.
+     *
      * @param listener to add
      */
     public void addStatementStateListener(EPStatementStateListener listener);
 
     /**
      * Removate a listener to statement state changes.
+     *
      * @param listener to remove
      * @return true to indicate the listener was removed, or fals
      */
@@ -129,17 +137,19 @@ public interface EPServiceProvider
      * creating an isolated service if the name is a new name, or
      * returning an existing isolated service for an existing name.
      * <p>
-     *     Note: Requires configuration setting.
+     * Note: Requires configuration setting.
      * </p>
+     *
      * @param name to return isolated service for
      * @return isolated service
-     * @throws EPServiceDestroyedException thrown when the engine instance has been destroyed
+     * @throws EPServiceDestroyedException  thrown when the engine instance has been destroyed
      * @throws EPServiceNotAllowedException thrown when the engine configuration does not allow isolated service providers
      */
     public EPServiceProviderIsolated getEPServiceIsolated(String name) throws EPServiceDestroyedException, EPServiceNotAllowedException;
 
     /**
      * Returns the names of isolated service providers currently allocated.
+     *
      * @return isolated service provider names
      */
     public String[] getEPServiceIsolatedNames();
@@ -148,6 +158,7 @@ public interface EPServiceProvider
      * Returns the engine-instance global read-write lock.
      * The {@link com.espertech.esper.client.EPRuntime#sendEvent} method takes a read lock.
      * The {@link com.espertech.esper.client.EPAdministrator#createEPL} methods take a write lock.
+     *
      * @return engine instance global read-write lock
      */
     public ReadWriteLock getEngineInstanceWideLock();

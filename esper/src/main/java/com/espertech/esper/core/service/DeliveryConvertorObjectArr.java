@@ -13,14 +13,13 @@ package com.espertech.esper.core.service;
 /**
  * Implementation of a convertor for column results that renders the result as an object array itself.
  */
-public class DeliveryConvertorObjectArr implements DeliveryConvertor
-{
+public class DeliveryConvertorObjectArr implements DeliveryConvertor {
     protected final static DeliveryConvertorObjectArr INSTANCE = new DeliveryConvertorObjectArr();
 
     private DeliveryConvertorObjectArr() {
     }
 
     public Object[] convertRow(Object[] columns) {
-        return new Object[] {columns};
+        return new Object[]{columns};
     }
 }

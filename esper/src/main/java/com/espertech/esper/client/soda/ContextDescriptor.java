@@ -20,7 +20,8 @@ public interface ContextDescriptor extends Serializable {
 
     /**
      * Format as EPL.
-     * @param writer output
+     *
+     * @param writer    output
      * @param formatter formatter
      */
     public void toEPL(StringWriter writer, EPStatementFormatter formatter);

@@ -21,8 +21,7 @@ import com.espertech.esper.epl.metric.StatementMetricHandle;
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public class NamedWindowOnMergeViewFactory extends NamedWindowOnExprBaseViewFactory
-{
+public class NamedWindowOnMergeViewFactory extends NamedWindowOnExprBaseViewFactory {
     private final NamedWindowOnMergeHelper namedWindowOnMergeHelper;
     private final StatementResultService statementResultService;
     private final StatementMetricHandle createNamedWindowMetricHandle;

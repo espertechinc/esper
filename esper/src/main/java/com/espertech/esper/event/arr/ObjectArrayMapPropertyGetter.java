@@ -17,15 +17,15 @@ import com.espertech.esper.event.map.MapEventPropertyGetter;
 
 import java.util.Map;
 
-public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int index;
     private final MapEventPropertyGetter getter;
 
     /**
      * Ctor.
-     * @param getter      is the getter to use to interrogate the property in the map
-     * @param index index
+     *
+     * @param getter is the getter to use to interrogate the property in the map
+     * @param index  index
      */
     public ObjectArrayMapPropertyGetter(int index, MapEventPropertyGetter getter) {
         if (getter == null) {
@@ -40,7 +40,7 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
         if (!(valueTopObj instanceof Map)) {
             return null;
         }
-        return getter.getMap((Map)valueTopObj);
+        return getter.getMap((Map) valueTopObj);
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -49,7 +49,7 @@ public class ObjectArrayMapPropertyGetter implements ObjectArrayEventPropertyGet
             return false;
         }
 
-        return getter.isMapExistsProperty((Map)valueTopObj);
+        return getter.isMapExistsProperty((Map) valueTopObj);
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {

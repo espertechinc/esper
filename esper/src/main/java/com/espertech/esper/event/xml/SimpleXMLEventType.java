@@ -38,11 +38,10 @@ import java.util.Map;
  * Because no type information is given, all property are resolved to String.
  * No namespace support.
  * Cannot access to xml attributes, only elements content.
- *
+ * <p>
  * If an xsd is present, then use {@link com.espertech.esper.event.xml.SchemaXMLEventType SchemaXMLEventType }
  *
  * @author pablo
- *
  */
 public class SimpleXMLEventType extends BaseXMLEventType {
 
@@ -53,34 +52,30 @@ public class SimpleXMLEventType extends BaseXMLEventType {
 
     /**
      * Ctor.
+     *
      * @param configurationEventTypeXMLDOM configures the event type
-     * @param eventTypeMetadata event type metadata
-     * @param eventAdapterService for type looking and registration
-     * @param eventTypeId type id
+     * @param eventTypeMetadata            event type metadata
+     * @param eventAdapterService          for type looking and registration
+     * @param eventTypeId                  type id
      */
-    public SimpleXMLEventType(EventTypeMetadata eventTypeMetadata, int eventTypeId, ConfigurationEventTypeXMLDOM configurationEventTypeXMLDOM, EventAdapterService eventAdapterService)
-    {
+    public SimpleXMLEventType(EventTypeMetadata eventTypeMetadata, int eventTypeId, ConfigurationEventTypeXMLDOM configurationEventTypeXMLDOM, EventAdapterService eventAdapterService) {
         super(eventTypeMetadata, eventTypeId, configurationEventTypeXMLDOM, eventAdapterService);
         isResolvePropertiesAbsolute = configurationEventTypeXMLDOM.isXPathResolvePropertiesAbsolute();
         propertyGetterCache = new HashMap<String, EventPropertyGetter>();
 
         // Set of namespace context for XPath expressions
         XPathNamespaceContext xPathNamespaceContext = new XPathNamespaceContext();
-        for (Map.Entry<String, String> entry : configurationEventTypeXMLDOM.getNamespacePrefixes().entrySet())
-        {
+        for (Map.Entry<String, String> entry : configurationEventTypeXMLDOM.getNamespacePrefixes().entrySet()) {
             xPathNamespaceContext.addPrefix(entry.getKey(), entry.getValue());
         }
-        if (configurationEventTypeXMLDOM.getDefaultNamespace() != null)
-        {
+        if (configurationEventTypeXMLDOM.getDefaultNamespace() != null) {
             String defaultNamespace = configurationEventTypeXMLDOM.getDefaultNamespace();
             xPathNamespaceContext.setDefaultNamespace(defaultNamespace);
 
             // determine a default namespace prefix to use to construct XPath expressions from pure property names
             defaultNamespacePrefix = null;
-            for (Map.Entry<String, String> entry : configurationEventTypeXMLDOM.getNamespacePrefixes().entrySet())
-            {
-                if (entry.getValue().equals(defaultNamespace))
-                {
+            for (Map.Entry<String, String> entry : configurationEventTypeXMLDOM.getNamespacePrefixes().entrySet()) {
+                if (entry.getValue().equals(defaultNamespace)) {
                     defaultNamespacePrefix = entry.getKey();
                     break;
                 }
@@ -92,12 +87,9 @@ public class SimpleXMLEventType extends BaseXMLEventType {
 
     protected Class doResolvePropertyType(String propertyExpression) {
         EsperEPL2GrammarParser.StartEventPropertyRuleContext ast = PropertyParser.parse(propertyExpression);
-        if (PropertyParser.isPropertyDynamic(ast))
-        {
+        if (PropertyParser.isPropertyDynamic(ast)) {
             return org.w3c.dom.Node.class;
-        }
-        else
-        {
+        } else {
             return String.class;
         }
     }
@@ -108,46 +100,35 @@ public class SimpleXMLEventType extends BaseXMLEventType {
             return getter;
         }
 
-        if (!this.getConfigurationEventTypeXMLDOM().isXPathPropertyExpr())
-        {
+        if (!this.getConfigurationEventTypeXMLDOM().isXPathPropertyExpr()) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
             getter = prop.getGetterDOM();
-            if (!prop.isDynamic())
-            {
+            if (!prop.isDynamic()) {
                 getter = new DOMConvertingGetter(propertyExpression, (DOMPropertyGetter) getter, String.class);
             }
-        }
-        else
-        {
+        } else {
             XPathExpression xPathExpression;
             String xPathExpr;
             boolean isDynamic;
-            try
-            {
+            try {
                 EsperEPL2GrammarParser.StartEventPropertyRuleContext ast = PropertyParser.parse(propertyExpression);
                 isDynamic = PropertyParser.isPropertyDynamic(ast);
 
                 xPathExpr = SimpleXMLPropertyParser.walk(ast, propertyExpression, getRootElementName(), defaultNamespacePrefix, isResolvePropertiesAbsolute);
                 XPath xpath = getXPathFactory().newXPath();
                 xpath.setNamespaceContext(namespaceContext);
-                if (log.isInfoEnabled())
-                {
+                if (log.isInfoEnabled()) {
                     log.info("Compiling XPath expression for property '" + propertyExpression + "' as '" + xPathExpr + "'");
                 }
                 xPathExpression = xpath.compile(xPathExpr);
-            }
-            catch (XPathExpressionException e)
-            {
+            } catch (XPathExpressionException e) {
                 throw new EPException("Error constructing XPath expression from property name '" + propertyExpression + '\'', e);
             }
 
             QName xPathReturnType;
-            if (isDynamic)
-            {
+            if (isDynamic) {
                 xPathReturnType = XPathConstants.NODE;
-            }
-            else
-            {
+            } else {
                 xPathReturnType = XPathConstants.STRING;
             }
             getter = new XPathPropertyGetter(propertyExpression, xPathExpr, xPathExpression, xPathReturnType, null, null);
@@ -158,8 +139,7 @@ public class SimpleXMLEventType extends BaseXMLEventType {
         return getter;
     }
 
-    protected FragmentEventType doResolveFragmentType(String property)
-    {
+    protected FragmentEventType doResolveFragmentType(String property) {
         return null;  // Since we have no type information, the fragments are not allowed unless explicitly configured via XPath getter
     }
 }

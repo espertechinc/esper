@@ -25,8 +25,7 @@ public class EvalInsertBeanRecast implements SelectExprProcessor {
     private final int streamNumber;
 
     public EvalInsertBeanRecast(EventType targetType, EventAdapterService eventAdapterService, int streamNumber, EventType[] typesPerStream)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.eventType = targetType;
         this.eventAdapterService = eventAdapterService;
         this.streamNumber = streamNumber;

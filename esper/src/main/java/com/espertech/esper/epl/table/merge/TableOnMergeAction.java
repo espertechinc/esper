@@ -38,5 +38,6 @@ public abstract class TableOnMergeAction {
                                TableOnMergeViewChangeHandler changeHandlerAdded,
                                TableOnMergeViewChangeHandler changeHandlerRemoved,
                                ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract String getName();
 }

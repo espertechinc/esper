@@ -15,13 +15,13 @@ import java.io.StringWriter;
 /**
  * Represents a single expression (non-combined, rollup/cube or grouping set) as part of a group-by expression.
  */
-public class GroupByClauseExpressionSingle implements GroupByClauseExpression
-{
+public class GroupByClauseExpressionSingle implements GroupByClauseExpression {
     private static final long serialVersionUID = -6781748002118514367L;
     private Expression expression;
 
     /**
      * Ctor.
+     *
      * @param expression the expression
      */
     public GroupByClauseExpressionSingle(Expression expression) {
@@ -36,6 +36,7 @@ public class GroupByClauseExpressionSingle implements GroupByClauseExpression
 
     /**
      * Returns the expression.
+     *
      * @return expressions
      */
     public Expression getExpression() {
@@ -44,6 +45,7 @@ public class GroupByClauseExpressionSingle implements GroupByClauseExpression
 
     /**
      * Sets the expression.
+     *
      * @param expression expression to set
      */
     public void setExpression(Expression expression) {

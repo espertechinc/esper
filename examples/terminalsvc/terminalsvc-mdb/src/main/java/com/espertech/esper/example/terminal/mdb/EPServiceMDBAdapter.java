@@ -11,17 +11,15 @@
 package com.espertech.esper.example.terminal.mdb;
 
 import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.example.terminal.common.*;
 
-public class EPServiceMDBAdapter
-{
+public class EPServiceMDBAdapter {
     private final EPServiceProvider epService;
 
-    public EPServiceMDBAdapter(OutboundSender outboundSender)
-    {
+    public EPServiceMDBAdapter(OutboundSender outboundSender) {
         Configuration config = new Configuration();
         config.addEventType("Checkin", Checkin.class);
         config.addEventType("Cancelled", Cancelled.class);
@@ -61,16 +59,13 @@ public class EPServiceMDBAdapter
         statement.addListener(new CountPerTypeListener(outboundSender));
     }
 
-    public void sendEvent(Object theEvent)
-    {
-        synchronized (epService)
-        {
+    public void sendEvent(Object theEvent) {
+        synchronized (epService) {
             epService.getEPRuntime().sendEvent(theEvent);
         }
     }
 
-    public EPServiceProvider getEpService()
-    {
+    public EPServiceProvider getEpService() {
         return epService;
     }
 }

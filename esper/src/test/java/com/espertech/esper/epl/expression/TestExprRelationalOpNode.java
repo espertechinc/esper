@@ -21,24 +21,20 @@ import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
-public class TestExprRelationalOpNode extends TestCase
-{
+public class TestExprRelationalOpNode extends TestCase {
     private ExprRelationalOpNode opNode;
 
-    public void setUp()
-    {
+    public void setUp() {
         opNode = new ExprRelationalOpNodeImpl(RelationalOpEnum.GE);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         opNode.addChildNode(new SupportExprNode(Long.class));
         opNode.addChildNode(new SupportExprNode(int.class));
         assertEquals(Boolean.class, opNode.getType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         // Test success
         opNode.addChildNode(new SupportExprNode(String.class));
         opNode.addChildNode(new SupportExprNode(String.class));
@@ -47,25 +43,19 @@ public class TestExprRelationalOpNode extends TestCase
         opNode.setChildNodes(new SupportExprNode(String.class));
 
         // Test too few nodes under this node
-        try
-        {
+        try {
             opNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected
         }
 
         // Test mismatch type
         opNode.addChildNode(new SupportExprNode(Integer.class));
-        try
-        {
+        try {
             opNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
 
@@ -73,19 +63,15 @@ public class TestExprRelationalOpNode extends TestCase
         opNode.setChildNodes(new SupportExprNode(Boolean.class));
         opNode.addChildNode(new SupportExprNode(Boolean.class));
 
-        try
-        {
+        try {
             opNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         SupportExprNode childOne = new SupportExprNode("d");
         SupportExprNode childTwo = new SupportExprNode("c");
         opNode.addChildNode(childOne);
@@ -108,15 +94,13 @@ public class TestExprRelationalOpNode extends TestCase
         assertEquals(null, opNode.evaluate(null, false, null));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         opNode.addChildNode(new SupportExprNode(10));
         opNode.addChildNode(new SupportExprNode(5));
         assertEquals("10>=5", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(opNode));
     }
 
-    private ExprRelationalOpNode makeNode(Object valueLeft, Class typeLeft, Object valueRight, Class typeRight) throws Exception
-    {
+    private ExprRelationalOpNode makeNode(Object valueLeft, Class typeLeft, Object valueRight, Class typeRight) throws Exception {
         ExprRelationalOpNode relOpNode = new ExprRelationalOpNodeImpl(RelationalOpEnum.GE);
         relOpNode.addChildNode(new SupportExprNode(valueLeft, typeLeft));
         relOpNode.addChildNode(new SupportExprNode(valueRight, typeRight));
@@ -124,8 +108,7 @@ public class TestExprRelationalOpNode extends TestCase
         return relOpNode;
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(opNode.equalsNode(opNode));
         assertFalse(opNode.equalsNode(new ExprRelationalOpNodeImpl(RelationalOpEnum.LE)));
         assertFalse(opNode.equalsNode(new ExprOrNode()));

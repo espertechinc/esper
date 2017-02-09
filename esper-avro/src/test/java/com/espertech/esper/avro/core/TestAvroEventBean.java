@@ -21,10 +21,8 @@ import org.slf4j.LoggerFactory;
 import static com.espertech.esper.avro.util.support.SupportAvroUtil.makeAvroSupportEventType;
 import static org.apache.avro.SchemaBuilder.record;
 
-public class TestAvroEventBean extends TestCase
-{
-    public void testGet()
-    {
+public class TestAvroEventBean extends TestCase {
+    public void testGet() {
         Schema schema = record("typename").fields()
                 .requiredInt("myInt")
                 .endRecord();
@@ -40,13 +38,10 @@ public class TestAvroEventBean extends TestCase
         assertEquals(99, eventBean.get("myInt"));
 
         // test wrong property name
-        try
-        {
+        try {
             eventBean.get("dummy");
             fail();
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // Expected
             log.debug(".testGetter Expected exception, msg=" + ex.getMessage());
         }

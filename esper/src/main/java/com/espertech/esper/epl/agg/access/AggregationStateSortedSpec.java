@@ -14,8 +14,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
 import java.util.Comparator;
 
-public class AggregationStateSortedSpec
-{
+public class AggregationStateSortedSpec {
     private final int streamId;
     private final ExprEvaluator[] criteria;
     private final Comparator<Object> comparator;

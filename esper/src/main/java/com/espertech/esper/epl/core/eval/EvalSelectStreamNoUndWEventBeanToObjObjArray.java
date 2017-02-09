@@ -41,8 +41,7 @@ public class EvalSelectStreamNoUndWEventBeanToObjObjArray extends EvalSelectStre
         }
     }
 
-    public EventBean processSpecific(Object[] props, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean processSpecific(Object[] props, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         for (Integer propertyIndex : eventBeanToObjectIndexes) {
             Object value = props[propertyIndex];
             if (value instanceof EventBean) {

@@ -21,8 +21,7 @@ import java.util.List;
 /**
  * Service interface for creating views.
  */
-public interface ViewService
-{
+public interface ViewService {
     /**
      * Returns a chain of view factories that can be used to obtain the final event type,
      * and that can later be used to actually create the chain of views or reuse existing views.
@@ -30,16 +29,17 @@ public interface ViewService
      * Does not actually hook up the view factories or views against the event stream, but creates view
      * factories and sets parameters on each view factory as supplied. Determines if
      * view factories are compatible in the chain via the attach method.
-     * @param streamNum - the stream number starting at zero, a join would have N streams
+     *
+     * @param streamNum       - the stream number starting at zero, a join would have N streams
      * @param parentEventType - is the event type of the event stream that originates the raw events
-     * @param viewSpecList - the specification for each view factory in the chain to be created
-     * @param context - dependent services
-     * @param options - stream options such as unidirectional, retain-union etc
-     * @param subqueryNumber subquery num
-     * @param isSubquery subquery indicator
+     * @param viewSpecList    - the specification for each view factory in the chain to be created
+     * @param context         - dependent services
+     * @param options         - stream options such as unidirectional, retain-union etc
+     * @param subqueryNumber  subquery num
+     * @param isSubquery      subquery indicator
      * @return chain of view factories
      * @throws ViewProcessingException thrown if a view factory doesn't take parameters as supplied,
-     * or cannot hook onto it's parent view or event stream
+     *                                 or cannot hook onto it's parent view or event stream
      */
     public ViewFactoryChain createFactories(int streamNum,
                                             EventType parentEventType,
@@ -55,21 +55,23 @@ public interface ViewService
      * <p>
      * Attempts to reuse compatible views under then parent event stream viewable as
      * indicated by each view factories reuse method.
-     * @param eventStreamViewable is the event stream to hook into
-     * @param viewFactoryChain defines the list of view factorys to call makeView or canReuse on
+     *
+     * @param eventStreamViewable     is the event stream to hook into
+     * @param viewFactoryChain        defines the list of view factorys to call makeView or canReuse on
      * @param viewFactoryChainContext provides services
-     * @param hasPreviousNode indicator whether previous-expr
+     * @param hasPreviousNode         indicator whether previous-expr
      * @return last viewable in chain, or the eventStreamViewable if no view factories are supplied
      */
     public ViewServiceCreateResult createViews(Viewable eventStreamViewable,
-                                List<ViewFactory> viewFactoryChain,
-                                AgentInstanceViewFactoryChainContext viewFactoryChainContext,
-                                boolean hasPreviousNode);
+                                               List<ViewFactory> viewFactoryChain,
+                                               AgentInstanceViewFactoryChainContext viewFactoryChainContext,
+                                               boolean hasPreviousNode);
 
     /**
      * Removes a view discoupling the view and any of it's parent views up the tree to the last shared parent view.
+     *
      * @param eventStream - the event stream that originates the raw events
-     * @param view - the view (should be the last in a chain) to remove
+     * @param view        - the view (should be the last in a chain) to remove
      */
     public void remove(EventStream eventStream, Viewable view);
 }

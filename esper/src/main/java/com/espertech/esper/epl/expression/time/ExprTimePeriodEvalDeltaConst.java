@@ -10,10 +10,12 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-public interface ExprTimePeriodEvalDeltaConst extends ExprTimePeriodEvalDeltaConstFactory
-{
+public interface ExprTimePeriodEvalDeltaConst extends ExprTimePeriodEvalDeltaConstFactory {
     public long deltaAdd(long fromTime);
+
     public long deltaSubtract(long fromTime);
+
     public ExprTimePeriodEvalDeltaResult deltaAddWReference(long fromTime, long reference);
+
     public boolean equalsTimePeriod(ExprTimePeriodEvalDeltaConst timeDeltaComputation);
 }

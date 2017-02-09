@@ -20,17 +20,17 @@ import com.espertech.esper.event.bean.BeanEventPropertyGetter;
 /**
  * A getter that works on POJO events residing within a Map as an event property.
  */
-public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
     private final BeanEventPropertyGetter entryGetter;
 
     /**
      * Ctor.
-     * @param entryGetter the getter for the map entry
+     *
+     * @param entryGetter         the getter for the map entry
      * @param eventAdapterService for producing wrappers to objects
-     * @param returnType type of the entry returned
-     * @param propertyIndex index
+     * @param returnType          type of the entry returned
+     * @param propertyIndex       index
      * @param nestedComponentType nested component type
      */
     public ObjectArrayPOJOEntryPropertyGetter(int propertyIndex, BeanEventPropertyGetter entryGetter, EventAdapterService eventAdapterService, Class returnType, Class nestedComponentType) {
@@ -39,19 +39,17 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         this.entryGetter = entryGetter;
     }
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         Object value = array[propertyIndex];
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
 
         // Object within the map
         if (value instanceof EventBean) {
-            return entryGetter.get((EventBean)value);
+            return entryGetter.get((EventBean) value);
         }
         return entryGetter.getBeanProp(value);
     }
@@ -60,24 +58,22 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         return getObjectArray(array);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
         Object value = array[propertyIndex];
 
-        if (value == null){
+        if (value == null) {
             return false;
         }
 
         // Object within the map
         if (value instanceof EventBean) {
-            return entryGetter.isExistsProperty((EventBean)value);
+            return entryGetter.isExistsProperty((EventBean) value);
         }
         return entryGetter.isBeanExistsProperty(value);
     }

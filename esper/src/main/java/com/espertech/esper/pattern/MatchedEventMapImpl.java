@@ -21,13 +21,13 @@ import java.util.Map;
  * The optional tag value supplied when an event expression is created is used as a key for placing
  * matching event objects into this collection.
  */
-public final class MatchedEventMapImpl implements MatchedEventMap
-{
+public final class MatchedEventMapImpl implements MatchedEventMap {
     private final MatchedEventMapMeta meta;
     private final Object[] matches;
 
     /**
      * Constructor creates an empty collection of events.
+     *
      * @param meta metadata
      */
     public MatchedEventMapImpl(MatchedEventMapMeta meta) {
@@ -42,46 +42,43 @@ public final class MatchedEventMapImpl implements MatchedEventMap
 
     /**
      * Add an event to the collection identified by the given tag.
-     * @param tag is an identifier to retrieve the event from
+     *
+     * @param tag      is an identifier to retrieve the event from
      * @param theEvent is the event object or array of event object to be added
      */
-    public void add(final int tag, final Object theEvent)
-    {
+    public void add(final int tag, final Object theEvent) {
         matches[tag] = theEvent;
     }
 
     /**
      * Returns a map containing the events where the key is the event tag string and the value is the event
      * instance.
+     *
      * @return Hashtable containing event instances
      */
-    public Object[] getMatchingEvents()
-    {
+    public Object[] getMatchingEvents() {
         return matches;
     }
 
     /**
      * Returns a single event instance given the tag identifier, or null if the tag could not be located.
+     *
      * @param tag is the identifier to look for
      * @return event instances for the tag
      */
-    public EventBean getMatchingEvent(final int tag)
-    {
+    public EventBean getMatchingEvent(final int tag) {
         return (EventBean) matches[tag];
     }
 
-    public Object getMatchingEventAsObject(final int tag)
-    {
+    public Object getMatchingEventAsObject(final int tag) {
         return matches[tag];
     }
 
-    public String toString()
-    {
+    public String toString() {
         final StringBuilder buffer = new StringBuilder();
         int count = 0;
 
-        for (int i = 0; i < matches.length; i++)
-        {
+        for (int i = 0; i < matches.length; i++) {
             buffer.append(" (");
             buffer.append(count++);
             buffer.append(") ");
@@ -96,10 +93,10 @@ public final class MatchedEventMapImpl implements MatchedEventMap
 
     /**
      * Make a shallow copy of this collection.
+     *
      * @return shallow copy
      */
-    public MatchedEventMapImpl shallowCopy()
-    {
+    public MatchedEventMapImpl shallowCopy() {
         if (matches.length == 0) {
             return this;
         }
@@ -107,8 +104,7 @@ public final class MatchedEventMapImpl implements MatchedEventMap
         Object[] copy = new Object[matches.length];
         if (matches.length > 1) {
             System.arraycopy(matches, 0, copy, 0, matches.length);
-        }
-        else {
+        } else {
             copy[0] = matches[0];
         }
         return new MatchedEventMapImpl(meta, copy);
@@ -117,12 +113,11 @@ public final class MatchedEventMapImpl implements MatchedEventMap
     /**
      * Merge the state of an other match event structure into this one by adding all entries
      * within the MatchedEventMap to this match event.
+     *
      * @param other is the other instance to merge in.
      */
-    public void merge(final MatchedEventMap other)
-    {
-        if (!(other instanceof MatchedEventMapImpl))
-        {
+    public void merge(final MatchedEventMap other) {
+        if (!(other instanceof MatchedEventMapImpl)) {
             throw new UnsupportedOperationException("Merge requires same types");
         }
         MatchedEventMapImpl otherImpl = (MatchedEventMapImpl) other;

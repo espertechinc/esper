@@ -12,72 +12,65 @@ package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
 
-public class TestSortedDoubleVector extends TestCase
-{
+public class TestSortedDoubleVector extends TestCase {
     private SortedDoubleVector vector;
 
-    public void setUp()
-    {
+    public void setUp() {
         vector = new SortedDoubleVector();
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         assertEquals(0, vector.size());
 
         vector.add(10);
         vector.add(0);
         vector.add(5);
-        double[] expected = new double[] {0, 5, 10};
+        double[] expected = new double[]{0, 5, 10};
         compare(expected, vector);
 
         vector.add(10);
         vector.add(1);
         vector.add(5.5);
-        expected = new double[] {0, 1, 5, 5.5, 10, 10};
+        expected = new double[]{0, 1, 5, 5.5, 10, 10};
         compare(expected, vector);
 
         vector.add(9);
         vector.add(2);
         vector.add(5.5);
-        expected = new double[] {0, 1, 2, 5, 5.5, 5.5, 9, 10, 10};
+        expected = new double[]{0, 1, 2, 5, 5.5, 5.5, 9, 10, 10};
         compare(expected, vector);
     }
 
-    public void testRemove()
-    {
+    public void testRemove() {
         vector.add(5);
         vector.add(1);
         vector.add(0);
         vector.add(-1);
         vector.add(1);
         vector.add(0.5);
-        double[] expected = new double[] {-1, 0, 0.5, 1, 1, 5};
+        double[] expected = new double[]{-1, 0, 0.5, 1, 1, 5};
         compare(expected, vector);
 
         vector.remove(1);
-        expected = new double[] {-1, 0, 0.5, 1, 5};
+        expected = new double[]{-1, 0, 0.5, 1, 5};
         compare(expected, vector);
 
         vector.remove(-1);
         vector.add(5);
-        expected = new double[] {0, 0.5, 1, 5, 5};
+        expected = new double[]{0, 0.5, 1, 5, 5};
         compare(expected, vector);
 
         vector.remove(5);
         vector.remove(5);
-        expected = new double[] {0, 0.5, 1};
+        expected = new double[]{0, 0.5, 1};
         compare(expected, vector);
 
         vector.add(99);
         vector.remove(99);
-        try
-        {
+        try {
             vector.remove(99);
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // expected
         }
 
@@ -85,8 +78,7 @@ public class TestSortedDoubleVector extends TestCase
         vector.remove(Double.NaN);
     }
 
-    public void testFindInsertIndex()
-    {
+    public void testFindInsertIndex() {
         assertEquals(-1, vector.findInsertIndex(1));
 
         // test distinct values, 10 to 80
@@ -220,8 +212,7 @@ public class TestSortedDoubleVector extends TestCase
         assertEquals(0, vector.findInsertIndex(0));
         assertEquals(0, vector.findInsertIndex(1));
         assertEquals(-1, vector.findInsertIndex(2));
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             vector.getValues().add(1D);
             assertEquals("for i=" + i, 0, vector.findInsertIndex(0));
             assertTrue("for i=" + i, vector.findInsertIndex(1) != -1);
@@ -229,7 +220,7 @@ public class TestSortedDoubleVector extends TestCase
         }
 
         // test various other cases
-        double[] vector = new double[] {1, 1, 2, 2, 2, 3, 4, 5, 5, 6};
+        double[] vector = new double[]{1, 1, 2, 2, 2, 3, 4, 5, 5, 6};
         assertEquals(0, findIndex(vector, 0));
         assertEquals(0, findIndex(vector, 0.5));
         assertEquals(0, findIndex(vector, 1));
@@ -247,7 +238,7 @@ public class TestSortedDoubleVector extends TestCase
         assertEquals(-1, findIndex(vector, 7));
 
         // test various other cases
-        vector = new double[] {1, 8, 100, 1000, 1000, 10000, 10000, 99999};
+        vector = new double[]{1, 8, 100, 1000, 1000, 10000, 10000, 99999};
         assertEquals(0, findIndex(vector, 0));
         assertEquals(0, findIndex(vector, 1));
         assertEquals(1, findIndex(vector, 2));
@@ -268,21 +259,17 @@ public class TestSortedDoubleVector extends TestCase
         assertEquals(-1, findIndex(vector, 100000));
     }
 
-    private int findIndex(double[] data, double value)
-    {
+    private int findIndex(double[] data, double value) {
         vector.getValues().clear();
-        for (double aData : data)
-        {
+        for (double aData : data) {
             vector.getValues().add(aData);
         }
         return vector.findInsertIndex(value);
     }
 
-    private void compare(double[] expected, SortedDoubleVector vector)
-    {
+    private void compare(double[] expected, SortedDoubleVector vector) {
         assertEquals(expected.length, vector.size());
-        for (int i = 0; i < expected.length; i++)
-        {
+        for (int i = 0; i < expected.length; i++) {
             assertEquals(expected[i], vector.getValue(i));
         }
     }

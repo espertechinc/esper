@@ -17,18 +17,17 @@ import java.util.List;
 /**
  * Specification for a pattern guard object consists of a namespace, name and guard object parameters.
  */
-public final class PatternGuardSpec extends ObjectSpec
-{
+public final class PatternGuardSpec extends ObjectSpec {
     private static final long serialVersionUID = -3744696950315586560L;
 
     /**
      * Constructor.
-     * @param namespace if the namespace the object is in
-     * @param objectName is the name of the object
+     *
+     * @param namespace        if the namespace the object is in
+     * @param objectName       is the name of the object
      * @param objectParameters is a list of values representing the object parameters
      */
-    public PatternGuardSpec(String namespace, String objectName, List<ExprNode> objectParameters)
-    {
+    public PatternGuardSpec(String namespace, String objectName, List<ExprNode> objectParameters) {
         super(namespace, objectName, objectParameters);
     }
 }

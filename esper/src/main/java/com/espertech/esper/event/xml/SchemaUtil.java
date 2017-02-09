@@ -26,16 +26,16 @@ import java.util.Map;
 
 /**
  * Utility class for querying schema information via Xerces implementation classes.
+ *
  * @author pablo
  */
 public class SchemaUtil {
 
     private static Map<String, Class> typeMap;
 
-    static
-    {
+    static {
         typeMap = new HashMap<String, Class>();
-        Object[][] types = new Object[][] {
+        Object[][] types = new Object[][]{
                 {"nonPositiveInteger", Integer.class},
                 {"nonNegativeInteger", Integer.class},
                 {"negativeInteger", Integer.class},
@@ -57,87 +57,72 @@ public class SchemaUtil {
                 {"dateTime", String.class},
                 {"date", String.class},
                 {"time", String.class}};
-        for (int i = 0; i < types.length; i++)
-        {
+        for (int i = 0; i < types.length; i++) {
             typeMap.put(types[i][0].toString(), (Class) types[i][1]);
-        }        
+        }
     }
 
     /**
      * Returns the Class-type of the schema item.
+     *
      * @param item to to determine type for
      * @return type
      */
-    public static Class toReturnType(SchemaItem item)
-    {
-        if (item instanceof SchemaItemAttribute)
-        {
+    public static Class toReturnType(SchemaItem item) {
+        if (item instanceof SchemaItemAttribute) {
             SchemaItemAttribute att = (SchemaItemAttribute) item;
             return SchemaUtil.toReturnType(att.getXsSimpleType(), att.getTypeName(), null);
-        }
-        else if (item instanceof SchemaElementSimple)
-        {
+        } else if (item instanceof SchemaElementSimple) {
             SchemaElementSimple simple = (SchemaElementSimple) item;
             Class returnType = SchemaUtil.toReturnType(simple.getXsSimpleType(), simple.getTypeName(), simple.getFractionDigits());
-            if (simple.isArray())
-            {
+            if (simple.isArray()) {
                 returnType = Array.newInstance(returnType, 0).getClass();
             }
             return returnType;
-        }
-        else if (item instanceof SchemaElementComplex)
-        {
+        } else if (item instanceof SchemaElementComplex) {
             SchemaElementComplex complex = (SchemaElementComplex) item;
-            if (complex.getOptionalSimpleType() != null)
-            {
+            if (complex.getOptionalSimpleType() != null) {
                 return SchemaUtil.toReturnType(complex.getOptionalSimpleType(), complex.getOptionalSimpleTypeName(), null);
             }
-            if (complex.isArray())
-            {
+            if (complex.isArray()) {
                 return NodeList.class;
             }
             return Node.class;
-        }
-        else
-        {
+        } else {
             throw new PropertyAccessException("Invalid schema return type:" + item);
         }
     }
 
     /**
      * Returns the type for a give short type and type name.
-     * @param xsType XSSimplyType type
-     * @param typeName type name in XML standard
+     *
+     * @param xsType                 XSSimplyType type
+     * @param typeName               type name in XML standard
      * @param optionalFractionDigits fraction digits if any are defined
      * @return equivalent native type
      */
-    public static Class toReturnType(short xsType, String typeName, Integer optionalFractionDigits)
-    {
-        if (typeName != null)
-        {
+    public static Class toReturnType(short xsType, String typeName, Integer optionalFractionDigits) {
+        if (typeName != null) {
             Class result = typeMap.get(typeName);
-            if (result != null)
-            {
+            if (result != null) {
                 return result;
             }
         }
 
-        switch(xsType)
-        {
-            case XSSimpleType.PRIMITIVE_BOOLEAN :
-                    return Boolean.class;
-            case XSSimpleType.PRIMITIVE_STRING :
-                    return String.class;
-            case XSSimpleType.PRIMITIVE_DECIMAL :
-                    if ((optionalFractionDigits != null) && (optionalFractionDigits > 0))
-                    {
-                        return Double.class;
-                    }
-                    return Integer.class;
-            case XSSimpleType.PRIMITIVE_FLOAT :
-                    return Float.class;
-            case XSSimpleType.PRIMITIVE_DOUBLE :
+        switch (xsType) {
+            case XSSimpleType.PRIMITIVE_BOOLEAN:
+                return Boolean.class;
+            case XSSimpleType.PRIMITIVE_STRING:
+                return String.class;
+            case XSSimpleType.PRIMITIVE_DECIMAL:
+                if ((optionalFractionDigits != null) && (optionalFractionDigits > 0)) {
                     return Double.class;
+                }
+                return Integer.class;
+            case XSSimpleType.PRIMITIVE_FLOAT:
+                return Float.class;
+            case XSSimpleType.PRIMITIVE_DOUBLE:
+                return Double.class;
             default:
                 return String.class;
         }
@@ -145,14 +130,13 @@ public class SchemaUtil {
 
     /**
      * Returns the native type based on XPathConstants qname and an optional cast-to type, if provided.
-     * @param resultType qname
+     *
+     * @param resultType         qname
      * @param optionalCastToType null or cast-to type
      * @return return type
      */
-    public static Class toReturnType(QName resultType, Class optionalCastToType)
-    {
-        if (optionalCastToType != null)
-        {
+    public static Class toReturnType(QName resultType, Class optionalCastToType) {
+        if (optionalCastToType != null) {
             return optionalCastToType;
         }
 
@@ -172,13 +156,12 @@ public class SchemaUtil {
 
     /**
      * Returns the XPathConstants type for a given Xerces type definition.
+     *
      * @param type is the type
      * @return XPathConstants type
      */
-    public static QName simpleTypeToQName(short type)
-    {
-        switch (type)
-        {
+    public static QName simpleTypeToQName(short type) {
+        switch (type) {
             case XSSimpleType.PRIMITIVE_BOOLEAN:
                 return XPathConstants.BOOLEAN;
             case XSSimpleType.PRIMITIVE_DOUBLE:
@@ -202,83 +185,62 @@ public class SchemaUtil {
 
     /**
      * Returns the root element for a given schema given a root element name and namespace.
-     * @param schema is the schema to interrogate
-     * @param namespace is the namespace of the root element
+     *
+     * @param schema      is the schema to interrogate
+     * @param namespace   is the namespace of the root element
      * @param elementName is the name of the root element
      * @return declaration of root element
      */
-    public static SchemaElementComplex findRootElement(SchemaModel schema, String namespace, String elementName)
-    {
-        if ((namespace != null) && namespace.length() != 0)
-        {
-            for (SchemaElementComplex complexElement : schema.getComponents())
-            {
-                if ((complexElement.getNamespace().equals(namespace)) && (complexElement.getName().equals(elementName)))
-                {
+    public static SchemaElementComplex findRootElement(SchemaModel schema, String namespace, String elementName) {
+        if ((namespace != null) && namespace.length() != 0) {
+            for (SchemaElementComplex complexElement : schema.getComponents()) {
+                if ((complexElement.getNamespace().equals(namespace)) && (complexElement.getName().equals(elementName))) {
                     return complexElement;
                 }
             }
-        }
-        else
-        {
-            for (SchemaElementComplex complexElement : schema.getComponents())
-            {
-                if (complexElement.getName().equals(elementName))
-                {
+        } else {
+            for (SchemaElementComplex complexElement : schema.getComponents()) {
+                if (complexElement.getName().equals(elementName)) {
                     return complexElement;
                 }
             }
         }
 
-        if (elementName.startsWith("//"))
-        {
+        if (elementName.startsWith("//")) {
             elementName = elementName.substring(2);
-            for (SchemaElementComplex complexElement : schema.getComponents())
-            {
+            for (SchemaElementComplex complexElement : schema.getComponents()) {
                 SchemaElementComplex match = recursiveDeepMatch(complexElement, namespace, elementName);
-                if (match != null)
-                {
+                if (match != null) {
                     return match;
                 }
             }
         }
 
         String text = "Could not find root element declaration in schema for element name '" + elementName + '\'';
-        if (namespace != null)
-        {
+        if (namespace != null) {
             text = text + " in namespace '" + namespace + '\'';
         }
         throw new EPException(text);
     }
 
-    private static SchemaElementComplex recursiveDeepMatch(SchemaElementComplex parent, String namespace, String elementName)
-    {
-        if ((namespace != null) && namespace.length() != 0)
-        {
-            for (SchemaElementComplex complexElement : parent.getChildren())
-            {
-                if ((complexElement.getNamespace().equals(namespace)) && (complexElement.getName().equals(elementName)))
-                {
+    private static SchemaElementComplex recursiveDeepMatch(SchemaElementComplex parent, String namespace, String elementName) {
+        if ((namespace != null) && namespace.length() != 0) {
+            for (SchemaElementComplex complexElement : parent.getChildren()) {
+                if ((complexElement.getNamespace().equals(namespace)) && (complexElement.getName().equals(elementName))) {
                     return complexElement;
                 }
             }
-        }
-        else
-        {
-            for (SchemaElementComplex complexElement : parent.getChildren())
-            {
-                if (complexElement.getName().equals(elementName))
-                {
+        } else {
+            for (SchemaElementComplex complexElement : parent.getChildren()) {
+                if (complexElement.getName().equals(elementName)) {
                     return complexElement;
                 }
             }
         }
 
-        for (SchemaElementComplex complexElement : parent.getChildren())
-        {
+        for (SchemaElementComplex complexElement : parent.getChildren()) {
             SchemaElementComplex found = recursiveDeepMatch(complexElement, namespace, elementName);
-            if (found != null)
-            {
+            if (found != null) {
                 return found;
             }
         }
@@ -292,32 +254,26 @@ public class SchemaUtil {
      * First look if the property es an attribute. If not, look at simple and then child element
      * definitions.
      *
-     * @param def the definition to start looking
+     * @param def      the definition to start looking
      * @param property the property to look for
      * @return schema element or null if not found
      */
     public static SchemaItem findPropertyMapping(SchemaElementComplex def, String property) {
 
-        for (SchemaItemAttribute attribute : def.getAttributes())
-        {
-            if (attribute.getName().equals(property))
-            {
+        for (SchemaItemAttribute attribute : def.getAttributes()) {
+            if (attribute.getName().equals(property)) {
                 return attribute;
             }
         }
 
-        for (SchemaElementSimple simple : def.getSimpleElements())
-        {
-            if (simple.getName().equals(property))
-            {
+        for (SchemaElementSimple simple : def.getSimpleElements()) {
+            if (simple.getName().equals(property)) {
                 return simple;
             }
         }
 
-        for (SchemaElementComplex complex : def.getChildren())
-        {
-            if (complex.getName().equals(property))
-            {
+        for (SchemaElementComplex complex : def.getChildren()) {
+            if (complex.getName().equals(property)) {
                 return complex;
             }
         }
@@ -328,18 +284,15 @@ public class SchemaUtil {
 
     /**
      * Serialize the given node.
+     *
      * @param doc node to serialize
      * @return serialized node string
      */
-    public static String serialize(Node doc)
-    {
+    public static String serialize(Node doc) {
         StringWriter writer = new StringWriter();
-        try
-        {
+        try {
             serializeNode(doc, "", writer);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         writer.flush();
@@ -347,30 +300,23 @@ public class SchemaUtil {
     }
 
     private static void serializeNode(Node node, String
-                    indentLevel, StringWriter writer) throws IOException
-    {
-        switch (node.getNodeType())
-        {
+            indentLevel, StringWriter writer) throws IOException {
+        switch (node.getNodeType()) {
             case Node.DOCUMENT_NODE:
                 Document doc = (Document) node;
                 writer.write("<?xml version=\"");
                 writer.write(doc.getXmlVersion());
                 writer.write("\" encoding=\"UTF-8\" standalone=\"");
-                if (doc.getXmlStandalone())
-                {
+                if (doc.getXmlStandalone()) {
                     writer.write("yes");
-                }
-                else
-                {
+                } else {
                     writer.write("no");
                 }
                 writer.write("\"?>\n");
 
                 NodeList nodes = node.getChildNodes();
-                if (nodes != null)
-                {
-                    for (int i = 0; i < nodes.getLength(); i++)
-                    {
+                if (nodes != null) {
+                    for (int i = 0; i < nodes.getLength(); i++) {
                         serializeNode(nodes.item(i), "", writer);
                     }
                 }
@@ -379,8 +325,7 @@ public class SchemaUtil {
                 String name = node.getNodeName();
                 writer.write(indentLevel + "<" + name);
                 NamedNodeMap attributes = node.getAttributes();
-                for (int i = 0; i < attributes.getLength(); i++)
-                {
+                for (int i = 0; i < attributes.getLength(); i++) {
                     Node current = attributes.item(i);
                     writer.write(" " + current.getNodeName() + "=\"");
                     print(current.getNodeValue(), writer);
@@ -389,21 +334,17 @@ public class SchemaUtil {
                 writer.write(">");
 
                 NodeList children = node.getChildNodes();
-                if (children != null)
-                {
-                    if ((children.item(0) != null) && (children.item(0).getNodeType() == Node.ELEMENT_NODE))
-                    {
+                if (children != null) {
+                    if ((children.item(0) != null) && (children.item(0).getNodeType() == Node.ELEMENT_NODE)) {
                         writer.write("\n");
                     }
 
-                    for (int i = 0; i < children.getLength(); i++)
-                    {
+                    for (int i = 0; i < children.getLength(); i++) {
                         serializeNode(children.item(i), indentLevel, writer);
                     }
 
                     if ((children.item(0) != null)
-                            && (children.item(children.getLength() - 1).getNodeType() == Node.ELEMENT_NODE))
-                    {
+                            && (children.item(children.getLength() - 1).getNodeType() == Node.ELEMENT_NODE)) {
                         writer.write(indentLevel);
                     }
                 }
@@ -433,17 +374,13 @@ public class SchemaUtil {
                 String systemId = docType.getSystemId();
                 String internalSubset = docType.getInternalSubset();
                 writer.write("<!DOCTYPE " + docType.getName());
-                if (publicId != null)
-                {
+                if (publicId != null) {
                     writer.write(" PUBLIC \"" + publicId + "\" ");
-                }
-                else
-                {
+                } else {
                     writer.write(" SYSTEM ");
                 }
                 writer.write("\"" + systemId + "\"");
-                if (internalSubset != null)
-                {
+                if (internalSubset != null) {
                     writer.write(" [" + internalSubset + "]");
                 }
                 writer.write(">\n");
@@ -453,27 +390,23 @@ public class SchemaUtil {
         }
     }
 
-    private static void print(String s, Writer writer) throws IOException
-    {
-        if (s == null)
-        {
+    private static void print(String s, Writer writer) throws IOException {
+        if (s == null) {
             return;
         }
-        for (int i = 0, len = s.length(); i < len; i++)
-        {
+        for (int i = 0, len = s.length(); i < len; i++) {
             char c = s.charAt(i);
-            switch (c)
-            {
-                case'<':
+            switch (c) {
+                case '<':
                     writer.write("&lt;");
                     break;
-                case'>':
+                case '>':
                     writer.write("&gt;");
                     break;
-                case'&':
+                case '&':
                     writer.write("&amp;");
                     break;
-                case'\r':
+                case '\r':
                     writer.write("&#xD;");
                     break;
                 default:

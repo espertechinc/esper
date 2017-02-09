@@ -20,24 +20,22 @@ import java.util.List;
 /**
  * Sorter and row limiter in one: sorts using a sorter and row limits
  */
-public class OrderByProcessorOrderedLimit implements OrderByProcessor
-{
+public class OrderByProcessorOrderedLimit implements OrderByProcessor {
     private final OrderByProcessorImpl orderByProcessor;
     private final RowLimitProcessor rowLimitProcessor;
 
     /**
      * Ctor.
-     * @param orderByProcessor the sorter
+     *
+     * @param orderByProcessor  the sorter
      * @param rowLimitProcessor the row limiter
      */
-    public OrderByProcessorOrderedLimit(OrderByProcessorImpl orderByProcessor, RowLimitProcessor rowLimitProcessor)
-    {
+    public OrderByProcessorOrderedLimit(OrderByProcessorImpl orderByProcessor, RowLimitProcessor rowLimitProcessor) {
         this.orderByProcessor = orderByProcessor;
         this.rowLimitProcessor = rowLimitProcessor;
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         rowLimitProcessor.determineCurrentLimit();
 
         if (rowLimitProcessor.getCurrentRowLimit() == 1 &&
@@ -56,14 +54,12 @@ public class OrderByProcessorOrderedLimit implements OrderByProcessor
         return rowLimitProcessor.determineLimitAndApply(sorted);
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] sort(EventBean[] outgoingEvents, EventBean[][] generatingEvents, Object[] groupByKeys, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean[] sorted = orderByProcessor.sort(outgoingEvents, generatingEvents, groupByKeys, isNewData, exprEvaluatorContext);
         return rowLimitProcessor.determineLimitAndApply(sorted);
     }
 
-    public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getSortKey(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return orderByProcessor.getSortKey(eventsPerStream, isNewData, exprEvaluatorContext);
     }
 
@@ -71,13 +67,11 @@ public class OrderByProcessorOrderedLimit implements OrderByProcessor
         return orderByProcessor.getSortKey(eventsPerStream, isNewData, exprEvaluatorContext, elementsForLevel);
     }
 
-    public Object[] getSortKeyPerRow(EventBean[] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object[] getSortKeyPerRow(EventBean[] generatingEvents, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return orderByProcessor.getSortKeyPerRow(generatingEvents, isNewData, exprEvaluatorContext);
     }
 
-    public EventBean[] sort(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] sort(EventBean[] outgoingEvents, Object[] orderKeys, ExprEvaluatorContext exprEvaluatorContext) {
         rowLimitProcessor.determineCurrentLimit();
 
         if (rowLimitProcessor.getCurrentRowLimit() == 1 &&

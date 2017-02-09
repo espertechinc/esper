@@ -13,10 +13,10 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.supportunit.bean.*;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
@@ -26,13 +26,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TestMapEventType extends TestCase
-{
+public class TestMapEventType extends TestCase {
     private MapEventType eventType;
     private EventAdapterService eventAdapterService;
 
-    public void setUp()
-    {
+    public void setUp() {
         eventAdapterService = SupportEventAdapterService.getService();
 
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, "typename", true, true, true, false, false);
@@ -47,14 +45,12 @@ public class TestMapEventType extends TestCase
         eventType = new MapEventType(metadata, "", 1, eventAdapterService, testTypesMap, null, null, null);
     }
 
-    public void testGetPropertyNames()
-    {
+    public void testGetPropertyNames() {
         String[] properties = eventType.getPropertyNames();
         EPAssertionUtil.assertEqualsAnyOrder(properties, new String[]{"myInt", "myString", "myNullableString", "mySupportBean", "myComplexBean", "myNullableSupportBean", "myNullType"});
     }
 
-    public void testGetPropertyType()
-    {
+    public void testGetPropertyType() {
         assertEquals(int.class, eventType.getPropertyType("myInt"));
         assertEquals(String.class, eventType.getPropertyType("myString"));
         assertEquals(SupportBean.class, eventType.getPropertyType("mySupportBean"));
@@ -71,13 +67,11 @@ public class TestMapEventType extends TestCase
         assertNull(eventType.getPropertyType("myComplexBean.nested.nestedValueXXX"));
     }
 
-    public void testGetUnderlyingType()
-    {
+    public void testGetUnderlyingType() {
         assertEquals(Map.class, eventType.getUnderlyingType());
     }
 
-    public void testIsValidProperty()
-    {
+    public void testIsValidProperty() {
         assertTrue(eventType.isProperty("myInt"));
         assertTrue(eventType.isProperty("myString"));
         assertTrue(eventType.isProperty("mySupportBean.intPrimitive"));
@@ -92,8 +86,7 @@ public class TestMapEventType extends TestCase
         assertFalse(eventType.isProperty("myComplexBean.nested.nestedValueXXX"));
     }
 
-    public void testGetGetter()
-    {
+    public void testGetGetter() {
         SupportBean nestedSupportBean = new SupportBean();
         nestedSupportBean.setIntPrimitive(100);
         SupportBeanComplexProps complexPropBean = SupportBeanComplexProps.makeDefaultBean();
@@ -130,26 +123,21 @@ public class TestMapEventType extends TestCase
         getter = eventType.getGetter("myComplexBean.nested.nestedValue");
         assertEquals("nestedValue", getter.get(eventBean));
 
-        try
-        {
+        try {
             eventBean = SupportEventBeanFactory.createObject(new Object());
             getter.get(eventBean);
             assertTrue(false);
-        }
-        catch (ClassCastException ex)
-        {
+        } catch (ClassCastException ex) {
             // Expected
             log.debug(".testGetGetter Expected exception, msg=" + ex.getMessage());
         }
     }
 
-    public void testGetSuperTypes()
-    {
+    public void testGetSuperTypes() {
         assertNull(eventType.getSuperTypes());
     }
 
-    public void testEquals()
-    {
+    public void testEquals() {
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.MAP, "", true, true, true, false, false);
 
         Map<String, Object> mapTwo = new LinkedHashMap<String, Object>();
@@ -186,8 +174,7 @@ public class TestMapEventType extends TestCase
         assertTrue(new MapEventType(metadata, "T1", 1, eventAdapterService, mapOne, null, null, null).equalsCompareType(new MapEventType(metadata, "T1", 1, eventAdapterService, mapTwo, null, null, null)));
     }
 
-    public void testGetFromMap()
-    {
+    public void testGetFromMap() {
         SupportBean nestedSupportBean = new SupportBean();
         nestedSupportBean.setIntPrimitive(100);
         SupportBeanComplexProps complexPropBean = SupportBeanComplexProps.makeDefaultBean();
@@ -205,8 +192,7 @@ public class TestMapEventType extends TestCase
         assertEquals("nestedValue", eventType.getValue("myComplexBean.nested.nestedValue", valuesMap));
     }
 
-    public void testNestedMap()
-    {
+    public void testNestedMap() {
         Map<String, Object> levelThree = new HashMap<String, Object>();
         levelThree.put("simpleThree", long.class);
         levelThree.put("objThree", SupportBean_D.class);
@@ -235,45 +221,42 @@ public class TestMapEventType extends TestCase
         Map<String, Object> testData = getTestData();
         MapEventBean theEvent = new MapEventBean(testData, mapType);
 
-        Object[][] expected = new Object[][] {
-                {"map.mapOne.simpleTwo", float.class,       300f},
-                {"nodefmap.item?",      Object.class,       "|nodefmap.item|"},
-                {"map.objOne",      SupportBean_B.class,    new SupportBean_B("B1")},
-                {"map.simpleOne",   Integer.class,          20},
-                {"map.mapOne",      Map.class,              ((Map)testData.get("map")).get("mapOne")},
-                {"map.mapOne.objTwo", SupportBean_C.class,  new SupportBean_C("C1")},
-                {"map.mapOne.mapTwo", Map.class,            ((Map) ((Map)testData.get("map")).get("mapOne")).get("mapTwo")},
-                {"map.mapOne.mapTwo.simpleThree", long.class,  4000L},
+        Object[][] expected = new Object[][]{
+                {"map.mapOne.simpleTwo", float.class, 300f},
+                {"nodefmap.item?", Object.class, "|nodefmap.item|"},
+                {"map.objOne", SupportBean_B.class, new SupportBean_B("B1")},
+                {"map.simpleOne", Integer.class, 20},
+                {"map.mapOne", Map.class, ((Map) testData.get("map")).get("mapOne")},
+                {"map.mapOne.objTwo", SupportBean_C.class, new SupportBean_C("C1")},
+                {"map.mapOne.mapTwo", Map.class, ((Map) ((Map) testData.get("map")).get("mapOne")).get("mapTwo")},
+                {"map.mapOne.mapTwo.simpleThree", long.class, 4000L},
                 {"map.mapOne.mapTwo.objThree", SupportBean_D.class, new SupportBean_D("D1")},
-                {"simple",      double.class,               1d},
-                {"obj",         SupportBean_A.class,        new SupportBean_A("A1")},
-                {"nodefmap",    Map.class,                  testData.get("nodefmap")},
-                {"map",         Map.class,                  testData.get("map")},
-                    };
+                {"simple", double.class, 1d},
+                {"obj", SupportBean_A.class, new SupportBean_A("A1")},
+                {"nodefmap", Map.class, testData.get("nodefmap")},
+                {"map", Map.class, testData.get("map")},
+        };
 
         // assert getter available for all properties
-        for (int i = 0; i < expected.length; i++)
-        {
+        for (int i = 0; i < expected.length; i++) {
             String propName = (String) expected[i][0];
             assertNotNull("failed for property:" + propName, mapType.getGetter(propName));
         }
 
         // assert property types
-        for (int i = 0; i < expected.length; i++)
-        {
+        for (int i = 0; i < expected.length; i++) {
             String propName = (String) expected[i][0];
             Class propType = (Class) expected[i][1];
             assertEquals("failed for property:" + propName, propType, mapType.getPropertyType(propName));
         }
 
         // assert property names
-        String[] expectedPropNames = new String[] {"simple", "obj", "map", "nodefmap"};
+        String[] expectedPropNames = new String[]{"simple", "obj", "map", "nodefmap"};
         String[] receivedPropNames = mapType.getPropertyNames();
         EPAssertionUtil.assertEqualsAnyOrder(expectedPropNames, receivedPropNames);
 
         // assert get value through (1) type getter  (2) event-get
-        for (int i = 0; i < expected.length; i++)
-        {
+        for (int i = 0; i < expected.length; i++) {
             String propName = (String) expected[i][0];
             Object valueExpected = expected[i][2];
             assertEquals("failed for property type-getter:" + propName, valueExpected, mapType.getGetter(propName).get(theEvent));
@@ -281,13 +264,12 @@ public class TestMapEventType extends TestCase
         }
 
         // assert access to objects nested within
-        expected = new Object[][] {
-                {"map.objOne.id",       String.class,    "B1"},
-                {"map.mapOne.objTwo.id", String.class,   "C1"},
-                {"obj.id",              String.class,    "A1"},
-                    };
-        for (int i = 0; i < expected.length; i++)
-        {
+        expected = new Object[][]{
+                {"map.objOne.id", String.class, "B1"},
+                {"map.mapOne.objTwo.id", String.class, "C1"},
+                {"obj.id", String.class, "A1"},
+        };
+        for (int i = 0; i < expected.length; i++) {
             String propName = (String) expected[i][0];
             Class propType = (Class) expected[i][1];
             Object valueExpected = expected[i][2];
@@ -298,8 +280,7 @@ public class TestMapEventType extends TestCase
         }
     }
 
-    private Map<String, Object> getTestData()
-    {
+    private Map<String, Object> getTestData() {
         Map<String, Object> levelThree = new HashMap<String, Object>();
         levelThree.put("simpleThree", 4000L);
         levelThree.put("objThree", new SupportBean_D("D1"));

@@ -61,7 +61,7 @@ public class AgentInstanceArrayIterator implements Iterator<EventBean> {
             currentIndex++;
             currentIterator = instances[currentIndex].getFinalView().iterator();
         }
-        while(currentIndex < instances.length - 1 && !currentIterator.hasNext());
+        while (currentIndex < instances.length - 1 && !currentIterator.hasNext());
     }
 
     public void remove() {

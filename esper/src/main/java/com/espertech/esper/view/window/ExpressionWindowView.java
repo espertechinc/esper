@@ -42,8 +42,7 @@ public class ExpressionWindowView extends ExpressionViewBase {
                                 AggregationServiceFactoryDesc aggregationServiceFactoryDesc,
                                 ObjectArrayEventBean builtinEventProps,
                                 Set<String> variableNames,
-                                AgentInstanceViewFactoryChainContext agentInstanceContext)
-    {
+                                AgentInstanceViewFactoryChainContext agentInstanceContext) {
         super(viewUpdatedCollection, expiryExpression, aggregationServiceFactoryDesc, builtinEventProps, variableNames, agentInstanceContext);
         this.dataWindowViewFactory = dataWindowViewFactory;
     }
@@ -52,17 +51,16 @@ public class ExpressionWindowView extends ExpressionViewBase {
         return dataWindowViewFactory.getViewName();
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return dataWindowViewFactory.makeView(agentInstanceContext);
     }
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return window.isEmpty();
     }
 
@@ -70,13 +68,13 @@ public class ExpressionWindowView extends ExpressionViewBase {
         expire(null, null);
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, dataWindowViewFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, dataWindowViewFactory.getViewName(), newData, oldData);
+        }
 
         // add data points to the window
-        if (newData != null)
-        {
+        if (newData != null) {
             for (EventBean newEvent : newData) {
                 ExpressionWindowTimestampEventPair pair = new ExpressionWindowTimestampEventPair(agentInstanceContext.getTimeProvider().getTime(), newEvent);
                 window.add(pair);
@@ -90,7 +88,7 @@ public class ExpressionWindowView extends ExpressionViewBase {
 
         if (oldData != null) {
             Iterator<ExpressionWindowTimestampEventPair> it = window.iterator();
-            for (;it.hasNext();) {
+            for (; it.hasNext(); ) {
                 ExpressionWindowTimestampEventPair pair = it.next();
                 for (EventBean anOldData : oldData) {
                     if (pair.getTheEvent() == anOldData) {
@@ -108,7 +106,9 @@ public class ExpressionWindowView extends ExpressionViewBase {
         // expire events
         expire(newData, oldData);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleRemoved(ExpressionWindowTimestampEventPair pair) {
@@ -142,7 +142,7 @@ public class ExpressionWindowView extends ExpressionViewBase {
                 boolean pass = checkEvent(first, newest, expiredCount);
                 if (!pass) {
                     if (expired == null) {
-                         expired = new OneEventCollection();
+                        expired = new OneEventCollection();
                     }
                     EventBean removed = window.removeFirst().getTheEvent();
                     expired.add(removed);
@@ -152,8 +152,7 @@ public class ExpressionWindowView extends ExpressionViewBase {
                     }
                     expiredCount++;
                     internalHandleExpired(first);
-                }
-                else {
+                } else {
                     break;
                 }
 
@@ -168,23 +167,24 @@ public class ExpressionWindowView extends ExpressionViewBase {
 
         // Check for any events that get pushed out of the window
         EventBean[] expiredArr = null;
-        if (expired != null)
-        {
+        if (expired != null) {
             expiredArr = expired.toArray();
         }
 
         // update event buffer for access by expressions, if any
-        if (viewUpdatedCollection != null)
-        {
+        if (viewUpdatedCollection != null) {
             viewUpdatedCollection.update(newData, expiredArr);
         }
 
         // If there are child views, call update method
-        if (this.hasViews())
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, dataWindowViewFactory.getViewName(), newData, expiredArr);}
+        if (this.hasViews()) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, dataWindowViewFactory.getViewName(), newData, expiredArr);
+            }
             updateChildren(newData, expiredArr);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
     }
 
@@ -205,8 +205,7 @@ public class ExpressionWindowView extends ExpressionViewBase {
         return result;
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new ExpressionWindowTimestampEventPairIterator(window.iterator());
     }
 

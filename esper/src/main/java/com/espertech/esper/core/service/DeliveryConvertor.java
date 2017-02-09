@@ -13,10 +13,10 @@ package com.espertech.esper.core.service;
 /**
  * Converts a row of column selection results into a result for dispatch to a method.
  */
-public interface DeliveryConvertor
-{
+public interface DeliveryConvertor {
     /**
      * Convert result row to dispatchable.
+     *
      * @param row to convert
      * @return converted row
      */

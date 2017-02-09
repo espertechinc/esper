@@ -12,9 +12,14 @@ package com.espertech.esper.core.service.multimatch;
 
 public interface MultiMatchHandlerFactory {
     MultiMatchHandler getDefaultHandler();
+
     MultiMatchHandler makeNoDedupNoSubq();
+
     MultiMatchHandler makeNoDedupSubselectPreval();
+
     MultiMatchHandler makeNoDedupSubselectPosteval();
+
     MultiMatchHandler makeDedupNoSubq();
+
     MultiMatchHandler makeDedupSubq(boolean isSubselectPreeval);
 }

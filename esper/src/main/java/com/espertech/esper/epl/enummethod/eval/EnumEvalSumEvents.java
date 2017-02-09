@@ -28,7 +28,7 @@ public class EnumEvalSumEvents extends EnumEvalBase implements EnumEval {
     public Object evaluateEnumMethod(EventBean[] eventsLambda, Collection target, boolean isNewData, ExprEvaluatorContext context) {
 
         ExprDotEvalSumMethod method = sumMethodFactory.getSumAggregator();
-        
+
         Collection<EventBean> beans = (Collection<EventBean>) target;
         for (EventBean next : beans) {
             eventsLambda[streamNumLambda] = next;

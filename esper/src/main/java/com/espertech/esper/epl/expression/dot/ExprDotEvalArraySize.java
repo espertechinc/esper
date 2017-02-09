@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 
-public class ExprDotEvalArraySize implements ExprDotEval
-{
+public class ExprDotEvalArraySize implements ExprDotEval {
     private static final Logger log = LoggerFactory.getLogger(ExprDotEvalArraySize.class);
 
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {

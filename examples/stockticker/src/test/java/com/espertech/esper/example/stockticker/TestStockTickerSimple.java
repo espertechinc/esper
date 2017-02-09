@@ -10,26 +10,24 @@
  */
 package com.espertech.esper.example.stockticker;
 
-import junit.framework.*;
-import com.espertech.esper.example.stockticker.monitor.StockTickerResultListener;
-import com.espertech.esper.example.stockticker.monitor.StockTickerMonitor;
-import com.espertech.esper.example.stockticker.eventbean.StockTick;
-import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
-import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.time.TimerControlEvent;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.example.stockticker.eventbean.LimitAlert;
+import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
+import com.espertech.esper.example.stockticker.eventbean.StockTick;
+import com.espertech.esper.example.stockticker.monitor.StockTickerMonitor;
+import com.espertech.esper.example.stockticker.monitor.StockTickerResultListener;
+import junit.framework.TestCase;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TestStockTickerSimple extends TestCase
-{
+public class TestStockTickerSimple extends TestCase {
     private StockTickerResultListener listener;
     private EPServiceProvider epService;
 
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         listener = new StockTickerResultListener();
 
         Configuration configuration = new Configuration();
@@ -42,8 +40,7 @@ public class TestStockTickerSimple extends TestCase
         epService.getEPRuntime().sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
     }
 
-    public void testStockTicker() throws Exception
-    {
+    public void testStockTicker() throws Exception {
         log.info(".testStockTicker");
 
         new StockTickerMonitor(epService, listener);
@@ -52,8 +49,7 @@ public class TestStockTickerSimple extends TestCase
         performBoundaryTest();
     }
 
-    public void performEventFlowTest()
-    {
+    public void performEventFlowTest() {
         final String STOCK_NAME = "IBM.N";
         final double STOCK_PRICE = 50;
         final double LIMIT_PERCENT = 10;
@@ -130,8 +126,7 @@ public class TestStockTickerSimple extends TestCase
         assertTrue(listener.getSize() == 4);
     }
 
-    public void performBoundaryTest()
-    {
+    public void performBoundaryTest() {
         final String STOCK_NAME = "BOUNDARY_TEST";
 
         listener.clearMatched();
@@ -148,20 +143,15 @@ public class TestStockTickerSimple extends TestCase
         assertTrue(listener.getSize() == 2);
     }
 
-    private void sleep(int msec)
-    {
-        try
-        {
+    private void sleep(int msec) {
+        try {
             Thread.sleep(msec);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             log.error("Interrupted: {}", e.getMessage(), e);
         }
     }
 
-    private void sendEvent(Object theEvent)
-    {
+    private void sendEvent(Object theEvent) {
         epService.getEPRuntime().sendEvent(theEvent);
     }
 

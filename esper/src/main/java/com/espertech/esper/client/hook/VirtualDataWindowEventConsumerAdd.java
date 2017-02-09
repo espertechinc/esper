@@ -23,11 +23,12 @@ public class VirtualDataWindowEventConsumerAdd extends VirtualDataWindowEventCon
 
     /**
      * Ctor.
-     * @param namedWindowName the named window name
-     * @param consumerObject an object that identifies the consumer, the same instance or the add and for the remove event
-     * @param statementName statement name
-     * @param agentInstanceId agent instance id
-     * @param filterExpressions filter expressions
+     *
+     * @param namedWindowName      the named window name
+     * @param consumerObject       an object that identifies the consumer, the same instance or the add and for the remove event
+     * @param statementName        statement name
+     * @param agentInstanceId      agent instance id
+     * @param filterExpressions    filter expressions
      * @param exprEvaluatorContext for expression evaluation
      */
     public VirtualDataWindowEventConsumerAdd(String namedWindowName, Object consumerObject, String statementName, int agentInstanceId, ExprNode[] filterExpressions, ExprEvaluatorContext exprEvaluatorContext) {
@@ -39,14 +40,15 @@ public class VirtualDataWindowEventConsumerAdd extends VirtualDataWindowEventCon
     /**
      * Provides the filter expressions.
      * <p>
-     *     Evaluate filter expressions, if any, as follows:
-     *     <code>
-     *     Boolean pass = filterExpressions[...].getExprEvaluator().evaluate(new EventBean[] {vdwEvent}, true, addEvent.getExprEvaluatorContext());
-     *     </code>
+     * Evaluate filter expressions, if any, as follows:
+     * <code>
+     * Boolean pass = filterExpressions[...].getExprEvaluator().evaluate(new EventBean[] {vdwEvent}, true, addEvent.getExprEvaluatorContext());
+     * </code>
      * </p>
      * <p>
-     *     Filter expressions must be evaluated using the same ExprEvaluatorContext instance as provided by this event.
+     * Filter expressions must be evaluated using the same ExprEvaluatorContext instance as provided by this event.
      * </p>
+     *
      * @return filter expression list
      */
     public ExprNode[] getFilterExpressions() {
@@ -55,6 +57,7 @@ public class VirtualDataWindowEventConsumerAdd extends VirtualDataWindowEventCon
 
     /**
      * Returns the expression evaluator context for evaluating filter expressions.
+     *
      * @return expression evaluator context
      */
     public ExprEvaluatorContext getExprEvaluatorContext() {

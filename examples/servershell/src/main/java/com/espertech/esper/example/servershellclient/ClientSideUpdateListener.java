@@ -10,22 +10,19 @@
  */
 package com.espertech.esper.example.servershellclient;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
-
-import java.io.Serializable;
-
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientSideUpdateListener implements Serializable, UpdateListener
-{
+import java.io.Serializable;
+
+public class ClientSideUpdateListener implements Serializable, UpdateListener {
     private static Logger log = LoggerFactory.getLogger(ClientSideUpdateListener.class);
 
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
         log.info("Single duration over 9.9: IPAddress: " + newEvents[0].get("ipAddress") +
-             " Duration: " + newEvents[0].get("duration"));
+                " Duration: " + newEvents[0].get("duration"));
     }
 
 }

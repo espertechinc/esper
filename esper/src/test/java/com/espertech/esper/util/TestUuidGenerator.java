@@ -14,10 +14,8 @@ import junit.framework.TestCase;
 
 import java.util.UUID;
 
-public class TestUuidGenerator extends TestCase
-{
-    public void testGenerate()
-    {
+public class TestUuidGenerator extends TestCase {
+    public void testGenerate() {
         String uuid = UuidGenerator.generate();
         System.out.println(uuid + " length " + uuid.length());
 

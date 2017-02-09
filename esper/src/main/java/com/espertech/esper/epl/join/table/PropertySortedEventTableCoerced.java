@@ -13,8 +13,7 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.util.JavaClassHelper;
 
-public class PropertySortedEventTableCoerced extends PropertySortedEventTableImpl
-{
+public class PropertySortedEventTableCoerced extends PropertySortedEventTableImpl {
     private Class coercionType;
 
     public PropertySortedEventTableCoerced(EventPropertyGetter propertyGetter, EventTableOrganization organization, Class coercionType) {
@@ -24,18 +23,15 @@ public class PropertySortedEventTableCoerced extends PropertySortedEventTableImp
 
     @Override
     protected Object coerce(Object value) {
-        if (value != null && !value.getClass().equals(coercionType))
-        {
-            if (value instanceof Number)
-            {
+        if (value != null && !value.getClass().equals(coercionType)) {
+            if (value instanceof Number) {
                 return JavaClassHelper.coerceBoxed((Number) value, coercionType);
             }
         }
-        return value;        
+        return value;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "PropertySortedEventTableCoerced" +
                 " streamNum=" + organization.getStreamNum() +
                 " propertyGetter=" + propertyGetter +

@@ -45,10 +45,9 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase {
             if (coercer != null) {
                 return coercer.coerceBoxed((Number) result);
             }
-            
+
             return result;
-        }
-        catch (ScriptException e) {
+        } catch (ScriptException e) {
             String message = "Unexpected exception executing script '" + scriptName + "' for statement '" + statementName + "' : " + e.getMessage();
             log.error(message, e);
             throw new EPException(message, e);

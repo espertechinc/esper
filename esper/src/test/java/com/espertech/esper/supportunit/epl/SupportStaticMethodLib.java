@@ -10,12 +10,9 @@
  */
 package com.espertech.esper.supportunit.epl;
 
-public class SupportStaticMethodLib
-{
-    public static String delimitPipe(String theString)
-    {
-        if (theString == null)
-        {
+public class SupportStaticMethodLib {
+    public static String delimitPipe(String theString) {
+        if (theString == null) {
             return "|<null>|";
         }
         return "|" + theString + "|";

@@ -42,6 +42,7 @@
 						<configuration>
 							<configLocation>${rootPath}/checkstyle/checkstyle.xml</configLocation>
 							<headerLocation>${rootPath}/checkstyle/java.header</headerLocation>
+							<suppressionsLocation>${rootPath}/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
 							<encoding>UTF-8</encoding>
 							<consoleOutput>true</consoleOutput>
 							<failsOnError>true</failsOnError>

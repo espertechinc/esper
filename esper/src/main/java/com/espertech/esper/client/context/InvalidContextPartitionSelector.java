@@ -20,6 +20,7 @@ public class InvalidContextPartitionSelector extends EPException {
 
     /**
      * Ctor.
+     *
      * @param message exception message
      */
     public InvalidContextPartitionSelector(String message) {
@@ -28,8 +29,9 @@ public class InvalidContextPartitionSelector extends EPException {
 
     /**
      * Ctor.
+     *
      * @param message exception message
-     * @param cause inner exception
+     * @param cause   inner exception
      */
     public InvalidContextPartitionSelector(String message, Throwable cause) {
         super(message, cause);
@@ -37,6 +39,7 @@ public class InvalidContextPartitionSelector extends EPException {
 
     /**
      * Ctor.
+     *
      * @param cause inner exception
      */
     public InvalidContextPartitionSelector(Throwable cause) {

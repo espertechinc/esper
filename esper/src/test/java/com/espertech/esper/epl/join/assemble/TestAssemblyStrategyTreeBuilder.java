@@ -17,33 +17,30 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestAssemblyStrategyTreeBuilder extends TestCase
-{
-    public void testInvalidBuild()
-    {
+public class TestAssemblyStrategyTreeBuilder extends TestCase {
+    public void testInvalidBuild() {
         // root stream out of bounds
-        tryInvalidBuild(3, convert(new int[][] {{1, 2}, {}, {}}), new boolean[] {true, true, true});
-        tryInvalidBuild(-1, convert(new int[][] {{1, 2}, {}, {}}), new boolean[] {true, true, true});
+        tryInvalidBuild(3, convert(new int[][]{{1, 2}, {}, {}}), new boolean[]{true, true, true});
+        tryInvalidBuild(-1, convert(new int[][]{{1, 2}, {}, {}}), new boolean[]{true, true, true});
 
         // not matching outer-inner
-        tryInvalidBuild(0, convert(new int[][] {{1, 2}, {}, {}}), new boolean[] {true, true});
+        tryInvalidBuild(0, convert(new int[][]{{1, 2}, {}, {}}), new boolean[]{true, true});
 
         // stream relationships not filled
-        tryInvalidBuild(0, convert(new int[][] {{1, 2}}), new boolean[] {true, true, true});
+        tryInvalidBuild(0, convert(new int[][]{{1, 2}}), new boolean[]{true, true, true});
 
         // stream relationships duplicates
-        tryInvalidBuild(0, convert(new int[][] {{1, 2}, {1}, {}}), new boolean[] {true, true});
-        tryInvalidBuild(0, convert(new int[][] {{1, 2}, {}, {2}}), new boolean[] {true, true, true});
+        tryInvalidBuild(0, convert(new int[][]{{1, 2}, {1}, {}}), new boolean[]{true, true});
+        tryInvalidBuild(0, convert(new int[][]{{1, 2}, {}, {2}}), new boolean[]{true, true, true});
 
         // stream relationships out of range
-        tryInvalidBuild(0, convert(new int[][] {{1, 3}, {}, {}}), new boolean[] {true, true});
+        tryInvalidBuild(0, convert(new int[][]{{1, 3}, {}, {}}), new boolean[]{true, true});
 
         // stream relationships missing stream
-        tryInvalidBuild(0, convert(new int[][] {{1}, {}, {}}), new boolean[] {true, true});
+        tryInvalidBuild(0, convert(new int[][]{{1}, {}, {}}), new boolean[]{true, true});
     }
 
-    public void testValidBuildSimpleReqOpt()
-    {
+    public void testValidBuildSimpleReqOpt() {
         BaseAssemblyNodeFactory nodeFactory = AssemblyStrategyTreeBuilder.build(2, convert(new int[][]{{}, {0}, {1}}), new boolean[]{false, true, true});
 
         RootRequiredAssemblyNodeFactory child1 = (RootRequiredAssemblyNodeFactory) nodeFactory;
@@ -62,8 +59,7 @@ public class TestAssemblyStrategyTreeBuilder extends TestCase
         assertEquals(child1_1, leaf1_2.getParentNode());
     }
 
-    public void testValidBuildSimpleOptReq()
-    {
+    public void testValidBuildSimpleOptReq() {
         BaseAssemblyNodeFactory nodeFactory = AssemblyStrategyTreeBuilder.build(2, convert(new int[][]{{}, {0}, {1}}), new boolean[]{true, false, true});
 
         RootOptionalAssemblyNodeFactory child1 = (RootOptionalAssemblyNodeFactory) nodeFactory;
@@ -82,8 +78,7 @@ public class TestAssemblyStrategyTreeBuilder extends TestCase
         assertEquals(child1_1, leaf1_2.getParentNode());
     }
 
-    public void testValidBuildCartesian()
-    {
+    public void testValidBuildCartesian() {
         BaseAssemblyNodeFactory nodeFactory = AssemblyStrategyTreeBuilder.build(1, convert(new int[][]{{}, {0, 2}, {}}), new boolean[]{false, true, false});
 
         RootCartProdAssemblyNodeFactory top = (RootCartProdAssemblyNodeFactory) nodeFactory;
@@ -100,25 +95,19 @@ public class TestAssemblyStrategyTreeBuilder extends TestCase
         assertEquals(top, leaf2.getParentNode());
     }
 
-    private void tryInvalidBuild(int rootStream, Map<Integer, int[]> joinedPerStream, boolean[] isInnerPerStream)
-    {
-        try
-        {
+    private void tryInvalidBuild(int rootStream, Map<Integer, int[]> joinedPerStream, boolean[] isInnerPerStream) {
+        try {
             AssemblyStrategyTreeBuilder.build(rootStream, joinedPerStream, isInnerPerStream);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             log.debug(".tryInvalidBuild expected exception=" + ex);
             // expected
         }
     }
 
-    private Map<Integer, int[]> convert(int[][] array)
-    {
+    private Map<Integer, int[]> convert(int[][] array) {
         Map<Integer, int[]> result = new HashMap<Integer, int[]>();
-        for (int i = 0; i < array.length; i++)
-        {
+        for (int i = 0; i < array.length; i++) {
             result.put(i, array[i]);
         }
         return result;

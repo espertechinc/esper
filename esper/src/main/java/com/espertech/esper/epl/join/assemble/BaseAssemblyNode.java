@@ -27,8 +27,7 @@ import java.util.List;
  * Each specific subclass of this abstract assembly node is dedicated to assembling results for
  * a certain event stream.
  */
-public abstract class BaseAssemblyNode implements ResultAssembler
-{
+public abstract class BaseAssemblyNode implements ResultAssembler {
     /**
      * Parent node.
      */
@@ -51,11 +50,11 @@ public abstract class BaseAssemblyNode implements ResultAssembler
 
     /**
      * Ctor.
-     * @param streamNum - stream number of the event stream that this node assembles results for.
+     *
+     * @param streamNum  - stream number of the event stream that this node assembles results for.
      * @param numStreams - number of streams
      */
-    protected BaseAssemblyNode(int streamNum, int numStreams)
-    {
+    protected BaseAssemblyNode(int streamNum, int numStreams) {
         this.streamNum = streamNum;
         this.numStreams = numStreams;
         childNodes = new ArrayList<BaseAssemblyNode>(4);
@@ -63,13 +62,15 @@ public abstract class BaseAssemblyNode implements ResultAssembler
 
     /**
      * Provides results to assembly nodes for initialization.
+     *
      * @param result is a list of result nodes per stream
      */
     public abstract void init(List<Node>[] result);
 
     /**
      * Process results.
-     * @param result is a list of result nodes per stream
+     *
+     * @param result          is a list of result nodes per stream
      * @param resultFinalRows final row collection
      * @param resultRootEvent root event
      */
@@ -77,72 +78,70 @@ public abstract class BaseAssemblyNode implements ResultAssembler
 
     /**
      * Output this node using writer, not outputting child nodes.
+     *
      * @param indentWriter to use for output
      */
     public abstract void print(IndentWriter indentWriter);
 
     /**
      * Set parent node.
+     *
      * @param resultAssembler is the parent node
      */
-    public void setParentAssembler(ResultAssembler resultAssembler)
-    {
+    public void setParentAssembler(ResultAssembler resultAssembler) {
         this.parentNode = resultAssembler;
     }
 
     /**
      * Add a child node.
+     *
      * @param childNode to add
      */
-    public void addChild(BaseAssemblyNode childNode)
-    {
+    public void addChild(BaseAssemblyNode childNode) {
         childNode.parentNode = this;
         childNodes.add(childNode);
     }
 
     /**
      * Returns the stream number.
+     *
      * @return stream number
      */
-    protected int getStreamNum()
-    {
+    protected int getStreamNum() {
         return streamNum;
     }
 
     /**
      * Returns child nodes.
+     *
      * @return child nodes
      */
-    protected List<BaseAssemblyNode> getChildNodes()
-    {
+    protected List<BaseAssemblyNode> getChildNodes() {
         return childNodes;
     }
 
     /**
      * Returns an array of stream numbers that lists all child node's stream numbers.
+     *
      * @return child node stream numbers
      */
-    protected int[] getSubstreams()
-    {
+    protected int[] getSubstreams() {
         List<Integer> substreams = new LinkedList<Integer>();
         recusiveAddSubstreams(substreams);
 
         // copy to array
         int[] substreamArr = new int[substreams.size()];
         int count = 0;
-        for (Integer stream : substreams)
-        {
+        for (Integer stream : substreams) {
             substreamArr[count++] = stream;
         }
 
         return substreamArr;
     }
 
-    private void recusiveAddSubstreams(List<Integer> substreams)
-    {
+    private void recusiveAddSubstreams(List<Integer> substreams) {
         substreams.add(streamNum);
-        for (BaseAssemblyNode child : childNodes)
-        {
+        for (BaseAssemblyNode child : childNodes) {
             child.recusiveAddSubstreams(substreams);
         }
     }

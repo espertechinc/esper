@@ -17,6 +17,7 @@ public interface EPDataFlowOperatorParameterProvider {
 
     /**
      * Return new value for operator
+     *
      * @param context operator and parameter information
      * @return value
      */

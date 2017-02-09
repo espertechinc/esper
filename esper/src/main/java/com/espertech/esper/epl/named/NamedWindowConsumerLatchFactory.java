@@ -20,8 +20,7 @@ import java.util.Map;
 /**
  * Class to hold a current latch per named window.
  */
-public class NamedWindowConsumerLatchFactory
-{
+public class NamedWindowConsumerLatchFactory {
     protected final String name;
     protected final boolean useSpin;
     protected final TimeSourceService timeSourceService;
@@ -33,16 +32,16 @@ public class NamedWindowConsumerLatchFactory
 
     /**
      * Ctor.
-     * @param name the factory name
-     * @param msecWait the number of milliseconds latches will await maximually
-     * @param locking the blocking strategy to employ
+     *
+     * @param name              the factory name
+     * @param msecWait          the number of milliseconds latches will await maximually
+     * @param locking           the blocking strategy to employ
      * @param timeSourceService time source provider
-     * @param initializeNow for initializing
-     * @param enabled for active indicator
+     * @param initializeNow     for initializing
+     * @param enabled           for active indicator
      */
     public NamedWindowConsumerLatchFactory(String name, boolean enabled, long msecWait, ConfigurationEngineDefaults.Threading.Locking locking,
-                                           TimeSourceService timeSourceService, boolean initializeNow)
-    {
+                                           TimeSourceService timeSourceService, boolean initializeNow) {
         this.name = name;
         this.enabled = enabled;
         this.msecWait = msecWait;
@@ -53,8 +52,7 @@ public class NamedWindowConsumerLatchFactory
         // construct a completed latch as an initial root latch
         if (initializeNow && useSpin) {
             currentLatchSpin = new NamedWindowConsumerLatchSpin(this);
-        }
-        else if (initializeNow && enabled) {
+        } else if (initializeNow && enabled) {
             currentLatchWait = new NamedWindowConsumerLatchWait(this);
         }
     }
@@ -63,18 +61,17 @@ public class NamedWindowConsumerLatchFactory
      * Returns a new latch.
      * <p>
      * Need not be synchronized as there is one per statement and execution is during statement lock.
-     * @param delta the delta
+     *
+     * @param delta     the delta
      * @param consumers consumers
      * @return latch
      */
-    public NamedWindowConsumerLatch newLatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers)
-    {
+    public NamedWindowConsumerLatch newLatch(NamedWindowDeltaData delta, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> consumers) {
         if (useSpin) {
             NamedWindowConsumerLatchSpin nextLatch = new NamedWindowConsumerLatchSpin(delta, consumers, this, currentLatchSpin);
             currentLatchSpin = nextLatch;
             return nextLatch;
-        }
-        else {
+        } else {
             if (enabled) {
                 NamedWindowConsumerLatchWait nextLatch = new NamedWindowConsumerLatchWait(delta, consumers, this, currentLatchWait);
                 currentLatchWait.setLater(nextLatch);

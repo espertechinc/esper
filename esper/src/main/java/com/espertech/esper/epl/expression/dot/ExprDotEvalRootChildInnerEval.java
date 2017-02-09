@@ -17,15 +17,19 @@ import com.espertech.esper.epl.rettype.EPType;
 
 import java.util.Collection;
 
-public interface ExprDotEvalRootChildInnerEval
-{
+public interface ExprDotEvalRootChildInnerEval {
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     public EventType getEventTypeCollection();
+
     public EventType getEventTypeSingle();
+
     public Class getComponentTypeCollection();
 
     public EPType getTypeInfo();

@@ -27,8 +27,7 @@ import java.io.StringWriter;
 /**
  * Represents an stream property identifier in a filter expressiun tree.
  */
-public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
-{
+public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode {
     private static final long serialVersionUID = 5882493771230745244L;
 
     // select myprop from...        is a simple property, no stream supplied
@@ -44,12 +43,11 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
 
     /**
      * Ctor.
+     *
      * @param unresolvedPropertyName is the event property name in unresolved form, ie. unvalidated against streams
      */
-    public ExprIdentNodeImpl(String unresolvedPropertyName)
-    {
-        if (unresolvedPropertyName == null)
-        {
+    public ExprIdentNodeImpl(String unresolvedPropertyName) {
+        if (unresolvedPropertyName == null) {
             throw new IllegalArgumentException("Property name is null");
         }
         this.unresolvedPropertyName = unresolvedPropertyName;
@@ -58,18 +56,16 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
 
     /**
      * Ctor.
+     *
      * @param unresolvedPropertyName is the event property name in unresolved form, ie. unvalidated against streams
-     * @param streamOrPropertyName is the stream name, or if not a valid stream name a possible nested property name
-     * in one of the streams.
+     * @param streamOrPropertyName   is the stream name, or if not a valid stream name a possible nested property name
+     *                               in one of the streams.
      */
-    public ExprIdentNodeImpl(String unresolvedPropertyName, String streamOrPropertyName)
-    {
-        if (unresolvedPropertyName == null)
-        {
+    public ExprIdentNodeImpl(String unresolvedPropertyName, String streamOrPropertyName) {
+        if (unresolvedPropertyName == null) {
             throw new IllegalArgumentException("Property name is null");
         }
-        if (streamOrPropertyName == null)
-        {
+        if (streamOrPropertyName == null) {
             throw new IllegalArgumentException("Stream (or property name) name is null");
         }
         this.unresolvedPropertyName = unresolvedPropertyName;
@@ -87,31 +83,31 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
         evaluator = new ExprIdentNodeEvaluatorImpl(streamNumber, propertyGetter, propertyType, this);
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return evaluator;
     }
 
     /**
      * For unit testing, returns unresolved property name.
+     *
      * @return property name
      */
-    public String getUnresolvedPropertyName()
-    {
+    public String getUnresolvedPropertyName() {
         return unresolvedPropertyName;
     }
 
     /**
      * For unit testing, returns stream or property name candidate.
+     *
      * @return stream name, or property name of a nested property of one of the streams
      */
-    public String getStreamOrPropertyName()
-    {
+    public String getStreamOrPropertyName() {
         return streamOrPropertyName;
     }
 
     /**
      * Set name.
+     *
      * @param streamOrPropertyName to use
      */
     public void setStreamOrPropertyName(String streamOrPropertyName) {
@@ -121,16 +117,13 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
     /**
      * Returns the unresolved property name in it's complete form, including
      * the stream name if there is one.
+     *
      * @return property name
      */
-    public String getFullUnresolvedName()
-    {
-        if (streamOrPropertyName == null)
-        {
+    public String getFullUnresolvedName() {
+        if (streamOrPropertyName == null) {
             return unresolvedPropertyName;
-        }
-        else
-        {
+        } else {
             return streamOrPropertyName + "." + unresolvedPropertyName;
         }
     }
@@ -143,8 +136,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
         return new FilterSpecLookupable(resolvedPropertyName, evaluator.getGetter(), evaluator.getType(), false);
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // rewrite expression into a table-access expression
         if (validationContext.getStreamTypeService().hasTableTypes()) {
             ExprTableIdentNode tableIdentNode = validationContext.getTableService().getTableIdentNode(validationContext.getStreamTypeService(), unresolvedPropertyName, streamOrPropertyName);
@@ -162,21 +154,18 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
         EventPropertyGetter propertyGetter;
         try {
             propertyGetter = propertyInfoPair.getFirst().getStreamEventType().getGetter(resolvedPropertyName);
-        }
-        catch (PropertyAccessException ex) {
+        } catch (PropertyAccessException ex) {
             throw new ExprValidationException("Property '" + unresolvedPropertyName + "' is not valid: " + ex.getMessage(), ex);
         }
 
-        if (propertyGetter == null)
-        {
+        if (propertyGetter == null) {
             throw new ExprValidationException("Property getter returned was invalid for property '" + unresolvedPropertyName + "'");
         }
 
         Audit audit = AuditEnum.PROPERTY.getAudit(validationContext.getAnnotations());
         if (audit != null) {
             evaluator = new ExprIdentNodeEvaluatorLogging(streamNum, propertyGetter, propertyType, this, resolvedPropertyName, validationContext.getStatementName(), validationContext.getStreamTypeService().getEngineURIQualifier());
-        }
-        else {
+        } else {
             evaluator = new ExprIdentNodeEvaluatorImpl(streamNum, propertyGetter, propertyType, this);
         }
 
@@ -192,17 +181,16 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
     /**
      * Returns stream id supplying the property value.
+     *
      * @return stream number
      */
-    public int getStreamId()
-    {
+    public int getStreamId() {
         if (evaluator == null) {
             throw new IllegalStateException("Identifier expression has not been validated");
         }
@@ -226,12 +214,11 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
 
     /**
      * Returns stream name as resolved by lookup of property in streams.
+     *
      * @return stream name
      */
-    public String getResolvedStreamName()
-    {
-        if (resolvedStreamName == null)
-        {
+    public String getResolvedStreamName() {
+        if (resolvedStreamName == null) {
             throw new IllegalStateException("Identifier node has not been validated");
         }
         return resolvedStreamName;
@@ -239,12 +226,11 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
 
     /**
      * Return property name as resolved by lookup in streams.
+     *
      * @return property name
      */
-    public String getResolvedPropertyName()
-    {
-        if (resolvedPropertyName == null)
-        {
+    public String getResolvedPropertyName() {
+        if (resolvedPropertyName == null) {
             throw new IllegalStateException("Identifier node has not been validated");
         }
         return resolvedPropertyName;
@@ -252,11 +238,11 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
 
     /**
      * Returns the root of the resolved property name, if any.
+     *
      * @return root
      */
     public String getResolvedPropertyNameRoot() {
-        if (resolvedPropertyName == null)
-        {
+        if (resolvedPropertyName == null) {
             throw new IllegalStateException("Identifier node has not been validated");
         }
         if (resolvedPropertyName.indexOf('[') != -1) {
@@ -271,8 +257,7 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
         return resolvedPropertyName;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "unresolvedPropertyName=" + unresolvedPropertyName +
                 " streamOrPropertyName=" + streamOrPropertyName +
                 " resolvedPropertyName=" + resolvedPropertyName;
@@ -293,10 +278,8 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprIdentNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprIdentNode)) {
             return false;
         }
 

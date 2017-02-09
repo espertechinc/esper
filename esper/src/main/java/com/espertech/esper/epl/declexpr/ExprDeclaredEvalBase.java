@@ -36,8 +36,7 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
         this.prototype = prototype;
         if (innerEvaluator instanceof ExprEvaluatorEnumeration) {
             innerEvaluatorLambda = (ExprEvaluatorEnumeration) innerEvaluator;
-        }
-        else {
+        } else {
             innerEvaluatorLambda = null;
         }
         this.isCache = isCache;
@@ -74,7 +73,9 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
     }
 
     public final Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprDeclared(prototype);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprDeclared(prototype);
+        }
 
         // rewrite streams
         EventBean[] events = getEventsPerStreamRewritten(eventsPerStream);
@@ -88,12 +89,13 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
             }
             result = innerEvaluator.evaluate(events, isNewData, context);
             cache.saveDeclaredExpressionLastValue(prototype, events, result);
-        }
-        else {
+        } else {
             result = innerEvaluator.evaluate(events, isNewData, context);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprDeclared(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprDeclared(result);
+        }
         return result;
     }
 
@@ -113,8 +115,7 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
             result = innerEvaluatorLambda.evaluateGetROCollectionEvents(events, isNewData, context);
             cache.saveDeclaredExpressionLastColl(prototype, events, result);
             return result;
-        }
-        else {
+        } else {
             result = innerEvaluatorLambda.evaluateGetROCollectionEvents(events, isNewData, context);
         }
 
@@ -137,8 +138,7 @@ public abstract class ExprDeclaredEvalBase implements ExprEvaluatorTypableReturn
             result = innerEvaluatorLambda.evaluateGetROCollectionScalar(events, isNewData, context);
             cache.saveDeclaredExpressionLastColl(prototype, events, result);
             return result;
-        }
-        else {
+        } else {
             result = innerEvaluatorLambda.evaluateGetROCollectionScalar(events, isNewData, context);
         }
 

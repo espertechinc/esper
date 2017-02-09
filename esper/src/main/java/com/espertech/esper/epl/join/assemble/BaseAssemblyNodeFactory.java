@@ -19,8 +19,7 @@ import java.util.*;
  * <p>
  * The tree of factory nodes is double-linked, child nodes know each parent and parent know all child nodes.
  */
-public abstract class BaseAssemblyNodeFactory
-{
+public abstract class BaseAssemblyNodeFactory {
     /**
      * Parent node.
      */
@@ -43,11 +42,11 @@ public abstract class BaseAssemblyNodeFactory
 
     /**
      * Ctor.
-     * @param streamNum - stream number of the event stream that this node assembles results for.
+     *
+     * @param streamNum  - stream number of the event stream that this node assembles results for.
      * @param numStreams - number of streams
      */
-    protected BaseAssemblyNodeFactory(int streamNum, int numStreams)
-    {
+    protected BaseAssemblyNodeFactory(int streamNum, int numStreams) {
         this.streamNum = streamNum;
         this.numStreams = numStreams;
         childNodes = new ArrayList<BaseAssemblyNodeFactory>(4);
@@ -57,16 +56,17 @@ public abstract class BaseAssemblyNodeFactory
 
     /**
      * Output this node using writer, not outputting child nodes.
+     *
      * @param indentWriter to use for output
      */
     public abstract void print(IndentWriter indentWriter);
 
     /**
      * Set parent node.
+     *
      * @param parent parent node
      */
-    public void setParent(BaseAssemblyNodeFactory parent)
-    {
+    public void setParent(BaseAssemblyNodeFactory parent) {
         this.parentNode = parent;
     }
 
@@ -76,41 +76,40 @@ public abstract class BaseAssemblyNodeFactory
 
     /**
      * Add a child node.
+     *
      * @param childNode to add
      */
-    public void addChild(BaseAssemblyNodeFactory childNode)
-    {
+    public void addChild(BaseAssemblyNodeFactory childNode) {
         childNode.parentNode = this;
         childNodes.add(childNode);
     }
 
     /**
      * Returns the stream number.
+     *
      * @return stream number
      */
-    protected int getStreamNum()
-    {
+    protected int getStreamNum() {
         return streamNum;
     }
 
     /**
      * Returns child nodes.
+     *
      * @return child nodes
      */
-    public List<BaseAssemblyNodeFactory> getChildNodes()
-    {
+    public List<BaseAssemblyNodeFactory> getChildNodes() {
         return childNodes;
     }
 
     /**
      * Output this node and all descendent nodes using writer, outputting child nodes.
+     *
      * @param indentWriter to output to
      */
-    public void printDescendends(IndentWriter indentWriter)
-    {
+    public void printDescendends(IndentWriter indentWriter) {
         this.print(indentWriter);
-        for (BaseAssemblyNodeFactory child : childNodes)
-        {
+        for (BaseAssemblyNodeFactory child : childNodes) {
             indentWriter.incrIndent();
             child.print(indentWriter);
             indentWriter.decrIndent();
@@ -120,11 +119,11 @@ public abstract class BaseAssemblyNodeFactory
     /**
      * Returns all descendent nodes to the top node in a list in which the utmost descendants are
      * listed first and the top node itself is listed last.
+     *
      * @param topNode is the root node of a tree structure
      * @return list of nodes with utmost descendants first ordered by level of depth in tree with top node last
      */
-    public static List<BaseAssemblyNodeFactory> getDescendentNodesBottomUp(BaseAssemblyNodeFactory topNode)
-    {
+    public static List<BaseAssemblyNodeFactory> getDescendentNodesBottomUp(BaseAssemblyNodeFactory topNode) {
         List<BaseAssemblyNodeFactory> result = new LinkedList<BaseAssemblyNodeFactory>();
 
         // Map to hold per level of the node (1 to N depth) of node a list of nodes, if any
@@ -135,18 +134,15 @@ public abstract class BaseAssemblyNodeFactory
         recursiveAggregateEnter(topNode, nodesPerLevel, 1);
 
         // Done if none found
-        if (nodesPerLevel.isEmpty())
-        {
+        if (nodesPerLevel.isEmpty()) {
             throw new IllegalStateException("Empty collection for nodes per level");
         }
 
         // From the deepest (highest) level to the lowest, add aggregates to list
         int deepLevel = nodesPerLevel.lastKey();
-        for (int i = deepLevel; i >= 1; i--)
-        {
+        for (int i = deepLevel; i >= 1; i--) {
             List<BaseAssemblyNodeFactory> list = nodesPerLevel.get(i);
-            if (list == null)
-            {
+            if (list == null) {
                 continue;
             }
             result.addAll(list);
@@ -155,18 +151,15 @@ public abstract class BaseAssemblyNodeFactory
         return result;
     }
 
-    private static void recursiveAggregateEnter(BaseAssemblyNodeFactory currentNode, Map<Integer, List<BaseAssemblyNodeFactory>> nodesPerLevel, int currentLevel)
-    {
+    private static void recursiveAggregateEnter(BaseAssemblyNodeFactory currentNode, Map<Integer, List<BaseAssemblyNodeFactory>> nodesPerLevel, int currentLevel) {
         // ask all child nodes to enter themselves
-        for (BaseAssemblyNodeFactory node : currentNode.childNodes)
-        {
+        for (BaseAssemblyNodeFactory node : currentNode.childNodes) {
             recursiveAggregateEnter(node, nodesPerLevel, currentLevel + 1);
         }
 
         // Add myself to list
         List<BaseAssemblyNodeFactory> aggregates = nodesPerLevel.get(currentLevel);
-        if (aggregates == null)
-        {
+        if (aggregates == null) {
             aggregates = new LinkedList<BaseAssemblyNodeFactory>();
             nodesPerLevel.put(currentLevel, aggregates);
         }

@@ -22,8 +22,7 @@ import java.util.Set;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategySingleExprNW implements SubordTableLookupStrategy
-{
+public class SubordIndexedTableLookupStrategySingleExprNW implements SubordTableLookupStrategy {
     /**
      * Stream numbers to get key values from.
      */
@@ -44,16 +43,17 @@ public class SubordIndexedTableLookupStrategySingleExprNW implements SubordTable
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexSubordLookup(this, index, null); }
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
+        }
 
         Object key = getKey(eventsPerStream, context);
 
@@ -68,12 +68,12 @@ public class SubordIndexedTableLookupStrategySingleExprNW implements SubordTable
 
     /**
      * Get the index lookup keys.
+     *
      * @param eventsPerStream is the events for each stream
-     * @param context context
+     * @param context         context
      * @return key object
      */
-    protected Object getKey(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
+    protected Object getKey(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         return evaluator.evaluate(eventsPerStream, true, context);
     }
 

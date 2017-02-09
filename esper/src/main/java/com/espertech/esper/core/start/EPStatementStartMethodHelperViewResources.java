@@ -13,10 +13,10 @@ package com.espertech.esper.core.start;
 import com.espertech.esper.epl.core.ViewResourceDelegateUnverified;
 import com.espertech.esper.epl.core.ViewResourceDelegateVerified;
 import com.espertech.esper.epl.core.ViewResourceDelegateVerifiedStream;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.prev.ExprPreviousMatchRecognizeNode;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.rowregex.EventRowRegexNFAViewFactory;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.DataWindowViewWithPrevious;
@@ -27,11 +27,9 @@ import com.espertech.esper.view.std.GroupByViewFactory;
 
 import java.util.*;
 
-public class EPStatementStartMethodHelperViewResources
-{
+public class EPStatementStartMethodHelperViewResources {
     public static ViewResourceDelegateVerified verifyPreviousAndPriorRequirements(ViewFactoryChain[] unmaterializedViewChain, ViewResourceDelegateUnverified delegate)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         boolean hasPriorNodes = !delegate.getPriorRequests().isEmpty();
         boolean hasPreviousNodes = !delegate.getPreviousRequests().isEmpty();
 
@@ -77,8 +75,7 @@ public class EPStatementStartMethodHelperViewResources
 
             TreeMap<Integer, List<ExprPriorNode>> treemap = (TreeMap<Integer, List<ExprPriorNode>>) priorPerStream[stream];
             List<ExprPriorNode> callbackList = treemap.get(priorNode.getConstantIndexNumber());
-            if (callbackList == null)
-            {
+            if (callbackList == null) {
                 callbackList = new LinkedList<ExprPriorNode>();
                 treemap.put(priorNode.getConstantIndexNumber(), callbackList);
             }
@@ -111,19 +108,15 @@ public class EPStatementStartMethodHelperViewResources
         return new ViewResourceDelegateVerified(hasPriorNodes, hasPreviousNodes, perStream);
     }
 
-    private static boolean inspectViewFactoriesForPrevious(List<ViewFactory> viewFactories)
-    {
+    private static boolean inspectViewFactoriesForPrevious(List<ViewFactory> viewFactories) {
         // We allow the capability only if
         //  - 1 view
         //  - 2 views and the first view is a group-by (for window-per-group access)
-        if (viewFactories.size() == 1)
-        {
+        if (viewFactories.size() == 1) {
             return true;
         }
-        if (viewFactories.size() == 2)
-        {
-            if (viewFactories.get(0) instanceof GroupByViewFactory)
-            {
+        if (viewFactories.size() == 2) {
+            if (viewFactories.get(0) instanceof GroupByViewFactory) {
                 return true;
             }
             if (viewFactories.get(1) instanceof PriorEventViewFactory) {

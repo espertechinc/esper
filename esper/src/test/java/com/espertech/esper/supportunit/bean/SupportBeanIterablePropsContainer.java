@@ -12,22 +12,18 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanIterablePropsContainer implements Serializable
-{
+public class SupportBeanIterablePropsContainer implements Serializable {
     private SupportBeanIterableProps contained;
 
-    public SupportBeanIterablePropsContainer(SupportBeanIterableProps inner)
-    {
+    public SupportBeanIterablePropsContainer(SupportBeanIterableProps inner) {
         this.contained = inner;
     }
 
-    public static SupportBeanIterablePropsContainer makeDefaultBean()
-	{
+    public static SupportBeanIterablePropsContainer makeDefaultBean() {
         return new SupportBeanIterablePropsContainer(SupportBeanIterableProps.makeDefaultBean());
-	}
+    }
 
-    public SupportBeanIterableProps getContained()
-    {
+    public SupportBeanIterableProps getContained() {
         return contained;
     }
 }

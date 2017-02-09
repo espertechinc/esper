@@ -16,37 +16,36 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 /**
  * Pair of aggregation methods and states (first/last/window) data window representations.
  */
-public class AggregationRowPair
-{
+public class AggregationRowPair {
     private final AggregationMethod[] methods;
     private final AggregationState[] states;
 
     /**
      * Ctor.
+     *
      * @param methods aggregation methods/state
-     * @param states access is data window representations
+     * @param states  access is data window representations
      */
-    public AggregationRowPair(AggregationMethod[] methods, AggregationState[] states)
-    {
+    public AggregationRowPair(AggregationMethod[] methods, AggregationState[] states) {
         this.methods = methods;
         this.states = states;
     }
 
     /**
      * Returns aggregation methods.
+     *
      * @return aggregation methods
      */
-    public AggregationMethod[] getMethods()
-    {
+    public AggregationMethod[] getMethods() {
         return methods;
     }
 
     /**
      * Returns states to data window state.
+     *
      * @return states
      */
-    public AggregationState[] getStates()
-    {
+    public AggregationState[] getStates() {
         return states;
     }
 }

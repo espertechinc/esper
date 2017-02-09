@@ -14,7 +14,6 @@ import com.espertech.esper.client.EPRuntimeIsolated;
 
 import java.util.Map;
 
-public interface EPRuntimeIsolatedSPI extends EPRuntimeIsolated, InternalEventRouteDest
-{
+public interface EPRuntimeIsolatedSPI extends EPRuntimeIsolated, InternalEventRouteDest {
     public Map<String, Long> getStatementNearestSchedules();
 }

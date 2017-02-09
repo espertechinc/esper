@@ -40,14 +40,14 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
 
     /**
      * Constructor.
+     *
      * @param timeFirstViewFactory fr copying this view in a group-by
      * @param agentInstanceContext context
      * @param timeDeltaComputation delta eval
      */
     public FirstTimeView(FirstTimeViewFactory timeFirstViewFactory,
                          AgentInstanceViewFactoryChainContext agentInstanceContext,
-                         ExprTimePeriodEvalDeltaConst timeDeltaComputation)
-    {
+                         ExprTimePeriodEvalDeltaConst timeDeltaComputation) {
         this.agentInstanceContext = agentInstanceContext;
         this.timeFirstViewFactory = timeFirstViewFactory;
         this.timeDeltaComputation = timeDeltaComputation;
@@ -59,8 +59,7 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
         agentInstanceContext.addTerminationCallback(this);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return timeFirstViewFactory.makeView(agentInstanceContext);
     }
 
@@ -68,25 +67,21 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
         return timeDeltaComputation;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, timeFirstViewFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, timeFirstViewFactory.getViewName(), newData, oldData);
+        }
 
         OneEventCollection oldDataToPost = null;
-        if (oldData != null)
-        {
-            for (EventBean anOldData : oldData)
-            {
+        if (oldData != null) {
+            for (EventBean anOldData : oldData) {
                 boolean removed = events.remove(anOldData);
-                if (removed)
-                {
-                    if (oldDataToPost == null)
-                    {
+                if (removed) {
+                    if (oldDataToPost == null) {
                         oldDataToPost = new OneEventCollection();
                     }
                     oldDataToPost.add(anOldData);
@@ -97,13 +92,10 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
 
         // add data points to the timeWindow
         OneEventCollection newDataToPost = null;
-        if ((!isClosed) && (newData != null))
-        {
-            for (EventBean aNewData : newData)
-            {
+        if ((!isClosed) && (newData != null)) {
+            for (EventBean aNewData : newData) {
                 events.add(aNewData);
-                if (newDataToPost == null)
-                {
+                if (newDataToPost == null) {
                     newDataToPost = new OneEventCollection();
                 }
                 newDataToPost.add(aNewData);
@@ -112,16 +104,21 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
         }
 
         // If there are child views, call update method
-        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null)))
-        {
+        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null))) {
             EventBean[] nd = (newDataToPost != null) ? newDataToPost.toArray() : null;
             EventBean[] od = (oldDataToPost != null) ? oldDataToPost.toArray() : null;
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeFirstViewFactory.getViewName(), nd, od);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, timeFirstViewFactory.getViewName(), nd, od);
+            }
             updateChildren(nd, od);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleAdded(EventBean newEvent) {
@@ -139,34 +136,34 @@ public class FirstTimeView extends ViewSupport implements CloneableView, Stoppab
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return events.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return events.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 
-    private void scheduleCallback()
-    {
+    private void scheduleCallback() {
         long afterTime = timeDeltaComputation.deltaAdd(agentInstanceContext.getStatementContext().getSchedulingService().getTime());
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(FirstTimeView.this, timeFirstViewFactory.getViewName());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewScheduledEval(FirstTimeView.this, timeFirstViewFactory.getViewName());
+                }
                 FirstTimeView.this.isClosed = true;
                 internalHandleClosed();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewScheduledEval();
+                }
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);

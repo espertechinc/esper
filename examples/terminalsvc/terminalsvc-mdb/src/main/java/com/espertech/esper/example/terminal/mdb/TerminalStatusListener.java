@@ -10,19 +10,17 @@
  */
 package com.espertech.esper.example.terminal.mdb;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 
-public class TerminalStatusListener implements UpdateListener
-{
+public class TerminalStatusListener implements UpdateListener {
     private OutboundSender outboundSender;
 
-    public TerminalStatusListener(OutboundSender outboundSender)
-    {
+    public TerminalStatusListener(OutboundSender outboundSender) {
         this.outboundSender = outboundSender;
     }
 
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
         String terminal = (String) newEvents[0].get("terminal");
         String text = (String) newEvents[0].get("text");
         String message = "Terminal " + terminal + " detected '" + text + "'";

@@ -21,16 +21,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestFilterParamIndexCompare extends TestCase
-{
+public class TestFilterParamIndexCompare extends TestCase {
     private SupportEventEvaluator testEvaluator;
     private SupportBean testBean;
     private EventBean testEventBean;
     private EventType testEventType;
     private List<FilterHandle> matchesList;
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvaluator = new SupportEventEvaluator();
         testBean = new SupportBean();
         testEventBean = SupportEventBeanFactory.createObject(testBean);
@@ -38,8 +36,7 @@ public class TestFilterParamIndexCompare extends TestCase
         matchesList = new LinkedList<FilterHandle>();
     }
 
-    public void testMatchDoubleAndGreater()
-    {
+    public void testMatchDoubleAndGreater() {
         FilterParamIndexCompare index = makeOne("doublePrimitive", FilterOperator.GREATER);
 
         index.put(Double.valueOf(1.5), testEvaluator);
@@ -59,19 +56,15 @@ public class TestFilterParamIndexCompare extends TestCase
         assertFalse(index.remove(1.5d));
         assertEquals(null, index.get(1.5d));
 
-        try
-        {
+        try {
             index.put("a", testEvaluator);
             assertTrue(false);
-        }
-        catch (ClassCastException ex)
-        {
+        } catch (ClassCastException ex) {
             // Expected
         }
     }
 
-    public void testMatchLongAndGreaterEquals()
-    {
+    public void testMatchLongAndGreaterEquals() {
         FilterParamIndexCompare index = makeOne("longBoxed", FilterOperator.GREATER_OR_EQUAL);
 
         index.put(Long.valueOf(1), testEvaluator);
@@ -90,19 +83,15 @@ public class TestFilterParamIndexCompare extends TestCase
 
         // Put a long primitive in - should work
         index.put(9l, testEvaluator);
-        try
-        {
+        try {
             index.put(10, testEvaluator);
             assertTrue(false);
-        }
-        catch (ClassCastException ex)
-        {
+        } catch (ClassCastException ex) {
             // Expected
         }
     }
 
-    public void testMatchLongAndLessThan()
-    {
+    public void testMatchLongAndLessThan() {
         FilterParamIndexCompare index = makeOne("longPrimitive", FilterOperator.LESS);
 
         index.put(Long.valueOf(1), testEvaluator);
@@ -120,8 +109,7 @@ public class TestFilterParamIndexCompare extends TestCase
         verifyLongPrimitive(index, 0, 3);
     }
 
-    public void testMatchDoubleAndLessOrEqualThan()
-    {
+    public void testMatchDoubleAndLessOrEqualThan() {
         FilterParamIndexCompare index = makeOne("doubleBoxed", FilterOperator.LESS_OR_EQUAL);
 
         index.put(7.4D, testEvaluator);
@@ -141,29 +129,25 @@ public class TestFilterParamIndexCompare extends TestCase
         return new FilterParamIndexCompare(makeLookupable(field), new ReentrantReadWriteLock(), op);
     }
 
-    private void verifyDoublePrimitive(FilterParamIndexBase index, double testValue, int numExpected)
-    {
+    private void verifyDoublePrimitive(FilterParamIndexBase index, double testValue, int numExpected) {
         testBean.setDoublePrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyDoubleBoxed(FilterParamIndexBase index, Double testValue, int numExpected)
-    {
+    private void verifyDoubleBoxed(FilterParamIndexBase index, Double testValue, int numExpected) {
         testBean.setDoubleBoxed(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyLongBoxed(FilterParamIndexBase index, Long testValue, int numExpected)
-    {
+    private void verifyLongBoxed(FilterParamIndexBase index, Long testValue, int numExpected) {
         testBean.setLongBoxed(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyLongPrimitive(FilterParamIndexBase index, long testValue, int numExpected)
-    {
+    private void verifyLongPrimitive(FilterParamIndexBase index, long testValue, int numExpected) {
         testBean.setLongPrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());

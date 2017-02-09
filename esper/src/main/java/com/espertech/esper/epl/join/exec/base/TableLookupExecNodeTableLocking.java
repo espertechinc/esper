@@ -20,8 +20,7 @@ import java.util.concurrent.locks.Lock;
 /**
  * Execution node for lookup in a table.
  */
-public class TableLookupExecNodeTableLocking extends TableLookupExecNode
-{
+public class TableLookupExecNodeTableLocking extends TableLookupExecNode {
     private final Lock lock;
 
     public TableLookupExecNodeTableLocking(int indexedStream, JoinExecTableLookupStrategy lookupStrategy, Lock lock) {

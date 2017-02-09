@@ -18,37 +18,36 @@ import java.util.Arrays;
 /**
  * Container for filter values for use by the {@link FilterService} to filter and distribute incoming events.
  */
-public class FilterValueSetImpl implements FilterValueSet
-{
+public class FilterValueSetImpl implements FilterValueSet {
     private final EventType eventType;
     private final FilterValueSetParam[][] parameters;
 
     /**
      * Ctor.
-     * @param eventType - type of event to filter for
+     *
+     * @param eventType  - type of event to filter for
      * @param parameters - list of filter parameters
      */
-    public FilterValueSetImpl(EventType eventType, FilterValueSetParam[][] parameters)
-    {
+    public FilterValueSetImpl(EventType eventType, FilterValueSetParam[][] parameters) {
         this.eventType = eventType;
         this.parameters = parameters;
     }
 
     /**
      * Returns event type to filter for.
+     *
      * @return event type to filter for
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
     /**
      * Returns list of filter parameters.
+     *
      * @return list of filter parameters
      */
-    public FilterValueSetParam[][] getParameters()
-    {
+    public FilterValueSetParam[][] getParameters() {
         return parameters;
     }
 

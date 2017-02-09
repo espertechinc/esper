@@ -10,20 +10,18 @@
  */
 package com.espertech.esper.core.thread;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPRuntimeImpl;
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.client.EventBean;
-
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Inbound work unit processing a map event.
  */
-public class InboundUnitSendMap implements InboundUnitRunnable
-{
+public class InboundUnitSendMap implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendMap.class);
     private final Map map;
     private final String eventTypeName;
@@ -32,28 +30,24 @@ public class InboundUnitSendMap implements InboundUnitRunnable
 
     /**
      * Ctor.
-     * @param map to send
+     *
+     * @param map           to send
      * @param eventTypeName type name
-     * @param services to wrap
-     * @param runtime to process
+     * @param services      to wrap
+     * @param runtime       to process
      */
-    public InboundUnitSendMap(Map map, String eventTypeName, EPServicesContext services, EPRuntimeImpl runtime)
-    {
+    public InboundUnitSendMap(Map map, String eventTypeName, EPServicesContext services, EPRuntimeImpl runtime) {
         this.eventTypeName = eventTypeName;
         this.map = map;
         this.services = services;
         this.runtime = runtime;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             EventBean eventBean = services.getEventAdapterService().adapterForMap(map, eventTypeName);
             runtime.processWrappedEvent(eventBean);
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing Map event: " + e.getMessage(), e);
         }
     }

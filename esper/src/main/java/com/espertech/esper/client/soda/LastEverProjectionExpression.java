@@ -15,10 +15,9 @@ import java.io.StringWriter;
 /**
  * Represents the "lastever" aggregation function.
  */
-public class LastEverProjectionExpression extends ExpressionBase
-{
+public class LastEverProjectionExpression extends ExpressionBase {
     private static final long serialVersionUID = -7860591885055704438L;
-    
+
     private boolean distinct;
 
     /**
@@ -29,20 +28,20 @@ public class LastEverProjectionExpression extends ExpressionBase
 
     /**
      * Ctor.
+     *
      * @param isDistinct true for distinct
      */
-    public LastEverProjectionExpression(boolean isDistinct)
-    {
+    public LastEverProjectionExpression(boolean isDistinct) {
         this.distinct = isDistinct;
     }
 
     /**
      * Ctor.
+     *
      * @param expression to aggregate
      * @param isDistinct true for distinct
      */
-    public LastEverProjectionExpression(Expression expression, boolean isDistinct)
-    {
+    public LastEverProjectionExpression(Expression expression, boolean isDistinct) {
         this.distinct = isDistinct;
         this.getChildren().add(expression);
     }
@@ -57,28 +56,28 @@ public class LastEverProjectionExpression extends ExpressionBase
 
     /**
      * Returns true for distinct.
+     *
      * @return boolean indicating distinct or not
      */
-    public boolean isDistinct()
-    {
+    public boolean isDistinct() {
         return distinct;
     }
 
     /**
      * Returns true for distinct.
+     *
      * @return boolean indicating distinct or not
      */
-    public boolean getDistinct()
-    {
+    public boolean getDistinct() {
         return distinct;
     }
 
     /**
      * Set to true for distinct.
+     *
      * @param distinct indicating distinct or not
      */
-    public void setDistinct(boolean distinct)
-    {
+    public void setDistinct(boolean distinct) {
         this.distinct = distinct;
     }
 }

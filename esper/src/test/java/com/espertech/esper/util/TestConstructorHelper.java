@@ -10,63 +10,51 @@
  */
 package com.espertech.esper.util;
 
-import junit.framework.TestCase;
-import com.espertech.esper.supportunit.util.SupportCtorNone;
-import com.espertech.esper.supportunit.util.SupportCtorObjectArray;
 import com.espertech.esper.supportunit.util.SupportCtorInt;
 import com.espertech.esper.supportunit.util.SupportCtorIntObjectArray;
+import com.espertech.esper.supportunit.util.SupportCtorNone;
+import com.espertech.esper.supportunit.util.SupportCtorObjectArray;
+import junit.framework.TestCase;
 
-public class TestConstructorHelper extends TestCase
-{
-    public void testValidInvokeConstructor() throws Exception
-    {
-        Object[] parameters = new Object[] { "test", 1 };
+public class TestConstructorHelper extends TestCase {
+    public void testValidInvokeConstructor() throws Exception {
+        Object[] parameters = new Object[]{"test", 1};
         SupportCtorObjectArray objOne = (SupportCtorObjectArray) ConstructorHelper.invokeConstructor(SupportCtorObjectArray.class, parameters);
         assertEquals(parameters, objOne.getArguments());
 
-        SupportCtorInt objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[] { 99 });
+        SupportCtorInt objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[]{99});
         assertEquals(99, objTwo.getSomeValue());
-        objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[] { new Integer(13) });
+        objTwo = (SupportCtorInt) ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[]{new Integer(13)});
         assertEquals(13, objTwo.getSomeValue());
 
-        SupportCtorIntObjectArray objThree = (SupportCtorIntObjectArray) ConstructorHelper.invokeConstructor(SupportCtorIntObjectArray.class, new Object[] { 1 });
+        SupportCtorIntObjectArray objThree = (SupportCtorIntObjectArray) ConstructorHelper.invokeConstructor(SupportCtorIntObjectArray.class, new Object[]{1});
         assertEquals(1, objThree.getSomeValue());
         objThree = (SupportCtorIntObjectArray) ConstructorHelper.invokeConstructor(SupportCtorIntObjectArray.class, parameters);
         assertEquals(parameters, objThree.getArguments());
     }
 
-    public void testInvalidInvokeConstructor() throws Exception
-    {
+    public void testInvalidInvokeConstructor() throws Exception {
         // No Ctor
-        try
-        {
+        try {
             ConstructorHelper.invokeConstructor(SupportCtorNone.class, new Object[0]);
             fail();
-        }
-        catch (NoSuchMethodException ex)
-        {
+        } catch (NoSuchMethodException ex) {
             // Expected
         }
 
         // Not matching Ctor - number of params
-        try
-        {
+        try {
             ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[0]);
             fail();
-        }
-        catch (NoSuchMethodException ex)
-        {
+        } catch (NoSuchMethodException ex) {
             // Expected
         }
 
         // Type not matching
-        try
-        {
-            ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[] { "a" });
+        try {
+            ConstructorHelper.invokeConstructor(SupportCtorInt.class, new Object[]{"a"});
             fail();
-        }
-        catch (NoSuchMethodException ex)
-        {
+        } catch (NoSuchMethodException ex) {
             // Expected
         }
     }

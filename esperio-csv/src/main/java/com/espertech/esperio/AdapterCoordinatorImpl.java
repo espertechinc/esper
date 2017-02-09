@@ -10,23 +10,17 @@
  */
 package com.espertech.esperio;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
+import com.espertech.esper.adapter.AdapterState;
+import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esper.adapter.AdapterState;
-import com.espertech.esper.adapter.InputAdapter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * An implementation of AdapterCoordinator.

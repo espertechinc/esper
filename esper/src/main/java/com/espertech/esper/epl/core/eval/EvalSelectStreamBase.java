@@ -30,12 +30,11 @@ public abstract class EvalSelectStreamBase implements SelectExprProcessor {
         this.isUsingWildcard = usingWildcard;
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 
-    public SelectExprContext getSelectExprContext() {       
+    public SelectExprContext getSelectExprContext() {
         return selectExprContext;
     }
 }

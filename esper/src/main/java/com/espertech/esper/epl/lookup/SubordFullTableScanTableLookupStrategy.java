@@ -13,7 +13,6 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalLockUtil;
-import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyUtil;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.ArrayDeque;
@@ -24,8 +23,7 @@ import java.util.concurrent.locks.Lock;
 /**
  * Index lookup strategy for tables.
  */
-public class SubordFullTableScanTableLookupStrategy implements SubordTableLookupStrategy
-{
+public class SubordFullTableScanTableLookupStrategy implements SubordTableLookupStrategy {
     private final Lock tableLevelLock;
     private final Iterable<EventBean> contents;
 
@@ -53,7 +51,7 @@ public class SubordFullTableScanTableLookupStrategy implements SubordTableLookup
             return null;
         }
         ArrayDeque<EventBean> result = new ArrayDeque<EventBean>(2);
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             EventBean eventBean = it.next();
             result.add(eventBean);
         }

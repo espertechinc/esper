@@ -21,12 +21,12 @@ import java.net.URI;
  * to assign. If the implementation finds that it cannot handle the event object, it should return null.
  * Returning null gives another instance of this class as specified by the list of URI to handle the event object.
  */
-public interface PlugInEventBeanFactory
-{
+public interface PlugInEventBeanFactory {
     /**
      * Returns an event wrapper for the event object specific to the plug-in event representation
      * or using one of the built-in types, or null if the event object is unknown and cannot be handled.
-     * @param theEvent is the event object to reflect upon and wrap
+     *
+     * @param theEvent      is the event object to reflect upon and wrap
      * @param resolutionURI is the URI used originally for obtaining the event sender
      * @return wrapped event object, or null if the event is of unknown type or content
      */

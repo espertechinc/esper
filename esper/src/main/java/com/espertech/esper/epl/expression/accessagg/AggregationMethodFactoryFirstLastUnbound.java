@@ -24,8 +24,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryFirstLastUnbound implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryFirstLastUnbound implements AggregationMethodFactory {
     protected final ExprAggMultiFunctionLinearAccessNode parent;
     private final EventType collectionEventType;
     private final Class resultType;
@@ -61,8 +60,7 @@ public class AggregationMethodFactoryFirstLastUnbound implements AggregationMeth
     public AggregationMethod make() {
         if (parent.getStateType() == AggregationStateType.FIRST) {
             return AggregationMethodFactoryUtil.makeFirstEver(false);
-        }
-        else if (parent.getStateType() == AggregationStateType.LAST) {
+        } else if (parent.getStateType() == AggregationStateType.LAST) {
             return AggregationMethodFactoryUtil.makeLastEver(false);
         }
         throw new RuntimeException("Window aggregation function is not available");
@@ -78,8 +76,7 @@ public class AggregationMethodFactoryFirstLastUnbound implements AggregationMeth
         com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateStreamNumZero(that.streamNum);
         if (collectionEventType != null) {
             com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateEventType(collectionEventType, that.collectionEventType);
-        }
-        else {
+        } else {
             com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(resultType, that.resultType);
         }
     }

@@ -34,7 +34,7 @@ public class AMQPSupportReceiveRunnable implements Runnable {
         this.waitMSecNextMsg = waitMSecNextMsg;
         this.callback = callback;
     }
-    
+
     public void run() {
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -51,7 +51,7 @@ public class AMQPSupportReceiveRunnable implements Runnable {
             channel.basicConsume(queueName, true, consumer);
 
             int count = 0;
-            while(true) {
+            while (true) {
                 final QueueingConsumer.Delivery msg = consumer.nextDelivery(waitMSecNextMsg);
                 if (msg == null) {
                     continue;
@@ -65,8 +65,7 @@ public class AMQPSupportReceiveRunnable implements Runnable {
             }
 
             log.info("Completed publishing messages: " + count + " messages");
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Error attaching to AMQP: " + ex.getMessage(), ex);
         }
     }

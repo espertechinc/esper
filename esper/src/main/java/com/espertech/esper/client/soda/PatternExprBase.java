@@ -17,33 +17,28 @@ import java.util.List;
 /**
  * Abstract base class for all pattern expressions.
  */
-public abstract class PatternExprBase implements PatternExpr
-{
+public abstract class PatternExprBase implements PatternExpr {
     private static final long serialVersionUID = 0L;
 
     private String treeObjectName;
     private List<PatternExpr> children;
 
-    public String getTreeObjectName()
-    {
+    public String getTreeObjectName() {
         return treeObjectName;
     }
 
-    public void setTreeObjectName(String treeObjectName)
-    {
+    public void setTreeObjectName(String treeObjectName) {
         this.treeObjectName = treeObjectName;
     }
 
     /**
      * Ctor.
      */
-    protected PatternExprBase()
-    {
+    protected PatternExprBase() {
         children = new ArrayList<PatternExpr>();
     }
 
-    public List<PatternExpr> getChildren()
-    {
+    public List<PatternExpr> getChildren() {
         return children;
     }
 
@@ -53,10 +48,10 @@ public abstract class PatternExprBase implements PatternExpr
 
     /**
      * Adds a sub-expression to the pattern expression.
+     *
      * @param expression to add
      */
-    protected void addChild(PatternExpr expression)
-    {
+    protected void addChild(PatternExpr expression) {
         children.add(expression);
     }
 
@@ -65,8 +60,7 @@ public abstract class PatternExprBase implements PatternExpr
             writer.write("(");
             toPrecedenceFreeEPL(writer, formatter);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer, formatter);
         }
     }
@@ -74,7 +68,8 @@ public abstract class PatternExprBase implements PatternExpr
     /**
      * Renders the expressions and all it's child expression, in full tree depth, as a string in
      * language syntax.
-     * @param writer is the output to use
+     *
+     * @param writer    is the output to use
      * @param formatter for newline-whitespace formatting
      */
     public abstract void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter);

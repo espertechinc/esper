@@ -11,8 +11,6 @@
 package com.espertech.esperio.kafka;
 
 import com.espertech.esper.client.EPServiceProvider;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
 
 import java.util.Properties;
 

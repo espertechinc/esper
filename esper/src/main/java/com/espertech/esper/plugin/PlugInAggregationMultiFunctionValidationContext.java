@@ -20,8 +20,8 @@ import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
  * Context for use with {@link PlugInAggregationMultiFunctionFactory} provides
  * information about an aggregation function at the time of validation.
  * <p>
- *     At validation time the event type information, parameter expressions
- *     and other statement-specific services are available.
+ * At validation time the event type information, parameter expressions
+ * and other statement-specific services are available.
  * </p>
  */
 public class PlugInAggregationMultiFunctionValidationContext {
@@ -49,6 +49,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns the aggregation function name
+     *
      * @return aggregation function name
      */
     public String getFunctionName() {
@@ -57,6 +58,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns the event types of all events in the select clause
+     *
      * @return types
      */
     public EventType[] getEventTypes() {
@@ -66,6 +68,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
     /**
      * Returns positional parameters expressions to this aggregation function.
      * Use {@link #getAllParameterExpressions()} for a list of all parameters including non-positional parameters.
+     *
      * @return positional parameter expressions
      */
     public ExprNode[] getParameterExpressions() {
@@ -74,6 +77,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns the engine URI.
+     *
      * @return engine URI.
      */
     public String getEngineURI() {
@@ -82,6 +86,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns the statement name.
+     *
      * @return statement name
      */
     public String getStatementName() {
@@ -90,6 +95,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns additional validation contextual services.
+     *
      * @return validation context
      */
     public ExprValidationContext getValidationContext() {
@@ -98,6 +104,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns the original configuration object for the aggregation multi-function
+     *
      * @return config
      */
     public ConfigurationPlugInAggregationMultiFunction getConfig() {
@@ -110,6 +117,7 @@ public class PlugInAggregationMultiFunctionValidationContext {
 
     /**
      * Returns positional and non-positional parameters.
+     *
      * @return all parameters
      */
     public ExprNode[] getAllParameterExpressions() {

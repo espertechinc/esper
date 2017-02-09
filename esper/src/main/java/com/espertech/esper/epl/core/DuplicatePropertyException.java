@@ -13,16 +13,15 @@ package com.espertech.esper.epl.core;
 /**
  * Indicates a property exists in multiple streams.
  */
-public class DuplicatePropertyException extends StreamTypesException
-{
+public class DuplicatePropertyException extends StreamTypesException {
     private static final long serialVersionUID = -4239595353787781082L;
 
     /**
      * Ctor.
+     *
      * @param msg - exception message
      */
-    public DuplicatePropertyException(String msg)
-    {
+    public DuplicatePropertyException(String msg) {
         super(msg, null);
     }
 }

@@ -27,8 +27,7 @@ import java.util.Iterator;
 /**
  * Represents a variant event stream, allowing events of disparate event types to be treated polymophically.
  */
-public class VAEVariantProcessor implements ValueAddEventProcessor
-{
+public class VAEVariantProcessor implements ValueAddEventProcessor {
     /**
      * Specification for the variant stream.
      */
@@ -39,17 +38,13 @@ public class VAEVariantProcessor implements ValueAddEventProcessor
      */
     protected VariantEventType variantEventType;
 
-    public VAEVariantProcessor(VariantSpec variantSpec, EventTypeIdGenerator eventTypeIdGenerator, ConfigurationVariantStream config)
-    {
+    public VAEVariantProcessor(VariantSpec variantSpec, EventTypeIdGenerator eventTypeIdGenerator, ConfigurationVariantStream config) {
         this.variantSpec = variantSpec;
 
         VariantPropResolutionStrategy strategy;
-        if (variantSpec.getTypeVariance() == ConfigurationVariantStream.TypeVariance.ANY)
-        {
+        if (variantSpec.getTypeVariance() == ConfigurationVariantStream.TypeVariance.ANY) {
             strategy = new VariantPropResolutionStrategyAny(variantSpec);
-        }
-        else
-        {
+        } else {
             strategy = new VariantPropResolutionStrategyDefault(variantSpec);
         }
 
@@ -57,48 +52,38 @@ public class VAEVariantProcessor implements ValueAddEventProcessor
         variantEventType = new VariantEventType(metadata, eventTypeIdGenerator.getTypeId(variantSpec.getVariantStreamName()), variantSpec, strategy, config);
     }
 
-    public EventType getValueAddEventType()
-    {
+    public EventType getValueAddEventType() {
         return variantEventType;
     }
 
-    public void validateEventType(EventType eventType) throws ExprValidationException
-    {
-        if (variantSpec.getTypeVariance() == ConfigurationVariantStream.TypeVariance.ANY)
-        {
+    public void validateEventType(EventType eventType) throws ExprValidationException {
+        if (variantSpec.getTypeVariance() == ConfigurationVariantStream.TypeVariance.ANY) {
             return;
         }
 
-        if (eventType == null)
-        {
+        if (eventType == null) {
             throw new ExprValidationException(getMessage());
         }
 
         // try each permitted type
-        for (EventType variant : variantSpec.getEventTypes())
-        {
-            if (variant == eventType)
-            {
+        for (EventType variant : variantSpec.getEventTypes()) {
+            if (variant == eventType) {
                 return;
             }
         }
 
         // test if any of the supertypes of the eventtype is a variant type
-        for (EventType variant : variantSpec.getEventTypes())
-        {
+        for (EventType variant : variantSpec.getEventTypes()) {
             // Check all the supertypes to see if one of the matches the full or delta types
             Iterator<EventType> deepSupers = eventType.getDeepSuperTypes();
-            if (deepSupers == null)
-            {
+            if (deepSupers == null) {
                 continue;
             }
 
             EventType superType;
-            for (;deepSupers.hasNext();)
-            {
+            for (; deepSupers.hasNext(); ) {
                 superType = deepSupers.next();
-                if (superType == variant)
-                {
+                if (superType == variant) {
                     return;
                 }
             }
@@ -107,13 +92,11 @@ public class VAEVariantProcessor implements ValueAddEventProcessor
         throw new ExprValidationException(getMessage());
     }
 
-    public EventBean getValueAddEventBean(EventBean theEvent)
-    {
+    public EventBean getValueAddEventBean(EventBean theEvent) {
         return new VariantEventBean(variantEventType, theEvent);
     }
 
-    public void onUpdate(EventBean[] newData, EventBean[] oldData, NamedWindowRootViewInstance namedWindowRootView, EventTableIndexRepository indexRepository)
-    {
+    public void onUpdate(EventBean[] newData, EventBean[] oldData, NamedWindowRootViewInstance namedWindowRootView, EventTableIndexRepository indexRepository) {
         throw new UnsupportedOperationException();
     }
 
@@ -121,13 +104,11 @@ public class VAEVariantProcessor implements ValueAddEventProcessor
         throw new UnsupportedOperationException();
     }
 
-    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository)
-    {
+    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository) {
         throw new UnsupportedOperationException();
     }
 
-    private String getMessage()
-    {
+    private String getMessage() {
         return "Selected event type is not a valid event type of the variant stream '" + variantSpec.getVariantStreamName() + "'";
     }
 }

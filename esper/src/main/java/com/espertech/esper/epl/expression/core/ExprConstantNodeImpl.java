@@ -18,25 +18,21 @@ import java.io.StringWriter;
 /**
  * Represents a constant in an expressiun tree.
  */
-public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNode, ExprEvaluator
-{
+public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNode, ExprEvaluator {
     private Object value;
     private final Class clazz;
     private static final long serialVersionUID = 3154169410675962539L;
 
     /**
      * Ctor.
+     *
      * @param value is the constant's value.
      */
-    public ExprConstantNodeImpl(Object value)
-    {
+    public ExprConstantNodeImpl(Object value) {
         this.value = value;
-        if (value == null)
-        {
+        if (value == null) {
             clazz = null;
-        }
-        else
-        {
+        } else {
             clazz = value.getClass();
         }
     }
@@ -47,44 +43,40 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
 
     /**
      * Ctor.
-     * @param value is the constant's value.
+     *
+     * @param value     is the constant's value.
      * @param valueType is the constant's value type.
      */
-    public ExprConstantNodeImpl(Object value, Class valueType)
-    {
+    public ExprConstantNodeImpl(Object value, Class valueType) {
         this.value = value;
-        if (value == null)
-        {
+        if (value == null) {
             clazz = valueType;
-        }
-        else
-        {
+        } else {
             clazz = value.getClass();
         }
     }
 
     /**
      * Ctor - for use when the constant should return a given type and the actual value is always null.
+     *
      * @param clazz the type of the constant null.
      */
-    public ExprConstantNodeImpl(Class clazz)
-    {
+    public ExprConstantNodeImpl(Class clazz) {
         this.clazz = clazz;
         this.value = null;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return true;
     }
 
     /**
      * Returns the constant's value.
+     *
      * @return value of constant
      */
     public Object getConstantValue(ExprEvaluatorContext context) {
@@ -93,42 +85,38 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
 
     /**
      * Sets the value of the constant.
+     *
      * @param value to set
      */
-    public void setValue(Object value)
-    {
+    public void setValue(Object value) {
         this.value = value;
     }
 
-    public Class getConstantType()
-    {
+    public Class getConstantType() {
         return clazz;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return clazz;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qaExprConst(value); }
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qaExprConst(value);
+        }
         return value;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if (value instanceof String) {
             writer.append("\"" + value + '\"');
-        }
-        else if (value == null) {
+        } else if (value == null) {
             writer.append("null");
-        }
-        else {
+        } else {
             writer.append(value.toString());
         }
     }
@@ -137,25 +125,20 @@ public class ExprConstantNodeImpl extends ExprNodeBase implements ExprConstantNo
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprConstantNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprConstantNodeImpl)) {
             return false;
         }
 
         ExprConstantNodeImpl other = (ExprConstantNodeImpl) node;
 
-        if ((other.value == null) && (this.value != null))
-        {
+        if ((other.value == null) && (this.value != null)) {
             return false;
         }
-        if ((other.value != null) && (this.value == null))
-        {
+        if ((other.value != null) && (this.value == null)) {
             return false;
         }
-        if ((other.value == null) && (this.value == null))
-        {
+        if ((other.value == null) && (this.value == null)) {
             return true;
         }
         return other.value.equals(this.value);

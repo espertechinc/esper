@@ -23,19 +23,18 @@ import java.util.Set;
 /**
  * This class represents the state of an eventObserver sub-expression in the evaluation state tree.
  */
-public class EvalObserverStateNode extends EvalStateNode implements ObserverEventEvaluator
-{
+public class EvalObserverStateNode extends EvalStateNode implements ObserverEventEvaluator {
     protected final EvalObserverNode evalObserverNode;
     protected EventObserver eventObserver;
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode       is the parent evaluator to call to indicate truth value
      * @param evalObserverNode is the factory node associated to the state
      */
     public EvalObserverStateNode(Evaluator parentNode,
-                             EvalObserverNode evalObserverNode)
-    {
+                                 EvalObserverNode evalObserverNode) {
         super(parentNode);
 
         this.evalObserverNode = evalObserverNode;
@@ -58,31 +57,39 @@ public class EvalObserverStateNode extends EvalStateNode implements ObserverEven
         return evalObserverNode.getContext();
     }
 
-    public void observerEvaluateTrue(MatchedEventMap matchEvent, boolean quitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverEvaluateTrue(evalObserverNode, matchEvent);}
+    public void observerEvaluateTrue(MatchedEventMap matchEvent, boolean quitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternObserverEvaluateTrue(evalObserverNode, matchEvent);
+        }
         this.getParentEvaluator().evaluateTrue(matchEvent, this, quitted);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverEvaluateTrue();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternObserverEvaluateTrue();
+        }
     }
 
-    public void observerEvaluateFalse(boolean restartable)
-    {
+    public void observerEvaluateFalse(boolean restartable) {
         this.getParentEvaluator().evaluateFalse(this, restartable);
     }
 
-    public void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverStart(evalObserverNode, beginState);}
+    public void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternObserverStart(evalObserverNode, beginState);
+        }
         eventObserver = evalObserverNode.getFactoryNode().getObserverFactory().makeObserver(evalObserverNode.getContext(), beginState, this, null, null, this.getParentEvaluator().isFilterChildNonQuitting());
         eventObserver.startObserve();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternObserverStart();
+        }
     }
 
-    public final void quit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverQuit(evalObserverNode);}
+    public final void quit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternObserverQuit(evalObserverNode);
+        }
         eventObserver.stopObserve();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternObserverQuit();
+        }
     }
 
     public final void accept(EvalStateNodeVisitor visitor) {
@@ -101,8 +108,7 @@ public class EvalObserverStateNode extends EvalStateNode implements ObserverEven
         return evalObserverNode.getFactoryNode().isObserverStateNodeNonRestarting();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalObserverStateNode eventObserver=" + eventObserver;
     }
 

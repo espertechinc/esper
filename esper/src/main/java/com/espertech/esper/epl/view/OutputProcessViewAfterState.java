@@ -17,10 +17,12 @@ import com.espertech.esper.core.service.StatementContext;
 
 import java.util.Set;
 
-public interface OutputProcessViewAfterState
-{
+public interface OutputProcessViewAfterState {
     boolean checkUpdateAfterCondition(EventBean[] newEvents, StatementContext statementContext);
+
     boolean checkUpdateAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext);
+
     boolean checkUpdateAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext);
+
     void destroy();
 }

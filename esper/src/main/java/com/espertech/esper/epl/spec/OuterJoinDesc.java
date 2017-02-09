@@ -24,8 +24,7 @@ import java.util.Collection;
 /**
  * Contains the ON-clause criteria in an outer join.
  */
-public class OuterJoinDesc implements MetaDefItem, Serializable
-{
+public class OuterJoinDesc implements MetaDefItem, Serializable {
     public static final OuterJoinDesc[] EMPTY_OUTERJOIN_ARRAY = new OuterJoinDesc[0];
 
     private OuterJoinType outerJoinType;
@@ -37,14 +36,14 @@ public class OuterJoinDesc implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param outerJoinType - type of the outer join
-     * @param optLeftNode - left hand identifier node
-     * @param optRightNode - right hand identifier node
-     * @param optAddLeftNode - additional optional left hand identifier nodes for the on-clause in a logical-and
+     *
+     * @param outerJoinType   - type of the outer join
+     * @param optLeftNode     - left hand identifier node
+     * @param optRightNode    - right hand identifier node
+     * @param optAddLeftNode  - additional optional left hand identifier nodes for the on-clause in a logical-and
      * @param optAddRightNode - additional optional right hand identifier nodes for the on-clause in a logical-and
      */
-    public OuterJoinDesc(OuterJoinType outerJoinType, ExprIdentNode optLeftNode, ExprIdentNode optRightNode, ExprIdentNode[] optAddLeftNode, ExprIdentNode[] optAddRightNode)
-    {
+    public OuterJoinDesc(OuterJoinType outerJoinType, ExprIdentNode optLeftNode, ExprIdentNode optRightNode, ExprIdentNode[] optAddLeftNode, ExprIdentNode[] optAddRightNode) {
         this.outerJoinType = outerJoinType;
         this.optLeftNode = optLeftNode;
         this.optRightNode = optRightNode;
@@ -54,56 +53,56 @@ public class OuterJoinDesc implements MetaDefItem, Serializable
 
     /**
      * Returns the type of outer join (left/right/full).
+     *
      * @return outer join type
      */
-    public OuterJoinType getOuterJoinType()
-    {
+    public OuterJoinType getOuterJoinType() {
         return outerJoinType;
     }
 
     /**
      * Returns left hand identifier node.
+     *
      * @return left hand
      */
-    public ExprIdentNode getOptLeftNode()
-    {
+    public ExprIdentNode getOptLeftNode() {
         return optLeftNode;
     }
 
     /**
      * Returns right hand identifier node.
+     *
      * @return right hand
      */
-    public ExprIdentNode getOptRightNode()
-    {
+    public ExprIdentNode getOptRightNode() {
         return optRightNode;
     }
 
     /**
      * Returns additional properties in the on-clause, if any, that are connected via logical-and
+     *
      * @return additional properties
      */
-    public ExprIdentNode[] getAdditionalLeftNodes()
-    {
+    public ExprIdentNode[] getAdditionalLeftNodes() {
         return optAddLeftNode;
     }
 
     /**
      * Returns additional properties in the on-clause, if any, that are connected via logical-and
+     *
      * @return additional properties
      */
-    public ExprIdentNode[] getAdditionalRightNodes()
-    {
+    public ExprIdentNode[] getAdditionalRightNodes() {
         return optAddRightNode;
     }
 
     /**
      * Make an expression node that represents the outer join criteria as specified in the on-clause.
+     *
      * @param exprEvaluatorContext context for expression evalauation
      * @return expression node for outer join criteria
      */
-    public ExprNode makeExprNode(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public ExprNode makeExprNode(ExprEvaluatorContext exprEvaluatorContext) {
         ExprNode representativeNode = new ExprEqualsNodeImpl(false, false);
         representativeNode.addChildNode(optLeftNode);
         representativeNode.addChildNode(optRightNode);
@@ -118,8 +117,7 @@ public class OuterJoinDesc implements MetaDefItem, Serializable
         andNode.addChildNode(representativeNode);
         representativeNode = andNode;
 
-        for (int i = 0; i < optAddLeftNode.length; i++)
-        {
+        for (int i = 0; i < optAddLeftNode.length; i++) {
             ExprEqualsNode eqNode = new ExprEqualsNodeImpl(false, false);
             eqNode.addChildNode(optAddLeftNode[i]);
             eqNode.addChildNode(optAddRightNode[i]);
@@ -148,13 +146,10 @@ public class OuterJoinDesc implements MetaDefItem, Serializable
     }
 
     private void topValidate(ExprNode exprNode, ExprEvaluatorContext exprEvaluatorContext) {
-        try
-        {
+        try {
             ExprValidationContext validationContext = new ExprValidationContext(null, null, null, null, null, null, null, exprEvaluatorContext, null, null, -1, null, null, false, false, false, false, null, false);
             exprNode.validate(validationContext);
-        }
-        catch (ExprValidationException e)
-        {
+        } catch (ExprValidationException e) {
             throw new IllegalStateException("Failed to make representative node for outer join criteria");
         }
     }

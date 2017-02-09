@@ -11,43 +11,38 @@
 package com.espertech.esper.filter;
 
 import junit.framework.TestCase;
-
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Iterator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestDoubleRangeComparator extends TestCase
-{
-    public void testComparator()
-    {
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+public class TestDoubleRangeComparator extends TestCase {
+    public void testComparator() {
         SortedSet<DoubleRange> sorted = new TreeSet<DoubleRange>(new DoubleRangeComparator());
 
         final double[][] TEST_SET =
-                { {10, 20},         // 4
-                  {10, 15},         // 2
-                  {10, 25},         // 5
-                  {5, 20},          // 0
-                  {5, 25},          // 1
-                  {15, 20},         // 6
-                  {10, 16} };       // 3
+                {{10, 20},         // 4
+                        {10, 15},         // 2
+                        {10, 25},         // 5
+                        {5, 20},          // 0
+                        {5, 25},          // 1
+                        {15, 20},         // 6
+                        {10, 16}};       // 3
 
         final int[] EXPECTED_INDEX = {3, 4, 1, 6, 0, 2, 5};
 
         // Sort
         DoubleRange ranges[] = new DoubleRange[TEST_SET.length];
-        for (int i = 0; i < TEST_SET.length; i++)
-        {
+        for (int i = 0; i < TEST_SET.length; i++) {
             ranges[i] = new DoubleRange(TEST_SET[i][0], TEST_SET[i][1]);
             sorted.add(ranges[i]);
         }
 
         // Check results
         int count = 0;
-        for (Iterator<DoubleRange> i = sorted.iterator(); i.hasNext();)
-        {
+        for (Iterator<DoubleRange> i = sorted.iterator(); i.hasNext(); ) {
             DoubleRange range = i.next();
             int indexExpected = EXPECTED_INDEX[count];
             DoubleRange expected = ranges[indexExpected];

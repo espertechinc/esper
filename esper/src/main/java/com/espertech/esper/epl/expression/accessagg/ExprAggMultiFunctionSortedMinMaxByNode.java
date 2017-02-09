@@ -30,8 +30,7 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Set;
 
-public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode
-{
+public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBase implements ExprEvaluatorEnumeration, ExprAggregateAccessMultiValueNode {
     private static final long serialVersionUID = -8407756454712340265L;
     private final boolean max;
     private final boolean ever;
@@ -54,24 +53,20 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         return validateAggregationInternal(validationContext, null);
     }
 
-    private AggregationMethodFactory validateAggregationInternal(ExprValidationContext validationContext, TableMetadataColumnAggregation optionalBinding) throws ExprValidationException
-    {
+    private AggregationMethodFactory validateAggregationInternal(ExprValidationContext validationContext, TableMetadataColumnAggregation optionalBinding) throws ExprValidationException {
         ExprAggMultiFunctionSortedMinMaxByNodeFactory factory;
 
         // handle table-access expression (state provided, accessor needed)
         if (optionalBinding != null) {
             factory = handleTableAccess(optionalBinding);
-        }
-        // handle create-table statements (state creator and default accessor, limited to certain options)
-        else if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE) {
+        } else if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE) {
+            // handle create-table statements (state creator and default accessor, limited to certain options)
             factory = handleCreateTable(validationContext);
-        }
-        // handle into-table (state provided, accessor and agent needed, validation done by factory)
-        else if (validationContext.getIntoTableName() != null) {
+        } else if (validationContext.getIntoTableName() != null) {
+            // handle into-table (state provided, accessor and agent needed, validation done by factory)
             factory = handleIntoTable(validationContext);
-        }
-        // handle standalone
-        else {
+        } else {
+            // handle standalone
             factory = handleNonTable(validationContext);
         }
 
@@ -80,8 +75,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     private ExprAggMultiFunctionSortedMinMaxByNodeFactory handleNonTable(ExprValidationContext validationContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (positionalParams.length == 0) {
             throw new ExprValidationException("Missing the sort criteria expression");
         }
@@ -112,16 +106,13 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         if (!sortedwin) {
             if (tableMetadata != null) {
                 accessor = new AggregationAccessorMinMaxByTable(max, tableMetadata);
-            }
-            else {
+            } else {
                 accessor = new AggregationAccessorMinMaxByNonTable(max);
             }
-        }
-        else {
+        } else {
             if (tableMetadata != null) {
                 accessor = new AggregationAccessorSortedTable(max, componentType, tableMetadata);
-            }
-            else {
+            } else {
                 accessor = new AggregationAccessorSortedNonTable(max, componentType);
             }
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
@@ -132,8 +123,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         AggregationStateTypeWStream type;
         if (ever) {
             type = max ? AggregationStateTypeWStream.MAXEVER : AggregationStateTypeWStream.MINEVER;
-        }
-        else {
+        } else {
             type = AggregationStateTypeWStream.SORTED;
         }
         AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, type, criteriaExpressions.getFirst());
@@ -147,21 +137,17 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     private ExprAggMultiFunctionSortedMinMaxByNodeFactory handleIntoTable(ExprValidationContext validationContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         int streamNum;
         if (positionalParams.length == 0 ||
-           (positionalParams.length == 1 && positionalParams[0] instanceof ExprWildcard)) {
+                (positionalParams.length == 1 && positionalParams[0] instanceof ExprWildcard)) {
             ExprAggMultiFunctionUtil.validateWildcardStreamNumbers(validationContext.getStreamTypeService(), getAggregationFunctionName());
             streamNum = 0;
-        }
-        else if (positionalParams.length == 1 && positionalParams[0] instanceof ExprStreamUnderlyingNode) {
+        } else if (positionalParams.length == 1 && positionalParams[0] instanceof ExprStreamUnderlyingNode) {
             streamNum = ExprAggMultiFunctionUtil.validateStreamWildcardGetStreamNum(positionalParams[0]);
-        }
-        else if (positionalParams.length > 0) {
+        } else if (positionalParams.length > 0) {
             throw new ExprValidationException("When specifying into-table a sort expression cannot be provided");
-        }
-        else {
+        } else {
             streamNum = 0;
         }
 
@@ -171,8 +157,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         AggregationAccessor accessor;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
-        }
-        else {
+        } else {
             accessor = new AggregationAccessorSortedNonTable(max, componentType);
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
@@ -186,8 +171,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
     }
 
     private ExprAggMultiFunctionSortedMinMaxByNodeFactory handleCreateTable(ExprValidationContext validationContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (positionalParams.length == 0) {
             throw new ExprValidationException("Missing the sort criteria expression");
         }
@@ -206,15 +190,14 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         AggregationAccessor accessor;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
-        }
-        else {
+        } else {
             accessor = new AggregationAccessorSortedNonTable(max, componentType);
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
                 SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(),
-                    ExprNodeUtility.getEvaluators(criteriaExpressions.getFirst()),
-                    criteriaExpressions.getSecond(), ever, 0, this);
+                ExprNodeUtility.getEvaluators(criteriaExpressions.getFirst()),
+                criteriaExpressions.getSecond(), ever, 0, this);
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, null, stateFactoryFactory, null);
     }
 
@@ -243,8 +226,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         Class accessorResultType = componentType;
         if (!sortedwin) {
             accessor = new AggregationAccessorMinMaxByNonTable(max);
-        }
-        else {
+        } else {
             accessor = new AggregationAccessorSortedNonTable(max, componentType);
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }

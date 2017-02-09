@@ -10,40 +10,36 @@
  */
 package com.espertech.esper.collection;
 
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
-public class TestFlushedEventBuffer extends TestCase
-{
+public class TestFlushedEventBuffer extends TestCase {
     private FlushedEventBuffer buffer;
     private EventBean[] events;
 
-    public void setUp()
-    {
+    public void setUp() {
         buffer = new FlushedEventBuffer();
         events = new EventBean[10];
 
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             events[i] = SupportEventBeanFactory.createObject(i);
         }
     }
 
-    public void testFlow()
-    {
+    public void testFlow() {
         // test empty buffer
         buffer.add(null);
         assertNull(buffer.getAndFlush());
         buffer.flush();
 
         // test add single events
-        buffer.add(new EventBean[] { events[0] });
+        buffer.add(new EventBean[]{events[0]});
         EventBean[] results = buffer.getAndFlush();
         assertTrue((results.length == 1) && (results[0] == events[0]));
 
-        buffer.add(new EventBean[] { events[0] });
-        buffer.add(new EventBean[] { events[1] });
+        buffer.add(new EventBean[]{events[0]});
+        buffer.add(new EventBean[]{events[1]});
         results = buffer.getAndFlush();
         assertTrue((results.length == 2));
         assertSame(events[0], results[0]);
@@ -53,8 +49,8 @@ public class TestFlushedEventBuffer extends TestCase
         assertNull(buffer.getAndFlush());
 
         // Add multiple events
-        buffer.add(new EventBean[] { events[2], events[3] });
-        buffer.add(new EventBean[] { events[4], events[5] });
+        buffer.add(new EventBean[]{events[2], events[3]});
+        buffer.add(new EventBean[]{events[4], events[5]});
         results = buffer.getAndFlush();
         assertTrue((results.length == 4));
         assertSame(events[2], results[0]);

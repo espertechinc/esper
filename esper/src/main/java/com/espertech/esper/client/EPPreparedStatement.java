@@ -20,22 +20,23 @@ package com.espertech.esper.client;
  * the actual value for the substitution parameter.
  * <p>
  * A precompiled statement can only be created and started when actual values for all
- * substitution parameters are set. 
+ * substitution parameters are set.
  */
-public interface EPPreparedStatement
-{
+public interface EPPreparedStatement {
     /**
      * Sets the value of the designated parameter using the given object.
+     *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
-     * @param value the object containing the input parameter value
+     * @param value          the object containing the input parameter value
      * @throws EPException if the substitution parameter could not be located
      */
     public void setObject(int parameterIndex, Object value) throws EPException;
 
     /**
      * Sets the value of the designated parameter using the given object.
+     *
      * @param parameterName the name of the parameter
-     * @param value the object containing the input parameter value
+     * @param value         the object containing the input parameter value
      * @throws EPException if the substitution parameter could not be located
      */
     public void setObject(String parameterName, Object value) throws EPException;

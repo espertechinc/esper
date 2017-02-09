@@ -28,14 +28,13 @@ public class ContextControllerHashedGetterCRC32Single implements EventPropertyGe
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        EventBean[] events = new EventBean[] {eventBean};
+        EventBean[] events = new EventBean[]{eventBean};
         String code = (String) eval.evaluate(events, true, null);
 
         long value;
         if (code == null) {
             value = 0;
-        }
-        else {
+        } else {
             CRC32 crc = new CRC32();
             crc.update(code.getBytes());
             value = crc.getValue() % granularity;

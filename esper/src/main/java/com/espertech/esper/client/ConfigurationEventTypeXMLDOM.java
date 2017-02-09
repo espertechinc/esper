@@ -18,7 +18,6 @@ import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,8 +44,7 @@ import java.util.Map;
  * root element name occurs in multiple namespaces.
  * </p>
  */
-public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
-{
+public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable {
     private String rootElementName;
 
     // Root element namespace.
@@ -57,7 +55,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
     // Default name space.
     // For XPath expression evaluation.
     private String defaultNamespace;
-    
+
     private String schemaResource;
     private String schemaText;
     private Map<String, XPathPropertyDesc> xPathProperties;
@@ -80,8 +78,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
     /**
      * Ctor.
      */
-    public ConfigurationEventTypeXMLDOM()
-    {
+    public ConfigurationEventTypeXMLDOM() {
         xPathProperties = new LinkedHashMap<String, XPathPropertyDesc>();
         namespacePrefixes = new HashMap<String, String>();
         isXPathResolvePropertiesAbsolute = true;
@@ -92,73 +89,73 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
     /**
      * Returns the root element name.
+     *
      * @return root element name
      */
-    public String getRootElementName()
-    {
+    public String getRootElementName() {
         return rootElementName;
     }
 
     /**
      * Sets the root element name.
+     *
      * @param rootElementName is the name of the root element
      */
-    public void setRootElementName(String rootElementName)
-    {
+    public void setRootElementName(String rootElementName) {
         this.rootElementName = rootElementName;
     }
 
     /**
      * Returns the root element namespace.
+     *
      * @return root element namespace
      */
-    public String getRootElementNamespace()
-    {
+    public String getRootElementNamespace() {
         return rootElementNamespace;
     }
 
     /**
      * Sets the root element namespace.
+     *
      * @param rootElementNamespace is the namespace for the root element
      */
-    public void setRootElementNamespace(String rootElementNamespace)
-    {
+    public void setRootElementNamespace(String rootElementNamespace) {
         this.rootElementNamespace = rootElementNamespace;
     }
 
     /**
      * Returns the default namespace.
+     *
      * @return default namespace
      */
-    public String getDefaultNamespace()
-    {
+    public String getDefaultNamespace() {
         return defaultNamespace;
     }
 
     /**
      * Sets the default namespace.
+     *
      * @param defaultNamespace is the default namespace
      */
-    public void setDefaultNamespace(String defaultNamespace)
-    {
+    public void setDefaultNamespace(String defaultNamespace) {
         this.defaultNamespace = defaultNamespace;
     }
 
     /**
      * Returns the schema resource.
+     *
      * @return schema resource
      */
-    public String getSchemaResource()
-    {
+    public String getSchemaResource() {
         return schemaResource;
     }
 
     /**
      * Sets the schema resource.
+     *
      * @param schemaResource is the schema resource
      */
-    public void setSchemaResource(String schemaResource)
-    {
+    public void setSchemaResource(String schemaResource) {
         this.schemaResource = schemaResource;
     }
 
@@ -166,6 +163,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * Returns the schema text, if provided instead of a schema resource, this call returns the actual text of the schema document.
      * <p>
      * Set a schema text first. This call will not resolve the schema resource to a text.
+     *
      * @return schema text, if provided, or null value
      */
     public String getSchemaText() {
@@ -175,8 +173,9 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
     /**
      * Sets the schema text, for use when the schema resource is impractical and when providing the actual text
      * of the schema instead.
+     *
      * @param schemaText schema text is the actual content of an XSD schema file as a string,
-     * provide instead of a schema resource name
+     *                   provide instead of a schema resource name
      */
     public void setSchemaText(String schemaText) {
         this.schemaText = schemaText;
@@ -184,30 +183,30 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
     /**
      * Returns a map of property name and descriptor for XPath-expression properties.
+     *
      * @return XPath property information
      */
-    public Map<String, XPathPropertyDesc> getXPathProperties()
-    {
+    public Map<String, XPathPropertyDesc> getXPathProperties() {
         return xPathProperties;
     }
 
     /**
      * Returns false to indicate that property expressions are evaluated by the DOM-walker
      * implementation (the default), or true to  indicate that property expressions are rewritten into XPath expressions.
+     *
      * @return indicator how property expressions are evaluated
      */
-    public boolean isXPathPropertyExpr()
-    {
+    public boolean isXPathPropertyExpr() {
         return isXPathPropertyExpr;
     }
 
     /**
      * Set to false to indicate that property expressions are evaluated by the DOM-walker
      * implementation (the default), or set to true to indicate that property expressions are rewritten into XPath expressions.
+     *
      * @param xPathPropertyExpr indicator how property expressions are evaluated
      */
-    public void setXPathPropertyExpr(boolean xPathPropertyExpr)
-    {
+    public void setXPathPropertyExpr(boolean xPathPropertyExpr) {
         isXPathPropertyExpr = xPathPropertyExpr;
     }
 
@@ -215,10 +214,10 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * Returns true to indicate that an {@link EventSender} returned for this event type validates
      * the root document element name against the one configured (the default), or false to not validate the root document
      * element name as configured.
-     * @return true for validation of root document element name by event sender, false for no validation 
+     *
+     * @return true for validation of root document element name by event sender, false for no validation
      */
-    public boolean isEventSenderValidatesRoot()
-    {
+    public boolean isEventSenderValidatesRoot() {
         return isEventSenderValidatesRoot;
     }
 
@@ -226,10 +225,10 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * Set to true to indicate that an {@link EventSender} returned for this event type validates
      * the root document element name against the one configured (the default), or false to not validate the root document
      * element name as configured.
+     *
      * @param eventSenderValidatesRoot true for validation of root document element name by event sender, false for no validation
      */
-    public void setEventSenderValidatesRoot(boolean eventSenderValidatesRoot)
-    {
+    public void setEventSenderValidatesRoot(boolean eventSenderValidatesRoot) {
         isEventSenderValidatesRoot = eventSenderValidatesRoot;
     }
 
@@ -237,34 +236,34 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * Set to true (the default) to look up or create event types representing fragments of an XML document
      * automatically upon request for fragment event type information; Or false when only explicit
      * properties may return fragments.
+     *
      * @return indicator whether to allow splitting-up (fragmenting) properties (nodes) in an document
      */
-    public boolean isAutoFragment()
-    {
+    public boolean isAutoFragment() {
         return isAutoFragment;
     }
 
     /**
-     * Set to true (the default) to look up or create event types representing fragments of an XML document 
+     * Set to true (the default) to look up or create event types representing fragments of an XML document
      * automatically upon request for fragment event type information; Or false when only explicit
      * properties may return fragments.
+     *
      * @param autoFragment indicator whether to allow splitting-up (fragmenting) properties (nodes) in an document
      */
-    public void setAutoFragment(boolean autoFragment)
-    {
+    public void setAutoFragment(boolean autoFragment) {
         isAutoFragment = autoFragment;
     }
 
     /**
      * Adds an event property for which the engine uses the supplied XPath expression against
      * a DOM document node to resolve a property value.
-     * @param name of the event property
+     *
+     * @param name  of the event property
      * @param xpath is an arbitrary xpath expression
-     * @param type is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
-     * XPathConstants.NUMBER, STRING and BOOLEAN.
+     * @param type  is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
+     *              XPathConstants.NUMBER, STRING and BOOLEAN.
      */
-    public void addXPathProperty(String name, String xpath, QName type)
-    {
+    public void addXPathProperty(String name, String xpath, QName type) {
         XPathPropertyDesc desc = new XPathPropertyDesc(name, xpath, type);
         xPathProperties.put(name, desc);
     }
@@ -272,21 +271,19 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
     /**
      * Adds an event property for which the engine uses the supplied XPath expression against
      * a DOM document node to resolve a property value.
-     * @param name of the event property
-     * @param xpath is an arbitrary xpath expression
-     * @param type is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
-     * XPathConstants.NUMBER, STRING and BOOLEAN.
+     *
+     * @param name       of the event property
+     * @param xpath      is an arbitrary xpath expression
+     * @param type       is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
+     *                   XPathConstants.NUMBER, STRING and BOOLEAN.
      * @param castToType is the type name of the type that the return value of the xpath expression is casted to
      */
-    public void addXPathProperty(String name, String xpath, QName type, String castToType)
-    {
+    public void addXPathProperty(String name, String xpath, QName type, String castToType) {
         Class castToTypeClass = null;
 
-        if (castToType != null)
-        {
+        if (castToType != null) {
             boolean isArray = false;
-            if (castToType.trim().endsWith("[]"))
-            {
+            if (castToType.trim().endsWith("[]")) {
                 isArray = true;
                 castToType = castToType.replace("[]", "");
             }
@@ -308,16 +305,15 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
     /**
      * Adds an event property for which the engine uses the supplied XPath expression against
      * a DOM document node to resolve a property value.
-     * @param name of the event property
-     * @param xpath is an arbitrary xpath expression
-     * @param type is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
-     * XPathConstants.NODE and XPathConstants.NODESET.
+     *
+     * @param name          of the event property
+     * @param xpath         is an arbitrary xpath expression
+     * @param type          is a constant obtained from javax.xml.xpath.XPathConstants. Typical values are
+     *                      XPathConstants.NODE and XPathConstants.NODESET.
      * @param eventTypeName is the name of another event type that represents the XPath nodes
      */
-    public void addXPathPropertyFragment(String name, String xpath, QName type, String eventTypeName)
-    {
-        if ((type != XPathConstants.NODE) && (type != XPathConstants.NODESET))
-        {
+    public void addXPathPropertyFragment(String name, String xpath, QName type, String eventTypeName) {
+        if ((type != XPathConstants.NODE) && (type != XPathConstants.NODESET)) {
             throw new IllegalArgumentException("XPath property for fragments requires an Node or Nodeset (XPathConstants.NODE/NODESET) return value for property '" + name + "'");
         }
         XPathPropertyDesc desc = new XPathPropertyDesc(name, xpath, type, eventTypeName);
@@ -326,38 +322,38 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
     /**
      * Returns the namespace prefixes in a map of prefix as key and namespace name as value.
+     *
      * @return namespace prefixes
      */
-    public Map<String, String> getNamespacePrefixes()
-    {
+    public Map<String, String> getNamespacePrefixes() {
         return namespacePrefixes;
     }
 
     /**
      * Add a prefix and namespace name for use in XPath expressions refering to that prefix.
-     * @param prefix is the prefix of the namespace
+     *
+     * @param prefix    is the prefix of the namespace
      * @param namespace is the namespace name
      */
-    public void addNamespacePrefix(String prefix, String namespace)
-    {
+    public void addNamespacePrefix(String prefix, String namespace) {
         namespacePrefixes.put(prefix, namespace);
     }
 
     /**
      * Add prefixes and namespace names for use in XPath expressions refering to that prefix.
+     *
      * @param prefixNamespaceMap map of prefixes and namespaces
      */
-    public void addNamespacePrefixes(Map<String, String> prefixNamespaceMap)
-    {
+    public void addNamespacePrefixes(Map<String, String> prefixNamespaceMap) {
         namespacePrefixes.putAll(prefixNamespaceMap);
     }
 
     /**
      * Indicates whether properties are compiled into absolute or deep XPath expressions (see setter method for more detail).
+     *
      * @return true for absolute properties, false for deep properties
      */
-    public boolean isXPathResolvePropertiesAbsolute()
-    {
+    public boolean isXPathResolvePropertiesAbsolute() {
         return isXPathResolvePropertiesAbsolute;
     }
 
@@ -370,50 +366,50 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * When set to false, indicates that when properties are compiled to XPath expressions that the
      * compilation should generate a deep XPath expression such as "//symbol" for the
      * simple symbol property, or "//request/symbol" for a "request.symbol" nested property.
-     * @param XPathResolvePropertiesAbsolute true for absolute XPath for properties (default), false for deep XPath
+     *
+     * @param xPathResolvePropertiesAbsolute true for absolute XPath for properties (default), false for deep XPath
      */
-    public void setXPathResolvePropertiesAbsolute(boolean XPathResolvePropertiesAbsolute)
-    {
-        this.isXPathResolvePropertiesAbsolute = XPathResolvePropertiesAbsolute;
+    public void setXPathResolvePropertiesAbsolute(boolean xPathResolvePropertiesAbsolute) {
+        this.isXPathResolvePropertiesAbsolute = xPathResolvePropertiesAbsolute;
     }
 
     /**
      * Returns the class name of the XPath function resolver to be assigned to the XPath factory instance
      * upon type initialization.
+     *
      * @return class name of xpath function resolver, or null if none set
      */
-    public String getXPathFunctionResolver()
-    {
+    public String getXPathFunctionResolver() {
         return xPathFunctionResolver;
     }
 
     /**
      * Sets the class name of the XPath function resolver to be assigned to the XPath factory instance
      * upon type initialization.
+     *
      * @param xPathFunctionResolver class name of xpath function resolver, or null if none set
      */
-    public void setXPathFunctionResolver(String xPathFunctionResolver)
-    {
+    public void setXPathFunctionResolver(String xPathFunctionResolver) {
         this.xPathFunctionResolver = xPathFunctionResolver;
     }
 
     /**
      * Returns the class name of the XPath variable resolver to be assigned to the XPath factory instance
      * upon type initialization.
+     *
      * @return class name of xpath function resolver, or null if none set
      */
-    public String getXPathVariableResolver()
-    {
+    public String getXPathVariableResolver() {
         return xPathVariableResolver;
     }
 
     /**
      * Sets the class name of the XPath variable resolver to be assigned to the XPath factory instance
      * upon type initialization.
+     *
      * @param xPathVariableResolver class name of xpath function resolver, or null if none set
      */
-    public void setXPathVariableResolver(String xPathVariableResolver)
-    {
+    public void setXPathVariableResolver(String xPathVariableResolver) {
         this.xPathVariableResolver = xPathVariableResolver;
     }
 
@@ -421,6 +417,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * Indicator for use with EsperHA, false by default to indicate that stored type information takes
      * precedence over configuration type information provided at engine initialization time. Set to true to indicate that
      * configuration type information takes precedence over stored type information.
+     *
      * @return indicator is false (the default) to indicate that stored type information takes precedence over configuration type information
      */
     public boolean isUpdateStoredType() {
@@ -435,6 +432,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
      * When setting this flag to true care should be taken about the compatibility of the supplied XML type
      * configuration information and the existing EPL statements and stored events, if any. For more information
      * please consult {@link ConfigurationOperations#replaceXMLEventType(String, ConfigurationEventTypeXMLDOM)}.
+     *
      * @param updateStoredType set to false (the default) to indicate that stored type information takes precedence over configuration type information
      */
     public void setUpdateStoredType(boolean updateStoredType) {
@@ -444,8 +442,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
     /**
      * Descriptor class for event properties that are resolved via XPath-expression.
      */
-    public static class XPathPropertyDesc implements Serializable
-    {
+    public static class XPathPropertyDesc implements Serializable {
         private String name;
         private String xpath;
         private QName type;
@@ -455,12 +452,12 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
         /**
          * Ctor.
-         * @param name is the event property name
+         *
+         * @param name  is the event property name
          * @param xpath is an arbitrary XPath expression
-         * @param type is a javax.xml.xpath.XPathConstants constant
+         * @param type  is a javax.xml.xpath.XPathConstants constant
          */
-        public XPathPropertyDesc(String name, String xpath, QName type)
-        {
+        public XPathPropertyDesc(String name, String xpath, QName type) {
             this.name = name;
             this.xpath = xpath;
             this.type = type;
@@ -468,13 +465,13 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
         /**
          * Ctor.
-         * @param name is the event property name
-         * @param xpath is an arbitrary XPath expression
-         * @param type is a javax.xml.xpath.XPathConstants constant
+         *
+         * @param name               is the event property name
+         * @param xpath              is an arbitrary XPath expression
+         * @param type               is a javax.xml.xpath.XPathConstants constant
          * @param optionalCastToType if non-null then the return value of the xpath expression is cast to this value
          */
-        public XPathPropertyDesc(String name, String xpath, QName type, Class optionalCastToType)
-        {
+        public XPathPropertyDesc(String name, String xpath, QName type, Class optionalCastToType) {
             this.name = name;
             this.xpath = xpath;
             this.type = type;
@@ -483,13 +480,13 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
         /**
          * Ctor.
-         * @param name is the event property name
-         * @param xpath is an arbitrary XPath expression
-         * @param type is a javax.xml.xpath.XPathConstants constant
+         *
+         * @param name          is the event property name
+         * @param xpath         is an arbitrary XPath expression
+         * @param type          is a javax.xml.xpath.XPathConstants constant
          * @param eventTypeName the name of an event type that represents the fragmented property value
          */
-        public XPathPropertyDesc(String name, String xpath, QName type, String eventTypeName)
-        {
+        public XPathPropertyDesc(String name, String xpath, QName type, String eventTypeName) {
             this.name = name;
             this.xpath = xpath;
             this.type = type;
@@ -498,52 +495,53 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
         /**
          * Returns the event property name.
+         *
          * @return event property name
          */
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
         /**
          * Returns the XPath expression.
+         *
          * @return XPath expression
          */
-        public String getXpath()
-        {
+        public String getXpath() {
             return xpath;
         }
 
         /**
          * Returns the javax.xml.xpath.XPathConstants constant representing the event property type.
+         *
          * @return type infomation
          */
-        public QName getType()
-        {
+        public QName getType() {
             return type;
         }
 
         /**
          * Returns the class that the return value of the xpath expression is cast to, or null if no casting.
+         *
          * @return class to cast result of xpath expression to
          */
-        public Class getOptionalCastToType()
-        {
+        public Class getOptionalCastToType() {
             return optionalCastToType;
         }
 
         /**
          * Returns the event type name assigned to the explicit property.
+         *
          * @return type name
          */
-        public String getOptionaleventTypeName()
-        {
+        public String getOptionaleventTypeName() {
             return optionaleventTypeName;
         }
     }
 
     /**
      * Returns the property name of the property providing the start timestamp value.
+     *
      * @return start timestamp property name
      */
     public String getStartTimestampPropertyName() {
@@ -552,6 +550,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
     /**
      * Sets the property name of the property providing the start timestamp value.
+     *
      * @param startTimestampPropertyName start timestamp property name
      */
     public void setStartTimestampPropertyName(String startTimestampPropertyName) {
@@ -560,6 +559,7 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
     /**
      * Returns the property name of the property providing the end timestamp value.
+     *
      * @return end timestamp property name
      */
     public String getEndTimestampPropertyName() {
@@ -568,39 +568,34 @@ public class ConfigurationEventTypeXMLDOM implements MetaDefItem, Serializable
 
     /**
      * Sets the property name of the property providing the end timestamp value.
+     *
      * @param endTimestampPropertyName start timestamp property name
      */
     public void setEndTimestampPropertyName(String endTimestampPropertyName) {
         this.endTimestampPropertyName = endTimestampPropertyName;
     }
 
-    public boolean equals(Object otherObj)
-    {
-        if (!(otherObj instanceof ConfigurationEventTypeXMLDOM))
-        {
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof ConfigurationEventTypeXMLDOM)) {
             return false;
         }
 
         ConfigurationEventTypeXMLDOM other = (ConfigurationEventTypeXMLDOM) otherObj;
-        if (!(other.rootElementName.equals(rootElementName)))
-        {
+        if (!(other.rootElementName.equals(rootElementName))) {
             return false;
         }
 
         if (((other.rootElementNamespace == null) && (rootElementNamespace != null)) ||
-            ((other.rootElementNamespace != null) && (rootElementNamespace == null)))
-        {
+                ((other.rootElementNamespace != null) && (rootElementNamespace == null))) {
             return false;
         }
-        if ((other.rootElementNamespace != null) && (rootElementNamespace != null))
-        {
+        if ((other.rootElementNamespace != null) && (rootElementNamespace != null)) {
             return rootElementNamespace.equals(other.rootElementNamespace);
         }
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return rootElementName.hashCode();
     }
 }

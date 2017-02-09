@@ -22,17 +22,16 @@ import java.util.concurrent.locks.ReadWriteLock;
  * <p>
  * Implementations make sure that the type of the Object constant in get and put calls matches the event property type.
  */
-public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBase
-{
+public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBase {
     protected final FilterSpecLookupable lookupable;
 
     /**
      * Constructor.
+     *
      * @param filterOperator is the type of comparison performed.
-     * @param lookupable is the lookupable
+     * @param lookupable     is the lookupable
      */
-    public FilterParamIndexLookupableBase(FilterOperator filterOperator, FilterSpecLookupable lookupable)
-    {
+    public FilterParamIndexLookupableBase(FilterOperator filterOperator, FilterSpecLookupable lookupable) {
         super(filterOperator);
         this.lookupable = lookupable;
     }
@@ -41,6 +40,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * Get the event evaluation instance associated with the constant. Returns null if no entry found for the constant.
      * The calling class must make sure that access to the underlying resource is protected
      * for multi-threaded access, the getReadWriteLock() method must supply a lock for this purpose.
+     *
      * @param filterConstant is the constant supplied in the event filter parameter
      * @return event evaluator stored for the filter constant, or null if not found
      */
@@ -51,8 +51,9 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * for the same constant.
      * The calling class must make sure that access to the underlying resource is protected
      * for multi-threaded access, the getReadWriteLock() method must supply a lock for this purpose.
+     *
      * @param filterConstant is the constant supplied in the filter parameter
-     * @param evaluator to be stored for the constant
+     * @param evaluator      to be stored for the constant
      */
     public abstract void put(Object filterConstant, EventEvaluator evaluator);
 
@@ -61,6 +62,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * the constant was found, or false if not.
      * The calling class must make sure that access to the underlying resource is protected
      * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
+     *
      * @param filterConstant is the value supplied in the filter paremeter
      * @return true if found and removed, false if not found
      */
@@ -70,19 +72,20 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * Return the number of distinct filter parameter constants stored.
      * The calling class must make sure that access to the underlying resource is protected
      * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
+     *
      * @return Number of entries in index
      */
     public abstract int size();
 
     /**
      * Supplies the lock for protected access.
+     *
      * @return lock
      */
     public abstract ReadWriteLock getReadWriteLock();
 
-    public final String toString()
-    {
-        return super.toString() +" lookupable=" + lookupable;
+    public final String toString() {
+        return super.toString() + " lookupable=" + lookupable;
     }
 
     public FilterSpecLookupable getLookupable() {

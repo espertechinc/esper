@@ -17,22 +17,24 @@ import java.util.Set;
 /**
  * SPI for metrics activity.
  */
-public interface MetricReportingServiceSPI extends MetricReportingService
-{
+public interface MetricReportingServiceSPI extends MetricReportingService {
     /**
      * Add stmt result listener.
+     *
      * @param listener to add
      */
     public void addStatementResultListener(StatementResultListener listener);
 
     /**
      * Remove stmt result listener.
+     *
      * @param listener to remove
      */
     public void removeStatementResultListener(StatementResultListener listener);
 
     /**
      * Returns output hooks.
+     *
      * @return hooks.
      */
     public Set<StatementResultListener> getStatementOutputHooks();

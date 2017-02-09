@@ -20,8 +20,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 
 import java.util.Set;
 
-public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
-{
+public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase {
     private final OutputProcessViewAfterState afterConditionState;
 
     protected OutputProcessViewBaseWAfter(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, AgentInstanceContext agentInstanceContext, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied) {
@@ -35,34 +34,34 @@ public abstract class OutputProcessViewBaseWAfter extends OutputProcessViewBase
 
     /**
      * Returns true if the after-condition is satisfied.
-     * @param newEvents is the view new events
+     *
+     * @param newEvents        is the view new events
      * @param statementContext context
      * @return indicator for output condition
      */
-    public boolean checkAfterCondition(EventBean[] newEvents, StatementContext statementContext)
-    {
+    public boolean checkAfterCondition(EventBean[] newEvents, StatementContext statementContext) {
         return afterConditionState.checkUpdateAfterCondition(newEvents, statementContext);
     }
 
     /**
      * Returns true if the after-condition is satisfied.
-     * @param newEvents is the join new events
+     *
+     * @param newEvents        is the join new events
      * @param statementContext context
      * @return indicator for output condition
      */
-    public boolean checkAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext)
-    {
+    public boolean checkAfterCondition(Set<MultiKey<EventBean>> newEvents, StatementContext statementContext) {
         return afterConditionState.checkUpdateAfterCondition(newEvents, statementContext);
     }
 
     /**
      * Returns true if the after-condition is satisfied.
-     * @param newOldEvents is the new and old events pair
+     *
+     * @param newOldEvents     is the new and old events pair
      * @param statementContext context
      * @return indicator for output condition
      */
-    public boolean checkAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext)
-    {
+    public boolean checkAfterCondition(UniformPair<EventBean[]> newOldEvents, StatementContext statementContext) {
         return afterConditionState.checkUpdateAfterCondition(newOldEvents, statementContext);
     }
 

@@ -12,8 +12,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public final class OutputConditionPolledTime implements OutputConditionPolled
-{
+public final class OutputConditionPolledTime implements OutputConditionPolled {
     private final OutputConditionPolledTimeFactory factory;
     private final AgentInstanceContext context;
     private final OutputConditionPolledTimeState state;
@@ -28,8 +27,7 @@ public final class OutputConditionPolledTime implements OutputConditionPolled
         return state;
     }
 
-    public boolean updateOutputCondition(int newEventsCount, int oldEventsCount)
-    {
+    public boolean updateOutputCondition(int newEventsCount, int oldEventsCount) {
         // If we pull the interval from a variable, then we may need to reschedule
         long msecIntervalSize = factory.getTimePeriod().nonconstEvaluator().deltaUseEngineTime(null, context);
 

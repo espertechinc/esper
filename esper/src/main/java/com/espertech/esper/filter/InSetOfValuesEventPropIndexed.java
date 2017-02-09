@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Event property value in a list of values following an in-keyword.
  */
-public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue
-{
+public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue {
     private static final Logger log = LoggerFactory.getLogger(InSetOfValuesEventPropIndexed.class);
     private final String resultEventAsName;
     private final int resultEventIndex;
@@ -33,15 +32,15 @@ public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue
 
     /**
      * Ctor.
-     * @param resultEventAsName is the event tag
+     *
+     * @param resultEventAsName   is the event tag
      * @param resultEventProperty is the event property name
-     * @param isMustCoerce indicates on whether numeric coercion must be performed
-     * @param coercionType indicates the numeric coercion type to use
-     * @param resultEventindex index
-     * @param statementName statement name
+     * @param isMustCoerce        indicates on whether numeric coercion must be performed
+     * @param coercionType        indicates the numeric coercion type to use
+     * @param resultEventindex    index
+     * @param statementName       statement name
      */
-    public InSetOfValuesEventPropIndexed(String resultEventAsName, int resultEventindex, String resultEventProperty, boolean isMustCoerce, Class coercionType, String statementName)
-    {
+    public InSetOfValuesEventPropIndexed(String resultEventAsName, int resultEventindex, String resultEventProperty, boolean isMustCoerce, Class coercionType, String statementName) {
         this.resultEventAsName = resultEventAsName;
         this.resultEventProperty = resultEventProperty;
         this.resultEventIndex = resultEventindex;
@@ -62,22 +61,16 @@ public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue
         EventBean[] events = (EventBean[]) matchedEvents.getMatchingEventAsObjectByTag(resultEventAsName);
 
         Object value = null;
-        if (events == null)
-        {
+        if (events == null) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
-        }
-        else if (resultEventIndex > (events.length - 1))
-        {
+        } else if (resultEventIndex > (events.length - 1)) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned no result for index " + resultEventIndex + " at array length " + events.length + ", using null value in filter criteria, for statement '" + statementName + "'");
-        }
-        else
-        {
+        } else {
             value = events[resultEventIndex].get(resultEventProperty);
         }
 
         // Coerce if necessary
-        if (isMustCoerce)
-        {
+        if (isMustCoerce) {
             value = JavaClassHelper.coerceBoxed((Number) value, coercionType);
         }
         return value;
@@ -85,51 +78,45 @@ public class InSetOfValuesEventPropIndexed implements FilterSpecParamInValue
 
     /**
      * Returns the tag used for the event property.
+     *
      * @return tag
      */
-    public String getResultEventAsName()
-    {
+    public String getResultEventAsName() {
         return resultEventAsName;
     }
 
     /**
      * Returns the event property name.
+     *
      * @return property name
      */
-    public String getResultEventProperty()
-    {
+    public String getResultEventProperty() {
         return resultEventProperty;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "resultEventProp=" + resultEventAsName + '.' + resultEventProperty;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof InSetOfValuesEventPropIndexed))
-        {
+        if (!(obj instanceof InSetOfValuesEventPropIndexed)) {
             return false;
         }
 
         InSetOfValuesEventPropIndexed other = (InSetOfValuesEventPropIndexed) obj;
-        if ( (other.resultEventAsName.equals(this.resultEventAsName)) &&
-             (other.resultEventProperty.equals(this.resultEventProperty)))
-        {
+        if ((other.resultEventAsName.equals(this.resultEventAsName)) &&
+                (other.resultEventProperty.equals(this.resultEventProperty))) {
             return true;
         }
 
         return false;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return resultEventProperty.hashCode();
     }
 }

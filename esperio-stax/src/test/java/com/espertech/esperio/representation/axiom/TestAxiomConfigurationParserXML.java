@@ -17,14 +17,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 
-public class TestAxiomConfigurationParserXML extends TestCase
-{
-    public void testConfigureFromStream() throws Exception
-    {
+public class TestAxiomConfigurationParserXML extends TestCase {
+    public void testConfigureFromStream() throws Exception {
         String fileURL = "regression/esperio-axiom-test-readconfig.xml";
         URL url = this.getClass().getClassLoader().getResource(fileURL);
-        if (url == null)
-        {
+        if (url == null) {
             throw new RuntimeException("File by url '" + fileURL + "' could not be found in classpath");
         }
         File file = new File(url.getFile());
@@ -42,11 +39,10 @@ public class TestAxiomConfigurationParserXML extends TestCase
         assertFalse(type.isResolvePropertiesAbsolute());
     }
 
-    private String readFile(File file) throws Exception
-    {
+    private String readFile(File file) throws Exception {
         FileInputStream fis = new FileInputStream(file);
-        int x= fis.available();
-        byte b[]= new byte[x];
+        int x = fis.available();
+        byte b[] = new byte[x];
         fis.read(b);
         fis.close();
         return new String(b);

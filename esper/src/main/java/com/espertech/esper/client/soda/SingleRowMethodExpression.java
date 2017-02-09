@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.collection.Pair;
-
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,27 +17,22 @@ import java.util.List;
 /**
  * Generic single-row method call consists of a method name and parameters, possibly chained.
  */
-public class SingleRowMethodExpression extends ExpressionBase
-{
+public class SingleRowMethodExpression extends ExpressionBase {
     private static final long serialVersionUID = -8698785052124988195L;
     private List<DotExpressionItem> chain = new ArrayList<DotExpressionItem>();
 
     /**
      * Ctor.
-     * @param method method name
+     *
+     * @param method     method name
      * @param parameters an optiona array of parameters
      */
-    public SingleRowMethodExpression(String method, Object[] parameters)
-    {
+    public SingleRowMethodExpression(String method, Object[] parameters) {
         List<Expression> parameterList = new ArrayList<Expression>();
-        for (int i = 0; i < parameters.length; i++)
-        {
-            if (parameters[i] instanceof Expression)
-            {
-                parameterList.add((Expression)parameters[i]);
-            }
-            else
-            {
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i] instanceof Expression) {
+                parameterList.add((Expression) parameters[i]);
+            } else {
                 parameterList.add(new ConstantExpression(parameters[i]));
             }
         }
@@ -49,29 +42,27 @@ public class SingleRowMethodExpression extends ExpressionBase
     /**
      * Returns the optional method invocation chain for the single-row method consisting of
      * pairs of method name and list of parameters.
+     *
      * @return chain of method invocations
      */
-    public List<DotExpressionItem> getChain()
-    {
+    public List<DotExpressionItem> getChain() {
         return chain;
     }
 
     /**
      * Ctor.
+     *
      * @param chain of method invocations with at least one element, each pair a method name and list of parameter expressions
      */
-    public SingleRowMethodExpression(List<DotExpressionItem> chain)
-    {
+    public SingleRowMethodExpression(List<DotExpressionItem> chain) {
         this.chain = chain;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         DotExpressionItem.render(chain, writer, false);
     }
 }

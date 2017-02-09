@@ -10,9 +10,9 @@
  */
 package com.espertech.esperio.csv;
 
-import java.util.Map;
-
 import com.espertech.esperio.AdapterInputSource;
+
+import java.util.Map;
 
 /**
  * A spec for CSVAdapters.

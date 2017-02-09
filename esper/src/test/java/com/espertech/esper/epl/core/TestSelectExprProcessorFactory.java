@@ -16,6 +16,8 @@ import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementEventTypeRefImpl;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.core.service.StatementResultServiceImpl;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.core.thread.ThreadingServiceImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -26,48 +28,39 @@ import com.espertech.esper.epl.spec.SelectClauseStreamCompiledSpec;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
-import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.util.CollectionUtil;
 import junit.framework.TestCase;
 
 import java.util.Collections;
 
-public class TestSelectExprProcessorFactory extends TestCase
-{
+public class TestSelectExprProcessorFactory extends TestCase {
     private StatementResultService statementResultService = new StatementResultServiceImpl("name", null, null, new ThreadingServiceImpl(new ConfigurationEngineDefaults.Threading()));
     private SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
 
-    public void testGetProcessorInvalid() throws Exception
-    {
+    public void testGetProcessorInvalid() throws Exception {
         SelectClauseElementCompiled[] selectionList = new SelectClauseElementCompiled[2];
         ExprNode identNode = SupportExprNodeFactory.makeIdentNode("doubleBoxed", "s0");
         ExprNode mathNode = SupportExprNodeFactory.makeMathNode();
         selectionList[0] = new SelectClauseExprCompiledSpec(identNode, "result", "result", false);
         selectionList[1] = new SelectClauseExprCompiledSpec(mathNode, "result", "result", false);
 
-        try
-        {
+        try {
             SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectionList, false, null, null, null,
                     new SupportStreamTypeSvc3Stream(), null, null, null, null, null, null, null, null, null, null, 1, null, null, null, new Configuration(), null, null, null, null, null);
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testGetProcessorWildcard() throws Exception
-    {
-        SelectClauseElementCompiled[] selectionList = new SelectClauseElementCompiled[] {new SelectClauseElementWildcard()};
+    public void testGetProcessorWildcard() throws Exception {
+        SelectClauseElementCompiled[] selectionList = new SelectClauseElementCompiled[]{new SelectClauseElementWildcard()};
         SelectExprProcessor processor = SelectExprProcessorFactory.getProcessor(Collections.<Integer>emptyList(), selectionList, false, null, null, null,
                 new SupportStreamTypeSvc3Stream(), SupportEventAdapterService.getService(), statementResultService, null, selectExprEventTypeRegistry, null, null, null, new TableServiceImpl(), null, null, 1, null, null, null, new Configuration(), null, null, null, null, null);
         assertTrue(processor instanceof SelectExprResultProcessor);
     }
 
-    public void testGetProcessorValid() throws Exception
-    {
+    public void testGetProcessorValid() throws Exception {
         SelectClauseElementCompiled[] selectionList = new SelectClauseElementCompiled[1];
         ExprNode identNode = SupportExprNodeFactory.makeIdentNode("doubleBoxed", "s0");
         selectionList[0] = new SelectClauseExprCompiledSpec(identNode, "result", null, false);
@@ -77,8 +70,7 @@ public class TestSelectExprProcessorFactory extends TestCase
         assertTrue(processor != null);
     }
 
-    public void testVerifyNameUniqueness() throws Exception
-    {
+    public void testVerifyNameUniqueness() throws Exception {
         // try valid case
         SelectClauseElementCompiled[] elements = new SelectClauseElementCompiled[4];
         elements[0] = new SelectClauseExprCompiledSpec(null, "xx", null, false);
@@ -90,13 +82,10 @@ public class TestSelectExprProcessorFactory extends TestCase
 
         // try invalid case
         elements = (SelectClauseElementCompiled[]) CollectionUtil.arrayExpandAddSingle(elements, new SelectClauseExprCompiledSpec(null, "yy", null, false));
-        try
-        {
+        try {
             SelectExprProcessorFactory.verifyNameUniqueness(elements);
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
 
@@ -104,13 +93,10 @@ public class TestSelectExprProcessorFactory extends TestCase
         elements = new SelectClauseElementCompiled[2];
         elements[0] = new SelectClauseExprCompiledSpec(null, "abc", null, false);
         elements[1] = new SelectClauseStreamCompiledSpec("s0", "abc");
-        try
-        {
+        try {
             SelectExprProcessorFactory.verifyNameUniqueness(elements);
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }

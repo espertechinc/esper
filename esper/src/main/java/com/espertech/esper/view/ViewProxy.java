@@ -15,8 +15,6 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.JavaClassHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -31,7 +29,7 @@ public class ViewProxy implements java.lang.reflect.InvocationHandler {
 
     public static Object newInstance(String engineURI, String statementName, String viewName, View view) {
         return java.lang.reflect.Proxy.newProxyInstance(
-                 view.getClass().getClassLoader(),
+                view.getClass().getClassLoader(),
                 JavaClassHelper.getSuperInterfaces(view.getClass()),
                 new ViewProxy(engineURI, statementName, viewName, view));
     }

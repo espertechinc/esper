@@ -37,8 +37,7 @@ public class MatchRecognizeStatePoolEngineSvc {
     public void setMatchRecognizeMaxStates(Long maxStates) {
         if (maxStates == null) {
             maxPoolCountConfigured = -1;
-        }
-        else {
+        } else {
             maxPoolCountConfigured = maxStates;
         }
     }
@@ -65,8 +64,7 @@ public class MatchRecognizeStatePoolEngineSvc {
         if (newMax > maxPoolCountConfigured && maxPoolCountConfigured >= 0) {
             Map<String, Long> counts = getCounts();
             agentInstanceContext.getStatementContext().getExceptionHandlingService().handleCondition(new ConditionMatchRecognizeStatesMax(maxPoolCountConfigured, counts), agentInstanceContext.getStatementContext().getEpStatementHandle());
-            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled)))
-            {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled))) {
                 MatchRecognizeStatePoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc().getStmtHandler();
                 String stmtName = agentInstanceContext.getStatementContext().getStatementName();
                 log.debug(".tryIncreaseCount For statement '" + stmtName + "' pool count overflow at " + newMax + " statement count was " + stmtHandler.getCount() + " preventStart=" + preventStart);
@@ -75,13 +73,11 @@ public class MatchRecognizeStatePoolEngineSvc {
             if (preventStart) {
                 poolCount.decrementAndGet();
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         }
-        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled()) {
             MatchRecognizeStatePoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc().getStmtHandler();
             String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".tryIncreaseCount For statement '" + stmtName + "' pool count increases to " + newMax + " statement count was " + stmtHandler.getCount());
@@ -102,16 +98,15 @@ public class MatchRecognizeStatePoolEngineSvc {
     }
 
     private void logDecrease(AgentInstanceContext agentInstanceContext, long newMax) {
-        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled()) {
             MatchRecognizeStatePoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getMatchRecognizeStatePoolStmtSvc().getStmtHandler();
             String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".decreaseCount For statement '" + stmtName + "' pool count decreases to " + newMax + " statement count was " + stmtHandler.getCount());
         }
     }
 
-    private Map<String,Long> getCounts() {
-        Map<String,Long> counts = new HashMap<String,Long>();
+    private Map<String, Long> getCounts() {
+        Map<String, Long> counts = new HashMap<String, Long>();
         for (StatementEntry context : matchRecognizeContexts) {
             Long count = counts.get(context.getStatementName());
             if (count == null) {

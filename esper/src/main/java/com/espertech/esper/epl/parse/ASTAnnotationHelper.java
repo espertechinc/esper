@@ -23,24 +23,22 @@ import java.util.List;
 /**
  * Walker to annotation stuctures.
  */
-public class ASTAnnotationHelper
-{
+public class ASTAnnotationHelper {
     /**
      * Walk an annotation root name or child node (nested annotations).
-     * @param ctx annotation walk node
+     *
+     * @param ctx                 annotation walk node
      * @param engineImportService for engine imports
      * @return annotation descriptor
      * @throws ASTWalkException if the walk failed
      */
-    public static AnnotationDesc walk(EsperEPL2GrammarParser.AnnotationEnumContext ctx, EngineImportService engineImportService) throws ASTWalkException
-    {
+    public static AnnotationDesc walk(EsperEPL2GrammarParser.AnnotationEnumContext ctx, EngineImportService engineImportService) throws ASTWalkException {
         String name = ASTUtil.unescapeClassIdent(ctx.classIdentifier());
         List<Pair<String, Object>> values = new ArrayList<Pair<String, Object>>();
         if (ctx.elementValueEnum() != null) {
             Object value = walkValue(ctx.elementValueEnum(), engineImportService);
             values.add(new Pair<String, Object>("value", value));
-        }
-        else if (ctx.elementValuePairsEnum() != null) {
+        } else if (ctx.elementValuePairsEnum() != null) {
             walkValuePairs(ctx.elementValuePairsEnum(), values, engineImportService);
         }
 
@@ -57,40 +55,33 @@ public class ASTAnnotationHelper
         }
     }
 
-    private static Object walkValue(EsperEPL2GrammarParser.ElementValueEnumContext ctx, EngineImportService engineImportService)
-    {
+    private static Object walkValue(EsperEPL2GrammarParser.ElementValueEnumContext ctx, EngineImportService engineImportService) {
         if (ctx.elementValueArrayEnum() != null) {
             return walkArray(ctx.elementValueArrayEnum(), engineImportService);
         }
         if (ctx.annotationEnum() != null) {
             return walk(ctx.annotationEnum(), engineImportService);
-        }
-        else if (ctx.v != null) {
+        } else if (ctx.v != null) {
             return ctx.v.getText();
-        }
-        else if (ctx.classIdentifier() != null) {
+        } else if (ctx.classIdentifier() != null) {
             return walkClassIdent(ctx.classIdentifier(), engineImportService);
-        }
-        else {
+        } else {
             return ASTConstantHelper.parse(ctx.constant());
         }
     }
 
-    private static Pair<String, Object> walkValuePair(EsperEPL2GrammarParser.ElementValuePairEnumContext ctx, EngineImportService engineImportService)
-    {
+    private static Pair<String, Object> walkValuePair(EsperEPL2GrammarParser.ElementValuePairEnumContext ctx, EngineImportService engineImportService) {
         String name = ctx.keywordAllowedIdent().getText();
         Object value = walkValue(ctx.elementValueEnum(), engineImportService);
         return new Pair<String, Object>(name, value);
     }
 
-    private static Object walkClassIdent(EsperEPL2GrammarParser.ClassIdentifierContext ctx, EngineImportService engineImportService)
-    {
+    private static Object walkClassIdent(EsperEPL2GrammarParser.ClassIdentifierContext ctx, EngineImportService engineImportService) {
         String enumValueText = ctx.getText();
         Object enumValue;
         try {
             enumValue = JavaClassHelper.resolveIdentAsEnumConst(enumValueText, engineImportService, true);
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw ASTWalkException.from("Annotation value '" + enumValueText + "' is not recognized as an enumeration value, please check imports or use a primitive or string type");
         }
         if (enumValue != null) {
@@ -99,8 +90,7 @@ public class ASTAnnotationHelper
         throw ASTWalkException.from("Annotation enumeration value '" + enumValueText + "' not recognized as an enumeration class, please check imports or type used");
     }
 
-    private static Object[] walkArray(EsperEPL2GrammarParser.ElementValueArrayEnumContext ctx, EngineImportService engineImportService)
-    {
+    private static Object[] walkArray(EsperEPL2GrammarParser.ElementValueArrayEnumContext ctx, EngineImportService engineImportService) {
         List<EsperEPL2GrammarParser.ElementValueEnumContext> elements = ctx.elementValueEnum();
         Object[] values = new Object[elements.size()];
         for (int i = 0; i < elements.size(); i++) {

@@ -13,16 +13,15 @@ package com.espertech.esper.client;
 /**
  * Indicates that a variable was not found.
  */
-public class VariableNotFoundException extends EPException
-{
+public class VariableNotFoundException extends EPException {
     private static final long serialVersionUID = 8865682065184217658L;
 
     /**
      * Ctor.
+     *
      * @param message supplies exception details
      */
-    public VariableNotFoundException(final String message)
-    {
+    public VariableNotFoundException(final String message) {
         super(message);
     }
 }

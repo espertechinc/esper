@@ -20,12 +20,10 @@ import com.espertech.esper.util.JavaClassHelper;
 /**
  * Factory for output condition instances that are polled/queried only.
  */
-public class OutputConditionPolledFactoryFactory
-{
+public class OutputConditionPolledFactoryFactory {
     public static OutputConditionPolledFactory createConditionFactory(OutputLimitSpec outputLimitSpec,
                                                                       StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (outputLimitSpec == null) {
             throw new NullPointerException("Output condition by count requires a non-null callback");
         }
@@ -41,18 +39,15 @@ public class OutputConditionPolledFactoryFactory
 
         if (outputLimitSpec.getRateType() == OutputLimitRateType.CRONTAB) {
             return new OutputConditionPolledCrontabFactory(outputLimitSpec.getCrontabAtSchedule(), statementContext);
-        }
-        else if (outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION) {
+        } else if (outputLimitSpec.getRateType() == OutputLimitRateType.WHEN_EXPRESSION) {
             return new OutputConditionPolledExpressionFactory(outputLimitSpec.getWhenExpressionNode(), outputLimitSpec.getThenExpressions(), statementContext);
-        }
-        else if (outputLimitSpec.getRateType() == OutputLimitRateType.EVENTS) {
+        } else if (outputLimitSpec.getRateType() == OutputLimitRateType.EVENTS) {
             int rate = -1;
             if (outputLimitSpec.getRate() != null) {
                 rate = outputLimitSpec.getRate().intValue();
             }
             return new OutputConditionPolledCountFactory(rate, statementContext, outputLimitSpec.getVariableName());
-        }
-        else {
+        } else {
             if (variableMetaData != null && (!JavaClassHelper.isNumeric(variableMetaData.getType()))) {
                 throw new IllegalArgumentException("Variable named '" + outputLimitSpec.getVariableName() + "' must be of numeric type");
             }

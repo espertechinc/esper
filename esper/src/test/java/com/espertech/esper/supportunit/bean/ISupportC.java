@@ -12,7 +12,6 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public interface ISupportC extends Serializable
-{
+public interface ISupportC extends Serializable {
     public String getC();
 }

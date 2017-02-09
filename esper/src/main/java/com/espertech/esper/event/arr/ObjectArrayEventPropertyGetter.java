@@ -16,10 +16,10 @@ import com.espertech.esper.client.PropertyAccessException;
 /**
  * Property getter for Objectarray-underlying events.
  */
-public interface ObjectArrayEventPropertyGetter extends EventPropertyGetter
-{
+public interface ObjectArrayEventPropertyGetter extends EventPropertyGetter {
     /**
      * Returns a property of an event.
+     *
      * @param array to interrogate
      * @return property value
      * @throws com.espertech.esper.client.PropertyAccessException for property access errors
@@ -28,6 +28,7 @@ public interface ObjectArrayEventPropertyGetter extends EventPropertyGetter
 
     /**
      * Exists-function for properties in a object array-type event.
+     *
      * @param array to interrogate
      * @return indicator
      */

@@ -12,14 +12,14 @@ package com.espertech.esper.collection;
 
 import com.espertech.esper.client.EventBean;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Iterator for an iterator of events returning the underlying itself.
  */
-public class EventUnderlyingCollection implements Collection<Object>
-{
+public class EventUnderlyingCollection implements Collection<Object> {
     private final Collection<EventBean> events;
     private Collection<Object> buf;
 

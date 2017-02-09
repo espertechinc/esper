@@ -19,8 +19,7 @@ import net.sf.cglib.reflect.FastMethod;
 
 import java.util.*;
 
-public abstract class MethodPollingExecStrategyBaseCollection extends MethodPollingExecStrategyBase
-{
+public abstract class MethodPollingExecStrategyBaseCollection extends MethodPollingExecStrategyBase {
     public MethodPollingExecStrategyBaseCollection(EventAdapterService eventAdapterService, FastMethod method, EventType eventType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, VariableReader variableReader, String variableName, VariableService variableService) {
         super(eventAdapterService, method, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
     }
@@ -43,7 +42,7 @@ public abstract class MethodPollingExecStrategyBaseCollection extends MethodPoll
         }
         ArrayList<EventBean> rowResult = new ArrayList<EventBean>(length);
         Iterator it = collection.iterator();
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             Object value = it.next();
             if (checkNonNullArrayValue(value)) {
                 EventBean event = getEventBean(value);

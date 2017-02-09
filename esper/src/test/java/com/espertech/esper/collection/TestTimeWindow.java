@@ -19,33 +19,29 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayDeque;
 
-public class TestTimeWindow extends TestCase
-{
+public class TestTimeWindow extends TestCase {
     private final TimeWindow window = new TimeWindow(false);
     private final TimeWindow windowRemovable = new TimeWindow(true);
     private final EventBean[] beans = new EventBean[6];
 
-    public void setUp()
-    {
-        for (int i = 0; i < beans.length; i++)
-        {
+    public void setUp() {
+        for (int i = 0; i < beans.length; i++) {
             beans[i] = createBean();
         }
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         assertTrue(window.getOldestTimestamp() == null);
         assertTrue(window.isEmpty());
 
-        window.add(19,beans[0]);
+        window.add(19, beans[0]);
         assertTrue(window.getOldestTimestamp() == 19L);
         assertFalse(window.isEmpty());
-        window.add(19,beans[1]);
+        window.add(19, beans[1]);
         assertTrue(window.getOldestTimestamp() == 19L);
-        window.add(20,beans[2]);
+        window.add(20, beans[2]);
         assertTrue(window.getOldestTimestamp() == 19L);
-        window.add(20,beans[3]);
+        window.add(20, beans[3]);
         window.add(21, beans[4]);
         window.add(22, beans[5]);
         assertTrue(window.getOldestTimestamp() == 19L);
@@ -83,21 +79,20 @@ public class TestTimeWindow extends TestCase
         assertTrue(window.getOldestTimestamp() == null);
     }
 
-    public void testAddRemove()
-    {
+    public void testAddRemove() {
         assertTrue(windowRemovable.getOldestTimestamp() == null);
         assertTrue(windowRemovable.isEmpty());
 
-        windowRemovable.add(19,beans[0]);
+        windowRemovable.add(19, beans[0]);
         assertTrue(windowRemovable.getOldestTimestamp() == 19L);
         assertFalse(windowRemovable.isEmpty());
-        windowRemovable.add(19,beans[1]);
+        windowRemovable.add(19, beans[1]);
         assertTrue(windowRemovable.getOldestTimestamp() == 19L);
-        windowRemovable.add(20,beans[2]);
+        windowRemovable.add(20, beans[2]);
         assertTrue(windowRemovable.getOldestTimestamp() == 19L);
-        windowRemovable.add(20,beans[3]);
-        windowRemovable.add(21,beans[4]);
-        windowRemovable.add(22,beans[5]);
+        windowRemovable.add(20, beans[3]);
+        windowRemovable.add(21, beans[4]);
+        windowRemovable.add(22, beans[5]);
         assertTrue(windowRemovable.getOldestTimestamp() == 19L);
 
         windowRemovable.remove(beans[4]);
@@ -134,8 +129,7 @@ public class TestTimeWindow extends TestCase
         assertEquals(0, windowRemovable.getReverseIndex().size());
     }
 
-    public void testTimeWindowPerformance()
-    {
+    public void testTimeWindowPerformance() {
         log.info(".testTimeWindowPerformance Starting");
 
         TimeWindow window = new TimeWindow(false);
@@ -144,8 +138,7 @@ public class TestTimeWindow extends TestCase
         // about 7.5 seconds for a LinkedList-backed
         // about 20 seconds for a LinkedHashMap-backed
         // about 30 seconds for a TreeMap-backed-backed
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             window.add(i, SupportEventBeanFactory.createObject("a"));
 
             window.expireEvents(i - 100);
@@ -154,8 +147,7 @@ public class TestTimeWindow extends TestCase
         log.info(".testTimeWindowPerformance Done");
     }
 
-    private EventBean createBean()
-    {
+    private EventBean createBean() {
         return SupportEventBeanFactory.createObject(new SupportBean());
     }
 

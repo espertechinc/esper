@@ -12,8 +12,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.schedule.ScheduleSpec;
 
-public class OutputConditionPolledCrontabState implements OutputConditionPolledState
-{
+public class OutputConditionPolledCrontabState implements OutputConditionPolledState {
     private final ScheduleSpec scheduleSpec;
     private Long currentReferencePoint;
     private long nextScheduledTime;

@@ -10,24 +10,24 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.supportunit.bean.*;
+import com.espertech.esper.supportunit.bean.ISupportA;
+import com.espertech.esper.supportunit.bean.ISupportABCImpl;
+import com.espertech.esper.supportunit.bean.ISupportBCImpl;
+import com.espertech.esper.supportunit.bean.SupportBean;
 import junit.framework.TestCase;
 
-public class TestSimpleTypeCasterAnyType extends TestCase
-{
+public class TestSimpleTypeCasterAnyType extends TestCase {
     private SimpleTypeCasterAnyType caster;
 
-    public void setUp()
-    {
+    public void setUp() {
         caster = new SimpleTypeCasterAnyType(ISupportA.class);
     }
 
-    public void testCast()
-    {
+    public void testCast() {
         assertNull(caster.cast(new Object()));
         assertNull(caster.cast(new SupportBean()));
-        assertNotNull(caster.cast(new ISupportABCImpl("","","","")));
-        assertNotNull(caster.cast(new ISupportABCImpl("","","","")));
-        assertNull(caster.cast(new ISupportBCImpl("","","")));
+        assertNotNull(caster.cast(new ISupportABCImpl("", "", "", "")));
+        assertNotNull(caster.cast(new ISupportABCImpl("", "", "", "")));
+        assertNull(caster.cast(new ISupportBCImpl("", "", "")));
     }
 }

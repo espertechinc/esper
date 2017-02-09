@@ -14,8 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public class BindProcessorEvaluatorStream implements ExprEvaluator
-{
+public class BindProcessorEvaluatorStream implements ExprEvaluator {
     private final int streamNum;
     private final Class returnType;
 

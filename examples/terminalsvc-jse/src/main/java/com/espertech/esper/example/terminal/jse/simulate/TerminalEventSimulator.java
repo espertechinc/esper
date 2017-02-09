@@ -57,7 +57,7 @@ public class TerminalEventSimulator {
         }
     }
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
         System.out.printf("TerminalEventSimulator starting %d iteration, sleep %d ms between\n", ITERATION, SLEEP);
 
         TerminalEventSimulator simulator = new TerminalEventSimulator();

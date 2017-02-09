@@ -27,8 +27,7 @@ import java.util.Set;
 public class EvalSelectStreamWUndRecastMapFactory {
 
     public static SelectExprProcessor make(EventType[] eventTypes, SelectExprContext selectExprContext, int streamNumber, EventType targetType, ExprNode[] exprNodes, EngineImportService engineImportService, String statementName, String engineURI)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         MapEventType mapResultType = (MapEventType) targetType;
         MapEventType mapStreamType = (MapEventType) eventTypes[streamNumber];
 
@@ -86,8 +85,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
         try {
             manufacturer = selectExprContext.getEventAdapterService().getManufacturer(mapResultType,
                     written.toArray(new WriteablePropertyDescriptor[written.size()]), engineImportService, true);
-        }
-        catch (EventBeanManufactureException e) {
+        } catch (EventBeanManufactureException e) {
             throw new ExprValidationException("Failed to write to type: " + e.getMessage(), e);
         }
 
@@ -151,8 +149,7 @@ public class EvalSelectStreamWUndRecastMapFactory {
 
                 if (item.getOptionalPropertyName() != null) {
                     value = theEvent.getProperties().get(item.getOptionalPropertyName());
-                }
-                else {
+                } else {
                     value = item.getEvaluator().evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (item.getOptionalWidener() != null) {
                         value = item.getOptionalWidener().widen(value);

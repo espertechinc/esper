@@ -10,13 +10,10 @@
  */
 package com.espertech.esper.pattern.guard;
 
-import java.io.StringWriter;
-
 /**
  * Enum for all build-in guards.
  */
-public enum GuardEnum
-{
+public enum GuardEnum {
     /**
      * Timer guard.
      */
@@ -28,8 +25,7 @@ public enum GuardEnum
     private final String name;
     private final Class clazz;
 
-    GuardEnum(String namespace, String name, Class clazz)
-    {
+    GuardEnum(String namespace, String name, Class clazz) {
         this.namespace = namespace;
         this.name = name;
         this.clazz = clazz;
@@ -37,43 +33,41 @@ public enum GuardEnum
 
     /**
      * Returns the namespace name.
+     *
      * @return namespace name
      */
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return namespace;
     }
 
     /**
      * Returns name.
+     *
      * @return short name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Gets the implementation class.
+     *
      * @return implementation class
      */
-    public Class getClazz()
-    {
+    public Class getClazz() {
         return clazz;
     }
 
     /**
      * Returns the enum for the given namespace and name.
+     *
      * @param namespace - guard namespace
-     * @param name - guard name
+     * @param name      - guard name
      * @return enum
      */
-    public static GuardEnum forName(String namespace, String name)
-    {
-        for (GuardEnum guardEnum : GuardEnum.values())
-        {
-            if ((guardEnum.namespace.equals(namespace)) && (guardEnum.name.equals(name)))
-            {
+    public static GuardEnum forName(String namespace, String name) {
+        for (GuardEnum guardEnum : GuardEnum.values()) {
+            if ((guardEnum.namespace.equals(namespace)) && (guardEnum.name.equals(name))) {
                 return guardEnum;
             }
         }
@@ -81,8 +75,7 @@ public enum GuardEnum
         return null;
     }
 
-    public static boolean isWhile(String namespace, String name)
-    {
+    public static boolean isWhile(String namespace, String name) {
         return namespace.equals(WHILE_GUARD.getNamespace()) && (name.equals(WHILE_GUARD.getName()));
     }
 }

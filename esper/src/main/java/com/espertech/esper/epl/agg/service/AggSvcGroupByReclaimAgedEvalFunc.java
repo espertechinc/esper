@@ -13,7 +13,6 @@ package com.espertech.esper.epl.agg.service;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public interface AggSvcGroupByReclaimAgedEvalFunc
-{
+public interface AggSvcGroupByReclaimAgedEvalFunc {
     public Double getLongValue();
 }

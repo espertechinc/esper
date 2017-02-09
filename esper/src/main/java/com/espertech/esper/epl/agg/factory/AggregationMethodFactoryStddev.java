@@ -25,8 +25,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 import com.espertech.esper.epl.expression.methodagg.ExprStddevNode;
 
-public class AggregationMethodFactoryStddev implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryStddev implements AggregationMethodFactory {
     protected final ExprStddevNode parent;
     protected final Class aggregatedValueType;
 
@@ -39,8 +38,7 @@ public class AggregationMethodFactoryStddev implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return Double.class;
     }
 
@@ -83,8 +81,7 @@ public class AggregationMethodFactoryStddev implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    private AggregationMethod makeStddevAggregator(boolean hasFilter)
-    {
+    private AggregationMethod makeStddevAggregator(boolean hasFilter) {
         if (!hasFilter) {
             return new AggregatorStddev();
         }

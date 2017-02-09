@@ -13,8 +13,7 @@ package com.espertech.esper.core.start;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.util.DestroyCallback;
 
-public class EPStatementDestroyCallbackContext implements DestroyCallback
-{
+public class EPStatementDestroyCallbackContext implements DestroyCallback {
     private final ContextManagementService contextManagementService;
     private final String contextName;
     private final String statementName;

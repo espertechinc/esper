@@ -15,14 +15,14 @@ import java.io.StringWriter;
 /**
  * Represents "stream.*" in for example "mystream.*"
  */
-public class StreamWildcardExpression extends ExpressionBase
-{
+public class StreamWildcardExpression extends ExpressionBase {
     private static final long serialVersionUID = -1413481344199867067L;
 
     private String streamName;
 
     /**
      * Ctor.
+     *
      * @param streamName stream name
      */
     public StreamWildcardExpression(String streamName) {
@@ -37,6 +37,7 @@ public class StreamWildcardExpression extends ExpressionBase
 
     /**
      * Returns the stream name.
+     *
      * @return stream name
      */
     public String getStreamName() {
@@ -45,6 +46,7 @@ public class StreamWildcardExpression extends ExpressionBase
 
     /**
      * Sets the stream name.
+     *
      * @param streamName stream name
      */
     public void setStreamName(String streamName) {

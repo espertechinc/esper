@@ -13,7 +13,6 @@ package com.espertech.esper.epl.spec;
 /**
  * Represents a wildcard as a select clause element.
  */
-public class SelectClauseElementWildcard implements SelectClauseElementRaw, SelectClauseElementCompiled
-{
+public class SelectClauseElementWildcard implements SelectClauseElementRaw, SelectClauseElementCompiled {
     private static final long serialVersionUID = -641568183871601671L;
 }

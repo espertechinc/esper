@@ -24,10 +24,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import javax.script.CompiledScript;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodeProvider {
 
@@ -123,23 +120,19 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         Class returnType;
         if (script.getCompiled().getKnownReturnType() == null && script.getOptionalReturnTypeName() == null) {
             returnType = Object.class;
-        }
-        else if (script.getCompiled().getKnownReturnType() != null) {
+        } else if (script.getCompiled().getKnownReturnType() != null) {
             if (declaredReturnType == null) {
                 returnType = script.getCompiled().getKnownReturnType();
-            }
-            else {
+            } else {
                 Class knownReturnType = script.getCompiled().getKnownReturnType();
                 if (declaredReturnType.isArray() && knownReturnType.isArray()) {
                     // we are fine
-                }
-                else if (!JavaClassHelper.isAssignmentCompatible(knownReturnType, declaredReturnType)) {
+                } else if (!JavaClassHelper.isAssignmentCompatible(knownReturnType, declaredReturnType)) {
                     throw new ExprValidationException("Return type and declared type not compatible for script '" + script.getName() + "', known return type is " + knownReturnType.getName() + " versus declared return type " + declaredReturnType.getName());
                 }
                 returnType = declaredReturnType;
             }
-        }
-        else {
+        } else {
             returnType = declaredReturnType;
         }
         if (returnType == null) {
@@ -152,12 +145,11 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
     }
 
     private void compileScript(ExprEvaluator[] evaluators, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         String dialect = script.getOptionalDialect() == null ? defaultDialect : script.getOptionalDialect();
 
         ExpressionScriptCompiled compiled;
-        if (dialect.toLowerCase().trim().equals("mvel")) {
+        if (dialect.toLowerCase(Locale.ENGLISH).trim().equals("mvel")) {
             Map<String, Class> mvelInputParamTypes = new HashMap<String, Class>();
             for (int i = 0; i < script.getParameterNames().size(); i++) {
                 String mvelParamName = script.getParameterNames().get(i);
@@ -165,8 +157,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
             }
             mvelInputParamTypes.put(CONTEXT_BINDING_NAME, EPLScriptContext.class);
             compiled = MVELHelper.compile(script.getName(), script.getExpression(), mvelInputParamTypes, engineImportService);
-        }
-        else {
+        } else {
             CompiledScript compiledScript = JSR223Helper.verifyCompileScript(script, dialect);
             compiled = new ExpressionScriptCompiledJSR223(compiledScript);
         }
@@ -177,16 +168,14 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         if (script.getCompiled() instanceof ExpressionScriptCompiledMVEL) {
             ExpressionScriptCompiledMVEL mvel = (ExpressionScriptCompiledMVEL) script.getCompiled();
             evaluator = new ExprNodeScriptEvalMVEL(script.getName(), statementName, inputParamNames, evaluators, returnType, mvel.getCompiled());
-        }
-        else {
+        } else {
             ExpressionScriptCompiledJSR223 jsr223 = (ExpressionScriptCompiledJSR223) script.getCompiled();
             evaluator = new ExprNodeScriptEvalJSR223(script.getName(), statementName, inputParamNames, evaluators, returnType, jsr223.getCompiled());
         }
     }
 
     private Class getDeclaredReturnType(String returnTypeName, ExprValidationContext validationContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (returnTypeName == null) {
             return null;
         }
@@ -202,8 +191,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
 
         try {
             return validationContext.getEngineImportService().resolveClass(returnTypeName, false);
-        }
-        catch (EngineImportException e1) {
+        } catch (EngineImportException e1) {
             throw new ExprValidationException("Failed to resolve return type '" + returnTypeName + "' specified for script '" + script.getName() + "'");
         }
     }

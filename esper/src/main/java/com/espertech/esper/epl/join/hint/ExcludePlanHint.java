@@ -26,9 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ExcludePlanHint {
-    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+    private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     private final String[] streamNames;
     private final List<ExprEvaluator> evaluators;
@@ -43,8 +44,7 @@ public class ExcludePlanHint {
     }
 
     public static ExcludePlanHint getHint(String[] streamNames, StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<String> hints = HintEnum.EXCLUDE_PLAN.getHintAssignedValues(statementContext.getAnnotations());
         if (hints == null) {
             return null;
@@ -63,27 +63,27 @@ public class ExcludePlanHint {
         return new ExcludePlanHint(streamNames, filters, statementContext);
     }
 
-    public boolean filter(int streamLookup, int streamIndexed, ExcludePlanFilterOperatorType opType, ExprNode ... exprNodes) {
+    public boolean filter(int streamLookup, int streamIndexed, ExcludePlanFilterOperatorType opType, ExprNode... exprNodes) {
 
         EventBean event = ExcludePlanHintExprUtil.toEvent(streamLookup,
                 streamIndexed, streamNames[streamLookup], streamNames[streamIndexed],
-                opType.name().toLowerCase(), exprNodes);
-        if (queryPlanLogging && queryPlanLog.isInfoEnabled()) {
-            queryPlanLog.info("Exclude-plan-hint combination " + EventBeanUtility.printEvent(event));
+                opType.name().toLowerCase(Locale.ENGLISH), exprNodes);
+        if (queryPlanLogging && QUERY_PLAN_LOG.isInfoEnabled()) {
+            QUERY_PLAN_LOG.info("Exclude-plan-hint combination " + EventBeanUtility.printEvent(event));
         }
-        EventBean[] eventsPerStream = new EventBean[] {event};
+        EventBean[] eventsPerStream = new EventBean[]{event};
 
         for (ExprEvaluator evaluator : evaluators) {
             Boolean pass = (Boolean) evaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
             if (pass != null && pass) {
-                if (queryPlanLogging && queryPlanLog.isInfoEnabled()) {
-                    queryPlanLog.info("Exclude-plan-hint combination : true");
+                if (queryPlanLogging && QUERY_PLAN_LOG.isInfoEnabled()) {
+                    QUERY_PLAN_LOG.info("Exclude-plan-hint combination : true");
                 }
                 return true;
             }
         }
-        if (queryPlanLogging && queryPlanLog.isInfoEnabled()) {
-            queryPlanLog.info("Exclude-plan-hint combination : false");
+        if (queryPlanLogging && QUERY_PLAN_LOG.isInfoEnabled()) {
+            QUERY_PLAN_LOG.info("Exclude-plan-hint combination : false");
         }
         return false;
     }

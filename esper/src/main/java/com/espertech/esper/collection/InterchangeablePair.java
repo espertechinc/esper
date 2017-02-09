@@ -12,117 +12,102 @@ package com.espertech.esper.collection;
 
 /**
  * General-purpose pair of values of any type. The pair equals another pair if
- * the objects that form the pair equal in any order, ie. first pair first object equals (.equals)
- * the second pair first object or second object, and the first pair second object equals the second pair first object
- * or second object.
+ * the objects that form the pair equal in any order, ie. f pair f object equals (.equals)
+ * the s pair f object or s object, and the f pair s object equals the s pair f object
+ * or s object.
  */
-public final class InterchangeablePair<First,Second>
-{
-    private First first;
-    private Second second;
+public final class InterchangeablePair<F, S> {
+    private F f;
+    private S s;
 
     /**
      * Construct pair of values.
-     * @param first is the first value
-     * @param second is the second value
+     *
+     * @param f is the f value
+     * @param s is the s value
      */
-    public InterchangeablePair(final First first, final Second second)
-    {
-        this.first = first;
-        this.second = second;
+    public InterchangeablePair(final F f, final S s) {
+        this.f = f;
+        this.s = s;
     }
 
     /**
-     * Returns first value within pair.
-     * @return first value within pair
+     * Returns f value within pair.
+     *
+     * @return f value within pair
      */
-    public First getFirst()
-    {
-        return first;
+    public F getFirst() {
+        return f;
     }
 
     /**
-     * Returns second value within pair.
-     * @return second value within pair
+     * Returns s value within pair.
+     *
+     * @return s value within pair
      */
-    public Second getSecond()
-    {
-        return second;
+    public S getSecond() {
+        return s;
     }
 
     /**
-     * Set the first value of the pair to a new value.
-     * @param first value to be set
+     * Set the f value of the pair to a new value.
+     *
+     * @param f value to be set
      */
-    public void setFirst(First first)
-    {
-        this.first = first;
+    public void setFirst(F f) {
+        this.f = f;
     }
 
     /**
-     * Set the second value of the pair to a new value.
-     * @param second value to be set
+     * Set the s value of the pair to a new value.
+     *
+     * @param s value to be set
      */
-    public void setSecond(Second second)
-    {
-        this.second = second;
+    public void setSecond(S s) {
+        this.s = s;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof InterchangeablePair))
-        {
+        if (!(obj instanceof InterchangeablePair)) {
             return false;
         }
 
         InterchangeablePair other = (InterchangeablePair) obj;
 
-        if ((first == null) && (second == null))
-        {
-            return ((other.first == null) && (other.second == null));
+        if (f == null && s == null) {
+            return other.f == null && other.s == null;
         }
 
-        if ((first == null) && (second != null))
-        {
-            if (other.second != null)
-            {
-                return (other.first == null) && second.equals(other.second);
-            }
-            else
-            {
-                return second.equals(other.first);
+        if (f == null) {
+            if (other.s != null) {
+                return (other.f == null) && s.equals(other.s);
+            } else {
+                return s.equals(other.f);
             }
         }
 
-        if ((first != null) && (second == null))
-        {
-            if (other.first != null)
-            {
-                return first.equals(other.first) && (other.second == null);
-            }
-            else
-            {
-                return first.equals(other.second);
+        if (s == null) {
+            if (other.f != null) {
+                return f.equals(other.f) && (other.s == null);
+            } else {
+                return f.equals(other.s);
             }
         }
 
-        return ( (first.equals(other.first) && second.equals(other.second)) ||
-                 (first.equals(other.second) && second.equals(other.first)) );
+        return (f.equals(other.f) && s.equals(other.s)) ||
+                (f.equals(other.s) && s.equals(other.f));
     }
 
-    public int hashCode()
-    {
-        return (first == null ? 0 : first.hashCode()) ^
-                (second == null ? 0 : second.hashCode());
+    public int hashCode() {
+        return (f == null ? 0 : f.hashCode()) ^
+                (s == null ? 0 : s.hashCode());
     }
 
-    public String toString()
-    {
-        return "Pair [" + first + ':' + second + ']';
+    public String toString() {
+        return "Pair [" + f + ':' + s + ']';
     }
 }

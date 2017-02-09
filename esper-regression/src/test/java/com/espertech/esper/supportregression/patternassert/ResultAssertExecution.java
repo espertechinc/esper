@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -63,7 +64,7 @@ public class ResultAssertExecution
     {
         boolean isAssert = System.getProperty("ASSERTION_DISABLED") == null;
 
-        boolean expectRemoveStream = stmt.getText().toLowerCase().contains("select irstream");
+        boolean expectRemoveStream = stmt.getText().toLowerCase(Locale.ENGLISH).contains("select irstream");
         execute(isAssert, !expectRemoveStream, allowAnyOrder);
         stmt.stop();
 

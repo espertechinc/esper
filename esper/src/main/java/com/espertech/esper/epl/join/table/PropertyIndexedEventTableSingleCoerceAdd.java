@@ -15,11 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.SimpleNumberCoercer;
 
-import java.util.Map;
-import java.util.Set;
-
-public class PropertyIndexedEventTableSingleCoerceAdd extends PropertyIndexedEventTableSingleUnadorned
-{
+public class PropertyIndexedEventTableSingleCoerceAdd extends PropertyIndexedEventTableSingleUnadorned {
     private final SimpleNumberCoercer coercer;
     private final Class coercionType;
 
@@ -29,16 +25,12 @@ public class PropertyIndexedEventTableSingleCoerceAdd extends PropertyIndexedEve
         this.coercionType = coercionType;
     }
 
-    protected Object getKey(EventBean theEvent)
-    {
+    protected Object getKey(EventBean theEvent) {
         Object keyValue = super.getKey(theEvent);
-        if ((keyValue != null) && (!keyValue.getClass().equals(coercionType)))
-        {
-            if (keyValue instanceof Number)
-            {
+        if ((keyValue != null) && (!keyValue.getClass().equals(coercionType))) {
+            if (keyValue instanceof Number) {
                 keyValue = coercer.coerceBoxed((Number) keyValue);
-            }
-            else {
+            } else {
                 keyValue = EventBeanUtility.coerce(keyValue, coercionType);
             }
         }

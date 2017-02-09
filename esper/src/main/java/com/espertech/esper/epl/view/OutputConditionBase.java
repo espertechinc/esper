@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.view;
 
-public abstract class OutputConditionBase implements OutputCondition
-{
+public abstract class OutputConditionBase implements OutputCondition {
     protected final OutputCallback outputCallback;
 
     protected OutputConditionBase(OutputCallback outputCallback) {

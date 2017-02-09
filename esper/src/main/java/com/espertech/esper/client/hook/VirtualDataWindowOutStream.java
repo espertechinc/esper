@@ -20,6 +20,7 @@ public interface VirtualDataWindowOutStream {
 
     /**
      * Post insert stream (new data) and remove stream (old data) events.
+     *
      * @param newData insert stream, or null if no insert stream events
      * @param oldData remove stream, or null if no remove stream events
      */

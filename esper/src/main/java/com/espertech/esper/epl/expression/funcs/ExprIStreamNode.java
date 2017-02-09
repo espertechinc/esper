@@ -19,44 +19,38 @@ import java.io.StringWriter;
 /**
  * Represents the RSTREAM() function in an expression tree.
  */
-public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = -6911351346095189882L;
 
     /**
      * Ctor.
      */
-    public ExprIStreamNode()
-    {
+    public ExprIStreamNode() {
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 0)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 0) {
             throw new ExprValidationException("current_timestamp function node must have exactly 1 child node");
         }
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qaExprIStream(this, isNewData);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qaExprIStream(this, isNewData);
+        }
         return isNewData;
     }
 
@@ -68,10 +62,8 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprIStreamNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprIStreamNode)) {
             return false;
         }
         return true;

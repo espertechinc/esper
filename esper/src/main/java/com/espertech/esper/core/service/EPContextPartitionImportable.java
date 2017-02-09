@@ -14,11 +14,9 @@ import com.espertech.esper.core.context.mgr.ContextStatePathKey;
 import com.espertech.esper.core.context.mgr.ContextStatePathValue;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.TreeMap;
 
-public class EPContextPartitionImportable implements Serializable
-{
+public class EPContextPartitionImportable implements Serializable {
     private static final long serialVersionUID = 4455652878395126963L;
     private final TreeMap<ContextStatePathKey, ContextStatePathValue> paths;
 

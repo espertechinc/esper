@@ -18,31 +18,25 @@ import com.espertech.esper.epl.expression.methodagg.ExprStddevNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 
-public class TestExprAvedevNode extends TestExprAggregateNodeAdapter
-{
-    public void setUp() throws Exception
-    {
+public class TestExprAvedevNode extends TestExprAggregateNodeAdapter {
+    public void setUp() throws Exception {
         super.validatedNodeToTest = makeNode(5, Integer.class);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(Double.class, validatedNodeToTest.getType());
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("avedev(5)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validatedNodeToTest));
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest));
         assertFalse(validatedNodeToTest.equalsNode(new ExprStddevNode(false)));
     }
 
-    public void testAggregateFunction()
-    {
+    public void testAggregateFunction() {
         AggregationMethodFactory aggFactory = validatedNodeToTest.getFactory();
         AggregationMethod agg = aggFactory.make();
 
@@ -55,7 +49,7 @@ public class TestExprAvedevNode extends TestExprAggregateNodeAdapter
         assertEquals(2D, agg.getValue());
 
         agg.enter(70);
-        double result = (Double)agg.getValue();
+        double result = (Double) agg.getValue();
         assertEquals("4.4444", Double.toString(result).substring(0, 6));
 
         agg.enter(58);
@@ -68,12 +62,11 @@ public class TestExprAvedevNode extends TestExprAggregateNodeAdapter
         assertEquals(12D, agg.getValue());
 
         agg.leave(58);
-        result = (Double)agg.getValue();
+        result = (Double) agg.getValue();
         assertEquals("14.2222", Double.toString(result).substring(0, 7));
     }
 
-    private ExprAvedevNode makeNode(Object value, Class type) throws Exception
-    {
+    private ExprAvedevNode makeNode(Object value, Class type) throws Exception {
         ExprAvedevNode avedevNode = new ExprAvedevNode(false);
         avedevNode.addChildNode(new SupportExprNode(value, type));
         SupportExprNodeFactory.validate3Stream(avedevNode);

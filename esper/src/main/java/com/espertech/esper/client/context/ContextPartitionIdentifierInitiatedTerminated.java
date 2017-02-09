@@ -31,9 +31,10 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Ctor.
+     *
      * @param properties of triggering object
-     * @param startTime start time
-     * @param endTime optional end time
+     * @param startTime  start time
+     * @param endTime    optional end time
      */
     public ContextPartitionIdentifierInitiatedTerminated(Map<String, Object> properties, long startTime, Long endTime) {
         this.properties = properties;
@@ -43,6 +44,7 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Event or pattern information.
+     *
      * @return starting or initiating information
      */
     public Map<String, Object> getProperties() {
@@ -51,6 +53,7 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Sets the event or pattern information.
+     *
      * @param properties starting or initiating information
      */
     public void setProperties(Map<String, Object> properties) {
@@ -59,6 +62,7 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Returns the start time of the context partition.
+     *
      * @return start time
      */
     public long getStartTime() {
@@ -67,7 +71,8 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Sets the start time of the context partition.
-     * @param startTime  start time
+     *
+     * @param startTime start time
      */
     public void setStartTime(long startTime) {
         this.startTime = startTime;
@@ -75,6 +80,7 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Returns the end time of the context partition, if it can be computed
+     *
      * @return end time
      */
     public Long getEndTime() {
@@ -83,6 +89,7 @@ public class ContextPartitionIdentifierInitiatedTerminated extends ContextPartit
 
     /**
      * Sets the end time of the context partition, if it can be computed
+     *
      * @param endTime end time
      */
     public void setEndTime(Long endTime) {

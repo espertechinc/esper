@@ -29,8 +29,7 @@ import java.util.Collection;
 /**
  * Implementation for handling aggregation without any grouping (no group-by).
  */
-public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
-{
+public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService {
     private final TableStateInstanceUngrouped tableStateInstance;
     private final TableColumnMethodPair[] methodPairs;
     private final AggregationAccessorSlotPair[] accessors;
@@ -47,73 +46,91 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         this.agents = agents;
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext) {
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
 
         ObjectArrayBackedEventBean event = tableStateInstance.getCreateRowIntoTable(null, exprEvaluatorContext);
         AggregationRowPair row = ExprTableEvalStrategyUtil.getRow(event);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(true, row.getMethods().length, row.getStates().length);}
-        for (int i = 0; i < methodPairs.length; i++)
-        {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(true, row.getMethods().length, row.getStates().length);
+        }
+        for (int i = 0; i < methodPairs.length; i++) {
             TableColumnMethodPair methodPair = methodPairs[i];
             AggregationMethod method = row.getMethods()[methodPair.getTargetIndex()];
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, method, methodPair.getAggregationNode());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, method, methodPair.getAggregationNode());
+            }
             Object columnResult = methodPair.getEvaluator().evaluate(eventsPerStream, true, exprEvaluatorContext);
             method.enter(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, method);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, method);
+            }
         }
 
         for (int i = 0; i < targetStates.length; i++) {
             AggregationState state = row.getStates()[targetStates[i]];
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, state, accessStateExpr[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, state, accessStateExpr[i]);
+            }
             agents[i].applyEnter(eventsPerStream, exprEvaluatorContext, state);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, state);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, state);
+            }
         }
 
         tableStateInstance.handleRowUpdated(event);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(true);
+        }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, Object optionalGroupKeyPerRow, ExprEvaluatorContext exprEvaluatorContext) {
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
 
         ObjectArrayBackedEventBean event = tableStateInstance.getCreateRowIntoTable(null, exprEvaluatorContext);
         AggregationRowPair row = ExprTableEvalStrategyUtil.getRow(event);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(false, row.getMethods().length, row.getStates().length);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationUngroupedApplyEnterLeave(false, row.getMethods().length, row.getStates().length);
+        }
 
-        for (int i = 0; i < methodPairs.length; i++)
-        {
+        for (int i = 0; i < methodPairs.length; i++) {
             TableColumnMethodPair methodPair = methodPairs[i];
             AggregationMethod method = row.getMethods()[methodPair.getTargetIndex()];
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, method, methodPair.getAggregationNode());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, method, methodPair.getAggregationNode());
+            }
             Object columnResult = methodPair.getEvaluator().evaluate(eventsPerStream, false, exprEvaluatorContext);
             method.leave(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, method);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, method);
+            }
         }
 
         for (int i = 0; i < targetStates.length; i++) {
             AggregationState state = row.getStates()[targetStates[i]];
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, state, accessStateExpr[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, state, accessStateExpr[i]);
+            }
             agents[i].applyLeave(eventsPerStream, exprEvaluatorContext, state);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, state);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, state);
+            }
         }
 
         tableStateInstance.handleRowUpdated(event);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(false);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationUngroupedApplyEnterLeave(false);
+        }
     }
 
-    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         // no action needed - this implementation does not group and the current row is the single group
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
 
@@ -125,8 +142,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         AggregationMethod[] aggregators = row.getMethods();
         if (column < aggregators.length) {
             return aggregators[column].getValue();
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getValue(row.getStates()[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
         }
@@ -144,8 +160,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         AggregationMethod[] aggregators = row.getMethods();
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvents(row.getStates()[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -163,8 +178,7 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
         AggregationMethod[] aggregators = row.getMethods();
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableScalar(row.getStates()[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -183,15 +197,13 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService
 
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvent(row.getStates()[pair.getSlot()], eventsPerStream, isNewData, context);
         }
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         // acquire table-level write lock
         ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
 

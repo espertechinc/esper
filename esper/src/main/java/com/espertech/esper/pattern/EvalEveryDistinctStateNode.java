@@ -25,20 +25,19 @@ import java.util.Set;
  * Contains the state collected by an "every" operator. The state includes handles to any sub-listeners
  * started by the operator.
  */
-public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluator
-{
+public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluator {
     protected final EvalEveryDistinctNode everyDistinctNode;
     protected final Map<EvalStateNode, Set<Object>> spawnedNodes;
     protected MatchedEventMap beginState;
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode        is the parent evaluator to call to indicate truth value
      * @param everyDistinctNode is the factory node associated to the state
      */
     public EvalEveryDistinctStateNode(Evaluator parentNode,
-                                  EvalEveryDistinctNode everyDistinctNode)
-    {
+                                      EvalEveryDistinctNode everyDistinctNode) {
         super(parentNode);
 
         this.everyDistinctNode = everyDistinctNode;
@@ -49,8 +48,7 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
         if (PatternConsumptionUtil.containsEvent(matchEvent, beginState)) {
             quit();
             this.getParentEvaluator().evaluateFalse(this, true);
-        }
-        else {
+        } else {
             PatternConsumptionUtil.childNodeRemoveMatches(matchEvent, spawnedNodes.keySet());
         }
     }
@@ -60,15 +58,15 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
         return everyDistinctNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryDistinctStart(everyDistinctNode, beginState);}
+    public final void start(MatchedEventMap beginState) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryDistinctStart(everyDistinctNode, beginState);
+        }
         this.beginState = beginState.shallowCopy();
         EvalStateNode childState = everyDistinctNode.getChildNode().newState(this, null, 0L);
         spawnedNodes.put(childState, new HashSet<Object>());
 
-        if (spawnedNodes.size() != 1)
-        {
+        if (spawnedNodes.size() != 1) {
             throw new IllegalStateException("EVERY state node is expected to have single child state node");
         }
 
@@ -80,20 +78,20 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
         childState.start(beginState);
 
         // If the spawned expression turned true already, just quit it
-        if (spawnEvaluator.isEvaluatedTrue())
-        {
+        if (spawnEvaluator.isEvaluatedTrue()) {
             childState.quit();
-        }
-        else
-        {
+        } else {
             childState.setParentEvaluator(this);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryDistinctStart();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryDistinctStart();
+        }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryDistinctEvalFalse(everyDistinctNode);}
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryDistinctEvalFalse(everyDistinctNode);
+        }
         fromNode.quit();
         spawnedNodes.remove(fromNode);
 
@@ -105,50 +103,42 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
         spawned.start(beginState);
 
         // If the whole spawned expression already turned true, quit it again
-        if (spawnEvaluator.isEvaluatedTrue())
-        {
+        if (spawnEvaluator.isEvaluatedTrue()) {
             spawned.quit();
-        }
-        else
-        {
+        } else {
             spawnedNodes.put(spawned, new HashSet<Object>());
             spawned.setParentEvaluator(this);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryDistinctEvalFalse();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryDistinctEvalFalse();
+        }
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryDistinctEvaluateTrue(everyDistinctNode, matchEvent);}
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryDistinctEvaluateTrue(everyDistinctNode, matchEvent);
+        }
 
         // determine if this evaluation has been seen before from the same node
         Object matchEventKey = PatternExpressionUtil.getKeys(matchEvent, everyDistinctNode.getFactoryNode().getConvertor(), everyDistinctNode.getFactoryNode().getDistinctExpressionsArray(), everyDistinctNode.getContext().getAgentInstanceContext());
         boolean haveSeenThis = false;
         Set<Object> keysFromNode = spawnedNodes.get(fromNode);
-        if (keysFromNode != null)
-        {
-            if (keysFromNode.contains(matchEventKey))
-            {
+        if (keysFromNode != null) {
+            if (keysFromNode.contains(matchEventKey)) {
                 haveSeenThis = true;
-            }
-            else
-            {
+            } else {
                 keysFromNode.add(matchEventKey);
             }
         }
 
-        if (isQuitted)
-        {
+        if (isQuitted) {
             spawnedNodes.remove(fromNode);
         }
 
         // See explanation in EvalFilterStateNode for the type check
-        if (fromNode.isFilterStateNode())
-        {
+        if (fromNode.isFilterStateNode()) {
             // We do not need to newState new listeners here, since the filter state node below this node did not quit
-        }
-        else
-        {
+        } else {
             // Spawn all nodes below this EVERY node
             // During the start of a child we need to use the temporary evaluator to catch any event created during a start
             // Such events can be raised when the "not" operator is used.
@@ -157,15 +147,11 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
             spawned.start(beginState);
 
             // If the whole spawned expression already turned true, quit it again
-            if (spawnEvaluator.isEvaluatedTrue())
-            {
+            if (spawnEvaluator.isEvaluatedTrue()) {
                 spawned.quit();
-            }
-            else
-            {
+            } else {
                 Set<Object> keyset = new HashSet<Object>();
-                if (keysFromNode != null)
-                {
+                if (keysFromNode != null) {
                     keyset.addAll(keysFromNode);
                 }
                 spawnedNodes.put(spawned, keyset);
@@ -173,26 +159,28 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
             }
         }
 
-        if (!haveSeenThis)
-        {
+        if (!haveSeenThis) {
             this.getParentEvaluator().evaluateTrue(matchEvent, this, false);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryDistinctEvaluateTrue(keysFromNode, null, matchEventKey, haveSeenThis);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryDistinctEvaluateTrue(keysFromNode, null, matchEventKey, haveSeenThis);
+        }
     }
 
-    public final void quit()
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternEveryDistinctQuit(everyDistinctNode);}
+    public final void quit() {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternEveryDistinctQuit(everyDistinctNode);
+        }
         // Stop all child nodes
-        for (EvalStateNode child : spawnedNodes.keySet())
-        {
+        for (EvalStateNode child : spawnedNodes.keySet()) {
             child.quit();
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternEveryDistinctQuit();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternEveryDistinctQuit();
+        }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitEveryDistinct(everyDistinctNode.getFactoryNode(), this, beginState, spawnedNodes.values());
         for (EvalStateNode spawnedNode : spawnedNodes.keySet()) {
             spawnedNode.accept(visitor);
@@ -215,8 +203,7 @@ public class EvalEveryDistinctStateNode extends EvalStateNode implements Evaluat
         return false;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalEveryStateNode spawnedChildren=" + spawnedNodes.size();
     }
 

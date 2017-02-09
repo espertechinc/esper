@@ -31,29 +31,25 @@ import java.util.*;
 /**
  * Helper to compile (validate and optimize) filter expressions as used in pattern and filter-based streams.
  */
-public final class FilterSpecCompilerMakeParamUtil
-{
+public final class FilterSpecCompilerMakeParamUtil {
     /**
      * For a given expression determine if this is optimizable and create the filter parameter
      * representing the expression, or null if not optimizable.
      *
-     * @param constituent is the expression to look at
-     * @param arrayEventTypes event types that provide array values
-     * @return filter parameter representing the expression, or null
-     * @param statementName statement name
+     * @param constituent          is the expression to look at
+     * @param arrayEventTypes      event types that provide array values
+     * @param statementName        statement name
      * @param exprEvaluatorContext context
+     * @return filter parameter representing the expression, or null
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression is invalid
      */
     protected static FilterSpecParam makeFilterParam(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Is this expresson node a simple compare, i.e. a=5 or b<4; these can be indexed
         if ((constituent instanceof ExprEqualsNode) ||
-            (constituent instanceof ExprRelationalOpNode))
-        {
+                (constituent instanceof ExprRelationalOpNode)) {
             FilterSpecParam param = handleEqualsAndRelOp(constituent, arrayEventTypes, exprEvaluatorContext, statementName);
-            if (param != null)
-            {
+            if (param != null) {
                 return param;
             }
         }
@@ -61,28 +57,23 @@ public final class FilterSpecCompilerMakeParamUtil
         constituent = rewriteOrToInIfApplicable(constituent);
 
         // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
-        if (constituent instanceof ExprInNode)
-        {
-            FilterSpecParam param = handleInSetNode((ExprInNode)constituent, arrayEventTypes, exprEvaluatorContext, statementName);
-            if (param != null)
-            {
+        if (constituent instanceof ExprInNode) {
+            FilterSpecParam param = handleInSetNode((ExprInNode) constituent, arrayEventTypes, exprEvaluatorContext, statementName);
+            if (param != null) {
                 return param;
             }
         }
 
-        if (constituent instanceof ExprBetweenNode)
-        {
-            FilterSpecParam param = handleRangeNode((ExprBetweenNode)constituent, arrayEventTypes, exprEvaluatorContext, statementName);
-            if (param != null)
-            {
+        if (constituent instanceof ExprBetweenNode) {
+            FilterSpecParam param = handleRangeNode((ExprBetweenNode) constituent, arrayEventTypes, exprEvaluatorContext, statementName);
+            if (param != null) {
                 return param;
             }
         }
 
         if (constituent instanceof ExprPlugInSingleRowNode) {
             FilterSpecParam param = handlePlugInSingleRow((ExprPlugInSingleRowNode) constituent);
-            if (param != null)
-            {
+            if (param != null) {
                 return param;
             }
         }
@@ -116,11 +107,9 @@ public final class FilterSpecCompilerMakeParamUtil
         }
         if (isExprExistsInAllEqualsChildNodes(childNodes, lhs)) {
             commonExpressionNode = lhs;
-        }
-        else if (isExprExistsInAllEqualsChildNodes(childNodes, rhs)) {
+        } else if (isExprExistsInAllEqualsChildNodes(childNodes, rhs)) {
             commonExpressionNode = rhs;
-        }
-        else {
+        } else {
             return constituent;
         }
 
@@ -136,8 +125,7 @@ public final class FilterSpecCompilerMakeParamUtil
         // validate
         try {
             in.validateWithoutContext();
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             return constituent;
         }
 
@@ -155,11 +143,9 @@ public final class FilterSpecCompilerMakeParamUtil
         return new FilterSpecParamConstant(lookupable, FilterOperator.EQUAL, true);
     }
 
-    private static FilterSpecParam handleRangeNode(ExprBetweenNode betweenNode, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
-    {
+    private static FilterSpecParam handleRangeNode(ExprBetweenNode betweenNode, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName) {
         ExprNode left = betweenNode.getChildNodes()[0];
-        if (left instanceof ExprFilterOptimizableNode)
-        {
+        if (left instanceof ExprFilterOptimizableNode) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
             FilterOperator op = FilterOperator.parseRangeOperator(betweenNode.isLowEndpointIncluded(), betweenNode.isHighEndpointIncluded(),
@@ -168,29 +154,25 @@ public final class FilterSpecCompilerMakeParamUtil
             FilterSpecParamRangeValue low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], arrayEventTypes, exprEvaluatorContext, statementName);
             FilterSpecParamRangeValue high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], arrayEventTypes, exprEvaluatorContext, statementName);
 
-            if ((low != null) && (high != null))
-            {
+            if ((low != null) && (high != null)) {
                 return new FilterSpecParamRange(lookupable, op, low, high);
             }
         }
         return null;
     }
 
-    private static FilterSpecParamRangeValue handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
-    {
+    private static FilterSpecParamRangeValue handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName) {
         // constant
-        if (ExprNodeUtility.isConstantValueExpr(endpoint))
-        {
+        if (ExprNodeUtility.isConstantValueExpr(endpoint)) {
             ExprConstantNode node = (ExprConstantNode) endpoint;
             Object value = node.getConstantValue(exprEvaluatorContext);
             if (value == null) {
                 return null;
             }
             if (value instanceof String) {
-                return new RangeValueString((String)value);
-            }
-            else {
-                return new RangeValueDouble(((Number)value).doubleValue());
+                return new RangeValueString((String) value);
+            } else {
+                return new RangeValueDouble(((Number) value).doubleValue());
             }
         }
 
@@ -200,21 +182,16 @@ public final class FilterSpecCompilerMakeParamUtil
         }
 
         // or property
-        if (endpoint instanceof ExprIdentNode)
-        {
+        if (endpoint instanceof ExprIdentNode) {
             ExprIdentNode identNodeInner = (ExprIdentNode) endpoint;
-            if (identNodeInner.getStreamId() == 0)
-            {
+            if (identNodeInner.getStreamId() == 0) {
                 return null;
             }
 
-            if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(identNodeInner.getResolvedStreamName()))
-            {
+            if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(identNodeInner.getResolvedStreamName())) {
                 Pair<Integer, String> indexAndProp = getStreamIndex(identNodeInner.getResolvedPropertyName());
                 return new RangeValueEventPropIndexed(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(), indexAndProp.getSecond(), statementName);
-            }
-            else
-            {
+            } else {
                 return new RangeValueEventProp(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName());
             }
         }
@@ -223,8 +200,7 @@ public final class FilterSpecCompilerMakeParamUtil
     }
 
     private static FilterSpecParam handleInSetNode(ExprInNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprNode left = constituent.getChildNodes()[0];
         if (!(left instanceof ExprFilterOptimizableNode)) {
             return null;
@@ -233,8 +209,7 @@ public final class FilterSpecCompilerMakeParamUtil
         ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
         FilterSpecLookupable lookupable = filterOptimizableNode.getFilterLookupable();
         FilterOperator op = FilterOperator.IN_LIST_OF_VALUES;
-        if (constituent.isNotIn())
-        {
+        if (constituent.isNotIn()) {
             op = FilterOperator.NOT_IN_LIST_OF_VALUES;
         }
 
@@ -242,11 +217,9 @@ public final class FilterSpecCompilerMakeParamUtil
         List<FilterSpecParamInValue> listofValues = new ArrayList<FilterSpecParamInValue>();
         Iterator<ExprNode> it = Arrays.asList(constituent.getChildNodes()).iterator();
         it.next();  // ignore the first node as it's the identifier
-        while (it.hasNext())
-        {
+        while (it.hasNext()) {
             ExprNode subNode = it.next();
-            if (ExprNodeUtility.isConstantValueExpr(subNode))
-            {
+            if (ExprNodeUtility.isConstantValueExpr(subNode)) {
                 ExprConstantNode constantNode = (ExprConstantNode) subNode;
                 Object constant = constantNode.getConstantValue(exprEvaluatorContext);
                 if (constant instanceof Collection) {
@@ -264,32 +237,27 @@ public final class FilterSpecCompilerMakeParamUtil
                             expectedNumberOfConstants++;
                         }
                     }
-                }
-                else {
+                } else {
                     constant = handleConstantsCoercion(lookupable, constant);
                     listofValues.add(new InSetOfValuesConstant(constant));
                 }
             }
-            if (subNode instanceof ExprContextPropertyNode)
-            {
+            if (subNode instanceof ExprContextPropertyNode) {
                 ExprContextPropertyNode contextPropertyNode = (ExprContextPropertyNode) subNode;
                 Class returnType = contextPropertyNode.getType();
                 SimpleNumberCoercer coercer;
                 if (JavaClassHelper.isCollectionMapOrArray(returnType)) {
                     checkArrayCoercion(returnType, lookupable.getReturnType(), lookupable.getExpression());
                     coercer = null;
-                }
-                else {
+                } else {
                     coercer = getNumberCoercer(left.getExprEvaluator().getType(), contextPropertyNode.getType(), lookupable.getExpression());
                 }
                 Class finalReturnType = coercer != null ? coercer.getReturnType() : returnType;
                 listofValues.add(new InSetOfValuesContextProp(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer, finalReturnType));
             }
-            if (subNode instanceof ExprIdentNode)
-            {
+            if (subNode instanceof ExprIdentNode) {
                 ExprIdentNode identNodeInner = (ExprIdentNode) subNode;
-                if (identNodeInner.getStreamId() == 0)
-                {
+                if (identNodeInner.getStreamId() == 0) {
                     break; // for same event evals use the boolean expression, via count compare failing below
                 }
 
@@ -301,32 +269,24 @@ public final class FilterSpecCompilerMakeParamUtil
                     checkArrayCoercion(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
                     coerceToType = identReturnType;
                     // no action
-                }
-                else if (identReturnType != lookupable.getReturnType())
-                {
-                    if (JavaClassHelper.isNumeric(lookupable.getReturnType()))
-                    {
-                        if (!JavaClassHelper.canCoerce(identReturnType, lookupable.getReturnType()))
-                        {
+                } else if (identReturnType != lookupable.getReturnType()) {
+                    if (JavaClassHelper.isNumeric(lookupable.getReturnType())) {
+                        if (!JavaClassHelper.canCoerce(identReturnType, lookupable.getReturnType())) {
                             throwConversionError(identReturnType, lookupable.getReturnType(), lookupable.getExpression());
                         }
                         isMustCoerce = true;
-                    }
-                    else {
+                    } else {
                         break;  // assumed not compatible
                     }
                 }
 
                 FilterSpecParamInValue inValue;
                 String streamName = identNodeInner.getResolvedStreamName();
-                if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(streamName))
-                {
+                if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(streamName)) {
                     Pair<Integer, String> indexAndProp = getStreamIndex(identNodeInner.getResolvedPropertyName());
                     inValue = new InSetOfValuesEventPropIndexed(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(),
                             indexAndProp.getSecond(), isMustCoerce, coerceToType, statementName);
-                }
-                else
-                {
+                } else {
                     inValue = new InSetOfValuesEventProp(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName(), isMustCoerce, coerceToType);
                 }
 
@@ -335,8 +295,7 @@ public final class FilterSpecCompilerMakeParamUtil
         }
 
         // Fallback if not all values in the in-node can be resolved to properties or constants
-        if (listofValues.size() == expectedNumberOfConstants)
-        {
+        if (listofValues.size() == expectedNumberOfConstants) {
             return new FilterSpecParamIn(lookupable, op, listofValues);
         }
         return null;
@@ -352,48 +311,32 @@ public final class FilterSpecCompilerMakeParamUtil
     }
 
     private static FilterSpecParam handleEqualsAndRelOp(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         FilterOperator op;
-        if (constituent instanceof ExprEqualsNode)
-        {
+        if (constituent instanceof ExprEqualsNode) {
             ExprEqualsNode equalsNode = (ExprEqualsNode) constituent;
             if (!equalsNode.isIs()) {
                 op = FilterOperator.EQUAL;
-                if (equalsNode.isNotEquals())
-                {
+                if (equalsNode.isNotEquals()) {
                     op = FilterOperator.NOT_EQUAL;
                 }
-            }
-            else {
+            } else {
                 op = FilterOperator.IS;
-                if (equalsNode.isNotEquals())
-                {
+                if (equalsNode.isNotEquals()) {
                     op = FilterOperator.IS_NOT;
                 }
             }
-        }
-        else
-        {
+        } else {
             ExprRelationalOpNode relNode = (ExprRelationalOpNode) constituent;
-            if (relNode.getRelationalOpEnum() == RelationalOpEnum.GT)
-            {
+            if (relNode.getRelationalOpEnum() == RelationalOpEnum.GT) {
                 op = FilterOperator.GREATER;
-            }
-            else if (relNode.getRelationalOpEnum() == RelationalOpEnum.LT)
-            {
+            } else if (relNode.getRelationalOpEnum() == RelationalOpEnum.LT) {
                 op = FilterOperator.LESS;
-            }
-            else if (relNode.getRelationalOpEnum() == RelationalOpEnum.LE)
-            {
+            } else if (relNode.getRelationalOpEnum() == RelationalOpEnum.LE) {
                 op = FilterOperator.LESS_OR_EQUAL;
-            }
-            else if (relNode.getRelationalOpEnum() == RelationalOpEnum.GE)
-            {
+            } else if (relNode.getRelationalOpEnum() == RelationalOpEnum.GE) {
                 op = FilterOperator.GREATER_OR_EQUAL;
-            }
-            else
-            {
+            } else {
                 throw new IllegalStateException("Opertor '" + relNode.getRelationalOpEnum() + "' not mapped");
             }
         }
@@ -402,8 +345,7 @@ public final class FilterSpecCompilerMakeParamUtil
         ExprNode right = constituent.getChildNodes()[1];
 
         // check identifier and constant combination
-        if ((ExprNodeUtility.isConstantValueExpr(right)) && (left instanceof ExprFilterOptimizableNode))
-        {
+        if ((ExprNodeUtility.isConstantValueExpr(right)) && (left instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) left;
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 ExprConstantNode constantNode = (ExprConstantNode) right;
@@ -413,8 +355,7 @@ public final class FilterSpecCompilerMakeParamUtil
                 return new FilterSpecParamConstant(lookupable, op, constant);
             }
         }
-        if ((ExprNodeUtility.isConstantValueExpr(left)) && (right instanceof ExprFilterOptimizableNode))
-        {
+        if ((ExprNodeUtility.isConstantValueExpr(left)) && (right instanceof ExprFilterOptimizableNode)) {
             ExprFilterOptimizableNode filterOptimizableNode = (ExprFilterOptimizableNode) right;
             if (filterOptimizableNode.getFilterLookupEligible()) {
                 ExprConstantNode constantNode = (ExprConstantNode) left;
@@ -426,17 +367,14 @@ public final class FilterSpecCompilerMakeParamUtil
             }
         }
         // check identifier and expression containing other streams
-        if ((left instanceof ExprIdentNode) && (right instanceof ExprIdentNode))
-        {
+        if ((left instanceof ExprIdentNode) && (right instanceof ExprIdentNode)) {
             ExprIdentNode identNodeLeft = (ExprIdentNode) left;
             ExprIdentNode identNodeRight = (ExprIdentNode) right;
 
-            if ((identNodeLeft.getStreamId() == 0) && (identNodeLeft.getFilterLookupEligible()) && (identNodeRight.getStreamId() != 0))
-            {
+            if ((identNodeLeft.getStreamId() == 0) && (identNodeLeft.getFilterLookupEligible()) && (identNodeRight.getStreamId() != 0)) {
                 return handleProperty(op, identNodeLeft, identNodeRight, arrayEventTypes, statementName);
             }
-            if ((identNodeRight.getStreamId() == 0) && (identNodeRight.getFilterLookupEligible()) && (identNodeLeft.getStreamId() != 0))
-            {
+            if ((identNodeRight.getStreamId() == 0) && (identNodeRight.getFilterLookupEligible()) && (identNodeLeft.getStreamId() != 0)) {
                 op = getReversedOperator(constituent, op); // reverse operators, as the expression is "stream1.prop xyz stream0.prop"
                 return handleProperty(op, identNodeRight, identNodeLeft, arrayEventTypes, statementName);
             }
@@ -472,28 +410,20 @@ public final class FilterSpecCompilerMakeParamUtil
         ExprRelationalOpNode relNode = (ExprRelationalOpNode) constituent;
         RelationalOpEnum relationalOpEnum = relNode.getRelationalOpEnum();
 
-        if (relationalOpEnum == RelationalOpEnum.GT)
-        {
+        if (relationalOpEnum == RelationalOpEnum.GT) {
             return FilterOperator.LESS;
-        }
-        else if (relationalOpEnum == RelationalOpEnum.LT)
-        {
+        } else if (relationalOpEnum == RelationalOpEnum.LT) {
             return FilterOperator.GREATER;
-        }
-        else if (relationalOpEnum == RelationalOpEnum.LE)
-        {
+        } else if (relationalOpEnum == RelationalOpEnum.LE) {
             return FilterOperator.GREATER_OR_EQUAL;
-        }
-        else if (relationalOpEnum == RelationalOpEnum.GE)
-        {
+        } else if (relationalOpEnum == RelationalOpEnum.GE) {
             return FilterOperator.LESS_OR_EQUAL;
         }
         return op;
     }
 
     private static FilterSpecParam handleProperty(FilterOperator op, ExprIdentNode identNodeLeft, ExprIdentNode identNodeRight, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         String propertyName = identNodeLeft.getResolvedPropertyName();
 
         Class leftType = identNodeLeft.getExprEvaluator().getType();
@@ -504,8 +434,7 @@ public final class FilterSpecCompilerMakeParamUtil
         Class numericCoercionType = JavaClassHelper.getBoxedType(leftType);
 
         String streamName = identNodeRight.getResolvedStreamName();
-        if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(streamName))
-        {
+        if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(streamName)) {
             Pair<Integer, String> indexAndProp = getStreamIndex(identNodeRight.getResolvedPropertyName());
             return new FilterSpecParamEventPropIndexed(identNodeLeft.getFilterLookupable(), op, identNodeRight.getResolvedStreamName(), indexAndProp.getFirst(),
                     indexAndProp.getSecond(), isMustCoerce, numberCoercer, numericCoercionType, statementName);
@@ -516,12 +445,9 @@ public final class FilterSpecCompilerMakeParamUtil
 
     private static SimpleNumberCoercer getNumberCoercer(Class leftType, Class rightType, String expression) throws ExprValidationException {
         Class numericCoercionType = JavaClassHelper.getBoxedType(leftType);
-        if (rightType != leftType)
-        {
-            if (JavaClassHelper.isNumeric(rightType))
-            {
-                if (!JavaClassHelper.canCoerce(rightType, leftType))
-                {
+        if (rightType != leftType) {
+            if (JavaClassHelper.isNumeric(rightType)) {
+                if (!JavaClassHelper.canCoerce(rightType, leftType)) {
                     throwConversionError(rightType, leftType, expression);
                 }
                 return SimpleNumberCoercerFactory.getCoercer(rightType, numericCoercionType);
@@ -530,20 +456,16 @@ public final class FilterSpecCompilerMakeParamUtil
         return null;
     }
 
-    private static Pair<Integer, String> getStreamIndex(String resolvedPropertyName)
-    {
+    private static Pair<Integer, String> getStreamIndex(String resolvedPropertyName) {
         Property property = PropertyParser.parseAndWalkLaxToSimple(resolvedPropertyName);
-        if (!(property instanceof NestedProperty))
-        {
+        if (!(property instanceof NestedProperty)) {
             throw new IllegalStateException("Expected a nested property providing an index for array match '" + resolvedPropertyName + "'");
         }
-        NestedProperty nested = ((NestedProperty) property);
-        if (nested.getProperties().size() < 2)
-        {
+        NestedProperty nested = (NestedProperty) property;
+        if (nested.getProperties().size() < 2) {
             throw new IllegalStateException("Expected a nested property name for array match '" + resolvedPropertyName + "', none found");
         }
-        if (!(nested.getProperties().get(0) instanceof IndexedProperty))
-        {
+        if (!(nested.getProperties().get(0) instanceof IndexedProperty)) {
             throw new IllegalStateException("Expected an indexed property for array match '" + resolvedPropertyName + "', please provide an index");
         }
         int index = ((IndexedProperty) nested.getProperties().get(0)).getIndex();
@@ -554,8 +476,7 @@ public final class FilterSpecCompilerMakeParamUtil
     }
 
     private static void throwConversionError(Class fromType, Class toType, String propertyName)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         String text = "Implicit conversion from datatype '" +
                 fromType.getSimpleName() +
                 "' to '" +
@@ -569,21 +490,18 @@ public final class FilterSpecCompilerMakeParamUtil
     // expressions automatically coerce to the most upwards type
     // filters require the same type
     private static Object handleConstantsCoercion(FilterSpecLookupable lookupable, Object constant)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Class identNodeType = lookupable.getReturnType();
-        if (!JavaClassHelper.isNumeric(identNodeType))
-        {
+        if (!JavaClassHelper.isNumeric(identNodeType)) {
             return constant;    // no coercion required, other type checking performed by expression this comes from
         }
 
-        if (constant == null)  // null constant type
-        {
+        if (constant == null) {
+            // null constant type
             return null;
         }
 
-        if (!JavaClassHelper.canCoerce(constant.getClass(), identNodeType))
-        {
+        if (!JavaClassHelper.canCoerce(constant.getClass(), identNodeType)) {
             throwConversionError(constant.getClass(), identNodeType, lookupable.getExpression());
         }
 

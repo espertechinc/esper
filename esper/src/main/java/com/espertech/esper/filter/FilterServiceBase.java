@@ -30,8 +30,7 @@ import java.util.concurrent.locks.LockSupport;
  * Implementation of the filter service interface.
  * Does not allow the same filter callback to be added more then once.
  */
-public abstract class FilterServiceBase implements FilterServiceSPI
-{
+public abstract class FilterServiceBase implements FilterServiceSPI {
     private final FilterServiceGranularLockFactory lockFactory;
     private static final Logger log = LoggerFactory.getLogger(FilterServiceBase.class);
     private final EventTypeIndexBuilder indexBuilder;
@@ -40,8 +39,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI
     private volatile long filtersVersion = 1;
     private final CopyOnWriteArraySet<FilterServiceListener> filterServiceListeners;
 
-    protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory, boolean allowIsolation)
-    {
+    protected FilterServiceBase(FilterServiceGranularLockFactory lockFactory, boolean allowIsolation) {
         this.lockFactory = lockFactory;
         eventTypeIndex = new EventTypeIndex(lockFactory);
         indexBuilder = new EventTypeIndexBuilder(eventTypeIndex, allowIsolation);
@@ -56,29 +54,27 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         return filtersVersion;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         log.debug("Destroying filter service");
         eventTypeIndex.destroy();
         indexBuilder.destroy();
     }
 
-    protected FilterServiceEntry addInternal(FilterValueSet filterValueSet, FilterHandle filterCallback)
-    {
+    protected FilterServiceEntry addInternal(FilterValueSet filterValueSet, FilterHandle filterCallback) {
         FilterServiceEntry entry = indexBuilder.add(filterValueSet, filterCallback, lockFactory);
         filtersVersion++;
         return entry;
     }
 
-    protected void removeInternal(FilterHandle filterCallback, FilterServiceEntry filterServiceEntry)
-    {
+    protected void removeInternal(FilterHandle filterCallback, FilterServiceEntry filterServiceEntry) {
         indexBuilder.remove(filterCallback, filterServiceEntry);
         filtersVersion++;
     }
 
-    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilter(theEvent);}
+    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilter(theEvent);
+        }
 
         long version = filtersVersion;
         numEventsEvaluated.incrementAndGet();
@@ -92,13 +88,14 @@ public abstract class FilterServiceBase implements FilterServiceSPI
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilter(matches);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilter(matches);
+        }
 
         return version;
     }
 
-    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, int statementId)
-    {
+    protected long evaluateInternal(EventBean theEvent, Collection<FilterHandle> matches, int statementId) {
         long version = filtersVersion;
         numEventsEvaluated.incrementAndGet();
 
@@ -123,9 +120,8 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         return version;
     }
 
-    @JmxGetter(name="NumEventsEvaluated", description = "Number of events evaluated (main)")
-    public final long getNumEventsEvaluated()
-    {
+    @JmxGetter(name = "NumEventsEvaluated", description = "Number of events evaluated (main)")
+    public final long getNumEventsEvaluated() {
         return numEventsEvaluated.get();
     }
 
@@ -142,24 +138,22 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         filterServiceListeners.remove(filterServiceListener);
     }
 
-    protected FilterSet takeInternal(Set<Integer> statementIds)
-    {
+    protected FilterSet takeInternal(Set<Integer> statementIds) {
         filtersVersion++;
         return indexBuilder.take(statementIds);
     }
 
-    protected void applyInternal(FilterSet filterSet)
-    {
+    protected void applyInternal(FilterSet filterSet) {
         filtersVersion++;
         indexBuilder.apply(filterSet, lockFactory);
     }
 
-    @JmxGetter(name="NumFiltersApprox", description = "Number of filters managed (approximately)")
+    @JmxGetter(name = "NumFiltersApprox", description = "Number of filters managed (approximately)")
     public int getFilterCountApprox() {
         return eventTypeIndex.getFilterCountApprox();
     }
 
-    @JmxGetter(name="NumEventTypes", description = "Number of event types considered")
+    @JmxGetter(name = "NumEventTypes", description = "Number of event types considered")
     public int getCountTypes() {
         return eventTypeIndex.size();
     }
@@ -176,19 +170,17 @@ public abstract class FilterServiceBase implements FilterServiceSPI
         // Install lock backoff exception handler that retries the evaluation.
         try {
             eventTypeIndex.matchEvent(theEvent, matches);
-        }
-        catch (FilterLockBackoffException ex) {
+        } catch (FilterLockBackoffException ex) {
             // retry on lock back-off
             // lock-backoff may occur when stateful evaluations take place such as boolean expressions that are subqueries
             // statements that contain subqueries in pattern filter expression can themselves modify filters, leading to a theoretically possible deadlock
             long delayNs = 10;
-            while(true) {
+            while (true) {
                 try {
                     // yield
                     try {
                         Thread.sleep(0);
-                    }
-                    catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
 
@@ -202,8 +194,7 @@ public abstract class FilterServiceBase implements FilterServiceSPI
                     matches.clear();
                     eventTypeIndex.matchEvent(theEvent, matches);
                     break;
-                }
-                catch (FilterLockBackoffException ex2) {
+                } catch (FilterLockBackoffException ex2) {
                     // retried
                 }
             }

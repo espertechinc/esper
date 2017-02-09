@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class ExprConcatNodeEvalWNew implements ExprEvaluator
-{
+public class ExprConcatNodeEvalWNew implements ExprEvaluator {
     private final ExprConcatNode parent;
     private final ExprEvaluator[] evaluators;
 
@@ -31,19 +30,23 @@ public class ExprConcatNodeEvalWNew implements ExprEvaluator
     }
 
     protected static String evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context, StringBuffer buffer, ExprEvaluator[] evaluators, ExprConcatNode parent) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprConcat(parent);}
-        for (ExprEvaluator child : evaluators)
-        {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprConcat(parent);
+        }
+        for (ExprEvaluator child : evaluators) {
             String result = (String) child.evaluate(eventsPerStream, isNewData, context);
-            if (result == null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprConcat(null);}
+            if (result == null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aExprConcat(null);
+                }
                 return null;
             }
             buffer.append(result);
         }
         String result = buffer.toString();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprConcat(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprConcat(result);
+        }
         return result;
     }
 

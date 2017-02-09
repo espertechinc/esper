@@ -26,8 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class EsperIOSocketAdapter
-{
+public class EsperIOSocketAdapter {
     private static Logger log = LoggerFactory.getLogger(EsperIOSocketAdapter.class);
 
     private final ConfigurationSocketAdapter config;
@@ -37,11 +36,11 @@ public class EsperIOSocketAdapter
 
     /**
      * Quickstart constructor.
-     * @param config configuration
+     *
+     * @param config    configuration
      * @param engineURI engine URI
      */
-    public EsperIOSocketAdapter(ConfigurationSocketAdapter config, String engineURI)
-    {
+    public EsperIOSocketAdapter(ConfigurationSocketAdapter config, String engineURI) {
         this.config = config;
         this.engineURI = engineURI;
     }
@@ -49,17 +48,14 @@ public class EsperIOSocketAdapter
     /**
      * Re-initialize.
      */
-    public void initialize()
-    {
+    public void initialize() {
     }
 
     /**
      * Start the socket endpoint.
      */
-    public synchronized void start()
-    {
-        if (log.isInfoEnabled())
-        {
+    public synchronized void start() {
+        if (log.isInfoEnabled()) {
             log.info("Starting EsperIO Socket Adapter for engine URI '" + engineURI + "'");
         }
 
@@ -86,16 +82,14 @@ public class EsperIOSocketAdapter
         for (Map.Entry<String, EsperSocketService> entry : sockets.entrySet()) {
             try {
                 entry.getValue().start(entry.getKey(), engineSPI);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 String message = "Error starting socket '" + entry.getKey() + "' port " + entry.getValue().getPort() + " :" + e.getMessage();
                 log.error(message, e);
                 throw new EPException(message, e);
             }
         }
 
-        if (log.isInfoEnabled())
-        {
+        if (log.isInfoEnabled()) {
             log.info("Completed starting EsperIO Socket Adapter for engine URI '" + engineURI + "'.");
         }
     }
@@ -103,10 +97,8 @@ public class EsperIOSocketAdapter
     /**
      * Destroy the adapter.
      */
-    public synchronized void destroy()
-    {
-        if (log.isDebugEnabled())
-        {
+    public synchronized void destroy() {
+        if (log.isDebugEnabled()) {
             log.debug("Destroying Esper Socket Adapter");
         }
 

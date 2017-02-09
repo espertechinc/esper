@@ -3,8 +3,6 @@ package com.espertech.esperio.http.core;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.http.EventLogger;
 import com.espertech.esperio.http.config.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
@@ -17,6 +15,8 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,11 +35,11 @@ public class EsperHttpServiceNIO extends EsperHttpServiceBase {
     public void start(EPServiceProviderSPI engine) {
         HttpParams parameters = new BasicHttpParams();
         parameters
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
+                .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
+                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+                .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+                .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
 
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
         httpproc.addInterceptor(new ResponseDate());
@@ -65,8 +65,7 @@ public class EsperHttpServiceNIO extends EsperHttpServiceBase {
         try {
             ioReactor = new DefaultListeningIOReactor(2, parameters);
             ioReactor.listen(new InetSocketAddress(this.getServiceConfig().getPort()));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("I/O for service '" + this.getServiceName() + "' error: " + e.getMessage());
             return;
         }

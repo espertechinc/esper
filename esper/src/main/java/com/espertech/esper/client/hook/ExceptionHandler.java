@@ -24,9 +24,10 @@ package com.espertech.esper.client.hook;
  * of an event against statements.
  */
 public interface ExceptionHandler {
-    
+
     /**
      * Handle the exception as contained in the context object passed.
+     *
      * @param context the exception information
      */
     public void handle(ExceptionHandlerContext context);

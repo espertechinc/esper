@@ -19,16 +19,16 @@ import com.espertech.esper.event.bean.BeanEventType;
 /**
  * A getter for use with Map-based events simply returns the value for the key.
  */
-public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
     private final EventAdapterService eventAdapterService;
     private final BeanEventType eventType;
 
     /**
      * Ctor.
-     * @param propertyIndex index
-     * @param eventType type of the entry returned
+     *
+     * @param propertyIndex       index
+     * @param eventType           type of the entry returned
      * @param eventAdapterService factory for event beans and event types
      */
     public ObjectArrayEntryPropertyGetter(int propertyIndex, BeanEventType eventType, EventAdapterService eventAdapterService) {
@@ -45,21 +45,17 @@ public class ObjectArrayEntryPropertyGetter implements ObjectArrayEventPropertyG
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         Object[] arr = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         return getObjectArray(arr);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
-        if (eventType == null)
-        {
+    public Object getFragment(EventBean eventBean) {
+        if (eventType == null) {
             return null;
         }
         Object result = get(eventBean);

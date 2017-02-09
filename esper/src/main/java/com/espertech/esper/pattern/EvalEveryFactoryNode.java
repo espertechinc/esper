@@ -18,15 +18,13 @@ import java.io.StringWriter;
 /**
  * This class represents an 'every' operator in the evaluation tree representing an event expression.
  */
-public class EvalEveryFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalEveryFactoryNode extends EvalNodeFactoryBase {
     private static final long serialVersionUID = 2307264285954941167L;
 
     /**
      * Ctor.
      */
-    protected EvalEveryFactoryNode()
-    {
+    protected EvalEveryFactoryNode() {
     }
 
     public EvalNode makeEvalNode(PatternAgentInstanceContext agentInstanceContext, EvalNode parentNode) {
@@ -34,8 +32,7 @@ public class EvalEveryFactoryNode extends EvalNodeFactoryBase
         return new EvalEveryNode(agentInstanceContext, this, child);
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalEveryNode children=" + this.getChildNodes().size();
     }
 

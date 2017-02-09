@@ -19,8 +19,7 @@ import java.util.Set;
 /**
  * Provides configuration operations for configuration-time and runtime parameters.
  */
-public interface ConfigurationOperations
-{
+public interface ConfigurationOperations {
     /**
      * Adds a Java package name of a package that Java event classes reside in.
      * <p>
@@ -30,12 +29,14 @@ public interface ConfigurationOperations
      * <p>
      * For example, in the statement "select * from MyEvent" the engine attempts to load class "javaPackageName.MyEvent"
      * and if successful, uses that class as the event type.
+     *
      * @param packageName is the fully-qualified Java package name of the Java package that event classes reside in
      */
     public void addEventTypeAutoName(String packageName);
 
     /**
      * Adds a plug-in aggregation multi-function.
+     *
      * @param config the configuration
      * @throws ConfigurationException is thrown to indicate a configuration problem
      */
@@ -45,7 +46,8 @@ public interface ConfigurationOperations
      * Adds a plug-in aggregation function given a EPL function name and an aggregation factory class name.
      * <p>
      * The same function name cannot be added twice.
-     * @param functionName is the new aggregation function name for use in EPL
+     *
+     * @param functionName                is the new aggregation function name for use in EPL
      * @param aggregationFactoryClassName is the fully-qualified class name of the class implementing the aggregation function factory interface {@link com.espertech.esper.client.hook.AggregationFunctionFactory}
      * @throws ConfigurationException is thrown to indicate a problem adding the aggregation function
      */
@@ -55,10 +57,11 @@ public interface ConfigurationOperations
      * Adds a plug-in single-row function given a EPL function name, a class name, method name and setting for value-cache behavior.
      * <p>
      * The same function name cannot be added twice.
+     *
      * @param functionName is the new single-row function name for use in EPL
-     * @param className is the fully-qualified class name of the class implementing the single-row function
-     * @param methodName is the public static method provided by the class that implements the single-row function
-     * @param valueCache set the behavior for caching the return value when constant parameters are provided
+     * @param className    is the fully-qualified class name of the class implementing the single-row function
+     * @param methodName   is the public static method provided by the class that implements the single-row function
+     * @param valueCache   set the behavior for caching the return value when constant parameters are provided
      * @throws ConfigurationException is thrown to indicate a problem adding the single-row function
      */
     public void addPlugInSingleRowFunction(String functionName, String className, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache) throws ConfigurationException;
@@ -67,9 +70,10 @@ public interface ConfigurationOperations
      * Adds a plug-in single-row function given a EPL function name, a class name, method name and setting for value-cache behavior.
      * <p>
      * The same function name cannot be added twice.
-     * @param functionName is the new single-row function name for use in EPL
-     * @param className is the fully-qualified class name of the class implementing the single-row function
-     * @param methodName is the public static method provided by the class that implements the single-row function
+     *
+     * @param functionName      is the new single-row function name for use in EPL
+     * @param className         is the fully-qualified class name of the class implementing the single-row function
+     * @param methodName        is the public static method provided by the class that implements the single-row function
      * @param filterOptimizable whether the single-row function, when used in filters, may be subject to reverse index lookup based on the function result
      * @throws ConfigurationException is thrown to indicate a problem adding the single-row function
      */
@@ -79,9 +83,10 @@ public interface ConfigurationOperations
      * Adds a plug-in single-row function given a EPL function name, a class name and a method name.
      * <p>
      * The same function name cannot be added twice.
+     *
      * @param functionName is the new single-row function name for use in EPL
-     * @param className is the fully-qualified class name of the class implementing the single-row function
-     * @param methodName is the public static method provided by the class that implements the single-row function
+     * @param className    is the fully-qualified class name of the class implementing the single-row function
+     * @param methodName   is the public static method provided by the class that implements the single-row function
      * @throws ConfigurationException is thrown to indicate a problem adding the single-row function
      */
     public void addPlugInSingleRowFunction(String functionName, String className, String methodName) throws ConfigurationException;
@@ -90,10 +95,11 @@ public interface ConfigurationOperations
      * Adds a plug-in single-row function given a EPL function name, a class name, method name and setting for value-cache behavior.
      * <p>
      * The same function name cannot be added twice.
-     * @param functionName is the new single-row function name for use in EPL
-     * @param className is the fully-qualified class name of the class implementing the single-row function
-     * @param methodName is the public static method provided by the class that implements the single-row function
-     * @param valueCache set the behavior for caching the return value when constant parameters are provided
+     *
+     * @param functionName      is the new single-row function name for use in EPL
+     * @param className         is the fully-qualified class name of the class implementing the single-row function
+     * @param methodName        is the public static method provided by the class that implements the single-row function
+     * @param valueCache        set the behavior for caching the return value when constant parameters are provided
      * @param filterOptimizable whether the single-row function, when used in filters, may be subject to reverse index lookup based on the function result
      * @param rethrowExceptions whether exceptions generated by the UDF are rethrown
      * @throws ConfigurationException is thrown to indicate a problem adding the single-row function
@@ -108,6 +114,7 @@ public interface ConfigurationOperations
      * <p>
      * To import a whole package and use the <code>classname.methodname(...)</code> syntax, specify a package
      * with wildcard, such as <code>com.mycompany.staticlib.*</code>.
+     *
      * @param importName is a fully-qualified class name or a package name with wildcard
      * @throws ConfigurationException if incorrect package or class names are encountered
      */
@@ -115,6 +122,7 @@ public interface ConfigurationOperations
 
     /**
      * Adds a package or class to the list of automatically-imported classes and packages for use by annotations only.
+     *
      * @param importName import such as package name, class name, or package with ".*".
      * @throws ConfigurationException if incorrect package or class names are encountered
      */
@@ -124,6 +132,7 @@ public interface ConfigurationOperations
      * Adds a class to the list of automatically-imported classes.
      * <p>
      * Use #addImport(String) to import a package.
+     *
      * @param importClass is a class to import
      * @throws ConfigurationException if incorrect package or class names are encountered
      */
@@ -131,9 +140,10 @@ public interface ConfigurationOperations
 
     /**
      * Checks if an eventTypeName has already been registered for that name.
-     * @since 2.1
+     *
      * @param eventTypeName the name
      * @return true if already registered
+     * @since 2.1
      */
     public boolean isEventTypeExists(String eventTypeName);
 
@@ -146,7 +156,8 @@ public interface ConfigurationOperations
      * Note that when adding multiple names for the same Java class the names represent an
      * alias to the same event type since event type identity for Java classes is per Java class.
      * </p>
-     * @param eventTypeName is the name for the event type
+     *
+     * @param eventTypeName  is the name for the event type
      * @param eventClassName fully-qualified class name of the event type
      * @throws ConfigurationException if the name is already in used for a different type
      */
@@ -162,8 +173,9 @@ public interface ConfigurationOperations
      * Note that when adding multiple names for the same Java class the names represent an
      * alias to the same event type since event type identity for Java classes is per Java class.
      * </p>
+     *
      * @param eventTypeName is the name for the event type
-     * @param eventClass is the Java event class for which to create the name
+     * @param eventClass    is the Java event class for which to create the name
      * @throws ConfigurationException if the name is already in used for a different type
      */
     public void addEventType(String eventTypeName, Class eventClass)
@@ -178,6 +190,7 @@ public interface ConfigurationOperations
      * <p>
      * Allows a second name to be added for the same type.
      * Does not allow the same name to be used for different types.
+     *
      * @param eventClass is the Java event class for which to create the name from the class simple name
      * @throws ConfigurationException if the name is already in used for a different type
      */
@@ -188,9 +201,10 @@ public interface ConfigurationOperations
      * <p>
      * Allows a second name to be added for the same type.
      * Does not allow the same name to be used for different types.
+     *
      * @param eventTypeName is the name for the event type
-     * @param typeMap maps the name of each property in the Map event to the type
-     * (fully qualified classname) of its value in Map event instances.
+     * @param typeMap       maps the name of each property in the Map event to the type
+     *                      (fully qualified classname) of its value in Map event instances.
      * @throws ConfigurationException if the name is already in used for a different type
      */
     public void addEventType(String eventTypeName, Properties typeMap)
@@ -198,6 +212,7 @@ public interface ConfigurationOperations
 
     /**
      * Add an event type that represents Object-array (Object[]) events.
+     *
      * @param eventTypeName is the name for the event type
      * @param propertyNames name of each property, length must match number of types
      * @param propertyTypes type of each property, length must match number of names
@@ -208,9 +223,10 @@ public interface ConfigurationOperations
 
     /**
      * Add an event type that represents Object-array (Object[]) events.
-     * @param eventTypeName is the name for the event type
-     * @param propertyNames name of each property, length must match number of types
-     * @param propertyTypes type of each property, length must match number of names
+     *
+     * @param eventTypeName         is the name for the event type
+     * @param propertyNames         name of each property, length must match number of types
+     * @param propertyTypes         type of each property, length must match number of names
      * @param optionalConfiguration object-array type configuration
      * @throws ConfigurationException if the name is already in used for a different type
      */
@@ -225,9 +241,10 @@ public interface ConfigurationOperations
      * Each entry in the type mapping must contain the String property name as the key value,
      * and either a Class, or a further Map&lt;String, Object&gt;, or the name
      * of another previously-register Map event type (append [] for array of Map).
+     *
      * @param eventTypeName is the name for the event type
-     * @param typeMap maps the name of each property in the Map event to the type
-     * (fully qualified classname) of its value in Map event instances.
+     * @param typeMap       maps the name of each property in the Map event to the type
+     *                      (fully qualified classname) of its value in Map event instances.
      * @throws ConfigurationException if the name is already in used for a different type
      */
     public void addEventType(String eventTypeName, Map<String, Object> typeMap)
@@ -241,10 +258,11 @@ public interface ConfigurationOperations
      * Each entry in the type mapping must contain the String property name as the key value,
      * and either a Class, or a further Map&lt;String, Object&gt;, or the name
      * of another previously-register Map event type (append [] for array of Map).
+     *
      * @param eventTypeName is the name for the event type
-     * @param typeMap maps the name of each property in the Map event to the type
-     * (fully qualified classname) of its value in Map event instances.
-     * @param superTypes is an array of event type name of further Map types that this
+     * @param typeMap       maps the name of each property in the Map event to the type
+     *                      (fully qualified classname) of its value in Map event instances.
+     * @param superTypes    is an array of event type name of further Map types that this
      * @throws ConfigurationException if the name is already in used for a different type
      */
     public void addEventType(String eventTypeName, Map<String, Object> typeMap, String[] superTypes)
@@ -258,10 +276,11 @@ public interface ConfigurationOperations
      * Each entry in the type mapping must contain the String property name as the key value,
      * and either a Class, or a further Map&lt;String, Object&gt;, or the name
      * of another previously-register Map event type (append [] for array of Map).
+     *
      * @param eventTypeName is the name for the event type
-     * @param typeMap maps the name of each property in the Map event to the type
-     * (fully qualified classname) of its value in Map event instances.
-     * @param mapConfig is the Map-event type configuration that may defined super-types, timestamp-property-name etc.
+     * @param typeMap       maps the name of each property in the Map event to the type
+     *                      (fully qualified classname) of its value in Map event instances.
+     * @param mapConfig     is the Map-event type configuration that may defined super-types, timestamp-property-name etc.
      * @throws ConfigurationException if the name is already in used for a different type
      */
     public void addEventType(String eventTypeName, Map<String, Object> typeMap, ConfigurationEventTypeMap mapConfig)
@@ -272,7 +291,8 @@ public interface ConfigurationOperations
      * <p>
      * Allows a second name to be added for the same type.
      * Does not allow the same name to be used for different types.
-     * @param eventTypeName is the name for the event type
+     *
+     * @param eventTypeName       is the name for the event type
      * @param xmlDOMEventTypeDesc descriptor containing property and mapping information for XML-DOM events
      * @throws ConfigurationException if the name is already in used for a different type
      */
@@ -282,15 +302,16 @@ public interface ConfigurationOperations
     /**
      * Add a global variable.
      * <p>
-     * Use the runtime API to set variable values or EPL statements to change variable values. 
-     * @param variableName name of the variable to add
-     * @param type the type name of the variable, must be a primitive or boxed Java-builtin scalar type or "object" for any
-     * value or an event type name or a class name or fully-qualified class name.  Append "[]" for array.
+     * Use the runtime API to set variable values or EPL statements to change variable values.
+     *
+     * @param variableName        name of the variable to add
+     * @param type                the type name of the variable, must be a primitive or boxed Java-builtin scalar type or "object" for any
+     *                            value or an event type name or a class name or fully-qualified class name.  Append "[]" for array.
      * @param initializationValue is the first assigned value.
-     * For static initialization via the {@link com.espertech.esper.client.Configuration} object the value can be string-typed and will be parsed.
-     * For static initialization the initialization value, if provided, must implement {@link java.io.Serializable} or {@link java.io.Externalizable}.
+     *                            For static initialization via the {@link com.espertech.esper.client.Configuration} object the value can be string-typed and will be parsed.
+     *                            For static initialization the initialization value, if provided, must implement {@link java.io.Serializable} or {@link java.io.Externalizable}.
      * @throws ConfigurationException if the type and initialization value don't match or the variable name
-     * is already in use
+     *                                is already in use
      */
     public void addVariable(String variableName, Class type, Object initializationValue) throws ConfigurationException;
 
@@ -298,14 +319,15 @@ public interface ConfigurationOperations
      * Add a global variable.
      * <p>
      * Use the runtime API to set variable values or EPL statements to change variable values.
-     * @param variableName name of the variable to add
-     * @param type the type name of the variable, must be a primitive or boxed Java-builtin scalar type or "object" for any
-     * value or an event type name or a class name or fully-qualified class name.  Append "[]" for array.
+     *
+     * @param variableName        name of the variable to add
+     * @param type                the type name of the variable, must be a primitive or boxed Java-builtin scalar type or "object" for any
+     *                            value or an event type name or a class name or fully-qualified class name.  Append "[]" for array.
      * @param initializationValue is the first assigned value
-     * For static initialization via the {@link com.espertech.esper.client.Configuration} object the value can be string-typed and will be parsed.
-     * For static initialization the initialization value, if provided, must implement {@link java.io.Serializable} or {@link java.io.Externalizable}.
+     *                            For static initialization via the {@link com.espertech.esper.client.Configuration} object the value can be string-typed and will be parsed.
+     *                            For static initialization the initialization value, if provided, must implement {@link java.io.Serializable} or {@link java.io.Externalizable}.
      * @throws ConfigurationException if the type and initialization value don't match or the variable name
-     * is already in use
+     *                                is already in use
      */
     public void addVariable(String variableName, String type, Object initializationValue) throws ConfigurationException;
 
@@ -313,15 +335,16 @@ public interface ConfigurationOperations
      * Add a global variable, allowing constants.
      * <p>
      * Use the runtime API to set variable values or EPL statements to change variable values.
-     * @param variableName name of the variable to add
-     * @param type the type name of the variable, must be a primitive or boxed Java-builtin scalar type or "object" for any
-     * value or an event type name or a class name or fully-qualified class name.  Append "[]" for array.
+     *
+     * @param variableName        name of the variable to add
+     * @param type                the type name of the variable, must be a primitive or boxed Java-builtin scalar type or "object" for any
+     *                            value or an event type name or a class name or fully-qualified class name.  Append "[]" for array.
      * @param initializationValue is the first assigned value
-     * For static initialization via the {@link com.espertech.esper.client.Configuration} object the value can be string-typed and will be parsed.
-     * For static initialization the initialization value, if provided, must implement {@link java.io.Serializable} or {@link java.io.Externalizable}.
-     * @param constant true to identify the variable as a constant
+     *                            For static initialization via the {@link com.espertech.esper.client.Configuration} object the value can be string-typed and will be parsed.
+     *                            For static initialization the initialization value, if provided, must implement {@link java.io.Serializable} or {@link java.io.Externalizable}.
+     * @param constant            true to identify the variable as a constant
      * @throws ConfigurationException if the type and initialization value don't match or the variable name
-     * is already in use
+     *                                is already in use
      */
     public void addVariable(String variableName, String type, Object initializationValue, boolean constant) throws ConfigurationException;
 
@@ -332,9 +355,10 @@ public interface ConfigurationOperations
      * <p>
      * URIs can be child URIs of plug-in event representations and can add additional parameters or fragments
      * for use by the event representation.
-     * @param eventTypeName is the name of the event type
+     *
+     * @param eventTypeName  is the name of the event type
      * @param resolutionURIs is URIs that are matched to registered event representations
-     * @param initializer is an optional value for parameterizing or configuring the event type
+     * @param initializer    is an optional value for parameterizing or configuring the event type
      */
     public void addPlugInEventType(String eventTypeName, URI[] resolutionURIs, Serializable initializer);
 
@@ -346,6 +370,7 @@ public interface ConfigurationOperations
      * <p>
      * URIs can be child URIs of plug-in event representations and can add additional parameters or fragments
      * for use by the event representation.
+     *
      * @param urisToResolveName URIs for resolving the name
      */
     public void setPlugInEventTypeResolutionURIs(URI[] urisToResolveName);
@@ -353,14 +378,16 @@ public interface ConfigurationOperations
     /**
      * Adds an revision event type. The name of the event type may be used with named windows
      * to indicate that updates or new versions of events are processed.
-     * @param revisioneventTypeName the name of the revision event type
-     * @param revisionEventTypeConfig the configuration 
+     *
+     * @param revisioneventTypeName   the name of the revision event type
+     * @param revisionEventTypeConfig the configuration
      */
     public void addRevisionEventType(String revisioneventTypeName, ConfigurationRevisionEventType revisionEventTypeConfig);
 
     /**
      * Adds a new variant stream. Variant streams allow events of disparate types to be treated the same.
-     * @param variantStreamName is the name of the variant stream
+     *
+     * @param variantStreamName   is the name of the variant stream
      * @param variantStreamConfig the configuration such as variant type names and any-type setting
      */
     public void addVariantStream(String variantStreamName, ConfigurationVariantStream variantStreamConfig);
@@ -377,24 +404,27 @@ public interface ConfigurationOperations
      * <p>
      * Map event types can only be updated at runtime, at configuration time updates are not allowed.
      * <p>
-     * The type Map may list previously declared properties or can also contain only the new properties to be added. 
+     * The type Map may list previously declared properties or can also contain only the new properties to be added.
+     *
      * @param mapeventTypeName the name of the map event type to update
-     * @param typeMap a Map of string property name and type
+     * @param typeMap          a Map of string property name and type
      * @throws ConfigurationException if the event type name could not be found or is not a Map
      */
     public void updateMapEventType(String mapeventTypeName, Map<String, Object> typeMap) throws ConfigurationException;
 
     /**
      * Returns true if a variant stream by the name has been declared, or false if not.
+     *
      * @param name of variant stream
-     * @return indicator whether the variant stream by that name exists 
+     * @return indicator whether the variant stream by that name exists
      */
     public boolean isVariantStreamExists(String name);
 
     /**
      * Sets a new interval for metrics reporting for a pre-configured statement group, or changes
      * the default statement reporting interval if supplying a null value for the statement group name.
-     * @param stmtGroupName name of statement group, provide a null value for the default statement interval (default group) 
+     *
+     * @param stmtGroupName   name of statement group, provide a null value for the default statement interval (default group)
      * @param newIntervalMSec millisecond interval, use zero or negative value to disable
      * @throws ConfigurationException if the statement group cannot be found
      */
@@ -409,6 +439,7 @@ public interface ConfigurationOperations
      * <p>
      * Only if metrics reporting (on the engine level) has been enabled at initialization time
      * can statement-level metrics reporting be enabled through this method.
+     *
      * @param statementName for which to enable metrics reporting
      * @throws ConfigurationException if the statement cannot be found
      */
@@ -416,6 +447,7 @@ public interface ConfigurationOperations
 
     /**
      * Disable metrics reporting for a given statement.
+     *
      * @param statementName for which to disable metrics reporting
      * @throws ConfigurationException if the statement cannot be found
      */
@@ -428,6 +460,7 @@ public interface ConfigurationOperations
      * <p>
      * Only if metrics reporting (on the engine level) has been enabled at initialization time
      * can metrics reporting be re-enabled at runtime through this method.
+     *
      * @throws ConfigurationException if use at runtime and metrics reporting had not been enabled at initialization time
      */
     public void setMetricsReportingEnabled() throws ConfigurationException;
@@ -437,6 +470,7 @@ public interface ConfigurationOperations
      * <p>
      * Use this operation to control, at runtime, metrics reporting globally. Setting metrics reporting
      * to disabled removes all performance cost for metrics reporting.
+     *
      * @throws ConfigurationException if use at runtime and metrics reporting had not been enabled at initialization time
      */
     public void setMetricsReportingDisabled() throws ConfigurationException;
@@ -456,11 +490,12 @@ public interface ConfigurationOperations
      * not well defined. It is recommended to destroy statements that use the type before removing the type.
      * Use #geteventTypeNameUsedBy to obtain a list of statements that use a type.
      * <p>
-     * The method can be used for event types implicitly created for insert-into streams and for named windows. 
+     * The method can be used for event types implicitly created for insert-into streams and for named windows.
      * The method does not remove variant streams and does not remove revision event types.
-     * @param name the name of the event type to remove
+     *
+     * @param name  the name of the event type to remove
      * @param force false to include a check that the type is no longer in use, true to force the remove
-     * even though there can be one or more statements relying on that type
+     *              even though there can be one or more statements relying on that type
      * @return indicator whether the event type was found and removed
      * @throws ConfigurationException thrown to indicate that the remove operation failed
      */
@@ -472,6 +507,7 @@ public interface ConfigurationOperations
      * <p>
      * A reference counts as any mention of the event type in a from-clause, a pattern, a insert-into or
      * as part of on-trigger.
+     *
      * @param eventTypeName name of the event type
      * @return statement names referencing that type
      */
@@ -482,6 +518,7 @@ public interface ConfigurationOperations
      * that reference the given variable name.
      * <p>
      * A reference counts as any mention of the variable in any expression.
+     *
      * @param variableName name of the variable
      * @return statement names referencing that variable
      */
@@ -502,9 +539,10 @@ public interface ConfigurationOperations
      * It is recommended to destroy statements that use the variable before removing the variable.
      * Use #getVariableNameUsedBy to obtain a list of statements that use a variable.
      * <p>
-     * @param name the name of the variable to remove
+     *
+     * @param name  the name of the variable to remove
      * @param force false to include a check that the variable is no longer in use, true to force the remove
-     * even though there can be one or more statements relying on that variable
+     *              even though there can be one or more statements relying on that variable
      * @return indicator whether the variable was found and removed
      * @throws ConfigurationException thrown to indicate that the remove operation failed
      */
@@ -523,8 +561,9 @@ public interface ConfigurationOperations
      * <p>
      * If an existing EPL statement exists that refers to the event type then changes to the event type
      * do not become visible for those existing statements.
+     *
      * @param xmlEventTypeName the name of the XML event type
-     * @param config the new type configuration
+     * @param config           the new type configuration
      * @throws ConfigurationException thrown when the type information change failed
      */
     public void replaceXMLEventType(String xmlEventTypeName, ConfigurationEventTypeXMLDOM config) throws ConfigurationException;
@@ -533,6 +572,7 @@ public interface ConfigurationOperations
      * Returns the event type for a given event type name. Returns null if a type by that name does not exist.
      * <p>
      * This operation is not available for static configuration and is only available for runtime use.
+     *
      * @param eventTypeName to return event type for
      * @return event type or null if a type by that name does not exists
      */
@@ -546,6 +586,7 @@ public interface ConfigurationOperations
      * depending on the statement, are considered anonymous.
      * <p>
      * This operation is not available for static configuration and is only available for runtime use.
+     *
      * @return event type array
      */
     public EventType[] getEventTypes();
@@ -558,16 +599,18 @@ public interface ConfigurationOperations
      * Note that when adding multiple names for the same Java class the names represent an
      * alias to the same event type since event type identity for Java classes is per Java class.
      * </p>
-     * @param eventTypeName is the name for the event type
-     * @param eventClass fully-qualified class name of the event type
+     *
+     * @param eventTypeName       is the name for the event type
+     * @param eventClass          fully-qualified class name of the event type
      * @param legacyEventTypeDesc descriptor containing property and mapping information for Legacy Java type events
      */
     public void addEventType(String eventTypeName, String eventClass, ConfigurationEventTypeLegacy legacyEventTypeDesc);
 
     /**
      * Add a new plug-in view for use as a data window or derived value view.
-     * @param namespace view namespace name
-     * @param name view name
+     *
+     * @param namespace        view namespace name
+     * @param name             view name
      * @param viewFactoryClass factory class of view
      */
     public void addPlugInView(String namespace, String name, String viewFactoryClass);
@@ -576,6 +619,7 @@ public interface ConfigurationOperations
      * Set the current maximum pattern sub-expression count.
      * <p>
      * Use null to indicate that there is no current maximum.
+     *
      * @param maxSubexpressions to set
      */
     public void setPatternMaxSubexpressions(Long maxSubexpressions);
@@ -584,6 +628,7 @@ public interface ConfigurationOperations
      * Set the current maximum match-recognize state count.
      * <p>
      * Use null to indicate that there is no current maximum.
+     *
      * @param maxStates to set
      */
     public void setMatchRecognizeMaxStates(Long maxStates);
@@ -598,7 +643,8 @@ public interface ConfigurationOperations
      * Object-array event types can only be updated at runtime, at configuration time updates are not allowed.
      * <p>
      * The type properties may list previously declared properties or can also contain only the new properties to be added.
-     * @param myEvent the name of the object-array event type to update
+     *
+     * @param myEvent  the name of the object-array event type to update
      * @param namesNew property names
      * @param typesNew property types
      * @throws ConfigurationException if the event type name could not be found or is not a Map

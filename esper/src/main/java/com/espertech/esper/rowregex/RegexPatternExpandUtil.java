@@ -43,7 +43,8 @@ public class RegexPatternExpandUtil {
                     return -1;
                 }
                 return o1.getLevel() == o2.getLevel() ? 0 : 1;
-            }});
+            }
+        });
         for (RowRegexExprNodeVisitorRepeat.RowRegexPermuteDesc permute : permutes) {
             RowRegexExprNodeAlteration alteration = expandPermute(permute.getPermute());
             RowRegexExprNode optionalNewParent = replace(permute.getOptionalParent(), permute.getPermute(), Collections.<RowRegexExprNode>singletonList(alteration));
@@ -71,7 +72,8 @@ public class RegexPatternExpandUtil {
                     return -1;
                 }
                 return o1.getLevel() == o2.getLevel() ? 0 : 1;
-            }});
+            }
+        });
         for (RowRegexExprNodeVisitorRepeat.RowRegexNestedDesc pair : nestedPairs) {
             RowRegexExprNodeNested nested = pair.getNested();
             List<RowRegexExprNode> expandedRepeat = expandRepeat(nested, nested.getOptionalRepeat(), nested.getType(), NESTED_HANDLER);
@@ -113,9 +115,8 @@ public class RegexPatternExpandUtil {
             RowRegexExprNodeConcatenation concatenation = new RowRegexExprNodeConcatenation();
             concatenation.getChildNodes().addAll(expandedRepeat);
             optionalParent.replaceChildNode(originalNode, Collections.<RowRegexExprNode>singletonList(concatenation));
-        }
-        // concatenations are simply changed
-        else {
+        } else {
+            // concatenations are simply changed
             optionalParent.replaceChildNode(originalNode, expandedRepeat);
         }
 
@@ -165,11 +166,9 @@ public class RegexPatternExpandUtil {
                 RegexNFATypeEnum newType = type;
                 if (type == RegexNFATypeEnum.SINGLE) {
                     newType = RegexNFATypeEnum.ONE_OPTIONAL;
-                }
-                else if (type == RegexNFATypeEnum.ONE_TO_MANY) {
+                } else if (type == RegexNFATypeEnum.ONE_TO_MANY) {
                     newType = RegexNFATypeEnum.ZERO_TO_MANY;
-                }
-                else if (type == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
+                } else if (type == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
                     newType = RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
                 }
                 RowRegexExprNode copy = copier.copy(node, newType);
@@ -189,17 +188,13 @@ public class RegexPatternExpandUtil {
             RegexNFATypeEnum newType = type;
             if (type == RegexNFATypeEnum.SINGLE) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY;
-            }
-            else if (type == RegexNFATypeEnum.ONE_OPTIONAL) {
+            } else if (type == RegexNFATypeEnum.ONE_OPTIONAL) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY;
-            }
-            else if (type == RegexNFATypeEnum.ONE_OPTIONAL_RELUCTANT) {
+            } else if (type == RegexNFATypeEnum.ONE_OPTIONAL_RELUCTANT) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
-            }
-            else if (type == RegexNFATypeEnum.ONE_TO_MANY) {
+            } else if (type == RegexNFATypeEnum.ONE_TO_MANY) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY;
-            }
-            else if (type == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
+            } else if (type == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
             }
             RowRegexExprNode copy = copier.copy(node, newType);
@@ -214,11 +209,9 @@ public class RegexPatternExpandUtil {
             RegexNFATypeEnum newType = type;
             if (type == RegexNFATypeEnum.SINGLE) {
                 newType = RegexNFATypeEnum.ONE_OPTIONAL;
-            }
-            else if (type == RegexNFATypeEnum.ONE_TO_MANY) {
+            } else if (type == RegexNFATypeEnum.ONE_TO_MANY) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY;
-            }
-            else if (type == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
+            } else if (type == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT) {
                 newType = RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT;
             }
             RowRegexExprNode copy = copier.copy(node, newType);
@@ -230,8 +223,7 @@ public class RegexPatternExpandUtil {
     private static RowRegexExprNode checkedCopy(RowRegexExprNode inner) {
         try {
             return (RowRegexExprNode) SerializableObjectCopier.copy(inner);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new EPException("Failed to repeat nested match-recognize: " + e.getMessage(), e);
         }
     }

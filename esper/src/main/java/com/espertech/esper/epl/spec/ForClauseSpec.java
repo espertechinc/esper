@@ -13,27 +13,23 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ForClauseSpec implements MetaDefItem, Serializable
-{
+public class ForClauseSpec implements MetaDefItem, Serializable {
     private static final long serialVersionUID = -8529660985454535028L;
-    
+
     private List<ForClauseItemSpec> clauses;
 
-    public ForClauseSpec()
-    {
+    public ForClauseSpec() {
         clauses = new ArrayList<ForClauseItemSpec>();
     }
 
-    public List<ForClauseItemSpec> getClauses()
-    {
+    public List<ForClauseItemSpec> getClauses() {
         return clauses;
     }
 
-    public void setClauses(List<ForClauseItemSpec> clauses)
-    {
+    public void setClauses(List<ForClauseItemSpec> clauses) {
         this.clauses = clauses;
     }
 }

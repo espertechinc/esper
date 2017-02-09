@@ -14,9 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.ExpressionResultCacheService;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementType;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.schedule.TimeProvider;
 
 public class SupportExprEvaluatorContext implements ExprEvaluatorContext {

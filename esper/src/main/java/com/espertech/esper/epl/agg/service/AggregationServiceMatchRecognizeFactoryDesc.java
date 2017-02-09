@@ -12,8 +12,7 @@ package com.espertech.esper.epl.agg.service;
 
 import java.util.List;
 
-public class AggregationServiceMatchRecognizeFactoryDesc
-{
+public class AggregationServiceMatchRecognizeFactoryDesc {
     private final AggregationServiceMatchRecognizeFactory aggregationServiceFactory;
     private final List<AggregationServiceAggExpressionDesc> expressions;
 

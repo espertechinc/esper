@@ -20,8 +20,9 @@ public class VirtualDataWindowEventStopIndex extends VirtualDataWindowEvent {
 
     /**
      * Ctor.
+     *
      * @param namedWindowName named window name
-     * @param indexName index name
+     * @param indexName       index name
      */
     public VirtualDataWindowEventStopIndex(String namedWindowName, String indexName) {
         this.namedWindowName = namedWindowName;
@@ -30,6 +31,7 @@ public class VirtualDataWindowEventStopIndex extends VirtualDataWindowEvent {
 
     /**
      * Returns the index name.
+     *
      * @return index name
      */
     public String getIndexName() {
@@ -38,6 +40,7 @@ public class VirtualDataWindowEventStopIndex extends VirtualDataWindowEvent {
 
     /**
      * Returns the named window name.
+     *
      * @return named window name
      */
     public String getNamedWindowName() {

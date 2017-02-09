@@ -10,11 +10,7 @@
  */
 package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.core.service.EPServicesContext;
-
-public abstract class ContextControllerFactoryBase implements ContextControllerFactory
-{
+public abstract class ContextControllerFactoryBase implements ContextControllerFactory {
     protected final ContextControllerFactoryContext factoryContext;
 
     protected ContextControllerFactoryBase(ContextControllerFactoryContext factoryContext) {

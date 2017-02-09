@@ -15,17 +15,14 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierVisitor;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import junit.framework.TestCase;
 
-public class TestExprNodeIdentifierVisitor extends TestCase
-{
+public class TestExprNodeIdentifierVisitor extends TestCase {
     private ExprNode exprNode;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         exprNode = SupportExprNodeFactory.makeMathNode();
     }
 
-    public void testVisit() throws Exception
-    {
+    public void testVisit() throws Exception {
         // test without aggregation nodes
         ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(false);
         exprNode.accept(visitor);

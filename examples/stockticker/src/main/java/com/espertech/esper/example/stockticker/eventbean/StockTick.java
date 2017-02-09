@@ -10,30 +10,25 @@
  */
 package com.espertech.esper.example.stockticker.eventbean;
 
-public class StockTick
-{
+public class StockTick {
     private String stockSymbol;
     private double price;
 
-    public StockTick(String stockSymbol, double price)
-    {
+    public StockTick(String stockSymbol, double price) {
         this.stockSymbol = stockSymbol;
         this.price = price;
     }
 
-    public String getStockSymbol()
-    {
+    public String getStockSymbol() {
         return stockSymbol;
     }
 
-    public double getPrice()
-    {
+    public double getPrice() {
         return price;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "stockSymbol=" + stockSymbol +
-               "  price=" + price;
+                "  price=" + price;
     }
 }

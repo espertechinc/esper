@@ -21,7 +21,10 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.view.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This view includes only the most recent among events having the same value for the specified field or fields.
@@ -39,69 +42,61 @@ import java.util.*;
  * The type of the field returning the unique value can be any type but should override equals and hashCode()
  * as the type plays the role of a key in a map storing unique values.
  */
-public class UniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView
-{
+public class UniqueByPropertyView extends ViewSupport implements CloneableView, DataWindowView {
     private final UniqueByPropertyViewFactory viewFactory;
     protected final ExprEvaluator[] criteriaExpressionsEvals;
     protected final Map<Object, EventBean> mostRecentEvents = new HashMap<Object, EventBean>();
     private final EventBean[] eventsPerStream = new EventBean[1];
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
 
-    public UniqueByPropertyView(UniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public UniqueByPropertyView(UniqueByPropertyViewFactory viewFactory, AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         this.viewFactory = viewFactory;
         this.criteriaExpressionsEvals = ExprNodeUtility.getEvaluators(viewFactory.criteriaExpressions);
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new UniqueByPropertyView(viewFactory, agentInstanceViewFactoryContext);
     }
 
     /**
      * Returns the name of the field supplying the unique value to keep the most recent record for.
+     *
      * @return expressions for unique value
      */
-    public final ExprNode[] getCriteriaExpressions()
-    {
+    public final ExprNode[] getCriteriaExpressions() {
         return viewFactory.criteriaExpressions;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, UniqueByPropertyViewFactory.NAME, newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, UniqueByPropertyViewFactory.NAME, newData, oldData);
+        }
         OneEventCollection postOldData = null;
 
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             postOldData = new OneEventCollection();
         }
 
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 // Obtain unique value
                 Object key = getUniqueKey(newData[i]);
 
                 // If there are no child views, just update the own collection
-                if (!this.hasViews())
-                {
+                if (!this.hasViews()) {
                     mostRecentEvents.put(key, newData[i]);
                     continue;
                 }
 
                 // Post the last value as old data
                 EventBean lastValue = mostRecentEvents.get(key);
-                if (lastValue != null)
-                {
+                if (lastValue != null) {
                     postOldData.add(lastValue);
                 }
 
@@ -110,17 +105,14 @@ public class UniqueByPropertyView extends ViewSupport implements CloneableView, 
             }
         }
 
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 // Obtain unique value
                 Object key = getUniqueKey(oldData[i]);
 
                 // If the old event is the current unique event, remove and post as old data
                 EventBean lastValue = mostRecentEvents.get(key);
-                if (lastValue == null || !lastValue.equals(oldData[i]))
-                {
+                if (lastValue == null || !lastValue.equals(oldData[i])) {
                     continue;
                 }
 
@@ -131,54 +123,56 @@ public class UniqueByPropertyView extends ViewSupport implements CloneableView, 
 
 
         // If there are child views, fireStatementStopped update method
-        if (this.hasViews())
-        {
-            if (postOldData.isEmpty())
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, UniqueByPropertyViewFactory.NAME, newData, null);}
+        if (this.hasViews()) {
+            if (postOldData.isEmpty()) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, UniqueByPropertyViewFactory.NAME, newData, null);
+                }
                 updateChildren(newData, null);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
-            }
-            else
-            {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
+            } else {
                 EventBean[] postOldDataArray = postOldData.toArray();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, UniqueByPropertyViewFactory.NAME, newData, postOldDataArray);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, UniqueByPropertyViewFactory.NAME, newData, postOldDataArray);
+                }
                 updateChildren(newData, postOldDataArray);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     /**
      * Returns true if the view is empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return mostRecentEvents.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return mostRecentEvents.values().iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " uniqueFieldNames=" + Arrays.toString(viewFactory.criteriaExpressions);
     }
 
-    protected Object getUniqueKey(EventBean theEvent)
-    {
+    protected Object getUniqueKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
         if (criteriaExpressionsEvals.length == 1) {
             return criteriaExpressionsEvals[0].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
 
         Object[] values = new Object[criteriaExpressionsEvals.length];
-        for (int i = 0; i < criteriaExpressionsEvals.length; i++)
-        {
+        for (int i = 0; i < criteriaExpressionsEvals.length; i++) {
             values[i] = criteriaExpressionsEvals[i].evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
         }
         return new MultiKeyUntyped(values);

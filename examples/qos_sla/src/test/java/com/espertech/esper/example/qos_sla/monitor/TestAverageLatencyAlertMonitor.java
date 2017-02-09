@@ -1,15 +1,15 @@
 package com.espertech.esper.example.qos_sla.monitor;
 
-import com.espertech.esper.example.qos_sla.eventbean.*;
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 import junit.framework.TestCase;
 
-public class TestAverageLatencyAlertMonitor extends TestCase
-{
+public class TestAverageLatencyAlertMonitor extends TestCase {
     private EPRuntime runtime;
 
-    public void setUp()
-    {
+    public void setUp() {
         // This code runs as part of the automated regression test suite; Therefore disable internal timer theading to safe resources
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
@@ -18,15 +18,12 @@ public class TestAverageLatencyAlertMonitor extends TestCase
         runtime = EPServiceProviderManager.getDefaultProvider(config).getEPRuntime();
     }
 
-    public void testLatencyAlert()
-    {
+    public void testLatencyAlert() {
         String services[] = {"s0", "s1", "s2"};
         String customers[] = {"c0", "c1", "c2"};
 
-        for (int i = 0; i < 100; i++)
-        {
-            for (int index = 0; index < services.length; index++)
-            {
+        for (int i = 0; i < 100; i++) {
+            for (int index = 0; index < services.length; index++) {
                 OperationMeasurement measurement = new OperationMeasurement(services[index], customers[index],
                         9950 + i, true);
                 runtime.sendEvent(measurement);

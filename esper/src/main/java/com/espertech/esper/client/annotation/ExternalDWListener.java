@@ -13,16 +13,17 @@ package com.espertech.esper.client.annotation;
 /**
  * Annotation for configuring external data window listeners.
  */
-public @interface ExternalDWListener
-{
+public @interface ExternalDWListener {
     /**
      * Returns indicator whether a listener thread is required or not.
+     *
      * @return indicator
      */
     boolean threaded() default true;
 
     /**
      * Returns indicator the number of listener threads.
+     *
      * @return number of threads
      */
     int numThreads() default 1;

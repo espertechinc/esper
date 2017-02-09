@@ -13,8 +13,7 @@ package com.espertech.esper.client;
 /**
  * Enumerates all statement states.
  */
-public enum EPStatementState
-{
+public enum EPStatementState {
     /**
      * Started state.
      */

@@ -10,18 +10,17 @@
  */
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
-import org.w3c.dom.Node;
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.event.EventAdapterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 
 /**
  * Fragment factory for use with XPath explicit properties.
  */
-public class FragmentFactoryXPathPredefinedGetter implements FragmentFactory
-{
+public class FragmentFactoryXPathPredefinedGetter implements FragmentFactory {
     private static final Logger log = LoggerFactory.getLogger(FragmentFactoryXPathPredefinedGetter.class);
 
     private final EventAdapterService eventAdapterService;
@@ -32,29 +31,25 @@ public class FragmentFactoryXPathPredefinedGetter implements FragmentFactory
 
     /**
      * Ctor.
+     *
      * @param eventAdapterService for event type lookup
-     * @param eventTypeName name to look up
-     * @param propertyName property
+     * @param eventTypeName       name to look up
+     * @param propertyName        property
      */
-    public FragmentFactoryXPathPredefinedGetter(EventAdapterService eventAdapterService, String eventTypeName, String propertyName)
-    {
+    public FragmentFactoryXPathPredefinedGetter(EventAdapterService eventAdapterService, String eventTypeName, String propertyName) {
         this.eventAdapterService = eventAdapterService;
         this.eventTypeName = eventTypeName;
         this.propertyName = propertyName;
     }
 
-    public EventBean getEvent(Node result)
-    {
-        if (eventType == null)
-        {
+    public EventBean getEvent(Node result) {
+        if (eventType == null) {
             EventType candidateEventType = eventAdapterService.getExistsTypeByName(eventTypeName);
-            if (candidateEventType == null)
-            {
+            if (candidateEventType == null) {
                 log.warn("Event type by name '" + eventTypeName + "' was not found for property '" + propertyName + "'");
                 return null;
             }
-            if (!(candidateEventType instanceof BaseXMLEventType))
-            {
+            if (!(candidateEventType instanceof BaseXMLEventType)) {
                 log.warn("Event type by name '" + eventTypeName + "' is not an XML event type for property '" + propertyName + "'");
                 return null;
             }

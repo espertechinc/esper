@@ -19,6 +19,7 @@ public interface ContextPartitionSelectorById extends ContextPartitionSelector {
 
     /**
      * Return the context partition ids to select.
+     *
      * @return id set
      */
     public Set<Integer> getContextPartitionIds();

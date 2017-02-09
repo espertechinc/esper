@@ -12,11 +12,7 @@ package com.espertech.esper.core.context.stmt;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.ArrayWrap;
-import com.espertech.esper.epl.agg.service.AggregationRowRemovedCallback;
-import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.agg.service.AggregationServiceVisitor;
-import com.espertech.esper.epl.agg.service.AggregationServiceVisitorWGroupDetail;
-import com.espertech.esper.epl.agg.service.AggregationGroupByRollupLevel;
+import com.espertech.esper.epl.agg.service.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;

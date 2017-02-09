@@ -11,6 +11,8 @@
 package com.espertech.esper.supportunit.epl.parse;
 
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
@@ -19,8 +21,6 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.supportunit.bean.SupportBean_N;
-import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -34,15 +34,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringReader;
 
-public class SupportParserHelper
-{
-    public static EPLTreeWalkerListener parseAndWalkEPL(String expression) throws Exception
-    {
+public class SupportParserHelper {
+    public static EPLTreeWalkerListener parseAndWalkEPL(String expression) throws Exception {
         return parseAndWalkEPL(expression, SupportEngineImportServiceFactory.make(), new VariableServiceImpl(0, null, SupportEventAdapterService.getService(), null));
     }
 
-    public static EPLTreeWalkerListener parseAndWalkEPL(String expression, EngineImportService engineImportService, VariableService variableService) throws Exception
-    {
+    public static EPLTreeWalkerListener parseAndWalkEPL(String expression, EngineImportService engineImportService, VariableService variableService) throws Exception {
         log.debug(".parseAndWalk Trying text=" + expression);
         Pair<Tree, CommonTokenStream> ast = SupportParserHelper.parseEPL(expression);
         log.debug(".parseAndWalk success, tree walking...");
@@ -57,8 +54,7 @@ public class SupportParserHelper
         return listener;
     }
 
-    public static EPLTreeWalkerListener parseAndWalkPattern(String expression) throws Exception
-    {
+    public static EPLTreeWalkerListener parseAndWalkPattern(String expression) throws Exception {
         log.debug(".parseAndWalk Trying text=" + expression);
         Pair<Tree, CommonTokenStream> ast = SupportParserHelper.parsePattern(expression);
         log.debug(".parseAndWalk success, tree walking...");
@@ -70,71 +66,54 @@ public class SupportParserHelper
         return listener;
     }
 
-    public static void displayAST(Tree ast) throws Exception
-    {
+    public static void displayAST(Tree ast) throws Exception {
         log.debug(".displayAST...");
         if (log.isDebugEnabled()) {
             ASTUtil.dumpAST(ast);
         }
     }
 
-    public static Pair<Tree, CommonTokenStream> parsePattern(String text) throws Exception
-    {
-        ParseRuleSelector startRuleSelector = new ParseRuleSelector()
-        {
-            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException
-            {
+    public static Pair<Tree, CommonTokenStream> parsePattern(String text) throws Exception {
+        ParseRuleSelector startRuleSelector = new ParseRuleSelector() {
+            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startPatternExpressionRule();
             }
         };
         return parse(startRuleSelector, text);
     }
 
-    public static Pair<Tree, CommonTokenStream> parseEPL(String text) throws Exception
-    {
-        ParseRuleSelector startRuleSelector = new ParseRuleSelector()
-        {
-            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException
-            {
+    public static Pair<Tree, CommonTokenStream> parseEPL(String text) throws Exception {
+        ParseRuleSelector startRuleSelector = new ParseRuleSelector() {
+            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startEPLExpressionRule();
             }
         };
         return parse(startRuleSelector, text);
     }
 
-    public static Pair<Tree, CommonTokenStream> parseEventProperty(String text) throws Exception
-    {
-        ParseRuleSelector startRuleSelector = new ParseRuleSelector()
-        {
-            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException
-            {
+    public static Pair<Tree, CommonTokenStream> parseEventProperty(String text) throws Exception {
+        ParseRuleSelector startRuleSelector = new ParseRuleSelector() {
+            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startEventPropertyRule();
             }
         };
         return parse(startRuleSelector, text);
     }
 
-    public static Pair<Tree, CommonTokenStream> parseJson(String text) throws Exception
-    {
-        ParseRuleSelector startRuleSelector = new ParseRuleSelector()
-        {
-            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException
-            {
+    public static Pair<Tree, CommonTokenStream> parseJson(String text) throws Exception {
+        ParseRuleSelector startRuleSelector = new ParseRuleSelector() {
+            public ParserRuleContext invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startJsonValueRule();
             }
         };
         return parse(startRuleSelector, text);
     }
 
-    public static Pair<Tree, CommonTokenStream> parse(ParseRuleSelector parseRuleSelector, String text) throws Exception
-    {
+    public static Pair<Tree, CommonTokenStream> parse(ParseRuleSelector parseRuleSelector, String text) throws Exception {
         CharStream input;
-        try
-        {
+        try {
             input = new NoCaseSensitiveStream(new StringReader(text));
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new RuntimeException("IOException parsing text '" + text + '\'', ex);
         }
 

@@ -13,12 +13,12 @@ package com.espertech.esper.view;
 /**
  * Views that can work under a group-by must be able to duplicate and are required to implement this interface.
  */
-public interface CloneableView
-{
+public interface CloneableView {
     /**
      * Duplicates the view.
      * <p>
      * Expected to return a same view in initialized state for grouping.
+     *
      * @return cloned view
      */
     public View cloneView();

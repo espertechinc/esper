@@ -24,9 +24,10 @@ public class ConditionHandlerContext {
 
     /**
      * Ctor.
-     * @param engineURI engine URI
-     * @param statementName statement name
-     * @param epl statement EPL expression text
+     *
+     * @param engineURI       engine URI
+     * @param statementName   statement name
+     * @param epl             statement EPL expression text
      * @param engineCondition condition reported
      */
     public ConditionHandlerContext(String engineURI, String statementName, String epl, BaseCondition engineCondition) {
@@ -38,6 +39,7 @@ public class ConditionHandlerContext {
 
     /**
      * Returns the engine URI.
+     *
      * @return engine URI
      */
     public String getEngineURI() {
@@ -46,6 +48,7 @@ public class ConditionHandlerContext {
 
     /**
      * Returns the statement name, if provided, or the statement id assigned to the statement if no name was provided.
+     *
      * @return statement name or id
      */
     public String getStatementName() {
@@ -54,6 +57,7 @@ public class ConditionHandlerContext {
 
     /**
      * Returns the expression text of the statement.
+     *
      * @return statement.
      */
     public String getEpl() {
@@ -62,6 +66,7 @@ public class ConditionHandlerContext {
 
     /**
      * Returns the condition reported.
+     *
      * @return condition reported
      */
     public BaseCondition getEngineCondition() {

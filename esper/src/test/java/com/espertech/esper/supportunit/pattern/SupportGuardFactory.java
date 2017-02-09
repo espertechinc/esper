@@ -22,10 +22,8 @@ import com.espertech.esper.pattern.guard.Quitable;
 
 import java.util.List;
 
-public class SupportGuardFactory implements GuardFactory
-{
-    public void setGuardParameters(List<ExprNode> guardParameters, MatchedEventConvertor convertor) throws GuardParameterException
-    {
+public class SupportGuardFactory implements GuardFactory {
+    public void setGuardParameters(List<ExprNode> guardParameters, MatchedEventConvertor convertor) throws GuardParameterException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

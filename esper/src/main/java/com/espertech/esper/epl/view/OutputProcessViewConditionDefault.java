@@ -24,7 +24,9 @@ import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * A view that prepares output events, batching incoming

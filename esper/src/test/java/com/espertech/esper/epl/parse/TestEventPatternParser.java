@@ -19,10 +19,8 @@ import org.antlr.v4.runtime.tree.Tree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestEventPatternParser extends TestCase
-{
-    public void testDisplayAST() throws Exception
-    {
+public class TestEventPatternParser extends TestCase {
+    public void testDisplayAST() throws Exception {
         String expression = "A -> [10] B until C -> D";
 
         log.debug(".testDisplayAST parsing: " + expression);
@@ -30,8 +28,7 @@ public class TestEventPatternParser extends TestCase
         SupportParserHelper.displayAST(ast.getFirst());
     }
 
-    public void testInvalidCases() throws Exception
-    {
+    public void testInvalidCases() throws Exception {
         // Base vocabulary
         assertIsInvalid("a(");
         assertIsInvalid("a)");
@@ -175,8 +172,7 @@ public class TestEventPatternParser extends TestCase
         assertIsInvalid("A(y(g)..z = 1)");
     }
 
-    public void testValidCases() throws Exception
-    {
+    public void testValidCases() throws Exception {
         String className = SupportBean.class.getName();
 
         // Base vocabulary
@@ -252,7 +248,7 @@ public class TestEventPatternParser extends TestCase
         assertIsValid(className + " and " + className + " and " + className);
         assertIsValid(className + " -> " + className + " and " + className);
         assertIsValid(className + " -> " + className + " -> " + className + "() and " + className);
-        assertIsValid("every "  + className + "() -> every " + className + "() and every " + className);
+        assertIsValid("every " + className + "() -> every " + className + "() and every " + className);
 
         // Not
         assertIsValid("not " + className);
@@ -385,17 +381,16 @@ public class TestEventPatternParser extends TestCase
         assertIsValid("[0:10] A until B");
         assertIsValid("[0 : 10] A until B");
         assertIsValid("[5] A");   // no until
-        
+
         // annotation
         assertIsValid("@SomeTag(value='val', val2='val') [5] A");
-        
+
         //every-distinct
         assertIsValid("every-distinct(value, bcd) A");
         assertIsValid("every-distinct(value, bcd) [5] A");
     }
 
-    public void testParserNodeGeneration() throws Exception
-    {
+    public void testParserNodeGeneration() throws Exception {
         String expression = "a(m=1) -> not b() or every c() and d() where a:b (5) and timer:interval(10)";
 
         log.debug(".testParserNodeGeneration parsing: " + expression);
@@ -404,8 +399,7 @@ public class TestEventPatternParser extends TestCase
         SupportParserHelper.displayAST(ast);
     }
 
-    private void assertIsValid(String text) throws Exception
-    {
+    private void assertIsValid(String text) throws Exception {
         log.debug(".assertIsValid Trying text=" + text);
         Pair<Tree, CommonTokenStream> ast = parse(text);
         log.debug(".assertIsValid success, tree walking...");
@@ -414,23 +408,18 @@ public class TestEventPatternParser extends TestCase
         log.debug(".assertIsValid done");
     }
 
-    private void assertIsInvalid(String text) throws Exception
-    {
+    private void assertIsInvalid(String text) throws Exception {
         log.debug(".assertIsInvalid Trying text=" + text);
 
-        try
-        {
+        try {
             parse(text);
             assertFalse(true);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.debug(".assertIsInvalid Expected ParseException exception was thrown and ignored, message=" + ex.getMessage());
         }
     }
 
-    private Pair<Tree, CommonTokenStream> parse(String expression) throws Exception
-    {
+    private Pair<Tree, CommonTokenStream> parse(String expression) throws Exception {
         return SupportParserHelper.parsePattern(expression);
     }
 

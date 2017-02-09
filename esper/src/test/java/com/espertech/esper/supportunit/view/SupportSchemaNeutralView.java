@@ -11,43 +11,34 @@
 package com.espertech.esper.supportunit.view;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.view.Viewable;
-import com.espertech.esper.core.service.UpdateDispatchView;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.service.UpdateDispatchView;
+import com.espertech.esper.view.Viewable;
 
-public class SupportSchemaNeutralView extends SupportBaseView implements UpdateDispatchView
-{
-    public SupportSchemaNeutralView()
-    {
+public class SupportSchemaNeutralView extends SupportBaseView implements UpdateDispatchView {
+    public SupportSchemaNeutralView() {
     }
 
-    public SupportSchemaNeutralView(String viewName)
-    {
+    public SupportSchemaNeutralView(String viewName) {
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         this.lastNewData = newData;
         this.lastOldData = oldData;
 
         updateChildren(newData, oldData);
     }
 
-    public void setParent(Viewable parent)
-    {
+    public void setParent(Viewable parent) {
         super.setParent(parent);
-        if (parent != null)
-        {
+        if (parent != null) {
             setEventType(parent.getEventType());
-        }
-        else
-        {
+        } else {
             setEventType(null);
         }
     }
 
-    public void newResult(UniformPair<EventBean[]> result)
-    {
+    public void newResult(UniformPair<EventBean[]> result) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

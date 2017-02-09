@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.time;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public interface ExprTimePeriodEvalMillis
-{
+public interface ExprTimePeriodEvalMillis {
     public long evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 }

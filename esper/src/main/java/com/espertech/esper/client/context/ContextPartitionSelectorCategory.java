@@ -18,6 +18,7 @@ import java.util.Set;
 public interface ContextPartitionSelectorCategory extends ContextPartitionSelector {
     /**
      * Returns a set of category label names.
+     *
      * @return label names
      */
     public Set<String> getLabels();

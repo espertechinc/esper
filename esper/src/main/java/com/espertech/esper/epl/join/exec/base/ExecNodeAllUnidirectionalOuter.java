@@ -16,8 +16,7 @@ import com.espertech.esper.util.IndentWriter;
 
 import java.util.Collection;
 
-public class ExecNodeAllUnidirectionalOuter extends ExecNode
-{
+public class ExecNodeAllUnidirectionalOuter extends ExecNode {
     private final int streamNum;
     private final int numStreams;
 

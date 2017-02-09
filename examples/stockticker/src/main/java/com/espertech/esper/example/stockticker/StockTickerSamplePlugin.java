@@ -6,8 +6,7 @@ import com.espertech.esper.plugin.PluginLoaderInitContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StockTickerSamplePlugin implements PluginLoader
-{
+public class StockTickerSamplePlugin implements PluginLoader {
     private static final Logger log = LoggerFactory.getLogger(StockTickerSamplePlugin.class);
 
     private static final String ENGINE_URI = "engineURI";
@@ -16,20 +15,15 @@ public class StockTickerSamplePlugin implements PluginLoader
     private StockTickerMain main;
     private Thread simulationThread;
 
-    public void init(PluginLoaderInitContext context)
-    {
-        if (context.getProperties().getProperty(ENGINE_URI) != null)
-        {
+    public void init(PluginLoaderInitContext context) {
+        if (context.getProperties().getProperty(ENGINE_URI) != null) {
             engineURI = context.getProperties().getProperty(ENGINE_URI);
-        }
-        else
-        {
+        } else {
             engineURI = context.getEpServiceProvider().getURI();
         }
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         log.info("Starting StockTicker-example for engine URI '" + engineURI + "'.");
 
         try {
@@ -38,24 +32,21 @@ public class StockTickerSamplePlugin implements PluginLoader
             simulationThread.setDaemon(true);
             simulationThread.start();
             main.run();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error starting StockTicker example: " + e.getMessage());
         }
 
         log.info("StockTicker-example started.");
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         if (main != null) {
             EPServiceProviderManager.getProvider(engineURI).getEPAdministrator().destroyAllStatements();
         }
         try {
             simulationThread.interrupt();
             simulationThread.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.info("Interrupted", e);
         }
         main = null;

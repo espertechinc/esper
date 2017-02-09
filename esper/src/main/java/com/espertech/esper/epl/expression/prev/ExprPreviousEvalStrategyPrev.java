@@ -21,8 +21,7 @@ import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 import java.util.Collection;
 import java.util.Collections;
 
-public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
-{
+public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy {
     private final int streamNumber;
     private final ExprEvaluator indexNode;
     private final ExprEvaluator evalNode;
@@ -32,8 +31,7 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
     private final Integer constantIndexNumber;
     private final boolean isTail;
 
-    public ExprPreviousEvalStrategyPrev(int streamNumber, ExprEvaluator indexNode, ExprEvaluator evalNode, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter, boolean constantIndex, Integer constantIndexNumber, boolean tail)
-    {
+    public ExprPreviousEvalStrategyPrev(int streamNumber, ExprEvaluator indexNode, ExprEvaluator evalNode, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter, boolean constantIndex, Integer constantIndexNumber, boolean tail) {
         this.streamNumber = streamNumber;
         this.indexNode = indexNode;
         this.evalNode = evalNode;
@@ -44,11 +42,9 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
         isTail = tail;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean substituteEvent = getSubstitute(eventsPerStream, exprEvaluatorContext);
-        if (substituteEvent == null)
-        {
+        if (substituteEvent == null) {
             return null;
         }
 
@@ -81,16 +77,12 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
 
         // Use constant if supplied
         Integer index;
-        if (isConstantIndex)
-        {
+        if (isConstantIndex) {
             index = constantIndexNumber;
-        }
-        else
-        {
+        } else {
             // evaluate first child, which returns the index
             Object indexResult = indexNode.evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if (indexResult == null)
-            {
+            if (indexResult == null) {
                 return null;
             }
             index = ((Number) indexResult).intValue();
@@ -98,18 +90,14 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
 
         // access based on index returned
         EventBean substituteEvent;
-        if (randomAccessGetter != null)
-        {
+        if (randomAccessGetter != null) {
             RandomAccessByIndex randomAccess = randomAccessGetter.getAccessor();
             if (!isTail) {
                 substituteEvent = randomAccess.getNewData(index);
-            }
-            else {
+            } else {
                 substituteEvent = randomAccess.getNewDataTail(index);
             }
-        }
-        else
-        {
+        } else {
             EventBean evalEvent = eventsPerStream[streamNumber];
             RelativeAccessByEventNIndex relativeAccess = relativeAccessGetter.getAccessor(evalEvent);
             if (relativeAccess == null) {
@@ -117,8 +105,7 @@ public class ExprPreviousEvalStrategyPrev implements ExprPreviousEvalStrategy
             }
             if (!isTail) {
                 substituteEvent = relativeAccess.getRelativeToEvent(evalEvent, index);
-            }
-            else {
+            } else {
                 substituteEvent = relativeAccess.getRelativeToEnd(index);
             }
         }

@@ -18,28 +18,26 @@ import java.util.ArrayDeque;
 /**
  * Buffer for events - accumulates events until flushed.
  */
-public class FlushedEventBuffer
-{
+public class FlushedEventBuffer {
     private ArrayDeque<EventBean[]> remainEvents = new ArrayDeque<EventBean[]>();
 
     /**
      * Add an event array to buffer.
+     *
      * @param events to add
      */
-    public void add(EventBean[] events)
-    {
-        if (events != null)
-        {
+    public void add(EventBean[] events) {
+        if (events != null) {
             remainEvents.add(events);
         }
     }
 
     /**
      * Get the events currently buffered. Returns null if the buffer is empty. Flushes the buffer.
+     *
      * @return array of events in buffer or null if empty
      */
-    public EventBean[] getAndFlush()
-    {
+    public EventBean[] getAndFlush() {
         EventBean[] flattened = EventBeanUtility.flatten(remainEvents);
         remainEvents.clear();
         return flattened;
@@ -48,8 +46,7 @@ public class FlushedEventBuffer
     /**
      * Empty buffer.
      */
-    public void flush()
-    {
+    public void flush() {
         remainEvents.clear();
     }
 }

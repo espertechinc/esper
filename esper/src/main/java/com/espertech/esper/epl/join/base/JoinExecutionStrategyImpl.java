@@ -22,8 +22,7 @@ import java.util.Set;
  * Join execution strategy based on a 3-step getSelectListEvents of composing a join set, filtering the join set and
  * indicating.
  */
-public class JoinExecutionStrategyImpl implements JoinExecutionStrategy
-{
+public class JoinExecutionStrategyImpl implements JoinExecutionStrategy {
     private final JoinSetComposer composer;
     private final JoinSetProcessor filter;
     private final JoinSetProcessor indicator;
@@ -31,37 +30,43 @@ public class JoinExecutionStrategyImpl implements JoinExecutionStrategy
 
     /**
      * Ctor.
-     * @param composer - determines join tuple set
-     * @param filter - for filtering among tuples
-     * @param indicator - for presenting the info to a view
+     *
+     * @param composer                   - determines join tuple set
+     * @param filter                     - for filtering among tuples
+     * @param indicator                  - for presenting the info to a view
      * @param staticExprEvaluatorContext expression evaluation context for static evaluation (not for runtime eval)
      */
     public JoinExecutionStrategyImpl(JoinSetComposer composer, JoinSetProcessor filter, JoinSetProcessor indicator,
-                                     ExprEvaluatorContext staticExprEvaluatorContext)
-    {
+                                     ExprEvaluatorContext staticExprEvaluatorContext) {
         this.composer = composer;
         this.filter = filter;
         this.indicator = indicator;
         this.staticExprEvaluatorContext = staticExprEvaluatorContext;
     }
 
-    public void join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinExexStrategy();}
+    public void join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qJoinExexStrategy();
+        }
         UniformPair<Set<MultiKey<EventBean>>> joinSet = composer.join(newDataPerStream, oldDataPerStream, staticExprEvaluatorContext);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinExecStrategy(joinSet);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aJoinExecStrategy(joinSet);
+        }
 
         filter.process(joinSet.getFirst(), joinSet.getSecond(), staticExprEvaluatorContext);
 
-        if ( (!joinSet.getFirst().isEmpty()) || (!joinSet.getSecond().isEmpty()) ) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinExecProcess(joinSet);}
+        if ((!joinSet.getFirst().isEmpty()) || (!joinSet.getSecond().isEmpty())) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qJoinExecProcess(joinSet);
+            }
             indicator.process(joinSet.getFirst(), joinSet.getSecond(), staticExprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinExecProcess();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aJoinExecProcess();
+            }
         }
     }
 
-    public Set<MultiKey<EventBean>> staticJoin()
-    {
+    public Set<MultiKey<EventBean>> staticJoin() {
         Set<MultiKey<EventBean>> joinSet = composer.staticJoin();
         filter.process(joinSet, null, staticExprEvaluatorContext);
         return joinSet;

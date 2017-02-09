@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Exists-expression for a set of values returned by a lookup.
  */
-public class SubqueryExistsExpression extends ExpressionBase
-{
+public class SubqueryExistsExpression extends ExpressionBase {
     private EPStatementObjectModel model;
     private static final long serialVersionUID = 2615782942153556969L;
 
@@ -28,20 +27,18 @@ public class SubqueryExistsExpression extends ExpressionBase
 
     /**
      * Ctor - for use to create an expression tree, without child expression.
+     *
      * @param model is the lookup statement object model
      */
-    public SubqueryExistsExpression(EPStatementObjectModel model)
-    {
+    public SubqueryExistsExpression(EPStatementObjectModel model) {
         this.model = model;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("exists (");
         writer.write(model.toEPL());
         writer.write(')');
@@ -49,19 +46,19 @@ public class SubqueryExistsExpression extends ExpressionBase
 
     /**
      * Returns the lookup statement object model.
+     *
      * @return lookup model
      */
-    public EPStatementObjectModel getModel()
-    {
+    public EPStatementObjectModel getModel() {
         return model;
     }
 
     /**
      * Sets the lookup statement object model.
+     *
      * @param model is the lookup model to set
      */
-    public void setModel(EPStatementObjectModel model)
-    {
+    public void setModel(EPStatementObjectModel model) {
         this.model = model;
     }
 }

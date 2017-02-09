@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.client.context.ContextPartitionIdentifier;
-
 public interface ContextPartitionVisitor {
     public void visit(int nestingLevel,
                       int pathId,

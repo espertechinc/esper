@@ -11,17 +11,16 @@
 package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.pattern.*;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.supportunit.guard.SupportObserverEvaluator;
 import com.espertech.esper.supportunit.pattern.SupportPatternContextFactory;
-import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import junit.framework.TestCase;
 
-public class TestTimerIntervalObserver extends TestCase
-{
+public class TestTimerIntervalObserver extends TestCase {
     private PatternContext context;
     private PatternAgentInstanceContext agentContext;
 
@@ -30,9 +29,8 @@ public class TestTimerIntervalObserver extends TestCase
     private SupportObserverEvaluator evaluator;
     private MatchedEventMap beginState;
 
-    public void setUp()
-    {
-        
+    public void setUp() {
+
         beginState = new MatchedEventMapImpl(new MatchedEventMapMeta(new String[0], false));
 
         scheduleService = new SchedulingServiceImpl(new TimeSourceServiceImpl());
@@ -42,11 +40,10 @@ public class TestTimerIntervalObserver extends TestCase
 
         evaluator = new SupportObserverEvaluator(agentContext);
 
-        observer =  new TimerIntervalObserver(1000, beginState, evaluator);
+        observer = new TimerIntervalObserver(1000, beginState, evaluator);
     }
 
-    public void testStartAndObserve()
-    {
+    public void testStartAndObserve() {
         scheduleService.setTime(0);
         observer.startObserve();
         scheduleService.setTime(1000);
@@ -64,8 +61,7 @@ public class TestTimerIntervalObserver extends TestCase
         assertEquals(beginState, evaluator.getAndClearMatchEvents().get(0));
     }
 
-    public void testStartAndStop()
-    {
+    public void testStartAndStop() {
         // Start then stop
         scheduleService.setTime(0);
         observer.startObserve();
@@ -88,10 +84,9 @@ public class TestTimerIntervalObserver extends TestCase
         assertEquals(beginState, evaluator.getAndClearMatchEvents().get(0));
     }
 
-    public void testImmediateTrigger()
-    {
+    public void testImmediateTrigger() {
         // Should fireStatementStopped right away, wait time set to zero
-        observer =  new TimerIntervalObserver(0, beginState, evaluator);
+        observer = new TimerIntervalObserver(0, beginState, evaluator);
 
         scheduleService.setTime(0);
         observer.startObserve();
@@ -101,16 +96,12 @@ public class TestTimerIntervalObserver extends TestCase
         assertEquals(0, evaluator.getAndClearMatchEvents().size());
     }
 
-    public void testInvalid()
-    {
-        try
-        {
+    public void testInvalid() {
+        try {
             observer.startObserve();
             observer.startObserve();
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected exception
         }
     }

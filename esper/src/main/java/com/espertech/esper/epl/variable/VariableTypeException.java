@@ -13,16 +13,15 @@ package com.espertech.esper.epl.variable;
 /**
  * Exception indicating a variable type error.
  */
-public class VariableTypeException extends VariableDeclarationException
-{
+public class VariableTypeException extends VariableDeclarationException {
     private static final long serialVersionUID = 5645137213102033443L;
 
     /**
      * Ctor.
+     *
      * @param msg the exception message.
      */
-    public VariableTypeException(String msg)
-    {
+    public VariableTypeException(String msg) {
         super(msg);
     }
 }

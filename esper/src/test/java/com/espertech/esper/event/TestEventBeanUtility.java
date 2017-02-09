@@ -26,11 +26,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestEventBeanUtility extends TestCase
-{
-    public void testArrayOp()
-    {
-        EventBean[] testEvent = makeEventArray(new String[] {"a1", "a2", "a3"});
+public class TestEventBeanUtility extends TestCase {
+    public void testArrayOp() {
+        EventBean[] testEvent = makeEventArray(new String[]{"a1", "a2", "a3"});
 
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{testEvent[0]},
                 EventBeanUtility.addToArray(new EventBean[0], testEvent[0]));
@@ -44,9 +42,8 @@ public class TestEventBeanUtility extends TestCase
         System.out.println(EventBeanUtility.printEvents(testEvent));
     }
 
-    public void testArrayOpAdd()
-    {
-        EventBean[] testEvent = makeEventArray(new String[] {"a1", "a2", "a3"});
+    public void testArrayOpAdd() {
+        EventBean[] testEvent = makeEventArray(new String[]{"a1", "a2", "a3"});
 
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{testEvent[0], testEvent[1], testEvent[2]},
                 EventBeanUtility.addToArray(new EventBean[]{testEvent[0]}, Arrays.asList(new EventBean[]{testEvent[1], testEvent[2]})));
@@ -58,16 +55,15 @@ public class TestEventBeanUtility extends TestCase
                 EventBeanUtility.addToArray(new EventBean[]{testEvent[0]}, Arrays.asList(new EventBean[0])));
     }
 
-    public void testFlattenList()
-    {
+    public void testFlattenList() {
         // test many arrays
-        EventBean[] testEvents = makeEventArray(new String[] {"a1", "a2", "b1", "b2", "b3", "c1", "c2"});
+        EventBean[] testEvents = makeEventArray(new String[]{"a1", "a2", "b1", "b2", "b3", "c1", "c2"});
         ArrayDeque<UniformPair<EventBean[]>> eventVector = new ArrayDeque<UniformPair<EventBean[]>>();
 
-        eventVector.add(new UniformPair<EventBean[]>(null, new EventBean[] {testEvents[0], testEvents[1]}));
-        eventVector.add(new UniformPair<EventBean[]>(new EventBean[] {testEvents[2]}, null));
-        eventVector.add(new UniformPair<EventBean[]>(null, new EventBean[] {testEvents[3], testEvents[4], testEvents[5]}));
-        eventVector.add(new UniformPair<EventBean[]>(new EventBean[] {testEvents[6]}, null));
+        eventVector.add(new UniformPair<EventBean[]>(null, new EventBean[]{testEvents[0], testEvents[1]}));
+        eventVector.add(new UniformPair<EventBean[]>(new EventBean[]{testEvents[2]}, null));
+        eventVector.add(new UniformPair<EventBean[]>(null, new EventBean[]{testEvents[3], testEvents[4], testEvents[5]}));
+        eventVector.add(new UniformPair<EventBean[]>(new EventBean[]{testEvents[6]}, null));
 
         UniformPair<EventBean[]> events = EventBeanUtility.flattenList(eventVector);
         EPAssertionUtil.assertEqualsExactOrder(new EventBean[]{testEvents[2], testEvents[6]}, events.getFirst());
@@ -75,7 +71,7 @@ public class TestEventBeanUtility extends TestCase
 
         // test just one array
         eventVector.clear();
-        eventVector.add(new UniformPair<EventBean[]>(new EventBean[] {testEvents[2]}, null));
+        eventVector.add(new UniformPair<EventBean[]>(new EventBean[]{testEvents[2]}, null));
         events = EventBeanUtility.flattenList(eventVector);
         EPAssertionUtil.assertEqualsExactOrder(new EventBean[]{testEvents[2]}, events.getFirst());
         EPAssertionUtil.assertEqualsExactOrder((Object[]) null, events.getSecond());
@@ -86,26 +82,24 @@ public class TestEventBeanUtility extends TestCase
         assertNull(events);
     }
 
-    public void testFlatten()
-    {
+    public void testFlatten() {
         // test many arrays
-        EventBean[] testEvents = makeEventArray(new String[] {"a1", "a2", "b1", "b2", "b3", "c1", "c2"});
+        EventBean[] testEvents = makeEventArray(new String[]{"a1", "a2", "b1", "b2", "b3", "c1", "c2"});
         ArrayDeque<EventBean[]> eventVector = new ArrayDeque<EventBean[]>();
-        eventVector.add(new EventBean[] {testEvents[0], testEvents[1]});
-        eventVector.add(new EventBean[] {testEvents[2]});
-        eventVector.add(new EventBean[] {testEvents[3], testEvents[4], testEvents[5]});
-        eventVector.add(new EventBean[] {testEvents[6]});
+        eventVector.add(new EventBean[]{testEvents[0], testEvents[1]});
+        eventVector.add(new EventBean[]{testEvents[2]});
+        eventVector.add(new EventBean[]{testEvents[3], testEvents[4], testEvents[5]});
+        eventVector.add(new EventBean[]{testEvents[6]});
 
         EventBean[] events = EventBeanUtility.flatten(eventVector);
         assertEquals(7, events.length);
-        for (int i = 0; i < testEvents.length; i++)
-        {
+        for (int i = 0; i < testEvents.length; i++) {
             assertEquals(events[i], testEvents[i]);
         }
 
         // test just one array
         eventVector.clear();
-        eventVector.add(new EventBean[] {testEvents[2]});
+        eventVector.add(new EventBean[]{testEvents[2]});
         events = EventBeanUtility.flatten(eventVector);
         assertEquals(events[0], testEvents[2]);
 
@@ -115,10 +109,9 @@ public class TestEventBeanUtility extends TestCase
         assertNull(events);
     }
 
-    public void testAppend()
-    {
-        EventBean[] setOne = makeEventArray(new String[] {"a1", "a2"});
-        EventBean[] setTwo = makeEventArray(new String[] {"b1", "b2", "b3"});
+    public void testAppend() {
+        EventBean[] setOne = makeEventArray(new String[]{"a1", "a2"});
+        EventBean[] setTwo = makeEventArray(new String[]{"b1", "b2", "b3"});
         EventBean[] total = EventBeanUtility.append(setOne, setTwo);
 
         assertEquals(setOne[0], total[0]);
@@ -127,25 +120,24 @@ public class TestEventBeanUtility extends TestCase
         assertEquals(setTwo[1], total[3]);
         assertEquals(setTwo[2], total[4]);
 
-        setOne = makeEventArray(new String[] {"a1"});
-        setTwo = makeEventArray(new String[] {"b1"});
+        setOne = makeEventArray(new String[]{"a1"});
+        setTwo = makeEventArray(new String[]{"b1"});
         total = EventBeanUtility.append(setOne, setTwo);
 
         assertEquals(setOne[0], total[0]);
         assertEquals(setTwo[0], total[1]);
     }
 
-    public void testToArray()
-    {
+    public void testToArray() {
         // Test list with 2 elements
-        List<EventBean> eventList = makeEventList(new String[] {"a1", "a2"});
+        List<EventBean> eventList = makeEventList(new String[]{"a1", "a2"});
         EventBean[] array = EventBeanUtility.toArray(eventList);
         assertEquals(2, array.length);
         assertEquals(eventList.get(0), array[0]);
         assertEquals(eventList.get(1), array[1]);
 
         // Test list with 1 element
-        eventList = makeEventList(new String[] {"a1"});
+        eventList = makeEventList(new String[]{"a1"});
         array = EventBeanUtility.toArray(eventList);
         assertEquals(1, array.length);
         assertEquals(eventList.get(0), array[0]);
@@ -160,8 +152,7 @@ public class TestEventBeanUtility extends TestCase
         assertNull(array);
     }
 
-    public void testGetPropertyArray()
-    {
+    public void testGetPropertyArray() {
         // try 2 properties
         EventPropertyGetter[] getters = makeGetters();
         EventBean theEvent = SupportEventBeanFactory.createObject(new SupportBean("a", 10));
@@ -175,8 +166,7 @@ public class TestEventBeanUtility extends TestCase
         assertEquals(0, properties.length);
     }
 
-    public void testMultiKey()
-    {
+    public void testMultiKey() {
         // try 2 properties
         EventPropertyGetter[] getters = makeGetters();
         EventBean theEvent = SupportEventBeanFactory.createObject(new SupportBean("a", 10));
@@ -190,8 +180,7 @@ public class TestEventBeanUtility extends TestCase
         assertEquals(0, multikey.getKeys().length);
     }
 
-    private EventPropertyGetter[] makeGetters()
-    {
+    private EventPropertyGetter[] makeGetters() {
         EventType eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         EventPropertyGetter[] getters = new EventPropertyGetter[2];
         getters[0] = eventType.getGetter("theString");
@@ -199,21 +188,17 @@ public class TestEventBeanUtility extends TestCase
         return getters;
     }
 
-    private EventBean[] makeEventArray(String[] texts)
-    {
+    private EventBean[] makeEventArray(String[] texts) {
         EventBean[] events = new EventBean[texts.length];
-        for (int i = 0; i < texts.length; i++)
-        {
+        for (int i = 0; i < texts.length; i++) {
             events[i] = SupportEventBeanFactory.createObject(texts[i]);
         }
         return events;
     }
 
-    private List<EventBean> makeEventList(String[] texts)
-    {
+    private List<EventBean> makeEventList(String[] texts) {
         List<EventBean> events = new LinkedList<EventBean>();
-        for (int i = 0; i < texts.length; i++)
-        {
+        for (int i = 0; i < texts.length; i++) {
             events.add(SupportEventBeanFactory.createObject(texts[i]));
         }
         return events;

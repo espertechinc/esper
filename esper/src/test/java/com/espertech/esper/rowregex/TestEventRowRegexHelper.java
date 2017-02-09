@@ -17,11 +17,9 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class TestEventRowRegexHelper extends TestCase
-{
-    public void testVariableAnalysis() throws Exception
-    {
-        String[][] patternTests = new String[][] {
+public class TestEventRowRegexHelper extends TestCase {
+    public void testVariableAnalysis() throws Exception {
+        String[][] patternTests = new String[][]{
                 {"A", "[A]", "[]"},
                 {"A B", "[A, B]", "[]"},
                 {"A B*", "[A]", "[B]"},
@@ -36,8 +34,7 @@ public class TestEventRowRegexHelper extends TestCase
                 {"(A | B) | (C | A)", "[A, B, C]", "[]"},
         };
 
-        for (int i = 0; i < patternTests.length; i++)
-        {
+        for (int i = 0; i < patternTests.length; i++) {
             String pattern = patternTests[i][0];
             String expression = "select * from MyEvent#keepall match_recognize (" +
                     "  partition by string measures A.string as a_string pattern ( " + pattern + ") define A as (A.value = 1) )";
@@ -48,21 +45,20 @@ public class TestEventRowRegexHelper extends TestCase
             RowRegexExprNode parent = raw.getMatchRecognizeSpec().getPattern();
             LinkedHashSet<String> singles = new LinkedHashSet<String>();
             LinkedHashSet<String> multiples = new LinkedHashSet<String>();
-            
+
             EventRowRegexHelper.recursiveInspectVariables(parent, false, singles, multiples);
 
             String outText = "Failed in :" + pattern +
                     " result is : single " + Arrays.toString(singles.toArray()) +
                     " multiple " + Arrays.toString(multiples.toArray());
-            
+
             assertEquals(outText, patternTests[i][1], Arrays.toString(singles.toArray()));
             assertEquals(outText, patternTests[i][2], Arrays.toString(multiples.toArray()));
         }
     }
 
-    public void testVisibilityAnalysis() throws Exception
-    {
-        String[][] patternTests = new String[][] {
+    public void testVisibilityAnalysis() throws Exception {
+        String[][] patternTests = new String[][]{
                 {"A", "{}"},
                 {"A B", "{B=[A]}"},
                 {"A B*", "{B=[A]}"},
@@ -79,8 +75,7 @@ public class TestEventRowRegexHelper extends TestCase
                 {"(A | B) (C | A)", "{A=[B], C=[A, B]}"},
         };
 
-        for (int i = 0; i < patternTests.length; i++)
-        {
+        for (int i = 0; i < patternTests.length; i++) {
             String pattern = patternTests[i][0];
             String expected = patternTests[i][1];
             String expression = "select * from MyEvent#keepall match_recognize (" +

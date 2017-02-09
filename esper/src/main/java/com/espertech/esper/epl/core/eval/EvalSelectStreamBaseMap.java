@@ -29,19 +29,16 @@ public abstract class EvalSelectStreamBaseMap extends EvalSelectStreamBase imple
 
     public abstract EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         // Evaluate all expressions and build a map of name-value pairs
         Map<String, Object> props = new HashMap<String, Object>();
         int count = 0;
-        for (ExprEvaluator expressionNode : selectExprContext.getExpressionNodes())
-        {
+        for (ExprEvaluator expressionNode : selectExprContext.getExpressionNodes()) {
             Object evalResult = expressionNode.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             props.put(selectExprContext.getColumnNames()[count], evalResult);
             count++;
         }
-        for (SelectClauseStreamCompiledSpec element : namedStreams)
-        {
+        for (SelectClauseStreamCompiledSpec element : namedStreams) {
             EventBean theEvent = eventsPerStream[element.getStreamNumber()];
             if (element.getTableMetadata() != null) {
                 if (theEvent != null) {
@@ -51,10 +48,8 @@ public abstract class EvalSelectStreamBaseMap extends EvalSelectStreamBase imple
             props.put(selectExprContext.getColumnNames()[count], theEvent);
             count++;
         }
-        if (isUsingWildcard && eventsPerStream.length > 1)
-        {
-            for (EventBean anEventsPerStream : eventsPerStream)
-            {
+        if (isUsingWildcard && eventsPerStream.length > 1) {
+            for (EventBean anEventsPerStream : eventsPerStream) {
                 props.put(selectExprContext.getColumnNames()[count], anEventsPerStream);
                 count++;
             }

@@ -18,7 +18,7 @@ public class MyConcatAggregationFunctionFactory implements AggregationFunctionFa
 
     public void validate(AggregationValidationContext validationContext) {
         if ((validationContext.getParameterTypes().length != 1) ||
-            (validationContext.getParameterTypes()[0] != String.class)) {
+                (validationContext.getParameterTypes()[0] != String.class)) {
             throw new IllegalArgumentException("Concat aggregation requires a single parameter of type String");
         }
     }

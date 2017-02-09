@@ -39,80 +39,80 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MethodResolver {
     private static final Logger log = LoggerFactory.getLogger(MethodResolver.class);
 
-    private static final Map<Class, Set<Class>> wideningConversions = new HashMap<Class, Set<Class>>();
-    private static final Map<Class, Set<Class>> wrappingConversions = new HashMap<Class, Set<Class>>();
+    private static final Map<Class, Set<Class>> WIDENING_CONVERSIONS = new HashMap<Class, Set<Class>>();
+    private static final Map<Class, Set<Class>> WRAPPING_CONVERSIONS = new HashMap<Class, Set<Class>>();
 
     static {
         // Initialize the map of wrapper conversions
         Set<Class> booleanWrappers = new HashSet<Class>();
         booleanWrappers.add(boolean.class);
         booleanWrappers.add(Boolean.class);
-        wrappingConversions.put(boolean.class, booleanWrappers);
-        wrappingConversions.put(Boolean.class, booleanWrappers);
+        WRAPPING_CONVERSIONS.put(boolean.class, booleanWrappers);
+        WRAPPING_CONVERSIONS.put(Boolean.class, booleanWrappers);
 
         Set<Class> charWrappers = new HashSet<Class>();
         charWrappers.add(char.class);
         charWrappers.add(Character.class);
-        wrappingConversions.put(char.class, charWrappers);
-        wrappingConversions.put(Character.class, charWrappers);
+        WRAPPING_CONVERSIONS.put(char.class, charWrappers);
+        WRAPPING_CONVERSIONS.put(Character.class, charWrappers);
 
         Set<Class> byteWrappers = new HashSet<Class>();
         byteWrappers.add(byte.class);
         byteWrappers.add(Byte.class);
-        wrappingConversions.put(byte.class, byteWrappers);
-        wrappingConversions.put(Byte.class, byteWrappers);
+        WRAPPING_CONVERSIONS.put(byte.class, byteWrappers);
+        WRAPPING_CONVERSIONS.put(Byte.class, byteWrappers);
 
         Set<Class> shortWrappers = new HashSet<Class>();
         shortWrappers.add(short.class);
         shortWrappers.add(Short.class);
-        wrappingConversions.put(short.class, shortWrappers);
-        wrappingConversions.put(Short.class, shortWrappers);
+        WRAPPING_CONVERSIONS.put(short.class, shortWrappers);
+        WRAPPING_CONVERSIONS.put(Short.class, shortWrappers);
 
         Set<Class> intWrappers = new HashSet<Class>();
         intWrappers.add(int.class);
         intWrappers.add(Integer.class);
-        wrappingConversions.put(int.class, intWrappers);
-        wrappingConversions.put(Integer.class, intWrappers);
+        WRAPPING_CONVERSIONS.put(int.class, intWrappers);
+        WRAPPING_CONVERSIONS.put(Integer.class, intWrappers);
 
         Set<Class> longWrappers = new HashSet<Class>();
         longWrappers.add(long.class);
         longWrappers.add(Long.class);
-        wrappingConversions.put(long.class, longWrappers);
-        wrappingConversions.put(Long.class, longWrappers);
+        WRAPPING_CONVERSIONS.put(long.class, longWrappers);
+        WRAPPING_CONVERSIONS.put(Long.class, longWrappers);
 
         Set<Class> floatWrappers = new HashSet<Class>();
         floatWrappers.add(float.class);
         floatWrappers.add(Float.class);
-        wrappingConversions.put(float.class, floatWrappers);
-        wrappingConversions.put(Float.class, floatWrappers);
+        WRAPPING_CONVERSIONS.put(float.class, floatWrappers);
+        WRAPPING_CONVERSIONS.put(Float.class, floatWrappers);
 
         Set<Class> doubleWrappers = new HashSet<Class>();
         doubleWrappers.add(double.class);
         doubleWrappers.add(Double.class);
-        wrappingConversions.put(double.class, doubleWrappers);
-        wrappingConversions.put(Double.class, doubleWrappers);
+        WRAPPING_CONVERSIONS.put(double.class, doubleWrappers);
+        WRAPPING_CONVERSIONS.put(Double.class, doubleWrappers);
 
         // Initialize the map of widening conversions
         Set<Class> wideningConversions = new HashSet<Class>(byteWrappers);
-        MethodResolver.wideningConversions.put(short.class, new HashSet<Class>(wideningConversions));
-        MethodResolver.wideningConversions.put(Short.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(short.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(Short.class, new HashSet<Class>(wideningConversions));
 
         wideningConversions.addAll(shortWrappers);
         wideningConversions.addAll(charWrappers);
-        MethodResolver.wideningConversions.put(int.class, new HashSet<Class>(wideningConversions));
-        MethodResolver.wideningConversions.put(Integer.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(int.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(Integer.class, new HashSet<Class>(wideningConversions));
 
         wideningConversions.addAll(intWrappers);
-        MethodResolver.wideningConversions.put(long.class, new HashSet<Class>(wideningConversions));
-        MethodResolver.wideningConversions.put(Long.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(long.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(Long.class, new HashSet<Class>(wideningConversions));
 
         wideningConversions.addAll(longWrappers);
-        MethodResolver.wideningConversions.put(float.class, new HashSet<Class>(wideningConversions));
-        MethodResolver.wideningConversions.put(Float.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(float.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(Float.class, new HashSet<Class>(wideningConversions));
 
         wideningConversions.addAll(floatWrappers);
-        MethodResolver.wideningConversions.put(double.class, new HashSet<Class>(wideningConversions));
-        MethodResolver.wideningConversions.put(Double.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(double.class, new HashSet<Class>(wideningConversions));
+        MethodResolver.WIDENING_CONVERSIONS.put(Double.class, new HashSet<Class>(wideningConversions));
     }
 
     /**
@@ -122,7 +122,7 @@ public class MethodResolver {
      * a set of classes that can be widened from
      */
     public static Map<Class, Set<Class>> getWideningConversions() {
-        return wideningConversions;
+        return WIDENING_CONVERSIONS;
     }
 
     /**
@@ -230,8 +230,8 @@ public class MethodResolver {
     }
 
     private static boolean isWideningConversion(Class declarationType, Class invocationType) {
-        if (wideningConversions.containsKey(declarationType)) {
-            return wideningConversions.get(declarationType).contains(invocationType);
+        if (WIDENING_CONVERSIONS.containsKey(declarationType)) {
+            return WIDENING_CONVERSIONS.get(declarationType).contains(invocationType);
         } else {
             return false;
         }
@@ -392,8 +392,8 @@ public class MethodResolver {
     // Identity conversion means no conversion, wrapper conversion,
     // or conversion to a supertype
     private static boolean isIdentityConversion(Class declarationType, Class invocationType) {
-        if (wrappingConversions.containsKey(declarationType)) {
-            return wrappingConversions.get(declarationType).contains(invocationType) || declarationType.isAssignableFrom(invocationType);
+        if (WRAPPING_CONVERSIONS.containsKey(declarationType)) {
+            return WRAPPING_CONVERSIONS.get(declarationType).contains(invocationType) || declarationType.isAssignableFrom(invocationType);
         } else {
             if (invocationType == null) {
                 return !declarationType.isPrimitive();

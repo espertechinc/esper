@@ -34,14 +34,12 @@ import java.util.List;
  * - the single batch-view has its newData posted to child views, and removed from all non-batch views
  * - all oldData events received from all non-batch views are removed from each view
  */
-public class IntersectBatchView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
-{
+public class IntersectBatchView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     protected final IntersectViewFactory factory;
     protected final View[] views;
 
-    public IntersectBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList)
-    {
+    public IntersectBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList) {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
         this.factory = factory;
         this.views = viewList.toArray(new View[viewList.size()]);
@@ -58,13 +56,11 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
         return views;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return factory.makeView(agentInstanceViewFactoryContext);
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         IntersectBatchViewLocalState localState = factory.getBatchViewLocalStatePerThread();
 
         // handle remove stream: post oldData to all views
@@ -74,8 +70,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
                 for (int i = 0; i < views.length; i++) {
                     views[i].update(newData, oldData);
                 }
-            }
-            finally {
+            } finally {
                 localState.setIgnoreViewIRStream(false);
             }
         }
@@ -89,8 +84,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
                         views[i].update(newData, oldData);
                     }
                 }
-            }
-            finally {
+            } finally {
                 localState.setCaptureIRNonBatch(false);
             }
 
@@ -117,8 +111,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
             EventBean[] newDataNonRemoved;
             if (factory.isHasAsymetric()) {
                 newDataNonRemoved = EventBeanUtility.getNewDataNonRemoved(newData, localState.getRemovedEvents(), localState.getNewEventsPerView());
-            }
-            else {
+            } else {
                 newDataNonRemoved = EventBeanUtility.getNewDataNonRemoved(newData, localState.getRemovedEvents());
             }
             if (newDataNonRemoved != null) {
@@ -127,18 +120,15 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return factory.getEventType();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return views[factory.getBatchViewIndex()].iterator();
     }
 
-    public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents) {
         IntersectBatchViewLocalState localState = factory.getBatchViewLocalStatePerThread();
 
         if (localState.isIgnoreViewIRStream()) {
@@ -164,14 +154,12 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
                             views[i].update(null, newEvents);
                         }
                     }
-                }
-                finally {
+                } finally {
                     localState.setIgnoreViewIRStream(false);
                 }
             }
-        }
-        // post remove stream to all other views
-        else {
+        } else {
+            // post remove stream to all other views
             if (oldEvents != null) {
                 try {
                     localState.setIgnoreViewIRStream(true);
@@ -180,8 +168,7 @@ public class IntersectBatchView extends ViewSupport implements LastPostObserver,
                             views[i].update(null, oldEvents);
                         }
                     }
-                }
-                finally {
+                } finally {
                     localState.setIgnoreViewIRStream(false);
                 }
             }

@@ -15,16 +15,14 @@ import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 
 import java.util.*;
 
-public class EventTableIndexMetadata
-{
+public class EventTableIndexMetadata {
     private final Map<IndexMultiKey, EventTableIndexMetadataEntry> indexes = new HashMap<IndexMultiKey, EventTableIndexMetadataEntry>();
 
     public EventTableIndexMetadata() {
     }
 
     public void addIndex(boolean isPrimary, IndexMultiKey indexMultiKey, String explicitIndexName, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (getIndexByName(explicitIndexName) != null) {
             throw new ExprValidationException("An index by name '" + explicitIndexName + "' already exists");
         }

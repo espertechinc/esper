@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Standard deviation of the (distinct) values returned by an expression.
  */
-public class StddevProjectionExpression extends ExpressionBase
-{
+public class StddevProjectionExpression extends ExpressionBase {
     private boolean distinct;
     private static final long serialVersionUID = -3145467730712717532L;
 
@@ -28,49 +27,47 @@ public class StddevProjectionExpression extends ExpressionBase
 
     /**
      * Ctor - for use to create an expression tree, without inner expression
+     *
      * @param isDistinct true if distinct
      */
-    public StddevProjectionExpression(boolean isDistinct)
-    {
+    public StddevProjectionExpression(boolean isDistinct) {
         this.distinct = isDistinct;
     }
 
     /**
      * Ctor - adds the expression to project.
+     *
      * @param expression returning values to project
      * @param isDistinct true if distinct
      */
-    public StddevProjectionExpression(Expression expression, boolean isDistinct)
-    {
+    public StddevProjectionExpression(Expression expression, boolean isDistinct) {
         this.distinct = isDistinct;
         this.getChildren().add(expression);
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         ExpressionBase.renderAggregation(writer, "stddev", distinct, this.getChildren());
     }
 
     /**
      * Returns true if the projection considers distinct values only.
+     *
      * @return true if distinct
      */
-    public boolean isDistinct()
-    {
+    public boolean isDistinct() {
         return distinct;
     }
 
     /**
      * Set the distinct flag indicating the projection considers distinct values only.
+     *
      * @param distinct true for distinct, false for not distinct
      */
-    public void setDistinct(boolean distinct)
-    {
+    public void setDistinct(boolean distinct) {
         this.distinct = distinct;
     }
 }

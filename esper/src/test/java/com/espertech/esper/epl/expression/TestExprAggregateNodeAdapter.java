@@ -11,18 +11,16 @@
 package com.espertech.esper.epl.expression;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
-import junit.framework.TestCase;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.supportunit.epl.SupportAggregationResultFuture;
+import junit.framework.TestCase;
 
-public abstract class TestExprAggregateNodeAdapter extends TestCase
-{
+public abstract class TestExprAggregateNodeAdapter extends TestCase {
     protected ExprAggregateNode validatedNodeToTest;
 
-    public void testEvaluate() throws Exception
-    {
-        SupportAggregationResultFuture future = new SupportAggregationResultFuture(new Object[] {10, 20});
+    public void testEvaluate() throws Exception {
+        SupportAggregationResultFuture future = new SupportAggregationResultFuture(new Object[]{10, 20});
         validatedNodeToTest.setAggregationResultFuture(future, 1);
         AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
 

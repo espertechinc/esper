@@ -50,12 +50,10 @@ public class AvroFragmentTypeUtil {
         boolean indexed = false;
         if (fieldSchema.getType() == Schema.Type.RECORD) {
             recordSchema = fieldSchema;
-        }
-        else if (fieldSchema.getType() == Schema.Type.ARRAY && fieldSchema.getElementType().getType() == Schema.Type.RECORD) {
+        } else if (fieldSchema.getType() == Schema.Type.ARRAY && fieldSchema.getElementType().getType() == Schema.Type.RECORD) {
             recordSchema = fieldSchema.getElementType();
             indexed = true;
-        }
-        else {
+        } else {
             return null;
         }
 

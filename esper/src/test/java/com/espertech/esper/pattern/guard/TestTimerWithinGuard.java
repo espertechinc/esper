@@ -11,43 +11,39 @@
 package com.espertech.esper.pattern.guard;
 
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.pattern.PatternAgentInstanceContext;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.schedule.SchedulingServiceImpl;
 import com.espertech.esper.supportunit.guard.SupportQuitable;
 import com.espertech.esper.supportunit.pattern.SupportPatternContextFactory;
-import com.espertech.esper.core.support.SupportSchedulingServiceImpl;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.timer.TimeSourceServiceImpl;
 import junit.framework.TestCase;
 
-public class TestTimerWithinGuard extends TestCase
-{
+public class TestTimerWithinGuard extends TestCase {
     private TimerWithinGuard guard;
     private SchedulingService scheduleService;
     private SupportQuitable quitable;
 
-    public void setUp()
-    {
+    public void setUp() {
         StatementContext stmtContext = SupportStatementContextFactory.makeContext(new SchedulingServiceImpl(new TimeSourceServiceImpl()));
         scheduleService = stmtContext.getSchedulingService();
         PatternAgentInstanceContext agentInstanceContext = SupportPatternContextFactory.makePatternAgentInstanceContext(scheduleService);
 
         quitable = new SupportQuitable(agentInstanceContext);
 
-        guard =  new TimerWithinGuard(1000, quitable);
+        guard = new TimerWithinGuard(1000, quitable);
     }
 
-    public void testInspect()
-    {
+    public void testInspect() {
         assertTrue(guard.inspect(null));
     }
 
     /**
      * Make sure the timer calls guardQuit after the set time period
      */
-    public void testStartAndTrigger()
-    {
+    public void testStartAndTrigger() {
         scheduleService.setTime(0);
 
         guard.startGuard();
@@ -60,8 +56,7 @@ public class TestTimerWithinGuard extends TestCase
         assertEquals(1, quitable.getAndResetQuitCounter());
     }
 
-    public void testStartAndStop()
-    {
+    public void testStartAndStop() {
         scheduleService.setTime(0);
 
         guard.startGuard();
@@ -69,21 +64,17 @@ public class TestTimerWithinGuard extends TestCase
         guard.stopGuard();
 
         scheduleService.setTime(1001);
-        SupportSchedulingServiceImpl.evaluateSchedule(scheduleService);        
+        SupportSchedulingServiceImpl.evaluateSchedule(scheduleService);
 
         assertEquals(0, quitable.getAndResetQuitCounter());
     }
 
-    public void testInvalid()
-    {
-        try
-        {
+    public void testInvalid() {
+        try {
             guard.startGuard();
             guard.startGuard();
             fail();
-        }
-        catch (IllegalStateException ex)
-        {
+        } catch (IllegalStateException ex) {
             // Expected exception
         }
     }

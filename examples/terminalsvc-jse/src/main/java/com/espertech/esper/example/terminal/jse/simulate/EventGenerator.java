@@ -34,9 +34,9 @@ public class EventGenerator {
 
     private static final int TERMINAL_COUNT = 100;
 
-    private static final int TERMINAL_OUTOFORDER_LIKELYHOOD_PER_CHECKIN = 10;//max 1000
+    private static final int TERMINAL_OUTOFORDER_LIKELYHOOD_PER_CHECKIN = 10; //max 1000
 
-    private static final int TERMINAL_EVENT_LIKELYHOOD_PER_BATCH = 100;//max 100
+    private static final int TERMINAL_EVENT_LIKELYHOOD_PER_BATCH = 100; //max 100
 
     private final Random random;
 
@@ -92,10 +92,10 @@ public class EventGenerator {
                 outOfOrderCount++;
                 theEvent = new OutOfOrder(new Terminal(termId));
                 System.out.println("\tGenerated a Checkin followed by " + theEvent.getType() + " event for terminal " + theEvent.getTerminal().getId());
-            } else if (random.nextInt(3) < 1) {//Boolean()) {
+            } else if (random.nextInt(3) < 1) {
                 completedCount++;
                 theEvent = new Completed(new Terminal(termId));
-            } else if (random.nextInt(3) < 2) {//{
+            } else if (random.nextInt(3) < 2) {
                 cancelledCount++;
                 theEvent = new Cancelled(new Terminal(termId));
             } else {

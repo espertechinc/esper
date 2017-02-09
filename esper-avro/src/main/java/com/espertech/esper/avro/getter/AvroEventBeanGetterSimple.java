@@ -19,8 +19,7 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.Collection;
 
-public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter
-{
+public class AvroEventBeanGetterSimple implements AvroEventPropertyGetter {
     private final int propertyIndex;
     private final EventType fragmentType;
     private final EventAdapterService eventAdapterService;

@@ -24,9 +24,8 @@ import java.util.Set;
  * requires such indexes. Such indexes are updated when events arrive, or remove from when a data window
  * or on-delete statement expires events. The view keeps track of on-delete statements their indexes used.
  */
-public class NamedWindowRootView
-{
-    private static final Logger queryPlanLog = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
+public class NamedWindowRootView {
+    private static final Logger QUERY_PLAN_LOG = LoggerFactory.getLogger(AuditPath.QUERYPLAN_LOG);
 
     private final ValueAddEventProcessor revisionProcessor;
     private final boolean queryPlanLogging;
@@ -57,7 +56,7 @@ public class NamedWindowRootView
     }
 
     public static Logger getQueryPlanLog() {
-        return queryPlanLog;
+        return QUERY_PLAN_LOG;
     }
 
     public boolean isQueryPlanLogging() {

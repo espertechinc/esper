@@ -12,17 +12,14 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class SupportOverrideBase implements Serializable, SupportMarkerInterface
-{
+public class SupportOverrideBase implements Serializable, SupportMarkerInterface {
     private String val;
 
-    public SupportOverrideBase(String val)
-    {
+    public SupportOverrideBase(String val) {
         this.val = val;
     }
 
-    public String getVal()
-    {
+    public String getVal() {
         return val;
     }
 }

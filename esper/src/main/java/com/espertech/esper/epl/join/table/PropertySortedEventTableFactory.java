@@ -18,8 +18,7 @@ import com.espertech.esper.event.EventBeanUtility;
  * Index that organizes events by the event property values into a single TreeMap sortable non-nested index
  * with Object keys that store the property values.
  */
-public class PropertySortedEventTableFactory implements EventTableFactory
-{
+public class PropertySortedEventTableFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String propertyName;
 
@@ -30,12 +29,12 @@ public class PropertySortedEventTableFactory implements EventTableFactory
 
     /**
      * Ctor.
-     * @param streamNum - the stream number that is indexed
-     * @param eventType - types of events indexed
+     *
+     * @param streamNum    - the stream number that is indexed
+     * @param eventType    - types of events indexed
      * @param propertyName - property name
      */
-    public PropertySortedEventTableFactory(int streamNum, EventType eventType, String propertyName)
-    {
+    public PropertySortedEventTableFactory(int streamNum, EventType eventType, String propertyName) {
         this.streamNum = streamNum;
         this.propertyName = propertyName;
         propertyGetter = EventBeanUtility.getAssertPropertyGetter(eventType, propertyName);
@@ -43,7 +42,7 @@ public class PropertySortedEventTableFactory implements EventTableFactory
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
-        return new EventTable[] {new PropertySortedEventTableImpl(propertyGetter, organization)};
+        return new EventTable[]{new PropertySortedEventTableImpl(propertyGetter, organization)};
     }
 
     public Class getEventTableClass() {
@@ -69,6 +68,6 @@ public class PropertySortedEventTableFactory implements EventTableFactory
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, false, streamNum, new String[] {propertyName}, EventTableOrganizationType.BTREE);
+        return new EventTableOrganization(null, false, false, streamNum, new String[]{propertyName}, EventTableOrganizationType.BTREE);
     }
 }

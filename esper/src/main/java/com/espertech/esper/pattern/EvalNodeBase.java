@@ -15,8 +15,7 @@ package com.espertech.esper.pattern;
  * Follows the Composite pattern. Child nodes do not carry references to parent nodes, the tree
  * is unidirectional.
  */
-public abstract class EvalNodeBase implements EvalNode
-{
+public abstract class EvalNodeBase implements EvalNode {
     private final PatternAgentInstanceContext context;
 
     protected EvalNodeBase(PatternAgentInstanceContext context) {
@@ -26,9 +25,10 @@ public abstract class EvalNodeBase implements EvalNode
     /**
      * Create the evaluation state node containing the truth value state for each operator in an
      * event expression.
-     * @param parentNode is the parent evaluator node that this node indicates a change in truth value to
+     *
+     * @param parentNode      is the parent evaluator node that this node indicates a change in truth value to
      * @param stateNodeNumber node number
-     * @param stateNodeId node id
+     * @param stateNodeId     node id
      * @return state node containing the truth value state for the operator
      */
     public abstract EvalStateNode newState(Evaluator parentNode,

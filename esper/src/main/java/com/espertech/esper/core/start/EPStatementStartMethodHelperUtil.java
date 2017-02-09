@@ -26,8 +26,7 @@ import com.espertech.esper.pattern.EvalFactoryNode;
 import com.espertech.esper.pattern.EvalFilterFactoryNode;
 import com.espertech.esper.view.ViewFactoryChain;
 
-public class EPStatementStartMethodHelperUtil
-{
+public class EPStatementStartMethodHelperUtil {
     public static Pair<ResultSetProcessor, AggregationService> startResultSetAndAggregation(ResultSetProcessorFactoryDesc resultSetProcessorPrototype, AgentInstanceContext agentInstanceContext, boolean isSubquery, Integer subqueryNumber) {
         AggregationService aggregationService = null;
         if (resultSetProcessorPrototype.getAggregationServiceFactoryDesc() != null) {
@@ -46,27 +45,24 @@ public class EPStatementStartMethodHelperUtil
 
     /**
      * Returns a stream name assigned for each stream, generated if none was supplied.
+     *
      * @param streams - stream specifications
      * @return array of stream names
      */
     @SuppressWarnings({"StringContatenationInLoop"})
-    protected static String[] determineStreamNames(StreamSpecCompiled[] streams)
-    {
+    protected static String[] determineStreamNames(StreamSpecCompiled[] streams) {
         String[] streamNames = new String[streams.length];
-        for (int i = 0; i < streams.length; i++)
-        {
+        for (int i = 0; i < streams.length; i++) {
             // Assign a stream name for joins, if not supplied
             streamNames[i] = streams[i].getOptionalStreamName();
-            if (streamNames[i] == null)
-            {
+            if (streamNames[i] == null) {
                 streamNames[i] = "stream_" + i;
             }
         }
         return streamNames;
     }
 
-    protected static boolean[] getHasIStreamOnly(boolean[] isNamedWindow, ViewFactoryChain[] unmaterializedViewChain)
-    {
+    protected static boolean[] getHasIStreamOnly(boolean[] isNamedWindow, ViewFactoryChain[] unmaterializedViewChain) {
         boolean[] result = new boolean[unmaterializedViewChain.length];
         for (int i = 0; i < unmaterializedViewChain.length; i++) {
             if (isNamedWindow[i]) {

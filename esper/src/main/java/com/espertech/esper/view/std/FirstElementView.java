@@ -24,8 +24,7 @@ import java.util.Iterator;
  * <p>
  * The view thus never posts a remove stream unless explicitly deleted from when used with a named window.
  */
-public class FirstElementView extends ViewSupport implements CloneableView, DataWindowView
-{
+public class FirstElementView extends ViewSupport implements CloneableView, DataWindowView {
     /**
      * The first new element posted from a parent view.
      */
@@ -36,62 +35,59 @@ public class FirstElementView extends ViewSupport implements CloneableView, Data
         this.viewFactory = viewFactory;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new FirstElementView(viewFactory);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, FirstElementViewFactory.NAME, newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, FirstElementViewFactory.NAME, newData, oldData);
+        }
 
         EventBean[] newDataToPost = null;
         EventBean[] oldDataToPost = null;
 
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
-                if (oldData[i] == firstEvent)
-                {
-                    oldDataToPost = new EventBean[] {firstEvent};
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
+                if (oldData[i] == firstEvent) {
+                    oldDataToPost = new EventBean[]{firstEvent};
                     firstEvent = null;
                 }
             }
         }
 
-        if ((newData != null) && (newData.length != 0))
-        {
-            if (firstEvent == null)
-            {
+        if ((newData != null) && (newData.length != 0)) {
+            if (firstEvent == null) {
                 firstEvent = newData[0];
-                newDataToPost = new EventBean[] {firstEvent};
+                newDataToPost = new EventBean[]{firstEvent};
             }
         }
 
-        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null)))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, FirstElementViewFactory.NAME, newDataToPost, oldDataToPost);}
+        if ((this.hasViews()) && ((newDataToPost != null) || (oldDataToPost != null))) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, FirstElementViewFactory.NAME, newDataToPost, oldDataToPost);
+            }
             updateChildren(newDataToPost, oldDataToPost);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new SingleEventIterator(firstEvent);
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 

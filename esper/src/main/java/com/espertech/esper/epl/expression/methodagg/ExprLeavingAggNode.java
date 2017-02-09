@@ -11,42 +11,38 @@
 package com.espertech.esper.epl.expression.methodagg;
 
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 /**
  * Represents the leaving() aggregate function is an expression tree.
  */
-public class ExprLeavingAggNode extends ExprAggregateNodeBase
-{
+public class ExprLeavingAggNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = -261718190573572758L;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprLeavingAggNode(boolean distinct)
-    {
+    public ExprLeavingAggNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (positionalParams.length > 0) {
             throw makeExceptionExpectedParamNum(0, 0);
         }
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeLeaving(validationContext.getStatementExtensionSvcContext(), this);
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "leaving";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprLeavingAggNode;
     }
 }

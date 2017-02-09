@@ -13,10 +13,9 @@ package com.espertech.esper.client;
 /**
  * Defines an interface to notify of new and old events.
  * <p>
- * Also see {@link UpdateListener} for update listeners that only require event delivery. 
+ * Also see {@link UpdateListener} for update listeners that only require event delivery.
  */
-public interface StatementAwareUpdateListener
-{
+public interface StatementAwareUpdateListener {
     /**
      * Notify that new events are available or old events are removed.
      * <p>
@@ -30,10 +29,10 @@ public interface StatementAwareUpdateListener
      * Either newEvents or oldEvents will be non-empty. If both are non-empty, then the update is a modification
      * notification.
      *
-     * @param newEvents is any new events. This will be null or empty if the update is for old events only.
-     * @param oldEvents is any old events. This will be null or empty if the update is for new events only.
-     * @param statement is the statement producing the result
-     * @param epServiceProvider is the engine instance that provided the administrative API that created the statement which produces the result 
+     * @param newEvents         is any new events. This will be null or empty if the update is for old events only.
+     * @param oldEvents         is any old events. This will be null or empty if the update is for new events only.
+     * @param statement         is the statement producing the result
+     * @param epServiceProvider is the engine instance that provided the administrative API that created the statement which produces the result
      */
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider);
 }

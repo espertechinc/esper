@@ -17,22 +17,24 @@ import java.io.StringWriter;
  * This interface represents one filter parameter in an {@link FilterValueSet} filter specification.
  * <p> Each filtering parameter has a lookup-able and operator type, and a value to filter for.
  */
-public interface FilterValueSetParam extends Serializable
-{
+public interface FilterValueSetParam extends Serializable {
     /**
      * Returns the lookup-able for the filter parameter.
+     *
      * @return lookup-able
      */
     public FilterSpecLookupable getLookupable();
 
     /**
      * Returns the filter operator type.
+     *
      * @return filter operator type
      */
     public FilterOperator getFilterOperator();
 
     /**
      * Return the filter parameter constant to filter for.
+     *
      * @return filter parameter constant's value
      */
     public Object getFilterForValue();

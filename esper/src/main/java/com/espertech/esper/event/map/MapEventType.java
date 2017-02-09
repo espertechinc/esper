@@ -25,8 +25,7 @@ import java.util.*;
 /**
  * Implementation of the {@link EventType} interface for handling plain Maps containing name value pairs.
  */
-public class MapEventType extends BaseNestableEventType
-{
+public class MapEventType extends BaseNestableEventType {
     private static final EventTypeNestableGetterFactory GETTER_FACTORY = new EventTypeNestableGetterFactoryMap();
 
     protected Map<String, Pair<EventPropertyDescriptor, MapEventBeanPropertyWriter>> propertyWriters;
@@ -55,8 +54,7 @@ public class MapEventType extends BaseNestableEventType
 
         if (pair.getMapProperties().isEmpty() && pair.getArrayProperties().isEmpty()) {
             return new MapEventBeanCopyMethod(this, eventAdapterService);
-        }
-        else {
+        } else {
             return new MapEventBeanCopyMethodWithArrayMap(this, eventAdapterService, pair.getMapProperties(), pair.getArrayProperties());
         }
     }
@@ -65,16 +63,13 @@ public class MapEventType extends BaseNestableEventType
         return new MapEventBeanReader(this);
     }
 
-    public Object getValue(String propertyName, Map values)
-    {
+    public Object getValue(String propertyName, Map values) {
         MapEventPropertyGetter getter = (MapEventPropertyGetter) getGetter(propertyName);
         return getter.getMap(values);
     }
 
-    public MapEventBeanPropertyWriter getWriter(String propertyName)
-    {
-        if (writablePropertyDescriptors == null)
-        {
+    public MapEventBeanPropertyWriter getWriter(String propertyName) {
+        if (writablePropertyDescriptors == null) {
             initializeWriters();
         }
         Pair<EventPropertyDescriptor, MapEventBeanPropertyWriter> pair = propertyWriters.get(propertyName);
@@ -96,10 +91,8 @@ public class MapEventType extends BaseNestableEventType
         return null;
     }
 
-    public EventPropertyDescriptor getWritableProperty(String propertyName)
-    {
-        if (writablePropertyDescriptors == null)
-        {
+    public EventPropertyDescriptor getWritableProperty(String propertyName) {
+        if (writablePropertyDescriptors == null) {
             initializeWriters();
         }
         Pair<EventPropertyDescriptor, ? extends EventPropertyWriter> pair = propertyWriters.get(propertyName);
@@ -127,31 +120,25 @@ public class MapEventType extends BaseNestableEventType
         return null;
     }
 
-    public EventPropertyDescriptor[] getWriteableProperties()
-    {
-        if (writablePropertyDescriptors == null)
-        {
+    public EventPropertyDescriptor[] getWriteableProperties() {
+        if (writablePropertyDescriptors == null) {
             initializeWriters();
         }
         return writablePropertyDescriptors;
     }
 
-    public EventBeanWriter getWriter(String[] properties)
-    {
-        if (writablePropertyDescriptors == null)
-        {
+    public EventBeanWriter getWriter(String[] properties) {
+        if (writablePropertyDescriptors == null) {
             initializeWriters();
         }
 
         boolean allSimpleProps = true;
         MapEventBeanPropertyWriter[] writers = new MapEventBeanPropertyWriter[properties.length];
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             Pair<EventPropertyDescriptor, MapEventBeanPropertyWriter> writerPair = propertyWriters.get(properties[i]);
             if (writerPair != null) {
                 writers[i] = writerPair.getSecond();
-            }
-            else {
+            } else {
                 writers[i] = getWriter(properties[i]);
                 if (writers[i] == null) {
                     return null;
@@ -162,18 +149,15 @@ public class MapEventType extends BaseNestableEventType
 
         if (allSimpleProps) {
             return new MapEventBeanWriterSimpleProps(properties);
-        }
-        else {
+        } else {
             return new MapEventBeanWriterPerProp(writers);
         }
     }
 
-    private void initializeWriters()
-    {
+    private void initializeWriters() {
         List<EventPropertyDescriptor> writeableProps = new ArrayList<EventPropertyDescriptor>();
         Map<String, Pair<EventPropertyDescriptor, MapEventBeanPropertyWriter>> propertWritersMap = new HashMap<String, Pair<EventPropertyDescriptor, MapEventBeanPropertyWriter>>();
-        for (EventPropertyDescriptor prop : propertyDescriptors)
-        {
+        for (EventPropertyDescriptor prop : propertyDescriptors) {
             writeableProps.add(prop);
             final String propertyName = prop.getPropertyName();
             MapEventBeanPropertyWriter eventPropertyWriter = new MapEventBeanPropertyWriter(propertyName);

@@ -15,11 +15,11 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 /**
  * Visitor interface for use with expression node trees, receives both the child node and the parent node (or null to indicate no parent node).
  */
-public interface ExprNodeVisitorWithParent
-{
+public interface ExprNodeVisitorWithParent {
     /**
      * Allows visitor to indicate whether to visit a given node.
      * Implicitly if a visitor doesn't visit a node it would also not visit any descendent child nodes of that node.
+     *
      * @param exprNode is the node in questions
      * @return true if the visitor wants to visit the child node (next call is visit), or false to skip child
      */
@@ -27,7 +27,8 @@ public interface ExprNodeVisitorWithParent
 
     /**
      * Visit the given expression node.
-     * @param exprNode is the expression node to visit
+     *
+     * @param exprNode       is the expression node to visit
      * @param parentExprNode parent to visit
      */
     public void visit(ExprNode exprNode, ExprNode parentExprNode);

@@ -22,8 +22,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
  * Without having-clause the order of processing won't matter therefore its handled by the
  * {@link OutputProcessViewConditionDefault}. With group-by the {@link com.espertech.esper.epl.core.ResultSetProcessor} handles the per-group first criteria.
  */
-public class OutputProcessViewConditionFirstPostProcess extends OutputProcessViewConditionFirst
-{
+public class OutputProcessViewConditionFirstPostProcess extends OutputProcessViewConditionFirst {
     private final OutputStrategyPostProcess postProcessor;
 
     public OutputProcessViewConditionFirstPostProcess(ResultSetProcessorHelperFactory resultSetProcessorHelperFactory, ResultSetProcessor resultSetProcessor, Long afterConditionTime, Integer afterConditionNumberOfEvents, boolean afterConditionSatisfied, OutputProcessViewConditionFactory parent, AgentInstanceContext agentInstanceContext, OutputStrategyPostProcess postProcessor) {
@@ -31,11 +30,9 @@ public class OutputProcessViewConditionFirstPostProcess extends OutputProcessVie
         this.postProcessor = postProcessor;
     }
 
-    public void output(boolean forceUpdate, UniformPair<EventBean[]> results)
-    {
+    public void output(boolean forceUpdate, UniformPair<EventBean[]> results) {
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcessor.output(forceUpdate, results, childView);
         }
     }

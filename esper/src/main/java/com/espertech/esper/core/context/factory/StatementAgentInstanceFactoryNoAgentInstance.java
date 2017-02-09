@@ -11,10 +11,6 @@
 package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.service.AggregationServiceTable;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
-import com.espertech.esper.epl.table.mgmt.TableStateInstance;
-import com.espertech.esper.epl.table.mgmt.TableStateViewablePublic;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.Viewable;
 
@@ -26,8 +22,7 @@ public class StatementAgentInstanceFactoryNoAgentInstance implements StatementAg
         this.sharedFinalView = sharedFinalView;
     }
 
-    public StatementAgentInstanceFactoryCreateSchemaResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryCreateSchemaResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         return new StatementAgentInstanceFactoryCreateSchemaResult(sharedFinalView, CollectionUtil.STOP_CALLBACK_NONE, agentInstanceContext);
     }
 

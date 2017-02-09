@@ -45,7 +45,7 @@ public class ContextControllerHashedGetterCRC32Serialized implements EventProper
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        EventBean[] events = new EventBean[] {eventBean};
+        EventBean[] events = new EventBean[]{eventBean};
 
         Object[] parameters = new Object[evaluators.length];
         for (int i = 0; i < serializers.length; i++) {

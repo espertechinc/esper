@@ -1,7 +1,7 @@
 package com.espertech.esperio.db.config;
 
-import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.client.ConfigurationDBRef;
+import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.util.DOMElementIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 public class ConfigurationDBAdapterParser {
     /**

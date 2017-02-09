@@ -33,7 +33,8 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Ctor.
-     * @param items list of hash code functions and event types to apply to
+     *
+     * @param items       list of hash code functions and event types to apply to
      * @param granularity a number between 1 and Integer.MAX for parallelism
      * @param preallocate true to allocate each context partition at time of statement creation
      */
@@ -45,6 +46,7 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Returns hash items.
+     *
      * @return hash items
      */
     public List<ContextDescriptorHashSegmentedItem> getItems() {
@@ -53,6 +55,7 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Returns the granularity.
+     *
      * @return granularity
      */
     public int getGranularity() {
@@ -61,6 +64,7 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Sets the granularity.
+     *
      * @param granularity granularity to set
      */
     public void setGranularity(int granularity) {
@@ -69,6 +73,7 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Returns flag indicating whether to allocate context partitions upon statement creation, or only when actually referred to
+     *
      * @return preallocation flag
      */
     public boolean isPreallocate() {
@@ -77,6 +82,7 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Set the flag indicating whether to allocate context partitions upon statement creation, or only when actually referred to
+     *
      * @param preallocate preallocation flag
      */
     public void setPreallocate(boolean preallocate) {
@@ -85,6 +91,7 @@ public class ContextDescriptorHashSegmented implements ContextDescriptor {
 
     /**
      * Sets categories
+     *
      * @param items categories to set
      */
     public void setItems(List<ContextDescriptorHashSegmentedItem> items) {

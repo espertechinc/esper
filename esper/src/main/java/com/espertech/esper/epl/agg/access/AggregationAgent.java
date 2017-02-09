@@ -15,5 +15,6 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public interface AggregationAgent {
     public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState);
+
     public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState);
 }

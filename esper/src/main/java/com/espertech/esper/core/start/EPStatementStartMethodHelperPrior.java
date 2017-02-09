@@ -34,8 +34,7 @@ import java.util.*;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodHelperPrior
-{
+public class EPStatementStartMethodHelperPrior {
     private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodHelperPrior.class);
 
     public static PriorEventViewFactory findPriorViewFactory(List<ViewFactory> factories) {
@@ -53,8 +52,7 @@ public class EPStatementStartMethodHelperPrior
     }
 
     public static PriorEventViewFactory getPriorEventViewFactory(StatementContext statementContext, int streamNum, boolean unboundStream, boolean isSubquery, int subqueryNumber) {
-        try
-        {
+        try {
             String namespace = ViewEnum.PRIOR_EVENT_VIEW.getNamespace();
             String name = ViewEnum.PRIOR_EVENT_VIEW.getName();
             ViewFactory factory = statementContext.getViewResolutionService().create(namespace, name);
@@ -63,20 +61,16 @@ public class EPStatementStartMethodHelperPrior
             factory.setViewParameters(context, Arrays.asList((ExprNode) new ExprConstantNodeImpl(unboundStream)));
 
             return (PriorEventViewFactory) factory;
-        }
-        catch (ViewProcessingException ex)
-        {
+        } catch (ViewProcessingException ex) {
             String text = "Exception creating prior event view factory";
             throw new EPException(text, ex);
-        }
-        catch (ViewParameterException ex)
-        {
+        } catch (ViewParameterException ex) {
             String text = "Exception creating prior event view factory";
             throw new EPException(text, ex);
         }
     }
 
-    public static Map<ExprPriorNode, ExprPriorEvalStrategy> compilePriorNodeStrategies(ViewResourceDelegateVerified viewResourceDelegate, AgentInstanceViewFactoryChainContext viewFactoryChainContexts[]) {
+    public static Map<ExprPriorNode, ExprPriorEvalStrategy> compilePriorNodeStrategies(ViewResourceDelegateVerified viewResourceDelegate, AgentInstanceViewFactoryChainContext[] viewFactoryChainContexts) {
 
         if (!viewResourceDelegate.isHasPrior()) {
             return Collections.emptyMap();
@@ -99,24 +93,18 @@ public class EPStatementStartMethodHelperPrior
         // into {2, 8} the relative index is {0, 1}.
         // Map the expression-supplied index to a relative viewUpdatedCollection-known index via wrapper
         int relativeIndex = 0;
-        for (int reqIndex : callbacksPerIndex.keySet())
-        {
+        for (int reqIndex : callbacksPerIndex.keySet()) {
             List<ExprPriorNode> priorNodes = callbacksPerIndex.get(reqIndex);
-            for (ExprPriorNode callback : priorNodes)
-            {
+            for (ExprPriorNode callback : priorNodes) {
                 ExprPriorEvalStrategy strategy;
-                if (viewUpdatedCollection instanceof RelativeAccessByEventNIndex)
-                {
+                if (viewUpdatedCollection instanceof RelativeAccessByEventNIndex) {
                     RelativeAccessByEventNIndex relativeAccess = (RelativeAccessByEventNIndex) viewUpdatedCollection;
                     PriorEventViewRelAccess impl = new PriorEventViewRelAccess(relativeAccess, relativeIndex);
                     strategy = new ExprPriorEvalStrategyRelativeAccess(impl);
-                }
-                else
-                {
+                } else {
                     if (viewUpdatedCollection instanceof RandomAccessByIndex) {
                         strategy = new ExprPriorEvalStrategyRandomAccess((RandomAccessByIndex) viewUpdatedCollection);
-                    }
-                    else {
+                    } else {
                         strategy = new ExprPriorEvalStrategyRelativeAccess((RelativeAccessByEventNIndex) viewUpdatedCollection);
                     }
                 }

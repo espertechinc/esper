@@ -30,8 +30,9 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
 
     /**
      * Ctor.
+     *
      * @param crontabExpressions crontab expressions returning number sets for each crontab position
-     * @param now indicator whethet to include "now"
+     * @param now                indicator whethet to include "now"
      */
     public ContextDescriptorConditionCrontab(List<Expression> crontabExpressions, boolean now) {
         this.crontabExpressions = crontabExpressions;
@@ -40,6 +41,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
 
     /**
      * Returns the crontab expressions.
+     *
      * @return crontab
      */
     public List<Expression> getCrontabExpressions() {
@@ -48,6 +50,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
 
     /**
      * Sets the crontab expressions.
+     *
      * @param crontabExpressions to set
      */
     public void setCrontabExpressions(List<Expression> crontabExpressions) {
@@ -60,6 +63,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
 
     /**
      * Returns "now" indicator
+     *
      * @return "now" indicator
      */
     public boolean isNow() {
@@ -68,6 +72,7 @@ public class ContextDescriptorConditionCrontab implements ContextDescriptorCondi
 
     /**
      * Sets "now" indicator
+     *
      * @param now "now" indicator
      */
     public void setNow(boolean now) {

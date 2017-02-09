@@ -12,17 +12,14 @@ package com.espertech.esper.collection;
 
 import junit.framework.TestCase;
 
-public class TestRefCountedSet extends TestCase
-{
+public class TestRefCountedSet extends TestCase {
     private RefCountedSet<String> refSet;
 
-    public void setUp()
-    {
+    public void setUp() {
         refSet = new RefCountedSet<String>();
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         assertTrue(refSet.add("a"));
         assertEquals(1, refSet.size());
 
@@ -33,8 +30,7 @@ public class TestRefCountedSet extends TestCase
         assertEquals(3, refSet.size());
     }
 
-    public void testRemove()
-    {
+    public void testRemove() {
         refSet.add("a");
         refSet.add("a");
         refSet.add("a");
@@ -53,7 +49,7 @@ public class TestRefCountedSet extends TestCase
         refSet.add("b");
         assertFalse(refSet.remove("b"));
         assertTrue(refSet.remove("b"));
-        
+
 
         refSet.add("C");
         refSet.add("C");

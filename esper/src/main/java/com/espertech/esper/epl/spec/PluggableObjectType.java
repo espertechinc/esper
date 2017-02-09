@@ -13,8 +13,7 @@ package com.espertech.esper.epl.spec;
 /**
  * Enumeration for types of plug-in objects.
  */
-public enum PluggableObjectType
-{
+public enum PluggableObjectType {
     /**
      * Pattern guard object type.
      */

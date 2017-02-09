@@ -10,8 +10,7 @@
  */
 package com.espertech.esperio.amqp;
 
-public class AMQPSettingsSource extends AMQPSettingsBase
-{
+public class AMQPSettingsSource extends AMQPSettingsBase {
     private AMQPToObjectCollector collector;
     private int prefetchCount = 100;
     private boolean consumeAutoAck = true;

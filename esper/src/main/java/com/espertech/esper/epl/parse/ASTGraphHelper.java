@@ -17,10 +17,8 @@ import org.antlr.v4.runtime.tree.Tree;
 
 import java.util.*;
 
-public class ASTGraphHelper
-{
-    public static CreateDataFlowDesc walkCreateDataFlow(EsperEPL2GrammarParser.CreateDataflowContext ctx, Map<Tree, Object> astGraphNodeMap, EngineImportService engineImportService)
-    {
+public class ASTGraphHelper {
+    public static CreateDataFlowDesc walkCreateDataFlow(EsperEPL2GrammarParser.CreateDataflowContext ctx, Map<Tree, Object> astGraphNodeMap, EngineImportService engineImportService) {
         String graphName = ctx.name.getText();
 
         List<GraphOperatorSpec> ops = new ArrayList<GraphOperatorSpec>();
@@ -30,16 +28,14 @@ public class ASTGraphHelper
         for (EsperEPL2GrammarParser.GopContext gopctx : gopctxs) {
             if (gopctx.createSchemaExpr() != null) {
                 schemas.add(ASTCreateSchemaHelper.walkCreateSchema(gopctx.createSchemaExpr()));
-            }
-            else {
+            } else {
                 ops.add(parseOp(gopctx, astGraphNodeMap, engineImportService));
             }
         }
         return new CreateDataFlowDesc(graphName, ops, schemas);
     }
 
-    private static GraphOperatorSpec parseOp(EsperEPL2GrammarParser.GopContext ctx, Map<Tree, Object> astGraphNodeMap, EngineImportService engineImportService)
-    {
+    private static GraphOperatorSpec parseOp(EsperEPL2GrammarParser.GopContext ctx, Map<Tree, Object> astGraphNodeMap, EngineImportService engineImportService) {
         String operatorName = ctx.opName != null ? ctx.opName.getText() : ctx.s.getText();
 
         GraphOperatorInput input = new GraphOperatorInput();
@@ -61,8 +57,7 @@ public class ASTGraphHelper
                 Object value = astGraphNodeMap.remove(cfgctx);
                 if (cfgctx.n != null) {
                     name = cfgctx.n.getText();
-                }
-                else {
+                } else {
                     name = "select";
                 }
                 configs.put(name, value);
@@ -77,8 +72,7 @@ public class ASTGraphHelper
             for (EsperEPL2GrammarParser.AnnotationEnumContext annoctx : annoctxs) {
                 annotations.add(ASTAnnotationHelper.walk(annoctx, engineImportService));
             }
-        }
-        else {
+        } else {
             annotations = Collections.emptyList();
         }
 
@@ -103,8 +97,7 @@ public class ASTGraphHelper
             for (EsperEPL2GrammarParser.ClassIdentifierContext ctx : item.gopParamsItemMany().classIdentifier()) {
                 paramNames.add(ctx.getText());
             }
-        }
-        else {
+        } else {
             paramNames.add(ASTUtil.unescapeClassIdent(item.classIdentifier()));
         }
         return paramNames.toArray(new String[paramNames.size()]);

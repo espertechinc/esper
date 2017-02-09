@@ -58,43 +58,32 @@ public class EvalSelectStreamWUnderlying extends EvalSelectStreamBaseMap impleme
         this.tableMetadata = tableMetadata;
     }
 
-    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         // In case of a wildcard and single stream that is itself a
         // wrapper bean, we also need to add the map properties
-        if(singleStreamWrapper)
-        {
-            DecoratingEventBean wrapper = (DecoratingEventBean)eventsPerStream[0];
-            if(wrapper != null)
-            {
+        if (singleStreamWrapper) {
+            DecoratingEventBean wrapper = (DecoratingEventBean) eventsPerStream[0];
+            if (wrapper != null) {
                 Map<String, Object> map = wrapper.getDecoratingProperties();
                 props.putAll(map);
             }
         }
 
         EventBean theEvent = null;
-        if (underlyingIsFragmentEvent)
-        {
+        if (underlyingIsFragmentEvent) {
             EventBean eventBean = eventsPerStream[underlyingStreamNumber];
             theEvent = (EventBean) eventBean.getFragment(unnamedStreams.get(0).getStreamSelected().getStreamName());
-        }
-        else if (underlyingPropertyEventGetter != null)
-        {
+        } else if (underlyingPropertyEventGetter != null) {
             Object value = underlyingPropertyEventGetter.get(eventsPerStream[underlyingStreamNumber]);
-            if (value != null)
-            {
+            if (value != null) {
                 theEvent = super.getSelectExprContext().getEventAdapterService().adapterForBean(value);
             }
-        }
-        else if (underlyingExprEvaluator != null) {
+        } else if (underlyingExprEvaluator != null) {
             Object value = underlyingExprEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if (value != null)
-            {
+            if (value != null) {
                 theEvent = super.getSelectExprContext().getEventAdapterService().adapterForBean(value);
             }
-        }
-        else
-        {
+        } else {
             theEvent = eventsPerStream[underlyingStreamNumber];
             if (tableMetadata != null && theEvent != null) {
                 theEvent = tableMetadata.getEventToPublic().convert(theEvent, eventsPerStream, isNewData, exprEvaluatorContext);

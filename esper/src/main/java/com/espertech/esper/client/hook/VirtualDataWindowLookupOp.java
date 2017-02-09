@@ -87,6 +87,7 @@ public enum VirtualDataWindowLookupOp {
 
     /**
      * Returns the string-value of the operator.
+     *
      * @return operator string value
      */
     public String getOp() {
@@ -95,6 +96,7 @@ public enum VirtualDataWindowLookupOp {
 
     /**
      * Map the operator from a string-value.
+     *
      * @param stringOp to map from
      * @return operator
      * @throws IllegalArgumentException if the string operator cannot be understood

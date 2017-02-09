@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Represents the 'prior' prior event resolution strategy for use in an expression node tree.
  */
-public interface ExprPriorEvalStrategy
-{
+public interface ExprPriorEvalStrategy {
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext,
                            int streamNumber, ExprEvaluator evaluator, int constantIndexNumber);
 }

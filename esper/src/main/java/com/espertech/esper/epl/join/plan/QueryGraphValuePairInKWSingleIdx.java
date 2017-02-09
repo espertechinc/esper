@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.plan;
 
 import java.util.List;
 
-public class QueryGraphValuePairInKWSingleIdx
-{
+public class QueryGraphValuePairInKWSingleIdx {
     private final String[] indexed;
     private final List<QueryGraphValueEntryInKeywordSingleIdx> key;
 

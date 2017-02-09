@@ -29,7 +29,8 @@ public class PropertyValueExpressionPair implements Serializable {
 
     /**
      * Ctor.
-     * @param left expression
+     *
+     * @param left  expression
      * @param right expression
      */
     public PropertyValueExpressionPair(PropertyValueExpression left, PropertyValueExpression right) {
@@ -39,6 +40,7 @@ public class PropertyValueExpressionPair implements Serializable {
 
     /**
      * Returns left expr.
+     *
      * @return left
      */
     public Expression getLeft() {
@@ -47,6 +49,7 @@ public class PropertyValueExpressionPair implements Serializable {
 
     /**
      * Sets left expr.
+     *
      * @param left left
      */
     public void setLeft(Expression left) {
@@ -55,6 +58,7 @@ public class PropertyValueExpressionPair implements Serializable {
 
     /**
      * Returns right side.
+     *
      * @return right side
      */
     public Expression getRight() {
@@ -63,6 +67,7 @@ public class PropertyValueExpressionPair implements Serializable {
 
     /**
      * Sets right side.
+     *
      * @param right to set
      */
     public void setRight(Expression right) {

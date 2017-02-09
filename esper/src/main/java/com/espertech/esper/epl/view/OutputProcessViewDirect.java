@@ -26,8 +26,7 @@ import java.util.Set;
  * Output process view that does not enforce any output policies and may simply
  * hand over events to child views, does not handle distinct.
  */
-public class OutputProcessViewDirect extends OutputProcessViewBase
-{
+public class OutputProcessViewDirect extends OutputProcessViewBase {
     private final OutputProcessViewDirectFactory parent;
 
     public OutputProcessViewDirect(ResultSetProcessor resultSetProcessor, OutputProcessViewDirectFactory parent) {
@@ -53,79 +52,87 @@ public class OutputProcessViewDirect extends OutputProcessViewBase
 
     /**
      * The update method is called if the view does not participate in a join.
+     *
      * @param newData - new events
      * @param oldData - old events
      */
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputProcessNonBuffered(newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qOutputProcessNonBuffered(newData, oldData);
+        }
 
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
         boolean isGenerateNatural = parent.getStatementResultService().isMakeNatural();
 
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processViewResult(newData, oldData, isGenerateSynthetic);
 
-        if ((!isGenerateSynthetic) && (!isGenerateNatural))
-        {
+        if ((!isGenerateSynthetic) && (!isGenerateNatural)) {
             if (AuditPath.isAuditEnabled) {
                 OutputStrategyUtil.indicateEarlyReturn(parent.getStatementContext(), newOldEvents);
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessNonBuffered();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aOutputProcessNonBuffered();
+            }
             return;
         }
 
         boolean forceOutput = false;
         if ((newData == null) && (oldData == null) &&
-            ((newOldEvents == null) || (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null)))
-        {
+                ((newOldEvents == null) || (newOldEvents.getFirst() == null && newOldEvents.getSecond() == null))) {
             forceOutput = true;
         }
 
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcess(forceOutput, newOldEvents, childView);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessNonBuffered();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aOutputProcessNonBuffered();
+        }
     }
 
     /**
      * This process (update) method is for participation in a join.
+     *
      * @param newEvents - new events
      * @param oldEvents - old events
      */
-    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qOutputProcessNonBufferedJoin(newEvents, oldEvents);}
+    public void process(Set<MultiKey<EventBean>> newEvents, Set<MultiKey<EventBean>> oldEvents, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qOutputProcessNonBufferedJoin(newEvents, oldEvents);
+        }
 
         boolean isGenerateSynthetic = parent.getStatementResultService().isMakeSynthetic();
         boolean isGenerateNatural = parent.getStatementResultService().isMakeNatural();
 
         UniformPair<EventBean[]> newOldEvents = resultSetProcessor.processJoinResult(newEvents, oldEvents, isGenerateSynthetic);
 
-        if ((!isGenerateSynthetic) && (!isGenerateNatural))
-        {
+        if ((!isGenerateSynthetic) && (!isGenerateNatural)) {
             if (AuditPath.isAuditEnabled) {
                 OutputStrategyUtil.indicateEarlyReturn(parent.getStatementContext(), newOldEvents);
             }
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessNonBufferedJoin();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aOutputProcessNonBufferedJoin();
+            }
             return;
         }
 
-        if (newOldEvents == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessNonBufferedJoin();}
+        if (newOldEvents == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aOutputProcessNonBufferedJoin();
+            }
             return;
         }
 
         // Child view can be null in replay from named window
-        if (childView != null)
-        {
+        if (childView != null) {
             postProcess(false, newOldEvents, childView);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aOutputProcessNonBufferedJoin();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aOutputProcessNonBufferedJoin();
+        }
     }
 
     protected void postProcess(boolean force, UniformPair<EventBean[]> newOldEvents, UpdateDispatchView childView) {

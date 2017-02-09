@@ -12,19 +12,17 @@ package com.espertech.esper.dispatch;
 
 import com.espertech.esper.supportunit.dispatch.SupportDispatchable;
 import junit.framework.TestCase;
+
 import java.util.List;
 
-public class TestDispatchServiceImpl extends TestCase
-{
+public class TestDispatchServiceImpl extends TestCase {
     private DispatchServiceImpl service;
 
-    public void setUp()
-    {
+    public void setUp() {
         service = new DispatchServiceImpl();
     }
 
-    public void testAddAndDispatch()
-    {
+    public void testAddAndDispatch() {
         // Dispatch without work to do, should complete
         service.dispatch();
 
@@ -47,8 +45,7 @@ public class TestDispatchServiceImpl extends TestCase
         assertEquals(1, disTwo.getAndResetNumExecuted());
     }
 
-    public void testAddDispatchTwice()
-    {
+    public void testAddDispatchTwice() {
         SupportDispatchable disOne = new SupportDispatchable();
         service.addExternal(disOne);
 
@@ -59,11 +56,9 @@ public class TestDispatchServiceImpl extends TestCase
         assertEquals(0, disOne.getAndResetNumExecuted());
     }
 
-    public void testAdd()
-    {
+    public void testAdd() {
         SupportDispatchable dispatchables[] = new SupportDispatchable[2];
-        for (int i = 0; i < dispatchables.length; i++)
-        {
+        for (int i = 0; i < dispatchables.length; i++) {
             dispatchables[i] = new SupportDispatchable();
         }
         SupportDispatchable.getAndResetInstanceList();

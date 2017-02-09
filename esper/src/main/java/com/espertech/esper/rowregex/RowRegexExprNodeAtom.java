@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Atom in a regex expression tree.
  */
-public class RowRegexExprNodeAtom extends RowRegexExprNode
-{
+public class RowRegexExprNodeAtom extends RowRegexExprNode {
     private final String tag;
     private final RegexNFATypeEnum type;
     private final RowRegexExprRepeatDesc optionalRepeat;
@@ -24,8 +23,9 @@ public class RowRegexExprNodeAtom extends RowRegexExprNode
 
     /**
      * Ctor.
-     * @param tag variable name
-     * @param type multiplicity and greedy indicator
+     *
+     * @param tag            variable name
+     * @param type           multiplicity and greedy indicator
      * @param optionalRepeat optional repeating information
      */
     public RowRegexExprNodeAtom(String tag, RegexNFATypeEnum type, RowRegexExprRepeatDesc optionalRepeat) {
@@ -36,6 +36,7 @@ public class RowRegexExprNodeAtom extends RowRegexExprNode
 
     /**
      * Returns the variable name.
+     *
      * @return variable
      */
     public String getTag() {
@@ -44,6 +45,7 @@ public class RowRegexExprNodeAtom extends RowRegexExprNode
 
     /**
      * Returns multiplicity and greedy indicator.
+     *
      * @return type
      */
     public RegexNFATypeEnum getType() {

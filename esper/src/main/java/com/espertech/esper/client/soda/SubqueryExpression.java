@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Subquery-expression returns values returned by a lookup modelled by a further {@link EPStatementObjectModel}.
  */
-public class SubqueryExpression extends ExpressionBase
-{
+public class SubqueryExpression extends ExpressionBase {
     private EPStatementObjectModel model;
     private static final long serialVersionUID = 5210335236320516663L;
 
@@ -28,20 +27,18 @@ public class SubqueryExpression extends ExpressionBase
 
     /**
      * Ctor - for use to create an expression tree, without child expression.
+     *
      * @param model is the lookup statement object model
      */
-    public SubqueryExpression(EPStatementObjectModel model)
-    {
+    public SubqueryExpression(EPStatementObjectModel model) {
         this.model = model;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write('(');
         writer.write(model.toEPL());
         writer.write(')');
@@ -49,19 +46,19 @@ public class SubqueryExpression extends ExpressionBase
 
     /**
      * Returns the lookup statement object model.
+     *
      * @return lookup model
      */
-    public EPStatementObjectModel getModel()
-    {
+    public EPStatementObjectModel getModel() {
         return model;
     }
 
     /**
      * Sets the lookup statement object model.
+     *
      * @param model is the lookup model to set
      */
-    public void setModel(EPStatementObjectModel model)
-    {
+    public void setModel(EPStatementObjectModel model) {
         this.model = model;
     }
 }

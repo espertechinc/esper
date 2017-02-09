@@ -27,15 +27,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 
-public class AggregationMethodFactoryAvg implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryAvg implements AggregationMethodFactory {
     protected final ExprAvgNode parent;
     protected final Class childType;
     protected final Class resultType;
     protected final MathContext optionalMathContext;
 
-    public AggregationMethodFactoryAvg(ExprAvgNode parent, Class childType, MathContext optionalMathContext)
-    {
+    public AggregationMethodFactoryAvg(ExprAvgNode parent, Class childType, MathContext optionalMathContext) {
         this.parent = parent;
         this.childType = childType;
         this.resultType = getAvgAggregatorType(childType);
@@ -46,8 +44,7 @@ public class AggregationMethodFactoryAvg implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return resultType;
     }
 
@@ -90,26 +87,21 @@ public class AggregationMethodFactoryAvg implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    private Class getAvgAggregatorType(Class type)
-    {
-        if ((type == BigDecimal.class) || (type == BigInteger.class))
-        {
+    private Class getAvgAggregatorType(Class type) {
+        if ((type == BigDecimal.class) || (type == BigInteger.class)) {
             return BigDecimal.class;
         }
         return Double.class;
     }
 
-    private AggregationMethod makeAvgAggregator(Class type, boolean hasFilter, MathContext optionalMathContext)
-    {
+    private AggregationMethod makeAvgAggregator(Class type, boolean hasFilter, MathContext optionalMathContext) {
         if (hasFilter) {
-            if ((type == BigDecimal.class) || (type == BigInteger.class))
-            {
+            if ((type == BigDecimal.class) || (type == BigInteger.class)) {
                 return new AggregatorAvgBigDecimalFilter(optionalMathContext);
             }
             return new AggregatorAvgFilter();
         }
-        if ((type == BigDecimal.class) || (type == BigInteger.class))
-        {
+        if ((type == BigDecimal.class) || (type == BigInteger.class)) {
             return new AggregatorAvgBigDecimal(optionalMathContext);
         }
         return new AggregatorAvg();

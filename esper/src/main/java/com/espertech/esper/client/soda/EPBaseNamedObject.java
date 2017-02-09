@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Base class for named engine objects such as views, patterns guards and observers.
  */
-public abstract class EPBaseNamedObject implements Serializable
-{
+public abstract class EPBaseNamedObject implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String namespace;
@@ -32,14 +31,13 @@ public abstract class EPBaseNamedObject implements Serializable
     }
 
     /**
-
      * Ctor.
-     * @param namespace is the namespace of the object, i.e. view namespace or pattern object namespace
-     * @param name is the name of the object, such as the view name
+     *
+     * @param namespace  is the namespace of the object, i.e. view namespace or pattern object namespace
+     * @param name       is the name of the object, such as the view name
      * @param parameters is the optional parameters to the view or pattern object, or empty list for no parameters
      */
-    public EPBaseNamedObject(String namespace, String name, List<Expression> parameters)
-    {
+    public EPBaseNamedObject(String namespace, String name, List<Expression> parameters) {
         this.namespace = namespace;
         this.name = name;
         this.parameters = parameters;
@@ -47,64 +45,64 @@ public abstract class EPBaseNamedObject implements Serializable
 
     /**
      * Returns the object namespace name.
+     *
      * @return namespace name
      */
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return namespace;
     }
 
     /**
      * Sets the object namespace name
+     *
      * @param namespace to set
      */
-    public void setNamespace(String namespace)
-    {
+    public void setNamespace(String namespace) {
         this.namespace = namespace;
     }
 
     /**
      * Returns the object name.
+     *
      * @return object name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Sets the object name.
+     *
      * @param name is the object name to set
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * Returns the object parameters.
+     *
      * @return parameters for object, empty list for no parameters
      */
-    public List<Expression> getParameters()
-    {
+    public List<Expression> getParameters() {
         return parameters;
     }
 
     /**
      * Sets the parameters for the object.
+     *
      * @param parameters parameters for object, empty list for no parameters
      */
-    public void setParameters(List<Expression> parameters)
-    {
+    public void setParameters(List<Expression> parameters) {
         this.parameters = parameters;
     }
 
     /**
      * Writes the object in EPL-syntax in the format "namespace:name(parameter, parameter, ..., parameter)"
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         writer.write(namespace);
         writer.write(':');
         writer.write(name);

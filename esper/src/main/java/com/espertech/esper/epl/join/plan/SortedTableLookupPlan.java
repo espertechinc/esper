@@ -21,21 +21,20 @@ import java.util.Collections;
 /**
  * Plan to perform an indexed table lookup.
  */
-public class SortedTableLookupPlan extends TableLookupPlan
-{
+public class SortedTableLookupPlan extends TableLookupPlan {
     private QueryGraphValueEntryRange rangeKeyPair;
     private int lookupStream;
 
     /**
      * Ctor.
-     * @param lookupStream - stream that generates event to look up for
+     *
+     * @param lookupStream  - stream that generates event to look up for
      * @param indexedStream - stream to index table lookup
-     * @param indexNum - index number for the table containing the full unindexed contents
-     * @param rangeKeyPair range-key pair
+     * @param indexNum      - index number for the table containing the full unindexed contents
+     * @param rangeKeyPair  range-key pair
      */
-    public SortedTableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryRange rangeKeyPair)
-    {
-        super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});
+    public SortedTableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, QueryGraphValueEntryRange rangeKeyPair) {
+        super(lookupStream, indexedStream, new TableLookupIndexReqKey[]{indexNum});
         this.rangeKeyPair = rangeKeyPair;
         this.lookupStream = lookupStream;
     }
@@ -48,16 +47,14 @@ public class SortedTableLookupPlan extends TableLookupPlan
         return new TableLookupKeyDesc(Collections.<QueryGraphValueEntryHashKeyed>emptyList(), Collections.singletonList(rangeKeyPair));
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         PropertySortedEventTable index = (PropertySortedEventTable) eventTable[0];
         return new SortedTableLookupStrategy(lookupStream, -1, rangeKeyPair, null, index);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "SortedTableLookupPlan " +
                 super.toString() +
-               " keyProperties=" + rangeKeyPair.toQueryPlan();
+                " keyProperties=" + rangeKeyPair.toQueryPlan();
     }
 }

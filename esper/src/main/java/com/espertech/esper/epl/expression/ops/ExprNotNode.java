@@ -20,53 +20,50 @@ import java.io.StringWriter;
 /**
  * Represents a NOT expression in an expression tree.
  */
-public class ExprNotNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprNotNode extends ExprNodeBase implements ExprEvaluator {
     private transient ExprEvaluator evaluator;
     private static final long serialVersionUID = -5958420226808323787L;
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Must have a single child node
-        if (this.getChildNodes().length != 1)
-        {
+        if (this.getChildNodes().length != 1) {
             throw new ExprValidationException("The NOT node requires exactly 1 child node");
         }
 
         evaluator = this.getChildNodes()[0].getExprEvaluator();
         Class childType = evaluator.getType();
-        if (!JavaClassHelper.isBoolean(childType))
-        {
+        if (!JavaClassHelper.isBoolean(childType)) {
             throw new ExprValidationException("Incorrect use of NOT clause, sub-expressions do not return boolean");
         }
         return null;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprNot(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprNot(this);
+        }
         Boolean evaluated = (Boolean) evaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (evaluated == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprNot(null);}
+        if (evaluated == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprNot(null);
+            }
             return null;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprNot(!evaluated);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprNot(!evaluated);
+        }
         return !evaluated;
     }
 
@@ -79,10 +76,8 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.NEGATED;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprNotNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprNotNode)) {
             return false;
         }
 

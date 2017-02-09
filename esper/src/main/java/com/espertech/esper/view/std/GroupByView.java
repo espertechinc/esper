@@ -14,7 +14,6 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewDataVisitableContainer;
 
-public interface GroupByView extends View, ViewDataVisitableContainer
-{
+public interface GroupByView extends View, ViewDataVisitableContainer {
     public ExprNode[] getCriteriaExpressions();
 }

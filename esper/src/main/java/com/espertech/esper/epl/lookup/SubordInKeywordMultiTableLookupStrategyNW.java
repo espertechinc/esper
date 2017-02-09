@@ -22,8 +22,7 @@ import java.util.Collection;
 /**
  * Index lookup strategy for subqueries for in-keyword single-index sided.
  */
-public class SubordInKeywordMultiTableLookupStrategyNW implements SubordTableLookupStrategy
-{
+public class SubordInKeywordMultiTableLookupStrategyNW implements SubordTableLookupStrategy {
     /**
      * Index to look up in.
      */
@@ -33,8 +32,7 @@ public class SubordInKeywordMultiTableLookupStrategyNW implements SubordTableLoo
 
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordInKeywordMultiTableLookupStrategyNW(ExprEvaluator evaluator, EventTable[] tables, LookupStrategyDesc strategyDesc)
-    {
+    public SubordInKeywordMultiTableLookupStrategyNW(ExprEvaluator evaluator, EventTable[] tables, LookupStrategyDesc strategyDesc) {
         this.evaluator = evaluator;
         indexes = new PropertyIndexedEventTableSingle[tables.length];
         for (int i = 0; i < tables.length; i++) {
@@ -43,8 +41,7 @@ public class SubordInKeywordMultiTableLookupStrategyNW implements SubordTableLoo
         this.strategyDesc = strategyDesc;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         return InKeywordTableLookupUtil.multiIndexLookup(evaluator, eventsPerStream, context, indexes);
     }
 

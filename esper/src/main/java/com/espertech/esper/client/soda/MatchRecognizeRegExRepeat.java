@@ -12,14 +12,11 @@ package com.espertech.esper.client.soda;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Match-recognize pattern descriptor for repetition
  */
-public class MatchRecognizeRegExRepeat implements Serializable
-{
+public class MatchRecognizeRegExRepeat implements Serializable {
     private static final long serialVersionUID = -4542225055062618542L;
     private Expression low;
     private Expression high;
@@ -33,8 +30,9 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Ctor.
-     * @param low low endpoint or null
-     * @param high high endpoint or null
+     *
+     * @param low    low endpoint or null
+     * @param high   high endpoint or null
      * @param single exact-matches repetition, should be null if low or high is provided
      */
     public MatchRecognizeRegExRepeat(Expression low, Expression high, Expression single) {
@@ -45,6 +43,7 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Returns the low endpoint.
+     *
      * @return low endpoint
      */
     public Expression getLow() {
@@ -53,6 +52,7 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Sets the low endpoint.
+     *
      * @param low low endpoint
      */
     public void setLow(Expression low) {
@@ -61,6 +61,7 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Returns the high endpoint.
+     *
      * @return high endpoint
      */
     public Expression getHigh() {
@@ -69,6 +70,7 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Sets the high endpoint.
+     *
      * @param high high endpoint
      */
     public void setHigh(Expression high) {
@@ -77,6 +79,7 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Returns the exact-num-matches endpoint.
+     *
      * @return exact-num-matches endpoint
      */
     public Expression getSingle() {
@@ -85,6 +88,7 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Sets the exact-num-matches endpoint.
+     *
      * @param single exact-num-matches endpoint
      */
     public void setSingle(Expression single) {
@@ -93,14 +97,14 @@ public class MatchRecognizeRegExRepeat implements Serializable
 
     /**
      * Render as EPL.
+     *
      * @param writer to write to
      */
     public void writeEPL(StringWriter writer) {
         writer.append("{");
         if (single != null) {
             single.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
-        }
-        else {
+        } else {
             if (low != null) {
                 low.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             }

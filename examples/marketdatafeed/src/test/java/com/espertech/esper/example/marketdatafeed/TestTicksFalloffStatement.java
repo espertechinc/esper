@@ -10,14 +10,14 @@
  */
 package com.espertech.esper.example.marketdatafeed;
 
-import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import junit.framework.TestCase;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.time.TimerControlEvent;
+import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.client.time.TimerControlEvent;
+import junit.framework.TestCase;
 
 public class TestTicksFalloffStatement extends TestCase {
 
@@ -75,8 +75,7 @@ public class TestTicksFalloffStatement extends TestCase {
         assertReceived(FeedEnum.FEED_A, (100 * 9 + 70) / 10, 70);
     }
 
-    private void assertReceived(FeedEnum feedEnum, double average, long count)
-    {
+    private void assertReceived(FeedEnum feedEnum, double average, long count) {
         assertTrue(listener.isInvoked());
         assertEquals(1, listener.getLastNewData().length);
         EventBean theEvent = listener.getLastNewData()[0];
@@ -92,10 +91,8 @@ public class TestTicksFalloffStatement extends TestCase {
         send(FeedEnum.FEED_B, numFeedB);
     }
 
-    private void send(FeedEnum feedEnum, int numEvents)
-    {
-        for (int i = 0; i < numEvents; i++)
-        {
+    private void send(FeedEnum feedEnum, int numEvents) {
+        for (int i = 0; i < numEvents; i++) {
             epService.getEPRuntime().sendEvent(new MarketDataEvent("CSC", feedEnum));
         }
     }

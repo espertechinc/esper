@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-public class CycleDetectMain implements Runnable
-{
+public class CycleDetectMain implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(CycleDetectMain.class);
 
     private final EPServiceProvider engine;
@@ -19,7 +18,7 @@ public class CycleDetectMain implements Runnable
     public CycleDetectMain() {
         engine = EPServiceProviderManager.getDefaultProvider();
         engine.getEPAdministrator().getConfiguration().addEventType(TransactionEvent.class);
-        String[] functionNames = new String[] {CycleDetectorConstant.CYCLEDETECTED_NAME, CycleDetectorConstant.CYCLEOUTPUT_NAME};
+        String[] functionNames = new String[]{CycleDetectorConstant.CYCLEDETECTED_NAME, CycleDetectorConstant.CYCLEOUTPUT_NAME};
         ConfigurationPlugInAggregationMultiFunction config = new ConfigurationPlugInAggregationMultiFunction(functionNames, CycleDetectorAggregationFactory.class.getName());
         engine.getEPAdministrator().getConfiguration().addPlugInAggregationMultiFunction(config);
 
@@ -48,8 +47,7 @@ public class CycleDetectMain implements Runnable
         return engine;
     }
 
-    public void run()
-    {
+    public void run() {
         final int range = 1000;
         int count = 0;
         int numEvents = 1000000;

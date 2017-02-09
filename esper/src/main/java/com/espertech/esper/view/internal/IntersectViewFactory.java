@@ -26,8 +26,7 @@ import java.util.Set;
 /**
  * Factory for union-views.
  */
-public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory, DataWindowViewFactoryUniqueCandidate, ViewFactoryContainer
-{
+public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory, DataWindowViewFactoryUniqueCandidate, ViewFactoryContainer {
     protected EventType parentEventType;
     protected List<ViewFactory> viewFactories;
     protected int batchViewIndex;
@@ -39,25 +38,24 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
     /**
      * Ctor.
      */
-    public IntersectViewFactory()
-    {
+    public IntersectViewFactory() {
     }
 
     /**
      * Sets the parent event type.
+     *
      * @param parentEventType type
      */
-    public void setParentEventType(EventType parentEventType)
-    {
+    public void setParentEventType(EventType parentEventType) {
         this.parentEventType = parentEventType;
     }
 
     /**
      * Sets the view factories.
+     *
      * @param viewFactories factories
      */
-    public void setViewFactories(final List<ViewFactory> viewFactories)
-    {
+    public void setViewFactories(final List<ViewFactory> viewFactories) {
         this.viewFactories = viewFactories;
         int batchCount = 0;
         for (int i = 0; i < viewFactories.size(); i++) {
@@ -78,15 +76,13 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
                     return new IntersectBatchViewLocalState(new EventBean[viewFactories.size()][], new EventBean[viewFactories.size()][]);
                 }
             };
-        }
-        else if (hasAsymetric) {
+        } else if (hasAsymetric) {
             asymetricViewLocalState = new ThreadLocal<IntersectAsymetricViewLocalState>() {
                 protected synchronized IntersectAsymetricViewLocalState initialValue() {
                     return new IntersectAsymetricViewLocalState(new EventBean[viewFactories.size()][]);
                 }
             };
-        }
-        else {
+        } else {
             defaultViewLocalState = new ThreadLocal<IntersectDefaultViewLocalState>() {
                 protected synchronized IntersectDefaultViewLocalState initialValue() {
                     return new IntersectDefaultViewLocalState(new EventBean[viewFactories.size()][]);
@@ -95,40 +91,33 @@ public class IntersectViewFactory implements ViewFactory, DataWindowViewFactory,
         }
     }
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> viewParameters) throws ViewParameterException {
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         List<View> views = new ArrayList<View>();
         boolean hasBatch = false;
-        for (ViewFactory viewFactory : viewFactories)
-        {
+        for (ViewFactory viewFactory : viewFactories) {
             agentInstanceViewFactoryContext.setRemoveStream(true);
             views.add(viewFactory.makeView(agentInstanceViewFactoryContext));
             hasBatch |= viewFactory instanceof DataWindowBatchingViewFactory;
         }
         if (hasBatch) {
             return new IntersectBatchView(agentInstanceViewFactoryContext, this, views);
-        }
-        else if (hasAsymetric) {
+        } else if (hasAsymetric) {
             return new IntersectAsymetricView(agentInstanceViewFactoryContext, this, views);
         }
         return new IntersectDefaultView(agentInstanceViewFactoryContext, this, views);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return parentEventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;
     }
 

@@ -19,8 +19,7 @@ import com.espertech.esperio.http.config.ConfigurationHTTPAdapter;
 import com.espertech.esperio.http.config.Request;
 import junit.framework.TestCase;
 
-public class TestHTTPAdapterOutput extends TestCase
-{
+public class TestHTTPAdapterOutput extends TestCase {
     private final static String ENGINE_URI = "TestHTTPAdapterOutput";
 
     private SupportUpdateListener listener;
@@ -29,8 +28,7 @@ public class TestHTTPAdapterOutput extends TestCase
         listener = new SupportUpdateListener();
     }
 
-    public void testRequest() throws Exception
-    {
+    public void testRequest() throws Exception {
         ConfigurationHTTPAdapter adapterConfig = new ConfigurationHTTPAdapter();
 
         Request requestOne = new Request();
@@ -57,7 +55,7 @@ public class TestHTTPAdapterOutput extends TestCase
 
         SupportHTTPServer server8078 = new SupportHTTPServer(8078);
         server8078.start();
-        
+
         provider.getEPRuntime().sendEvent(new SupportBeanTwo("E1"));
         assertEquals(1, SupportHTTPServerReqestHandler.getTargets().size());
         assertEquals("/root?stream=SupportBean&intProp=5&stringProp=E1", SupportHTTPServerReqestHandler.getAndResetTargets().get(0));

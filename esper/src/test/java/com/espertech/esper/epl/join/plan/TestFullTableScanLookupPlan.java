@@ -21,22 +21,19 @@ import junit.framework.TestCase;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestFullTableScanLookupPlan extends TestCase
-{
+public class TestFullTableScanLookupPlan extends TestCase {
     private UnindexedEventTable unindexedEventIndex;
 
-    public void setUp()
-    {
+    public void setUp() {
         unindexedEventIndex = new UnindexedEventTableImpl(0);
     }
 
-    public void testLookup()
-    {
+    public void testLookup() {
         FullTableScanLookupPlan spec = new FullTableScanLookupPlan(0, 1, new TableLookupIndexReqKey("idx2"));
 
-        Map<TableLookupIndexReqKey,EventTable>[] indexes = new Map[2];
-        indexes[0] = new HashMap<TableLookupIndexReqKey,EventTable>();
-        indexes[1] = new HashMap<TableLookupIndexReqKey,EventTable>();
+        Map<TableLookupIndexReqKey, EventTable>[] indexes = new Map[2];
+        indexes[0] = new HashMap<TableLookupIndexReqKey, EventTable>();
+        indexes[1] = new HashMap<TableLookupIndexReqKey, EventTable>();
         indexes[1].put(new TableLookupIndexReqKey("idx2"), unindexedEventIndex);
 
         JoinExecTableLookupStrategy lookupStrategy = spec.makeStrategy("ABC", 1, null, indexes, null, new VirtualDWView[2]);

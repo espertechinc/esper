@@ -15,27 +15,22 @@ import com.espertech.esper.epl.core.*;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 
-public class SupportStreamTypeSvc1Stream implements StreamTypeService
-{
+public class SupportStreamTypeSvc1Stream implements StreamTypeService {
     private StreamTypeService impl;
 
-    public SupportStreamTypeSvc1Stream()
-    {
+    public SupportStreamTypeSvc1Stream() {
         impl = new StreamTypeServiceImpl(getEventTypes(), getStreamNames(), new boolean[10], "default", false);
     }
 
-    public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException
-    {
+    public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException {
         return impl.resolveByPropertyName(propertyName, false);
     }
 
-    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamName, String propertyName, boolean obtainFragment) throws PropertyNotFoundException, StreamNotFoundException
-    {
+    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamName, String propertyName, boolean obtainFragment) throws PropertyNotFoundException, StreamNotFoundException {
         return impl.resolveByStreamAndPropName(streamName, propertyName, false);
     }
 
-    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamAndPropertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException
-    {
+    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamAndPropertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException {
         return impl.resolveByStreamAndPropName(streamAndPropertyName, false);
     }
 
@@ -47,25 +42,21 @@ public class SupportStreamTypeSvc1Stream implements StreamTypeService
         return impl.resolveByStreamAndPropNameExplicitProps(streamName, propertyName, false);
     }
 
-    public String[] getStreamNames()
-    {
-        return new String[] {"s0"};
+    public String[] getStreamNames() {
+        return new String[]{"s0"};
     }
 
-    public EventType[] getEventTypes()
-    {
-        return new EventType[] {
-            SupportEventTypeFactory.createBeanType(SupportBean.class)
+    public EventType[] getEventTypes() {
+        return new EventType[]{
+                SupportEventTypeFactory.createBeanType(SupportBean.class)
         };
     }
 
-    public boolean[] getIStreamOnly()
-    {
-        return new boolean[10]; 
+    public boolean[] getIStreamOnly() {
+        return new boolean[10];
     }
 
-    public int getStreamNumForStreamName(String streamWildcard)
-    {
+    public int getStreamNumForStreamName(String streamWildcard) {
         return impl.getStreamNumForStreamName(streamWildcard);
     }
 

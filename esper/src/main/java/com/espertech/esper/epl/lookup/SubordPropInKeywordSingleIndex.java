@@ -17,8 +17,7 @@ import java.io.Serializable;
 /**
  * Holds property information for joined properties in a lookup.
  */
-public class SubordPropInKeywordSingleIndex implements Serializable
-{
+public class SubordPropInKeywordSingleIndex implements Serializable {
     private static final long serialVersionUID = 5502815704969387843L;
     private final String indexedProp;
     private final Class coercionType;

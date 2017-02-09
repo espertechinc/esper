@@ -10,29 +10,26 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.supportunit.bean.SupportBeanPropertyNames;
-import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
-import net.sf.cglib.reflect.FastClass;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedList;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.supportunit.bean.SupportBeanPropertyNames;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
+import net.sf.cglib.reflect.FastClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestPropertyHelper extends TestCase
-{
-    public void testAddMappedProperties()
-    {
-    	List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+public class TestPropertyHelper extends TestCase {
+    public void testAddMappedProperties() {
+        List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
         PropertyHelper.addMappedProperties(SupportBeanPropertyNames.class, result);
         assertEquals(6, result.size());
 
@@ -44,13 +41,11 @@ public class TestPropertyHelper extends TestCase
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{"a", "AB", "ABC", "ab", "abc", "fooBah"}, propertyNames.toArray());
     }
 
-    public void testAddIntrospectProperties() throws Exception
-    {
-    	List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
+    public void testAddIntrospectProperties() throws Exception {
+        List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
         PropertyHelper.addIntrospectProperties(SupportBeanPropertyNames.class, result);
 
-        for (InternalEventPropDescriptor desc : result)
-        {
+        for (InternalEventPropDescriptor desc : result) {
             log.debug("desc=" + desc.getPropertyName());
         }
 
@@ -59,8 +54,7 @@ public class TestPropertyHelper extends TestCase
         assertNotNull(result.get(8).getReadMethod());
     }
 
-    public void testRemoveDuplicateProperties()
-    {
+    public void testRemoveDuplicateProperties() {
         List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
         result.add(new InternalEventPropDescriptor("x", (Method) null, null));
         result.add(new InternalEventPropDescriptor("x", (Method) null, null));
@@ -73,8 +67,7 @@ public class TestPropertyHelper extends TestCase
         assertEquals("y", result.get(1).getPropertyName());
     }
 
-    public void testRemoveJavaProperties()
-    {
+    public void testRemoveJavaProperties() {
         List<InternalEventPropDescriptor> result = new LinkedList<InternalEventPropDescriptor>();
         result.add(new InternalEventPropDescriptor("x", (Method) null, null));
         result.add(new InternalEventPropDescriptor("class", (Method) null, null));
@@ -88,14 +81,12 @@ public class TestPropertyHelper extends TestCase
         assertEquals("x", result.get(0).getPropertyName());
     }
 
-    public void testIntrospect()
-    {
+    public void testIntrospect() {
         PropertyDescriptor desc[] = PropertyHelper.introspect(SupportBeanPropertyNames.class);
         assertTrue(desc.length > 5);
     }
 
-    public void testGetGetter() throws Exception
-    {
+    public void testGetGetter() throws Exception {
         FastClass fastClass = FastClass.create(Thread.currentThread().getContextClassLoader(), SupportBeanPropertyNames.class);
         EventBean bean = SupportEventBeanFactory.createObject(new SupportBeanPropertyNames());
         Method method = SupportBeanPropertyNames.class.getMethod("getA", new Class[0]);

@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
  * its list. (BEFORE because the root node could call quit on child nodes for stopping all
  * listeners).
  */
-public final class EvalEveryStateSpawnEvaluator implements Evaluator
-{
+public final class EvalEveryStateSpawnEvaluator implements Evaluator {
     private boolean isEvaluatedTrue;
 
     private final String statementName;
@@ -31,19 +30,16 @@ public final class EvalEveryStateSpawnEvaluator implements Evaluator
         this.statementName = statementName;
     }
 
-    public final boolean isEvaluatedTrue()
-    {
+    public final boolean isEvaluatedTrue() {
         return isEvaluatedTrue;
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
         log.warn("Event/request processing: Uncontrolled pattern matching of \"every\" operator - infinite loop when using EVERY operator on expression(s) containing a not operator, for statement '" + statementName + "'");
         isEvaluatedTrue = true;
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
         log.warn("Event/request processing: Uncontrolled pattern matching of \"every\" operator - infinite loop when using EVERY operator on expression(s) containing a not operator, for statement '" + statementName + "'");
         isEvaluatedTrue = true;
     }

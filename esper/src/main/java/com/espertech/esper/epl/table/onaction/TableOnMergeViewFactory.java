@@ -20,8 +20,7 @@ import com.espertech.esper.epl.table.merge.TableOnMergeHelper;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 
-public class TableOnMergeViewFactory implements TableOnViewFactory
-{
+public class TableOnMergeViewFactory implements TableOnViewFactory {
     private final TableMetadata tableMetadata;
     private final TableOnMergeHelper onMergeHelper;
     private final StatementResultService statementResultService;

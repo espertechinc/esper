@@ -18,8 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEvalDeltaNonConst
-{
+public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEvalDeltaNonConst {
     private final Calendar cal;
     private final ExprTimePeriodImpl parent;
     private final int indexMicroseconds;
@@ -46,7 +45,7 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
     public synchronized ExprTimePeriodEvalDeltaResult deltaAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         // find the next-nearest reference higher then the current time, compute delta, return reference one lower
         if (reference > current) {
-            while(reference > current) {
+            while (reference > current) {
                 reference = reference - deltaSubtract(reference, eventsPerStream, isNewData, context);
             }
         }
@@ -71,8 +70,7 @@ public class ExprTimePeriodEvalDeltaNonConstCalAdd implements ExprTimePeriodEval
             int value = ((Number) evaluators[i].evaluate(eventsPerStream, newData, context)).intValue();
             if (i == indexMicroseconds) {
                 usec = value;
-            }
-            else {
+            } else {
                 adders[i].add(cal, factor * value);
             }
         }

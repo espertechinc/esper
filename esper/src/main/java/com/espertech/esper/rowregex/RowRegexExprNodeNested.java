@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Nested () regular expression in a regex expression tree.
  */
-public class RowRegexExprNodeNested extends RowRegexExprNode
-{
+public class RowRegexExprNodeNested extends RowRegexExprNode {
     private final RegexNFATypeEnum type;
     private final RowRegexExprRepeatDesc optionalRepeat;
     private static final long serialVersionUID = -2079284511194587570L;
@@ -28,6 +27,7 @@ public class RowRegexExprNodeNested extends RowRegexExprNode
 
     /**
      * Returns multiplicity and greedy.
+     *
      * @return type
      */
     public RegexNFATypeEnum getType() {

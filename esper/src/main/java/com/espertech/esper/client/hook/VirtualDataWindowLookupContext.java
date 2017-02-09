@@ -35,13 +35,14 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Ctor.
-     * @param hashFields operator-equals semantics fields
-     * @param btreeFields sorted-access fields, check the {@link VirtualDataWindowLookupOp} operator for what range or relational-operator applies
-     * @param namedWindowName named window name
-     * @param statementName the statement name of the statement performing the lookup; Null for fire-and-forget queries
+     *
+     * @param hashFields           operator-equals semantics fields
+     * @param btreeFields          sorted-access fields, check the {@link VirtualDataWindowLookupOp} operator for what range or relational-operator applies
+     * @param namedWindowName      named window name
+     * @param statementName        the statement name of the statement performing the lookup; Null for fire-and-forget queries
      * @param statementAnnotations the statement annotations of the statement performing the lookup; Null for fire-and-forget queries
-     * @param fireAndForget true for fire-and-forget queries
-     * @param statementId statement id
+     * @param fireAndForget        true for fire-and-forget queries
+     * @param statementId          statement id
      */
     public VirtualDataWindowLookupContext(String statementName, int statementId, Annotation[] statementAnnotations, boolean fireAndForget, String namedWindowName, List<VirtualDataWindowLookupFieldDesc> hashFields, List<VirtualDataWindowLookupFieldDesc> btreeFields) {
         this.statementName = statementName;
@@ -55,6 +56,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns the named window name.
+     *
      * @return named window name
      */
     public String getNamedWindowName() {
@@ -63,6 +65,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns the list of hash field descriptors.
+     *
      * @return hash fields
      */
     public List<VirtualDataWindowLookupFieldDesc> getHashFields() {
@@ -71,6 +74,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns the list of btree field descriptors.
+     *
      * @return btree fields
      */
     public List<VirtualDataWindowLookupFieldDesc> getBtreeFields() {
@@ -79,6 +83,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns the statement name of the statement to be performing the lookup, or null for fire-and-forget statements.
+     *
      * @return statement name
      */
     public String getStatementName() {
@@ -87,6 +92,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns the statement id of the statement to be performing the lookup, or -1 for fire-and-forget statements.
+     *
      * @return statement name
      */
     public int getStatementId() {
@@ -95,6 +101,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns the statement annotations of the statement to be performing the lookup, or null for fire-and-forget statements.
+     *
      * @return statement name
      */
     public Annotation[] getStatementAnnotations() {
@@ -103,6 +110,7 @@ public class VirtualDataWindowLookupContext {
 
     /**
      * Returns true for fire-and-forget queries.
+     *
      * @return indicator whether fire-and-forget query
      */
     public boolean isFireAndForget() {

@@ -13,13 +13,12 @@ package com.espertech.esper.client.annotation;
 /**
  * Annotation for use in EPL statements to suppress any statement-level locking (use with caution, see below).
  * <p>
- *     Caution: We provide this annotation for the purpose of identifing locking overhead,
- *     or when your application is single-threaded, or when using an external mechanism for concurreny control
- *     or for example with virtual data windows or plug-in data windows to allow customizing concurrency
- *     for application-provided data windows.
- *     Using this annotation may have unpredictable results unless your application is taking concurrency under consideration.
+ * Caution: We provide this annotation for the purpose of identifing locking overhead,
+ * or when your application is single-threaded, or when using an external mechanism for concurreny control
+ * or for example with virtual data windows or plug-in data windows to allow customizing concurrency
+ * for application-provided data windows.
+ * Using this annotation may have unpredictable results unless your application is taking concurrency under consideration.
  * </p>
  */
-public @interface NoLock
-{
+public @interface NoLock {
 }

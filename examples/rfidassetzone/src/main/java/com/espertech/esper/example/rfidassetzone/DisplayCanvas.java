@@ -12,6 +12,7 @@ package com.espertech.esper.example.rfidassetzone;
 
 import com.espertech.esper.client.EPServiceProvider;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -19,10 +20,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
-import javax.swing.*;
-
-public class DisplayCanvas extends JPanel
-{
+public class DisplayCanvas extends JPanel {
     private static final int NUM_IMAGES = 3;
 
     private final EPServiceProvider engine;
@@ -51,8 +49,7 @@ public class DisplayCanvas extends JPanel
         mt.addImage(image, 1);
         try {
             mt.waitForAll();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Exception while loading image.");
         }
         if (image.getWidth(this) == -1) {
@@ -66,8 +63,7 @@ public class DisplayCanvas extends JPanel
         x = new int[NUM_IMAGES];
         y = new int[NUM_IMAGES];
         assetIds = new String[NUM_IMAGES];
-        for (int i = 0; i < NUM_IMAGES; i++)
-        {
+        for (int i = 0; i < NUM_IMAGES; i++) {
             x[i] = i * (imageWidth + 10);
             y[i] = 0;
             assetIds[i] = "A" + Integer.toString(i + 1);
@@ -79,8 +75,7 @@ public class DisplayCanvas extends JPanel
 
         bi = new BufferedImage(image.getWidth(this), image.getHeight(this), BufferedImage.TYPE_INT_ARGB);
         Graphics2D big = bi.createGraphics();
-        for (int i = 0; i < NUM_IMAGES; i++)
-        {
+        for (int i = 0; i < NUM_IMAGES; i++) {
             big.drawImage(image, x[i], y[i], this);
         }
     }
@@ -89,8 +84,7 @@ public class DisplayCanvas extends JPanel
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
 
-        for (int i = 0; i < NUM_IMAGES; i++)
-        {
+        for (int i = 0; i < NUM_IMAGES; i++) {
             g2D.drawImage(bi, x[i], y[i], this);
         }
 
@@ -99,8 +93,8 @@ public class DisplayCanvas extends JPanel
         // draw zones
         int middleX = (int) this.getSize().getWidth() / 2;
         int middleY = (int) this.getSize().getHeight() / 2;
-        int width = (int)this.getSize().getWidth();
-        int height = (int)this.getSize().getHeight();
+        int width = (int) this.getSize().getWidth();
+        int height = (int) this.getSize().getHeight();
         g2D.drawLine(0, middleY, lineLen, middleY);
         g2D.drawLine(width, middleY, width - lineLen, middleY);
         g2D.drawLine(middleX, 0, middleX, lineLen);
@@ -120,8 +114,7 @@ public class DisplayCanvas extends JPanel
 
     class MouseMotionHandler extends MouseMotionAdapter {
         public void mouseDragged(MouseEvent e) {
-            if (currentImage != -1)
-            {
+            if (currentImage != -1) {
                 x[currentImage] = e.getX();
                 y[currentImage] = e.getY();
             }
@@ -129,12 +122,10 @@ public class DisplayCanvas extends JPanel
         }
     }
 
-    class MouseListenerHandler implements MouseListener
-    {
+    class MouseListenerHandler implements MouseListener {
         private JPanel panel;
 
-        public MouseListenerHandler(JPanel panel)
-        {
+        public MouseListenerHandler(JPanel panel) {
             this.panel = panel;
         }
 
@@ -162,12 +153,9 @@ public class DisplayCanvas extends JPanel
         public void mousePressed(MouseEvent e) {
 
             int imageNum = -1;
-            for (int i = 0; i < NUM_IMAGES; i++)
-            {
-                if ( (e.getX() >= x[i]) && (e.getX() <= (x[i] + imageWidth)))
-                {
-                    if ((e.getY() >= y[i]) && (e.getY() <= (y[i] + imageHeight)))
-                    {
+            for (int i = 0; i < NUM_IMAGES; i++) {
+                if ((e.getX() >= x[i]) && (e.getX() <= (x[i] + imageWidth))) {
+                    if ((e.getY() >= y[i]) && (e.getY() <= (y[i] + imageHeight))) {
                         imageNum = i;
                         break;
                     }
@@ -180,20 +168,17 @@ public class DisplayCanvas extends JPanel
          * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
          */
         public void mouseReleased(MouseEvent arg0) {
-            if (currentImage != -1)
-            {
+            if (currentImage != -1) {
                 int xpos = x[currentImage];
                 int ypos = y[currentImage];
 
                 // Determine zone
                 int xzone = 0;
                 int yzone = 0;
-                if (xpos > panel.getSize().getWidth() / 2)
-                {
+                if (xpos > panel.getSize().getWidth() / 2) {
                     xzone = 1;
                 }
-                if (ypos > panel.getSize().getHeight() / 2)
-                {
+                if (ypos > panel.getSize().getHeight() / 2) {
                     yzone = 1;
                 }
                 int zone = xzone + 2 * yzone + 1;

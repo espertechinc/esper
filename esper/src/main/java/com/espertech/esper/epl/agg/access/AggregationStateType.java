@@ -10,11 +10,12 @@
  */
 package com.espertech.esper.epl.agg.access;
 
+import java.util.Locale;
+
 /**
  * Enum for aggregation multi-function state type.
  */
-public enum AggregationStateType
-{
+public enum AggregationStateType {
     /**
      * For "first" function.
      */
@@ -29,7 +30,7 @@ public enum AggregationStateType
     WINDOW;
 
     public static AggregationStateType fromString(String text) {
-        String compare = text.trim().toUpperCase();
+        String compare = text.trim().toUpperCase(Locale.ENGLISH);
         for (AggregationStateType type : AggregationStateType.values()) {
             if (compare.equals(type.name())) {
                 return type;

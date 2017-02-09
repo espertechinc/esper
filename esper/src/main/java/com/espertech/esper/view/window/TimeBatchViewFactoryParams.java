@@ -11,11 +11,10 @@
 package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConst;
 import com.espertech.esper.epl.expression.time.ExprTimePeriodEvalDeltaConstFactory;
-import com.espertech.esper.view.ViewFactorySupport;
 import com.espertech.esper.view.ViewParameterException;
+
+import java.util.Locale;
 
 /**
  * Parameters for batch views that provides common data flow parameter parsing.
@@ -67,7 +66,7 @@ public class TimeBatchViewFactoryParams {
 
         String[] keyword = ((String) keywords).split(",");
         for (int i = 0; i < keyword.length; i++) {
-            String keywordText = keyword[i].toLowerCase().trim();
+            String keywordText = keyword[i].toLowerCase(Locale.ENGLISH).trim();
             if (keywordText.length() == 0) {
                 continue;
             }

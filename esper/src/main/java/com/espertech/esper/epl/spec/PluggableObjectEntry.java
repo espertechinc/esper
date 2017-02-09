@@ -12,8 +12,7 @@ package com.espertech.esper.epl.spec;
 
 import java.io.Serializable;
 
-public class PluggableObjectEntry
-{
+public class PluggableObjectEntry {
     private final PluggableObjectType type;
     private final Serializable customConfigs;
 

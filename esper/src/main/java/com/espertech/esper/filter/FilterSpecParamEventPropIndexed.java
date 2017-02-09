@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
  * This class represents a filter parameter containing a reference to another event's property
  * in the event pattern result, for use to describe a filter parameter in a {@link com.espertech.esper.filter.FilterSpecCompiled} filter specification.
  */
-public final class FilterSpecParamEventPropIndexed extends FilterSpecParam
-{
+public final class FilterSpecParamEventPropIndexed extends FilterSpecParam {
     private static final Logger log = LoggerFactory.getLogger(FilterSpecParamEventPropIndexed.class);
     private final String resultEventAsName;
     private final int resultEventIndex;
@@ -35,22 +34,22 @@ public final class FilterSpecParamEventPropIndexed extends FilterSpecParam
 
     /**
      * Constructor.
-     * @param lookupable is the lookupable
-     * @param filterOperator is the type of compare
-     * @param resultEventAsName is the name of the result event from which to get a property value to compare
+     *
+     * @param lookupable          is the lookupable
+     * @param filterOperator      is the type of compare
+     * @param resultEventAsName   is the name of the result event from which to get a property value to compare
      * @param resultEventProperty is the name of the property to get from the named result event
-     * @param isMustCoerce indicates on whether numeric coercion must be performed
-     * @param coercionType indicates the numeric coercion type to use
-     * @param numberCoercer interface to use to perform coercion
-     * @param resultEventIndex index
-     * @param statementName statement name
+     * @param isMustCoerce        indicates on whether numeric coercion must be performed
+     * @param coercionType        indicates the numeric coercion type to use
+     * @param numberCoercer       interface to use to perform coercion
+     * @param resultEventIndex    index
+     * @param statementName       statement name
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
     public FilterSpecParamEventPropIndexed(FilterSpecLookupable lookupable, FilterOperator filterOperator, String resultEventAsName,
-                                    int resultEventIndex, String resultEventProperty, boolean isMustCoerce,
-                                    SimpleNumberCoercer numberCoercer, Class coercionType, String statementName)
-        throws IllegalArgumentException
-    {
+                                           int resultEventIndex, String resultEventProperty, boolean isMustCoerce,
+                                           SimpleNumberCoercer numberCoercer, Class coercionType, String statementName)
+            throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.resultEventAsName = resultEventAsName;
         this.resultEventIndex = resultEventIndex;
@@ -60,8 +59,7 @@ public final class FilterSpecParamEventPropIndexed extends FilterSpecParam
         this.coercionType = coercionType;
         this.statementName = statementName;
 
-        if (filterOperator.isRangeOperator())
-        {
+        if (filterOperator.isRangeOperator()) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
                     "event property filter parameter");
         }
@@ -69,61 +67,54 @@ public final class FilterSpecParamEventPropIndexed extends FilterSpecParam
 
     /**
      * Returns true if numeric coercion is required, or false if not
+     *
      * @return true to coerce at runtime
      */
-    public boolean isMustCoerce()
-    {
+    public boolean isMustCoerce() {
         return isMustCoerce;
     }
 
     /**
      * Returns the numeric coercion type.
+     *
      * @return type to coerce to
      */
-    public Class getCoercionType()
-    {
+    public Class getCoercionType() {
         return coercionType;
     }
 
     /**
      * Returns tag for result event.
+     *
      * @return tag
      */
-    public String getResultEventAsName()
-    {
+    public String getResultEventAsName() {
         return resultEventAsName;
     }
 
     /**
      * Returns the property of the result event.
+     *
      * @return property name
      */
-    public String getResultEventProperty()
-    {
+    public String getResultEventProperty() {
         return resultEventProperty;
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
-    {
+    public Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
         EventBean[] events = (EventBean[]) matchedEvents.getMatchingEventAsObjectByTag(resultEventAsName);
 
         Object value = null;
-        if (events == null)
-        {
+        if (events == null) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
-        }
-        else if (resultEventIndex > (events.length - 1))
-        {
+        } else if (resultEventIndex > (events.length - 1)) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned no result for index " + resultEventIndex + " at array length " + events.length + ", using null value in filter criteria, for statement '" + statementName + "'");
-        }
-        else
-        {
+        } else {
             value = events[resultEventIndex].get(resultEventProperty);
         }
 
         // Coerce if necessary
-        if (isMustCoerce)
-        {
+        if (isMustCoerce) {
             value = numberCoercer.coerceBoxed((Number) value);
         }
         return value;
@@ -131,49 +122,42 @@ public final class FilterSpecParamEventPropIndexed extends FilterSpecParam
 
     /**
      * Returns the index.
+     *
      * @return index
      */
-    public int getResultEventIndex()
-    {
+    public int getResultEventIndex() {
         return resultEventIndex;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return super.toString() +
                 " resultEventAsName=" + resultEventAsName +
                 " resultEventProperty=" + resultEventProperty;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof FilterSpecParamEventPropIndexed))
-        {
+        if (!(obj instanceof FilterSpecParamEventPropIndexed)) {
             return false;
         }
 
         FilterSpecParamEventPropIndexed other = (FilterSpecParamEventPropIndexed) obj;
-        if (!super.equals(other))
-        {
+        if (!super.equals(other)) {
             return false;
         }
 
         if ((!this.resultEventAsName.equals(other.resultEventAsName)) ||
-            (!this.resultEventProperty.equals(other.resultEventProperty)) ||
-            (this.resultEventIndex != other.resultEventIndex))
-        {
+                (!this.resultEventProperty.equals(other.resultEventProperty)) ||
+                (this.resultEventIndex != other.resultEventIndex)) {
             return false;
         }
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + resultEventProperty.hashCode();
         return result;

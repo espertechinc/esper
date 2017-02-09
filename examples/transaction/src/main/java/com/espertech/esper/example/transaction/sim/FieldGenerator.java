@@ -15,14 +15,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-/** Utils that generate random entries for various fields.
- * @author Hans Gilde
+/**
+ * Utils that generate random entries for various fields.
  *
+ * @author Hans Gilde
  */
 public class FieldGenerator {
     private final Random random = RandomUtil.getNewInstance();
 
     public static final List<String> CUSTOMERS;
+
     static {
         List<String> l = new ArrayList<String>();
         l.add("RED");
@@ -36,6 +38,7 @@ public class FieldGenerator {
     }
 
     public static final List<String> SUPPLIERS;
+
     static {
         List<String> l = new ArrayList<String>();
         l.add("WASHINGTON");
@@ -47,11 +50,11 @@ public class FieldGenerator {
     }
 
     public String getRandomCustomer() {
-        return CUSTOMERS.get(random.nextInt(CUSTOMERS.size()-1));
+        return CUSTOMERS.get(random.nextInt(CUSTOMERS.size() - 1));
     }
 
     public String getRandomSupplier() {
-        return SUPPLIERS.get(random.nextInt(SUPPLIERS.size() -1));
+        return SUPPLIERS.get(random.nextInt(SUPPLIERS.size() - 1));
     }
 
     public long randomLatency(long time) {

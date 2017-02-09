@@ -26,8 +26,7 @@ import java.util.Map;
  * <p>
  * Allows sending only event objects of type map, does not check map contents. Any other event object generates an error.
  */
-public class EventSenderMap implements EventSender
-{
+public class EventSenderMap implements EventSender {
     private final EPRuntimeEventSender runtimeEventSender;
     private final EventAdapterService eventAdapterService;
     private final MapEventType mapEventType;
@@ -35,43 +34,36 @@ public class EventSenderMap implements EventSender
 
     /**
      * Ctor.
-     * @param runtimeEventSender for processing events
-     * @param mapEventType the event type
-     * @param threadingService for inbound threading
+     *
+     * @param runtimeEventSender  for processing events
+     * @param mapEventType        the event type
+     * @param threadingService    for inbound threading
      * @param eventAdapterService for event bean creation
      */
-    public EventSenderMap(EPRuntimeEventSender runtimeEventSender, MapEventType mapEventType, EventAdapterService eventAdapterService, ThreadingService threadingService)
-    {
+    public EventSenderMap(EPRuntimeEventSender runtimeEventSender, MapEventType mapEventType, EventAdapterService eventAdapterService, ThreadingService threadingService) {
         this.runtimeEventSender = runtimeEventSender;
         this.mapEventType = mapEventType;
         this.threadingService = threadingService;
         this.eventAdapterService = eventAdapterService;
     }
 
-    public void sendEvent(Object theEvent)
-    {
-        if (!(theEvent instanceof Map))
-        {
+    public void sendEvent(Object theEvent) {
+        if (!(theEvent instanceof Map)) {
             throw new EPException("Unexpected event object of type " + theEvent.getClass().getName() + ", expected " + Map.class.getName());
         }
-        
+
         Map<String, Object> map = (Map<String, Object>) theEvent;
         EventBean mapEvent = eventAdapterService.adapterForTypedMap(map, mapEventType);
 
-        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading()))
-        {
+        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading())) {
             threadingService.submitInbound(new InboundUnitSendWrapped(mapEvent, runtimeEventSender));
-        }
-        else
-        {
+        } else {
             runtimeEventSender.processWrappedEvent(mapEvent);
         }
     }
 
-    public void route(Object theEvent)
-    {
-        if (!(theEvent instanceof Map))
-        {
+    public void route(Object theEvent) {
+        if (!(theEvent instanceof Map)) {
             throw new EPException("Unexpected event object of type " + theEvent.getClass().getName() + ", expected " + Map.class.getName());
         }
         Map<String, Object> map = (Map<String, Object>) theEvent;

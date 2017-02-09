@@ -15,10 +15,10 @@ package com.espertech.esper.timer;
  * See JIRA issue ESPER-191 Support nano/microsecond resolution for more
  * information on Java system time-call performance, accuracy and drift.
  */
-public interface TimeSourceService
-{
+public interface TimeSourceService {
     /**
      * Returns time in millis.
+     *
      * @return time in millis
      */
     public long getTimeMillis();

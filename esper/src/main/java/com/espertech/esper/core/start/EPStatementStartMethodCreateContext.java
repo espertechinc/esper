@@ -32,8 +32,7 @@ import java.util.Set;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateContext extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateContext extends EPStatementStartMethodBase {
     public EPStatementStartMethodCreateContext(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }
@@ -85,8 +84,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) compiled;
                 partition.setFilterSpecCompiled(result.getFilterSpec());
             }
-        }
-        else if (contextDetail instanceof ContextDetailCategory) {
+        } else if (contextDetail instanceof ContextDetailCategory) {
 
             // compile filter
             ContextDetailCategory category = (ContextDetailCategory) contextDetail;
@@ -104,8 +102,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 item.setCompiledFilter(compiled.getFilterSpec(), agentInstanceContext);
             }
-        }
-        else if (contextDetail instanceof ContextDetailHash) {
+        } else if (contextDetail instanceof ContextDetailHash) {
             ContextDetailHash hashed = (ContextDetailHash) contextDetail;
             for (ContextDetailHashItem hashItem : hashed.getItems()) {
                 FilterStreamSpecRaw raw = new FilterStreamSpecRaw(hashItem.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
@@ -118,8 +115,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 ExprValidationContext validationContext = new ExprValidationContext(streamTypes, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
                 ExprNodeUtility.validate(ExprNodeOrigin.CONTEXT, Collections.singletonList(hashItem.getFunction()), validationContext);
             }
-        }
-        else if (contextDetail instanceof ContextDetailInitiatedTerminated) {
+        } else if (contextDetail instanceof ContextDetailInitiatedTerminated) {
             ContextDetailInitiatedTerminated def = (ContextDetailInitiatedTerminated) contextDetail;
             ContextDetailMatchPair startCondition = validateRewriteContextCondition(servicesContext, statementContext, def.getStart(), eventTypesReferenced, new MatchEventSpec(), new LinkedHashSet<String>());
             ContextDetailMatchPair endCondition = validateRewriteContextCondition(servicesContext, statementContext, def.getEnd(), eventTypesReferenced, startCondition.getMatches(), startCondition.getAllTags());
@@ -145,20 +141,17 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                     distinctExpressions[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i], validationContext);
                 }
             }
-        }
-        else if (contextDetail instanceof ContextDetailNested) {
+        } else if (contextDetail instanceof ContextDetailNested) {
             ContextDetailNested nested = (ContextDetailNested) contextDetail;
             for (CreateContextDesc nestedContext : nested.getContexts()) {
                 validateContextDetail(servicesContext, statementContext, eventTypesReferenced, nestedContext.getContextDetail(), agentInstanceContext);
             }
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unrecognized context detail " + contextDetail);
         }
     }
 
-    private void validateNotTable(EPServicesContext servicesContext, String eventTypeName) throws ExprValidationException
-    {
+    private void validateNotTable(EPServicesContext servicesContext, String eventTypeName) throws ExprValidationException {
         if (servicesContext.getTableService().getTableMetadata(eventTypeName) != null) {
             throw new ExprValidationException("Tables cannot be used in a context declaration");
         }
@@ -214,17 +207,15 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             ContextDetailConditionPattern pattern = new ContextDetailConditionPattern(factoryNode, true, false);
             Pair<MatchEventSpec, Set<String>> matches = validatePatternContextConditionPattern(statementContext, pattern, eventTypesReferenced, priorMatches, priorAllTags);
             return new ContextDetailMatchPair(pattern, matches.getFirst(), matches.getSecond());
-        }
-        else if (endpoint instanceof ContextDetailConditionImmediate || endpoint instanceof ContextDetailConditionNever) {
+        } else if (endpoint instanceof ContextDetailConditionImmediate || endpoint instanceof ContextDetailConditionNever) {
             return new ContextDetailMatchPair(endpoint, new MatchEventSpec(), new LinkedHashSet<String>());
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unrecognized endpoint type " + endpoint);
         }
     }
 
     private Pair<MatchEventSpec, Set<String>> validatePatternContextConditionPattern(StatementContext statementContext, ContextDetailConditionPattern pattern, Set<String> eventTypesReferenced, MatchEventSpec priorMatches, Set<String> priorAllTags)
-        throws ExprValidationException {
+            throws ExprValidationException {
         PatternStreamSpecRaw raw = new PatternStreamSpecRaw(pattern.getPatternRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions(), false, false);
         PatternStreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), priorMatches, priorAllTags, false, true, false);
         pattern.setPatternCompiled(compiled);

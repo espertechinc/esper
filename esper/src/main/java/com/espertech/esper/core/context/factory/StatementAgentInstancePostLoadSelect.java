@@ -63,16 +63,13 @@ public class StatementAgentInstancePostLoadSelect implements StatementAgentInsta
                 if (namedWindowFilters[stream] != null) {
                     eventsInWindow = new ArrayList<EventBean>(snapshot.size());
                     ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedWindowFilters[stream], exprEvaluatorContext, eventsInWindow);
-                }
-                else {
+                } else {
                     eventsInWindow = snapshot;
                 }
-            }
-            else if (namedWindowFilters[stream] != null && !namedWindowFilters[stream].isEmpty()) {
+            } else if (namedWindowFilters[stream] != null && !namedWindowFilters[stream].isEmpty()) {
                 eventsInWindow = new ArrayDeque<EventBean>();
                 ExprNodeUtility.applyFilterExpressionsIterable(streamViews[stream], namedWindowFilters[stream], exprEvaluatorContext, eventsInWindow);
-            }
-            else {
+            } else {
                 eventsInWindow = new ArrayDeque<EventBean>();
                 for (EventBean aConsumerView : streamViews[stream]) {
                     eventsInWindow.add(aConsumerView);

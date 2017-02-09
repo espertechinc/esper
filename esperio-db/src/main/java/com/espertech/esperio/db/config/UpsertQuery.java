@@ -10,8 +10,8 @@
  */
 package com.espertech.esperio.db.config;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UpsertQuery {
 
@@ -26,8 +26,7 @@ public class UpsertQuery {
     private List<Column> keys;
     private List<Column> values;
 
-    public UpsertQuery()
-    {
+    public UpsertQuery() {
         keys = new ArrayList<Column>();
         values = new ArrayList<Column>();
     }
@@ -96,13 +95,11 @@ public class UpsertQuery {
         this.values = values;
     }
 
-    public Double getRetryIntervalSec()
-    {
+    public Double getRetryIntervalSec() {
         return retryIntervalSec;
     }
 
-    public void setRetryIntervalSec(Double retryIntervalSec)
-    {
+    public void setRetryIntervalSec(Double retryIntervalSec) {
         this.retryIntervalSec = retryIntervalSec;
     }
 }

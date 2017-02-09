@@ -11,14 +11,12 @@
 package com.espertech.esper.event.bean;
 
 import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class BeanInstantiatorByNewInstanceFastClass implements BeanInstantiator
-{
+public class BeanInstantiatorByNewInstanceFastClass implements BeanInstantiator {
     private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByNewInstanceFastClass.class);
 
     private final FastClass fastClass;
@@ -28,12 +26,9 @@ public class BeanInstantiatorByNewInstanceFastClass implements BeanInstantiator
     }
 
     public Object instantiate() {
-        try
-        {
+        try {
             return fastClass.newInstance();
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = "Unexpected exception encountered invoking newInstance on class '" + fastClass.getJavaClass().getName() + "': " + e.getTargetException().getMessage();
             log.error(message, e);
             return null;

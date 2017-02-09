@@ -25,10 +25,12 @@ import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeTableAccessFinderVisitor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-public class FilterSpecCompilerPlanner
-{
+public class FilterSpecCompilerPlanner {
     protected static List<FilterSpecParam>[] planFilterParameters(List<ExprNode> validatedNodes, FilterSpecCompilerArgs args)
             throws ExprValidationException {
 
@@ -74,9 +76,8 @@ public class FilterSpecCompilerPlanner
         return allocateListArraySizeOne(filterParams);
     }
 
-    private static List<FilterSpecParam>[] planRemainingNodesIfFeasible(FilterParamExprMap overallExpressions, FilterSpecCompilerArgs args,         int filterServiceMaxFilterWidth)
-            throws ExprValidationException
-    {
+    private static List<FilterSpecParam>[] planRemainingNodesIfFeasible(FilterParamExprMap overallExpressions, FilterSpecCompilerArgs args, int filterServiceMaxFilterWidth)
+            throws ExprValidationException {
         List<ExprNode> unassigned = overallExpressions.getUnassignedExpressions();
         List<ExprOrNode> orNodes = new ArrayList<ExprOrNode>(unassigned.size());
 
@@ -121,7 +122,7 @@ public class FilterSpecCompilerPlanner
         List<FilterSpecParam>[] result = (List<FilterSpecParam>[]) new List[sizeFactorized];
         CombinationEnumeration permutations = CombinationEnumeration.fromZeroBasedRanges(sizePerOr);
         int count = 0;
-        for (;permutations.hasMoreElements();) {
+        for (; permutations.hasMoreElements(); ) {
             Object[] permutation = permutations.nextElement();
             result[count] = computePermutation(expressionsWithoutOr, permutation, orNodesMaps, args);
             count++;
@@ -130,8 +131,7 @@ public class FilterSpecCompilerPlanner
     }
 
     private static List<FilterSpecParam> computePermutation(FilterParamExprMap filterParamExprMap, Object[] permutation, FilterParamExprMap[][] orNodesMaps, FilterSpecCompilerArgs args)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         FilterParamExprMap mapAll = new FilterParamExprMap();
         mapAll.add(filterParamExprMap);
 
@@ -159,13 +159,11 @@ public class FilterSpecCompilerPlanner
     }
 
     private static void decomposePopulateConsolidate(FilterParamExprMap filterParamExprMap, List<ExprNode> validatedNodes, FilterSpecCompilerArgs args)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<ExprNode> constituents = decomposeCheckAggregation(validatedNodes);
 
         // Make filter parameter for each expression node, if it can be optimized
-        for (ExprNode constituent : constituents)
-        {
+        for (ExprNode constituent : constituents) {
             FilterSpecParam param = FilterSpecCompilerMakeParamUtil.makeFilterParam(constituent, args.arrayEventTypes, args.exprEvaluatorContext, args.statementName);
             filterParamExprMap.put(constituent, param); // accepts null values as the expression may not be optimized
         }
@@ -176,8 +174,7 @@ public class FilterSpecCompilerPlanner
     }
 
     private static FilterSpecParamExprNode makeRemainingNode(List<ExprNode> unassignedExpressions, FilterSpecCompilerArgs args)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (unassignedExpressions.isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -186,8 +183,7 @@ public class FilterSpecCompilerPlanner
         ExprNode exprNode;
         if (unassignedExpressions.size() == 1) {
             exprNode = unassignedExpressions.get(0);
-        }
-        else {
+        } else {
             exprNode = makeValidateAndNode(unassignedExpressions, args);
         }
         return makeBooleanExprParam(exprNode, args);
@@ -211,8 +207,7 @@ public class FilterSpecCompilerPlanner
     }
 
     private static ExprAndNode makeValidateAndNode(List<ExprNode> remainingExprNodes, FilterSpecCompilerArgs args)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprAndNode andNode = ExprNodeUtility.connectExpressionsByLogicalAnd(remainingExprNodes);
         ExprValidationContext validationContext = new ExprValidationContext(args.streamTypeService, args.engineImportService, args.statementExtensionSvcContext, null, args.timeProvider, args.variableService, args.tableService, args.exprEvaluatorContext, args.eventAdapterService, args.statementName, args.statementId, args.annotations, args.contextDescriptor, false, false, true, false, null, false);
         andNode.validate(validationContext);
@@ -239,26 +234,20 @@ public class FilterSpecCompilerPlanner
         return false;
     }
 
-    private static List<ExprNode> decomposeCheckAggregation(List<ExprNode> validatedNodes) throws ExprValidationException
-    {
+    private static List<ExprNode> decomposeCheckAggregation(List<ExprNode> validatedNodes) throws ExprValidationException {
         // Break a top-level AND into constituent expression nodes
         List<ExprNode> constituents = new ArrayList<ExprNode>();
-        for (ExprNode validated : validatedNodes)
-        {
-            if (validated instanceof ExprAndNode)
-            {
+        for (ExprNode validated : validatedNodes) {
+            if (validated instanceof ExprAndNode) {
                 recursiveAndConstituents(constituents, validated);
-            }
-            else
-            {
+            } else {
                 constituents.add(validated);
             }
 
             // Ensure there is no aggregation nodes
             List<ExprAggregateNode> aggregateExprNodes = new LinkedList<ExprAggregateNode>();
             ExprAggregateNodeUtil.getAggregatesBottomUp(validated, aggregateExprNodes);
-            if (!aggregateExprNodes.isEmpty())
-            {
+            if (!aggregateExprNodes.isEmpty()) {
                 throw new ExprValidationException("Aggregation functions not allowed within filters");
             }
         }
@@ -266,16 +255,11 @@ public class FilterSpecCompilerPlanner
         return constituents;
     }
 
-    private static void recursiveAndConstituents(List<ExprNode> constituents, ExprNode exprNode)
-    {
-        for (ExprNode inner : exprNode.getChildNodes())
-        {
-            if (inner instanceof ExprAndNode)
-            {
+    private static void recursiveAndConstituents(List<ExprNode> constituents, ExprNode exprNode) {
+        for (ExprNode inner : exprNode.getChildNodes()) {
+            if (inner instanceof ExprAndNode) {
                 recursiveAndConstituents(constituents, inner);
-            }
-            else
-            {
+            } else {
                 constituents.add(inner);
             }
         }

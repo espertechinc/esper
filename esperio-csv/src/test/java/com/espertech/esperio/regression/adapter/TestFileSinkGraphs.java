@@ -14,7 +14,6 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.dataflow.EPDataFlowExecutionException;
 import com.espertech.esper.client.dataflow.EPDataFlowInstance;
 import com.espertech.esper.client.dataflow.EPDataFlowInstantiationException;
 import com.espertech.esper.client.dataflow.EPDataFlowInstantiationOptions;
@@ -27,18 +26,16 @@ import com.espertech.esper.util.FileUtil;
 import com.espertech.esperio.dataflow.FileSinkFactory;
 import junit.framework.TestCase;
 
-public class TestFileSinkGraphs extends TestCase
-{
-	private EPServiceProvider epService;
+public class TestFileSinkGraphs extends TestCase {
+    private EPServiceProvider epService;
 
-	protected void setUp()
-	{
+    protected void setUp() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         configuration.addImport(FileSinkFactory.class.getPackage().getName() + ".*");
         configuration.addImport(DefaultSupportSourceOp.class.getName());
-		epService = EPServiceProviderManager.getDefaultProvider(configuration);
-		epService.initialize();
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
 
         DefaultSupportGraphEventUtil.addTypeConfiguration(epService);
     }
@@ -64,8 +61,7 @@ public class TestFileSinkGraphs extends TestCase
             epService.getEPRuntime().getDataFlowRuntime().instantiate(dataflowName,
                     new EPDataFlowInstantiationOptions().operatorProvider(new DefaultSupportGraphOpProvider(outputOp)));
             fail();
-        }
-        catch (EPDataFlowInstantiationException ex) {
+        } catch (EPDataFlowInstantiationException ex) {
             assertEquals(message, ex.getMessage());
         }
         stmtGraph.destroy();
@@ -78,8 +74,7 @@ public class TestFileSinkGraphs extends TestCase
         runAssertion("MyEvent", DefaultSupportGraphEventUtil.getPOJOEvents(), true);
     }
 
-    private void runAssertion(String typeName, Object[] events, boolean append) throws Exception
-    {
+    private void runAssertion(String typeName, Object[] events, boolean append) throws Exception {
         // test classpath file
         String filename = "regression/out_1.csv";
         FileUtil.findDeleteClasspathFile(filename);

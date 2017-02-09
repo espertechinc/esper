@@ -22,16 +22,16 @@ import java.util.Map;
 /**
  * Abstract specification on how to perform a table lookup.
  */
-public abstract class TableLookupPlan
-{
+public abstract class TableLookupPlan {
     private int lookupStream;
     private int indexedStream;
     private TableLookupIndexReqKey[] indexNum;
 
     public abstract JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes);
+
     public abstract TableLookupKeyDesc getKeyDescriptor();
 
-    public final JoinExecTableLookupStrategy makeStrategy(String statementName, int statementId, Annotation[] accessedByStmtAnnotations, Map<TableLookupIndexReqKey,EventTable>[] indexesPerStream, EventType[] eventTypes, VirtualDWView[] viewExternals) {
+    public final JoinExecTableLookupStrategy makeStrategy(String statementName, int statementId, Annotation[] accessedByStmtAnnotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] eventTypes, VirtualDWView[] viewExternals) {
         EventTable[] eventTables = new EventTable[indexNum.length];
         for (int i = 0; i < indexNum.length; i++) {
             eventTables[i] = indexesPerStream[this.getIndexedStream()].get(getIndexNum()[i]);
@@ -44,12 +44,12 @@ public abstract class TableLookupPlan
 
     /**
      * Ctor.
-     * @param lookupStream - stream number of stream that supplies event to be used to look up
+     *
+     * @param lookupStream  - stream number of stream that supplies event to be used to look up
      * @param indexedStream - - stream number of stream that is being access via index/table
-     * @param indexNum - index to use for lookup
+     * @param indexNum      - index to use for lookup
      */
-    protected TableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey[] indexNum)
-    {
+    protected TableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey[] indexNum) {
         this.lookupStream = lookupStream;
         this.indexedStream = indexedStream;
         this.indexNum = indexNum;
@@ -57,35 +57,34 @@ public abstract class TableLookupPlan
 
     /**
      * Returns the lookup stream.
+     *
      * @return lookup stream
      */
-    public int getLookupStream()
-    {
+    public int getLookupStream() {
         return lookupStream;
     }
 
     /**
      * Returns indexed stream.
+     *
      * @return indexed stream
      */
-    public int getIndexedStream()
-    {
+    public int getIndexedStream() {
         return indexedStream;
     }
 
     /**
      * Returns index number to use for looking up in.
+     *
      * @return index number
      */
-    public TableLookupIndexReqKey[] getIndexNum()
-    {
+    public TableLookupIndexReqKey[] getIndexNum() {
         return indexNum;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "lookupStream=" + lookupStream +
-               " indexedStream=" + indexedStream +
-               " indexNum=" + Arrays.toString(indexNum);
+                " indexedStream=" + indexedStream +
+                " indexNum=" + Arrays.toString(indexNum);
     }
 }

@@ -30,14 +30,12 @@ import java.util.Set;
  * <p>
  * Use the composite strategy if supporting multiple ranges or if range is in combination with unique key.
  */
-public class SortedTableLookupStrategy implements JoinExecTableLookupStrategy
-{
+public class SortedTableLookupStrategy implements JoinExecTableLookupStrategy {
     private final QueryGraphValueEntryRange rangeKeyPair;
     private final PropertySortedEventTable index;
     private final SortedAccessStrategy strategy;
 
-    public SortedTableLookupStrategy(int lookupStream, int numStreams, QueryGraphValueEntryRange rangeKeyPair, Class coercionType, PropertySortedEventTable index)
-    {
+    public SortedTableLookupStrategy(int lookupStream, int numStreams, QueryGraphValueEntryRange rangeKeyPair, Class coercionType, PropertySortedEventTable index) {
         this.rangeKeyPair = rangeKeyPair;
         this.index = index;
         this.strategy = SortedAccessStrategyFactory.make(false, lookupStream, numStreams, rangeKeyPair, coercionType);
@@ -45,15 +43,14 @@ public class SortedTableLookupStrategy implements JoinExecTableLookupStrategy
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertySortedEventTable getIndex()
-    {
+    public PropertySortedEventTable getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexJoinLookup(this, index);
             ArrayList<Object> keys = new ArrayList<Object>(2);
@@ -65,8 +62,7 @@ public class SortedTableLookupStrategy implements JoinExecTableLookupStrategy
         return strategy.lookup(theEvent, index, exprEvaluatorContext);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "SortedTableLookupStrategy indexProps=" + rangeKeyPair +
                 " index=(" + index + ')';
     }

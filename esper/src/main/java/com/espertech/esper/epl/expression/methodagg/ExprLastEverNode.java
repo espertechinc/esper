@@ -11,29 +11,27 @@
 package com.espertech.esper.epl.expression.methodagg;
 
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 /**
  * Represents the "lastever" aggregate function is an expression tree.
  */
-public class ExprLastEverNode extends ExprAggregateNodeBase
-{
+public class ExprLastEverNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = -435756490067654566L;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprLastEverNode(boolean distinct)
-    {
+    public ExprLastEverNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (positionalParams.length == 0 || positionalParams.length > 2) {
             throw makeExceptionExpectedParamNum(0, 2);
         }
@@ -47,13 +45,11 @@ public class ExprLastEverNode extends ExprAggregateNodeBase
         return positionalParams.length == 2;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "lastever";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprLastEverNode;
     }
 }

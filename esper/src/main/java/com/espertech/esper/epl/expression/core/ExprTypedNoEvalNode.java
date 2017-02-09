@@ -19,8 +19,7 @@ import java.io.StringWriter;
  * Represents an expression node that returns the predefined type and
  * that cannot be evaluated.
  */
-public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = -6120042141834089857L;
 
     private final String returnTypeName;
@@ -31,23 +30,19 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator
         this.returnType = returnType;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return returnType;
     }
 
@@ -59,8 +54,7 @@ public class ExprTypedNoEvalNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
+    public boolean equalsNode(ExprNode node) {
         return false;
     }
 

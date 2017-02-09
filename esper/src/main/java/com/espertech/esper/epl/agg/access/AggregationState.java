@@ -17,18 +17,19 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
  * Base interface for providing access-aggregations, i.e. aggregations that mirror a data window
  * but group by the group-by clause and that do not mirror the data windows sorting policy.
  */
-public interface AggregationState
-{
+public interface AggregationState {
     /**
      * Enter an event.
-     * @param eventsPerStream all events in all streams, typically implementations pick the relevant stream's events to add
+     *
+     * @param eventsPerStream      all events in all streams, typically implementations pick the relevant stream's events to add
      * @param exprEvaluatorContext expression eval context
      */
     void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Remove an event.
-     * @param eventsPerStream all events in all streams, typically implementations pick the relevant stream's events to remove
+     *
+     * @param eventsPerStream      all events in all streams, typically implementations pick the relevant stream's events to remove
      * @param exprEvaluatorContext expression eval context
      */
     void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);

@@ -35,13 +35,14 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Ctor.
-     * @param eventType the event type that the named window is declared to hold.
-     * @param parameters the parameters passed when declaring the named window, for example "create window ABC.my:vdw("10.0.0.1")" passes one paramater here.
-     * @param eventFactory factory for converting row objects to EventBean instances
-     * @param namedWindowName the name of the named window
+     *
+     * @param eventType            the event type that the named window is declared to hold.
+     * @param parameters           the parameters passed when declaring the named window, for example "create window ABC.my:vdw("10.0.0.1")" passes one paramater here.
+     * @param eventFactory         factory for converting row objects to EventBean instances
+     * @param namedWindowName      the name of the named window
      * @param parameterExpressions parameter expressions passed to the virtual data window
-     * @param viewFactoryContext context of services
-     * @param customConfiguration additional configuration
+     * @param viewFactoryContext   context of services
+     * @param customConfiguration  additional configuration
      */
     public VirtualDataWindowFactoryContext(EventType eventType, Object[] parameters, ExprNode[] parameterExpressions, EventBeanFactory eventFactory, String namedWindowName, ViewFactoryContext viewFactoryContext, Serializable customConfiguration) {
         this.eventType = eventType;
@@ -55,6 +56,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the event type of the events held in the virtual data window as per declaration of the named window.
+     *
      * @return event type
      */
     public EventType getEventType() {
@@ -63,6 +65,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the parameters passed; for example "create window ABC.my:vdw("10.0.0.1")" passes one paramater here.
+     *
      * @return parameters
      */
     public Object[] getParameters() {
@@ -71,6 +74,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the factory for creating instances of EventBean from rows.
+     *
      * @return event bean factory
      */
     public EventBeanFactory getEventFactory() {
@@ -79,6 +83,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the name of the named window used in connection with the virtual data window.
+     *
      * @return named window
      */
     public String getNamedWindowName() {
@@ -87,6 +92,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the expressions passed as parameters to the virtual data window.
+     *
      * @return parameter expressions
      */
     public ExprNode[] getParameterExpressions() {
@@ -95,6 +101,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the engine services context.
+     *
      * @return engine services context
      */
     public ViewFactoryContext getViewFactoryContext() {
@@ -103,6 +110,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns any additional configuration provided.
+     *
      * @return additional config
      */
     public Serializable getCustomConfiguration() {
@@ -111,6 +119,7 @@ public class VirtualDataWindowFactoryContext {
 
     /**
      * Returns the statement contextual information and services.
+     *
      * @return statement context
      */
     public StatementContext getStatementContext() {

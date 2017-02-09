@@ -18,23 +18,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Performance test for the following problem and statements:
- *
+ * <p>
  * <quote>If a given set of assets are not moving together from zone to zone, alert</quote>
  * <p>
  * Statements:
  * <pre>
-    insert into CountZone_[Nx] select [Nx] as groupId, zone, count(*) as cnt
-    from LocationReport(assetId in ([aNx1], [aNx2], [aNx3]))#unique(assetId)
-    group by zone
-
-    select * from pattern [every a=CountZone_[Nx](cnt in [1:2]) ->
-        (timer:interval(10 sec) and not CountZone_[Nx](cnt in (0, 3)))]
- * </pre>
+ * insert into CountZone_[Nx] select [Nx] as groupId, zone, count(*) as cnt
+ * from LocationReport(assetId in ([aNx1], [aNx2], [aNx3]))#unique(assetId)
+ * group by zone
  *
+ * select * from pattern [every a=CountZone_[Nx](cnt in [1:2]) ->
+ * (timer:interval(10 sec) and not CountZone_[Nx](cnt in (0, 3)))]
+ * </pre>
+ * <p>
  * This performance test works as follows:
  * <OL>
  * <LI> Assume N is the number of asset groups (numAssetGroups), each group consisting of 3 assets
@@ -63,8 +66,7 @@ import java.util.concurrent.*;
  * <LI> The main thread reconciles the events received by listeners with the asset groups that were split by any callables.
  * </OL>
  */
-public class LRMovingSimMain implements Runnable
-{
+public class LRMovingSimMain implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(LRMovingSimMain.class);
 
     private final int numberOfThreads;
@@ -77,8 +79,7 @@ public class LRMovingSimMain implements Runnable
     private EPServiceProvider epService;
     private Random random = new Random();
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
         if (args.length < 3) {
             System.out.println("Arguments are: <number of threads> <number of asset groups> <number of seconds to run>");
             System.out.println("  number of threads: the number of threads sending events into the engine (e.g. 4)");
@@ -120,8 +121,7 @@ public class LRMovingSimMain implements Runnable
         simMain.run();
     }
 
-    public LRMovingSimMain(int numberOfThreads, int numberOfAssetGroups, int numberOfSeconds, boolean isAssert, String engineURI, boolean continuousSimulation)
-    {
+    public LRMovingSimMain(int numberOfThreads, int numberOfAssetGroups, int numberOfSeconds, boolean isAssert, String engineURI, boolean continuousSimulation) {
         this.numberOfThreads = numberOfThreads;
         this.numberOfAssetGroups = numberOfAssetGroups;
         this.numberOfSeconds = numberOfSeconds;
@@ -135,8 +135,7 @@ public class LRMovingSimMain implements Runnable
         epService.initialize();
     }
 
-    public void run()
-    {
+    public void run() {
         // Number of seconds the total test runs
         int numSeconds = numberOfSeconds;    // usually 60
 
@@ -147,7 +146,7 @@ public class LRMovingSimMain implements Runnable
         int numThreads = numberOfThreads;
 
         // Ratio of events indicating that all assets moved to a new zone
-        int ratioZoneMove= 3;
+        int ratioZoneMove = 3;
 
         // Ratio of events indicating that the asset group split between zones, i.e. only some assets in a group move to a new zone
         int ratioZoneSplit = 1000000;       // usually 1000000;
@@ -155,14 +154,12 @@ public class LRMovingSimMain implements Runnable
         tryPerf(numSeconds, numAssetGroups, numThreads, ratioZoneMove, ratioZoneSplit);
     }
 
-    private void tryPerf(int numSeconds, int numAssetGroups, int numThreads, int ratioZoneMove, int ratioZoneSplit)
-    {
+    private void tryPerf(int numSeconds, int numAssetGroups, int numThreads, int ratioZoneMove, int ratioZoneSplit) {
         // Create Asset Ids and assign to a zone
         log.info(".tryPerf Creating asset ids");
         String[][] assetIds = new String[numAssetGroups][3];
         int[][] zoneIds = new int[numAssetGroups][3];
-        for (int i = 0; i < numAssetGroups; i++)
-        {
+        for (int i = 0; i < numAssetGroups; i++) {
             // Generate unique asset id over all groups
             String assetPrefix = String.format("%010d", i); // 10 digit zero padded, i.e. 00000001.n;
             assetIds[i][0] = assetPrefix + "0";
@@ -176,10 +173,9 @@ public class LRMovingSimMain implements Runnable
         }
 
         // Create statements
-        log.info(".tryPerf Creating " + numAssetGroups*2 + " statements for " + numAssetGroups + " asset groups");
-        AssetZoneSplitListener listeners[] = new AssetZoneSplitListener[numAssetGroups];
-        for (int i = 0; i < numAssetGroups; i++)
-        {
+        log.info(".tryPerf Creating " + numAssetGroups * 2 + " statements for " + numAssetGroups + " asset groups");
+        AssetZoneSplitListener[] listeners = new AssetZoneSplitListener[numAssetGroups];
+        for (int i = 0; i < numAssetGroups; i++) {
             String streamName = "CountZone_" + i;
             String assetIdList = "'" + assetIds[i][0] + "','" + assetIds[i][1] + "','" + assetIds[i][2] + "'";
 
@@ -188,7 +184,7 @@ public class LRMovingSimMain implements Runnable
                     "from LocationReport(assetId in (" + assetIdList + "))#unique(assetId) " +
                     "group by zone";
             EPStatement stmtOne = epService.getEPAdministrator().createEPL(textOne);
-            if (log.isDebugEnabled()) stmtOne.addListener(new AssetGroupCountListener());//for debugging
+            if (log.isDebugEnabled()) stmtOne.addListener(new AssetGroupCountListener()); //for debugging
 
             String textTwo = "select * from pattern [" +
                     "  every a=" + streamName + "(cnt in [1:2]) ->" +
@@ -200,30 +196,26 @@ public class LRMovingSimMain implements Runnable
 
         // First, send an event for each asset with it's current zone
         log.info(".tryPerf Sending one event for each asset");
-        for (int i = 0; i < assetIds.length; i++)
-        {
-            for (int j = 0; j < assetIds[i].length; j++)
-            {
+        for (int i = 0; i < assetIds.length; i++) {
+            for (int j = 0; j < assetIds[i].length; j++) {
                 LocationReport report = new LocationReport(assetIds[i][j], zoneIds[i][j]);
                 epService.getEPRuntime().sendEvent(report);
             }
         }
 
         // Reset listeners
-        for (int i = 0; i < listeners.length; i++)
-        {
+        for (int i = 0; i < listeners.length; i++) {
             listeners[i].reset();
         }
         Integer[][] assetGroupsForThread = getGroupsPerThread(numAssetGroups, numThreads);
 
         // For continuous simulation (ends when interrupted),
         if (continuousSimulation) {
-            while(true) {
+            while (true) {
                 AssetEventGenCallable callable = new AssetEventGenCallable(epService, assetIds, zoneIds, assetGroupsForThread[0], ratioZoneMove, ratioZoneSplit);
                 try {
                     callable.call();
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     log.warn("Exception simulating in continuous mode: " + ex.getMessage(), ex);
                     break;
                 }
@@ -234,11 +226,10 @@ public class LRMovingSimMain implements Runnable
         // Create threadpool
         log.info(".tryPerf Starting " + numThreads + " threads");
         ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
-        Future future[] = new Future[numThreads];
-        AssetEventGenCallable callables[] = new AssetEventGenCallable[numThreads];
+        Future[] future = new Future[numThreads];
+        AssetEventGenCallable[] callables = new AssetEventGenCallable[numThreads];
 
-        for (int i = 0; i < numThreads; i++)
-        {
+        for (int i = 0; i < numThreads; i++) {
             callables[i] = new AssetEventGenCallable(epService, assetIds, zoneIds, assetGroupsForThread[i], ratioZoneMove, ratioZoneSplit);
             Future<Boolean> f = threadPool.submit(callables[i]);
             future[i] = f;
@@ -250,8 +241,7 @@ public class LRMovingSimMain implements Runnable
         long currTime;
         double deltaSeconds;
         int lastTotalEvents = 0;
-        do
-        {
+        do {
             // sleep
             try {
                 Thread.sleep(1000);
@@ -267,8 +257,7 @@ public class LRMovingSimMain implements Runnable
             int totalZoneMoves = 0;
             int totalZoneSplits = 0;
             int totalZoneSame = 0;
-            for (int i = 0; i < callables.length; i++)
-            {
+            for (int i = 0; i < callables.length; i++) {
                 totalEvents += callables[i].getNumEventsSend();
                 totalZoneMoves += callables[i].getNumZoneMoves();
                 totalZoneSplits += callables[i].getNumZoneSplits();
@@ -283,15 +272,13 @@ public class LRMovingSimMain implements Runnable
                     " zoneMoves=" + totalZoneMoves +
                     " zoneSame=" + totalZoneSame +
                     " zoneSplits=" + totalZoneSplits
-                    );
+            );
             lastTotalEvents = totalEvents;
 
             // If we are within 15 seconds of shutdown, stop generating zone splits
-            if ( ((numSeconds - deltaSeconds) < 15) && (callables[0].isGenerateZoneSplit()))
-            {
+            if (((numSeconds - deltaSeconds) < 15) && (callables[0].isGenerateZoneSplit())) {
                 log.info(".tryPerf Setting stop split flag on threads");
-                for (int i = 0; i < callables.length; i++)
-                {
+                for (int i = 0; i < callables.length; i++) {
                     callables[i].setGenerateZoneSplit(false);
                 }
             }
@@ -299,8 +286,7 @@ public class LRMovingSimMain implements Runnable
         while (deltaSeconds < numSeconds);
 
         log.info(".tryPerf Shutting down threads");
-        for (int i = 0; i < callables.length; i++)
-        {
+        for (int i = 0; i < callables.length; i++) {
             callables[i].setShutdown(true);
         }
         threadPool.shutdown();
@@ -310,55 +296,45 @@ public class LRMovingSimMain implements Runnable
             log.debug("Interrupted", e);
         }
 
-        if (!isAssert)
-        {
+        if (!isAssert) {
             return;
         }
 
-        for (int i = 0; i < numThreads; i++)
-        {
+        for (int i = 0; i < numThreads; i++) {
             try {
-                if (!(Boolean) future[i].get())
-                {
+                if (!(Boolean) future[i].get()) {
                     throw new RuntimeException("Invalid result of callable");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Exception encountered sending events: " + e.getMessage(), e);
             }
         }
 
         // Get groups split
         Set<Integer> splitGroups = new HashSet<Integer>();
-        for (int i = 0; i < callables.length; i++)
-        {
+        for (int i = 0; i < callables.length; i++) {
             splitGroups.addAll(callables[i].getSplitZoneGroups());
         }
         log.info(".tryPerf Generated splits were " + splitGroups + " groups");
 
         // Compare to listeners
-        for (Integer groupId : splitGroups)
-        {
-            if (listeners[groupId].getCallbacks().size() == 0)
-            {
+        for (Integer groupId : splitGroups) {
+            if (listeners[groupId].getCallbacks().size() == 0) {
                 throw new RuntimeException("Invalid result for listener, expected split group");
             }
         }
     }
 
     // Subdivide say 1000 groups into 3 threads, i.e. 0 - 333, 334 to 666, 667 - 999 (roughly)
-    private Integer[][] getGroupsPerThread(int numGroups, int numThreads)
-    {
+    private Integer[][] getGroupsPerThread(int numGroups, int numThreads) {
         Integer[][] result = new Integer[numThreads][];
         int bucketSize = numGroups / numThreads;
-        for (int i = 0; i < numThreads; i++)
-        {
+        for (int i = 0; i < numThreads; i++) {
             int start = i * bucketSize;
             int end = start + bucketSize;
             List<Integer> groups = new ArrayList<Integer>();
 
-            for (int j = start; j < end; j++)
-            {
+            for (int j = start; j < end; j++) {
                 groups.add(j);
             }
 

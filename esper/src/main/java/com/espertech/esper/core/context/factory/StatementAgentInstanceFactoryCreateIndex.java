@@ -40,8 +40,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
         this.contextName = contextName;
     }
 
-    public StatementAgentInstanceFactoryCreateIndexResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryCreateIndexResult newContext(AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         StopCallback stopCallback;
         final int agentInstanceId = agentInstanceContext.getAgentInstanceId();
 
@@ -57,12 +56,10 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                         virtualDWView.handleStopIndex(spec);
                     }
                 };
-            }
-            else {
+            } else {
                 try {
                     processorInstance.getRootViewInstance().addExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), isRecoveringResilient);
-                }
-                catch (ExprValidationException e) {
+                } catch (ExprValidationException e) {
                     throw new EPException("Failed to create index: " + e.getMessage(), e);
                 }
 
@@ -79,14 +76,12 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                     }
                 };
             }
-        }
-        else {
+        } else {
             // handle table access
             try {
                 TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
                 instance.addExplicitIndex(spec, isRecoveringResilient, contextName != null);
-            }
-            catch (ExprValidationException ex) {
+            } catch (ExprValidationException ex) {
                 throw new EPException("Failed to create index: " + ex.getMessage(), ex);
             }
 

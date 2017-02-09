@@ -19,8 +19,7 @@ import java.util.Iterator;
 /**
  * Full table scan strategy for a poll-based cache result.
  */
-public class HistoricalIndexLookupStrategyNoIndex implements HistoricalIndexLookupStrategy
-{
+public class HistoricalIndexLookupStrategyNoIndex implements HistoricalIndexLookupStrategy {
     public HistoricalIndexLookupStrategyNoIndex() {
     }
 

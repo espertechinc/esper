@@ -12,8 +12,7 @@ package com.espertech.esper.epl.expression.dot;
 
 import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
 
-public class ExprDotNodeRealizedChain
-{
+public class ExprDotNodeRealizedChain {
     private final ExprDotEval[] chain;
     private final ExprDotEval[] chainWithUnpack;
     private final ExprDotNodeFilterAnalyzerDesc filterAnalyzerDesc;

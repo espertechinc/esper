@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
  * UpdateDispatchFutureWait is aware of future and past dispatches:
  * (newest) DF3   &lt;--&gt;   DF2  &lt;--&gt;  DF1  (oldest)
  */
-public class UpdateDispatchFutureWait implements Dispatchable
-{
+public class UpdateDispatchFutureWait implements Dispatchable {
     private static final Logger log = LoggerFactory.getLogger(UpdateDispatchFutureWait.class);
     private UpdateDispatchViewBlockingWait view;
     private UpdateDispatchFutureWait earlier;
@@ -32,12 +31,12 @@ public class UpdateDispatchFutureWait implements Dispatchable
 
     /**
      * Ctor.
-     * @param view is the blocking dispatch view through which to execute a dispatch
-     * @param earlier is the older future
+     *
+     * @param view        is the blocking dispatch view through which to execute a dispatch
+     * @param earlier     is the older future
      * @param msecTimeout is the timeout period to wait for listeners to complete a prior dispatch
      */
-    public UpdateDispatchFutureWait(UpdateDispatchViewBlockingWait view, UpdateDispatchFutureWait earlier, long msecTimeout)
-    {
+    public UpdateDispatchFutureWait(UpdateDispatchViewBlockingWait view, UpdateDispatchFutureWait earlier, long msecTimeout) {
         this.view = view;
         this.earlier = earlier;
         this.msecTimeout = msecTimeout;
@@ -46,43 +45,35 @@ public class UpdateDispatchFutureWait implements Dispatchable
     /**
      * Ctor - use for the first future to indicate completion.
      */
-    public UpdateDispatchFutureWait()
-    {
+    public UpdateDispatchFutureWait() {
         isCompleted = true;
     }
 
     /**
      * Returns true if the dispatch completed for this future.
+     *
      * @return true for completed, false if not
      */
-    public boolean isCompleted()
-    {
+    public boolean isCompleted() {
         return isCompleted;
     }
 
     /**
      * Hand a later future to the dispatch to use for indicating completion via notify.
+     *
      * @param later is the later dispatch
      */
-    public void setLater(UpdateDispatchFutureWait later)
-    {
+    public void setLater(UpdateDispatchFutureWait later) {
         this.later = later;
     }
 
-    public void execute()
-    {
-        if (!earlier.isCompleted)
-        {
-            synchronized(this)
-            {
-                if (!earlier.isCompleted)
-                {
-                    try
-                    {
+    public void execute() {
+        if (!earlier.isCompleted) {
+            synchronized (this) {
+                if (!earlier.isCompleted) {
+                    try {
                         this.wait(msecTimeout);
-                    }
-                    catch (InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         log.error("Interupted: " + e.getMessage());
                     }
                 }
@@ -92,10 +83,8 @@ public class UpdateDispatchFutureWait implements Dispatchable
         view.execute();
         isCompleted = true;
 
-        if (later != null)
-        {
-            synchronized(later)
-            {
+        if (later != null) {
+            synchronized (later) {
                 later.notify();
             }
         }

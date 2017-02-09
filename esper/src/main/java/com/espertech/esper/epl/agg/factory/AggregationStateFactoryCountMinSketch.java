@@ -19,8 +19,7 @@ import com.espertech.esper.epl.approx.CountMinSketchState;
 import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class AggregationStateFactoryCountMinSketch implements AggregationStateFactory
-{
+public class AggregationStateFactoryCountMinSketch implements AggregationStateFactory {
     protected final ExprAggCountMinSketchNode parent;
     protected final CountMinSketchSpec specification;
 

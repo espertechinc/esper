@@ -12,13 +12,12 @@ package com.espertech.esper.collection;
 
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
-
-import java.util.TreeSet;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.TreeSet;
 
 public class TestNumberSetShiftGroupEnumeration extends TestCase {
 
@@ -26,12 +25,12 @@ public class TestNumberSetShiftGroupEnumeration extends TestCase {
 
     public void testGen() {
 
-        assertEquals(29, countEnumeration(new int[] {1, 2, 3, 4, 5, 6}));
-        assertEquals(31, countEnumeration(new int[] {1, 2, 3, 4, 5, 6, 7, 8}));
+        assertEquals(29, countEnumeration(new int[]{1, 2, 3, 4, 5, 6}));
+        assertEquals(31, countEnumeration(new int[]{1, 2, 3, 4, 5, 6, 7, 8}));
 
-        int[] set = new int[] {1, 2, 3, 4, 5, 6, 7};
+        int[] set = new int[]{1, 2, 3, 4, 5, 6, 7};
 
-        final int[][] expectedValues = new int[][] {
+        final int[][] expectedValues = new int[][]{
                 {1, 2, 3, 4, 5, 6, 7},
                 {2, 3, 4, 5, 6, 7, 1},
                 {3, 4, 5, 6, 7, 1, 2},
@@ -65,11 +64,11 @@ public class TestNumberSetShiftGroupEnumeration extends TestCase {
         };
 
         /** Comment in here to print
-        NumberSetShiftGroupEnumeration enumeration = new NumberSetShiftGroupEnumeration(set);
-        while(enumeration.hasMoreElements()) {
-            System.out.println(Arrays.toString(enumeration.nextElement()));
-        }
-        */
+         NumberSetShiftGroupEnumeration enumeration = new NumberSetShiftGroupEnumeration(set);
+         while(enumeration.hasMoreElements()) {
+         System.out.println(Arrays.toString(enumeration.nextElement()));
+         }
+         */
 
         tryPermutation(set, expectedValues);
     }
@@ -77,7 +76,7 @@ public class TestNumberSetShiftGroupEnumeration extends TestCase {
     private int countEnumeration(int[] numberSet) {
         NumberSetShiftGroupEnumeration enumeration = new NumberSetShiftGroupEnumeration(numberSet);
         int count = 0;
-        while(enumeration.hasMoreElements()) {
+        while (enumeration.hasMoreElements()) {
             int[] result = enumeration.nextElement();
             assertSet(numberSet, result);
             count++;
@@ -85,13 +84,11 @@ public class TestNumberSetShiftGroupEnumeration extends TestCase {
         return count;
     }
 
-    private void tryPermutation(int[] numberSet, int[][] expectedValues)
-    {
+    private void tryPermutation(int[] numberSet, int[][] expectedValues) {
         NumberSetShiftGroupEnumeration enumeration = new NumberSetShiftGroupEnumeration(numberSet);
 
         int count = 0;
-        while(enumeration.hasMoreElements())
-        {
+        while (enumeration.hasMoreElements()) {
             log.debug(".tryPermutation count=" + count);
 
             int[] result = enumeration.nextElement();
@@ -107,26 +104,21 @@ public class TestNumberSetShiftGroupEnumeration extends TestCase {
         }
         assertEquals(count, expectedValues.length);
 
-        try
-        {
+        try {
             enumeration.nextElement();
             fail();
-        }
-        catch (NoSuchElementException ex)
-        {
+        } catch (NoSuchElementException ex) {
             // Expected
         }
     }
 
-    private void assertSet(int[] expected, int[] result)
-    {
+    private void assertSet(int[] expected, int[] result) {
         TreeSet<Integer> treeExp = getTreeSet(expected);
         TreeSet<Integer> treeRes = getTreeSet(result);
         EPAssertionUtil.assertEqualsExactOrder(getArr(treeRes), getArr(treeExp));
     }
 
-    private int[] getArr(TreeSet<Integer> set)
-    {
+    private int[] getArr(TreeSet<Integer> set) {
         int[] arr = new int[set.size()];
         int count = 0;
         for (int val : set) {

@@ -28,8 +28,8 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeSubselectDeclaredDotVisitor;
-import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.property.PropertyEvaluator;
 import com.espertech.esper.epl.property.PropertyEvaluatorFactory;
 import com.espertech.esper.epl.spec.*;
@@ -49,8 +49,7 @@ import java.util.*;
 /**
  * Helper to compile (validate and optimize) filter expressions as used in pattern and filter-based streams.
  */
-public final class FilterSpecCompiler
-{
+public final class FilterSpecCompiler {
     private static final Logger log = LoggerFactory.getLogger(FilterSpecCompiler.class);
 
     /**
@@ -65,16 +64,17 @@ public final class FilterSpecCompiler
     /**
      * Factory method for compiling filter expressions into a filter specification
      * for use with filter service.
-     * @param eventType is the filtered-out event type
-     * @param eventTypeName is the name of the event type
-     * @param filterExpessions is a list of filter expressions
-     * @param taggedEventTypes is a map of stream names (tags) and event types available
-     * @param arrayEventTypes is a map of name tags and event type per tag for repeat-expressions that generate an array of events
-     * @param streamTypeService is used to set rules for resolving properties
-     * @param optionalStreamName - the stream name, if provided
+     *
+     * @param eventType                is the filtered-out event type
+     * @param eventTypeName            is the name of the event type
+     * @param filterExpessions         is a list of filter expressions
+     * @param taggedEventTypes         is a map of stream names (tags) and event types available
+     * @param arrayEventTypes          is a map of name tags and event type per tag for repeat-expressions that generate an array of events
+     * @param streamTypeService        is used to set rules for resolving properties
+     * @param optionalStreamName       - the stream name, if provided
      * @param optionalPropertyEvalSpec - specification for evaluating properties
-     * @param statementContext context for statement
-     * @param assignedTypeNumberStack type numbers assigned
+     * @param statementContext         context for statement
+     * @param assignedTypeNumberStack  type numbers assigned
      * @return compiled filter specification
      * @throws ExprValidationException if the expression or type validations failed
      */
@@ -88,8 +88,7 @@ public final class FilterSpecCompiler
                                                     String optionalStreamName,
                                                     StatementContext statementContext,
                                                     Collection<Integer> assignedTypeNumberStack)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Validate all nodes, make sure each returns a boolean and types are good;
         // Also decompose all AND super nodes into individual expressions
         List<ExprNode> validatedNodes = validateAllowSubquery(ExprNodeOrigin.FILTER, filterExpessions, streamTypeService, statementContext, taggedEventTypes, arrayEventTypes);
@@ -97,15 +96,15 @@ public final class FilterSpecCompiler
     }
 
     public static FilterSpecCompiled build(List<ExprNode> validatedNodes,
-                                            EventType eventType,
-                                            String eventTypeName,
-                                            PropertyEvalSpec optionalPropertyEvalSpec,
-                                            LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
-                                            LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                                            StreamTypeService streamTypeService,
-                                            String optionalStreamName,
-                                            StatementContext stmtContext,
-                                            Collection<Integer> assignedTypeNumberStack) throws ExprValidationException {
+                                           EventType eventType,
+                                           String eventTypeName,
+                                           PropertyEvalSpec optionalPropertyEvalSpec,
+                                           LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                           LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                           StreamTypeService streamTypeService,
+                                           String optionalStreamName,
+                                           StatementContext stmtContext,
+                                           Collection<Integer> assignedTypeNumberStack) throws ExprValidationException {
 
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(stmtContext, false);
 
@@ -157,13 +156,14 @@ public final class FilterSpecCompiler
 
     /**
      * Validates expression nodes and returns a list of validated nodes.
-     * @param exprNodes is the nodes to validate
+     *
+     * @param exprNodes         is the nodes to validate
      * @param streamTypeService is provding type information for each stream
-     * @param taggedEventTypes pattern tagged types
-     * @param arrayEventTypes event types that provide array values
+     * @param taggedEventTypes  pattern tagged types
+     * @param arrayEventTypes   event types that provide array values
+     * @param statementContext  context
+     * @param exprNodeOrigin    origin
      * @return list of validated expression nodes
-     * @param statementContext context
-     * @param exprNodeOrigin origin
      * @throws ExprValidationException for validation errors
      */
     public static List<ExprNode> validateAllowSubquery(ExprNodeOrigin exprNodeOrigin,
@@ -171,14 +171,12 @@ public final class FilterSpecCompiler
                                                        StatementContext statementContext,
                                                        LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
                                                        LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<ExprNode> validatedNodes = new ArrayList<ExprNode>();
 
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
-        for (ExprNode node : exprNodes)
-        {
+        for (ExprNode node : exprNodes) {
             // Determine subselects
             ExprNodeSubselectDeclaredDotVisitor visitor = new ExprNodeSubselectDeclaredDotVisitor();
             node.accept(visitor);
@@ -194,10 +192,9 @@ public final class FilterSpecCompiler
                     subselectStreamNumber++;
                     try {
                         handleSubselectSelectClauses(subselectStreamNumber, statementContext, subselect,
-                            streamTypeService.getEventTypes()[0], streamTypeService.getStreamNames()[0], streamTypeService.getStreamNames()[0],
-                            taggedEventTypes, arrayEventTypes);
-                    }
-                    catch (ExprValidationException ex) {
+                                streamTypeService.getEventTypes()[0], streamTypeService.getStreamNames()[0], streamTypeService.getStreamNames()[0],
+                                taggedEventTypes, arrayEventTypes);
+                    } catch (ExprValidationException ex) {
                         throw new ExprValidationException("Failed to validate " + EPStatementStartMethodHelperSubselect.getSubqueryInfoText(count, subselect) + ": " + ex.getMessage(), ex);
                     }
                 }
@@ -206,8 +203,7 @@ public final class FilterSpecCompiler
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, node, validationContext);
             validatedNodes.add(validated);
 
-            if ((validated.getExprEvaluator().getType() != Boolean.class) && ((validated.getExprEvaluator().getType() != boolean.class)))
-            {
+            if ((validated.getExprEvaluator().getType() != Boolean.class) && ((validated.getExprEvaluator().getType() != boolean.class))) {
                 throw new ExprValidationException("Filter expression not returning a boolean value: '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(validated) + "'");
             }
         }
@@ -216,8 +212,8 @@ public final class FilterSpecCompiler
     }
 
     private static void handleSubselectSelectClauses(int subselectStreamNumber, StatementContext statementContext, ExprSubselectNode subselect, EventType outerEventType, String outerEventTypeName, String outerStreamName,
-            LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes)
-        throws ExprValidationException {
+                                                     LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes)
+            throws ExprValidationException {
 
         StatementSpecCompiled statementSpec = subselect.getStatementSpecCompiled();
         StreamSpecCompiled filterStreamSpec = statementSpec.getStreamSpecs()[0];
@@ -227,23 +223,19 @@ public final class FilterSpecCompiler
 
         // construct view factory chain
         try {
-            if (statementSpec.getStreamSpecs()[0] instanceof FilterStreamSpecCompiled)
-            {
+            if (statementSpec.getStreamSpecs()[0] instanceof FilterStreamSpecCompiled) {
                 FilterStreamSpecCompiled filterStreamSpecCompiled = (FilterStreamSpecCompiled) statementSpec.getStreamSpecs()[0];
                 subselecteventTypeName = filterStreamSpecCompiled.getFilterSpec().getFilterForEventTypeName();
 
                 // A child view is required to limit the stream
-                if (filterStreamSpec.getViewSpecs().length == 0)
-                {
+                if (filterStreamSpec.getViewSpecs().length == 0) {
                     throw new ExprValidationException("Subqueries require one or more views to limit the stream, consider declaring a length or time window");
                 }
 
                 // Register filter, create view factories
                 viewFactoryChain = statementContext.getViewService().createFactories(subselectStreamNumber, filterStreamSpecCompiled.getFilterSpec().getResultEventType(), filterStreamSpec.getViewSpecs(), filterStreamSpec.getOptions(), statementContext, true, subselect.getSubselectNumber());
                 subselect.setRawEventType(viewFactoryChain.getEventType());
-            }
-            else
-            {
+            } else {
                 NamedWindowConsumerStreamSpec namedSpec = (NamedWindowConsumerStreamSpec) statementSpec.getStreamSpecs()[0];
                 NamedWindowProcessor processor = statementContext.getNamedWindowMgmtService().getProcessor(namedSpec.getWindowName());
                 viewFactoryChain = statementContext.getViewService().createFactories(0, processor.getNamedWindowType(), namedSpec.getViewSpecs(), namedSpec.getOptions(), statementContext, true, subselect.getSubselectNumber());
@@ -251,8 +243,7 @@ public final class FilterSpecCompiler
                 EPLValidationUtil.validateContextName(false, processor.getNamedWindowName(), processor.getContextName(), statementContext.getContextName(), true);
                 subselect.setRawEventType(processor.getNamedWindowType());
             }
-        }
-        catch (ViewProcessingException ex) {
+        } catch (ViewProcessingException ex) {
             throw new ExprValidationException("Error validating subexpression: " + ex.getMessage(), ex);
         }
 
@@ -261,14 +252,12 @@ public final class FilterSpecCompiler
 
         // determine a stream name unless one was supplied
         String subexpressionStreamName = filterStreamSpec.getOptionalStreamName();
-        if (subexpressionStreamName == null)
-        {
+        if (subexpressionStreamName == null) {
             subexpressionStreamName = "$subselect_" + subselectStreamNumber;
         }
 
         // Named windows don't allow data views
-        if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec)
-        {
+        if (filterStreamSpec instanceof NamedWindowConsumerStreamSpec) {
             EPStatementStartMethodHelperValidate.validateNoDataWindowOnNamedWindow(viewFactoryChain.getViewFactoryChain());
         }
 
@@ -292,37 +281,31 @@ public final class FilterSpecCompiler
 
         // Validate select expression
         SelectClauseSpecCompiled selectClauseSpec = subselect.getStatementSpecCompiled().getSelectClauseSpec();
-        if (selectClauseSpec.getSelectExprList().length > 0)
-        {
+        if (selectClauseSpec.getSelectExprList().length > 0) {
             if (selectClauseSpec.getSelectExprList().length > 1) {
                 throw new ExprValidationException("Subquery multi-column select is not allowed in this context.");
             }
 
             SelectClauseElementCompiled element = selectClauseSpec.getSelectExprList()[0];
-            if (element instanceof SelectClauseExprCompiledSpec)
-            {
+            if (element instanceof SelectClauseExprCompiledSpec) {
                 // validate
                 SelectClauseExprCompiledSpec compiled = (SelectClauseExprCompiledSpec) element;
                 ExprNode selectExpression = compiled.getSelectExpression();
                 ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
                 ExprValidationContext validationContext = new ExprValidationContext(subselectTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegateSubselect, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
                 selectExpression = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SUBQUERYSELECT, selectExpression, validationContext);
-                subselect.setSelectClause(new ExprNode[] {selectExpression});
-                subselect.setSelectAsNames(new String[] {compiled.getAssignedName()});
+                subselect.setSelectClause(new ExprNode[]{selectExpression});
+                subselect.setSelectAsNames(new String[]{compiled.getAssignedName()});
 
                 // handle aggregation
                 List<ExprAggregateNode> aggExprNodes = new LinkedList<ExprAggregateNode>();
                 ExprAggregateNodeUtil.getAggregatesBottomUp(selectExpression, aggExprNodes);
-                if (aggExprNodes.size() > 0)
-                {
+                if (aggExprNodes.size() > 0) {
                     // Other stream properties, if there is aggregation, cannot be under aggregation.
-                    for (ExprAggregateNode aggNode : aggExprNodes)
-                    {
+                    for (ExprAggregateNode aggNode : aggExprNodes) {
                         List<Pair<Integer, String>> propertiesNodesAggregated = ExprNodeUtility.getExpressionProperties(aggNode, true);
-                        for (Pair<Integer, String> pair : propertiesNodesAggregated)
-                        {
-                            if (pair.getFirst() != 0)
-                            {
+                        for (Pair<Integer, String> pair : propertiesNodesAggregated) {
+                            if (pair.getFirst() != 0) {
                                 throw new ExprValidationException("Subselect aggregation function cannot aggregate across correlated properties");
                             }
                         }
@@ -330,10 +313,8 @@ public final class FilterSpecCompiler
 
                     // This stream (stream 0) properties must either all be under aggregation, or all not be.
                     List<Pair<Integer, String>> propertiesNotAggregated = ExprNodeUtility.getExpressionProperties(selectExpression, false);
-                    for (Pair<Integer, String> pair : propertiesNotAggregated)
-                    {
-                        if (pair.getFirst() == 0)
-                        {
+                    for (Pair<Integer, String> pair : propertiesNotAggregated) {
+                        if (pair.getFirst() == 0) {
                             throw new ExprValidationException("Subselect properties must all be within aggregation functions");
                         }
                     }

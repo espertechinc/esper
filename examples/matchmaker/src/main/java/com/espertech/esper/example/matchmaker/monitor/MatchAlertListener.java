@@ -10,42 +10,36 @@
  */
 package com.espertech.esper.example.matchmaker.monitor;
 
-import java.util.List;
-import java.util.LinkedList;
-
+import com.espertech.esper.example.matchmaker.eventbean.MatchAlertBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.espertech.esper.example.matchmaker.eventbean.MatchAlertBean;
 
-public class MatchAlertListener
-{
+import java.util.LinkedList;
+import java.util.List;
+
+public class MatchAlertListener {
     private List<MatchAlertBean> emittedList = new LinkedList<MatchAlertBean>();
 
-    public void emitted(MatchAlertBean object)
-    {
+    public void emitted(MatchAlertBean object) {
         log.info(".emitted Emitted object=" + object);
         emittedList.add(object);
     }
 
-    public int getSize()
-    {
+    public int getSize() {
         return emittedList.size();
     }
 
-    public List getEmittedList()
-    {
+    public List getEmittedList() {
         return emittedList;
     }
 
-    public int getAndClearEmittedCount()
-    {
+    public int getAndClearEmittedCount() {
         int count = emittedList.size();
         emittedList.clear();
         return count;
     }
 
-    public void clearEmitted()
-    {
+    public void clearEmitted() {
         emittedList.clear();
     }
 

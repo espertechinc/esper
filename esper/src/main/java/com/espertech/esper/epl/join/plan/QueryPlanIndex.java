@@ -18,8 +18,7 @@ import java.util.*;
 /**
  * Specifies an index to build as part of an overall query plan.
  */
-public class QueryPlanIndex
-{
+public class QueryPlanIndex {
     private Map<TableLookupIndexReqKey, QueryPlanIndexItem> items;
 
     public QueryPlanIndex(Map<TableLookupIndexReqKey, QueryPlanIndexItem> items) {
@@ -33,7 +32,7 @@ public class QueryPlanIndex
         return items;
     }
 
-    public static QueryPlanIndex makeIndex(QueryPlanIndexItem ... items) {
+    public static QueryPlanIndex makeIndex(QueryPlanIndexItem... items) {
         Map<TableLookupIndexReqKey, QueryPlanIndexItem> result = new LinkedHashMap<TableLookupIndexReqKey, QueryPlanIndexItem>();
         for (QueryPlanIndexItem item : items) {
             result.put(new TableLookupIndexReqKey(UuidGenerator.generate()), item);
@@ -51,12 +50,12 @@ public class QueryPlanIndex
 
     /**
      * Find a matching index for the property names supplied.
+     *
      * @param indexProps - property names to search for
      * @param rangeProps - range props
      * @return -1 if not found, or offset within indexes if found
      */
-    protected Pair<TableLookupIndexReqKey, int[]> getIndexNum(String[] indexProps, String[] rangeProps)
-    {
+    protected Pair<TableLookupIndexReqKey, int[]> getIndexNum(String[] indexProps, String[] rangeProps) {
         // find an exact match first
         QueryPlanIndexItem proposed = new QueryPlanIndexItem(indexProps, null, rangeProps, null, false);
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
@@ -84,12 +83,12 @@ public class QueryPlanIndex
 
     /**
      * Add an index specification element.
+     *
      * @param indexProperties - list of property names to index
-     * @param coercionTypes - list of coercion types if required, or null if no coercion required
+     * @param coercionTypes   - list of coercion types if required, or null if no coercion required
      * @return number indicating position of index that was added
      */
-    public String addIndex(String[] indexProperties, Class[] coercionTypes)
-    {
+    public String addIndex(String[] indexProperties, Class[] coercionTypes) {
         String uuid = UuidGenerator.generate();
         items.put(new TableLookupIndexReqKey(uuid), new QueryPlanIndexItem(indexProperties, coercionTypes, null, null, false));
         return uuid;
@@ -97,10 +96,10 @@ public class QueryPlanIndex
 
     /**
      * For testing - Returns property names of all indexes.
+     *
      * @return property names array
      */
-    public String[][] getIndexProps()
-    {
+    public String[][] getIndexProps() {
         String[][] arr = new String[items.size()][];
         int count = 0;
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
@@ -113,15 +112,13 @@ public class QueryPlanIndex
 
     /**
      * Returns a list of coercion types for a given index.
+     *
      * @param indexProperties is the index field names
      * @return coercion types, or null if no coercion is required
      */
-    public Class[] getCoercionTypes(String[] indexProperties)
-    {
-        for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet())
-        {
-            if (Arrays.deepEquals(entry.getValue().getIndexProps(), indexProperties))
-            {
+    public Class[] getCoercionTypes(String[] indexProperties) {
+        for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
+            if (Arrays.deepEquals(entry.getValue().getIndexProps(), indexProperties)) {
                 return entry.getValue().getOptIndexCoercionTypes();
             }
         }
@@ -130,35 +127,30 @@ public class QueryPlanIndex
 
     /**
      * Sets the coercion types for a given index.
+     *
      * @param indexProperties is the index property names
-     * @param coercionTypes is the coercion types
+     * @param coercionTypes   is the coercion types
      */
-    public void setCoercionTypes(String[] indexProperties, Class[] coercionTypes)
-    {
+    public void setCoercionTypes(String[] indexProperties, Class[] coercionTypes) {
         boolean found = false;
-        for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet())
-        {
-            if (Arrays.deepEquals(entry.getValue().getIndexProps(), indexProperties))
-            {
+        for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
+            if (Arrays.deepEquals(entry.getValue().getIndexProps(), indexProperties)) {
                 entry.getValue().setOptIndexCoercionTypes(coercionTypes);
                 found = true;
             }
         }
-        if (!found)
-        {
+        if (!found) {
             throw new IllegalArgumentException("Index properties not found");
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         if (items.isEmpty()) {
             return "    (none)";
         }
         StringBuilder buf = new StringBuilder();
         String delimiter = "";
-        for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet())
-        {
+        for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
             buf.append(delimiter);
             String info = entry.getValue() == null ? "" : " : " + entry.getValue();
             buf.append("    index " + entry.getKey() + info);
@@ -169,18 +161,17 @@ public class QueryPlanIndex
 
     /**
      * Print index specifications in readable format.
+     *
      * @param indexSpecs - define indexes
      * @return readable format of index info
      */
     @SuppressWarnings({"StringConcatenationInsideStringBufferAppend"})
-    public static String print(QueryPlanIndex[] indexSpecs)
-    {
+    public static String print(QueryPlanIndex[] indexSpecs) {
         StringBuilder buffer = new StringBuilder();
         buffer.append("QueryPlanIndex[]\n");
 
         String delimiter = "";
-        for (int i = 0; i < indexSpecs.length; i++)
-        {
+        for (int i = 0; i < indexSpecs.length; i++) {
             buffer.append(delimiter);
             buffer.append("  index spec stream " + i + " : \n" + (indexSpecs[i] == null ? "    null" : indexSpecs[i]));
             delimiter = "\n";

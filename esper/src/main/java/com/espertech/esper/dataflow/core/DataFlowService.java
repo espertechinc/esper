@@ -21,7 +21,10 @@ public interface DataFlowService extends EPDataFlowRuntime {
 
     public void addStartGraph(CreateDataFlowDesc desc, StatementContext statementContext, EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, boolean newStatement)
             throws ExprValidationException;
+
     public void removeGraph(String graphName);
+
     public void stopGraph(String graphName);
+
     public void destroy();
 }

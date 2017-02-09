@@ -23,8 +23,7 @@ public class AvroEventBeanPropertyWriter implements EventPropertyWriter {
         this.index = index;
     }
 
-    public void write(Object value, EventBean target)
-    {
+    public void write(Object value, EventBean target) {
         AvroGenericDataBackedEventBean avroEvent = (AvroGenericDataBackedEventBean) target;
         write(value, avroEvent.getProperties());
     }

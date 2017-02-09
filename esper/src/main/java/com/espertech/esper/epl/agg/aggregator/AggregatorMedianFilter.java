@@ -15,11 +15,9 @@ import com.espertech.esper.epl.agg.service.AggregatorUtil;
 /**
  * Median aggregation.
  */
-public class AggregatorMedianFilter extends AggregatorMedian
-{
+public class AggregatorMedianFilter extends AggregatorMedian {
     @Override
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;
@@ -28,8 +26,7 @@ public class AggregatorMedianFilter extends AggregatorMedian
     }
 
     @Override
-    public void leave(Object parameters)
-    {
+    public void leave(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

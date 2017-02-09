@@ -65,12 +65,15 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
 
     private void startContextCallback(long timeOffset) {
         ScheduleHandleCallback scheduleCallback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionTimePeriod.this.agentInstanceContext.getStatementContext().getContextDescriptor());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionTimePeriod.this.agentInstanceContext.getStatementContext().getContextDescriptor());
+                }
                 scheduleHandle = null;  // terminates automatically unless scheduled again
                 callback.rangeNotification(Collections.<String, Object>emptyMap(), ContextControllerConditionTimePeriod.this, null, null, filterAddendum);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aContextScheduledEval();
+                }
             }
         };
         EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(agentInstanceContext.getStatementContext().getEpStatementHandle(), agentInstanceContext.getStatementContext().getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), agentInstanceContext.getStatementContext().getFilterFaultHandlerFactory());
@@ -81,7 +84,7 @@ public class ContextControllerConditionTimePeriod implements ContextControllerCo
     }
 
     private void endContextCallback() {
-        if (scheduleHandle!= null) {
+        if (scheduleHandle != null) {
             agentInstanceContext.getStatementContext().getSchedulingService().remove(scheduleHandle, scheduleSlot);
         }
         scheduleHandle = null;

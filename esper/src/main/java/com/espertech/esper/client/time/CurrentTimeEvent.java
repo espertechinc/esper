@@ -18,36 +18,35 @@ import java.util.Date;
  * External clocking must be enabled via {@link TimerControlEvent} before this class can be used
  * to externally feed time.
  */
-public final class CurrentTimeEvent extends TimerEvent
-{
+public final class CurrentTimeEvent extends TimerEvent {
     private static final long serialVersionUID = -145001725701558269L;
     private long time;
 
     /**
      * Constructor.
+     *
      * @param time is the time in milliseconds
      */
-    public CurrentTimeEvent(final long time)
-    {
+    public CurrentTimeEvent(final long time) {
         this.time = time;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return (new Date(time)).toString();
     }
 
     /**
      * Returns the time in milliseconds.
+     *
      * @return time in milliseconds
      */
-    public long getTime()
-    {
+    public long getTime() {
         return time;
     }
 
     /**
      * Sets the time in milliseconds.
+     *
      * @param time to set
      */
     public void setTime(long time) {

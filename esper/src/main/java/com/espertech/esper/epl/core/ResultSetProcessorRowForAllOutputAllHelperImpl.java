@@ -19,8 +19,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Set;
 
-public class ResultSetProcessorRowForAllOutputAllHelperImpl implements ResultSetProcessorRowForAllOutputAllHelper
-{
+public class ResultSetProcessorRowForAllOutputAllHelperImpl implements ResultSetProcessorRowForAllOutputAllHelper {
     private final ResultSetProcessorRowForAll processor;
     private final Deque<EventBean> eventsOld = new ArrayDeque<EventBean>(2);
     private final Deque<EventBean> eventsNew = new ArrayDeque<EventBean>(2);

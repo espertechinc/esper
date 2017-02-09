@@ -48,30 +48,26 @@ import java.util.*;
  * Consolidates aggregation nodes such that result futures point to a single instance and
  * no re-evaluation of the same result occurs.
  */
-public class AggregationServiceFactoryFactory
-{
+public class AggregationServiceFactoryFactory {
     /**
      * Produces an aggregation service for use with match-recognice.
      *
-     * @param numStreams number of streams
+     * @param numStreams                number of streams
      * @param measureExprNodesPerStream measure nodes
-     * @param typesPerStream type information
+     * @param typesPerStream            type information
      * @return service
      * @throws ExprValidationException for validation errors
      */
     public static AggregationServiceMatchRecognizeFactoryDesc getServiceMatchRecognize(int numStreams,
                                                                                        Map<Integer, List<ExprAggregateNode>> measureExprNodesPerStream,
                                                                                        EventType[] typesPerStream)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<Integer, List<AggregationServiceAggExpressionDesc>> equivalencyListPerStream = new TreeMap<Integer, List<AggregationServiceAggExpressionDesc>>();
 
-        for (Map.Entry<Integer, List<ExprAggregateNode>> entry : measureExprNodesPerStream.entrySet())
-        {
+        for (Map.Entry<Integer, List<ExprAggregateNode>> entry : measureExprNodesPerStream.entrySet()) {
             List<AggregationServiceAggExpressionDesc> equivalencyList = new ArrayList<AggregationServiceAggExpressionDesc>();
             equivalencyListPerStream.put(entry.getKey(), equivalencyList);
-            for (ExprAggregateNode selectAggNode : entry.getValue())
-            {
+            for (ExprAggregateNode selectAggNode : entry.getValue()) {
                 addEquivalent(selectAggNode, equivalencyList);
             }
         }
@@ -79,8 +75,7 @@ public class AggregationServiceFactoryFactory
         LinkedHashMap<Integer, AggregationMethodFactory[]> aggregatorsPerStream = new LinkedHashMap<Integer, AggregationMethodFactory[]>();
         Map<Integer, ExprEvaluator[]> evaluatorsPerStream = new HashMap<Integer, ExprEvaluator[]>();
 
-        for (Map.Entry<Integer, List<AggregationServiceAggExpressionDesc>> equivalencyPerStream : equivalencyListPerStream.entrySet())
-        {
+        for (Map.Entry<Integer, List<AggregationServiceAggExpressionDesc>> equivalencyPerStream : equivalencyListPerStream.entrySet()) {
             int index = 0;
             int stream = equivalencyPerStream.getKey();
 
@@ -90,29 +85,21 @@ public class AggregationServiceFactoryFactory
             ExprEvaluator[] evaluators = new ExprEvaluator[equivalencyPerStream.getValue().size()];
             evaluatorsPerStream.put(stream, evaluators);
 
-            for (AggregationServiceAggExpressionDesc aggregation : equivalencyPerStream.getValue())
-            {
+            for (AggregationServiceAggExpressionDesc aggregation : equivalencyPerStream.getValue()) {
                 ExprAggregateNode aggregateNode = aggregation.getAggregationNode();
-                if (aggregateNode.getChildNodes().length > 1)
-                {
+                if (aggregateNode.getChildNodes().length > 1) {
                     evaluators[index] = ExprMethodAggUtil.getMultiNodeEvaluator(aggregateNode.getChildNodes(), typesPerStream.length > 1, typesPerStream);
-                }
-                else if (aggregateNode.getChildNodes().length > 0)
-                {
+                } else if (aggregateNode.getChildNodes().length > 0) {
                     // Use the evaluation node under the aggregation node to obtain the aggregation value
                     evaluators[index] = aggregateNode.getChildNodes()[0].getExprEvaluator();
-                }
-                // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
-                else
-                {
+                } else {
+                    // For aggregation that doesn't evaluate any particular sub-expression, return null on evaluation
                     evaluators[index] = new ExprEvaluator() {
-                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                        {
+                        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                             return null;
                         }
 
-                        public Class getType()
-                        {
+                        public Class getType() {
                             return null;
                         }
                     };
@@ -126,10 +113,8 @@ public class AggregationServiceFactoryFactory
         // Assign a column number to each aggregation node. The regular aggregation goes first followed by access-aggregation.
         int columnNumber = 0;
         List<AggregationServiceAggExpressionDesc> allExpressions = new ArrayList<AggregationServiceAggExpressionDesc>();
-        for (Map.Entry<Integer, List<AggregationServiceAggExpressionDesc>> equivalencyPerStream : equivalencyListPerStream.entrySet())
-        {
-            for (AggregationServiceAggExpressionDesc entry : equivalencyPerStream.getValue())
-            {
+        for (Map.Entry<Integer, List<AggregationServiceAggExpressionDesc>> equivalencyPerStream : equivalencyListPerStream.entrySet()) {
+            for (AggregationServiceAggExpressionDesc entry : equivalencyPerStream.getValue()) {
                 entry.setColumnNum(columnNumber++);
             }
             allExpressions.addAll(equivalencyPerStream.getValue());
@@ -163,11 +148,9 @@ public class AggregationServiceFactoryFactory
                                                            boolean isFireAndForget,
                                                            boolean isOnSelect,
                                                            EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // No aggregates used, we do not need this service
-        if ((selectAggregateExprNodes.isEmpty()) && (havingAggregateExprNodes.isEmpty()))
-        {
+        if ((selectAggregateExprNodes.isEmpty()) && (havingAggregateExprNodes.isEmpty())) {
             if (intoTableSpec != null) {
                 throw new ExprValidationException("Into-table requires at least one aggregation function");
             }
@@ -185,7 +168,7 @@ public class AggregationServiceFactoryFactory
                 havingClause.accept(visitor);
             }
             if ((visitor.getPrevious() != null) && (!visitor.getPrevious().isEmpty())) {
-                String funcname = visitor.getPrevious().get(0).getSecond().getPreviousType().toString().toLowerCase();
+                String funcname = visitor.getPrevious().get(0).getSecond().getPreviousType().toString().toLowerCase(Locale.ENGLISH);
                 throw new ExprValidationException("The '" + funcname + "' function may not occur in the where-clause or having-clause of a statement with aggregations as 'previous' does not provide remove stream data; Use the 'first','last','window' or 'count' aggregation functions instead");
             }
         }
@@ -194,16 +177,13 @@ public class AggregationServiceFactoryFactory
         // Equivalent-to functions are for example "select sum(a*b), 5*sum(a*b)".
         // Reducing the total number of aggregation functions.
         List<AggregationServiceAggExpressionDesc> aggregations = new ArrayList<AggregationServiceAggExpressionDesc>();
-        for (ExprAggregateNode selectAggNode : selectAggregateExprNodes)
-        {
+        for (ExprAggregateNode selectAggNode : selectAggregateExprNodes) {
             addEquivalent(selectAggNode, aggregations);
         }
-        for (ExprAggregateNode havingAggNode : havingAggregateExprNodes)
-        {
+        for (ExprAggregateNode havingAggNode : havingAggregateExprNodes) {
             addEquivalent(havingAggNode, aggregations);
         }
-        for (ExprAggregateNode orderByAggNode : orderByAggregateExprNodes)
-        {
+        for (ExprAggregateNode orderByAggNode : orderByAggregateExprNodes) {
             addEquivalent(orderByAggNode, aggregations);
         }
 
@@ -244,8 +224,7 @@ public class AggregationServiceFactoryFactory
             AggregationServiceFactory serviceFactory;
             if (!hasGroupByClause) {
                 serviceFactory = factoryService.getNoGroupWBinding(bindingMatchResult.getAccessors(), isJoin, bindingMatchResult.getMethodPairs(), intoTableSpec.getName(), bindingMatchResult.getTargetStates(), bindingMatchResult.getAccessStateExpr(), bindingMatchResult.getAgents());
-            }
-            else {
+            } else {
                 serviceFactory = factoryService.getGroupWBinding(metadata, bindingMatchResult.getMethodPairs(), bindingMatchResult.getAccessors(), isJoin, intoTableSpec, bindingMatchResult.getTargetStates(), bindingMatchResult.getAccessStateExpr(), bindingMatchResult.getAgents(), groupByRollupDesc);
             }
             return new AggregationServiceFactoryDesc(serviceFactory, aggregations, groupKeyExpressions);
@@ -253,14 +232,12 @@ public class AggregationServiceFactoryFactory
 
         // Assign a column number to each aggregation node. The regular aggregation goes first followed by access-aggregation.
         int columnNumber = 0;
-        for (AggregationServiceAggExpressionDesc entry : aggregations)
-        {
+        for (AggregationServiceAggExpressionDesc entry : aggregations) {
             if (!entry.getFactory().isAccessAggregation()) {
                 entry.setColumnNum(columnNumber++);
             }
         }
-        for (AggregationServiceAggExpressionDesc entry : aggregations)
-        {
+        for (AggregationServiceAggExpressionDesc entry : aggregations) {
             if (entry.getFactory().isAccessAggregation()) {
                 entry.setColumnNum(columnNumber++);
             }
@@ -294,8 +271,7 @@ public class AggregationServiceFactoryFactory
                 if (hook != null) {
                     hook.planned(localGroupDesc, localGroupByPlan);
                 }
-            }
-            catch (ExprValidationException e) {
+            } catch (ExprValidationException e) {
                 throw new EPException("Failed to obtain hook for " + HookType.INTERNAL_AGGLOCALLEVEL);
             }
         }
@@ -304,56 +280,42 @@ public class AggregationServiceFactoryFactory
         if (!hasGroupByClause) {
             if (localGroupByPlan != null) {
                 serviceFactory = factoryService.getNoGroupLocalGroupBy(isJoin, localGroupByPlan, isUnidirectional, isFireAndForget, isOnSelect);
-            }
-            else if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
+            } else if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
                 serviceFactory = factoryService.getNoGroupNoAccess(methodAggEvaluators, methodAggFactories, isUnidirectional, isFireAndForget, isOnSelect);
-            }
-            else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
+            } else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
                 serviceFactory = factoryService.getNoGroupAccessOnly(accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
-            }
-            else {
+            } else {
                 serviceFactory = factoryService.getNoGroupAccessMixed(methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
             }
-        }
-        else {
+        } else {
             boolean hasNoReclaim = HintEnum.DISABLE_RECLAIM_GROUP.getHint(annotations) != null;
             Hint reclaimGroupAged = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             Hint reclaimGroupFrequency = HintEnum.RECLAIM_GROUP_AGED.getHint(annotations);
             if (localGroupByPlan != null) {
                 serviceFactory = factoryService.getGroupLocalGroupBy(isJoin, localGroupByPlan, isUnidirectional, isFireAndForget, isOnSelect);
-            }
-            else {
-                if (!isDisallowNoReclaim && hasNoReclaim)
-                {
+            } else {
+                if (!isDisallowNoReclaim && hasNoReclaim) {
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
                     if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
                         serviceFactory = factoryService.getGroupedNoReclaimNoAccess(groupByNodes, methodAggEvaluators, methodAggFactories, isUnidirectional, isFireAndForget, isOnSelect);
-                    }
-                    else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
+                    } else if ((methodAggEvaluators.length == 0) && (accessorPairs.length > 0)) {
                         serviceFactory = factoryService.getGroupNoReclaimAccessOnly(groupByNodes, accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
-                    }
-                    else {
+                    } else {
                         serviceFactory = factoryService.getGroupNoReclaimMixed(groupByNodes, methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
                     }
-                }
-                else if (!isDisallowNoReclaim && reclaimGroupAged != null)
-                {
+                } else if (!isDisallowNoReclaim && reclaimGroupAged != null) {
                     if (groupByRollupDesc != null) {
                         throw getRollupReclaimEx();
                     }
                     serviceFactory = factoryService.getGroupReclaimAged(groupByNodes, methodAggEvaluators, methodAggFactories, reclaimGroupAged, reclaimGroupFrequency, variableService, accessorPairs, accessAggregations, isJoin, optionalContextName, isUnidirectional, isFireAndForget, isOnSelect);
-                }
-                else if (groupByRollupDesc != null) {
+                } else if (groupByRollupDesc != null) {
                     serviceFactory = factoryService.getGroupReclaimMixableRollup(groupByNodes, groupByRollupDesc, methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, groupByRollupDesc, isUnidirectional, isFireAndForget, isOnSelect);
-                }
-                else
-                {
+                } else {
                     if ((methodAggEvaluators.length > 0) && (accessorPairs.length == 0)) {
                         serviceFactory = factoryService.getGroupReclaimNoAccess(groupByNodes, methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
-                    }
-                    else {
+                    } else {
                         serviceFactory = factoryService.getGroupReclaimMixable(groupByNodes, methodAggEvaluators, methodAggFactories, accessorPairs, accessAggregations, isJoin, isUnidirectional, isFireAndForget, isOnSelect);
                     }
                 }
@@ -417,8 +379,7 @@ public class AggregationServiceFactoryFactory
                                                                        List<AggregationServiceAggExpressionDesc> aggregations,
                                                                        Map<ExprNode, String> selectClauseNamedNodes,
                                                                        List<ExprEvaluator> methodAggEvaluatorsList, List<ExprDeclaredNode> declaredExpressions)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         Map<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation> methodAggs = new LinkedHashMap<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation>();
         Map<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation> accessAggs = new LinkedHashMap<AggregationServiceAggExpressionDesc, TableMetadataColumnAggregation>();
         for (AggregationServiceAggExpressionDesc aggDesc : aggregations) {
@@ -440,8 +401,7 @@ public class AggregationServiceFactoryFactory
 
             if (!columnMetadata.getFactory().isAccessAggregation()) {
                 methodAggs.put(aggDesc, columnMetadata);
-            }
-            else {
+            } else {
                 accessAggs.put(aggDesc, columnMetadata);
             }
         }
@@ -471,7 +431,7 @@ public class AggregationServiceFactoryFactory
             accessEntry.getKey().setColumnNum(metadata.getNumberMethodAggregations() + accessIndex);
             agents.add(aggregationMethodFactory.getAggregationStateAgent());
         }
-        AggregationAgent agentArr[] = agents.toArray(new AggregationAgent[agents.size()]);
+        AggregationAgent[] agentArr = agents.toArray(new AggregationAgent[agents.size()]);
         AggregationAccessorSlotPair[] accessReads = accessReadPairs.toArray(new AggregationAccessorSlotPair[accessReadPairs.size()]);
 
         int[] targetStates = new int[accessSlots.size()];
@@ -501,38 +461,33 @@ public class AggregationServiceFactoryFactory
     }
 
     private static void validateIntoTableCompatible(String tableName, String columnName, TableMetadataColumnAggregation columnMetadata, AggregationServiceAggExpressionDesc aggDesc)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         AggregationMethodFactory factoryProvided = aggDesc.getFactory();
         AggregationMethodFactory factoryRequired = columnMetadata.getFactory();
 
         try {
             factoryRequired.validateIntoTableCompatible(factoryProvided);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             String text = getMessage(tableName, columnName, factoryRequired.getAggregationExpression(), factoryProvided.getAggregationExpression());
             throw new ExprValidationException(text + ": " + ex.getMessage(), ex);
         }
     }
 
-    private static String getMessage(String tableName, String columnName, ExprAggregateNodeBase aggregationRequired, ExprAggregateNodeBase aggregationProvided)
-    {
+    private static String getMessage(String tableName, String columnName, ExprAggregateNodeBase aggregationRequired, ExprAggregateNodeBase aggregationProvided) {
         return "Incompatible aggregation function for table '" +
-            tableName +
-            "' column '" +
-            columnName + "', expecting '" +
-            ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggregationRequired) +
-            "' and received '" +
-            ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggregationProvided) +
-            "'";
+                tableName +
+                "' column '" +
+                columnName + "', expecting '" +
+                ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggregationRequired) +
+                "' and received '" +
+                ExprNodeUtility.toExpressionStringMinPrecedenceSafe(aggregationProvided) +
+                "'";
     }
 
-    private static void addEquivalent(ExprAggregateNode aggNodeToAdd, List<AggregationServiceAggExpressionDesc> equivalencyList)
-    {
+    private static void addEquivalent(ExprAggregateNode aggNodeToAdd, List<AggregationServiceAggExpressionDesc> equivalencyList) {
         // Check any same aggregation nodes among all aggregation clauses
         boolean foundEquivalent = false;
-        for (AggregationServiceAggExpressionDesc existing : equivalencyList)
-        {
+        for (AggregationServiceAggExpressionDesc existing : equivalencyList) {
             ExprAggregateNode aggNode = existing.getAggregationNode();
 
             // we have equivalence when:
@@ -547,7 +502,7 @@ public class AggregationServiceFactoryFactory
             }
             if (aggNode.getOptionalLocalGroupBy() != null || aggNodeToAdd.getOptionalLocalGroupBy() != null) {
                 if ((aggNode.getOptionalLocalGroupBy() == null && aggNodeToAdd.getOptionalLocalGroupBy() != null) ||
-                    (aggNode.getOptionalLocalGroupBy() != null && aggNodeToAdd.getOptionalLocalGroupBy() == null)) {
+                        (aggNode.getOptionalLocalGroupBy() != null && aggNodeToAdd.getOptionalLocalGroupBy() == null)) {
                     continue;
                 }
                 if (!ExprNodeUtility.deepEqualsIgnoreDupAndOrder(aggNode.getOptionalLocalGroupBy().getPartitionExpressions(), aggNodeToAdd.getOptionalLocalGroupBy().getPartitionExpressions())) {
@@ -560,8 +515,7 @@ public class AggregationServiceFactoryFactory
             break;
         }
 
-        if (!foundEquivalent)
-        {
+        if (!foundEquivalent) {
             equivalencyList.add(new AggregationServiceAggExpressionDesc(aggNodeToAdd, aggNodeToAdd.getFactory()));
         }
     }

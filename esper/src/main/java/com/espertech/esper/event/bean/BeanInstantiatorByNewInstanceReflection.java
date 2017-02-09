@@ -10,14 +10,10 @@
  */
 package com.espertech.esper.event.bean;
 
-import net.sf.cglib.reflect.FastClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-
-public class BeanInstantiatorByNewInstanceReflection implements BeanInstantiator
-{
+public class BeanInstantiatorByNewInstanceReflection implements BeanInstantiator {
     private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByNewInstanceReflection.class);
 
     private final Class clazz;
@@ -27,16 +23,11 @@ public class BeanInstantiatorByNewInstanceReflection implements BeanInstantiator
     }
 
     public Object instantiate() {
-        try
-        {
+        try {
             return clazz.newInstance();
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             return handle(e);
-        }
-        catch (InstantiationException e)
-        {
+        } catch (InstantiationException e) {
             return handle(e);
         }
     }

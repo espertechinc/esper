@@ -43,7 +43,7 @@ public enum ExprNodeOrigin {
     CREATEWINDOWFILTER("create-window filter"),
     CREATETABLECOLUMN("table-column"),
     SUBQUERYSELECT("subquery select-clause"),
-    FILTER("filter"), 
+    FILTER("filter"),
     FORCLAUSE("for-clause"),
     VIEWPARAMETER("view parameter"),
     MATCHRECOGDEFINE("match-recognize define"),

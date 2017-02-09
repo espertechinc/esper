@@ -13,9 +13,9 @@ package com.espertech.esper.epl.expression.subquery;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esper.util.CoercionException;
 import com.espertech.esper.type.RelationalOpEnum;
+import com.espertech.esper.util.CoercionException;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Collection;
 import java.util.Map;
@@ -23,15 +23,15 @@ import java.util.Map;
 /**
  * Factory for subselect evaluation strategies.
  */
-public class SubselectEvalStrategyFactory
-{
+public class SubselectEvalStrategyFactory {
     /**
      * Create a strategy.
+     *
      * @param subselectExpression expression node
-     * @param isNot true if negated
-     * @param isAll true for ALL
-     * @param isAny true for ANY
-     * @param relationalOp relational op, if any
+     * @param isNot               true if negated
+     * @param isAll               true for ALL
+     * @param isAny               true for ANY
+     * @param relationalOp        relational op, if any
      * @return strategy
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if expression validation fails
      */
@@ -39,10 +39,8 @@ public class SubselectEvalStrategyFactory
                                                        boolean isNot,
                                                        boolean isAll,
                                                        boolean isAny,
-                                                       RelationalOpEnum relationalOp) throws ExprValidationException
-    {
-        if (subselectExpression.getChildNodes().length != 1)
-        {
+                                                       RelationalOpEnum relationalOp) throws ExprValidationException {
+        if (subselectExpression.getChildNodes().length != 1) {
             throw new ExprValidationException("The Subselect-IN requires 1 child expression");
         }
         ExprNode valueExpr = subselectExpression.getChildNodes()[0];
@@ -51,33 +49,25 @@ public class SubselectEvalStrategyFactory
         Class typeOne = JavaClassHelper.getBoxedType(subselectExpression.getChildNodes()[0].getExprEvaluator().getType());
 
         // collections, array or map not supported
-        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class)))
-        {
+        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
             throw new ExprValidationException("Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
         }
 
         Class typeTwo;
-        if (subselectExpression.getSelectClause() != null)
-        {
+        if (subselectExpression.getSelectClause() != null) {
             typeTwo = subselectExpression.getSelectClause()[0].getExprEvaluator().getType();
-        }
-        else
-        {
+        } else {
             typeTwo = subselectExpression.getRawEventType().getUnderlyingType();
         }
 
-        if (relationalOp != null)
-        {
-            if ((typeOne != String.class) || (typeTwo != String.class))
-            {
-                if (!JavaClassHelper.isNumeric(typeOne))
-                {
+        if (relationalOp != null) {
+            if ((typeOne != String.class) || (typeTwo != String.class)) {
+                if (!JavaClassHelper.isNumeric(typeOne)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
                             typeOne.getSimpleName() +
                             "' to numeric is not allowed");
                 }
-                if (!JavaClassHelper.isNumeric(typeTwo))
-                {
+                if (!JavaClassHelper.isNumeric(typeTwo)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
                             typeTwo.getSimpleName() +
                             "' to numeric is not allowed");
@@ -89,9 +79,8 @@ public class SubselectEvalStrategyFactory
 
             ExprEvaluator selectClause = subselectExpression.getSelectClause() == null ? null : subselectExpression.getSelectClause()[0].getExprEvaluator();
             ExprEvaluator filterExpr = subselectExpression.getFilterExpr();
-            if (isAny)
-            {
-                return new SubselectEvalStrategyRelOpAny(computer, valueExpr.getExprEvaluator(),selectClause ,filterExpr);
+            if (isAny) {
+                return new SubselectEvalStrategyRelOpAny(computer, valueExpr.getExprEvaluator(), selectClause, filterExpr);
             }
             return new SubselectEvalStrategyRelOpAll(computer, valueExpr.getExprEvaluator(), selectClause, filterExpr);
         }
@@ -99,12 +88,9 @@ public class SubselectEvalStrategyFactory
         // Get the common type such as Bool, String or Double and Long
         Class coercionType;
         boolean mustCoerce;
-        try
-        {
+        try {
             coercionType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion from datatype '" +
                     typeTwo.getSimpleName() +
                     "' to '" +
@@ -115,10 +101,8 @@ public class SubselectEvalStrategyFactory
         // Check if we need to coerce
         mustCoerce = false;
         if ((coercionType != JavaClassHelper.getBoxedType(typeOne)) ||
-            (coercionType != JavaClassHelper.getBoxedType(typeTwo)))
-        {
-            if (JavaClassHelper.isNumeric(coercionType))
-            {
+                (coercionType != JavaClassHelper.getBoxedType(typeTwo))) {
+            if (JavaClassHelper.isNumeric(coercionType)) {
                 mustCoerce = true;
             }
         }
@@ -126,16 +110,11 @@ public class SubselectEvalStrategyFactory
         ExprEvaluator value = valueExpr.getExprEvaluator();
         ExprEvaluator select = subselectExpression.getSelectClause() == null ? null : subselectExpression.getSelectClause()[0].getExprEvaluator();
         ExprEvaluator filter = subselectExpression.getFilterExpr() == null ? null : subselectExpression.getFilterExpr();
-        if (isAll)
-        {
+        if (isAll) {
             return new SubselectEvalStrategyEqualsAll(isNot, mustCoerce, coercionType, value, select, filter);
-        }
-        else if (isAny)
-        {
+        } else if (isAny) {
             return new SubselectEvalStrategyEqualsAny(isNot, mustCoerce, coercionType, value, select, filter);
-        }
-        else
-        {
+        } else {
             return new SubselectEvalStrategyEqualsIn(isNot, mustCoerce, coercionType, value, select, filter);
         }
     }

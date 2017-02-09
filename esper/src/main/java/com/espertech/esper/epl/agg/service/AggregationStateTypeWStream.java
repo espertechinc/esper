@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.agg.service;
 
-public enum AggregationStateTypeWStream
-{
+public enum AggregationStateTypeWStream {
     DATAWINDOWACCESS_LINEAR,
     SORTED,
     MAXEVER,

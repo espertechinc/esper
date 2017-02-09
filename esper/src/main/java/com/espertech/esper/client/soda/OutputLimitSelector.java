@@ -13,46 +13,44 @@ package com.espertech.esper.client.soda;
 /**
  * Selector for use in output rate limiting.
  */
-public enum OutputLimitSelector
-{
+public enum OutputLimitSelector {
     /**
      * Output first event of last interval.
      */
-    FIRST ("first"),
+    FIRST("first"),
 
     /**
      * Output last event of last interval.
      */
-    LAST ("last"),
+    LAST("last"),
 
     /**
-     * Output all events of last interval. For group-by statements, output all groups regardless whether the group changed between the last output.  
+     * Output all events of last interval. For group-by statements, output all groups regardless whether the group changed between the last output.
      */
-    ALL ("all"),
+    ALL("all"),
 
     /**
      * Output all events of last interval.
      */
-    DEFAULT ("default"),
+    DEFAULT("default"),
 
     /**
      * Output all events as a snapshot considering the current state regardless of interval.
      */
-    SNAPSHOT ("snapshot");
+    SNAPSHOT("snapshot");
 
     private String text;
 
-    private OutputLimitSelector(String text)
-    {
+    private OutputLimitSelector(String text) {
         this.text = text;
     }
 
     /**
      * Returns the text for the selector.
+     *
      * @return text
      */
-    public String getText()
-    {
+    public String getText() {
         return text;
     }
 }

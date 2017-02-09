@@ -14,15 +14,14 @@ import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.event.property.GenericPropertyDesc;
 import com.espertech.esper.util.JavaClassHelper;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Encapsulates the event property information available after introspecting an event's class members
  * for getter methods.
  */
-public class InternalEventPropDescriptor
-{
+public class InternalEventPropDescriptor {
     private String propertyName;
     private Method readMethod;
     private Field accessorField;
@@ -30,12 +29,12 @@ public class InternalEventPropDescriptor
 
     /**
      * Ctor.
+     *
      * @param propertyName - name of property, from getter method
-     * @param readMethod - read method to get value
+     * @param readMethod   - read method to get value
      * @param propertyType - type of property
      */
-    public InternalEventPropDescriptor(String propertyName, Method readMethod, EventPropertyType propertyType)
-    {
+    public InternalEventPropDescriptor(String propertyName, Method readMethod, EventPropertyType propertyType) {
         this.propertyName = propertyName;
         this.readMethod = readMethod;
         this.propertyType = propertyType;
@@ -43,12 +42,12 @@ public class InternalEventPropDescriptor
 
     /**
      * Ctor.
-     * @param propertyName - name of property, from getter method
+     *
+     * @param propertyName  - name of property, from getter method
      * @param accessorField - field to get value from
-     * @param propertyType - type of property
+     * @param propertyType  - type of property
      */
-    public InternalEventPropDescriptor(String propertyName, Field accessorField, EventPropertyType propertyType)
-    {
+    public InternalEventPropDescriptor(String propertyName, Field accessorField, EventPropertyType propertyType) {
         this.propertyName = propertyName;
         this.accessorField = accessorField;
         this.propertyType = propertyType;
@@ -57,120 +56,104 @@ public class InternalEventPropDescriptor
     /**
      * Return the property name, for mapped and indexed properties this is just the property name
      * without parantheses or brackets.
+     *
      * @return property name
      */
-    public String getPropertyName()
-    {
+    public String getPropertyName() {
         return propertyName;
     }
 
     /**
      * Returns an enum indicating the type of property: simple, mapped, indexed.
+     *
      * @return enum with property type info
      */
-    public EventPropertyType getPropertyType()
-    {
+    public EventPropertyType getPropertyType() {
         return propertyType;
     }
 
     /**
      * Returns the read method. Can return null if the property is backed by a field..
+     *
      * @return read method of null if field property
      */
-    public Method getReadMethod()
-    {
+    public Method getReadMethod() {
         return readMethod;
     }
 
     /**
      * Returns the accessor field. Can return null if the property is backed by a method.
+     *
      * @return accessor field of null if method property
      */
-    public Field getAccessorField()
-    {
+    public Field getAccessorField() {
         return accessorField;
     }
 
     /**
      * Returns the type of the underlying method or field of the event property.
+     *
      * @return return type
      */
-    public Class getReturnType()
-    {
-        if (readMethod != null)
-        {
+    public Class getReturnType() {
+        if (readMethod != null) {
             return readMethod.getReturnType();
-        }
-        else
-        {
+        } else {
             return accessorField.getType();
         }
     }
 
     /**
      * Returns the type of the underlying method or field of the event property.
+     *
      * @return return type
      */
-    public GenericPropertyDesc getReturnTypeGeneric()
-    {
-        if (readMethod != null)
-        {
+    public GenericPropertyDesc getReturnTypeGeneric() {
+        if (readMethod != null) {
             return new GenericPropertyDesc(readMethod.getReturnType(), JavaClassHelper.getGenericReturnType(readMethod, true));
-        }
-        else
-        {
+        } else {
             return new GenericPropertyDesc(accessorField.getType(), JavaClassHelper.getGenericFieldType(accessorField, true));
         }
     }
 
-    public String toString()
-    {
-        return  "propertyName=" + propertyName +
+    public String toString() {
+        return "propertyName=" + propertyName +
                 " readMethod=" + readMethod +
                 " accessorField=" + accessorField +
                 " propertyType=" + propertyType;
     }
 
-    public boolean equals(Object other)
-    {
-        if (!(other instanceof InternalEventPropDescriptor))
-        {
+    public boolean equals(Object other) {
+        if (!(other instanceof InternalEventPropDescriptor)) {
             return false;
         }
         InternalEventPropDescriptor otherDesc = (InternalEventPropDescriptor) other;
-        if (!otherDesc.propertyName.equals(propertyName))
-        {
+        if (!otherDesc.propertyName.equals(propertyName)) {
             return false;
         }
-        if  ( ((otherDesc.readMethod == null) && (readMethod != null)) ||
-              ((otherDesc.readMethod != null) && (readMethod == null)) )
-        {
+        if (((otherDesc.readMethod == null) && (readMethod != null)) ||
+                ((otherDesc.readMethod != null) && (readMethod == null))) {
             return false;
         }
         if ((otherDesc.readMethod != null) && (readMethod != null) &&
-            (!otherDesc.readMethod.equals(readMethod)))
-        {
+                (!otherDesc.readMethod.equals(readMethod))) {
             return false;
         }
-        if  ( ((otherDesc.accessorField == null) && (accessorField != null)) ||
-              ((otherDesc.accessorField != null) && (accessorField == null)) )
-        {
+        if (((otherDesc.accessorField == null) && (accessorField != null)) ||
+                ((otherDesc.accessorField != null) && (accessorField == null))) {
             return false;
         }
         if ((otherDesc.accessorField != null) && (accessorField != null) &&
-            (!otherDesc.accessorField.equals(accessorField)))
-        {
+                (!otherDesc.accessorField.equals(accessorField))) {
             return false;
         }
-        if (otherDesc.propertyType != propertyType)
-        {
+        if (otherDesc.propertyType != propertyType) {
             return false;
         }
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return propertyName.hashCode();
     }
 }

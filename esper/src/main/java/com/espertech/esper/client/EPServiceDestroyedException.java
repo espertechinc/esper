@@ -16,16 +16,15 @@ package com.espertech.esper.client;
  * This exception applies to destroyed engine instances when a client attempts to receive the runtime
  * or administrative interfaces from a destroyed engine instance.
  */
-public class EPServiceDestroyedException extends RuntimeException
-{
+public class EPServiceDestroyedException extends RuntimeException {
     private static final long serialVersionUID = 14163093254581288L;
 
     /**
      * Ctor.
+     *
      * @param engineURI - engine URI
      */
-    public EPServiceDestroyedException(final String engineURI)
-    {
+    public EPServiceDestroyedException(final String engineURI) {
         super("EPServiceProvider has already been destroyed for engine URI '" + engineURI + "'");
     }
 }

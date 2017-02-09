@@ -54,11 +54,10 @@ public class ContextControllerPartitionedFilterCallback implements FilterHandleC
         if (getters.length > 1) {
             Object[] keys = new Object[getters.length];
             for (int i = 0; i < keys.length; i++) {
-                 keys[i] = getters[i].get(theEvent);
+                keys[i] = getters[i].get(theEvent);
             }
             key = new MultiKeyUntyped(keys);
-        }
-        else {
+        } else {
             key = getters[0].get(theEvent);
         }
 

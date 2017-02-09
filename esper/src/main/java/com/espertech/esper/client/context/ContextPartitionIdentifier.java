@@ -21,6 +21,7 @@ public abstract class ContextPartitionIdentifier implements Serializable {
 
     /**
      * Compare identifiers returning a boolean indicator whether identifier information matches.
+     *
      * @param identifier to compare to
      * @return true for objects identifying the same context partition (could be different context)
      */
@@ -34,6 +35,7 @@ public abstract class ContextPartitionIdentifier implements Serializable {
 
     /**
      * Returns the context partition id.
+     *
      * @return context partition id
      */
     public Integer getContextPartitionId() {
@@ -42,6 +44,7 @@ public abstract class ContextPartitionIdentifier implements Serializable {
 
     /**
      * Sets the context partition id - this set method is for engine-internal use.
+     *
      * @param contextPartitionId context partition id
      */
     public void setContextPartitionId(Integer contextPartitionId) {

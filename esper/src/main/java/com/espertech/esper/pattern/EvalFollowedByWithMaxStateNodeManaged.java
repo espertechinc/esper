@@ -23,28 +23,26 @@ import java.util.Set;
  * This class represents the state of a followed-by operator in the evaluation state tree, with a maximum number of instances provided, and
  * with the additional capability to engine-wide report on pattern instances.
  */
-public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode implements Evaluator
-{
+public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode implements Evaluator {
     protected final EvalFollowedByNode evalFollowedByNode;
     protected final HashMap<EvalStateNode, Integer> nodes;
     protected final int[] countActivePerChild;
 
     /**
      * Constructor.
-     * @param parentNode is the parent evaluator to call to indicate truth value
+     *
+     * @param parentNode         is the parent evaluator to call to indicate truth value
      * @param evalFollowedByNode is the factory node associated to the state
      */
     public EvalFollowedByWithMaxStateNodeManaged(Evaluator parentNode,
-                                                 EvalFollowedByNode evalFollowedByNode)
-    {
+                                                 EvalFollowedByNode evalFollowedByNode) {
         super(parentNode);
 
         this.evalFollowedByNode = evalFollowedByNode;
         this.nodes = new HashMap<EvalStateNode, Integer>();
         if (evalFollowedByNode.isTrackWithMax()) {
             this.countActivePerChild = new int[evalFollowedByNode.getChildNodes().length - 1];
-        }
-        else {
+        } else {
             this.countActivePerChild = null;
         }
     }
@@ -58,20 +56,17 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
         return evalFollowedByNode;
     }
 
-    public final void start(MatchedEventMap beginState)
-    {
+    public final void start(MatchedEventMap beginState) {
         EvalNode child = evalFollowedByNode.getChildNodes()[0];
         EvalStateNode childState = child.newState(this, null, 0L);
         nodes.put(childState, 0);
         childState.start(beginState);
     }
 
-    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted)
-    {
+    public final void evaluateTrue(MatchedEventMap matchEvent, EvalStateNode fromNode, boolean isQuitted) {
         Integer index = nodes.get(fromNode);
 
-        if (isQuitted)
-        {
+        if (isQuitted) {
             nodes.remove(fromNode);
             if (index != null && index > 0) {
                 if (evalFollowedByNode.isTrackWithMax()) {
@@ -87,29 +82,24 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
 
         // the node may already have quit as a result of an outer state quitting this state,
         // however the callback may still be received; It is fine to ignore this callback. 
-        if (index == null)
-        {
+        if (index == null) {
             return;
         }
 
         // If the match came from the very last filter, need to escalate
         int numChildNodes = evalFollowedByNode.getChildNodes().length;
-        if (index == (numChildNodes - 1))
-        {
+        if (index == (numChildNodes - 1)) {
             boolean isFollowedByQuitted = false;
-            if (nodes.isEmpty())
-            {
+            if (nodes.isEmpty()) {
                 isFollowedByQuitted = true;
             }
 
             this.getParentEvaluator().evaluateTrue(matchEvent, this, isFollowedByQuitted);
-        }
-        // Else start a new sub-expression for the next-in-line filter
-        else
-        {
+        } else {
+            // Else start a new sub-expression for the next-in-line filter
             if (evalFollowedByNode.isTrackWithMax()) {
                 int max = evalFollowedByNode.getFactoryNode().getMax(index);
-                if ((max != -1) && (max >=0)) {
+                if ((max != -1) && (max >= 0)) {
                     if (countActivePerChild[index] >= max) {
                         evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getExceptionHandlingService().handleCondition(new ConditionPatternSubexpressionMax(max), evalFollowedByNode.getContext().getAgentInstanceContext().getStatementContext().getEpStatementHandle());
                         return;
@@ -137,8 +127,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
         }
     }
 
-    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable)
-    {
+    public final void evaluateFalse(EvalStateNode fromNode, boolean restartable) {
         fromNode.quit();
         Integer index = nodes.remove(fromNode);
         if (index != null && index > 0) {
@@ -152,8 +141,7 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
             }
         }
 
-        if (nodes.isEmpty())
-        {
+        if (nodes.isEmpty()) {
             this.getParentEvaluator().evaluateFalse(this, true);
             quit();
         }
@@ -175,10 +163,8 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
         return false;
     }
 
-    public final void quit()
-    {
-        for (Map.Entry<EvalStateNode, Integer> entry : nodes.entrySet())
-        {
+    public final void quit() {
+        for (Map.Entry<EvalStateNode, Integer> entry : nodes.entrySet()) {
             entry.getKey().quit();
             if (evalFollowedByNode.isTrackWithPool()) {
                 if (entry.getValue() > 0) {
@@ -190,16 +176,14 @@ public class EvalFollowedByWithMaxStateNodeManaged extends EvalStateNode impleme
         }
     }
 
-    public final void accept(EvalStateNodeVisitor visitor)
-    {
+    public final void accept(EvalStateNodeVisitor visitor) {
         visitor.visitFollowedBy(evalFollowedByNode.getFactoryNode(), this, nodes, countActivePerChild);
         for (EvalStateNode node : nodes.keySet()) {
             node.accept(visitor);
         }
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "EvalFollowedByStateNode nodes=" + nodes.size();
     }
 }

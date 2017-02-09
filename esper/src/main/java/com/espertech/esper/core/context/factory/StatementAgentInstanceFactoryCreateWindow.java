@@ -64,8 +64,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
         isRecoveringStatement = recoveringStatement;
     }
 
-    public StatementAgentInstanceFactoryCreateWindowResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryCreateWindowResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         final List<StopCallback> stopCallbacks = new ArrayList<StopCallback>();
 
         String windowName = statementSpec.getCreateWindowDesc().getWindowName();
@@ -110,8 +109,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                 final VirtualDWView virtualDWView = (VirtualDWView) finalView;
                 try {
                     services.getEngineEnvContext().bind(objectName, virtualDWView.getVirtualDataWindow());
-                }
-                catch (NamingException e) {
+                } catch (NamingException e) {
                     throw new ViewProcessingException("Invalid name for adding to context:" + e.getMessage(), e);
                 }
                 envStopCallback = new StopCallback() {
@@ -119,7 +117,8 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                         try {
                             virtualDWView.destroy();
                             services.getEngineEnvContext().unbind(objectName);
-                        } catch (NamingException e) {}
+                        } catch (NamingException e) {
+                        }
                     }
                 };
             }
@@ -139,8 +138,7 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
                         if (instance != null) {
                             if (contextName != null) {
                                 instance.destroy();
-                            }
-                            else {
+                            } else {
                                 instance.stop();
                             }
                         }
@@ -169,44 +167,35 @@ public class StatementAgentInstanceFactoryCreateWindow extends StatementAgentIns
             postLoad = processorInstance.getPostLoad();
 
             // Handle insert case
-            if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement && !isRecoveringResilient)
-            {
+            if (statementSpec.getCreateWindowDesc().isInsert() && !isRecoveringStatement && !isRecoveringResilient) {
                 String insertFromWindow = statementSpec.getCreateWindowDesc().getInsertFromWindow();
                 NamedWindowProcessor namedWindowProcessor = services.getNamedWindowMgmtService().getProcessor(insertFromWindow);
                 NamedWindowProcessorInstance sourceWindowInstances = namedWindowProcessor.getProcessorInstance(agentInstanceContext);
                 List<EventBean> events = new ArrayList<EventBean>();
-                if (statementSpec.getCreateWindowDesc().getInsertFilter() != null)
-                {
+                if (statementSpec.getCreateWindowDesc().getInsertFilter() != null) {
                     EventBean[] eventsPerStream = new EventBean[1];
                     ExprEvaluator filter = statementSpec.getCreateWindowDesc().getInsertFilter().getExprEvaluator();
-                    for (Iterator<EventBean> it = sourceWindowInstances.getTailViewInstance().iterator(); it.hasNext();)
-                    {
+                    for (Iterator<EventBean> it = sourceWindowInstances.getTailViewInstance().iterator(); it.hasNext(); ) {
                         EventBean candidate = it.next();
                         eventsPerStream[0] = candidate;
                         Boolean result = (Boolean) filter.evaluate(eventsPerStream, true, agentInstanceContext);
-                        if ((result == null) || (!result))
-                        {
+                        if ((result == null) || (!result)) {
                             continue;
                         }
                         events.add(candidate);
                     }
-                }
-                else
-                {
-                    for (Iterator<EventBean> it = sourceWindowInstances.getTailViewInstance().iterator(); it.hasNext();)
-                    {
+                } else {
+                    for (Iterator<EventBean> it = sourceWindowInstances.getTailViewInstance().iterator(); it.hasNext(); ) {
                         events.add(it.next());
                     }
                 }
-                if (events.size() > 0)
-                {
+                if (events.size() > 0) {
                     EventType rootViewType = rootView.getEventType();
                     EventBean[] convertedEvents = services.getEventAdapterService().typeCast(events, rootViewType);
                     rootView.update(convertedEvents, null);
                 }
             }
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
             StatementAgentInstanceUtil.stopSafe(stopCallback, statementContext);
             throw ex;

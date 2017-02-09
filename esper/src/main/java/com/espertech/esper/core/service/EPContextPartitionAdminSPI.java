@@ -14,13 +14,14 @@ import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.client.context.EPContextPartitionAdmin;
 import com.espertech.esper.core.context.mgr.AgentInstanceSelector;
 
-public interface EPContextPartitionAdminSPI extends EPContextPartitionAdmin
-{
+public interface EPContextPartitionAdminSPI extends EPContextPartitionAdmin {
     public boolean isSupportsExtract();
 
     public EPContextPartitionExtract extractDestroyPaths(String contextName, ContextPartitionSelector selector);
+
     public EPContextPartitionExtract extractStopPaths(String contextName, ContextPartitionSelector selector);
 
     public EPContextPartitionExtract extractPaths(String contextName, ContextPartitionSelector selector);
+
     public EPContextPartitionImportResult importStartPaths(String contextName, EPContextPartitionImportable importable, AgentInstanceSelector agentInstanceSelector);
 }

@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
-public abstract class TableOnViewBase extends ViewSupport implements StopCallback
-{
+public abstract class TableOnViewBase extends ViewSupport implements StopCallback {
     private static final Logger log = LoggerFactory.getLogger(TableOnViewBase.class);
 
     protected final SubordWMatchExprLookupStrategy lookupStrategy;
@@ -48,8 +47,7 @@ public abstract class TableOnViewBase extends ViewSupport implements StopCallbac
         log.debug(".stop");
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         if (newData == null) {
             return;
         }
@@ -59,18 +57,15 @@ public abstract class TableOnViewBase extends ViewSupport implements StopCallbac
             try {
                 EventBean[] eventsFound = lookupStrategy.lookup(newData, exprEvaluatorContext);
                 handleMatching(newData, eventsFound);
-            }
-            finally {
+            } finally {
                 tableStateInstance.getTableLevelRWLock().writeLock().unlock();
             }
-        }
-        else {
+        } else {
             tableStateInstance.getTableLevelRWLock().readLock().lock();
             try {
                 EventBean[] eventsFound = lookupStrategy.lookup(newData, exprEvaluatorContext);
                 handleMatching(newData, eventsFound);
-            }
-            finally {
+            } finally {
                 tableStateInstance.getTableLevelRWLock().readLock().unlock();
             }
         }
@@ -78,6 +73,7 @@ public abstract class TableOnViewBase extends ViewSupport implements StopCallbac
 
     /**
      * returns expr context.
+     *
      * @return context
      */
     public ExprEvaluatorContext getExprEvaluatorContext() {

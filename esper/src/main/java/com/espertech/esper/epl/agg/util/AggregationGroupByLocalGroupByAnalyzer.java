@@ -112,8 +112,7 @@ public class AggregationGroupByLocalGroupByAnalyzer {
                 methodEvaluators.add(methodEvaluatorsAll[column]);
                 methodFactories.add(methodFactoriesAll[column]);
                 methodOffset = methodFactories.size() - 1;
-            }
-            else {
+            } else {
                 // slot gives us the number of the state factory
                 int absoluteSlot = accessors[column - methodEvaluatorsAll.length].getSlot();
                 AggregationAccessor accessor = accessors[column - methodEvaluatorsAll.length].getAccessor();

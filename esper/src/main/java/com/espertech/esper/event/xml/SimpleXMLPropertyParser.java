@@ -23,27 +23,24 @@ import java.util.List;
  * Parses event property names and transforms to XPath expressions. Supports
  * nested, indexed and mapped event properties.
  */
-public class SimpleXMLPropertyParser
-{
+public class SimpleXMLPropertyParser {
     /**
      * Return the xPath corresponding to the given property.
      * The propertyName String may be simple, nested, indexed or mapped.
-     * @param ast is the property tree AST
-     * @param propertyName is the property name to parse
-     * @param rootElementName is the name of the root element for generating the XPath expression
-     * @param defaultNamespacePrefix is the prefix of the default namespace
+     *
+     * @param ast                         is the property tree AST
+     * @param propertyName                is the property name to parse
+     * @param rootElementName             is the name of the root element for generating the XPath expression
+     * @param defaultNamespacePrefix      is the prefix of the default namespace
      * @param isResolvePropertiesAbsolute is true to indicate to resolve XPath properties as absolute props
-     * or relative props
+     *                                    or relative props
      * @return xpath expression
      */
-    public static String walk(EsperEPL2GrammarParser.StartEventPropertyRuleContext ast, String propertyName, String rootElementName, String defaultNamespacePrefix, boolean isResolvePropertiesAbsolute)
-    {
+    public static String walk(EsperEPL2GrammarParser.StartEventPropertyRuleContext ast, String propertyName, String rootElementName, String defaultNamespacePrefix, boolean isResolvePropertiesAbsolute) {
         StringBuilder xPathBuf = new StringBuilder();
         xPathBuf.append('/');
-        if (isResolvePropertiesAbsolute)
-        {
-            if (defaultNamespacePrefix != null)
-            {
+        if (isResolvePropertiesAbsolute) {
+            if (defaultNamespacePrefix != null) {
                 xPathBuf.append(defaultNamespacePrefix);
                 xPathBuf.append(':');
             }
@@ -53,8 +50,7 @@ public class SimpleXMLPropertyParser
         List<EsperEPL2GrammarParser.EventPropertyAtomicContext> ctxs = ast.eventProperty().eventPropertyAtomic();
         if (ctxs.size() == 1) {
             xPathBuf.append(makeProperty(ctxs.get(0), defaultNamespacePrefix));
-        }
-        else {
+        } else {
             for (EsperEPL2GrammarParser.EventPropertyAtomicContext ctx : ctxs) {
                 xPathBuf.append(makeProperty(ctx, defaultNamespacePrefix));
             }
@@ -68,8 +64,7 @@ public class SimpleXMLPropertyParser
         return xPath;
     }
 
-    private static String makeProperty(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx, String defaultNamespacePrefix)
-    {
+    private static String makeProperty(EsperEPL2GrammarParser.EventPropertyAtomicContext ctx, String defaultNamespacePrefix) {
         String prefix = "";
         if (defaultNamespacePrefix != null) {
             prefix = defaultNamespacePrefix + ":";

@@ -24,8 +24,7 @@ import java.util.Iterator;
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public class NamedWindowOnUpdateView extends NamedWindowOnExprBaseView
-{
+public class NamedWindowOnUpdateView extends NamedWindowOnExprBaseView {
     private NamedWindowOnUpdateViewFactory parent;
     private EventBean[] lastResult;
 
@@ -34,12 +33,15 @@ public class NamedWindowOnUpdateView extends NamedWindowOnExprBaseView
         this.parent = parent;
     }
 
-    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_UPDATE, triggerEvents, matchingEvents);}
+    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_UPDATE, triggerEvents, matchingEvents);
+        }
 
-        if ((matchingEvents == null) || (matchingEvents.length == 0)){
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if ((matchingEvents == null) || (matchingEvents.length == 0)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aInfraOnAction();
+            }
             return;
         }
 
@@ -57,8 +59,7 @@ public class NamedWindowOnUpdateView extends NamedWindowOnExprBaseView
             }
         }
 
-        if (!newData.isEmpty())
-        {
+        if (!newData.isEmpty()) {
             // Events to delete are indicated via old data
             this.rootView.update(newData.toArray(), oldData.toArray());
 
@@ -70,7 +71,9 @@ public class NamedWindowOnUpdateView extends NamedWindowOnExprBaseView
 
         // Keep the last delete records
         lastResult = matchingEvents;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
     public EventType getEventType() {

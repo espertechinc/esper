@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Case expression that act as a when-then-else.
  */
-public class CaseWhenThenExpression extends ExpressionBase
-{
+public class CaseWhenThenExpression extends ExpressionBase {
     private static final long serialVersionUID = -6478192972183336030L;
 
     /**
@@ -24,26 +23,22 @@ public class CaseWhenThenExpression extends ExpressionBase
      * <p>
      * Use add methods to add child expressions to acts upon.
      */
-    public CaseWhenThenExpression()
-    {
+    public CaseWhenThenExpression() {
     }
 
     /**
      * Adds a when-then pair of expressions.
+     *
      * @param when providings conditions to evaluate
      * @param then provides the result when a condition evaluates to true
      * @return expression
      */
-    public CaseWhenThenExpression add(Expression when, Expression then)
-    {
+    public CaseWhenThenExpression add(Expression when, Expression then) {
         int size = this.getChildren().size();
-        if (size % 2 == 0)
-        {
+        if (size % 2 == 0) {
             this.addChild(when);
             this.addChild(then);
-        }
-        else
-        {
+        } else {
             // add next to last as the last node is the else clause
             this.getChildren().add(this.getChildren().size() - 1, when);
             this.getChildren().add(this.getChildren().size() - 1, then);
@@ -53,15 +48,14 @@ public class CaseWhenThenExpression extends ExpressionBase
 
     /**
      * Sets the expression to provide a value when no when-condition matches.
+     *
      * @param elseExpr expression providing default result
      * @return expression
      */
-    public CaseWhenThenExpression setElse(Expression elseExpr)
-    {
+    public CaseWhenThenExpression setElse(Expression elseExpr) {
         int size = this.getChildren().size();
         // remove last node representing the else
-        if (size % 2 != 0)
-        {
+        if (size % 2 != 0) {
             this.getChildren().remove(size - 1);
         }
         this.addChild(elseExpr);
@@ -75,13 +69,11 @@ public class CaseWhenThenExpression extends ExpressionBase
     public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("case");
         int index = 0;
-        while(index < this.getChildren().size() - 1)
-        {
+        while (index < this.getChildren().size() - 1) {
             writer.write(" when ");
             getChildren().get(index).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             index++;
-            if (index == this.getChildren().size())
-            {
+            if (index == this.getChildren().size()) {
                 throw new IllegalStateException("Invalid case-when expression, count of when-to-then nodes not matching");
             }
             writer.write(" then ");
@@ -89,8 +81,7 @@ public class CaseWhenThenExpression extends ExpressionBase
             index++;
         }
 
-        if (index < this.getChildren().size())
-        {
+        if (index < this.getChildren().size()) {
             writer.write(" else ");
             getChildren().get(index).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }

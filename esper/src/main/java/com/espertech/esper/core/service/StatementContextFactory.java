@@ -20,8 +20,7 @@ import java.util.Map;
 /**
  * Interface for a factory class that makes statement context specific to a statement.
  */
-public interface StatementContextFactory
-{
+public interface StatementContextFactory {
     public void setStmtEngineServices(EPServicesContext services);
 
     public StatementContext makeContext(int statementId,

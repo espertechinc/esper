@@ -10,10 +10,7 @@
  */
 package com.espertech.esperio.kafka;
 
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.util.Properties;

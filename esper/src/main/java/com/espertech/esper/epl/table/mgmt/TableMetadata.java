@@ -52,8 +52,7 @@ public class TableMetadata {
     private TableRowKeyFactory tableRowKeyFactory;
 
     public TableMetadata(String tableName, String eplExpression, String statementName, Class[] keyTypes, Map<String, TableMetadataColumn> tableColumns, TableStateRowFactory rowFactory, int numberMethodAggregations, StatementContext createTableStatementContext, ObjectArrayEventType internalEventType, ObjectArrayEventType publicEventType, TableMetadataInternalEventToPublic eventToPublic, boolean queryPlanLogging)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.tableName = tableName;
         this.eplExpression = eplExpression;
         this.statementName = statementName;
@@ -149,8 +148,7 @@ public class TableMetadata {
             for (TableUpdateStrategyReceiverDesc strategyReceiver : stmtEntry.getValue()) {
                 try {
                     TableUpdateStrategyFactory.validateGetTableUpdateStrategy(this, strategyReceiver.getUpdateHelper(), strategyReceiver.isOnMerge());
-                }
-                catch (ExprValidationException ex) {
+                } catch (ExprValidationException ex) {
                     eventTableIndexMetadataRepo.removeIndex(imk);
                     throw new ExprValidationException("Failed to validate statement '" + stmtEntry.getKey() + "' as a recipient of the proposed index: " + ex.getMessage());
                 }
@@ -205,8 +203,7 @@ public class TableMetadata {
         StatementResourceHolder holder = null;
         if (statementContextCreateTable.getContextName() == null) {
             holder = createTableResources.getResourcesUnpartitioned();
-        }
-        else {
+        } else {
             if (createTableResources.getResourcesPartitioned() != null) {
                 holder = createTableResources.getResourcesPartitioned().get(agentInstanceId);
             }

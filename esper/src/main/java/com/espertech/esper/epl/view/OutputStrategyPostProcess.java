@@ -19,15 +19,13 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalLockUtil;
-import com.espertech.esper.epl.table.strategy.ExprTableEvalStrategyUtil;
 import com.espertech.esper.event.NaturalEventBean;
 import com.espertech.esper.util.AuditPath;
 
 /**
  * An output strategy that handles routing (insert-into) and stream selection.
  */
-public class OutputStrategyPostProcess
-{
+public class OutputStrategyPostProcess {
     private final OutputStrategyPostProcessFactory parent;
     private final AgentInstanceContext agentInstanceContext;
     private final TableStateInstance tableStateInstance;
@@ -40,49 +38,38 @@ public class OutputStrategyPostProcess
         this.audit = AuditEnum.INSERT.getAudit(agentInstanceContext.getStatementContext().getAnnotations()) != null;
     }
 
-    public void output(boolean forceUpdate, UniformPair<EventBean[]> result, UpdateDispatchView finalView)
-    {
+    public void output(boolean forceUpdate, UniformPair<EventBean[]> result, UpdateDispatchView finalView) {
         EventBean[] newEvents = result != null ? result.getFirst() : null;
         EventBean[] oldEvents = result != null ? result.getSecond() : null;
 
         // route first
-        if (parent.isRoute())
-        {
-            if ((newEvents != null) && (parent.getInsertIntoStreamSelector().isSelectsIStream()))
-            {
+        if (parent.isRoute()) {
+            if ((newEvents != null) && (parent.getInsertIntoStreamSelector().isSelectsIStream())) {
                 route(newEvents, agentInstanceContext);
             }
 
-            if ((oldEvents != null) && (parent.getInsertIntoStreamSelector().isSelectsRStream()))
-            {
+            if ((oldEvents != null) && (parent.getInsertIntoStreamSelector().isSelectsRStream())) {
                 route(oldEvents, agentInstanceContext);
             }
         }
 
         // discard one side of results
-        if (parent.getSelectStreamDirEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ONLY)
-        {
+        if (parent.getSelectStreamDirEnum() == SelectClauseStreamSelectorEnum.RSTREAM_ONLY) {
             newEvents = oldEvents;
             oldEvents = null;
-        }
-        else if (parent.getSelectStreamDirEnum() == SelectClauseStreamSelectorEnum.ISTREAM_ONLY)
-        {
+        } else if (parent.getSelectStreamDirEnum() == SelectClauseStreamSelectorEnum.ISTREAM_ONLY) {
             oldEvents = null;   // since the insert-into may require rstream
         }
 
         // dispatch
-        if(newEvents != null || oldEvents != null)
-        {
+        if (newEvents != null || oldEvents != null) {
             finalView.newResult(new UniformPair<EventBean[]>(newEvents, oldEvents));
-        }
-        else if(forceUpdate)
-        {
+        } else if (forceUpdate) {
             finalView.newResult(new UniformPair<EventBean[]>(null, null));
         }
     }
 
-    private void route(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    private void route(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         for (EventBean routed : events) {
             if (routed instanceof NaturalEventBean) {
                 NaturalEventBean natural = (NaturalEventBean) routed;
@@ -91,20 +78,17 @@ public class OutputStrategyPostProcess
                 }
                 if (tableStateInstance != null) {
                     tableStateInstance.addEventUnadorned(natural.getOptionalSynthetic());
-                }
-                else {
+                } else {
                     parent.getInternalEventRouter().route(natural.getOptionalSynthetic(), parent.getEpStatementHandle(), agentInstanceContext.getStatementContext().getInternalEventEngineRouteDest(), exprEvaluatorContext, parent.isAddToFront());
                 }
-            }
-            else {
+            } else {
                 if (audit) {
                     AuditPath.auditInsertInto(agentInstanceContext.getEngineURI(), agentInstanceContext.getStatementName(), routed);
                 }
                 if (tableStateInstance != null) {
                     ExprTableEvalLockUtil.obtainLockUnless(tableStateInstance.getTableLevelRWLock().writeLock(), exprEvaluatorContext);
                     tableStateInstance.addEventUnadorned(routed);
-                }
-                else {
+                } else {
                     parent.getInternalEventRouter().route(routed, parent.getEpStatementHandle(), agentInstanceContext.getStatementContext().getInternalEventEngineRouteDest(), exprEvaluatorContext, parent.isAddToFront());
                 }
             }

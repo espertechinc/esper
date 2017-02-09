@@ -19,26 +19,23 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategySingleExprFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordIndexedTableLookupStrategySingleExprFactory implements SubordTableLookupStrategyFactory {
     protected final ExprEvaluator evaluator;
     protected boolean isNWOnTrigger;
     protected int streamCountOuter;
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordIndexedTableLookupStrategySingleExprFactory(boolean isNWOnTrigger, int streamCountOuter, SubordPropHashKey hashKey)
-    {
+    public SubordIndexedTableLookupStrategySingleExprFactory(boolean isNWOnTrigger, int streamCountOuter, SubordPropHashKey hashKey) {
         this.streamCountOuter = streamCountOuter;
         this.evaluator = hashKey.getHashKey().getKeyExpr().getExprEvaluator();
         this.isNWOnTrigger = isNWOnTrigger;
-        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[] {ExprNodeUtility.toExpressionStringMinPrecedenceSafe(hashKey.getHashKey().getKeyExpr())});
+        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.SINGLEEXPR, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(hashKey.getHashKey().getKeyExpr())});
     }
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordIndexedTableLookupStrategySingleExprNW(evaluator, (PropertyIndexedEventTableSingle) eventTable[0], strategyDesc);
-        }
-        else {
+        } else {
             return new SubordIndexedTableLookupStrategySingleExpr(streamCountOuter, evaluator, (PropertyIndexedEventTableSingle) eventTable[0], strategyDesc);
         }
     }

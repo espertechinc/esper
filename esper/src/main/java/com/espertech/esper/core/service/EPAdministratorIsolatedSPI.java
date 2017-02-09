@@ -17,10 +17,10 @@ import com.espertech.esper.client.EPStatement;
 /**
  * Implementation for the admin interface.
  */
-public interface EPAdministratorIsolatedSPI extends EPAdministratorIsolated
-{
+public interface EPAdministratorIsolatedSPI extends EPAdministratorIsolated {
     /**
      * Add a statement name to the list of statements held by the isolated service provider.
+     *
      * @param name to add
      */
     public void addStatement(String name);

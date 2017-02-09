@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.dispatch.DispatchService;
-import com.espertech.esper.dispatch.Dispatchable;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.dispatch.DispatchService;
+import com.espertech.esper.dispatch.Dispatchable;
 import com.espertech.esper.view.ViewSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,7 @@ import java.util.Iterator;
  * Convenience view for dispatching view updates received from a parent view to update listeners
  * via the dispatch service.
  */
-public abstract class UpdateDispatchViewBase extends ViewSupport implements Dispatchable, UpdateDispatchView
-{
+public abstract class UpdateDispatchViewBase extends ViewSupport implements Dispatchable, UpdateDispatchView {
     /**
      * Handles result delivery
      */
@@ -52,27 +51,24 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
 
     /**
      * Ctor.
-     * @param dispatchService - for performing the dispatch
+     *
+     * @param dispatchService            - for performing the dispatch
      * @param statementResultServiceImpl - handles result delivery
      */
-    public UpdateDispatchViewBase(StatementResultService statementResultServiceImpl, DispatchService dispatchService)
-    {
+    public UpdateDispatchViewBase(StatementResultService statementResultServiceImpl, DispatchService dispatchService) {
         this.dispatchService = dispatchService;
         this.statementResultService = statementResultServiceImpl;
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return null;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         throw new UnsupportedOperationException();
     }
 
-    public void execute()
-    {
+    public void execute() {
         isDispatchWaiting.set(false);
         statementResultService.execute();
     }
@@ -80,8 +76,7 @@ public abstract class UpdateDispatchViewBase extends ViewSupport implements Disp
     /**
      * Remove event reference to last event.
      */
-    public void clear()
-    {
+    public void clear() {
         lastIterableEvent = null;
     }
 

@@ -42,15 +42,12 @@ public class DotMethodFP {
             if (isLambdaApplies) {
                 if (param.getLambdaParamNum() == 0) {
                     buf.append("an (non-lambda)");
-                }
-                else if (param.getLambdaParamNum() == 1) {
+                } else if (param.getLambdaParamNum() == 1) {
                     buf.append("a lambda");
-                }
-                else {
+                } else {
                     buf.append("a " + param.getLambdaParamNum() + "-parameter lambda");
                 }
-            }
-            else {
+            } else {
                 buf.append("an");
             }
             buf.append(" expression");
@@ -71,19 +68,16 @@ public class DotMethodFP {
         if (!isLambdaApplies) {
             buf.append(Integer.toString(provided.getParameters().length));
             buf.append(" expressions");
-        }
-        else {
+        } else {
 
             for (DotMethodFPProvidedParam param : provided.getParameters()) {
                 buf.append(delimiter);
 
                 if (param.getLambdaParamNum() == 0) {
                     buf.append("an (non-lambda)");
-                }
-                else if (param.getLambdaParamNum() == 1) {
+                } else if (param.getLambdaParamNum() == 1) {
                     buf.append("a lambda");
-                }
-                else {
+                } else {
                     buf.append("a " + param.getLambdaParamNum() + "-parameter lambda");
                 }
                 buf.append(" expression");

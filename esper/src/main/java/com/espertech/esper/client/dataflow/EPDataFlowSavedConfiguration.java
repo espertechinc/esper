@@ -26,9 +26,10 @@ public class EPDataFlowSavedConfiguration implements Serializable {
 
     /**
      * Ctor.
+     *
      * @param savedConfigurationName name of saved configuration
-     * @param dataflowName data flow name
-     * @param options options object
+     * @param dataflowName           data flow name
+     * @param options                options object
      */
     public EPDataFlowSavedConfiguration(String savedConfigurationName, String dataflowName, EPDataFlowInstantiationOptions options) {
         this.savedConfigurationName = savedConfigurationName;
@@ -38,6 +39,7 @@ public class EPDataFlowSavedConfiguration implements Serializable {
 
     /**
      * Configuation name.
+     *
      * @return name
      */
     public String getSavedConfigurationName() {
@@ -46,6 +48,7 @@ public class EPDataFlowSavedConfiguration implements Serializable {
 
     /**
      * Data flow name.
+     *
      * @return data flow name
      */
     public String getDataflowName() {
@@ -54,6 +57,7 @@ public class EPDataFlowSavedConfiguration implements Serializable {
 
     /**
      * Data flow instantiation options.
+     *
      * @return options
      */
     public EPDataFlowInstantiationOptions getOptions() {

@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -33,6 +34,7 @@ public class MVELHelper {
     /**
      * Verify MVEL script (not compiling it).
      * Compiling is done by the first expression node using the expression since only then parameter types can be bound.
+     *
      * @param script to verify/analyze
      * @throws ExprValidationException when not all parameters are resolved
      */
@@ -44,11 +46,9 @@ public class MVELHelper {
         // this populates the parser context with the actual undefined MVEL input parameters expected
         try {
             MVELInvoker.analysisCompile(script.getExpression(), parserContext, engineImportService);
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             throw handleTargetException(script.getName(), ex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw handleGeneralException(script.getName(), ex);
         }
 
@@ -57,7 +57,7 @@ public class MVELHelper {
 
         // ensure each of the input params (excluding 'epl' context) is provided as a parameter
         for (Map.Entry<String, Class> input : scriptRequiredInputs.entrySet()) {
-            if (input.getKey().toLowerCase().trim().equals(ExprNodeScript.CONTEXT_BINDING_NAME)) {
+            if (input.getKey().toLowerCase(Locale.ENGLISH).trim().equals(ExprNodeScript.CONTEXT_BINDING_NAME)) {
                 continue;
             }
             if (script.getParameterNames().contains(input.getKey())) {
@@ -68,7 +68,7 @@ public class MVELHelper {
     }
 
     public static ExpressionScriptCompiled compile(String scriptName, String expression, Map<String, Class> mvelInputParamTypes, EngineImportService engineImportService)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         // Reflective invocation - do not add MVEL to classpath
         Object parserContext = MVELInvoker.newParserContext(engineImportService);
@@ -78,11 +78,9 @@ public class MVELHelper {
         Object executable;
         try {
             executable = MVELInvoker.compileExpression(expression, parserContext);
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             throw handleTargetException(scriptName, ex);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw handleGeneralException(scriptName, ex);
         }
 

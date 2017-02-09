@@ -21,8 +21,7 @@ import org.apache.avro.generic.GenericData;
 /**
  * Factory for ObjectArray-underlying events.
  */
-public class EventBeanManufacturerAvro implements EventBeanManufacturer
-{
+public class EventBeanManufacturerAvro implements EventBeanManufacturer {
     private final AvroEventType eventType;
     private final Schema schema;
     private final EventAdapterService eventAdapterService;
@@ -30,12 +29,12 @@ public class EventBeanManufacturerAvro implements EventBeanManufacturer
 
     /**
      * Ctor.
-     * @param eventType type to create
+     *
+     * @param eventType           type to create
      * @param eventAdapterService event factory
-     * @param properties written properties
+     * @param properties          written properties
      */
-    public EventBeanManufacturerAvro(AvroSchemaEventType eventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties)
-    {
+    public EventBeanManufacturerAvro(AvroSchemaEventType eventType, EventAdapterService eventAdapterService, WriteablePropertyDescriptor[] properties) {
         this.eventAdapterService = eventAdapterService;
         this.eventType = (AvroEventType) eventType;
         this.schema = this.eventType.getSchemaAvro();
@@ -52,8 +51,7 @@ public class EventBeanManufacturerAvro implements EventBeanManufacturer
         }
     }
 
-    public EventBean make(Object[] properties)
-    {
+    public EventBean make(Object[] properties) {
         Object record = makeUnderlying(properties);
         return eventAdapterService.adapterForTypedAvro(record, eventType);
     }

@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Factory for {@link WeightedAverageView} instances.
  */
-public class WeightedAverageViewFactory implements ViewFactory
-{
+public class WeightedAverageViewFactory implements ViewFactory {
     protected final static String NAME = "Weighted-average";
 
     private List<ExprNode> viewParameters;
@@ -44,21 +43,18 @@ public class WeightedAverageViewFactory implements ViewFactory
 
     protected EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
         this.streamNumber = viewFactoryContext.getStreamNum();
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
 
         if (validated.length < 2) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType())))
-        {
+        if ((!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) || (!JavaClassHelper.isNumeric(validated[1].getExprEvaluator().getType()))) {
             throw new ViewParameterException(getViewParamMessage());
         }
 
@@ -68,18 +64,15 @@ public class WeightedAverageViewFactory implements ViewFactory
         eventType = WeightedAverageView.createEventType(statementContext, additionalProps, streamNumber);
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new WeightedAverageView(this, agentInstanceViewFactoryContext);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         if (!(view instanceof WeightedAverageView)) {
             return false;
         }
@@ -89,8 +82,7 @@ public class WeightedAverageViewFactory implements ViewFactory
 
         WeightedAverageView myView = (WeightedAverageView) view;
         if ((!ExprNodeUtility.deepEquals(fieldNameWeight, myView.getFieldNameWeight())) ||
-            (!ExprNodeUtility.deepEquals(fieldNameX, myView.getFieldNameX())) )
-        {
+                (!ExprNodeUtility.deepEquals(fieldNameX, myView.getFieldNameX()))) {
             return false;
         }
         return true;

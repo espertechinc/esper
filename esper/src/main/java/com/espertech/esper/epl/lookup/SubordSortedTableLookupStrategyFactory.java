@@ -20,16 +20,14 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordSortedTableLookupStrategyFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordSortedTableLookupStrategyFactory implements SubordTableLookupStrategyFactory {
     private final SubordPropRangeKey rangeKey;
 
     protected final SortedAccessStrategy strategy;
 
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordSortedTableLookupStrategyFactory(boolean isNWOnTrigger, int numStreams, SubordPropRangeKey rangeKey)
-    {
+    public SubordSortedTableLookupStrategyFactory(boolean isNWOnTrigger, int numStreams, SubordPropRangeKey rangeKey) {
         this.rangeKey = rangeKey;
         this.strategy = SortedAccessStrategyFactory.make(isNWOnTrigger, -1, numStreams, rangeKey);
         this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.RANGE, ExprNodeUtility.toExpressionStringsMinPrecedence(rangeKey.getRangeInfo().getExpressions()));

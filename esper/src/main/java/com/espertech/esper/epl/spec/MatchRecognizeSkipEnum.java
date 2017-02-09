@@ -23,7 +23,7 @@ public enum MatchRecognizeSkipEnum {
      * Skip to next row.
      */
     TO_NEXT_ROW,
-    
+
     /**
      * Skip past last row.
      */

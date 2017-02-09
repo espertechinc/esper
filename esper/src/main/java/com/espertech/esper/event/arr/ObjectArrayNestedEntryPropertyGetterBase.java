@@ -24,9 +24,10 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
 
     /**
      * Ctor.
-     * @param propertyIndex the property to look at
+     *
+     * @param propertyIndex       the property to look at
      * @param eventAdapterService factory for event beans and event types
-     * @param fragmentType type of the entry returned
+     * @param fragmentType        type of the entry returned
      */
     public ObjectArrayNestedEntryPropertyGetterBase(int propertyIndex, EventType fragmentType, EventAdapterService eventAdapterService) {
         this.propertyIndex = propertyIndex;
@@ -35,31 +36,28 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
     }
 
     public abstract Object handleNestedValue(Object value);
+
     public abstract boolean handleNestedValueExists(Object value);
+
     public abstract Object handleNestedValueFragment(Object value);
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         Object value = array[propertyIndex];
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
         return handleNestedValue(value);
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getObjectArray(BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
         Object value = array[propertyIndex];
         if (value == null) {
@@ -68,12 +66,10 @@ public abstract class ObjectArrayNestedEntryPropertyGetterBase implements Object
         return handleNestedValueExists(value);
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         Object value = array[propertyIndex];
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
         return handleNestedValueFragment(value);

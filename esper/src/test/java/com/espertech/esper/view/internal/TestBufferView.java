@@ -10,26 +10,23 @@
  */
 package com.espertech.esper.view.internal;
 
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.bean.SupportBean_A;
-import com.espertech.esper.supportunit.view.SupportBufferObserver;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.supportunit.view.SupportBufferObserver;
+import junit.framework.TestCase;
 
-public class TestBufferView extends TestCase
-{
+public class TestBufferView extends TestCase {
     private BufferView bufferView;
     private SupportBufferObserver observer;
 
-    public void setUp()
-    {
+    public void setUp() {
         observer = new SupportBufferObserver();
         bufferView = new BufferView(1);
         bufferView.setObserver(observer);
     }
 
-    public void testUpdate()
-    {
+    public void testUpdate() {
         // Observer starts with no data
         assertFalse(observer.getAndResetHasNewData());
 
@@ -50,11 +47,9 @@ public class TestBufferView extends TestCase
         assertTrue(observer.getAndResetHasNewData());
     }
 
-    private EventBean[] makeBeans(String id, int numTrades)
-    {
+    private EventBean[] makeBeans(String id, int numTrades) {
         EventBean[] trades = new EventBean[numTrades];
-        for (int i = 0; i < numTrades; i++)
-        {
+        for (int i = 0; i < numTrades; i++) {
             SupportBean_A bean = new SupportBean_A(id + i);
             trades[i] = SupportEventBeanFactory.createObject(bean);
         }

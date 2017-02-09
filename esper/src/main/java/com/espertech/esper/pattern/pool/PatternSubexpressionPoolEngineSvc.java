@@ -38,8 +38,7 @@ public class PatternSubexpressionPoolEngineSvc {
     public void setPatternMaxSubexpressions(Long maxSubexpressions) {
         if (maxSubexpressions == null) {
             maxPoolCountConfigured = -1;
-        }
-        else {
+        } else {
             maxPoolCountConfigured = maxSubexpressions;
         }
     }
@@ -65,8 +64,7 @@ public class PatternSubexpressionPoolEngineSvc {
         if (newMax > maxPoolCountConfigured && maxPoolCountConfigured >= 0) {
             Map<String, Long> counts = getCounts();
             agentInstanceContext.getStatementContext().getExceptionHandlingService().handleCondition(new ConditionPatternEngineSubexpressionMax(maxPoolCountConfigured, counts), agentInstanceContext.getStatementContext().getEpStatementHandle());
-            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled)))
-            {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled))) {
                 PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
                 String stmtName = agentInstanceContext.getStatementContext().getStatementName();
                 log.debug(".tryIncreaseCount For statement '" + stmtName + "' pool count overflow at " + newMax + " statement count was " + stmtHandler.getCount() + " preventStart=" + preventStart);
@@ -75,13 +73,11 @@ public class PatternSubexpressionPoolEngineSvc {
             if (preventStart) {
                 poolCount.decrementAndGet();
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         }
-        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled()) {
             PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
             String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".tryIncreaseCount For statement '" + stmtName + "' pool count increases to " + newMax + " statement count was " + stmtHandler.getCount());
@@ -93,8 +89,7 @@ public class PatternSubexpressionPoolEngineSvc {
     public void forceIncreaseCount(EvalNode evalNode, AgentInstanceContext agentInstanceContext) {
 
         long newMax = poolCount.incrementAndGet();
-        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled()) {
             PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
             String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".forceIncreaseCount For statement '" + stmtName + "' pool count increases to " + newMax + " statement count was " + stmtHandler.getCount());
@@ -103,16 +98,15 @@ public class PatternSubexpressionPoolEngineSvc {
 
     public void decreaseCount(EvalNode evalNode, AgentInstanceContext agentInstanceContext) {
         long newMax = poolCount.decrementAndGet();
-        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled())
-        {
+        if ((ExecutionPathDebugLog.isDebugEnabled) && log.isDebugEnabled()) {
             PatternSubexpressionPoolStmtHandler stmtHandler = agentInstanceContext.getStatementContext().getPatternSubexpressionPoolSvc().getStmtHandler();
             String stmtName = agentInstanceContext.getStatementContext().getStatementName();
             log.debug(".decreaseCount For statement '" + stmtName + "' pool count decreases to " + newMax + " statement count was " + stmtHandler.getCount());
         }
     }
 
-    private Map<String,Long> getCounts() {
-        Map<String,Long> counts = new HashMap<String,Long>();
+    private Map<String, Long> getCounts() {
+        Map<String, Long> counts = new HashMap<String, Long>();
         for (StatementEntry context : patternContexts) {
             Long count = counts.get(context.getStatementName());
             if (count == null) {

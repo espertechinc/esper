@@ -18,8 +18,7 @@ import com.espertech.esper.util.JavaClassHelper;
 /**
  * Event property value in a list of values following an in-keyword.
  */
-public class InSetOfValuesEventProp implements FilterSpecParamInValue
-{
+public class InSetOfValuesEventProp implements FilterSpecParamInValue {
     private final String resultEventAsName;
     private final String resultEventProperty;
     private final boolean isMustCoerce;
@@ -28,13 +27,13 @@ public class InSetOfValuesEventProp implements FilterSpecParamInValue
 
     /**
      * Ctor.
-     * @param resultEventAsName is the event tag
+     *
+     * @param resultEventAsName   is the event tag
      * @param resultEventProperty is the event property name
-     * @param isMustCoerce indicates on whether numeric coercion must be performed
-     * @param coercionType indicates the numeric coercion type to use
+     * @param isMustCoerce        indicates on whether numeric coercion must be performed
+     * @param coercionType        indicates the numeric coercion type to use
      */
-    public InSetOfValuesEventProp(String resultEventAsName, String resultEventProperty, boolean isMustCoerce, Class coercionType)
-    {
+    public InSetOfValuesEventProp(String resultEventAsName, String resultEventProperty, boolean isMustCoerce, Class coercionType) {
         this.resultEventAsName = resultEventAsName;
         this.resultEventProperty = resultEventProperty;
         this.coercionType = coercionType;
@@ -49,11 +48,9 @@ public class InSetOfValuesEventProp implements FilterSpecParamInValue
         return false;
     }
 
-    public final Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext)
-    {
+    public final Object getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext evaluatorContext) {
         EventBean theEvent = matchedEvents.getMatchingEventByTag(resultEventAsName);
-        if (theEvent == null)
-        {
+        if (theEvent == null) {
             throw new IllegalStateException("Matching event named " +
                     '\'' + resultEventAsName + "' not found in event result set");
         }
@@ -61,10 +58,8 @@ public class InSetOfValuesEventProp implements FilterSpecParamInValue
         Object value = theEvent.get(resultEventProperty);
 
         // Coerce if necessary
-        if (isMustCoerce)
-        {
-            if (value != null)
-            {
+        if (isMustCoerce) {
+            if (value != null) {
                 value = JavaClassHelper.coerceBoxed((Number) value, coercionType);
             }
         }
@@ -73,51 +68,45 @@ public class InSetOfValuesEventProp implements FilterSpecParamInValue
 
     /**
      * Returns the tag used for the event property.
+     *
      * @return tag
      */
-    public String getResultEventAsName()
-    {
+    public String getResultEventAsName() {
         return resultEventAsName;
     }
 
     /**
      * Returns the event property name.
+     *
      * @return property name
      */
-    public String getResultEventProperty()
-    {
+    public String getResultEventProperty() {
         return resultEventProperty;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "resultEventProp=" + resultEventAsName + '.' + resultEventProperty;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof InSetOfValuesEventProp))
-        {
+        if (!(obj instanceof InSetOfValuesEventProp)) {
             return false;
         }
 
         InSetOfValuesEventProp other = (InSetOfValuesEventProp) obj;
-        if ( (other.resultEventAsName.equals(this.resultEventAsName)) &&
-             (other.resultEventProperty.equals(this.resultEventProperty)))
-        {
+        if ((other.resultEventAsName.equals(this.resultEventAsName)) &&
+                (other.resultEventProperty.equals(this.resultEventProperty))) {
             return true;
         }
 
         return false;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return resultEventProperty.hashCode();
     }
 }

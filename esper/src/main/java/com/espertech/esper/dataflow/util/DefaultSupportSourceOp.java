@@ -41,7 +41,8 @@ public class DefaultSupportSourceOp implements DataFlowSourceOperator {
     public void next() throws InterruptedException {
         currentCount++;
         if (instructions.length <= currentCount) {
-            graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {});
+            graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {
+            });
             return;
         }
 
@@ -49,16 +50,13 @@ public class DefaultSupportSourceOp implements DataFlowSourceOperator {
         if (next instanceof CountDownLatch) {
             CountDownLatch latch = (CountDownLatch) next;
             latch.await();
-        }
-        else if (next instanceof Long) {
+        } else if (next instanceof Long) {
             long sleepTime = (Long) next;
             Thread.sleep(sleepTime);
-        }
-        else if (next instanceof RuntimeException) {
+        } else if (next instanceof RuntimeException) {
             RuntimeException ex = (RuntimeException) next;
             throw new RuntimeException("Support-graph-source generated exception: " + ex.getMessage(), ex);
-        }
-        else {
+        } else {
             graphContext.submit(next);
         }
     }

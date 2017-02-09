@@ -12,22 +12,21 @@ package com.espertech.esper.example.transaction.sim;
 
 import com.espertech.esper.example.transaction.TxnEventA;
 import com.espertech.esper.example.transaction.TxnEventB;
-import com.espertech.esper.example.transaction.TxnEventC;
 import com.espertech.esper.example.transaction.TxnEventBase;
+import com.espertech.esper.example.transaction.TxnEventC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-/** Generates events for a continuous stream of transactions.
+/**
+ * Generates events for a continuous stream of transactions.
  * Rules for generating events are coded in {@link #createNextTransaction()}.
  *
  * @author Hans Gilde
- *
  */
 public class TransactionEventSource extends EventSource {
     protected String currentTransactionID;
@@ -69,9 +68,7 @@ public class TransactionEventSource extends EventSource {
         if (random.nextInt(10000) < 9998) {
             TxnEventC txnEventC = new TxnEventC(null, e3Stamp, fieldGenerator.getRandomSupplier());
             t.add(txnEventC);
-        }
-        else
-        {
+        } else {
             log.debug(".createNextTransaction generated missing event");
         }
 
@@ -85,8 +82,7 @@ public class TransactionEventSource extends EventSource {
         return maxTrans;
     }
 
-    protected boolean hasNext()
-    {
+    protected boolean hasNext() {
         if (numTrans < maxTrans) {
             return true;
         } else {
@@ -94,9 +90,8 @@ public class TransactionEventSource extends EventSource {
         }
     }
 
-    protected TxnEventBase next()
-    {
-        if (transactionIterator!=null && transactionIterator.hasNext()) {
+    protected TxnEventBase next() {
+        if (transactionIterator != null && transactionIterator.hasNext()) {
             TxnEventBase m = transactionIterator.next();
             m.setTransactionId(currentTransactionID);
             return m;

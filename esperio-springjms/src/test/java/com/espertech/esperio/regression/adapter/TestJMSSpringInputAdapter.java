@@ -10,41 +10,33 @@
  */
 package com.espertech.esperio.regression.adapter;
 
-import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import junit.framework.TestCase;
-import com.espertech.esperio.SpringContext;
-import com.espertech.esperio.SpringContextLoader;
 import com.espertech.esper.adapter.InputAdapter;
-import com.espertech.esperio.support.util.SupportSerializableBean;
-import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.*;
+import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.plugin.PluginLoader;
+import com.espertech.esperio.SpringContext;
+import com.espertech.esperio.SpringContextLoader;
+import com.espertech.esperio.support.util.SupportSerializableBean;
+import junit.framework.TestCase;
 
-import java.util.Properties;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-public class TestJMSSpringInputAdapter extends TestCase
-{
+public class TestJMSSpringInputAdapter extends TestCase {
     private SupportJMSSender jmsSender;
 
-    public void setUp()
-    {
+    public void setUp() {
         jmsSender = new SupportJMSSender();
 
     }
 
-    public void tearDown()
-    {
+    public void tearDown() {
         jmsSender.destroy();
     }
 
-    public void testSerializable() throws Exception
-    {
+    public void testSerializable() throws Exception {
         // define loader
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
@@ -70,8 +62,7 @@ public class TestJMSSpringInputAdapter extends TestCase
         loader.destroy();
     }
 
-    public void testMap() throws Exception
-    {
+    public void testMap() throws Exception {
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
 
@@ -109,8 +100,7 @@ public class TestJMSSpringInputAdapter extends TestCase
         assertEquals(200, received.get("prop2"));
     }
 
-    private Map<String, Object> makeMap(String type, String prop1, int prop2)
-    {
+    private Map<String, Object> makeMap(String type, String prop1, int prop2) {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("prop1", prop1);
         props.put("prop2", prop2);

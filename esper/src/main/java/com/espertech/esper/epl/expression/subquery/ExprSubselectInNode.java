@@ -24,39 +24,34 @@ import java.util.LinkedHashMap;
 /**
  * Represents a subselect in an expression tree.
  */
-public class ExprSubselectInNode extends ExprSubselectNode
-{
+public class ExprSubselectInNode extends ExprSubselectNode {
     private final boolean isNotIn;
     private transient SubselectEvalStrategy subselectEvalStrategy;
     private static final long serialVersionUID = -7233906204211162498L;
 
-    public ExprSubselectInNode(StatementSpecRaw statementSpec, boolean isNotIn)
-    {
+    public ExprSubselectInNode(StatementSpecRaw statementSpec, boolean isNotIn) {
         super(statementSpec);
         this.isNotIn = isNotIn;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
     /**
      * Returns true for not-in, or false for in.
+     *
      * @return true for not-in
      */
-    public boolean isNotIn()
-    {
+    public boolean isNotIn() {
         return isNotIn;
     }
 
-    public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
         subselectEvalStrategy = SubselectEvalStrategyFactory.createStrategy(this, isNotIn, false, false, null);
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
         return subselectEvalStrategy.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
     }
 

@@ -13,8 +13,7 @@ package com.espertech.esper.util;
 /**
  * General pupose callback to destroy a resource and free it's underlying resources.
  */
-public interface DestroyCallback
-{
+public interface DestroyCallback {
     /**
      * Destroys the underlying resources.
      */

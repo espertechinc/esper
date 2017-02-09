@@ -16,8 +16,7 @@ import java.util.Set;
 /**
  * Parameter supplying a single int value is a set of numbers.
  */
-public class IntParameter implements NumberSetParameter
-{
+public class IntParameter implements NumberSetParameter {
     private int intValue;
     private static final long serialVersionUID = -895750000874644640L;
 
@@ -26,19 +25,19 @@ public class IntParameter implements NumberSetParameter
 
     /**
      * Ctor.
+     *
      * @param intValue - single in value
      */
-    public IntParameter(int intValue)
-    {
+    public IntParameter(int intValue) {
         this.intValue = intValue;
     }
 
     /**
      * Returns int value.
+     *
      * @return int value
      */
-    public int getIntValue()
-    {
+    public int getIntValue() {
         return intValue;
     }
 
@@ -46,21 +45,17 @@ public class IntParameter implements NumberSetParameter
         this.intValue = intValue;
     }
 
-    public boolean isWildcard(int min, int max)
-    {
-        if ((intValue == min) && (intValue == max))
-        {
+    public boolean isWildcard(int min, int max) {
+        if ((intValue == min) && (intValue == max)) {
             return true;
         }
         return false;
     }
 
-    public Set<Integer> getValuesInRange(int min, int max)
-    {
+    public Set<Integer> getValuesInRange(int min, int max) {
         Set<Integer> values = new HashSet<Integer>();
 
-        if ((intValue >= min) && (intValue <= max))
-        {
+        if ((intValue >= min) && (intValue <= max)) {
             values.add(intValue);
         }
 

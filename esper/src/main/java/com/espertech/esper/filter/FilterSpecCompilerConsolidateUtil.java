@@ -22,10 +22,8 @@ import java.util.Map;
 /**
  * Helper to compile (validate and optimize) filter expressions as used in pattern and filter-based streams.
  */
-public final class FilterSpecCompilerConsolidateUtil
-{
-    protected static void consolidate(FilterParamExprMap filterParamExprMap, String statementName)
-    {
+public final class FilterSpecCompilerConsolidateUtil {
+    protected static void consolidate(FilterParamExprMap filterParamExprMap, String statementName) {
         // consolidate or place in a boolean expression (by removing filter spec param from the map)
         // any filter parameter that feature the same property name and filter operator,
         // i.e. we are looking for "a!=5 and a!=6"  to transform to "a not in (5,6)" which can match faster
@@ -34,53 +32,43 @@ public final class FilterSpecCompilerConsolidateUtil
         Map<Pair<FilterSpecLookupable, FilterOperator>, List<FilterSpecParam>> mapOfParams = new HashMap<Pair<FilterSpecLookupable, FilterOperator>, List<FilterSpecParam>>();
 
         boolean haveConsolidated;
-        do
-        {
+        do {
             haveConsolidated = false;
             mapOfParams.clear();
 
             // sort into buckets of propertyName + filterOperator combination
-            for (FilterSpecParam currentParam : filterParamExprMap.getFilterParams())
-            {
+            for (FilterSpecParam currentParam : filterParamExprMap.getFilterParams()) {
                 FilterSpecLookupable lookupable = currentParam.getLookupable();
                 FilterOperator op = currentParam.getFilterOperator();
                 Pair<FilterSpecLookupable, FilterOperator> key = new Pair<FilterSpecLookupable, FilterOperator>(lookupable, op);
 
                 List<FilterSpecParam> existingParam = mapOfParams.get(key);
-                if (existingParam == null)
-                {
+                if (existingParam == null) {
                     existingParam = new ArrayList<FilterSpecParam>();
                     mapOfParams.put(key, existingParam);
                 }
                 existingParam.add(currentParam);
             }
 
-            for (List<FilterSpecParam> entry : mapOfParams.values())
-            {
-                if (entry.size() > 1)
-                {
+            for (List<FilterSpecParam> entry : mapOfParams.values()) {
+                if (entry.size() > 1) {
                     haveConsolidated = true;
                     consolidate(entry, filterParamExprMap, statementName);
                 }
             }
         }
-        while(haveConsolidated);
+        while (haveConsolidated);
     }
 
     // remove duplicate propertyName + filterOperator items making a judgement to optimize or simply remove the optimized form
-    private static void consolidate(List<FilterSpecParam> items, FilterParamExprMap filterParamExprMap, String statementName)
-    {
+    private static void consolidate(List<FilterSpecParam> items, FilterParamExprMap filterParamExprMap, String statementName) {
         FilterOperator op = items.get(0).getFilterOperator();
-        if (op == FilterOperator.NOT_EQUAL)
-        {
+        if (op == FilterOperator.NOT_EQUAL) {
             handleConsolidateNotEqual(items, filterParamExprMap, statementName);
-        }
-        else
-        {
+        } else {
             // for all others we simple remove the second optimized form (filter param with same prop name and filter op)
             // and thus the boolean expression that started this is included
-            for (int i = 1; i < items.size(); i++)
-            {
+            for (int i = 1; i < items.size(); i++) {
                 filterParamExprMap.removeValue(items.get(i));
             }
         }
@@ -88,33 +76,24 @@ public final class FilterSpecCompilerConsolidateUtil
 
     // consolidate "val != 3 and val != 4 and val != 5"
     // to "val not in (3, 4, 5)"
-    private static void handleConsolidateNotEqual(List<FilterSpecParam> parameters, FilterParamExprMap filterParamExprMap, String statementName)
-    {
+    private static void handleConsolidateNotEqual(List<FilterSpecParam> parameters, FilterParamExprMap filterParamExprMap, String statementName) {
         List<FilterSpecParamInValue> values = new ArrayList<FilterSpecParamInValue>();
 
         ExprNode lastNotEqualsExprNode = null;
-        for (FilterSpecParam param : parameters)
-        {
-            if (param instanceof FilterSpecParamConstant)
-            {
+        for (FilterSpecParam param : parameters) {
+            if (param instanceof FilterSpecParamConstant) {
                 FilterSpecParamConstant constantParam = (FilterSpecParamConstant) param;
                 Object constant = constantParam.getFilterConstant();
                 values.add(new InSetOfValuesConstant(constant));
-            }
-            else if (param instanceof FilterSpecParamEventProp)
-            {
+            } else if (param instanceof FilterSpecParamEventProp) {
                 FilterSpecParamEventProp eventProp = (FilterSpecParamEventProp) param;
                 values.add(new InSetOfValuesEventProp(eventProp.getResultEventAsName(), eventProp.getResultEventProperty(),
                         eventProp.isMustCoerce(), JavaClassHelper.getBoxedType(eventProp.getCoercionType())));
-            }
-            else if (param instanceof FilterSpecParamEventPropIndexed)
-            {
+            } else if (param instanceof FilterSpecParamEventPropIndexed) {
                 FilterSpecParamEventPropIndexed eventProp = (FilterSpecParamEventPropIndexed) param;
                 values.add(new InSetOfValuesEventPropIndexed(eventProp.getResultEventAsName(), eventProp.getResultEventIndex(), eventProp.getResultEventProperty(),
                         eventProp.isMustCoerce(), JavaClassHelper.getBoxedType(eventProp.getCoercionType()), statementName));
-            }
-            else
-            {
+            } else {
                 throw new IllegalArgumentException("Unknown filter parameter:" + param.toString());
             }
 

@@ -28,22 +28,17 @@ public abstract class EvalBaseMap extends EvalBase implements SelectExprProcesso
 
     public abstract EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext);
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         ExprEvaluator[] expressionNodes = selectExprContext.getExpressionNodes();
         String[] columnNames = selectExprContext.getColumnNames();
 
         // Evaluate all expressions and build a map of name-value pairs
         Map<String, Object> props;
-        if (expressionNodes.length == 0)
-        {
+        if (expressionNodes.length == 0) {
             props = Collections.EMPTY_MAP;
-        }
-        else
-        {
+        } else {
             props = new HashMap<String, Object>();
-            for (int i = 0; i < expressionNodes.length; i++)
-            {
+            for (int i = 0; i < expressionNodes.length; i++) {
                 Object evalResult = expressionNodes[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                 props.put(columnNames[i], evalResult);
             }

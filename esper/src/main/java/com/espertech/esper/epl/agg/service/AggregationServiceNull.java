@@ -53,8 +53,7 @@ public class AggregationServiceNull implements AggregationService {
         return null;
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         // no state to clear
     }
 

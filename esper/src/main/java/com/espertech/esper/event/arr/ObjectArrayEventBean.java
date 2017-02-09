@@ -48,8 +48,7 @@ public class ObjectArrayEventBean implements EventBeanSPI, ObjectArrayBackedEven
 
     public Object get(String property) throws PropertyAccessException {
         EventPropertyGetter getter = eventType.getGetter(property);
-        if (getter == null)
-        {
+        if (getter == null) {
             throw new PropertyAccessException("Property named '" + property + "' is not a valid property name for this type");
         }
         return getter.get(this);

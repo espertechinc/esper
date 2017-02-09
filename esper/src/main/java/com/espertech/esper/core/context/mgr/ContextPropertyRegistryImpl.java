@@ -16,6 +16,7 @@ import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class ContextPropertyRegistryImpl implements ContextPropertyRegistry {
 
@@ -53,7 +54,7 @@ public class ContextPropertyRegistryImpl implements ContextPropertyRegistry {
     }
 
     public boolean isContextPropertyPrefix(String prefixName) {
-        return prefixName != null && prefixName.toLowerCase().equals(CONTEXT_PREFIX);
+        return prefixName != null && prefixName.toLowerCase(Locale.ENGLISH).equals(CONTEXT_PREFIX);
     }
 
     public EventType getContextEventType() {

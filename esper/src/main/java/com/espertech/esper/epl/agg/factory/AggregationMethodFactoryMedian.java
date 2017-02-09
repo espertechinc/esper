@@ -19,19 +19,17 @@ import com.espertech.esper.epl.agg.aggregator.AggregatorMedian;
 import com.espertech.esper.epl.agg.aggregator.AggregatorMedianFilter;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.methodagg.ExprMedianNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryMedian implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryMedian implements AggregationMethodFactory {
     protected final ExprMedianNode parent;
     protected final Class aggregatedValueType;
 
-    public AggregationMethodFactoryMedian(ExprMedianNode parent, Class aggregatedValueType)
-    {
+    public AggregationMethodFactoryMedian(ExprMedianNode parent, Class aggregatedValueType) {
         this.parent = parent;
         this.aggregatedValueType = aggregatedValueType;
     }
@@ -40,8 +38,7 @@ public class AggregationMethodFactoryMedian implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return Double.class;
     }
 
@@ -85,8 +82,7 @@ public class AggregationMethodFactoryMedian implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    private AggregationMethod makeMedianAggregator(boolean hasFilter)
-    {
+    private AggregationMethod makeMedianAggregator(boolean hasFilter) {
         if (!hasFilter) {
             return new AggregatorMedian();
         }

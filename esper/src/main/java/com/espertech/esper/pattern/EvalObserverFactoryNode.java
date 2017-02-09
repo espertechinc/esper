@@ -22,8 +22,7 @@ import java.io.StringWriter;
 /**
  * This class represents an observer expression in the evaluation tree representing an pattern expression.
  */
-public class EvalObserverFactoryNode extends EvalNodeFactoryBase
-{
+public class EvalObserverFactoryNode extends EvalNodeFactoryBase {
     private static final Logger log = LoggerFactory.getLogger(EvalObserverFactoryNode.class);
 
     private static final long serialVersionUID = 7130273585111632791L;
@@ -32,10 +31,10 @@ public class EvalObserverFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Constructor.
+     *
      * @param patternObserverSpec is the factory to use to get an observer instance
      */
-    protected EvalObserverFactoryNode(PatternObserverSpec patternObserverSpec)
-    {
+    protected EvalObserverFactoryNode(PatternObserverSpec patternObserverSpec) {
         this.patternObserverSpec = patternObserverSpec;
     }
 
@@ -45,35 +44,34 @@ public class EvalObserverFactoryNode extends EvalNodeFactoryBase
 
     /**
      * Returns the observer object specification to use for instantiating the observer factory and observer.
+     *
      * @return observer specification
      */
-    public PatternObserverSpec getPatternObserverSpec()
-    {
+    public PatternObserverSpec getPatternObserverSpec() {
         return patternObserverSpec;
     }
 
     /**
      * Supplies the observer factory to the node.
+     *
      * @param observerFactory is the observer factory
      */
-    public void setObserverFactory(ObserverFactory observerFactory)
-    {
+    public void setObserverFactory(ObserverFactory observerFactory) {
         this.observerFactory = observerFactory;
     }
 
     /**
      * Returns the observer factory.
+     *
      * @return factory for observer instances
      */
-    public ObserverFactory getObserverFactory()
-    {
+    public ObserverFactory getObserverFactory() {
         return observerFactory;
     }
 
-    public final String toString()
-    {
-        return ("EvalObserverNode observerFactory=" + observerFactory +
-                "  children=" + this.getChildNodes().size());
+    public final String toString() {
+        return "EvalObserverNode observerFactory=" + observerFactory +
+                "  children=" + this.getChildNodes().size();
     }
 
     public boolean isFilterChildNonQuitting() {

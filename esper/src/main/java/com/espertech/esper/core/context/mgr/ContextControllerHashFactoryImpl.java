@@ -10,27 +10,10 @@
  */
 package com.espertech.esper.core.context.mgr;
 
-import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.context.ContextPartitionIdentifier;
-import com.espertech.esper.client.context.ContextPartitionIdentifierHash;
-import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.context.stmt.*;
-import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.ContextDetail;
 import com.espertech.esper.epl.spec.ContextDetailHash;
-import com.espertech.esper.epl.spec.ContextDetailHashItem;
-import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
-import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzer;
-import com.espertech.esper.epl.spec.util.StatementSpecCompiledAnalyzerResult;
-import com.espertech.esper.event.EventTypeUtility;
-import com.espertech.esper.filter.*;
+import com.espertech.esper.filter.FilterSpecCompiled;
 
-import java.io.StringWriter;
-import java.util.*;
+import java.util.List;
 
 public class ContextControllerHashFactoryImpl extends ContextControllerHashFactoryBase implements ContextControllerFactory {
 

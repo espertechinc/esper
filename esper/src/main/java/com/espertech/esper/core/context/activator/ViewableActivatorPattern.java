@@ -48,8 +48,7 @@ public class ViewableActivatorPattern implements ViewableActivator {
         final EventStream sourceEventStream = isCanIterate ? new ZeroDepthStreamIterable(eventType) : new ZeroDepthStreamNoIterate(eventType);
         final StatementContext statementContext = patternContext.getStatementContext();
         final PatternMatchCallback callback = new PatternMatchCallback() {
-            public void matchFound(Map<String, Object> matchEvent)
-            {
+            public void matchFound(Map<String, Object> matchEvent) {
                 EventBean compositeEvent = statementContext.getEventAdapterService().adapterForTypedMap(matchEvent, eventType);
                 sourceEventStream.insert(compositeEvent);
             }

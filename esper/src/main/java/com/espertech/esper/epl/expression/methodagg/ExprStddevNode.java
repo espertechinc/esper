@@ -19,23 +19,21 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 /**
  * Represents the stddev(...) aggregate function is an expression tree.
  */
-public class ExprStddevNode extends ExprAggregateNodeBase
-{
+public class ExprStddevNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 4732757426203628783L;
 
     private boolean hasFilter;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprStddevNode(boolean distinct)
-    {
+    public ExprStddevNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeStddev(validationContext.getStatementExtensionSvcContext(), this, childType);
@@ -45,18 +43,15 @@ public class ExprStddevNode extends ExprAggregateNodeBase
         return hasFilter;
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprStddevNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprStddevNode)) {
             return false;
         }
 
         return true;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "stddev";
     }
 }

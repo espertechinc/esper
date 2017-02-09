@@ -13,46 +13,37 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Sum for double values.
  */
-public class AggregatorSumDouble implements AggregationMethod
-{
+public class AggregatorSumDouble implements AggregationMethod {
     protected double sum;
     protected long numDataPoints;
 
-    public void clear()
-    {
+    public void clear() {
         sum = 0;
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         numDataPoints++;
         sum += (Double) object;
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
         if (numDataPoints <= 1) {
             clear();
-        }
-        else {
+        } else {
             numDataPoints--;
             sum -= (Double) object;
         }
     }
 
-    public Object getValue()
-    {
-        if (numDataPoints == 0)
-        {
+    public Object getValue() {
+        if (numDataPoints == 0) {
             return null;
         }
         return sum;

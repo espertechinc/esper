@@ -15,16 +15,14 @@ import junit.framework.TestCase;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestFilterSpecParamIn extends TestCase
-{
+public class TestFilterSpecParamIn extends TestCase {
     private FilterSpecParamIn values;
 
-    public void testEquals()
-    {
-        values = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[] {"A", "B"}));
-        FilterSpecParamIn values2 = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[] {"A"}));
-        FilterSpecParamIn values3 = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[] {"A", "B"}));
-        FilterSpecParamIn values4 = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[] {"A", "C"}));
+    public void testEquals() {
+        values = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[]{"A", "B"}));
+        FilterSpecParamIn values2 = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[]{"A"}));
+        FilterSpecParamIn values3 = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[]{"A", "B"}));
+        FilterSpecParamIn values4 = new FilterSpecParamIn(makeLookupable("a"), FilterOperator.IN_LIST_OF_VALUES, getList(new Object[]{"A", "C"}));
 
         assertFalse(values.equals(new FilterSpecParamConstant(makeLookupable("a"), FilterOperator.EQUAL, "a")));
         assertFalse(values.equals(values2));
@@ -32,11 +30,9 @@ public class TestFilterSpecParamIn extends TestCase
         assertFalse(values.equals(values4));
     }
 
-    private List<FilterSpecParamInValue> getList(Object[] keys)
-    {
+    private List<FilterSpecParamInValue> getList(Object[] keys) {
         List<FilterSpecParamInValue> list = new LinkedList<FilterSpecParamInValue>();
-        for (int i = 0; i < keys.length; i++)
-        {
+        for (int i = 0; i < keys.length; i++) {
             list.add(new InSetOfValuesConstant(keys[i]));
         }
         return list;

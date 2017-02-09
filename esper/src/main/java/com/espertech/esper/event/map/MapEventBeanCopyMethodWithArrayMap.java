@@ -14,8 +14,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventBeanCopyMethod;
 import com.espertech.esper.event.MappedEventBean;
-import com.espertech.esper.event.ObjectArrayBackedEventBean;
-import com.espertech.esper.event.arr.ObjectArrayEventType;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
@@ -25,8 +23,7 @@ import java.util.Set;
 /**
  * Copy method for Map-underlying events.
  */
-public class MapEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod
-{
+public class MapEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod {
     private final MapEventType mapEventType;
     private final EventAdapterService eventAdapterService;
     private final Set<String> mapPropertiesToCopy;
@@ -34,9 +31,10 @@ public class MapEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod
 
     /**
      * Ctor.
-     * @param mapEventType map event type
-     * @param eventAdapterService for copying events
-     * @param mapPropertiesToCopy map props
+     *
+     * @param mapEventType          map event type
+     * @param eventAdapterService   for copying events
+     * @param mapPropertiesToCopy   map props
      * @param arrayPropertiesToCopy array props
      */
     public MapEventBeanCopyMethodWithArrayMap(MapEventType mapEventType, EventAdapterService eventAdapterService, Set<String> mapPropertiesToCopy, Set<String> arrayPropertiesToCopy) {
@@ -46,8 +44,7 @@ public class MapEventBeanCopyMethodWithArrayMap implements EventBeanCopyMethod
         this.arrayPropertiesToCopy = arrayPropertiesToCopy;
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         MappedEventBean mapped = (MappedEventBean) theEvent;
         Map<String, Object> props = mapped.getProperties();
         HashMap<String, Object> shallowCopy = new HashMap<String, Object>(props);

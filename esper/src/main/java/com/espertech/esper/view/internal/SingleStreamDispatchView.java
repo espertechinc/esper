@@ -10,19 +10,18 @@
  */
 package com.espertech.esper.view.internal;
 
-import java.util.Iterator;
-
-import com.espertech.esper.view.ViewSupport;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.FlushedEventBuffer;
 import com.espertech.esper.core.service.EPStatementDispatch;
+import com.espertech.esper.view.ViewSupport;
+
+import java.util.Iterator;
 
 /**
  * View to dispatch for a single stream (no join).
  */
-public final class SingleStreamDispatchView extends ViewSupport implements EPStatementDispatch
-{
+public final class SingleStreamDispatchView extends ViewSupport implements EPStatementDispatch {
     private boolean hasData = false;
     private FlushedEventBuffer newDataBuffer = new FlushedEventBuffer();
     private FlushedEventBuffer oldDataBuffer = new FlushedEventBuffer();
@@ -30,29 +29,24 @@ public final class SingleStreamDispatchView extends ViewSupport implements EPSta
     /**
      * Ctor.
      */
-    public SingleStreamDispatchView()
-    {
+    public SingleStreamDispatchView() {
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return parent.iterator();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public final void update(EventBean[] newData, EventBean[] oldData) {
         newDataBuffer.add(newData);
         oldDataBuffer.add(oldData);
         hasData = true;
     }
 
-    public void execute()
-    {
+    public void execute() {
         if (hasData) {
             hasData = false;
             this.updateChildren(newDataBuffer.getAndFlush(), oldDataBuffer.getAndFlush());

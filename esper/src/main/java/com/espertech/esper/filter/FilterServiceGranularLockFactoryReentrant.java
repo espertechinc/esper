@@ -13,8 +13,7 @@ package com.espertech.esper.filter;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class FilterServiceGranularLockFactoryReentrant implements FilterServiceGranularLockFactory
-{
+public class FilterServiceGranularLockFactoryReentrant implements FilterServiceGranularLockFactory {
     public ReadWriteLock obtainNew() {
         return new ReentrantReadWriteLock();
     }

@@ -18,27 +18,26 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByRefcountedWAccessFactory extends AggregationServiceFactoryBase
-{
+public class AggSvcGroupByRefcountedWAccessFactory extends AggregationServiceFactoryBase {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
 
     /**
      * Ctor.
-     * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
-     * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
-     * @param accessors accessor definitions
+     *
+     * @param evaluators         - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
+     * @param prototypes         - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
+     *                           aggregation states for each group
+     * @param accessors          accessor definitions
      * @param accessAggregations access aggs
-     * @param isJoin true for join, false for single-stream
+     * @param isJoin             true for join, false for single-stream
      */
-    public AggSvcGroupByRefcountedWAccessFactory(ExprEvaluator evaluators[],
-                                                 AggregationMethodFactory prototypes[],
+    public AggSvcGroupByRefcountedWAccessFactory(ExprEvaluator[] evaluators,
+                                                 AggregationMethodFactory[] prototypes,
                                                  AggregationAccessorSlotPair[] accessors,
                                                  AggregationStateFactory[] accessAggregations,
-                                                 boolean isJoin)
-    {
+                                                 boolean isJoin) {
         super(evaluators, prototypes);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;

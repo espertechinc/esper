@@ -25,8 +25,7 @@ import java.util.Map;
 /**
  * Entry holding lookup resource references for use by {@link com.espertech.esper.core.context.subselect.SubSelectActivationCollection}.
  */
-public class SubSelectStrategyRealization
-{
+public class SubSelectStrategyRealization {
     private final SubordTableLookupStrategy strategy;
     private final SubselectAggregationPreprocessorBase subselectAggregationPreprocessor;
     private final AggregationService subselectAggregationService;

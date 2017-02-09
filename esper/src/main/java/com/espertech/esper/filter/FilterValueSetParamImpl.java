@@ -15,22 +15,21 @@ import java.io.StringWriter;
 /**
  * Filter parameter value defining the event property to filter, the filter operator, and the filter value.
  */
-public class FilterValueSetParamImpl implements FilterValueSetParam
-{
+public class FilterValueSetParamImpl implements FilterValueSetParam {
     private static final long serialVersionUID = 6010018248791276406L;
-    
+
     private final FilterSpecLookupable lookupable;
     private final FilterOperator filterOperator;
     private final Object filterValue;
 
     /**
      * Ctor.
-     * @param lookupable - stuff to use to interrogate
+     *
+     * @param lookupable     - stuff to use to interrogate
      * @param filterOperator - operator to apply
-     * @param filterValue - value to look for
+     * @param filterValue    - value to look for
      */
-    public FilterValueSetParamImpl(FilterSpecLookupable lookupable, FilterOperator filterOperator, Object filterValue)
-    {
+    public FilterValueSetParamImpl(FilterSpecLookupable lookupable, FilterOperator filterOperator, Object filterValue) {
         this.lookupable = lookupable;
         this.filterOperator = filterOperator;
         this.filterValue = filterValue;
@@ -40,13 +39,11 @@ public class FilterValueSetParamImpl implements FilterValueSetParam
         return lookupable;
     }
 
-    public FilterOperator getFilterOperator()
-    {
+    public FilterOperator getFilterOperator() {
         return filterOperator;
     }
 
-    public Object getFilterForValue()
-    {
+    public Object getFilterForValue() {
         return filterValue;
     }
 

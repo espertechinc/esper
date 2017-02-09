@@ -20,19 +20,18 @@ import org.slf4j.LoggerFactory;
  * Convenience view for dispatching view updates received from a parent view to update listeners
  * via the dispatch service.
  */
-public class UpdateDispatchViewBlockingWait extends UpdateDispatchViewBase
-{
+public class UpdateDispatchViewBlockingWait extends UpdateDispatchViewBase {
     private UpdateDispatchFutureWait currentFutureWait;
     private long msecTimeout;
 
     /**
      * Ctor.
-     * @param dispatchService - for performing the dispatch
-     * @param msecTimeout - timeout for preserving dispatch order through blocking
+     *
+     * @param dispatchService            - for performing the dispatch
+     * @param msecTimeout                - timeout for preserving dispatch order through blocking
      * @param statementResultServiceImpl - handles result delivery
      */
-    public UpdateDispatchViewBlockingWait(StatementResultService statementResultServiceImpl, DispatchService dispatchService, long msecTimeout)
-    {
+    public UpdateDispatchViewBlockingWait(StatementResultService statementResultServiceImpl, DispatchService dispatchService, long msecTimeout) {
         super(statementResultServiceImpl, dispatchService);
         this.currentFutureWait = new UpdateDispatchFutureWait(); // use a completed future as a start
         this.msecTimeout = msecTimeout;
@@ -42,15 +41,12 @@ public class UpdateDispatchViewBlockingWait extends UpdateDispatchViewBase
         newResult(new UniformPair<EventBean[]>(newData, oldData));
     }
 
-    public void newResult(UniformPair<EventBean[]> results)
-    {
+    public void newResult(UniformPair<EventBean[]> results) {
         statementResultService.indicate(results);
 
-        if (!isDispatchWaiting.get())
-        {
+        if (!isDispatchWaiting.get()) {
             UpdateDispatchFutureWait nextFutureWait;
-            synchronized(this)
-            {
+            synchronized (this) {
                 nextFutureWait = new UpdateDispatchFutureWait(this, currentFutureWait, msecTimeout);
                 currentFutureWait.setLater(nextFutureWait);
                 currentFutureWait = nextFutureWait;

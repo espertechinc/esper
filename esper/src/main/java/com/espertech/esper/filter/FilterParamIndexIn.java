@@ -24,8 +24,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  * (i.e. multiple possible exact matches).
  * The implementation is based on a regular HashMap.
  */
-public final class FilterParamIndexIn extends FilterParamIndexLookupableBase
-{
+public final class FilterParamIndexIn extends FilterParamIndexLookupableBase {
     private final Map<Object, List<EventEvaluator>> constantsMap;
     private final Map<MultiKeyUntyped, EventEvaluator> evaluatorsMap;
     private final ReadWriteLock constantsMapRWLock;
@@ -38,14 +37,12 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase
         constantsMapRWLock = readWriteLock;
     }
 
-    public final EventEvaluator get(Object filterConstant)
-    {
+    public final EventEvaluator get(Object filterConstant) {
         MultiKeyUntyped keyValues = (MultiKeyUntyped) filterConstant;
         return evaluatorsMap.get(keyValues);
     }
 
-    public final void put(Object filterConstant, EventEvaluator evaluator)
-    {
+    public final void put(Object filterConstant, EventEvaluator evaluator) {
         // Store evaluator keyed to set of values
         MultiKeyUntyped keys = (MultiKeyUntyped) filterConstant;
 
@@ -54,18 +51,13 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase
 
         // Store each value to match against in Map with it's evaluator as a list
         Object[] keyValues = keys.getKeys();
-        for (int i = 0; i < keyValues.length; i++)
-        {
+        for (int i = 0; i < keyValues.length; i++) {
             List<EventEvaluator> evaluators = constantsMap.get(keyValues[i]);
-            if (evaluators == null)
-            {
+            if (evaluators == null) {
                 evaluators = new LinkedList<EventEvaluator>();
                 constantsMap.put(keyValues[i], evaluators);
-            }
-            else
-            {
-                if (oldEvaluator != null)
-                {
+            } else {
+                if (oldEvaluator != null) {
                     evaluators.remove(oldEvaluator);
                 }
             }
@@ -73,27 +65,23 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase
         }
     }
 
-    public final boolean remove(Object filterConstant)
-    {
+    public final boolean remove(Object filterConstant) {
         MultiKeyUntyped keys = (MultiKeyUntyped) filterConstant;
 
         // remove the mapping of value set to evaluator
         EventEvaluator eval = evaluatorsMap.remove(keys);
         boolean isRemoved = false;
-        if (eval != null)
-        {
+        if (eval != null) {
             isRemoved = true;
         }
 
         Object[] keyValues = keys.getKeys();
-        for (int i = 0; i < keyValues.length; i++)
-        {
+        for (int i = 0; i < keyValues.length; i++) {
             List<EventEvaluator> evaluators = constantsMap.get(keyValues[i]);
-            if (evaluators != null) // could be removed already as same-value constants existed
-            {
+            if (evaluators != null) {
+                // could be removed already as same-value constants existed
                 evaluators.remove(eval);
-                if (evaluators.isEmpty())
-                {
+                if (evaluators.isEmpty()) {
                     constantsMap.remove(keyValues[i]);
                 }
             }
@@ -101,24 +89,24 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase
         return isRemoved;
     }
 
-    public final int size()
-    {
+    public final int size() {
         return constantsMap.size();
     }
 
-    public final ReadWriteLock getReadWriteLock()
-    {
+    public final ReadWriteLock getReadWriteLock() {
         return constantsMapRWLock;
     }
 
-    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public final void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         Object attributeValue = lookupable.getGetter().get(theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qFilterReverseIndex(this, attributeValue);
+        }
 
-        if (attributeValue == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(false);}
+        if (attributeValue == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aFilterReverseIndex(false);
+            }
             return;
         }
 
@@ -127,23 +115,24 @@ public final class FilterParamIndexIn extends FilterParamIndexLookupableBase
         List<EventEvaluator> evaluators = constantsMap.get(attributeValue);
 
         // No listener found for the value, return
-        if (evaluators == null)
-        {
+        if (evaluators == null) {
             constantsMapRWLock.readLock().unlock();
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(false);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aFilterReverseIndex(false);
+            }
             return;
         }
 
         try {
-            for (EventEvaluator evaluator : evaluators)
-            {
+            for (EventEvaluator evaluator : evaluators) {
                 evaluator.matchEvent(theEvent, matches);
             }
-        }
-        finally {
+        } finally {
             constantsMapRWLock.readLock().unlock();
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aFilterReverseIndex(null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aFilterReverseIndex(null);
+        }
     }
 
     private static final Logger log = LoggerFactory.getLogger(FilterParamIndexIn.class);

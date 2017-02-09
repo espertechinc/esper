@@ -10,39 +10,35 @@
  */
 package com.espertech.esper.epl.expression;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprLikeNode;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
+import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.supportunit.epl.SupportExprNode;
-import com.espertech.esper.supportunit.bean.SupportBean;
-import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.client.EventBean;
 
-public class TestExprLikeNode extends TestCase
-{
+public class TestExprLikeNode extends TestCase {
     private ExprLikeNode likeNodeNormal;
     private ExprLikeNode likeNodeNot;
     private ExprLikeNode likeNodeNormalEscaped;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         likeNodeNormal = SupportExprNodeFactory.makeLikeNode(false, null);
         likeNodeNot = SupportExprNodeFactory.makeLikeNode(true, null);
         likeNodeNormalEscaped = SupportExprNodeFactory.makeLikeNode(false, "!");
     }
 
-    public void testGetType()  throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(Boolean.class, likeNodeNormal.getType());
         assertEquals(Boolean.class, likeNodeNot.getType());
         assertEquals(Boolean.class, likeNodeNormalEscaped.getType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         // No subnodes: Exception is thrown.
         tryInvalidValidate(new ExprLikeNode(true));
 
@@ -69,8 +65,7 @@ public class TestExprLikeNode extends TestCase
         likeNodeNormal.addChildNode(new SupportExprNode(5));
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         // Build :      s0.string like "%abc__"  (with or witout escape)
         assertFalse((Boolean) likeNodeNormal.evaluate(makeEvent("abcx"), false, null));
         assertTrue((Boolean) likeNodeNormal.evaluate(makeEvent("dskfsljkdfabcxx"), false, null));
@@ -78,8 +73,7 @@ public class TestExprLikeNode extends TestCase
         assertFalse((Boolean) likeNodeNot.evaluate(makeEvent("dskfsljkdfabcxx"), false, null));
     }
 
-    public void testEquals()  throws Exception
-    {
+    public void testEquals() throws Exception {
         ExprLikeNode otherLikeNodeNot = SupportExprNodeFactory.makeLikeNode(true, "@");
         ExprLikeNode otherLikeNodeNot2 = SupportExprNodeFactory.makeLikeNode(true, "!");
 
@@ -88,28 +82,23 @@ public class TestExprLikeNode extends TestCase
         assertFalse(likeNodeNormal.equalsNode(otherLikeNodeNot));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         assertEquals("s0.theString like \"%abc__\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(likeNodeNormal));
         assertEquals("s0.theString not like \"%abc__\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(likeNodeNot));
         assertEquals("s0.theString like \"%abc__\" escape \"!\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(likeNodeNormalEscaped));
     }
 
-    private EventBean[] makeEvent(String stringValue)
-    {
+    private EventBean[] makeEvent(String stringValue) {
         SupportBean theEvent = new SupportBean();
         theEvent.setTheString(stringValue);
-        return new EventBean[] {SupportEventBeanFactory.createObject(theEvent)};
+        return new EventBean[]{SupportEventBeanFactory.createObject(theEvent)};
     }
 
-    private void tryInvalidValidate(ExprLikeNode exprLikeRegexpNode) throws Exception
-    {
+    private void tryInvalidValidate(ExprLikeNode exprLikeRegexpNode) throws Exception {
         try {
             exprLikeRegexpNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }

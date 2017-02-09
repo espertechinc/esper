@@ -10,23 +10,19 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.event.EventBeanCopyMethod;
-import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.util.SerializableObjectCopier;
+import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventBeanCopyMethod;
+import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-
-import net.sf.cglib.reflect.FastMethod;
 
 /**
  * Copies an event for modification.
  */
-public class BeanEventBeanConfiguredCopyMethod implements EventBeanCopyMethod
-{
+public class BeanEventBeanConfiguredCopyMethod implements EventBeanCopyMethod {
     private static final Logger log = LoggerFactory.getLogger(BeanEventBeanConfiguredCopyMethod.class);
 
     private final BeanEventType beanEventType;
@@ -35,32 +31,26 @@ public class BeanEventBeanConfiguredCopyMethod implements EventBeanCopyMethod
 
     /**
      * Ctor.
-     * @param beanEventType type of bean to copy
+     *
+     * @param beanEventType       type of bean to copy
      * @param eventAdapterService for creating events
-     * @param copyMethod method to copy the event
+     * @param copyMethod          method to copy the event
      */
-    public BeanEventBeanConfiguredCopyMethod(BeanEventType beanEventType, EventAdapterService eventAdapterService, FastMethod copyMethod)
-    {
+    public BeanEventBeanConfiguredCopyMethod(BeanEventType beanEventType, EventAdapterService eventAdapterService, FastMethod copyMethod) {
         this.beanEventType = beanEventType;
         this.eventAdapterService = eventAdapterService;
         this.copyMethod = copyMethod;
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         Object underlying = theEvent.getUnderlying();
         Object copied;
-        try
-        {
+        try {
             copied = copyMethod.invoke(underlying, null);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             log.error("InvocationTargetException copying event object for update: " + e.getMessage(), e);
             return null;
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("RuntimeException copying event object for update: " + e.getMessage(), e);
             return null;
         }

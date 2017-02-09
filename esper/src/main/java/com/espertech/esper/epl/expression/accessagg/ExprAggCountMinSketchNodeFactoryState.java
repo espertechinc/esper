@@ -24,8 +24,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Arrays;
 
-public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketchNodeFactoryBase
-{
+public class ExprAggCountMinSketchNodeFactoryState extends ExprAggCountMinSketchNodeFactoryBase {
     private final AggregationStateFactoryCountMinSketch stateFactory;
 
     public ExprAggCountMinSketchNodeFactoryState(AggregationStateFactoryCountMinSketch stateFactory) {

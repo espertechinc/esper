@@ -13,10 +13,8 @@ package com.espertech.esper.epl.agg;
 import com.espertech.esper.epl.agg.aggregator.AggregatorAvg;
 import junit.framework.TestCase;
 
-public class TestAvgAggregator extends TestCase
-{
-    public void testResult()
-    {
+public class TestAvgAggregator extends TestCase {
+    public void testResult() {
         AggregatorAvg agg = new AggregatorAvg();
         agg.enter(100);
         assertEquals(100d, agg.getValue());

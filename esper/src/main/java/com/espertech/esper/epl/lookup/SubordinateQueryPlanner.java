@@ -24,8 +24,7 @@ import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class SubordinateQueryPlanner
-{
+public class SubordinateQueryPlanner {
     public static SubordinateWMatchExprQueryPlanResult planOnExpression(
             ExprNode joinExpr,
             EventType filterEventType,
@@ -40,10 +39,9 @@ public class SubordinateQueryPlanner
             boolean onlyUseExistingIndexes,
             String statementName,
             int statementId,
-            Annotation[] annotations)
-    {
-        EventType[] allStreamsZeroIndexed = new EventType[] {eventTypeIndexed, filterEventType};
-        EventType[] outerStreams = new EventType[] {filterEventType};
+            Annotation[] annotations) {
+        EventType[] allStreamsZeroIndexed = new EventType[]{eventTypeIndexed, filterEventType};
+        EventType[] outerStreams = new EventType[]{filterEventType};
         SubordPropPlan joinedPropPlan = QueryPlanIndexBuilder.getJoinProps(joinExpr, 1, allStreamsZeroIndexed, excludePlanHint);
 
         // No join expression means all
@@ -61,8 +59,7 @@ public class SubordinateQueryPlanner
         if (joinExpr == null) {   // it can be null when using virtual data window
             return new SubordinateWMatchExprQueryPlanResult(
                     new SubordWMatchExprLookupStrategyFactoryIndexedUnfiltered(queryPlanDesc.getLookupStrategyFactory()), queryPlanDesc.getIndexDescs());
-        }
-        else {
+        } else {
             return new SubordinateWMatchExprQueryPlanResult(
                     new SubordWMatchExprLookupStrategyFactoryIndexedFiltered(joinExpr.getExprEvaluator(), queryPlanDesc.getLookupStrategyFactory()), queryPlanDesc.getIndexDescs());
         }
@@ -114,10 +111,9 @@ public class SubordinateQueryPlanner
                 return null;
             }
             SubordinateQueryIndexDesc desc = new SubordinateQueryIndexDesc(indexDesc.getIndexKeyInfo(), indexDesc.getIndexName(), indexDesc.getIndexMultiKey(), indexDesc.getQueryPlanIndexItem());
-            indexDescs = new SubordinateQueryIndexDesc[] {desc};
+            indexDescs = new SubordinateQueryIndexDesc[]{desc};
             inKeywordSingleIdxKeys = single.getExpressions();
-        }
-        else if (joinDesc.getInKeywordMultiIndex() != null) {
+        } else if (joinDesc.getInKeywordMultiIndex() != null) {
             SubordPropInKeywordMultiIndex multi = joinDesc.getInKeywordMultiIndex();
 
             indexDescs = new SubordinateQueryIndexDesc[multi.getIndexedProp().length];
@@ -133,8 +129,7 @@ public class SubordinateQueryPlanner
                 indexDescs[i] = indexDesc;
             }
             inKeywordMultiIdxKey = multi.getExpression();
-        }
-        else {
+        } else {
             SubordinateQueryIndexDesc indexDesc = findOrSuggestIndex(joinDesc.getHashProps(),
                     joinDesc.getRangeProps(), optionalIndexHint, false, subqueryNumber,
                     indexMetadata, optionalUniqueKeyProps, onlyUseExistingIndexes);
@@ -147,7 +142,7 @@ public class SubordinateQueryPlanner
             rangeKeys = indexKeyInfo.getOrderedRangeDesc();
             rangeKeyCoercionTypes = indexKeyInfo.getOrderedRangeCoercionTypes();
             SubordinateQueryIndexDesc desc = new SubordinateQueryIndexDesc(indexDesc.getIndexKeyInfo(), indexDesc.getIndexName(), indexDesc.getIndexMultiKey(), indexDesc.getQueryPlanIndexItem());
-            indexDescs = new SubordinateQueryIndexDesc[] {desc};
+            indexDescs = new SubordinateQueryIndexDesc[]{desc};
         }
 
         if (forceTableScan) {
@@ -244,9 +239,8 @@ public class SubordinateQueryPlanner
                     indexProps.getRangeIndexPropsProvided(), indexProps.getRangeJoinedProps());
             indexName = existing.getSecond();
             indexMultiKey = existing.getFirst();
-        }
-        // handle planned
-        else {
+        } else {
+            // handle planned
             indexKeyInfo = SubordinateQueryPlannerUtil.compileIndexKeyInfo(planned.getSecond(),
                     indexProps.getHashIndexPropsProvided(), indexProps.getHashJoinedProps(),
                     indexProps.getRangeIndexPropsProvided(), indexProps.getRangeJoinedProps());
@@ -290,9 +284,9 @@ public class SubordinateQueryPlanner
     }
 
     private static Pair<QueryPlanIndexItem, IndexMultiKey> planIndex(boolean unique,
-                                                List<IndexedPropDesc> hashProps,
-                                                List<IndexedPropDesc> btreeProps,
-                                                boolean mustCoerce) {
+                                                                     List<IndexedPropDesc> hashProps,
+                                                                     List<IndexedPropDesc> btreeProps,
+                                                                     boolean mustCoerce) {
 
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = new IndexMultiKey(unique, hashProps, btreeProps);

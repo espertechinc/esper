@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprStreamRefNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExprNodeStreamUseCollectVisitor implements ExprNodeVisitor
-{
+public class ExprNodeStreamUseCollectVisitor implements ExprNodeVisitor {
     private final List<ExprStreamRefNode> referenced = new ArrayList<ExprStreamRefNode>();
 
     public boolean isVisit(ExprNode exprNode) {

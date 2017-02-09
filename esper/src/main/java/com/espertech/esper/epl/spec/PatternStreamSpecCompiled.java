@@ -26,8 +26,7 @@ import java.util.LinkedHashSet;
  * A pattern statement contains tagged events (i.e. a=A -&gt; b=B).
  * Thus the resulting event type is has properties "a" and "b" of the type of A and B.
  */
-public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamSpecCompiled
-{
+public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamSpecCompiled {
     private final EvalFactoryNode evalFactoryNode;
     private final LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes;       // Stores types for filters with tags, single event
     private final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;       // Stores types for filters with tags, array event
@@ -36,8 +35,7 @@ public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamS
     private final boolean discardPartialsOnMatch;
     private static final long serialVersionUID = 1268004301792124753L;
 
-    public PatternStreamSpecCompiled(EvalFactoryNode evalFactoryNode, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTags, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions, boolean suppressSameEventMatches, boolean discardPartialsOnMatch)
-    {
+    public PatternStreamSpecCompiled(EvalFactoryNode evalFactoryNode, LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, LinkedHashSet<String> allTags, ViewSpec[] viewSpecs, String optionalStreamName, StreamSpecOptions streamSpecOptions, boolean suppressSameEventMatches, boolean discardPartialsOnMatch) {
         super(optionalStreamName, viewSpecs, streamSpecOptions);
         this.suppressSameEventMatches = suppressSameEventMatches;
         this.discardPartialsOnMatch = discardPartialsOnMatch;
@@ -55,28 +53,28 @@ public class PatternStreamSpecCompiled extends StreamSpecBase implements StreamS
 
     /**
      * Returns the pattern expression evaluation node for the top pattern operator.
+     *
      * @return parent pattern expression node
      */
-    public EvalFactoryNode getEvalFactoryNode()
-    {
+    public EvalFactoryNode getEvalFactoryNode() {
         return evalFactoryNode;
     }
 
     /**
      * Returns event types tagged in the pattern expression.
+     *
      * @return map of tag and event type tagged in pattern expression
      */
-    public LinkedHashMap<String, Pair<EventType, String>> getTaggedEventTypes()
-    {
+    public LinkedHashMap<String, Pair<EventType, String>> getTaggedEventTypes() {
         return taggedEventTypes;
     }
 
     /**
      * Returns event types tagged in the pattern expression under a repeat-operator.
+     *
      * @return map of tag and event type tagged in pattern expression, repeated an thus producing array events
      */
-    public LinkedHashMap<String, Pair<EventType, String>> getArrayEventTypes()
-    {
+    public LinkedHashMap<String, Pair<EventType, String>> getArrayEventTypes() {
         return arrayEventTypes;
     }
 

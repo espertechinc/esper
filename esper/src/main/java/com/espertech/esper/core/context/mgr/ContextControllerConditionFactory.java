@@ -30,25 +30,20 @@ public class ContextControllerConditionFactory {
             ContextDetailConditionCrontab crontab = (ContextDetailConditionCrontab) endpoint;
             long scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
             return new ContextControllerConditionCrontab(agentInstanceContext.getStatementContext(), scheduleSlot, crontab, callback, filterAddendum);
-        }
-        else if (endpoint instanceof ContextDetailConditionFilter) {
+        } else if (endpoint instanceof ContextDetailConditionFilter) {
             ContextDetailConditionFilter filter = (ContextDetailConditionFilter) endpoint;
             return new ContextControllerConditionFilter(servicesContext, agentInstanceContext, filter, callback, filterAddendum);
-        }
-        else if (endpoint instanceof ContextDetailConditionPattern) {
+        } else if (endpoint instanceof ContextDetailConditionPattern) {
             ContextStatePathKey key = new ContextStatePathKey(nestingLevel, pathId, subpathId);
             ContextDetailConditionPattern pattern = (ContextDetailConditionPattern) endpoint;
             return new ContextControllerConditionPattern(servicesContext, agentInstanceContext, pattern, callback, filterAddendum, isStartEndpoint, key);
-        }
-        else if (endpoint instanceof ContextDetailConditionTimePeriod) {
+        } else if (endpoint instanceof ContextDetailConditionTimePeriod) {
             ContextDetailConditionTimePeriod timePeriod = (ContextDetailConditionTimePeriod) endpoint;
             long scheduleSlot = agentInstanceContext.getStatementContext().getScheduleBucket().allocateSlot();
             return new ContextControllerConditionTimePeriod(contextName, agentInstanceContext, scheduleSlot, timePeriod, callback, filterAddendum);
-        }
-        else if (endpoint instanceof ContextDetailConditionImmediate) {
+        } else if (endpoint instanceof ContextDetailConditionImmediate) {
             return new ContextControllerConditionImmediate();
-        }
-        else if (endpoint instanceof ContextDetailConditionNever) {
+        } else if (endpoint instanceof ContextDetailConditionNever) {
             return new ContextControllerConditionNever();
         }
         throw new IllegalStateException("Unrecognized context range endpoint " + endpoint.getClass());

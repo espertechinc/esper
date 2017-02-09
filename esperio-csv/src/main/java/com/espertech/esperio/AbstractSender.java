@@ -10,9 +10,9 @@
  */
 package com.espertech.esperio;
 
-import java.util.Map;
-
 import com.espertech.esper.client.EPRuntime;
+
+import java.util.Map;
 
 /**
  * Sender that abstracts the send processin terms of threading or further pre-processing.

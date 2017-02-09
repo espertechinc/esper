@@ -28,8 +28,7 @@ import org.w3c.dom.Node;
  * Allows sending only event objects of type Node or Document, does check the root name of the XML document
  * which must match the event type root name as configured. Any other event object generates an error.
  */
-public class EventSenderXMLDOM implements EventSender
-{
+public class EventSenderXMLDOM implements EventSender {
     private final EPRuntimeEventSender runtimeEventSender;
     private final BaseXMLEventType baseXMLEventType;
     private final boolean validateRootElement;
@@ -38,73 +37,56 @@ public class EventSenderXMLDOM implements EventSender
 
     /**
      * Ctor.
-     * @param runtimeEventSender for processing events
-     * @param baseXMLEventType the event type
-     * @param threadingService for inbound threading
+     *
+     * @param runtimeEventSender  for processing events
+     * @param baseXMLEventType    the event type
+     * @param threadingService    for inbound threading
      * @param eventAdapterService for event bean creation
      */
-    public EventSenderXMLDOM(EPRuntimeEventSender runtimeEventSender, BaseXMLEventType baseXMLEventType, EventAdapterService eventAdapterService, ThreadingService threadingService)
-    {
+    public EventSenderXMLDOM(EPRuntimeEventSender runtimeEventSender, BaseXMLEventType baseXMLEventType, EventAdapterService eventAdapterService, ThreadingService threadingService) {
         this.runtimeEventSender = runtimeEventSender;
         this.baseXMLEventType = baseXMLEventType;
         this.validateRootElement = baseXMLEventType.getConfigurationEventTypeXMLDOM().isEventSenderValidatesRoot();
         this.eventAdapterService = eventAdapterService;
-        this.threadingService = threadingService;        
+        this.threadingService = threadingService;
     }
 
-    public void sendEvent(Object theEvent) throws EPException
-    {
+    public void sendEvent(Object theEvent) throws EPException {
         sendEvent(theEvent, false);
     }
 
-    public void route(Object theEvent) throws EPException
-    {
+    public void route(Object theEvent) throws EPException {
         sendEvent(theEvent, true);
     }
 
-    private void sendEvent(Object node, boolean isRoute) throws EPException
-    {
+    private void sendEvent(Object node, boolean isRoute) throws EPException {
         Node namedNode;
-        if (node instanceof Document)
-        {
+        if (node instanceof Document) {
             namedNode = ((Document) node).getDocumentElement();
-        }
-        else if (node instanceof Element)
-        {
+        } else if (node instanceof Element) {
             namedNode = (Element) node;
-        }
-        else
-        {
+        } else {
             throw new EPException("Unexpected event object type '" + node.getClass().getName() + "' encountered, please supply a org.w3c.dom.Document or Element node");
         }
 
-        if (validateRootElement)
-        {
+        if (validateRootElement) {
             String getNodeName = namedNode.getLocalName();
-            if (getNodeName == null)
-            {
+            if (getNodeName == null) {
                 getNodeName = namedNode.getNodeName();
             }
 
-            if (!getNodeName.equals(baseXMLEventType.getRootElementName()))
-            {
+            if (!getNodeName.equals(baseXMLEventType.getRootElementName())) {
                 throw new EPException("Unexpected root element name '" + getNodeName + "' encountered, expected a root element name of '" + baseXMLEventType.getRootElementName() + "'");
             }
         }
 
         EventBean theEvent = eventAdapterService.adapterForTypedDOM(namedNode, baseXMLEventType);
-        if (isRoute)
-        {
+        if (isRoute) {
             runtimeEventSender.routeEventBean(theEvent);
-        }
-        else
-        {
-            if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading()))
-            {
+        } else {
+            if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading())) {
                 threadingService.submitInbound(new InboundUnitSendWrapped(theEvent, runtimeEventSender));
-            }
-            else
-            {
+            } else {
                 runtimeEventSender.processWrappedEvent(theEvent);
             }
         }

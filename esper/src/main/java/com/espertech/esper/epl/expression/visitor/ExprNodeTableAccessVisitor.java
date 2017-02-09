@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 
 import java.util.Set;
 
-public class ExprNodeTableAccessVisitor implements ExprNodeVisitor
-{
+public class ExprNodeTableAccessVisitor implements ExprNodeVisitor {
     private final Set<ExprTableAccessNode> nodesToAddTo;
 
     public ExprNodeTableAccessVisitor(Set<ExprTableAccessNode> nodesToAddTo) {

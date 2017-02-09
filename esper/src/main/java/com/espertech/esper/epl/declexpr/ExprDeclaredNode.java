@@ -20,18 +20,20 @@ import java.util.Map;
 
 /**
  * Expression instance as declared elsewhere.
- *
+ * <p>
  * (1) Statement parse: Expression tree from expression body gets deep-copied.
  * (2) Statement create (lifecyle event): Subselect visitor compiles Subselect-list
  * (3) Statement start:
- *     a) event types of each stream determined
- *     b) subselects filter expressions get validated and subselect started
+ * a) event types of each stream determined
+ * b) subselects filter expressions get validated and subselect started
  * (4) Remaining expressions get validated
  */
-public interface ExprDeclaredNode extends ExprNode
-{
+public interface ExprDeclaredNode extends ExprNode {
     public List<ExprNode> getChainParameters();
+
     public ExpressionDeclItem getPrototype();
+
     public LinkedHashMap<String, Integer> getOuterStreamNames(Map<String, Integer> outerStreamNames) throws ExprValidationException;
+
     public ExprNode getBody();
 }

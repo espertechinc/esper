@@ -17,19 +17,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Expression for use within crontab to specify a list of values.
  */
-public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator {
     private static final Logger log = LoggerFactory.getLogger(ExprNumberSetList.class);
     private transient ExprEvaluator[] evaluators;
     private static final long serialVersionUID = 4941618470342360450L;
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
@@ -38,8 +39,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator
 
         writer.append('[');
         Iterator<ExprNode> it = Arrays.asList(this.getChildNodes()).iterator();
-        do
-        {
+        do {
             ExprNode expr = it.next();
             writer.append(delimiter);
             expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
@@ -53,60 +53,47 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean isConstantResult()
-    {
-        for (ExprNode child : this.getChildNodes())
-        {
-            if (!child.isConstantResult())
-            {
+    public boolean isConstantResult() {
+        for (ExprNode child : this.getChildNodes()) {
+            if (!child.isConstantResult()) {
                 return false;
             }
         }
         return true;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        return (node instanceof ExprNumberSetList);
+    public boolean equalsNode(ExprNode node) {
+        return node instanceof ExprNumberSetList;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // all nodes must either be int, frequency or range
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Class type = child.getType();
-            if ((type == FrequencyParameter.class) || (type == RangeParameter.class))
-            {
+            if ((type == FrequencyParameter.class) || (type == RangeParameter.class)) {
                 continue;
             }
-            if (!(JavaClassHelper.isNumericNonFP(type)))
-            {
+            if (!(JavaClassHelper.isNumericNonFP(type))) {
                 throw new ExprValidationException("Frequency operator requires an integer-type parameter");
             }
         }
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return ListParameter.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         List<NumberSetParameter> parameters = new ArrayList<NumberSetParameter>();
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Object value = child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (value == null)
-            {
+            if (value == null) {
                 log.info("Null value returned for lower bounds value in list parameter, skipping parameter");
                 continue;
             }
-            if ((value instanceof FrequencyParameter) || (value instanceof RangeParameter))
-            {
+            if ((value instanceof FrequencyParameter) || (value instanceof RangeParameter)) {
                 parameters.add((NumberSetParameter) value);
                 continue;
             }
@@ -114,8 +101,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator
             int intValue = ((Number) value).intValue();
             parameters.add(new IntParameter(intValue));
         }
-        if (parameters.isEmpty())
-        {
+        if (parameters.isEmpty()) {
             log.warn("Empty list of values in list parameter, using upper bounds");
             parameters.add(new IntParameter(Integer.MAX_VALUE));
         }

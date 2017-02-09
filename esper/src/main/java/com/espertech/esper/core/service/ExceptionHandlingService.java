@@ -58,8 +58,7 @@ public class ExceptionHandlingService {
             StringWriter writer = new StringWriter();
             if (type == ExceptionHandlerExceptionType.PROCESS) {
                 writer.append("Exception encountered processing ");
-            }
-            else {
+            } else {
                 writer.append("Exception encountered performing instance stop for ");
             }
             writer.append("statement '");
@@ -72,8 +71,7 @@ public class ExceptionHandlingService {
 
             if (type == ExceptionHandlerExceptionType.PROCESS) {
                 log.error(message, ex);
-            }
-            else {
+            } else {
                 log.warn(message, ex);
             }
             return;

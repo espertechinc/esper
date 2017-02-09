@@ -12,7 +12,6 @@ package com.espertech.esper.epl.expression.time;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public interface ExprTimePeriodEvalDeltaConstFactory
-{
+public interface ExprTimePeriodEvalDeltaConstFactory {
     ExprTimePeriodEvalDeltaConst make(String validateMsgName, String validateMsgValue, AgentInstanceContext agentInstanceContext);
 }

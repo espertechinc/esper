@@ -12,12 +12,12 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.util.JavaClassHelper;
@@ -62,8 +62,7 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
                     return Double.class;
                 }
             };
-        }
-        else if (evalType == BigDecimal.class) {
+        } else if (evalType == BigDecimal.class) {
             return new ExprDotEvalSumMethodFactory() {
                 public ExprDotEvalSumMethod getSumAggregator() {
                     return new ExprDotEvalSumMethodBigDecimal();
@@ -73,8 +72,7 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
                     return BigDecimal.class;
                 }
             };
-        }
-        else if (evalType == BigInteger.class) {
+        } else if (evalType == BigInteger.class) {
             return new ExprDotEvalSumMethodFactory() {
                 public ExprDotEvalSumMethod getSumAggregator() {
                     return new ExprDotEvalSumMethodBigInteger();
@@ -84,8 +82,7 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
                     return BigInteger.class;
                 }
             };
-        }
-        else if (JavaClassHelper.getBoxedType(evalType) == Long.class) {
+        } else if (JavaClassHelper.getBoxedType(evalType) == Long.class) {
             return new ExprDotEvalSumMethodFactory() {
                 public ExprDotEvalSumMethod getSumAggregator() {
                     return new ExprDotEvalSumMethodLong();
@@ -95,8 +92,7 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
                     return Long.class;
                 }
             };
-        }
-        else {
+        } else {
             return new ExprDotEvalSumMethodFactory() {
                 public ExprDotEvalSumMethod getSumAggregator() {
                     return new ExprDotEvalSumMethodInteger();
@@ -113,20 +109,16 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
         protected double sum;
         protected long numDataPoints;
 
-        public void enter(Object object)
-        {
-            if (object == null)
-            {
+        public void enter(Object object) {
+            if (object == null) {
                 return;
             }
             numDataPoints++;
             sum += (Double) object;
         }
 
-        public Object getValue()
-        {
-            if (numDataPoints == 0)
-            {
+        public Object getValue() {
+            if (numDataPoints == 0) {
                 return null;
             }
             return sum;
@@ -137,25 +129,20 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
         protected BigDecimal sum;
         protected long numDataPoints;
 
-        public ExprDotEvalSumMethodBigDecimal()
-        {
+        public ExprDotEvalSumMethodBigDecimal() {
             sum = new BigDecimal(0.0);
         }
 
-        public void enter(Object object)
-        {
-            if (object == null)
-            {
+        public void enter(Object object) {
+            if (object == null) {
                 return;
             }
             numDataPoints++;
-            sum = sum.add((BigDecimal)object);
+            sum = sum.add((BigDecimal) object);
         }
 
-        public Object getValue()
-        {
-            if (numDataPoints == 0)
-            {
+        public Object getValue() {
+            if (numDataPoints == 0) {
                 return null;
             }
             return sum;
@@ -166,25 +153,20 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
         protected BigInteger sum;
         protected long numDataPoints;
 
-        public ExprDotEvalSumMethodBigInteger()
-        {
+        public ExprDotEvalSumMethodBigInteger() {
             sum = BigInteger.valueOf(0);
         }
 
-        public void enter(Object object)
-        {
-            if (object == null)
-            {
+        public void enter(Object object) {
+            if (object == null) {
                 return;
             }
             numDataPoints++;
-            sum = sum.add((BigInteger)object);
+            sum = sum.add((BigInteger) object);
         }
 
-        public Object getValue()
-        {
-            if (numDataPoints == 0)
-            {
+        public Object getValue() {
+            if (numDataPoints == 0) {
                 return null;
             }
             return sum;
@@ -195,20 +177,16 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
         protected long sum;
         protected long numDataPoints;
 
-        public void enter(Object object)
-        {
-            if (object == null)
-            {
+        public void enter(Object object) {
+            if (object == null) {
                 return;
             }
             numDataPoints++;
             sum += (Long) object;
         }
 
-        public Object getValue()
-        {
-            if (numDataPoints == 0)
-            {
+        public Object getValue() {
+            if (numDataPoints == 0) {
                 return null;
             }
             return sum;
@@ -219,20 +197,16 @@ public class ExprDotEvalSumOf extends ExprDotEvalEnumMethodBase {
         protected int sum;
         protected long numDataPoints;
 
-        public void enter(Object object)
-        {
-            if (object == null)
-            {
+        public void enter(Object object) {
+            if (object == null) {
                 return;
             }
             numDataPoints++;
             sum += (Integer) object;
         }
 
-        public Object getValue()
-        {
-            if (numDataPoints == 0)
-            {
+        public Object getValue() {
+            if (numDataPoints == 0) {
                 return null;
             }
             return sum;

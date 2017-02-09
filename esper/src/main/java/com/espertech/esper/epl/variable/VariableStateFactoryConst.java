@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.variable;
 
-public class VariableStateFactoryConst implements VariableStateFactory
-{
+public class VariableStateFactoryConst implements VariableStateFactory {
     private final Object initialState;
 
     public VariableStateFactoryConst(Object initialState) {

@@ -29,8 +29,7 @@ import java.util.Map;
 /**
  * This class represents an arbitrary expression node returning a boolean value as a filter parameter in an {@link FilterSpecCompiled} filter specification.
  */
-public final class FilterSpecParamExprNode extends FilterSpecParam
-{
+public final class FilterSpecParamExprNode extends FilterSpecParam {
     private final ExprNode exprNode;
     private final LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes;
     private final LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes;
@@ -49,22 +48,20 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
     private static final long serialVersionUID = 2298436088557677833L;
 
     public FilterSpecParamExprNode(FilterSpecLookupable lookupable,
-                             FilterOperator filterOperator,
-                             ExprNode exprNode,
-                             LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
-                             LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
-                             VariableService variableService,
-                             TableService tableService,
-                             EventAdapterService eventAdapterService,
-                             FilterBooleanExpressionFactory filterBooleanExpressionFactory,
-                             ConfigurationInformation configurationInformation,
-                             boolean hasSubquery,
-                             boolean hasTableAccess)
-        throws IllegalArgumentException
-    {
+                                   FilterOperator filterOperator,
+                                   ExprNode exprNode,
+                                   LinkedHashMap<String, Pair<EventType, String>> taggedEventTypes,
+                                   LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes,
+                                   VariableService variableService,
+                                   TableService tableService,
+                                   EventAdapterService eventAdapterService,
+                                   FilterBooleanExpressionFactory filterBooleanExpressionFactory,
+                                   ConfigurationInformation configurationInformation,
+                                   boolean hasSubquery,
+                                   boolean hasTableAccess)
+            throws IllegalArgumentException {
         super(lookupable, filterOperator);
-        if (filterOperator != FilterOperator.BOOLEAN_EXPRESSION)
-        {
+        if (filterOperator != FilterOperator.BOOLEAN_EXPRESSION) {
             throw new IllegalArgumentException("Invalid filter operator for filter expression node");
         }
         this.exprNode = exprNode;
@@ -85,47 +82,41 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
 
     /**
      * Returns the expression node of the boolean expression this filter parameter represents.
+     *
      * @return expression node
      */
-    public ExprNode getExprNode()
-    {
+    public ExprNode getExprNode() {
         return exprNode;
     }
 
     /**
      * Returns the map of tag/stream names to event types that the filter expressions map use (for patterns)
+     *
      * @return map
      */
-    public LinkedHashMap<String, Pair<EventType, String>> getTaggedEventTypes()
-    {
+    public LinkedHashMap<String, Pair<EventType, String>> getTaggedEventTypes() {
         return taggedEventTypes;
     }
 
-    public final ExprNodeAdapterBase getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
-    {
+    public final ExprNodeAdapterBase getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
         EventBean[] events = null;
 
-        if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty()))
-        {
+        if ((taggedEventTypes != null && !taggedEventTypes.isEmpty()) || (arrayEventTypes != null && !arrayEventTypes.isEmpty())) {
             int size = 0;
             size += (taggedEventTypes != null) ? taggedEventTypes.size() : 0;
             size += (arrayEventTypes != null) ? arrayEventTypes.size() : 0;
             events = new EventBean[size + 1];
 
             int count = 1;
-            if (taggedEventTypes != null)
-            {
-                for (String tag : taggedEventTypes.keySet())
-                {
+            if (taggedEventTypes != null) {
+                for (String tag : taggedEventTypes.keySet()) {
                     events[count] = matchedEvents.getMatchingEventByTag(tag);
                     count++;
                 }
             }
 
-            if (arrayEventTypes != null)
-            {
-                for (Map.Entry<String, Pair<EventType, String>> entry : arrayEventTypes.entrySet())
-                {
+            if (arrayEventTypes != null) {
+                for (Map.Entry<String, Pair<EventType, String>> entry : arrayEventTypes.entrySet()) {
                     EventType compositeEventType = entry.getValue().getFirst();
                     events[count] = eventAdapterService.adapterForTypedMap(matchedEvents.getMatchingEventsAsMap(), compositeEventType);
                     count++;
@@ -136,39 +127,32 @@ public final class FilterSpecParamExprNode extends FilterSpecParam
         return filterBooleanExpressionFactory.make(this, events, agentInstanceContext, agentInstanceContext.getStatementContext(), agentInstanceContext.getAgentInstanceId());
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return super.toString() + "  exprNode=" + exprNode.toString();
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof FilterSpecParamExprNode))
-        {
+        if (!(obj instanceof FilterSpecParamExprNode)) {
             return false;
         }
 
         FilterSpecParamExprNode other = (FilterSpecParamExprNode) obj;
-        if (!super.equals(other))
-        {
+        if (!super.equals(other)) {
             return false;
         }
 
-        if (exprNode != other.exprNode)
-        {
+        if (exprNode != other.exprNode) {
             return false;
         }
 
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + exprNode.hashCode();
         return result;

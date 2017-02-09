@@ -12,9 +12,9 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class TestObjectArrayEventBean extends TestCase
-{
+public class TestObjectArrayEventBean extends TestCase {
     private String[] testProps;
     private Object[] testTypes;
     private Object[] testValues;
@@ -33,24 +32,22 @@ public class TestObjectArrayEventBean extends TestCase
 
     private SupportBeanComplexProps supportBean = SupportBeanComplexProps.makeDefaultBean();
 
-    public void setUp()
-    {
-        testProps = new String[] {"aString", "anInt", "myComplexBean"};
-        testTypes = new Object[] {String.class, Integer.class, SupportBeanComplexProps.class};
+    public void setUp() {
+        testProps = new String[]{"aString", "anInt", "myComplexBean"};
+        testTypes = new Object[]{String.class, Integer.class, SupportBeanComplexProps.class};
         Map<String, Object> typeRep = new LinkedHashMap<String, Object>();
         for (int i = 0; i < testProps.length; i++) {
             typeRep.put(testProps[i], testTypes[i]);
         }
 
-        testValues = new Object[] {"test", 10, supportBean};
+        testValues = new Object[]{"test", 10, supportBean};
 
         EventTypeMetadata metadata = EventTypeMetadata.createNonPojoApplicationType(EventTypeMetadata.ApplicationType.OBJECTARR, "testtype", true, true, true, false, false);
         eventType = new ObjectArrayEventType(metadata, "", 1, SupportEventAdapterService.getService(), typeRep, null, null, null);
         eventBean = new ObjectArrayEventBean(testValues, eventType);
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         assertEquals(eventType, eventBean.getEventType());
         assertEquals(testValues, eventBean.getUnderlying());
 
@@ -60,13 +57,10 @@ public class TestObjectArrayEventBean extends TestCase
         assertEquals("nestedValue", eventBean.get("myComplexBean.nested.nestedValue"));
 
         // test wrong property name
-        try
-        {
+        try {
             eventBean.get("dummy");
             assertTrue(false);
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // Expected
             log.debug(".testGetter Expected exception, msg=" + ex.getMessage());
         }

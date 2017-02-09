@@ -14,16 +14,15 @@ package com.espertech.esper.client;
  * This exception is thrown to indicate that a subscriber registration failed
  * such as when the subscribe does not expose an acceptable method to receive statement results.
  */
-public class EPSubscriberException extends EPException
-{
+public class EPSubscriberException extends EPException {
     private static final long serialVersionUID = -2217801048068728940L;
 
     /**
      * Ctor.
+     *
      * @param message - error message
      */
-    public EPSubscriberException(final String message)
-    {
+    public EPSubscriberException(final String message) {
         super(message);
     }
 }

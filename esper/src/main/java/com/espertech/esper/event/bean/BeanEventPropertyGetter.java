@@ -16,10 +16,10 @@ import com.espertech.esper.client.PropertyAccessException;
 /**
  * Shortcut-evaluator for use with POJO-backed events only.
  */
-public interface BeanEventPropertyGetter extends EventPropertyGetter
-{
+public interface BeanEventPropertyGetter extends EventPropertyGetter {
     /**
      * Returns the property as an object.
+     *
      * @param object to evaluate
      * @return property of object
      * @throws PropertyAccessException if access failed
@@ -28,6 +28,7 @@ public interface BeanEventPropertyGetter extends EventPropertyGetter
 
     /**
      * Returns true if the dynamic property exists.
+     *
      * @param object to evaluate
      * @return indicator if property exists
      */

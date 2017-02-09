@@ -12,33 +12,28 @@ package com.espertech.esper.example.terminal.sender;
 
 import com.espertech.esper.example.terminal.common.BaseTerminalEvent;
 
+import javax.jms.JMSException;
 import javax.naming.NamingException;
-import javax.jms.*;
 import java.util.List;
 
-public class TerminalEventSender
-{
+public class TerminalEventSender {
     private static volatile boolean isShutdownRequested;
     private final InboundQueueSender sender;
     private final EventGenerator eventGenerator;
 
-    public TerminalEventSender(String providerURL) throws JMSException, NamingException
-    {
+    public TerminalEventSender(String providerURL) throws JMSException, NamingException {
         sender = new InboundQueueSender(providerURL);
         eventGenerator = new EventGenerator();
     }
 
-    public void destroy() throws JMSException
-    {
+    public void destroy() throws JMSException {
         sender.destroy();
     }
 
-    public void sendEvents() throws JMSException, NamingException, InterruptedException
-    {
+    public void sendEvents() throws JMSException, NamingException, InterruptedException {
         List<BaseTerminalEvent> eventsToSend = eventGenerator.generateBatch();
 
-        for (BaseTerminalEvent theEvent : eventsToSend)
-        {
+        for (BaseTerminalEvent theEvent : eventsToSend) {
             sender.sendEvent(theEvent);
         }
 
@@ -47,12 +42,10 @@ public class TerminalEventSender
         Thread.sleep(1000);
     }
 
-    public static void main(String args[])
-        throws Exception
-    {
+    public static void main(String[] args)
+            throws Exception {
         String providerURL = "remote://localhost:4447";
-        if (args.length > 0)
-        {
+        if (args.length > 0) {
             providerURL = args[0];
         }
 
@@ -62,8 +55,7 @@ public class TerminalEventSender
         TerminalEventSender client = new TerminalEventSender(providerURL);
 
         Runtime.getRuntime().addShutdownHook(new ShutdownThread());
-        while (!isShutdownRequested)
-        {
+        while (!isShutdownRequested) {
             client.sendEvents();
         }
 

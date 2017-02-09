@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An event property as a filter parameter representing a range.
  */
-public class RangeValueEventPropIndexed implements FilterSpecParamRangeValue
-{
+public class RangeValueEventPropIndexed implements FilterSpecParamRangeValue {
     private static final Logger log = LoggerFactory.getLogger(RangeValueEventPropIndexed.class);
     private final String resultEventAsName;
     private final int resultEventIndex;
@@ -30,13 +29,13 @@ public class RangeValueEventPropIndexed implements FilterSpecParamRangeValue
 
     /**
      * Ctor.
-     * @param resultEventAsName is the event tag
+     *
+     * @param resultEventAsName   is the event tag
      * @param resultEventProperty is the event property name
-     * @param resultEventIndex index for event
-     * @param statementName statement name
+     * @param resultEventIndex    index for event
+     * @param statementName       statement name
      */
-    public RangeValueEventPropIndexed(String resultEventAsName, int resultEventIndex, String resultEventProperty, String statementName)
-    {
+    public RangeValueEventPropIndexed(String resultEventAsName, int resultEventIndex, String resultEventProperty, String statementName) {
         this.resultEventAsName = resultEventAsName;
         this.resultEventIndex = resultEventIndex;
         this.resultEventProperty = resultEventProperty;
@@ -45,35 +44,28 @@ public class RangeValueEventPropIndexed implements FilterSpecParamRangeValue
 
     /**
      * Returns the index.
+     *
      * @return index
      */
-    public int getResultEventIndex()
-    {
+    public int getResultEventIndex() {
         return resultEventIndex;
     }
 
-    public final Double getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public final Double getFilterValue(MatchedEventMap matchedEvents, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean[] events = (EventBean[]) matchedEvents.getMatchingEventAsObjectByTag(resultEventAsName);
 
         Number value;
-        if (events == null)
-        {
+        if (events == null) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned a null result, using null value in filter criteria, for statement '" + statementName + "'");
             return null;
-        }
-        else if (resultEventIndex > (events.length - 1))
-        {
+        } else if (resultEventIndex > (events.length - 1)) {
             log.warn("Matching events for tag '" + resultEventAsName + "' returned no result for index " + resultEventIndex + " at array length " + events.length + ", using null value in filter criteria, for statement '" + statementName + "'");
             return null;
-        }
-        else
-        {
+        } else {
             value = (Number) events[resultEventIndex].get(resultEventProperty);
         }
 
-        if (value == null)
-        {
+        if (value == null) {
             return null;
         }
         return value.doubleValue();
@@ -81,52 +73,46 @@ public class RangeValueEventPropIndexed implements FilterSpecParamRangeValue
 
     /**
      * Returns the tag name or stream name to use for the event property.
+     *
      * @return tag name
      */
-    public String getResultEventAsName()
-    {
+    public String getResultEventAsName() {
         return resultEventAsName;
     }
 
     /**
      * Returns the name of the event property.
+     *
      * @return event property name
      */
-    public String getResultEventProperty()
-    {
+    public String getResultEventProperty() {
         return resultEventProperty;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return "resultEventProp=" + resultEventAsName + '.' + resultEventProperty;
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof RangeValueEventPropIndexed))
-        {
+        if (!(obj instanceof RangeValueEventPropIndexed)) {
             return false;
         }
 
         RangeValueEventPropIndexed other = (RangeValueEventPropIndexed) obj;
-        if ( (other.resultEventAsName.equals(this.resultEventAsName)) &&
-             (other.resultEventProperty.equals(this.resultEventProperty) &&
-             (other.resultEventIndex == resultEventIndex)))
-        {
+        if ((other.resultEventAsName.equals(this.resultEventAsName)) &&
+                (other.resultEventProperty.equals(this.resultEventProperty) &&
+                        (other.resultEventIndex == resultEventIndex))) {
             return true;
         }
 
         return false;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return resultEventProperty.hashCode();
     }
 }

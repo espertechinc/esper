@@ -29,8 +29,7 @@ import java.util.Set;
  * Model of relationships between streams based on properties in both streams that are
  * specified as equal in a filter expression.
  */
-public class QueryGraph
-{
+public class QueryGraph {
     private final int numStreams;
     private final ExcludePlanHint optionalHint;
     private final boolean nToZeroAnalysis; // for subqueries and on-action
@@ -38,12 +37,12 @@ public class QueryGraph
 
     /**
      * Ctor.
-     * @param numStreams - number of streams
-     * @param optionalHint hint if any
+     *
+     * @param numStreams      - number of streams
+     * @param optionalHint    hint if any
      * @param nToZeroAnalysis indicator for star-eval
      */
-    public QueryGraph(int numStreams, ExcludePlanHint optionalHint, boolean nToZeroAnalysis)
-    {
+    public QueryGraph(int numStreams, ExcludePlanHint optionalHint, boolean nToZeroAnalysis) {
         this.numStreams = numStreams;
         this.optionalHint = optionalHint;
         this.nToZeroAnalysis = nToZeroAnalysis;
@@ -52,33 +51,31 @@ public class QueryGraph
 
     /**
      * Returns the number of streams.
+     *
      * @return number of streams
      */
-    public int getNumStreams()
-    {
+    public int getNumStreams() {
         return numStreams;
     }
 
     /**
      * Add properties for 2 streams that are equal.
-     * @param streamLeft - left hand stream
-     * @param propertyLeft - left hand stream property
-     * @param streamRight - right hand stream
+     *
+     * @param streamLeft    - left hand stream
+     * @param propertyLeft  - left hand stream property
+     * @param streamRight   - right hand stream
      * @param propertyRight - right hand stream property
-     * @param nodeLeft left expr
-     * @param nodeRight right expr
+     * @param nodeLeft      left expr
+     * @param nodeRight     right expr
      * @return true if added and did not exist, false if already known
      */
-    public boolean addStrictEquals(int streamLeft, String propertyLeft, ExprIdentNode nodeLeft, int streamRight, String propertyRight, ExprIdentNode nodeRight)
-    {
+    public boolean addStrictEquals(int streamLeft, String propertyLeft, ExprIdentNode nodeLeft, int streamRight, String propertyRight, ExprIdentNode nodeRight) {
         check(streamLeft, streamRight);
-        if (propertyLeft == null || propertyRight == null)
-        {
+        if (propertyLeft == null || propertyRight == null) {
             throw new IllegalArgumentException("Null property names supplied");
         }
 
-        if (streamLeft == streamRight)
-        {
+        if (streamLeft == streamRight) {
             throw new IllegalArgumentException("Streams supplied are the same");
         }
 
@@ -87,8 +84,7 @@ public class QueryGraph
         return addedLeft || addedRight;
     }
 
-    public boolean isNavigableAtAll(int streamFrom, int streamTo)
-    {
+    public boolean isNavigableAtAll(int streamFrom, int streamTo) {
         QueryGraphKey key = new QueryGraphKey(streamFrom, streamTo);
         QueryGraphValue value = streamJoinMap.get(key);
         return value != null && !value.isEmptyNotNavigable();
@@ -96,16 +92,14 @@ public class QueryGraph
 
     /**
      * Returns set of streams that the given stream is navigable to.
+     *
      * @param streamFrom - from stream number
      * @return set of streams related to this stream, or empty set if none
      */
-    public Set<Integer> getNavigableStreams(int streamFrom)
-    {
+    public Set<Integer> getNavigableStreams(int streamFrom) {
         Set<Integer> result = new HashSet<Integer>();
-        for (int i = 0; i < numStreams; i++)
-        {
-            if (isNavigableAtAll(streamFrom, i))
-            {
+        for (int i = 0; i < numStreams; i++) {
+            if (isNavigableAtAll(streamFrom, i)) {
                 result.add(i);
             }
         }
@@ -125,31 +119,26 @@ public class QueryGraph
      * Fill in equivalent key properties (navigation entries) on all streams.
      * For example, if  a=b and b=c  then addRelOpInternal a=c. The method adds new equalivalent key properties
      * until no additional entries to be added are found, ie. several passes can be made.
-     * @param queryGraph - navigablity info between streamss
+     *
+     * @param queryGraph     - navigablity info between streamss
      * @param typesPerStream type info
      */
-    public static void fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph)
-    {
+    public static void fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph) {
         boolean addedEquivalency;
 
         // Repeat until no more entries were added
-        do
-        {
+        do {
             addedEquivalency = false;
 
             // For each stream-to-stream combination
-            for (int lookupStream = 0; lookupStream < queryGraph.numStreams; lookupStream++)
-            {
-                for (int indexedStream = 0; indexedStream < queryGraph.numStreams; indexedStream++)
-                {
-                    if (lookupStream == indexedStream)
-                    {
+            for (int lookupStream = 0; lookupStream < queryGraph.numStreams; lookupStream++) {
+                for (int indexedStream = 0; indexedStream < queryGraph.numStreams; indexedStream++) {
+                    if (lookupStream == indexedStream) {
                         continue;
                     }
 
                     boolean added = fillEquivalentNav(typesPerStream, queryGraph, lookupStream, indexedStream);
-                    if (added)
-                    {
+                    if (added) {
                         addedEquivalency = true;
                     }
                 }
@@ -162,8 +151,7 @@ public class QueryGraph
      * Looks at the key and index (aka. left and right) properties of the 2 streams and checks
      * for each property if any equivalent index properties exist for other streams.
      */
-    private static boolean fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph, int lookupStream, int indexedStream)
-    {
+    private static boolean fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph, int lookupStream, int indexedStream) {
         boolean addedEquivalency = false;
 
         QueryGraphValue value = queryGraph.getGraphValue(lookupStream, indexedStream);
@@ -175,24 +163,20 @@ public class QueryGraph
         String[] strictKeyProps = hashKeys.getStrictKeys();
         String[] indexProps = hashKeys.getIndexed();
 
-        if (strictKeyProps.length == 0)
-        {
+        if (strictKeyProps.length == 0) {
             return false;
         }
-        if (strictKeyProps.length != indexProps.length)
-        {
+        if (strictKeyProps.length != indexProps.length) {
             throw new IllegalStateException("Unexpected key and index property number mismatch");
         }
 
-        for (int i = 0; i < strictKeyProps.length; i++)
-        {
+        for (int i = 0; i < strictKeyProps.length; i++) {
             if (strictKeyProps[i] == null) {
                 continue;   // not a strict key
             }
 
             boolean added = fillEquivalentNav(typesPerStream, queryGraph, lookupStream, strictKeyProps[i], indexedStream, indexProps[i]);
-            if (added)
-            {
+            if (added) {
                 addedEquivalency = true;
             }
         }
@@ -209,14 +193,11 @@ public class QueryGraph
      * Is there any other lookup stream that has stream 1 and property p1 as index property? ==> this is stream s2, p2
      * Add navigation entry between stream s0 and property p0 to stream s2, property p2
      */
-    private static boolean fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph, int lookupStream, String keyProp, int indexedStream, String indexProp)
-    {
+    private static boolean fillEquivalentNav(EventType[] typesPerStream, QueryGraph queryGraph, int lookupStream, String keyProp, int indexedStream, String indexProp) {
         boolean addedEquivalency = false;
 
-        for (int otherStream = 0; otherStream < queryGraph.numStreams; otherStream++)
-        {
-            if ((otherStream == lookupStream) || (otherStream == indexedStream))
-            {
+        for (int otherStream = 0; otherStream < queryGraph.numStreams; otherStream++) {
+            if ((otherStream == lookupStream) || (otherStream == indexedStream)) {
                 continue;
             }
 
@@ -227,28 +208,23 @@ public class QueryGraph
             String[] otherIndexProps = hashKeys.getIndexed();
             int otherPropertyNum = -1;
 
-            if (otherIndexProps == null)
-            {
+            if (otherIndexProps == null) {
                 continue;
             }
 
-            for (int i = 0; i < otherIndexProps.length; i++)
-            {
-                if (otherIndexProps[i].equals(indexProp))
-                {
+            for (int i = 0; i < otherIndexProps.length; i++) {
+                if (otherIndexProps[i].equals(indexProp)) {
                     otherPropertyNum = i;
                     break;
                 }
             }
 
-            if (otherPropertyNum != -1)
-            {
+            if (otherPropertyNum != -1) {
                 if (otherStrictKeyProps[otherPropertyNum] != null) {
                     ExprIdentNode identNodeLookup = new ExprIdentNodeImpl(typesPerStream[lookupStream], keyProp, lookupStream);
                     ExprIdentNode identNodeOther = new ExprIdentNodeImpl(typesPerStream[otherStream], otherStrictKeyProps[otherPropertyNum], otherStream);
                     boolean added = queryGraph.addStrictEquals(lookupStream, keyProp, identNodeLookup, otherStream, otherStrictKeyProps[otherPropertyNum], identNodeOther);
-                    if (added)
-                    {
+                    if (added) {
                         addedEquivalency = true;
                     }
                 }
@@ -258,14 +234,12 @@ public class QueryGraph
         return addedEquivalency;
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringWriter buf = new StringWriter();
         PrintWriter writer = new PrintWriter(buf);
 
         int count = 0;
-        for (Map.Entry<QueryGraphKey, QueryGraphValue> entry : streamJoinMap.entrySet())
-        {
+        for (Map.Entry<QueryGraphKey, QueryGraphValue> entry : streamJoinMap.entrySet()) {
             count++;
             writer.println("Entry " + count + ": key=" + entry.getKey());
             writer.println("  value=" + entry.getValue());
@@ -288,8 +262,7 @@ public class QueryGraph
 
             internalAddRelOp(streamNumValue, streamNumStart, propertyValueExpr, QueryGraphRangeEnum.GREATER_OR_EQUAL, propertyEndExpr, false);
             internalAddRelOp(streamNumValue, streamNumStart, propertyValueExpr, QueryGraphRangeEnum.LESS_OR_EQUAL, propertyStartExpr, false);
-        }
-        else {
+        } else {
             // endpoints from a different stream, add individually
             if (streamNumValue != streamNumStart) {
                 // read propertyValue >= propertyStart
@@ -358,7 +331,7 @@ public class QueryGraph
         optionalStartStreamNum = optionalStartStreamNum != null ? optionalStartStreamNum : -1;
         optionalEndStreamNum = optionalEndStreamNum != null ? optionalEndStreamNum : -1;
 
-            // add for a specific stream only
+        // add for a specific stream only
         if (optionalStartStreamNum.equals(optionalEndStreamNum) || optionalEndStreamNum.equals(-1)) {
             internalAddRange(optionalStartStreamNum, indexedStream, QueryGraphRangeEnum.RANGE_CLOSED, startNode, endNode, indexedProp);
         }

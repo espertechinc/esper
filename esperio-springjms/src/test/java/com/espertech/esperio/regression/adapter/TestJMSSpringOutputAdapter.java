@@ -24,22 +24,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class TestJMSSpringOutputAdapter extends TestCase
-{
+public class TestJMSSpringOutputAdapter extends TestCase {
     private SupportJMSReceiver jmsReceiver;
 
-    public void setUp()
-    {
+    public void setUp() {
         jmsReceiver = new SupportJMSReceiver();
     }
 
-    public void tearDown()
-    {
+    public void tearDown() {
         jmsReceiver.destroy();
     }
 
-    public void testOutputAdapter() throws Exception
-    {
+    public void testOutputAdapter() throws Exception {
         Configuration config = new Configuration();
         config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
 
@@ -57,7 +53,7 @@ public class TestJMSSpringOutputAdapter extends TestCase
 
         service.getEPAdministrator().createEPL(
                 "insert into MyOutputStream " +
-                "select theString as prop1, '>' || theString || '<' as prop2 from " + SupportSerializableBean.class.getName());
+                        "select theString as prop1, '>' || theString || '<' as prop2 from " + SupportSerializableBean.class.getName());
 
         service.getEPRuntime().sendEvent(new SupportSerializableBean("x1"));
         Message result = jmsReceiver.receiveMessage();

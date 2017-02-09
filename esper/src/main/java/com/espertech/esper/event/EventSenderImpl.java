@@ -29,8 +29,7 @@ import java.util.List;
  * to each reflect on the event and generate an event bean. The first one to return an event bean
  * wins.
  */
-public class EventSenderImpl implements EventSender
-{
+public class EventSenderImpl implements EventSender {
     private static Logger log = LoggerFactory.getLogger(EventSenderImpl.class);
     private final List<EventSenderURIDesc> handlingFactories;
     private final EPRuntimeEventSender epRuntime;
@@ -38,57 +37,43 @@ public class EventSenderImpl implements EventSender
 
     /**
      * Ctor.
+     *
      * @param handlingFactories list of factories
-     * @param epRuntime the runtime to use to process the event
-     * @param threadingService for inbound threading
+     * @param epRuntime         the runtime to use to process the event
+     * @param threadingService  for inbound threading
      */
-    public EventSenderImpl(List<EventSenderURIDesc> handlingFactories, EPRuntimeEventSender epRuntime, ThreadingService threadingService)
-    {
+    public EventSenderImpl(List<EventSenderURIDesc> handlingFactories, EPRuntimeEventSender epRuntime, ThreadingService threadingService) {
         this.handlingFactories = handlingFactories;
         this.epRuntime = epRuntime;
         this.threadingService = threadingService;
     }
 
-    public void sendEvent(Object theEvent) throws EPException
-    {
+    public void sendEvent(Object theEvent) throws EPException {
         sendIn(theEvent, false);
     }
 
-    public void route(Object theEvent) throws EPException
-    {
+    public void route(Object theEvent) throws EPException {
         sendIn(theEvent, true);
     }
 
-    private void sendIn(Object theEvent, boolean isRoute) throws EPException
-    {
+    private void sendIn(Object theEvent, boolean isRoute) throws EPException {
         // Ask each factory in turn to take care of it
-        for (EventSenderURIDesc entry : handlingFactories)
-        {
+        for (EventSenderURIDesc entry : handlingFactories) {
             EventBean eventBean = null;
 
-            try
-            {
+            try {
                 eventBean = entry.getBeanFactory().create(theEvent, entry.getResolutionURI());
-            }
-            catch (RuntimeException ex)
-            {
+            } catch (RuntimeException ex) {
                 log.warn("Unexpected exception thrown by plug-in event bean factory '" + entry.getBeanFactory() + "' processing event " + theEvent, ex);
             }
 
-            if (eventBean != null)
-            {
-                if (isRoute)
-                {
+            if (eventBean != null) {
+                if (isRoute) {
                     epRuntime.routeEventBean(eventBean);
-                }
-                else
-                {
-                    if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading()))
-                    {
+                } else {
+                    if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading())) {
                         threadingService.submitInbound(new InboundUnitSendWrapped(eventBean, epRuntime));
-                    }
-                    else
-                    {
+                    } else {
                         epRuntime.processWrappedEvent(eventBean);
                     }
                 }

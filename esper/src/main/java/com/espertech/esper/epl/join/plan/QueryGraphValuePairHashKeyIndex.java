@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.plan;
 
 import java.util.List;
 
-public class QueryGraphValuePairHashKeyIndex
-{
+public class QueryGraphValuePairHashKeyIndex {
     private final String[] indexed;
     private final List<QueryGraphValueEntryHashKeyed> key;
     private final String[] strictKeys;  // those with direct lookup, can contain null elements

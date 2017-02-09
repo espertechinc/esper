@@ -18,16 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class NamedWindowUtil
-{
-    protected static Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> createConsumerMap(boolean isPrioritized)
-    {
-        if (!isPrioritized)
-        {
+public class NamedWindowUtil {
+    protected static Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> createConsumerMap(boolean isPrioritized) {
+        if (!isPrioritized) {
             return new LinkedHashMap<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>>();
-        }
-        else
-        {
+        } else {
             return new TreeMap<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>>(EPStatementAgentInstanceHandleComparator.INSTANCE);
         }
     }

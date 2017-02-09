@@ -13,12 +13,14 @@ package com.espertech.esper.epl.table.mgmt;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public interface TableStateInstanceUngrouped {
     ReentrantReadWriteLock getTableLevelRWLock();
+
     ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext);
+
     ObjectArrayBackedEventBean getEventUngrouped();
+
     void handleRowUpdated(ObjectArrayBackedEventBean row);
 }

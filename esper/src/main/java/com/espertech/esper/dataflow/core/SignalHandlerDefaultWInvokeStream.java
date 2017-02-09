@@ -27,6 +27,6 @@ public class SignalHandlerDefaultWInvokeStream extends SignalHandlerDefaultWInvo
 
     @Override
     public void handleSignalInternal(EPDataFlowSignal signal) throws InvocationTargetException {
-        fastMethod.invoke(target, new Object[] {streamNum, signal});
+        fastMethod.invoke(target, new Object[]{streamNum, signal});
     }
 }

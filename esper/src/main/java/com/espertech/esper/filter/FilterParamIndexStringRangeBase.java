@@ -18,8 +18,7 @@ import java.util.IdentityHashMap;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReadWriteLock;
 
-public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLookupableBase
-{
+public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLookupableBase {
     protected final TreeMap<StringRange, EventEvaluator> ranges;
     private final IdentityHashMap<StringRange, EventEvaluator> rangesNullEndpoints;
     private final ReadWriteLock rangesRWLock;
@@ -32,33 +31,27 @@ public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLo
         rangesRWLock = readWriteLock;
     }
 
-    public final EventEvaluator get(Object expressionValue)
-    {
-        if (!(expressionValue instanceof StringRange))
-        {
+    public final EventEvaluator get(Object expressionValue) {
+        if (!(expressionValue instanceof StringRange)) {
             throw new IllegalArgumentException("Supplied expressionValue must be of type StringRange");
         }
 
         StringRange range = (StringRange) expressionValue;
 
-        if ((range.getMax() == null) || (range.getMin() == null))
-        {
+        if ((range.getMax() == null) || (range.getMin() == null)) {
             return rangesNullEndpoints.get(range);
         }
 
         return ranges.get(range);
     }
 
-    public final void put(Object expressionValue, EventEvaluator matcher)
-    {
-        if (!(expressionValue instanceof StringRange))
-        {
+    public final void put(Object expressionValue, EventEvaluator matcher) {
+        if (!(expressionValue instanceof StringRange)) {
             throw new IllegalArgumentException("Supplied expressionValue must be of type DoubleRange");
         }
 
         StringRange range = (StringRange) expressionValue;
-        if ((range.getMax() == null) || (range.getMin() == null))
-        {
+        if ((range.getMax() == null) || (range.getMin() == null)) {
             rangesNullEndpoints.put(range, matcher);     // endpoints null - we don't enter
             return;
         }
@@ -66,25 +59,21 @@ public abstract class FilterParamIndexStringRangeBase extends FilterParamIndexLo
         ranges.put(range, matcher);
     }
 
-    public final boolean remove(Object filterConstant)
-    {
+    public final boolean remove(Object filterConstant) {
         StringRange range = (StringRange) filterConstant;
 
-        if ((range.getMax() == null) || (range.getMin() == null))
-        {
+        if ((range.getMax() == null) || (range.getMin() == null)) {
             return rangesNullEndpoints.remove(range) != null;
         }
 
         return ranges.remove(range) != null;
     }
 
-    public final int size()
-    {
+    public final int size() {
         return ranges.size();
     }
 
-    public final ReadWriteLock getReadWriteLock()
-    {
+    public final ReadWriteLock getReadWriteLock() {
         return rangesRWLock;
     }
 

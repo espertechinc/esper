@@ -20,8 +20,7 @@ import java.util.List;
  * <p>
  * Lifecycle methods are for managing connection resources.
  */
-public interface PollExecStrategy
-{
+public interface PollExecStrategy {
     /**
      * Start the poll, called before any poll operation.
      */
@@ -29,7 +28,8 @@ public interface PollExecStrategy
 
     /**
      * Poll events using the keys provided.
-     * @param lookupValues is keys for exeuting a query or such
+     *
+     * @param lookupValues         is keys for exeuting a query or such
      * @param exprEvaluatorContext context
      * @return a list of events for the keys
      */

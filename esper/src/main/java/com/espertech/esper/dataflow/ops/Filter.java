@@ -31,7 +31,7 @@ public class Filter implements DataFlowOpLifecycle {
 
     @DataFlowOpParameter
     private ExprNode filter;
-    
+
     private ExprEvaluator evaluator;
     private EventBeanSPI theEvent;
     private EventBean[] eventsPerStream = new EventBean[1];
@@ -74,8 +74,7 @@ public class Filter implements DataFlowOpLifecycle {
 
         if (!(row instanceof EventBeanSPI)) {
             theEvent.setUnderlying(row);
-        }
-        else {
+        } else {
             theEvent = (EventBeanSPI) row;
         }
 
@@ -87,12 +86,10 @@ public class Filter implements DataFlowOpLifecycle {
 
             if (singleOutputPort) {
                 graphContext.submit(row);
-            }
-            else {
+            } else {
                 graphContext.submitPort(0, row);
             }
-        }
-        else {
+        } else {
             if (!singleOutputPort) {
                 graphContext.submitPort(1, row);
             }

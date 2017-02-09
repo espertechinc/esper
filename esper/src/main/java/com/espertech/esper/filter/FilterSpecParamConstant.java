@@ -16,47 +16,43 @@ import com.espertech.esper.pattern.MatchedEventMap;
 /**
  * This class represents a single, constant value filter parameter in an {@link FilterSpecCompiled} filter specification.
  */
-public final class FilterSpecParamConstant extends FilterSpecParam
-{
+public final class FilterSpecParamConstant extends FilterSpecParam {
     private final Object filterConstant;
     private static final long serialVersionUID = 5732440503234468449L;
 
     /**
      * Constructor.
-     * @param lookupable is the lookupable
+     *
+     * @param lookupable     is the lookupable
      * @param filterOperator is the type of compare
      * @param filterConstant contains the value to match against the event's property value
      * @throws IllegalArgumentException if an operator was supplied that does not take a single constant value
      */
     public FilterSpecParamConstant(FilterSpecLookupable lookupable, FilterOperator filterOperator, Object filterConstant)
-        throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.filterConstant = filterConstant;
 
-        if (filterOperator.isRangeOperator())
-        {
+        if (filterOperator.isRangeOperator()) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
                     "constant filter parameter");
         }
     }
 
-    public Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
-    {
+    public Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
         return filterConstant;
     }
 
     /**
      * Returns the constant value.
+     *
      * @return constant value
      */
-    public Object getFilterConstant()
-    {
+    public Object getFilterConstant() {
         return filterConstant;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return super.toString() + " filterConstant=" + filterConstant;
     }
 

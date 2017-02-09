@@ -25,8 +25,7 @@ public class GroupByRollupNodeCombinedExpr extends GroupByRollupNodeBase {
     }
 
     public List<int[]> evaluate(GroupByRollupEvalContext context)
-            throws GroupByRollupDuplicateException
-    {
+            throws GroupByRollupDuplicateException {
         int[] result = new int[expressions.size()];
         for (int i = 0; i < expressions.size(); i++) {
             int index = context.getIndex(expressions.get(i));
@@ -37,8 +36,8 @@ public class GroupByRollupNodeCombinedExpr extends GroupByRollupNodeBase {
 
         // find dups
         for (int i = 0; i < result.length - 1; i++) {
-            if (result[i] == result[i+1]) {
-                throw new GroupByRollupDuplicateException(new int[] {result[i]});
+            if (result[i] == result[i + 1]) {
+                throw new GroupByRollupDuplicateException(new int[]{result[i]});
             }
         }
 

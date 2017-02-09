@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.epl.spec.ContextDetailConditionNever;
-
 import java.io.StringWriter;
 import java.util.List;
 
@@ -34,9 +32,10 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Ctor.
-     * @param startCondition the condition that starts/initiates a context partition
-     * @param endCondition the condition that ends/terminates a context partition
-     * @param overlapping true for overlapping contexts
+     *
+     * @param startCondition              the condition that starts/initiates a context partition
+     * @param endCondition                the condition that ends/terminates a context partition
+     * @param overlapping                 true for overlapping contexts
      * @param optionalDistinctExpressions list of distinct-value expressions, can be null
      */
     public ContextDescriptorInitiatedTerminated(ContextDescriptorCondition startCondition, ContextDescriptorCondition endCondition, boolean overlapping, List<Expression> optionalDistinctExpressions) {
@@ -48,9 +47,10 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Ctor.
+     *
      * @param startCondition the condition that starts/initiates a context partition
-     * @param endCondition the condition that ends/terminates a context partition
-     * @param overlapping true for overlapping contexts
+     * @param endCondition   the condition that ends/terminates a context partition
+     * @param overlapping    true for overlapping contexts
      */
     public ContextDescriptorInitiatedTerminated(ContextDescriptorCondition startCondition, ContextDescriptorCondition endCondition, boolean overlapping) {
         this.startCondition = startCondition;
@@ -60,6 +60,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Returns the condition that starts/initiates a context partition
+     *
      * @return start condition
      */
     public ContextDescriptorCondition getStartCondition() {
@@ -68,6 +69,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Sets the condition that starts/initiates a context partition
+     *
      * @param startCondition start condition
      */
     public void setStartCondition(ContextDescriptorCondition startCondition) {
@@ -76,6 +78,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Returns the condition that ends/terminates a context partition
+     *
      * @return end condition
      */
     public ContextDescriptorCondition getEndCondition() {
@@ -84,6 +87,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Sets the condition that ends/terminates a context partition
+     *
      * @param endCondition end condition
      */
     public void setEndCondition(ContextDescriptorCondition endCondition) {
@@ -92,6 +96,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Returns true for overlapping context, false for non-overlapping.
+     *
      * @return overlap indicator
      */
     public boolean isOverlapping() {
@@ -100,6 +105,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Set to true for overlapping context, false for non-overlapping.
+     *
      * @param overlapping overlap indicator
      */
     public void setOverlapping(boolean overlapping) {
@@ -108,6 +114,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Returns the list of expressions providing distinct keys, if any
+     *
      * @return distinct expressions
      */
     public List<Expression> getOptionalDistinctExpressions() {
@@ -116,6 +123,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
 
     /**
      * Sets the list of expressions providing distinct keys, if any
+     *
      * @param optionalDistinctExpressions distinct expressions
      */
     public void setOptionalDistinctExpressions(List<Expression> optionalDistinctExpressions) {
@@ -127,8 +135,7 @@ public class ContextDescriptorInitiatedTerminated implements ContextDescriptor {
         if (optionalDistinctExpressions != null && optionalDistinctExpressions.size() > 0) {
             writer.append("distinct(");
             String delimiter = "";
-            for (Expression expression: optionalDistinctExpressions)
-            {
+            for (Expression expression : optionalDistinctExpressions) {
                 writer.write(delimiter);
                 expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
                 delimiter = ", ";

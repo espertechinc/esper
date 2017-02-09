@@ -18,53 +18,51 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class SubordWMatchExprLookupStrategyIndexedUnfiltered implements SubordWMatchExprLookupStrategy
-{
+public class SubordWMatchExprLookupStrategyIndexedUnfiltered implements SubordWMatchExprLookupStrategy {
     private final EventBean[] eventsPerStream;
     private final SubordTableLookupStrategy tableLookupStrategy;
 
     /**
      * Ctor.
+     *
      * @param tableLookupStrategy the strategy for looking up in an index the matching events using correlation
      */
-    public SubordWMatchExprLookupStrategyIndexedUnfiltered(SubordTableLookupStrategy tableLookupStrategy)
-    {
+    public SubordWMatchExprLookupStrategyIndexedUnfiltered(SubordTableLookupStrategy tableLookupStrategy) {
         this.eventsPerStream = new EventBean[2];
         this.tableLookupStrategy = tableLookupStrategy;
     }
 
-    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.INDEXED_UNFILTERED); }
+    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.INDEXED_UNFILTERED);
+        }
 
         Set<EventBean> removeEvents = null;
 
         // For every new event (usually 1)
-        for (EventBean newEvent : newData)
-        {
+        for (EventBean newEvent : newData) {
             eventsPerStream[1] = newEvent;
 
             // use index to find match
             Collection<EventBean> matches = tableLookupStrategy.lookup(eventsPerStream, exprEvaluatorContext);
-            if ((matches == null) || (matches.isEmpty()))
-            {
+            if ((matches == null) || (matches.isEmpty())) {
                 continue;
             }
 
-            if (removeEvents == null)
-            {
+            if (removeEvents == null) {
                 removeEvents = new LinkedHashSet<EventBean>();
             }
             removeEvents.addAll(matches);
         }
 
-        if (removeEvents == null)
-        {
+        if (removeEvents == null) {
             return null;
         }
 
         EventBean[] result = removeEvents.toArray(new EventBean[removeEvents.size()]);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraTriggeredLookup(result); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraTriggeredLookup(result);
+        }
 
         return result;
     }

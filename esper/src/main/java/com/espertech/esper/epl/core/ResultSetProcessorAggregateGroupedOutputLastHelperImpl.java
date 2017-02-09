@@ -35,24 +35,20 @@ public class ResultSetProcessorAggregateGroupedOutputLastHelperImpl implements R
         Object[] newDataMultiKey = processor.generateGroupKeys(newData, true);
         Object[] oldDataMultiKey = processor.generateGroupKeys(oldData, false);
 
-        if (newData != null)
-        {
+        if (newData != null) {
             // apply new data to aggregates
             int count = 0;
-            for (EventBean aNewData : newData)
-            {
+            for (EventBean aNewData : newData) {
                 Object mk = newDataMultiKey[count];
                 processor.eventsPerStreamOneStream[0] = aNewData;
                 processor.aggregationService.applyEnter(processor.eventsPerStreamOneStream, mk, processor.agentInstanceContext);
                 count++;
             }
         }
-        if (oldData != null)
-        {
+        if (oldData != null) {
             // apply old data to aggregates
             int count = 0;
-            for (EventBean anOldData : oldData)
-            {
+            for (EventBean anOldData : oldData) {
                 processor.eventsPerStreamOneStream[0] = anOldData;
                 processor.aggregationService.applyLeave(processor.eventsPerStreamOneStream, oldDataMultiKey[count], processor.agentInstanceContext);
                 count++;
@@ -72,19 +68,16 @@ public class ResultSetProcessorAggregateGroupedOutputLastHelperImpl implements R
         if (newData != null) {
             // apply new data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> aNewData : newData)
-            {
+            for (MultiKey<EventBean> aNewData : newData) {
                 Object mk = newDataMultiKey[count];
                 processor.aggregationService.applyEnter(aNewData.getArray(), mk, processor.agentInstanceContext);
                 count++;
             }
         }
-        if (oldData != null)
-        {
+        if (oldData != null) {
             // apply old data to aggregates
             int count = 0;
-            for (MultiKey<EventBean> anOldData : oldData)
-            {
+            for (MultiKey<EventBean> anOldData : oldData) {
                 processor.aggregationService.applyLeave(anOldData.getArray(), oldDataMultiKey[count], processor.agentInstanceContext);
                 count++;
             }

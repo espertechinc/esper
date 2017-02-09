@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.datetime;
 
 import com.espertech.esper.client.util.DateTime;
+import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddHelper;
 import com.espertech.esper.epl.datetime.calop.CalendarOpPlusFastAddResult;
-import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
 import junit.framework.TestCase;
 
@@ -41,7 +41,7 @@ public class TestCalendarOpPlusFastAddHelper extends TestCase {
                 new LongAssertionAtLeast(22 * 365 * 24 * 60 * 60 * 10L), "2002-05-30T09:51:01.200");
 
         // 1-hour-in-millisecond adds
-        TimePeriod oneHourInMsec = new TimePeriod().millis(60*60*1000);
+        TimePeriod oneHourInMsec = new TimePeriod().millis(60 * 60 * 1000);
         assertCompute(defaultCurrent, oneHourInMsec, "1980-01-01T00:00:00.000",
                 new LongAssertionAtLeast(22 * 365 * 24), "2002-05-30T10:00:00.000");
 
@@ -125,8 +125,8 @@ public class TestCalendarOpPlusFastAddHelper extends TestCase {
         Calendar referenceDate = DateTime.parseDefaultCal(reference);
         CalendarOpPlusFastAddResult result = CalendarOpPlusFastAddHelper.computeNextDue(current, timePeriod, referenceDate, TimeAbacusMilliseconds.INSTANCE, 0);
         assertEquals("\nExpected " + expectedTarget + "\n" +
-                     "Received " + DateTime.print(result.getScheduled()) + "\n",
-                     DateTime.parseDefaultCal(expectedTarget), result.getScheduled());
+                        "Received " + DateTime.print(result.getScheduled()) + "\n",
+                DateTime.parseDefaultCal(expectedTarget), result.getScheduled());
         factorAssertion.assertLong(result.getFactor());
     }
 

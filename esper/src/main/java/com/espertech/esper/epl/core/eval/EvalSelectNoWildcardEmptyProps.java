@@ -31,13 +31,11 @@ public class EvalSelectNoWildcardEmptyProps implements SelectExprProcessor {
         this.resultEventType = resultEventType;
     }
 
-    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean process(EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
         return selectExprContext.getEventAdapterService().adapterForTypedMap(Collections.EMPTY_MAP, resultEventType);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return resultEventType;
     }
 }

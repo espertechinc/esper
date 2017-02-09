@@ -10,23 +10,21 @@
  */
 package com.espertech.esperio.db.config;
 
+import com.espertech.esper.client.ConfigurationDBRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.*;
-import java.net.URL;
-
-import com.espertech.esper.client.ConfigurationDBRef;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class ConfigurationDBAdapter {
     private static Logger log = LoggerFactory.getLogger(ConfigurationDBAdapter.class);

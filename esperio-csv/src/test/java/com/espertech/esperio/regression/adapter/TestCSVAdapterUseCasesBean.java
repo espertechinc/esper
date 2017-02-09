@@ -26,16 +26,16 @@ import com.espertech.esperio.support.util.ExampleMarketDataBeanReadWrite;
 
 /**
  * Cause all parent class unit tests to be run but sending beans instead of Maps
+ *
  * @author Jerry Shea
  */
 public class TestCSVAdapterUseCasesBean extends TestCSVAdapterUseCases {
 
-	public TestCSVAdapterUseCasesBean() {
-		super(true);
-	}
+    public TestCSVAdapterUseCasesBean() {
+        super(true);
+    }
 
-    public void testReadWritePropsBean()
-    {
+    public void testReadWritePropsBean() {
         Configuration configuration = new Configuration();
         configuration.addEventType("ReadWrite", ExampleMarketDataBeanReadWrite.class);
         configuration.addImport(FileSourceCSV.class.getPackage().getName() + ".*");

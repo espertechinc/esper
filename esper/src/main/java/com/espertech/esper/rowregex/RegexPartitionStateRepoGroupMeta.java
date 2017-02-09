@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
-public class RegexPartitionStateRepoGroupMeta
-{
+public class RegexPartitionStateRepoGroupMeta {
     private final boolean hasInterval;
     private final ExprNode[] partitionExpressionNodes;
     private final ExprEvaluator[] partitionExpressions;

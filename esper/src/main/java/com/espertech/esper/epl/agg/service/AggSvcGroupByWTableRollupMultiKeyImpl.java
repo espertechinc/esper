@@ -24,8 +24,7 @@ import com.espertech.esper.event.ObjectArrayBackedEventBean;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByWTableRollupMultiKeyImpl extends AggSvcGroupByWTableBase
-{
+public class AggSvcGroupByWTableRollupMultiKeyImpl extends AggSvcGroupByWTableBase {
     private final AggregationGroupByRollupDesc groupByRollupDesc;
 
     public AggSvcGroupByWTableRollupMultiKeyImpl(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessors, boolean join, TableStateInstanceGrouped tableStateInstance, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents, AggregationGroupByRollupDesc groupByRollupDesc) {
@@ -52,8 +51,7 @@ public class AggSvcGroupByWTableRollupMultiKeyImpl extends AggSvcGroupByWTableBa
     }
 
     @Override
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         MultiKeyUntyped key = rollupLevel.computeMultiKey(groupByKey, tableMetadata.getKeyTypes().length);
         ObjectArrayBackedEventBean bean = tableStateInstance.getRowForGroupKey(key);
 
@@ -61,8 +59,7 @@ public class AggSvcGroupByWTableRollupMultiKeyImpl extends AggSvcGroupByWTableBa
             AggregationRowPair row = (AggregationRowPair) bean.getProperties()[0];
             currentAggregatorMethods = row.getMethods();
             currentAggregatorStates = row.getStates();
-        }
-        else {
+        } else {
             currentAggregatorMethods = null;
         }
 

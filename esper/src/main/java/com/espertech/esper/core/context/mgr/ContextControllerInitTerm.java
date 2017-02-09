@@ -104,7 +104,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
 
             // non-overlapping and not currently running, or overlapping
             if ((!factory.getContextDetail().isOverlapping() && !currentlyRunning) ||
-                factory.getContextDetail().isOverlapping()) {
+                    factory.getContextDetail().isOverlapping()) {
                 startCondition.activate(optionalTriggeringEvent, null, 0, factory.getFactoryContext().isRecoveringResilient());
             }
             return;
@@ -227,9 +227,8 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                     if (startCondition.isRunning()) {
                         startCondition.deactivate();
                     }
-                }
-                // For overlapping mode, make sure we activate again or stay activated
-                else {
+                } else {
+                    // For overlapping mode, make sure we activate again or stay activated
                     if (!startCondition.isRunning()) {
                         startCondition.activate(null, null, 0, factory.getFactoryContext().isRecoveringResilient());
                     }
@@ -251,8 +250,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 ContextControllerInitTermState state = new ContextControllerInitTermState(factory.getFactoryContext().getServicesContext().getSchedulingService().getTime(), builtinProperties);
                 factory.getFactoryContext().getStateCache().addContextPath(factory.getFactoryContext().getOutermostContextName(), factory.getFactoryContext().getNestingLevel(), pathId, currentSubpathId, instanceHandle.getContextPartitionOrPathId(), state, factory.getBinding());
             }
-        }
-        finally {
+        } finally {
             if (agentInstancesLocksHeld != null) {
                 for (AgentInstance agentInstance : agentInstancesLocksHeld) {
                     agentInstance.getAgentInstanceContext().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(Long.MAX_VALUE);
@@ -272,8 +270,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
         FilterFaultHandler myFaultHandler = null;
         if (distinctContexts != null) {
             myFaultHandler = new DistinctFilterFaultHandler(this);
-        }
-        else {
+        } else {
             if (startCondition instanceof ContextControllerConditionFilter) {
                 myFaultHandler = new NonDistinctFilterFaultHandler(this);
             }
@@ -299,7 +296,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
 
         // we are not currently running if either of the endpoints is not crontab-triggered
         if ((factory.getContextDetail().getStart() instanceof ContextDetailConditionCrontab) &&
-           ((factory.getContextDetail().getEnd() instanceof ContextDetailConditionCrontab)))     {
+                ((factory.getContextDetail().getEnd() instanceof ContextDetailConditionCrontab))) {
             ScheduleSpec scheduleStart = ((ContextDetailConditionCrontab) factory.getContextDetail().getStart()).getSchedule();
             ScheduleSpec scheduleEnd = ((ContextDetailConditionCrontab) factory.getContextDetail().getEnd()).getSchedule();
             EngineImportService engineImportService = factory.getStatementContext().getEngineImportService();
@@ -378,7 +375,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 Map.Entry<ContextControllerCondition, ContextControllerInitTermInstance> existing = null;
                 for (Map.Entry<ContextControllerCondition, ContextControllerInitTermInstance> entryExisting : endConditions.entrySet()) {
                     if (compare(state.getStartTime(), state.getPatternData(), null,
-                                entryExisting.getValue().getStartTime(), entryExisting.getValue().getStartProperties(), null)) {
+                            entryExisting.getValue().getStartTime(), entryExisting.getValue().getStartProperties(), null)) {
                         existing = entryExisting;
                         break;
                     }
@@ -442,7 +439,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                 continue;
             }
             if (existingValue instanceof EventBean && savedValue instanceof EventBean) {
-                if (((EventBean)existingValue).getUnderlying().equals(((EventBean) savedValue).getUnderlying())) {
+                if (((EventBean) existingValue).getUnderlying().equals(((EventBean) savedValue).getUnderlying())) {
                     continue;
                 }
             }
@@ -525,8 +522,7 @@ public class ContextControllerInitTerm implements ContextController, ContextCont
                         theEvent, null, Collections.singletonList(new AgentInstance(null, aiCreate, null)));
 
                 return true; // we handled the event
-            }
-            finally {
+            } finally {
                 lock.releaseWriteLock();
             }
         }

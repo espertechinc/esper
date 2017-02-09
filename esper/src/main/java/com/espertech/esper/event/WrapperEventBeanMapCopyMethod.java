@@ -12,30 +12,28 @@ package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Copy method for wrapper events.
  */
-public class WrapperEventBeanMapCopyMethod implements EventBeanCopyMethod
-{
+public class WrapperEventBeanMapCopyMethod implements EventBeanCopyMethod {
     private final WrapperEventType wrapperEventType;
     private final EventAdapterService eventAdapterService;
 
     /**
      * Ctor.
-     * @param wrapperEventType wrapper type
+     *
+     * @param wrapperEventType    wrapper type
      * @param eventAdapterService event adapter
      */
-    public WrapperEventBeanMapCopyMethod(WrapperEventType wrapperEventType, EventAdapterService eventAdapterService)
-    {
+    public WrapperEventBeanMapCopyMethod(WrapperEventType wrapperEventType, EventAdapterService eventAdapterService) {
         this.wrapperEventType = wrapperEventType;
         this.eventAdapterService = eventAdapterService;
     }
 
-    public EventBean copy(EventBean theEvent)
-    {
+    public EventBean copy(EventBean theEvent) {
         DecoratingEventBean decorated = (DecoratingEventBean) theEvent;
         EventBean decoratedUnderlying = decorated.getUnderlyingEvent();
         Map<String, Object> copiedMap = new HashMap<String, Object>(decorated.getDecoratingProperties());

@@ -17,45 +17,40 @@ import java.io.StringWriter;
  * <p>
  * The first child expression provides the value to switch on.
  * The following pairs of child expressions provide the "when expression then expression" results.
- * The last child expression provides the "else" result. 
+ * The last child expression provides the "else" result.
  */
-public class CaseSwitchExpression extends ExpressionBase
-{
+public class CaseSwitchExpression extends ExpressionBase {
     private static final long serialVersionUID = -5843078556996307245L;
 
     /**
      * Ctor - for use to create an expression tree, without inner expression
      */
-    public CaseSwitchExpression()
-    {
+    public CaseSwitchExpression() {
     }
 
     /**
      * Ctor.
+     *
      * @param switchValue is the expression providing the value to switch on
      */
-    public CaseSwitchExpression(Expression switchValue)
-    {
+    public CaseSwitchExpression(Expression switchValue) {
         // switch value expression is first
         this.addChild(switchValue);
     }
 
     /**
      * Adds a pair of expressions representing a "when" and a "then" in the switch.
+     *
      * @param when expression to match on
      * @param then expression to return a conditional result when the when-expression matches
      * @return expression
      */
-    public CaseSwitchExpression add(Expression when, Expression then)
-    {
+    public CaseSwitchExpression add(Expression when, Expression then) {
         int size = this.getChildren().size();
-        if (size % 2 != 0)
-        {
+        if (size % 2 != 0) {
             this.addChild(when);
             this.addChild(then);
-        }
-        else
-        {
+        } else {
             // add next to last as the last node is the else clause
             this.getChildren().add(this.getChildren().size() - 1, when);
             this.getChildren().add(this.getChildren().size() - 1, then);
@@ -66,38 +61,33 @@ public class CaseSwitchExpression extends ExpressionBase
     /**
      * Sets the else-part of the case-switch. This result of this expression is returned
      * when no when-expression matched.
+     *
      * @param elseExpr is the expression returning the no-match value
      * @return expression
      */
-    public CaseSwitchExpression setElse(Expression elseExpr)
-    {
+    public CaseSwitchExpression setElse(Expression elseExpr) {
         int size = this.getChildren().size();
         // remove last node representing the else
-        if (size % 2 == 0)
-        {
+        if (size % 2 == 0) {
             this.getChildren().remove(size - 1);
         }
         this.addChild(elseExpr);
         return this;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.CASE;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("case ");
         getChildren().get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         int index = 1;
-        while(index < this.getChildren().size() - 1)
-        {
+        while (index < this.getChildren().size() - 1) {
             writer.write(" when ");
             getChildren().get(index).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             index++;
-            if (index == this.getChildren().size())
-            {
+            if (index == this.getChildren().size()) {
                 throw new IllegalStateException("Invalid case-when expression, count of when-to-then nodes not matching");
             }
             writer.write(" then ");
@@ -105,8 +95,7 @@ public class CaseSwitchExpression extends ExpressionBase
             index++;
         }
 
-        if (index < this.getChildren().size())
-        {
+        if (index < this.getChildren().size()) {
             writer.write(" else ");
             getChildren().get(index).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }

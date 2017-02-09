@@ -28,8 +28,7 @@ import java.util.*;
 import static com.espertech.esper.util.JavaClassHelper.isArrayTypeCompatible;
 import static com.espertech.esper.util.JavaClassHelper.isCollectionMapOrArray;
 
-public class TestJavaClassHelper extends TestCase
-{
+public class TestJavaClassHelper extends TestCase {
     public void testArrayTypeCompatible() {
         assertTrue(isArrayTypeCompatible(int.class, int.class));
         assertTrue(isArrayTypeCompatible(int.class, Integer.class));
@@ -60,66 +59,59 @@ public class TestJavaClassHelper extends TestCase
     }
 
     public void testTakeFirstN() {
-        Class[] classes = new Class[] {String.class};
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 1));
+        Class[] classes = new Class[]{String.class};
+        EPAssertionUtil.assertEqualsExactOrder(new Object[]{String.class}, JavaClassHelper.takeFirstN(classes, 1));
 
-        classes = new Class[] {String.class, Integer.class};
+        classes = new Class[]{String.class, Integer.class};
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 2));
 
-        classes = new Class[] {String.class, Integer.class, Double.class};
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class}, JavaClassHelper.takeFirstN(classes, 1));
-        EPAssertionUtil.assertEqualsExactOrder(new Object[] {String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 2));
+        classes = new Class[]{String.class, Integer.class, Double.class};
+        EPAssertionUtil.assertEqualsExactOrder(new Object[]{String.class}, JavaClassHelper.takeFirstN(classes, 1));
+        EPAssertionUtil.assertEqualsExactOrder(new Object[]{String.class, Integer.class}, JavaClassHelper.takeFirstN(classes, 2));
     }
 
-    public void testIsFragmentableType()
-    {
-        Class[] notFragmentables = new Class[] {
-            String.class, int.class, Character.class, long.class, Map.class, HashMap.class, SupportEnum.class,
+    public void testIsFragmentableType() {
+        Class[] notFragmentables = new Class[]{
+                String.class, int.class, Character.class, long.class, Map.class, HashMap.class, SupportEnum.class,
         };
 
-        Class[] yesFragmentables = new Class[] {
-            SupportBeanCombinedProps.class, SupportBeanCombinedProps.NestedLevOne.class, SupportBean.class
+        Class[] yesFragmentables = new Class[]{
+                SupportBeanCombinedProps.class, SupportBeanCombinedProps.NestedLevOne.class, SupportBean.class
         };
 
-        for (Class notFragmentable : notFragmentables)
-        {
+        for (Class notFragmentable : notFragmentables) {
             assertFalse(JavaClassHelper.isFragmentableType(notFragmentable));
         }
-        for (Class yesFragmentable : yesFragmentables)
-        {
+        for (Class yesFragmentable : yesFragmentables) {
             assertTrue(JavaClassHelper.isFragmentableType(yesFragmentable));
         }
     }
 
-    public void testGetParameterAsString()
-    {
+    public void testGetParameterAsString() {
         Object[][] testCases = {
-                {new Class[] {String.class, int.class}, "String, int"},
-                {new Class[] {Integer.class, Boolean.class}, "Integer, Boolean"},
-                {new Class[] {}, ""},
-                {new Class[] {null}, "null (any type)"},
-                {new Class[] {byte.class, null}, "byte, null (any type)"},
-                {new Class[] {SupportBean.class, int[].class, int[][].class, Map.class}, "SupportBean, int[], int[][], Map"},
-                {new Class[] {SupportBean[].class, SupportEnum.class, SupportBeanComplexProps.SupportBeanSpecialGetterNested.class}, "SupportBean[], SupportEnum, SupportBeanSpecialGetterNested"},
-            };
+                {new Class[]{String.class, int.class}, "String, int"},
+                {new Class[]{Integer.class, Boolean.class}, "Integer, Boolean"},
+                {new Class[]{}, ""},
+                {new Class[]{null}, "null (any type)"},
+                {new Class[]{byte.class, null}, "byte, null (any type)"},
+                {new Class[]{SupportBean.class, int[].class, int[][].class, Map.class}, "SupportBean, int[], int[][], Map"},
+                {new Class[]{SupportBean[].class, SupportEnum.class, SupportBeanComplexProps.SupportBeanSpecialGetterNested.class}, "SupportBean[], SupportEnum, SupportBeanSpecialGetterNested"},
+        };
 
-        for (int i = 0; i < testCases.length; i++)
-        {
+        for (int i = 0; i < testCases.length; i++) {
             Class[] parameters = (Class[]) testCases[i][0];
             assertEquals(testCases[i][1], JavaClassHelper.getParameterAsString(parameters));
         }
     }
 
-    public void testCanCoerce()
-    {
+    public void testCanCoerce() {
         final Class[] primitiveClasses = {
-            float.class, double.class, byte.class, short.class, int.class, long.class};
+                float.class, double.class, byte.class, short.class, int.class, long.class};
 
         final Class[] boxedClasses = {
-            Float.class, Double.class, Byte.class, Short.class, Integer.class, Long.class};
+                Float.class, Double.class, Byte.class, Short.class, Integer.class, Long.class};
 
-        for (int i = 0; i < primitiveClasses.length; i++)
-        {
+        for (int i = 0; i < primitiveClasses.length; i++) {
             assertTrue(JavaClassHelper.canCoerce(primitiveClasses[i], boxedClasses[i]));
             assertTrue(JavaClassHelper.canCoerce(boxedClasses[i], boxedClasses[i]));
             assertTrue(JavaClassHelper.canCoerce(primitiveClasses[i], primitiveClasses[i]));
@@ -145,29 +137,22 @@ public class TestJavaClassHelper extends TestCase
         assertTrue(JavaClassHelper.canCoerce(Integer.class, BigDecimal.class));
         assertTrue(JavaClassHelper.canCoerce(short.class, BigDecimal.class));
 
-        try
-        {
+        try {
             JavaClassHelper.canCoerce(String.class, Float.class);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
 
-        try
-        {
+        try {
             JavaClassHelper.canCoerce(Float.class, Boolean.class);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
-    public void testCoerceBoxed()
-    {
+    public void testCoerceBoxed() {
         assertEquals(1d, JavaClassHelper.coerceBoxed(1d, Double.class));
         assertEquals(5d, JavaClassHelper.coerceBoxed(5, Double.class));
         assertEquals(6d, JavaClassHelper.coerceBoxed((byte) 6, Double.class));
@@ -180,121 +165,103 @@ public class TestJavaClassHelper extends TestCase
         assertEquals(new BigDecimal(8), JavaClassHelper.coerceBoxed(8, BigDecimal.class));
         assertEquals(new BigDecimal(8d), JavaClassHelper.coerceBoxed(8d, BigDecimal.class));
 
-        try
-        {
+        try {
             JavaClassHelper.coerceBoxed(10, int.class);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected
         }
     }
 
-    public void testIsNumeric()
-    {
+    public void testIsNumeric() {
         final Class[] numericClasses = {
-            float.class, Float.class, double.class, Double.class,
-            byte.class, Byte.class, short.class, Short.class, int.class, Integer.class,
-            long.class, Long.class, BigInteger.class, BigDecimal.class };
+                float.class, Float.class, double.class, Double.class,
+                byte.class, Byte.class, short.class, Short.class, int.class, Integer.class,
+                long.class, Long.class, BigInteger.class, BigDecimal.class};
 
         final Class[] nonnumericClasses = {
-            String.class, boolean.class, Boolean.class, TestCase.class };
+                String.class, boolean.class, Boolean.class, TestCase.class};
 
-        for (Class clazz : numericClasses)
-        {
+        for (Class clazz : numericClasses) {
             assertTrue(JavaClassHelper.isNumeric(clazz));
         }
 
-        for (Class clazz : nonnumericClasses)
-        {
+        for (Class clazz : nonnumericClasses) {
             assertFalse(JavaClassHelper.isNumeric(clazz));
         }
     }
 
-    public void testIsNumericNonFP()
-    {
+    public void testIsNumericNonFP() {
         final Class[] numericClasses = {
-            byte.class, Byte.class, short.class, Short.class, int.class, Integer.class,
-            long.class, Long.class };
+                byte.class, Byte.class, short.class, Short.class, int.class, Integer.class,
+                long.class, Long.class};
 
         final Class[] nonnumericClasses = {
-            float.class, Float.class, double.class, Double.class, String.class, boolean.class, Boolean.class, TestCase.class };
+                float.class, Float.class, double.class, Double.class, String.class, boolean.class, Boolean.class, TestCase.class};
 
-        for (Class clazz : numericClasses)
-        {
+        for (Class clazz : numericClasses) {
             assertTrue(JavaClassHelper.isNumericNonFP(clazz));
         }
 
-        for (Class clazz : nonnumericClasses)
-        {
+        for (Class clazz : nonnumericClasses) {
             assertFalse(JavaClassHelper.isNumericNonFP(clazz));
         }
     }
 
-    public void testGetBoxed()
-    {
+    public void testGetBoxed() {
         final Class[] primitiveClasses = {
-            boolean.class, float.class, double.class, byte.class, short.class, int.class, long.class, char.class};
+                boolean.class, float.class, double.class, byte.class, short.class, int.class, long.class, char.class};
 
         final Class[] boxedClasses = {
-            Boolean.class, Float.class, Double.class, Byte.class, Short.class, Integer.class, Long.class, Character.class};
+                Boolean.class, Float.class, Double.class, Byte.class, Short.class, Integer.class, Long.class, Character.class};
 
         final Class[] otherClasses = {
-            String.class, TestCase.class };
+                String.class, TestCase.class};
 
-        for (int i = 0; i < primitiveClasses.length; i++)
-        {
+        for (int i = 0; i < primitiveClasses.length; i++) {
             Class boxed = JavaClassHelper.getBoxedType(primitiveClasses[i]);
             assertEquals(boxed, boxedClasses[i]);
         }
 
-        for (int i = 0; i < boxedClasses.length; i++)
-        {
+        for (int i = 0; i < boxedClasses.length; i++) {
             Class boxed = JavaClassHelper.getBoxedType(boxedClasses[i]);
             assertEquals(boxed, boxedClasses[i]);
         }
 
-        for (int i = 0; i < otherClasses.length; i++)
-        {
+        for (int i = 0; i < otherClasses.length; i++) {
             Class boxed = JavaClassHelper.getBoxedType(otherClasses[i]);
             assertEquals(boxed, otherClasses[i]);
         }
     }
 
-    public void testGetPrimitive()
-    {
+    public void testGetPrimitive() {
         final Class[] primitiveClasses = {
-            boolean.class, float.class, double.class, byte.class, short.class, int.class, long.class, char.class};
+                boolean.class, float.class, double.class, byte.class, short.class, int.class, long.class, char.class};
 
         final Class[] boxedClasses = {
-            Boolean.class, Float.class, Double.class, Byte.class, Short.class, Integer.class, Long.class, Character.class};
+                Boolean.class, Float.class, Double.class, Byte.class, Short.class, Integer.class, Long.class, Character.class};
 
         final Class[] otherClasses = {
-            String.class, TestCase.class };
+                String.class, TestCase.class};
 
-        for (int i = 0; i < primitiveClasses.length; i++)
-        {
+        for (int i = 0; i < primitiveClasses.length; i++) {
             Class primitive = JavaClassHelper.getPrimitiveType(boxedClasses[i]);
             assertEquals(primitive, primitiveClasses[i]);
         }
 
-        for (int i = 0; i < boxedClasses.length; i++)
-        {
+        for (int i = 0; i < boxedClasses.length; i++) {
             Class primitive = JavaClassHelper.getPrimitiveType(primitiveClasses[i]);
             assertEquals(primitive, primitiveClasses[i]);
         }
 
-        for (int i = 0; i < otherClasses.length; i++)
-        {
+        for (int i = 0; i < otherClasses.length; i++) {
             Class clazz = JavaClassHelper.getPrimitiveType(otherClasses[i]);
             assertEquals(clazz, otherClasses[i]);
         }
     }
 
-    public void testIsAssignmentCompatible()
-    {
-        Class[][] successCases = new Class[][] {
+    public void testIsAssignmentCompatible() {
+        Class[][] successCases = new Class[][]{
                 {boolean.class, Boolean.class},
                 {byte.class, short.class},
                 {byte.class, Short.class},
@@ -370,7 +337,7 @@ public class TestJavaClassHelper extends TestCase
                 {null, Object.class},
         };
 
-        Class[][] failCases = new Class[][] {
+        Class[][] failCases = new Class[][]{
                 {int.class, Byte.class},
                 {short.class, byte.class},
                 {String.class, Boolean.class},
@@ -394,27 +361,23 @@ public class TestJavaClassHelper extends TestCase
                 {Readable[].class, Reader[].class},
         };
 
-        for (int i = 0; i < successCases.length; i++)
-        {
+        for (int i = 0; i < successCases.length; i++) {
             assertTrue("Failed asserting success case " + successCases[i][0] +
-                    " and " + successCases[i][1],  JavaClassHelper.isAssignmentCompatible(successCases[i][0], successCases[i][1]));
+                    " and " + successCases[i][1], JavaClassHelper.isAssignmentCompatible(successCases[i][0], successCases[i][1]));
         }
-        for (int i = 0; i < failCases.length; i++)
-        {
+        for (int i = 0; i < failCases.length; i++) {
             assertFalse("Failed asserting fail case " + failCases[i][0] +
-                    " and " + failCases[i][1],  JavaClassHelper.isAssignmentCompatible(failCases[i][0], failCases[i][1]));
+                    " and " + failCases[i][1], JavaClassHelper.isAssignmentCompatible(failCases[i][0], failCases[i][1]));
         }
     }
 
-    public void testIsBoolean()
-    {
+    public void testIsBoolean() {
         assertTrue(JavaClassHelper.isBoolean(Boolean.class));
         assertTrue(JavaClassHelper.isBoolean(boolean.class));
         assertFalse(JavaClassHelper.isBoolean(String.class));
     }
 
-    public void testGetArithmaticCoercionType()
-    {
+    public void testGetArithmaticCoercionType() {
         assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(Double.class, int.class));
         assertEquals(Double.class, JavaClassHelper.getArithmaticCoercionType(byte.class, double.class));
         assertEquals(Long.class, JavaClassHelper.getArithmaticCoercionType(byte.class, long.class));
@@ -430,29 +393,22 @@ public class TestJavaClassHelper extends TestCase
         assertEquals(BigInteger.class, JavaClassHelper.getArithmaticCoercionType(Integer.class, BigInteger.class));
         assertEquals(BigInteger.class, JavaClassHelper.getArithmaticCoercionType(BigInteger.class, int.class));
 
-        try
-        {
+        try {
             JavaClassHelper.getArithmaticCoercionType(String.class, float.class);
             fail();
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             // Expected
         }
 
-        try
-        {
+        try {
             JavaClassHelper.getArithmaticCoercionType(int.class, boolean.class);
             fail();
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             // Expected
         }
     }
 
-    public void testIsFloatingPointNumber()
-    {
+    public void testIsFloatingPointNumber() {
         assertTrue(JavaClassHelper.isFloatingPointNumber(1d));
         assertTrue(JavaClassHelper.isFloatingPointNumber(1f));
         assertTrue(JavaClassHelper.isFloatingPointNumber(new Double(1)));
@@ -462,8 +418,7 @@ public class TestJavaClassHelper extends TestCase
         assertFalse(JavaClassHelper.isFloatingPointNumber(new Integer(1)));
     }
 
-    public void testIsFloatingPointClass()
-    {
+    public void testIsFloatingPointClass() {
         assertTrue(JavaClassHelper.isFloatingPointClass(double.class));
         assertTrue(JavaClassHelper.isFloatingPointClass(float.class));
         assertTrue(JavaClassHelper.isFloatingPointClass(Double.class));
@@ -474,8 +429,7 @@ public class TestJavaClassHelper extends TestCase
         assertFalse(JavaClassHelper.isFloatingPointClass(Integer.class));
     }
 
-    public void testGetCompareToCoercionType()
-    {
+    public void testGetCompareToCoercionType() {
         assertEquals(String.class, JavaClassHelper.getCompareToCoercionType(String.class, String.class));
         assertEquals(Boolean.class, JavaClassHelper.getCompareToCoercionType(Boolean.class, Boolean.class));
         assertEquals(Boolean.class, JavaClassHelper.getCompareToCoercionType(Boolean.class, boolean.class));
@@ -514,9 +468,8 @@ public class TestJavaClassHelper extends TestCase
         tryInvalidGetRelational(boolean.class, int.class);
     }
 
-    public void testGetBoxedClassName() throws Exception
-    {
-        String[][] tests = new String[][] {
+    public void testGetBoxedClassName() throws Exception {
+        String[][] tests = new String[][]{
                 {Integer.class.getName(), int.class.getName()},
                 {Long.class.getName(), long.class.getName()},
                 {Short.class.getName(), short.class.getName()},
@@ -527,15 +480,13 @@ public class TestJavaClassHelper extends TestCase
                 {Character.class.getName(), char.class.getName()}
         };
 
-        for (int i = 0; i < tests.length; i++)
-        {
+        for (int i = 0; i < tests.length; i++) {
             assertEquals(tests[i][0], JavaClassHelper.getBoxedClassName(tests[i][1]));
         }
     }
 
-    public void testClassForName() throws Exception
-    {
-        Object[][] tests = new Object[][] {
+    public void testClassForName() throws Exception {
+        Object[][] tests = new Object[][]{
                 {int.class, int.class.getName()},
                 {long.class, long.class.getName()},
                 {short.class, short.class.getName()},
@@ -543,17 +494,15 @@ public class TestJavaClassHelper extends TestCase
                 {float.class, float.class.getName()},
                 {boolean.class, boolean.class.getName()},
                 {byte.class, byte.class.getName()},
-                {char.class, char.class.getName()} };
+                {char.class, char.class.getName()}};
 
-        for (int i = 0; i < tests.length; i++)
-        {
-            assertEquals(tests[i][0], JavaClassHelper.getClassForName((String)tests[i][1], ClassForNameProviderDefault.INSTANCE));
+        for (int i = 0; i < tests.length; i++) {
+            assertEquals(tests[i][0], JavaClassHelper.getClassForName((String) tests[i][1], ClassForNameProviderDefault.INSTANCE));
         }
     }
 
-    public void testClassForSimpleName() throws Exception
-    {
-        Object[][] tests = new Object[][] {
+    public void testClassForSimpleName() throws Exception {
+        Object[][] tests = new Object[][]{
                 {"Boolean", Boolean.class},
                 {"Bool", Boolean.class},
                 {"boolean", Boolean.class},
@@ -583,17 +532,15 @@ public class TestJavaClassHelper extends TestCase
                 {"varchar", String.class},
                 {"varchar2", String.class},
                 {SupportBean.class.getName(), SupportBean.class},
-                };
+        };
 
-        for (int i = 0; i < tests.length; i++)
-        {
-            assertEquals("error in row:" + i, tests[i][1], JavaClassHelper.getClassForSimpleName((String)tests[i][0], ClassForNameProviderDefault.INSTANCE));
+        for (int i = 0; i < tests.length; i++) {
+            assertEquals("error in row:" + i, tests[i][1], JavaClassHelper.getClassForSimpleName((String) tests[i][0], ClassForNameProviderDefault.INSTANCE));
         }
     }
 
-    public void testParse() throws Exception
-    {
-        Object[][] tests = new Object[][] {
+    public void testParse() throws Exception {
+        Object[][] tests = new Object[][]{
                 {Boolean.class, "TrUe", true},
                 {Boolean.class, "false", false},
                 {boolean.class, "false", false},
@@ -604,8 +551,8 @@ public class TestJavaClassHelper extends TestCase
                 {Long.class, " -2 ", -2L},
                 {Long.class, " -2L ", -2L},
                 {Long.class, " -2l ", -2L},
-                {Short.class, " -3 ", (short)-3},
-                {short.class, "111", (short)111},
+                {Short.class, " -3 ", (short) -3},
+                {short.class, "111", (short) 111},
                 {Double.class, " -3d ", -3d},
                 {double.class, "111.38373", 111.38373d},
                 {Double.class, " -3.1D ", -3.1D},
@@ -613,22 +560,20 @@ public class TestJavaClassHelper extends TestCase
                 {float.class, "111.38373", 111.38373f},
                 {Float.class, " -3.1F ", -3.1f},
                 {Byte.class, " -3 ", (byte) -3},
-                {byte.class, " 1 ", (byte)1},
+                {byte.class, " 1 ", (byte) 1},
                 {char.class, "ABC", 'A'},
                 {Character.class, " AB", ' '},
                 {String.class, "AB", "AB"},
                 {String.class, " AB ", " AB "},
-                };
+        };
 
-        for (int i = 0; i < tests.length; i++)
-        {
-            assertEquals("error in row:" + i, tests[i][2], JavaClassHelper.parse((Class)tests[i][0], (String)tests[i][1]));
+        for (int i = 0; i < tests.length; i++) {
+            assertEquals("error in row:" + i, tests[i][2], JavaClassHelper.parse((Class) tests[i][0], (String) tests[i][1]));
         }
     }
 
-    public void testGetParser() throws Exception
-    {
-        Object[][] tests = new Object[][] {
+    public void testGetParser() throws Exception {
+        Object[][] tests = new Object[][]{
                 {Boolean.class, "TrUe", true},
                 {Boolean.class, "false", false},
                 {boolean.class, "false", false},
@@ -639,8 +584,8 @@ public class TestJavaClassHelper extends TestCase
                 {Long.class, " -2 ", -2L},
                 {Long.class, " -2L ", -2L},
                 {Long.class, " -2l ", -2L},
-                {Short.class, " -3 ", (short)-3},
-                {short.class, "111", (short)111},
+                {Short.class, " -3 ", (short) -3},
+                {short.class, "111", (short) 111},
                 {Double.class, " -3d ", -3d},
                 {double.class, "111.38373", 111.38373d},
                 {Double.class, " -3.1D ", -3.1D},
@@ -648,126 +593,113 @@ public class TestJavaClassHelper extends TestCase
                 {float.class, "111.38373", 111.38373f},
                 {Float.class, " -3.1F ", -3.1f},
                 {Byte.class, " -3 ", (byte) -3},
-                {byte.class, " 1 ", (byte)1},
+                {byte.class, " 1 ", (byte) 1},
                 {char.class, "ABC", 'A'},
                 {Character.class, " AB", ' '},
                 {String.class, "AB", "AB"},
                 {String.class, " AB ", " AB "},
-                };
+        };
 
-        for (int i = 0; i < tests.length; i++)
-        {
-            SimpleTypeParser parser = SimpleTypeParserFactory.getParser((Class)tests[i][0]);
-            assertEquals("error in row:" + i, tests[i][2], parser.parse((String)tests[i][1]));
+        for (int i = 0; i < tests.length; i++) {
+            SimpleTypeParser parser = SimpleTypeParserFactory.getParser((Class) tests[i][0]);
+            assertEquals("error in row:" + i, tests[i][2], parser.parse((String) tests[i][1]));
         }
     }
 
-    public void testIsJavaBuiltinDataType()
-    {
-        Class[] classesDataType = new Class[] {int.class, Long.class, double.class, boolean.class, Boolean.class,
+    public void testIsJavaBuiltinDataType() {
+        Class[] classesDataType = new Class[]{int.class, Long.class, double.class, boolean.class, Boolean.class,
                 char.class, Character.class, String.class, CharSequence.class};
-        Class[] classesNotDataType = new Class[] {SupportBean.class, Math.class, Class.class, Object.class};
+        Class[] classesNotDataType = new Class[]{SupportBean.class, Math.class, Class.class, Object.class};
 
-        for (int i = 0; i < classesDataType.length; i++)
-        {
+        for (int i = 0; i < classesDataType.length; i++) {
             assertTrue(JavaClassHelper.isJavaBuiltinDataType(classesDataType[i]));
         }
-        for (int i = 0; i < classesNotDataType.length; i++)
-        {
+        for (int i = 0; i < classesNotDataType.length; i++) {
             assertFalse(JavaClassHelper.isJavaBuiltinDataType(classesNotDataType[i]));
         }
         assertTrue(JavaClassHelper.isJavaBuiltinDataType(null));
     }
 
-    private String tryInvalidGetRelational(Class classOne, Class classTwo)
-    {
-        try
-        {
+    private String tryInvalidGetRelational(Class classOne, Class classTwo) {
+        try {
             JavaClassHelper.getCompareToCoercionType(classOne, classTwo);
             fail();
             return null;
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             return ex.getMessage();
         }
     }
 
-    public void testGetCommonCoercionType()
-    {
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {String.class}));
-        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[] {boolean.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {long.class}));
+    public void testGetCommonCoercionType() {
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{String.class}));
+        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[]{boolean.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{long.class}));
 
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {String.class, null}));
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {String.class, String.class}));
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {String.class, String.class, String.class}));
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {String.class, String.class, null}));
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {null, String.class, null}));
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {null, String.class, String.class}));
-        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[] {null, null, String.class, String.class}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{String.class, null}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{String.class, String.class}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{String.class, String.class, String.class}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{String.class, String.class, null}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{null, String.class, null}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{null, String.class, String.class}));
+        assertEquals(String.class, JavaClassHelper.getCommonCoercionType(new Class[]{null, null, String.class, String.class}));
 
-        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[] {Boolean.class, Boolean.class}));
-        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[] {Boolean.class, boolean.class}));
-        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[] {boolean.class, Boolean.class}));
-        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[] {boolean.class, boolean.class}));
-        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[] {Boolean.class, boolean.class, boolean.class}));
-        assertEquals(Integer.class, JavaClassHelper.getCommonCoercionType(new Class[] {int.class, byte.class, int.class}));
-        assertEquals(Integer.class, JavaClassHelper.getCommonCoercionType(new Class[] {Integer.class, Byte.class, Short.class}));
-        assertEquals(Integer.class, JavaClassHelper.getCommonCoercionType(new Class[] {byte.class, short.class, short.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {Integer.class, Byte.class, Double.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {Long.class, Double.class, Double.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {double.class, byte.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {double.class, byte.class, null}));
-        assertEquals(Float.class, JavaClassHelper.getCommonCoercionType(new Class[] {float.class, float.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {float.class, int.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {Integer.class, int.class, Float.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {Integer.class, int.class, long.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {long.class, int.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {long.class, int.class, int.class, int.class, byte.class, short.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {long.class, null, int.class, null, int.class, int.class, null, byte.class, short.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {Integer.class, int.class, long.class}));
-        assertEquals(Character.class, JavaClassHelper.getCommonCoercionType(new Class[] {char.class, char.class, char.class}));
-        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[] {int.class, int.class, int.class, long.class, int.class, int.class}));
-        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[] {int.class, long.class, int.class, double.class, int.class, int.class}));
-        assertEquals(null, JavaClassHelper.getCommonCoercionType(new Class[] {null, null}));
-        assertEquals(null, JavaClassHelper.getCommonCoercionType(new Class[] {null, null, null}));
-        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[] {SupportBean.class, null, null}));
-        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[] {null, SupportBean.class, null}));
-        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[] {null, SupportBean.class}));
-        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[] {null, null, SupportBean.class}));
-        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[] {SupportBean.class, null, SupportBean.class, SupportBean.class}));
-        assertEquals(Object.class, JavaClassHelper.getCommonCoercionType(new Class[] {SupportBean.class, SupportBean_A.class, null, SupportBean.class, SupportBean.class}));
+        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[]{Boolean.class, Boolean.class}));
+        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[]{Boolean.class, boolean.class}));
+        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[]{boolean.class, Boolean.class}));
+        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[]{boolean.class, boolean.class}));
+        assertEquals(Boolean.class, JavaClassHelper.getCommonCoercionType(new Class[]{Boolean.class, boolean.class, boolean.class}));
+        assertEquals(Integer.class, JavaClassHelper.getCommonCoercionType(new Class[]{int.class, byte.class, int.class}));
+        assertEquals(Integer.class, JavaClassHelper.getCommonCoercionType(new Class[]{Integer.class, Byte.class, Short.class}));
+        assertEquals(Integer.class, JavaClassHelper.getCommonCoercionType(new Class[]{byte.class, short.class, short.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{Integer.class, Byte.class, Double.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{Long.class, Double.class, Double.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{double.class, byte.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{double.class, byte.class, null}));
+        assertEquals(Float.class, JavaClassHelper.getCommonCoercionType(new Class[]{float.class, float.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{float.class, int.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{Integer.class, int.class, Float.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{Integer.class, int.class, long.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{long.class, int.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{long.class, int.class, int.class, int.class, byte.class, short.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{long.class, null, int.class, null, int.class, int.class, null, byte.class, short.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{Integer.class, int.class, long.class}));
+        assertEquals(Character.class, JavaClassHelper.getCommonCoercionType(new Class[]{char.class, char.class, char.class}));
+        assertEquals(Long.class, JavaClassHelper.getCommonCoercionType(new Class[]{int.class, int.class, int.class, long.class, int.class, int.class}));
+        assertEquals(Double.class, JavaClassHelper.getCommonCoercionType(new Class[]{int.class, long.class, int.class, double.class, int.class, int.class}));
+        assertEquals(null, JavaClassHelper.getCommonCoercionType(new Class[]{null, null}));
+        assertEquals(null, JavaClassHelper.getCommonCoercionType(new Class[]{null, null, null}));
+        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[]{SupportBean.class, null, null}));
+        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[]{null, SupportBean.class, null}));
+        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[]{null, SupportBean.class}));
+        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[]{null, null, SupportBean.class}));
+        assertEquals(SupportBean.class, JavaClassHelper.getCommonCoercionType(new Class[]{SupportBean.class, null, SupportBean.class, SupportBean.class}));
+        assertEquals(Object.class, JavaClassHelper.getCommonCoercionType(new Class[]{SupportBean.class, SupportBean_A.class, null, SupportBean.class, SupportBean.class}));
 
-        assertEquals("Cannot coerce to String type java.lang.Boolean", tryInvalidGetCommonCoercionType(new Class[] {String.class, Boolean.class}));
-        tryInvalidGetCommonCoercionType(new Class[] {String.class, String.class, Boolean.class});
-        tryInvalidGetCommonCoercionType(new Class[] {Boolean.class, String.class, Boolean.class});
-        tryInvalidGetCommonCoercionType(new Class[] {Boolean.class, Boolean.class, String.class});
-        tryInvalidGetCommonCoercionType(new Class[] {long.class, Boolean.class, String.class});
-        tryInvalidGetCommonCoercionType(new Class[] {double.class, long.class, String.class});
-        tryInvalidGetCommonCoercionType(new Class[] {null, double.class, long.class, String.class});
-        tryInvalidGetCommonCoercionType(new Class[] {String.class, String.class, long.class});
-        tryInvalidGetCommonCoercionType(new Class[] {String.class, SupportBean.class});
-        tryInvalidGetCommonCoercionType(new Class[] {boolean.class, null, null, String.class});
-        tryInvalidGetCommonCoercionType(new Class[] {int.class, null, null, String.class});
-        tryInvalidGetCommonCoercionType(new Class[] {SupportBean.class, Boolean.class});
-        tryInvalidGetCommonCoercionType(new Class[] {String.class, SupportBean.class});
-        tryInvalidGetCommonCoercionType(new Class[] {SupportBean.class, String.class, SupportBean.class});
+        assertEquals("Cannot coerce to String type java.lang.Boolean", tryInvalidGetCommonCoercionType(new Class[]{String.class, Boolean.class}));
+        tryInvalidGetCommonCoercionType(new Class[]{String.class, String.class, Boolean.class});
+        tryInvalidGetCommonCoercionType(new Class[]{Boolean.class, String.class, Boolean.class});
+        tryInvalidGetCommonCoercionType(new Class[]{Boolean.class, Boolean.class, String.class});
+        tryInvalidGetCommonCoercionType(new Class[]{long.class, Boolean.class, String.class});
+        tryInvalidGetCommonCoercionType(new Class[]{double.class, long.class, String.class});
+        tryInvalidGetCommonCoercionType(new Class[]{null, double.class, long.class, String.class});
+        tryInvalidGetCommonCoercionType(new Class[]{String.class, String.class, long.class});
+        tryInvalidGetCommonCoercionType(new Class[]{String.class, SupportBean.class});
+        tryInvalidGetCommonCoercionType(new Class[]{boolean.class, null, null, String.class});
+        tryInvalidGetCommonCoercionType(new Class[]{int.class, null, null, String.class});
+        tryInvalidGetCommonCoercionType(new Class[]{SupportBean.class, Boolean.class});
+        tryInvalidGetCommonCoercionType(new Class[]{String.class, SupportBean.class});
+        tryInvalidGetCommonCoercionType(new Class[]{SupportBean.class, String.class, SupportBean.class});
 
-        try
-        {
+        try {
             JavaClassHelper.getCommonCoercionType(new Class[0]);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
-    public void testGetPrimitiveClassForName()
-    {
-        Object[][] tests = new Object[][] {
+    public void testGetPrimitiveClassForName() {
+        Object[][] tests = new Object[][]{
                 {"int", int.class},
                 {"Long", long.class},
                 {"SHort", short.class},
@@ -782,15 +714,13 @@ public class TestJavaClassHelper extends TestCase
                 {"STRINg", String.class}
         };
 
-        for (int i = 0; i < tests.length; i++)
-        {
+        for (int i = 0; i < tests.length; i++) {
             assertEquals(tests[i][1], JavaClassHelper.getPrimitiveClassForName((String) tests[i][0]));
         }
     }
 
-    public void testImplementsInterface()
-    {
-        Object[][] tests = new Object[][] {
+    public void testImplementsInterface() {
+        Object[][] tests = new Object[][]{
                 {HashMap.class, Map.class, true},
                 {AbstractMap.class, Map.class, true},
                 {TreeMap.class, Map.class, true},
@@ -800,17 +730,15 @@ public class TestJavaClassHelper extends TestCase
                 {SupportBean_F.class, SupportMarkerInterface.class, true},
                 {SupportBeanBase.class, SupportMarkerInterface.class, true},
                 {SupportOverrideOneB.class, SupportMarkerInterface.class, true}
-                };
+        };
 
-        for (int i = 0; i < tests.length; i++)
-        {
-            assertEquals("test failed for " + tests[i][0], tests[i][2], JavaClassHelper.isImplementsInterface((Class)tests[i][0], (Class)tests[i][1]));
+        for (int i = 0; i < tests.length; i++) {
+            assertEquals("test failed for " + tests[i][0], tests[i][2], JavaClassHelper.isImplementsInterface((Class) tests[i][0], (Class) tests[i][1]));
         }
     }
 
-    public void testImplementsOrExtends()
-    {
-        Object[][] tests = new Object[][] {
+    public void testImplementsOrExtends() {
+        Object[][] tests = new Object[][]{
                 {HashMap.class, Map.class, true},
                 {AbstractMap.class, Map.class, true},
                 {TreeMap.class, Map.class, true},
@@ -827,36 +755,32 @@ public class TestJavaClassHelper extends TestCase
                 {SupportOverrideOneB.class, SupportOverrideBase.class, true},
                 {SupportOverrideOneB.class, Serializable.class, true},
                 {SupportOverrideOneB.class, String.class, false},
-                };
+        };
 
-        for (int i = 0; i < tests.length; i++)
-        {
+        for (int i = 0; i < tests.length; i++) {
             assertEquals("test failed for " + tests[i][0] + " and " + tests[i][1], tests[i][2],
-                    JavaClassHelper.isSubclassOrImplementsInterface((Class)tests[i][0], (Class)tests[i][1]));
+                    JavaClassHelper.isSubclassOrImplementsInterface((Class) tests[i][0], (Class) tests[i][1]));
         }
     }
 
-    public void testIsSimpleNameFullyQualfied()
-    {
-        assertTrue(JavaClassHelper.isSimpleNameFullyQualfied("ABC","ABC"));
-        assertTrue(JavaClassHelper.isSimpleNameFullyQualfied("ABC","com.abc.ABC"));
-        assertTrue(JavaClassHelper.isSimpleNameFullyQualfied("ABC","abc.ABC"));
-        assertFalse(JavaClassHelper.isSimpleNameFullyQualfied("DABC","abc.ABC"));
-        assertFalse(JavaClassHelper.isSimpleNameFullyQualfied("AB","abc.ABC"));
-        assertFalse(JavaClassHelper.isSimpleNameFullyQualfied("AB","ABC"));
+    public void testIsSimpleNameFullyQualfied() {
+        assertTrue(JavaClassHelper.isSimpleNameFullyQualfied("ABC", "ABC"));
+        assertTrue(JavaClassHelper.isSimpleNameFullyQualfied("ABC", "com.abc.ABC"));
+        assertTrue(JavaClassHelper.isSimpleNameFullyQualfied("ABC", "abc.ABC"));
+        assertFalse(JavaClassHelper.isSimpleNameFullyQualfied("DABC", "abc.ABC"));
+        assertFalse(JavaClassHelper.isSimpleNameFullyQualfied("AB", "abc.ABC"));
+        assertFalse(JavaClassHelper.isSimpleNameFullyQualfied("AB", "ABC"));
     }
 
-    public void testIsBigNumberType()
-    {
+    public void testIsBigNumberType() {
         assertTrue(JavaClassHelper.isBigNumberType(BigInteger.class));
         assertTrue(JavaClassHelper.isBigNumberType(BigDecimal.class));
         assertFalse(JavaClassHelper.isBigNumberType(String.class));
         assertFalse(JavaClassHelper.isBigNumberType(Double.class));
     }
 
-    public void testGetGenericReturnType() throws Exception
-    {
-        Object[][] testcases = new Object[][] {
+    public void testGetGenericReturnType() throws Exception {
+        Object[][] testcases = new Object[][]{
                 {"getList", String.class},
                 {"getListObject", Object.class},
                 {"getListUndefined", null},
@@ -866,8 +790,7 @@ public class TestJavaClassHelper extends TestCase
                 {"getIntBoxed", null},
         };
 
-        for (int i = 0; i < testcases.length; i++)
-        {
+        for (int i = 0; i < testcases.length; i++) {
             String name = testcases[i][0].toString();
             Method m = MyClassWithGetters.class.getMethod(name);
             Class expected = (Class) testcases[i][1];
@@ -875,9 +798,8 @@ public class TestJavaClassHelper extends TestCase
         }
     }
 
-    public void testGetGenericFieldType() throws Exception
-    {
-        Object[][] testcases = new Object[][] {
+    public void testGetGenericFieldType() throws Exception {
+        Object[][] testcases = new Object[][]{
                 {"list", String.class},
                 {"listObject", Object.class},
                 {"listUndefined", null},
@@ -887,8 +809,7 @@ public class TestJavaClassHelper extends TestCase
                 {"intBoxed", null},
         };
 
-        for (int i = 0; i < testcases.length; i++)
-        {
+        for (int i = 0; i < testcases.length; i++) {
             String name = testcases[i][0].toString();
             Field f = MyClassWithFields.class.getField(name);
             Class expected = (Class) testcases[i][1];
@@ -896,17 +817,15 @@ public class TestJavaClassHelper extends TestCase
         }
     }
 
-    public void testGetGenericFieldTypeMap() throws Exception
-    {
-        Object[][] testcases = new Object[][] {
+    public void testGetGenericFieldTypeMap() throws Exception {
+        Object[][] testcases = new Object[][]{
                 {"mapUndefined", null},
                 {"mapObject", Object.class},
                 {"mapBoolean", Boolean.class},
                 {"mapNotMap", null},
         };
 
-        for (int i = 0; i < testcases.length; i++)
-        {
+        for (int i = 0; i < testcases.length; i++) {
             String name = testcases[i][0].toString();
             Field f = MyClassWithFields.class.getField(name);
             Class expected = (Class) testcases[i][1];
@@ -914,17 +833,15 @@ public class TestJavaClassHelper extends TestCase
         }
     }
 
-    public void testGetGenericReturnTypeMap() throws Exception
-    {
-        Object[][] testcases = new Object[][] {
+    public void testGetGenericReturnTypeMap() throws Exception {
+        Object[][] testcases = new Object[][]{
                 {"getMapUndefined", null},
                 {"getMapObject", Object.class},
                 {"getMapBoolean", Boolean.class},
                 {"getMapNotMap", null},
         };
 
-        for (int i = 0; i < testcases.length; i++)
-        {
+        for (int i = 0; i < testcases.length; i++) {
             String name = testcases[i][0].toString();
             Method m = MyClassWithGetters.class.getMethod(name);
             Class expected = (Class) testcases[i][1];
@@ -937,46 +854,73 @@ public class TestJavaClassHelper extends TestCase
         props.put("p0", "string");
         props.put("p1", "int");
         props.put("p2", SupportBean.class.getName());
-        
+
         Map<String, Object> map = JavaClassHelper.getClassObjectFromPropertyTypeNames(props, ClassForNameProviderDefault.INSTANCE);
         assertEquals(String.class, map.get("p0"));
         assertEquals(Integer.class, map.get("p1"));
         assertEquals(SupportBean.class, map.get("p2"));
     }
 
-    private String tryInvalidGetCommonCoercionType(Class[] types)
-    {
-        try
-        {
+    private String tryInvalidGetCommonCoercionType(Class[] types) {
+        try {
             JavaClassHelper.getCommonCoercionType(types);
             fail();
             return null;
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             return ex.getMessage();
         }
     }
 
-    class MyStringList extends ArrayList<String> {}
-
-    class MyClassWithGetters
-    {
-        public ArrayList<Object> getListObject(){return null;}
-        public ArrayList getListUndefined(){return null;}
-        public ArrayList<String> getList(){return null;}
-        public Iterator<Integer> getIterator(){return null;}
-        public Set<MyClassWithGetters> getNested(){return null;}
-        public Integer getIntBoxed(){return null;}
-        public int getIntPrimitive(){return 1;}
-        public Map getMapUndefined() {return null;}
-        public Map<String, Object> getMapObject() {return null;}
-        public Map<String, Boolean> getMapBoolean()  {return null;}
-        public Integer getMapNotMap()  {return null;}
+    class MyStringList extends ArrayList<String> {
     }
 
-    class MyClassWithFields
-    {
+    class MyClassWithGetters {
+        public ArrayList<Object> getListObject() {
+            return null;
+        }
+
+        public ArrayList getListUndefined() {
+            return null;
+        }
+
+        public ArrayList<String> getList() {
+            return null;
+        }
+
+        public Iterator<Integer> getIterator() {
+            return null;
+        }
+
+        public Set<MyClassWithGetters> getNested() {
+            return null;
+        }
+
+        public Integer getIntBoxed() {
+            return null;
+        }
+
+        public int getIntPrimitive() {
+            return 1;
+        }
+
+        public Map getMapUndefined() {
+            return null;
+        }
+
+        public Map<String, Object> getMapObject() {
+            return null;
+        }
+
+        public Map<String, Boolean> getMapBoolean() {
+            return null;
+        }
+
+        public Integer getMapNotMap() {
+            return null;
+        }
+    }
+
+    class MyClassWithFields {
         public ArrayList<Object> listObject;
         public ArrayList listUndefined;
         public ArrayList<String> list;

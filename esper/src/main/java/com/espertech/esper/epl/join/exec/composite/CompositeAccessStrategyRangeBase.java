@@ -37,8 +37,7 @@ public abstract class CompositeAccessStrategyRangeBase {
 
         if (lookupStream != -1) {
             events = new EventBean[lookupStream + 1];
-        }
-        else {
+        } else {
             events = new EventBean[numStreams + 1];
         }
         this.lookupStream = lookupStream;
@@ -57,8 +56,7 @@ public abstract class CompositeAccessStrategyRangeBase {
     public Object evaluatePerStreamStart(EventBean[] eventPerStream, ExprEvaluatorContext context) {
         if (isNWOnTrigger) {
             return start.evaluate(eventPerStream, true, context);
-        }
-        else {
+        } else {
             System.arraycopy(eventPerStream, 0, events, 1, eventPerStream.length);
             return start.evaluate(events, true, context);
         }
@@ -67,8 +65,7 @@ public abstract class CompositeAccessStrategyRangeBase {
     public Object evaluatePerStreamEnd(EventBean[] eventPerStream, ExprEvaluatorContext context) {
         if (isNWOnTrigger) {
             return end.evaluate(eventPerStream, true, context);
-        }
-        else {
+        } else {
             System.arraycopy(eventPerStream, 0, events, 1, eventPerStream.length);
             return end.evaluate(events, true, context);
         }

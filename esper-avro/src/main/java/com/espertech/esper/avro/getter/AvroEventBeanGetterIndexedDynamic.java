@@ -32,7 +32,7 @@ public class AvroEventBeanGetterIndexedDynamic implements AvroEventPropertyGette
         if (value == null || !(value instanceof Collection)) {
             return null;
         }
-        return AvroEventBeanGetterIndexed.getIndexedValue((Collection)value, index);
+        return AvroEventBeanGetterIndexed.getIndexedValue((Collection) value, index);
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {

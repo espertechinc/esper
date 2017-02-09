@@ -15,20 +15,19 @@ import java.lang.reflect.Method;
 /**
  * Descriptor for writable properties.
  */
-public class WriteablePropertyDescriptor
-{
+public class WriteablePropertyDescriptor {
     private String propertyName;
     private Class type;
     private Method writeMethod;
 
     /**
      * Ctor.
+     *
      * @param propertyName name of property
-     * @param type type
-     * @param writeMethod optional write methods
+     * @param type         type
+     * @param writeMethod  optional write methods
      */
-    public WriteablePropertyDescriptor(String propertyName, Class type, Method writeMethod)
-    {
+    public WriteablePropertyDescriptor(String propertyName, Class type, Method writeMethod) {
         this.propertyName = propertyName;
         this.type = type;
         this.writeMethod = writeMethod;
@@ -36,54 +35,49 @@ public class WriteablePropertyDescriptor
 
     /**
      * Returns property name.
+     *
      * @return property name
      */
-    public String getPropertyName()
-    {
+    public String getPropertyName() {
         return propertyName;
     }
 
     /**
      * Returns property type.
+     *
      * @return property type
      */
-    public Class getType()
-    {
+    public Class getType() {
         return type;
     }
 
     /**
      * Returns write methods.
+     *
      * @return write methods
      */
-    public Method getWriteMethod()
-    {
+    public Method getWriteMethod() {
         return writeMethod;
     }
 
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
-        {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
         WriteablePropertyDescriptor that = (WriteablePropertyDescriptor) o;
 
-        if (!propertyName.equals(that.propertyName))
-        {
+        if (!propertyName.equals(that.propertyName)) {
             return false;
         }
 
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return propertyName.hashCode();
     }
 }

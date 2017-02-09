@@ -59,8 +59,7 @@ public class PropertyExprEvaluatorScalarIterable implements ExprEvaluatorEnumera
         }
         ArrayList items = new ArrayList();
         Iterator iterator = ((Iterable) result).iterator();
-        for (;iterator.hasNext();)
-        {
+        for (; iterator.hasNext(); ) {
             items.add(iterator.next());
         }
         return items;

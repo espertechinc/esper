@@ -26,20 +26,17 @@ import java.util.List;
  * view retains all events that is in all of the data windows at the same time (an intersection)
  * and removes all events that leave any of the data windows.
  */
-public class IntersectDefaultView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer
-{
+public class IntersectDefaultView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, IntersectViewMarker, ViewDataVisitableContainer, ViewContainer {
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final IntersectViewFactory factory;
     protected final View[] views;
 
-    public IntersectDefaultView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList)
-    {
+    public IntersectDefaultView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, IntersectViewFactory factory, List<View> viewList) {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
         this.factory = factory;
         this.views = viewList.toArray(new View[viewList.size()]);
 
-        for (int i = 0; i < viewList.size(); i++)
-        {
+        for (int i = 0; i < viewList.size(); i++) {
             LastPostObserverView view = new LastPostObserverView(i);
             views[i].removeAllViews();
             views[i].addView(view);
@@ -51,46 +48,38 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
         return views;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return factory.makeView(agentInstanceViewFactoryContext);
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, factory.getViewName(), newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, factory.getViewName(), newData, oldData);
+        }
 
         IntersectDefaultViewLocalState localState = factory.getDefaultViewLocalStatePerThread();
 
-        if (newData != null)
-        {
+        if (newData != null) {
             // new events must go to all views
             // old events, such as when removing from a named window, get removed from all views
             localState.setHasRemovestreamData(false);  // changed by observer logic to indicate new data
             localState.setIsRetainObserverEvents(true);  // enable retain logic in observer
-            try
-            {
-                for (View view : views)
-                {
+            try {
+                for (View view : views) {
                     view.update(newData, oldData);
                 }
-            }
-            finally
-            {
+            } finally {
                 localState.setIsRetainObserverEvents(false);
             }
 
             // see if any child view has removed any events.
             // if there was an insert stream, handle pushed-out events
-            if (localState.hasRemovestreamData())
-            {
+            if (localState.hasRemovestreamData()) {
                 localState.getRemovalEvents().clear();
 
                 // process each buffer
-                for (int i = 0; i < localState.getOldEventsPerView().length; i++)
-                {
-                    if (localState.getOldEventsPerView()[i] == null)
-                    {
+                for (int i = 0; i < localState.getOldEventsPerView().length; i++) {
+                    if (localState.getOldEventsPerView()[i] == null) {
                         continue;
                     }
 
@@ -103,18 +92,13 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
                     }
 
                     localState.setIsDiscardObserverEvents(true);
-                    try
-                    {
-                        for (int j = 0; j < views.length; j++)
-                        {
-                            if (i != j)
-                            {
+                    try {
+                        for (int j = 0; j < views.length; j++) {
+                            if (i != j) {
                                 views[j].update(null, viewOldData);
                             }
                         }
-                    }
-                    finally
-                    {
+                    } finally {
                         localState.setIsDiscardObserverEvents(false);
                     }
                 }
@@ -123,56 +107,54 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
             }
 
             // indicate new and, possibly, old data
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), newData, oldData);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), newData, oldData);
+            }
             updateChildren(newData, oldData);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
-        }
-
-        // handle remove stream
-        else if (oldData != null)
-        {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
+        } else if (oldData != null) {
+            // handle remove stream
             localState.setIsDiscardObserverEvents(true);    // disable reaction logic in observer
-            try
-            {
-                for (View view : views)
-                {
+            try {
+                for (View view : views) {
                     view.update(null, oldData);
                 }
-            }
-            finally
-            {
+            } finally {
                 localState.setIsDiscardObserverEvents(false);
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), null, oldData);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, factory.getViewName(), null, oldData);
+            }
             updateChildren(null, oldData);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return factory.getEventType();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return views[0].iterator();
     }
 
-    public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents) {
         IntersectDefaultViewLocalState localState = factory.getDefaultViewLocalStatePerThread();
 
-        if ((oldEvents == null) || (localState.isDiscardObserverEvents()))
-        {
+        if ((oldEvents == null) || (localState.isDiscardObserverEvents())) {
             return;
         }
 
-        if (localState.isRetainObserverEvents())
-        {
+        if (localState.isRetainObserverEvents()) {
             localState.getOldEventsPerView()[streamId] = oldEvents;
             localState.setHasRemovestreamData(true);
             return;
@@ -180,18 +162,13 @@ public class IntersectDefaultView extends ViewSupport implements LastPostObserve
 
         // remove old data from all other views
         localState.setIsDiscardObserverEvents(true);
-        try
-        {
-            for (int i = 0; i < views.length; i++)
-            {
-                if (i != streamId)
-                {
+        try {
+            for (int i = 0; i < views.length; i++) {
+                if (i != streamId) {
                     views[i].update(null, oldEvents);
                 }
             }
-        }
-        finally
-        {
+        } finally {
             localState.setIsDiscardObserverEvents(false);
         }
 

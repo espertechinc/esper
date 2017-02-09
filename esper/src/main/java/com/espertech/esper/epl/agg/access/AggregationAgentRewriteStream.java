@@ -11,8 +11,6 @@
 package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class AggregationAgentRewriteStream implements AggregationAgent {
@@ -24,12 +22,12 @@ public class AggregationAgentRewriteStream implements AggregationAgent {
     }
 
     public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState) {
-        EventBean[] rewrite = new EventBean[] {eventsPerStream[streamNum]};
+        EventBean[] rewrite = new EventBean[]{eventsPerStream[streamNum]};
         aggregationState.applyEnter(rewrite, exprEvaluatorContext);
     }
 
     public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState) {
-        EventBean[] rewrite = new EventBean[] {eventsPerStream[streamNum]};
+        EventBean[] rewrite = new EventBean[]{eventsPerStream[streamNum]};
         aggregationState.applyLeave(rewrite, exprEvaluatorContext);
     }
 }

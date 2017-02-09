@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Static method call consists of a class name and method name.
  */
-public class StaticMethodExpression extends ExpressionBase
-{
+public class StaticMethodExpression extends ExpressionBase {
     private static final long serialVersionUID = -8876482797010708113L;
 
     private String className;
@@ -26,23 +25,19 @@ public class StaticMethodExpression extends ExpressionBase
 
     /**
      * Ctor.
-     * @param className class name providing the static method
-     * @param method method name
+     *
+     * @param className  class name providing the static method
+     * @param method     method name
      * @param parameters an optiona array of parameters
      */
-    public StaticMethodExpression(String className, String method, Object[] parameters)
-    {
+    public StaticMethodExpression(String className, String method, Object[] parameters) {
         this.className = className;
 
         List<Expression> parameterList = new ArrayList<Expression>();
-        for (int i = 0; i < parameters.length; i++)
-        {
-            if (parameters[i] instanceof Expression)
-            {
-                parameterList.add((Expression)parameters[i]);
-            }
-            else
-            {
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i] instanceof Expression) {
+                parameterList.add((Expression) parameters[i]);
+            } else {
                 parameterList.add(new ConstantExpression(parameters[i]));
             }
         }
@@ -51,15 +46,16 @@ public class StaticMethodExpression extends ExpressionBase
 
     /**
      * Returns the chain of method invocations, each pair a method name and list of parameter expressions
+     *
      * @return method chain
      */
-    public List<DotExpressionItem> getChain()
-    {
+    public List<DotExpressionItem> getChain() {
         return chain;
     }
 
     /**
      * Sets the chain of method invocations, each pair a method name and list of parameter expressions
+     *
      * @param chain method chain
      */
     public void setChain(List<DotExpressionItem> chain) {
@@ -68,41 +64,39 @@ public class StaticMethodExpression extends ExpressionBase
 
     /**
      * Ctor.
+     *
      * @param className class name providing the static method
-     * @param chain method chain
+     * @param chain     method chain
      */
-    public StaticMethodExpression(String className, List<DotExpressionItem> chain)
-    {
+    public StaticMethodExpression(String className, List<DotExpressionItem> chain) {
         this.className = className;
         this.chain = chain;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write(className);
         DotExpressionItem.render(chain, writer, true);
     }
 
     /**
      * Returns the class name.
+     *
      * @return class name
      */
-    public String getClassName()
-    {
+    public String getClassName() {
         return className;
     }
 
     /**
      * Sets the class name.
+     *
      * @param className class name
      */
-    public void setClassName(String className)
-    {
+    public void setClassName(String className) {
         this.className = className;
     }
 }

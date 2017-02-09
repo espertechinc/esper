@@ -15,27 +15,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
 
-import javax.jms.*;
-import java.util.HashMap;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 import java.util.Enumeration;
+import java.util.HashMap;
 
-public class SupportJMSReceiver
-{
+public class SupportJMSReceiver {
     private static final Logger log = LoggerFactory.getLogger(SupportJMSReceiver.class);
 
     private AbstractXmlApplicationContext springContext;
     private JmsTemplate jmsTemplate;
 
-    public static void main(String[] args) throws JMSException
-    {
+    public static void main(String[] args) throws JMSException {
         SupportJMSReceiver receiver = new SupportJMSReceiver();
-        while(true)
-        {
+        while (true) {
             Message msg = receiver.receiveMessage();
-            if (msg == null)
-            {
+            if (msg == null) {
                 log.info(".main received no object");
                 continue;
             }
@@ -43,37 +41,29 @@ public class SupportJMSReceiver
         }
     }
 
-    public SupportJMSReceiver()
-    {
+    public SupportJMSReceiver() {
         springContext = new ClassPathXmlApplicationContext("regression/jms_activemq_spring.xml");
         jmsTemplate = (JmsTemplate) springContext.getBean("jmsTemplate");
     }
 
-    public Message receiveMessage() throws JMSException
-    {
+    public Message receiveMessage() throws JMSException {
         Message message = jmsTemplate.receive();
-        if (message != null)
-        {
+        if (message != null) {
             message.acknowledge();
         }
         return message;
     }
 
-    public static void print(Message msg) throws JMSException
-    {
+    public static void print(Message msg) throws JMSException {
         log.info(".print received message: " + msg.getJMSMessageID());
-        if (msg instanceof ObjectMessage)
-        {
+        if (msg instanceof ObjectMessage) {
             ObjectMessage objMsg = (ObjectMessage) msg;
             log.info(".print object: " + objMsg.getObject().toString());
-        }
-        else
-        {
+        } else {
             MapMessage mapMsg = (MapMessage) msg;
             HashMap map = new HashMap();
             Enumeration en = mapMsg.getMapNames();
-            while (en.hasMoreElements())
-            {
+            while (en.hasMoreElements()) {
                 String property = (String) en.nextElement();
                 Object mapObject = mapMsg.getObject(property);
                 map.put(property, mapObject);
@@ -82,8 +72,7 @@ public class SupportJMSReceiver
         }
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         springContext.destroy();
     }
 }

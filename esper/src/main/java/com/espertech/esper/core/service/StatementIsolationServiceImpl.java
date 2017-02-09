@@ -26,8 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Service to maintain currently active isoalted service providers for an engine.
  */
-public class StatementIsolationServiceImpl implements StatementIsolationService
-{
+public class StatementIsolationServiceImpl implements StatementIsolationService {
     private static final Logger log = LoggerFactory.getLogger(StatementIsolationServiceImpl.class);
 
     private final Map<String, EPServiceProviderIsolatedImpl> isolatedProviders;
@@ -37,25 +36,22 @@ public class StatementIsolationServiceImpl implements StatementIsolationService
     /**
      * Ctor.
      */
-    public StatementIsolationServiceImpl()
-    {
+    public StatementIsolationServiceImpl() {
         isolatedProviders = new ConcurrentHashMap<String, EPServiceProviderIsolatedImpl>();
     }
 
     /**
      * Set the engine service context.
+     *
      * @param epServicesContext services context
      */
-    public void setEpServicesContext(EPServicesContext epServicesContext)
-    {
+    public void setEpServicesContext(EPServicesContext epServicesContext) {
         this.epServicesContext = epServicesContext;
     }
 
-    public EPServiceProviderIsolated getIsolationUnit(String name, Integer optionalUnitId)
-    {
+    public EPServiceProviderIsolated getIsolationUnit(String name, Integer optionalUnitId) {
         EPServiceProviderIsolatedImpl serviceProviderIsolated = isolatedProviders.get(name);
-        if (serviceProviderIsolated != null)
-        {
+        if (serviceProviderIsolated != null) {
             return serviceProviderIsolated;
         }
 
@@ -67,76 +63,59 @@ public class StatementIsolationServiceImpl implements StatementIsolationService
         return serviceProviderIsolated;
     }
 
-    public void destroy()
-    {
-        isolatedProviders.clear();        
+    public void destroy() {
+        isolatedProviders.clear();
     }
 
-    public String[] getIsolationUnitNames()
-    {
+    public String[] getIsolationUnitNames() {
         Set<String> keyset = isolatedProviders.keySet();
-        return keyset.toArray(new String[keyset.size()]);        
+        return keyset.toArray(new String[keyset.size()]);
     }
 
-    public void beginIsolatingStatements(String name, int unitId, EPStatement[] stmt)
-    {
-        if (log.isInfoEnabled())
-        {
+    public void beginIsolatingStatements(String name, int unitId, EPStatement[] stmt) {
+        if (log.isInfoEnabled()) {
             log.info("Begin isolating statements " + print(stmt) + " unit " + name + " id " + unitId);
         }
     }
 
-    public void commitIsolatingStatements(String name, int unitId, EPStatement[] stmt)
-    {
-        if (log.isInfoEnabled())
-        {
+    public void commitIsolatingStatements(String name, int unitId, EPStatement[] stmt) {
+        if (log.isInfoEnabled()) {
             log.info("Completed isolating statements " + print(stmt) + " unit " + name + " id " + unitId);
         }
     }
 
-    public void rollbackIsolatingStatements(String name, int unitId, EPStatement[] stmt)
-    {
-        if (log.isInfoEnabled())
-        {
+    public void rollbackIsolatingStatements(String name, int unitId, EPStatement[] stmt) {
+        if (log.isInfoEnabled()) {
             log.info("Failed isolating statements " + print(stmt) + " unit " + name + " id " + unitId);
         }
     }
 
-    public void beginUnisolatingStatements(String name, int unitId, EPStatement[] stmt)
-    {
-        if (log.isInfoEnabled())
-        {
+    public void beginUnisolatingStatements(String name, int unitId, EPStatement[] stmt) {
+        if (log.isInfoEnabled()) {
             log.info("Begin un-isolating statements " + print(stmt) + " unit " + name + " id " + unitId);
         }
     }
 
-    public void commitUnisolatingStatements(String name, int unitId, EPStatement[] stmt)
-    {
-        if (log.isInfoEnabled())
-        {
+    public void commitUnisolatingStatements(String name, int unitId, EPStatement[] stmt) {
+        if (log.isInfoEnabled()) {
             log.info("Completed un-isolating statements " + print(stmt) + " unit " + name + " id " + unitId);
         }
     }
 
-    public void rollbackUnisolatingStatements(String name, int unitId, EPStatement[] stmt)
-    {
-        if (log.isInfoEnabled())
-        {
+    public void rollbackUnisolatingStatements(String name, int unitId, EPStatement[] stmt) {
+        if (log.isInfoEnabled()) {
             log.info("Failed un-isolating statements " + print(stmt) + " unit " + name + " id " + unitId);
         }
     }
 
-    public void newStatement(int stmtId, String stmtName, EPIsolationUnitServices isolatedServices)
-    {
+    public void newStatement(int stmtId, String stmtName, EPIsolationUnitServices isolatedServices) {
         log.info("New statement '" + stmtName + "' unit " + isolatedServices.getName());
     }
 
-    private String print(EPStatement[] stmts)
-    {
+    private String print(EPStatement[] stmts) {
         StringBuilder buf = new StringBuilder();
         String delimiter = "";
-        for (EPStatement stmt : stmts)
-        {
+        for (EPStatement stmt : stmts) {
             buf.append(delimiter);
             buf.append(stmt.getName());
             delimiter = ", ";

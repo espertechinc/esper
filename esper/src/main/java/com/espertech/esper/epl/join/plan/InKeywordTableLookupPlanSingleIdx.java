@@ -26,20 +26,19 @@ import java.util.Collections;
 /**
  * Plan to perform an indexed table lookup.
  */
-public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan
-{
+public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan {
     private ExprNode[] expressions;
 
     /**
      * Ctor.
-     * @param lookupStream - stream that generates event to look up for
+     *
+     * @param lookupStream  - stream that generates event to look up for
      * @param indexedStream - stream to index table lookup
-     * @param indexNum - index number for the table containing the full unindexed contents
-     * @param expressions expressions
+     * @param indexNum      - index number for the table containing the full unindexed contents
+     * @param expressions   expressions
      */
-    public InKeywordTableLookupPlanSingleIdx(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, ExprNode[] expressions)
-    {
-        super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});
+    public InKeywordTableLookupPlanSingleIdx(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, ExprNode[] expressions) {
+        super(lookupStream, indexedStream, new TableLookupIndexReqKey[]{indexNum});
         this.expressions = expressions;
     }
 
@@ -51,8 +50,7 @@ public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan
         return new TableLookupKeyDesc(Collections.<QueryGraphValueEntryHashKeyed>emptyList(), Collections.<QueryGraphValueEntryRange>emptyList());
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         PropertyIndexedEventTableSingle single = (PropertyIndexedEventTableSingle) eventTable[0];
         ExprEvaluator[] evaluators = new ExprEvaluator[expressions.length];
         for (int i = 0; i < expressions.length; i++) {
@@ -62,10 +60,9 @@ public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan
                 super.getLookupStream(), single, new LookupStrategyDesc(LookupStrategyType.INKEYWORDSINGLEIDX, ExprNodeUtility.toExpressionStringsMinPrecedence(expressions)));
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName() + " " +
                 super.toString() +
-               " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedence(expressions);
+                " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedence(expressions);
     }
 }

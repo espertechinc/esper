@@ -19,19 +19,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Utility class for logging threading-related messages.
  * <p>
- * Prints thread information and lock-specific info. 
+ * Prints thread information and lock-specific info.
  */
-public class ThreadLogUtil
-{
+public class ThreadLogUtil {
     /**
      * Set trace log level.
      */
-    public static int TRACE = 0;
+    public static int trace = 0;
 
     /**
      * Set info log level.
      */
-    public static int INFO = 1;
+    public static int info = 1;
 
     /**
      * Enable trace logging.
@@ -45,13 +44,12 @@ public class ThreadLogUtil
 
     /**
      * If enabled, logs for trace level the given objects and text
-     * @param text to log
+     *
+     * @param text    to log
      * @param objects to write
      */
-    public static void trace(String text, Object ... objects)
-    {
-        if (!ENABLED_TRACE)
-        {
+    public static void trace(String text, Object... objects) {
+        if (!ENABLED_TRACE) {
             return;
         }
         write(text, objects);
@@ -59,13 +57,12 @@ public class ThreadLogUtil
 
     /**
      * If enabled, logs for info level the given objects and text
-     * @param text to log
+     *
+     * @param text    to log
      * @param objects to write
      */
-    public static void info(String text, Object ... objects)
-    {
-        if (!ENABLED_INFO)
-        {
+    public static void info(String text, Object... objects) {
+        if (!ENABLED_INFO) {
             return;
         }
         write(text, objects);
@@ -73,13 +70,12 @@ public class ThreadLogUtil
 
     /**
      * Logs the lock and action.
+     *
      * @param lockAction is the action towards the lock
-     * @param lock is the lock instance
+     * @param lock       is the lock instance
      */
-    public static void traceLock(String lockAction, ReentrantLock lock)
-    {
-        if (!ENABLED_TRACE)
-        {
+    public static void traceLock(String lockAction, ReentrantLock lock) {
+        if (!ENABLED_TRACE) {
             return;
         }
         write(lockAction + " " + getLockInfo(lock));
@@ -87,46 +83,38 @@ public class ThreadLogUtil
 
     /**
      * Logs the lock and action.
+     *
      * @param lockAction is the action towards the lock
-     * @param lock is the lock instance
+     * @param lock       is the lock instance
      */
-    public static void traceLock(String lockAction, ReentrantReadWriteLock lock)
-    {
-        if (!ENABLED_TRACE)
-        {
+    public static void traceLock(String lockAction, ReentrantReadWriteLock lock) {
+        if (!ENABLED_TRACE) {
             return;
         }
         write(lockAction + " " + getLockInfo(lock));
     }
 
-    private static String getLockInfo(ReentrantLock lock)
-    {
+    private static String getLockInfo(ReentrantLock lock) {
         String lockid = "Lock@" + Integer.toHexString(lock.hashCode());
         return "lock " + lockid + " held=" + lock.getHoldCount() + " isHeldMe=" + lock.isHeldByCurrentThread() +
                 " hasQueueThreads=" + lock.hasQueuedThreads();
     }
 
-    private static String getLockInfo(ReentrantReadWriteLock lock)
-    {
+    private static String getLockInfo(ReentrantReadWriteLock lock) {
         String lockid = "RWLock@" + Integer.toHexString(lock.hashCode());
         return lockid +
-               " readLockCount=" + lock.getReadLockCount() +
-               " isWriteLocked=" + lock.isWriteLocked();
+                " readLockCount=" + lock.getReadLockCount() +
+                " isWriteLocked=" + lock.isWriteLocked();
     }
 
-    private static void write(String text, Object ... objects)
-    {
+    private static void write(String text, Object... objects) {
         StringBuilder buf = new StringBuilder();
         buf.append(text);
         buf.append(' ');
-        for (Object obj : objects)
-        {
-            if ((obj instanceof String) || (obj instanceof Number))
-            {
+        for (Object obj : objects) {
+            if ((obj instanceof String) || (obj instanceof Number)) {
                 buf.append(obj.toString());
-            }
-            else
-            {
+            } else {
                 buf.append(obj.getClass().getSimpleName());
                 buf.append('@');
                 buf.append(Integer.toHexString(obj.hashCode()));
@@ -136,8 +124,7 @@ public class ThreadLogUtil
         write(buf.toString());
     }
 
-    private static void write(String text)
-    {
+    private static void write(String text) {
         log.info(".write Thread " + Thread.currentThread().getId() + " " + text);
     }
 

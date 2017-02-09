@@ -17,35 +17,29 @@ import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
-public class TestExprConstantNode extends TestCase
-{
+public class TestExprConstantNode extends TestCase {
     private ExprConstantNode constantNode;
 
-    public void setUp()
-    {
+    public void setUp() {
         constantNode = new ExprConstantNodeImpl("5");
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         assertEquals(String.class, constantNode.getConstantType());
 
         constantNode = new ExprConstantNodeImpl(null);
         assertNull(constantNode.getConstantType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         constantNode.validate(SupportExprValidationContextFactory.makeEmpty());
     }
 
-    public void testEvaluate()
-    {
+    public void testEvaluate() {
         assertEquals("5", constantNode.getConstantValue(null));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         constantNode = new ExprConstantNodeImpl("5");
         assertEquals("\"5\"", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(constantNode));
 
@@ -53,8 +47,7 @@ public class TestExprConstantNode extends TestCase
         assertEquals("10", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(constantNode));
     }
 
-    public void testEqualsNode()
-    {
+    public void testEqualsNode() {
         assertTrue(constantNode.equalsNode(new ExprConstantNodeImpl("5")));
         assertFalse(constantNode.equalsNode(new ExprOrNode()));
         assertFalse(constantNode.equalsNode(new ExprConstantNodeImpl(null)));

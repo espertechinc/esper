@@ -21,8 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Writer for a property to an event.
  */
-public class BeanEventPropertyWriter implements EventPropertyWriter
-{
+public class BeanEventPropertyWriter implements EventPropertyWriter {
     private static final Logger log = LoggerFactory.getLogger(BeanEventPropertyWriter.class);
 
     private final Class clazz;
@@ -30,32 +29,27 @@ public class BeanEventPropertyWriter implements EventPropertyWriter
 
     /**
      * Ctor.
-     * @param clazz to write to
-     * @param writerMethod write method 
+     *
+     * @param clazz        to write to
+     * @param writerMethod write method
      */
-    public BeanEventPropertyWriter(Class clazz, FastMethod writerMethod)
-    {
+    public BeanEventPropertyWriter(Class clazz, FastMethod writerMethod) {
         this.clazz = clazz;
         this.writerMethod = writerMethod;
     }
 
-    public void write(Object value, EventBean target)
-    {
-        invoke(new Object[] {value}, target.getUnderlying());
+    public void write(Object value, EventBean target) {
+        invoke(new Object[]{value}, target.getUnderlying());
     }
 
-    public void writeValue(Object value, Object target)
-    {
-        invoke(new Object[] {value}, target);
+    public void writeValue(Object value, Object target) {
+        invoke(new Object[]{value}, target);
     }
 
     protected void invoke(Object[] values, Object target) {
-        try
-        {
+        try {
             writerMethod.invoke(target, values);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = "Unexpected exception encountered invoking setter-method '" + writerMethod.getJavaMethod() + "' on class '" +
                     clazz.getName() + "' : " + e.getTargetException().getMessage();
             log.error(message, e);

@@ -41,10 +41,10 @@ package com.espertech.esper.plugin;
  * indicates that the event representation can or cannot inspect events, and the {@link PlugInEventBeanFactory}
  * returned is used by the event sender to wrap event objects for processing.
  */
-public interface PlugInEventRepresentation
-{
+public interface PlugInEventRepresentation {
     /**
      * Initializes the event representation.
+     *
      * @param eventRepresentationContext URI and optional configuration information
      */
     public void init(PlugInEventRepresentationContext eventRepresentationContext);
@@ -57,6 +57,7 @@ public interface PlugInEventRepresentation
      * <p>
      * Also called when a new EPL statement is created with an unseen event type name
      * and the URIs for resolution have been configured.
+     *
      * @param acceptTypeContext provides the URI specified for resolving the type, and configuration info.
      * @return true to accept the type, false such that another event representation may handle the type request
      */
@@ -64,6 +65,7 @@ public interface PlugInEventRepresentation
 
     /**
      * Returns the event type handler that provides the event type and, upon request, event sender, for this type.
+     *
      * @param eventTypeContext provides the URI specified for resolving the type, and configuration info.
      * @return provides event type and event sender
      */
@@ -72,6 +74,7 @@ public interface PlugInEventRepresentation
     /**
      * For use with {@link com.espertech.esper.client.EPRuntime#getEventSender(java.net.URI[])},
      * returns true if the event representation intends to provide event wrappers for event objects passed in.
+     *
      * @param acceptBeanContext provides the URI specified for resolving the event object reflection
      * @return true to accept the requested URI, false such that another event representation may handle the request
      */
@@ -81,6 +84,7 @@ public interface PlugInEventRepresentation
      * For use with {@link com.espertech.esper.client.EPRuntime#getEventSender(java.net.URI[])},
      * returns the factory that can inspect event objects and provide an event {@link com.espertech.esper.client.EventBean}
      * wrapper.
+     *
      * @param eventBeanContext provides the URI specified for resolving the event object reflection
      * @return true to accept the requested URI, false such that another event representation may handle the request
      */

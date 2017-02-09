@@ -38,17 +38,14 @@ public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressi
             // if a subquery is present in a filter stream acquire the agent instance lock
             if (node.isHasFilterStreamSubquery()) {
                 adapter = getLockableSingle(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService, statementContext, agentInstanceId);
-            }
-            // no-variable no-prior event evaluation
-            else if (!node.isHasVariable()) {
+            } else if (!node.isHasVariable()) {
+                // no-variable no-prior event evaluation
                 adapter = new ExprNodeAdapterBase(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext);
-            }
-            else {
+            } else {
                 // with-variable no-prior event evaluation
                 adapter = new ExprNodeAdapterBaseVariables(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableService);
             }
-        }
-        else {
+        } else {
             // pattern cases
             VariableService variableServiceToUse = node.isHasVariable() ? variableService : null;
             if (node.isUseLargeThreadingProfile()) {
@@ -56,16 +53,13 @@ public class FilterBooleanExpressionFactoryImpl implements FilterBooleanExpressi
                 // if a subquery is present in a pattern filter acquire the agent instance lock
                 if (node.isHasFilterStreamSubquery()) {
                     adapter = getLockableMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
-                }
-                else {
+                } else {
                     adapter = new ExprNodeAdapterMultiStreamNoTL(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }
-            }
-            else {
+            } else {
                 if (node.isHasFilterStreamSubquery()) {
                     adapter = getLockableMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
-                }
-                else {
+                } else {
                     // evaluation with threadlocal cache
                     adapter = new ExprNodeAdapterMultiStream(filterSpecId, filterSpecParamPathNum, exprNode, exprEvaluatorContext, variableServiceToUse, events);
                 }

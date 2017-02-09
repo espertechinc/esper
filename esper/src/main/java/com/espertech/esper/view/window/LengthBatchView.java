@@ -36,8 +36,7 @@ import java.util.Iterator;
  * <p>
  * If there are no events in the current and prior batch, the view will not invoke the update method of child views.
  */
-public class LengthBatchView extends ViewSupport implements CloneableView, DataWindowView
-{
+public class LengthBatchView extends ViewSupport implements CloneableView, DataWindowView {
     // View parameters
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
     private final LengthBatchViewFactory lengthBatchViewFactory;
@@ -50,54 +49,53 @@ public class LengthBatchView extends ViewSupport implements CloneableView, DataW
 
     /**
      * Constructor.
-     * @param size is the number of events to batch
-     * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param lengthBatchViewFactory for copying this view in a group-by
+     *
+     * @param size                            is the number of events to batch
+     * @param viewUpdatedCollection           is a collection that the view must update when receiving events
+     * @param lengthBatchViewFactory          for copying this view in a group-by
      * @param agentInstanceViewFactoryContext context
      */
     public LengthBatchView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext,
                            LengthBatchViewFactory lengthBatchViewFactory,
-                         int size,
-                         ViewUpdatedCollection viewUpdatedCollection)
-    {
+                           int size,
+                           ViewUpdatedCollection viewUpdatedCollection) {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
         this.lengthBatchViewFactory = lengthBatchViewFactory;
         this.size = size;
         this.viewUpdatedCollection = viewUpdatedCollection;
 
-        if (size <= 0)
-        {
+        if (size <= 0) {
             throw new IllegalArgumentException("Invalid size parameter, size=" + size);
         }
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return lengthBatchViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
     /**
      * Returns the number of events to batch (data window size).
+     *
      * @return batch size
      */
-    public final int getSize()
-    {
+    public final int getSize() {
         return size;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, lengthBatchViewFactory.getViewName(), newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, lengthBatchViewFactory.getViewName(), newData, oldData);
+        }
 
         // we don't care about removed data from a prior view
-        if ((newData == null) || (newData.length == 0))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if ((newData == null) || (newData.length == 0)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewProcessIRStream();
+            }
             return;
         }
 
@@ -107,50 +105,51 @@ public class LengthBatchView extends ViewSupport implements CloneableView, DataW
         }
 
         // check if we reached the minimum size
-        if (currentBatch.size() < size)
-        {
+        if (currentBatch.size() < size) {
             // done if no overflow
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewProcessIRStream();
+            }
             return;
         }
 
         sendBatch();
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     /**
      * This method updates child views and clears the batch of events.
      */
-    protected void sendBatch()
-    {
+    protected void sendBatch() {
         // If there are child views and the batch was filled, fireStatementStopped update method
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             // Convert to object arrays
             EventBean[] newData = null;
             EventBean[] oldData = null;
-            if (!currentBatch.isEmpty())
-            {
+            if (!currentBatch.isEmpty()) {
                 newData = currentBatch.toArray(new EventBean[currentBatch.size()]);
             }
-            if ((lastBatch != null) && (!lastBatch.isEmpty()))
-            {
+            if ((lastBatch != null) && (!lastBatch.isEmpty())) {
                 oldData = lastBatch.toArray(new EventBean[lastBatch.size()]);
             }
 
             // update view buffer to serve expressions require access to events held
-            if (viewUpdatedCollection != null)
-            {
+            if (viewUpdatedCollection != null) {
                 viewUpdatedCollection.update(newData, oldData);
             }
 
             // Post new data (current batch) and old data (prior batch)
-            if ((newData != null) || (oldData != null))
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, lengthBatchViewFactory.getViewName(), newData, oldData);}
+            if ((newData != null) || (oldData != null)) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, lengthBatchViewFactory.getViewName(), newData, oldData);
+                }
                 updateChildren(newData, oldData);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
 
@@ -160,27 +159,23 @@ public class LengthBatchView extends ViewSupport implements CloneableView, DataW
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
-        if (lastBatch != null)
-        {
-            if (!lastBatch.isEmpty())
-            {
+    public boolean isEmpty() {
+        if (lastBatch != null) {
+            if (!lastBatch.isEmpty()) {
                 return false;
             }
         }
         return currentBatch.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return currentBatch.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " size=" + size;
     }

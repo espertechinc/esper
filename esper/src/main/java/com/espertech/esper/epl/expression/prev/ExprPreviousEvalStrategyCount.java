@@ -19,29 +19,23 @@ import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 
 import java.util.Collection;
 
-public class ExprPreviousEvalStrategyCount implements ExprPreviousEvalStrategy
-{
+public class ExprPreviousEvalStrategyCount implements ExprPreviousEvalStrategy {
     private final int streamNumber;
     private final RandomAccessByIndexGetter randomAccessGetter;
     private final RelativeAccessByEventNIndexGetter relativeAccessGetter;
 
-    public ExprPreviousEvalStrategyCount(int streamNumber, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter)
-    {
+    public ExprPreviousEvalStrategyCount(int streamNumber, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter) {
         this.streamNumber = streamNumber;
         this.randomAccessGetter = randomAccessGetter;
         this.relativeAccessGetter = relativeAccessGetter;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         long size;
-        if (randomAccessGetter != null)
-        {
+        if (randomAccessGetter != null) {
             RandomAccessByIndex randomAccess = randomAccessGetter.getAccessor();
             size = randomAccess.getWindowCount();
-        }
-        else
-        {
+        } else {
             EventBean evalEvent = eventsPerStream[streamNumber];
             RelativeAccessByEventNIndex relativeAccess = relativeAccessGetter.getAccessor(evalEvent);
             if (relativeAccess == null) {

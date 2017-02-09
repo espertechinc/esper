@@ -19,10 +19,8 @@ import org.antlr.v4.runtime.tree.Tree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestASTFilterSpecHelper extends TestCase
-{
-    public void testGetPropertyName() throws Exception
-    {
+public class TestASTFilterSpecHelper extends TestCase {
+    public void testGetPropertyName() throws Exception {
         final String PROPERTY = "a('aa').b[1].c";
 
         // Should parse and result in the exact same property name
@@ -39,8 +37,7 @@ public class TestASTFilterSpecHelper extends TestCase
         assertEquals(PROPERTY, propertyName);
     }
 
-    public void testGetPropertyNameEscaped() throws Exception
-    {
+    public void testGetPropertyNameEscaped() throws Exception {
         final String PROPERTY = "a\\.b\\.c";
         Pair<Tree, CommonTokenStream> parsed = SupportParserHelper.parseEventProperty(PROPERTY);
         Tree propertyNameExprNode = parsed.getFirst().getChild(0);
@@ -49,9 +46,8 @@ public class TestASTFilterSpecHelper extends TestCase
         assertEquals(PROPERTY, propertyName);
     }
 
-    public void testEscapeDot() throws Exception
-    {
-        String [][] inout = new String[][] {
+    public void testEscapeDot() throws Exception {
+        String[][] inout = new String[][]{
                 {"a", "a"},
                 {"", ""},
                 {" ", " "},
@@ -67,17 +63,15 @@ public class TestASTFilterSpecHelper extends TestCase
                 {"a.b.c", "a\\.b\\.c"}
         };
 
-        for (int i = 0; i < inout.length; i++)
-        {
+        for (int i = 0; i < inout.length; i++) {
             String input = inout[i][0];
             String expected = inout[i][1];
             assertEquals("for input " + input, expected, ASTUtil.escapeDot(input));
         }
     }
 
-    public void testUnescapeIndexOf() throws Exception
-    {
-        Object [][] inout = new Object[][] {
+    public void testUnescapeIndexOf() throws Exception {
+        Object[][] inout = new Object[][]{
                 {"a", -1},
                 {"", -1},
                 {" ", -1},
@@ -94,17 +88,15 @@ public class TestASTFilterSpecHelper extends TestCase
                 {"abc.", 3}
         };
 
-        for (int i = 0; i < inout.length; i++)
-        {
+        for (int i = 0; i < inout.length; i++) {
             String input = (String) inout[i][0];
             int expected = (Integer) inout[i][1];
             assertEquals("for input " + input, expected, ASTUtil.unescapedIndexOfDot(input));
         }
     }
 
-    public void testUnescapeDot() throws Exception
-    {
-        String [][] inout = new String[][] {
+    public void testUnescapeDot() throws Exception {
+        String[][] inout = new String[][]{
                 {"a", "a"},
                 {"", ""},
                 {" ", " "},
@@ -123,8 +115,7 @@ public class TestASTFilterSpecHelper extends TestCase
                 {"a.b\\.c", "a.b.c"},
         };
 
-        for (int i = 0; i < inout.length; i++)
-        {
+        for (int i = 0; i < inout.length; i++) {
             String input = inout[i][0];
             String expected = inout[i][1];
             assertEquals("for input " + input, expected, ASTUtil.unescapeDot(input));

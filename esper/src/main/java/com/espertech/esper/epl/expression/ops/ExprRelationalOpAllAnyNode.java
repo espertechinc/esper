@@ -27,8 +27,7 @@ import java.util.Map;
 /**
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
-public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEvaluator {
     private final RelationalOpEnum relationalOpEnum;
     private final boolean isAll;
     private boolean hasCollectionOrArray;
@@ -40,48 +39,44 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
 
     /**
      * Ctor.
+     *
      * @param relationalOpEnum - type of compare, ie. lt, gt, le, ge
-     * @param isAll - true if all, false for any
+     * @param isAll            - true if all, false for any
      */
-    public ExprRelationalOpAllAnyNode(RelationalOpEnum relationalOpEnum, boolean isAll)
-    {
+    public ExprRelationalOpAllAnyNode(RelationalOpEnum relationalOpEnum, boolean isAll) {
         this.relationalOpEnum = relationalOpEnum;
         this.isAll = isAll;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
     /**
      * Returns true for ALL, false for ANY.
+     *
      * @return indicator all or any
      */
-    public boolean isAll()
-    {
+    public boolean isAll() {
         return isAll;
     }
 
     /**
      * Returns the type of relational op used.
+     *
      * @return enum with relational op type
      */
-    public RelationalOpEnum getRelationalOpEnum()
-    {
+    public RelationalOpEnum getRelationalOpEnum() {
         return relationalOpEnum;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Must have 2 child nodes
-        if (this.getChildNodes().length < 1)
-        {
+        if (this.getChildNodes().length < 1) {
             throw new IllegalStateException("Group relational op node must have 1 or more parameters");
         }
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
@@ -89,35 +84,25 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
         Class typeOne = JavaClassHelper.getBoxedType(evaluators[0].getType());
 
         // collections, array or map not supported
-        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class)))
-        {
+        if ((typeOne.isArray()) || (JavaClassHelper.isImplementsInterface(typeOne, Collection.class)) || (JavaClassHelper.isImplementsInterface(typeOne, Map.class))) {
             throw new ExprValidationException("Collection or array comparison is not allowed for the IN, ANY, SOME or ALL keywords");
         }
 
         List<Class> comparedTypes = new ArrayList<Class>();
         comparedTypes.add(typeOne);
         hasCollectionOrArray = false;
-        for (int i = 0; i < this.getChildNodes().length - 1; i++)
-        {
+        for (int i = 0; i < this.getChildNodes().length - 1; i++) {
             Class propType = evaluators[i + 1].getType();
-            if (propType.isArray())
-            {
+            if (propType.isArray()) {
                 hasCollectionOrArray = true;
-                if (propType.getComponentType() != Object.class)
-                {
+                if (propType.getComponentType() != Object.class) {
                     comparedTypes.add(propType.getComponentType());
                 }
-            }
-            else if (JavaClassHelper.isImplementsInterface(propType, Collection.class))
-            {
+            } else if (JavaClassHelper.isImplementsInterface(propType, Collection.class)) {
                 hasCollectionOrArray = true;
-            }
-            else if (JavaClassHelper.isImplementsInterface(propType, Map.class))
-            {
+            } else if (JavaClassHelper.isImplementsInterface(propType, Map.class)) {
                 hasCollectionOrArray = true;
-            }
-            else
-            {
+            } else {
                 comparedTypes.add(propType);
             }
         }
@@ -126,17 +111,13 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
         Class coercionType;
         try {
             coercionType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion not allowed: " + ex.getMessage());
         }
 
         // Must be either numeric or string
-        if (coercionType != String.class)
-        {
-            if (!JavaClassHelper.isNumeric(coercionType))
-            {
+        if (coercionType != String.class) {
+            if (!JavaClassHelper.isNumeric(coercionType)) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
                         coercionType.getSimpleName() +
                         "' to numeric is not allowed");
@@ -147,257 +128,185 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprRelOpAnyOrAll(this, relationalOpEnum.getExpressionText());}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprRelOpAnyOrAll(this, relationalOpEnum.getExpressionText());
+        }
         Boolean result = evaluateInternal(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprRelOpAnyOrAll(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprRelOpAnyOrAll(result);
+        }
         return result;
     }
 
-    private Boolean evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (this.getChildNodes().length == 1)
-        {
+    private Boolean evaluateInternal(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (this.getChildNodes().length == 1) {
             return false;
         }
 
         Object valueLeft = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         int len = this.getChildNodes().length - 1;
 
-        if (hasCollectionOrArray)
-        {
+        if (hasCollectionOrArray) {
             boolean hasNonNullRow = false;
             boolean hasRows = false;
-            for (int i = 1; i <= len; i++)
-            {
+            for (int i = 1; i <= len; i++) {
                 Object valueRight = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
 
-                if (valueRight == null)
-                {
+                if (valueRight == null) {
                     continue;
                 }
 
-                if (valueRight instanceof Collection)
-                {
+                if (valueRight instanceof Collection) {
                     Collection coll = (Collection) valueRight;
                     hasRows = true;
-                    for (Object item : coll)
-                    {
-                        if (!(item instanceof Number))
-                        {
-                            if (isAll && item == null)
-                            {
+                    for (Object item : coll) {
+                        if (!(item instanceof Number)) {
+                            if (isAll && item == null) {
                                 return null;
                             }
                             continue;
                         }
                         hasNonNullRow = true;
-                        if (valueLeft != null)
-                        {
-                            if (isAll)
-                            {
-                                if (!computer.compare(valueLeft, item))
-                                {
+                        if (valueLeft != null) {
+                            if (isAll) {
+                                if (!computer.compare(valueLeft, item)) {
                                     return false;
                                 }
-                            }
-                            else
-                            {
-                                if (computer.compare(valueLeft, item))
-                                {
+                            } else {
+                                if (computer.compare(valueLeft, item)) {
                                     return true;
                                 }
                             }
                         }
                     }
-                }
-                else if (valueRight instanceof Map)
-                {
+                } else if (valueRight instanceof Map) {
                     Map coll = (Map) valueRight;
                     hasRows = true;
-                    for (Object item : coll.keySet())
-                    {
-                        if (!(item instanceof Number))
-                        {
-                            if (isAll && item == null)
-                            {
+                    for (Object item : coll.keySet()) {
+                        if (!(item instanceof Number)) {
+                            if (isAll && item == null) {
                                 return null;
                             }
                             continue;
                         }
                         hasNonNullRow = true;
-                        if (valueLeft != null)
-                        {
-                            if (isAll)
-                            {
-                                if (!computer.compare(valueLeft, item))
-                                {
+                        if (valueLeft != null) {
+                            if (isAll) {
+                                if (!computer.compare(valueLeft, item)) {
                                     return false;
                                 }
-                            }
-                            else
-                            {
-                                if (computer.compare(valueLeft, item))
-                                {
+                            } else {
+                                if (computer.compare(valueLeft, item)) {
                                     return true;
                                 }
                             }
                         }
                     }
-                }
-                else if (valueRight.getClass().isArray())
-                {
+                } else if (valueRight.getClass().isArray()) {
                     hasRows = true;
                     int arrayLength = Array.getLength(valueRight);
-                    for (int index = 0; index < arrayLength; index++)
-                    {
+                    for (int index = 0; index < arrayLength; index++) {
                         Object item = Array.get(valueRight, index);
-                        if (item == null)
-                        {
-                            if (isAll)
-                            {
+                        if (item == null) {
+                            if (isAll) {
                                 return null;
                             }
                             continue;
                         }
                         hasNonNullRow = true;
-                        if (valueLeft != null)
-                        {
-                            if (isAll)
-                            {
-                                if (!computer.compare(valueLeft, item))
-                                {
+                        if (valueLeft != null) {
+                            if (isAll) {
+                                if (!computer.compare(valueLeft, item)) {
                                     return false;
                                 }
-                            }
-                            else
-                            {
-                                if (computer.compare(valueLeft, item))
-                                {
+                            } else {
+                                if (computer.compare(valueLeft, item)) {
                                     return true;
                                 }
                             }
                         }
                     }
-                }
-                else if (!(valueRight instanceof Number))
-                {
-                    if (isAll)
-                    {
+                } else if (!(valueRight instanceof Number)) {
+                    if (isAll) {
                         return null;
                     }
-                }
-                else
-                {
+                } else {
                     hasNonNullRow = true;
-                    if (isAll)
-                    {
-                        if (!computer.compare(valueLeft, valueRight))
-                        {
+                    if (isAll) {
+                        if (!computer.compare(valueLeft, valueRight)) {
                             return false;
                         }
-                    }
-                    else
-                    {
-                        if (computer.compare(valueLeft, valueRight))
-                        {
+                    } else {
+                        if (computer.compare(valueLeft, valueRight)) {
                             return true;
                         }
                     }
                 }
             }
 
-            if (isAll)
-            {
-                if (!hasRows)
-                {
+            if (isAll) {
+                if (!hasRows) {
                     return true;
                 }
-                if ((!hasNonNullRow) || (valueLeft == null))
-                {
+                if ((!hasNonNullRow) || (valueLeft == null)) {
                     return null;
                 }
                 return true;
-            }
-            else
-            {
-                if (!hasRows)
-                {
+            } else {
+                if (!hasRows) {
                     return false;
                 }
-                if ((!hasNonNullRow) || (valueLeft == null))
-                {
+                if ((!hasNonNullRow) || (valueLeft == null)) {
                     return null;
                 }
                 return false;
             }
-        }
-        else
-        {
+        } else {
             boolean hasNonNullRow = false;
             boolean hasRows = false;
-            for (int i = 1; i <= len; i++)
-            {
+            for (int i = 1; i <= len; i++) {
                 Object valueRight = evaluators[i].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
                 hasRows = true;
 
-                if (valueRight != null)
-                {
+                if (valueRight != null) {
                     hasNonNullRow = true;
-                }
-                else
-                {
-                    if (isAll)
-                    {
+                } else {
+                    if (isAll) {
                         return null;
                     }
                 }
 
-                if ((valueRight != null) && (valueLeft != null))
-                {
-                    if (isAll)
-                    {
-                        if (!computer.compare(valueLeft, valueRight))
-                        {
+                if ((valueRight != null) && (valueLeft != null)) {
+                    if (isAll) {
+                        if (!computer.compare(valueLeft, valueRight)) {
                             return false;
                         }
-                    }
-                    else
-                    {
-                        if (computer.compare(valueLeft, valueRight))
-                        {
+                    } else {
+                        if (computer.compare(valueLeft, valueRight)) {
                             return true;
                         }
                     }
                 }
             }
 
-            if (isAll)
-            {
-                if (!hasRows)
-                {
+            if (isAll) {
+                if (!hasRows) {
                     return true;
                 }
-                if ((!hasNonNullRow) || (valueLeft == null))
-                {
+                if ((!hasNonNullRow) || (valueLeft == null)) {
                     return null;
                 }
                 return true;
-            }
-            else
-            {
-                if (!hasRows)
-                {
+            } else {
+                if (!hasRows) {
                     return false;
                 }
-                if ((!hasNonNullRow) || (valueLeft == null))
-                {
+                if ((!hasNonNullRow) || (valueLeft == null)) {
                     return null;
                 }
                 return false;
@@ -408,20 +317,16 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
     public void toPrecedenceFreeEPL(StringWriter writer) {
         this.getChildNodes()[0].toEPL(writer, getPrecedence());
         writer.append(relationalOpEnum.getExpressionText());
-        if (isAll)
-        {
+        if (isAll) {
             writer.append("all");
-        }
-        else
-        {
+        } else {
             writer.append("any");
         }
 
         writer.append("(");
         String delimiter = "";
 
-        for (int i = 0; i < this.getChildNodes().length-1; i++)
-        {
+        for (int i = 0; i < this.getChildNodes().length - 1; i++) {
             writer.append(delimiter);
             this.getChildNodes()[i + 1].toEPL(writer, getPrecedence());
             delimiter = ",";
@@ -433,18 +338,15 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
         return ExprPrecedenceEnum.RELATIONAL_BETWEEN_IN;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprRelationalOpAllAnyNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprRelationalOpAllAnyNode)) {
             return false;
         }
 
         ExprRelationalOpAllAnyNode other = (ExprRelationalOpAllAnyNode) node;
 
         if ((other.relationalOpEnum != this.relationalOpEnum) ||
-            (other.isAll != this.isAll))
-        {
+                (other.isAll != this.isAll)) {
             return false;
         }
 

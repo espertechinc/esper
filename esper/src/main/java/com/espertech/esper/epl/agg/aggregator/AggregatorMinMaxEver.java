@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Min/max aggregator for all values, not considering events leaving the aggregation (i.e. ever).
  */
-public class AggregatorMinMaxEver implements AggregationMethod
-{
+public class AggregatorMinMaxEver implements AggregationMethod {
     private static final Logger log = LoggerFactory.getLogger(AggregatorMinMaxEver.class);
 
     protected final MinMaxTypeEnum minMaxTypeEnum;
@@ -30,20 +29,16 @@ public class AggregatorMinMaxEver implements AggregationMethod
      *
      * @param minMaxTypeEnum - enum indicating to return minimum or maximum values
      */
-    public AggregatorMinMaxEver(MinMaxTypeEnum minMaxTypeEnum)
-    {
+    public AggregatorMinMaxEver(MinMaxTypeEnum minMaxTypeEnum) {
         this.minMaxTypeEnum = minMaxTypeEnum;
     }
 
-    public void clear()
-    {
+    public void clear() {
         currentMinMax = null;
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         if (currentMinMax == null) {
@@ -54,22 +49,19 @@ public class AggregatorMinMaxEver implements AggregationMethod
             if (currentMinMax.compareTo(object) < 0) {
                 currentMinMax = (Comparable) object;
             }
-        }
-        else {
+        } else {
             if (currentMinMax.compareTo(object) > 0) {
                 currentMinMax = (Comparable) object;
             }
         }
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
         // no-op, this is designed to handle min-max ever
         log.warn(".leave Received remove stream, none was expected");
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return currentMinMax;
     }
 

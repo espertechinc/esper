@@ -20,8 +20,7 @@ import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestIndexHelper extends TestCase
-{
+public class TestIndexHelper extends TestCase {
     private EventType eventType;
     private ArrayDeque<FilterValueSetParam> parameters;
     private FilterValueSetParam parameterOne;
@@ -29,8 +28,7 @@ public class TestIndexHelper extends TestCase
     private FilterValueSetParam parameterThree;
     private FilterServiceGranularLockFactory lockFactory = new FilterServiceGranularLockFactoryReentrant();
 
-    public void setUp()
-    {
+    public void setUp() {
         eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         parameters = new ArrayDeque<FilterValueSetParam>();
 
@@ -43,8 +41,7 @@ public class TestIndexHelper extends TestCase
         parameters.add(parameterThree);
     }
 
-    public void testFindIndex()
-    {
+    public void testFindIndex() {
         List<FilterParamIndexBase> indexes = new LinkedList<FilterParamIndexBase>();
 
         // Create index list wity index that doesn't match
@@ -80,8 +77,7 @@ public class TestIndexHelper extends TestCase
         assertEquals(indexThree, pair.getSecond());
     }
 
-    public void testFindParameter()
-    {
+    public void testFindParameter() {
         FilterParamIndexBase indexOne = IndexFactory.createIndex(makeLookupable("boolPrimitive"), lockFactory, FilterOperator.EQUAL);
         assertNull(IndexHelper.findParameter(parameters, indexOne));
 

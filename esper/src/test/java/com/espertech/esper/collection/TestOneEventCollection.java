@@ -10,24 +10,21 @@
  */
 package com.espertech.esper.collection;
 
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import junit.framework.TestCase;
-import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
-public class TestOneEventCollection extends TestCase
-{
+public class TestOneEventCollection extends TestCase {
     private OneEventCollection list;
     private EventBean[] events;
 
-    public void setUp()
-    {
+    public void setUp() {
         list = new OneEventCollection();
-        events = SupportEventBeanFactory.makeEvents(new String[] {"1", "2", "3", "4"});
+        events = SupportEventBeanFactory.makeEvents(new String[]{"1", "2", "3", "4"});
     }
 
-    public void testFlow()
-    {
+    public void testFlow() {
         assertTrue(list.isEmpty());
         EPAssertionUtil.assertEqualsExactOrder(list.toArray(), new EventBean[0]);
 

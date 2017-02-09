@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.datetime.eval;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class DatetimeLongCoercerCal implements DatetimeLongCoercer {
     public long coerce(Object date) {

@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class BeanInstantiatorByCtor implements BeanInstantiator
-{
+public class BeanInstantiatorByCtor implements BeanInstantiator {
     private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByCtor.class);
 
     private final Constructor ctor;
@@ -27,20 +26,15 @@ public class BeanInstantiatorByCtor implements BeanInstantiator
     }
 
     public Object instantiate() {
-        try
-        {
+        try {
             return ctor.newInstance();
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = "Unexpected exception encountered invoking constructor '" + ctor.getName() + "' on class '" + ctor.getDeclaringClass().getName() + "': " + e.getTargetException().getMessage();
             log.error(message, e);
             return null;
-        }
-        catch (IllegalAccessException ex) {
+        } catch (IllegalAccessException ex) {
             return handle(ex);
-        }
-        catch (InstantiationException ex) {
+        } catch (InstantiationException ex) {
             return handle(ex);
         }
     }

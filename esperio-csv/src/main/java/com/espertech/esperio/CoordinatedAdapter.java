@@ -10,9 +10,9 @@
  */
 package com.espertech.esperio;
 
+import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.adapter.InputAdapter;
 
 /**
  * An Adapter that can be coordinated by an AdapterCoordinator.

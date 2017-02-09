@@ -13,15 +13,13 @@ package com.espertech.esper.util;
 import junit.framework.TestCase;
 
 import java.net.URI;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-public class TestURIUtil extends TestCase
-{
-    public void testSortRelevance() throws Exception
-    {
-        Object[][] uris = new Object[][] {
+public class TestURIUtil extends TestCase {
+    public void testSortRelevance() throws Exception {
+        Object[][] uris = new Object[][]{
                 {"a/relative/one", -1},
                 {"other:mailto:test", 0},
                 {"other://a", 1},
@@ -40,12 +38,11 @@ public class TestURIUtil extends TestCase
                 {"/a", 14},
                 {"//a/b/c", 15},
                 {"//a", 16},
-                };
+        };
 
         // setup input
         Map<URI, Object> input = new HashMap<URI, Object>();
-        for (Object[] uri1 : uris)
-        {
+        for (Object[] uri1 : uris) {
             URI uri = new URI((String) uri1[0]);
             input.put(uri, uri1[1]);
         }
@@ -56,91 +53,89 @@ public class TestURIUtil extends TestCase
 
         uri = new URI("type://x/a/b?qqq");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://x/a/b?query#fragment&param", "type://x/a?query#fragment&param", "type://x?query#fragment&param"};
+        expected = new String[]{"type://x/a/b?query#fragment&param", "type://x/a?query#fragment&param", "type://x?query#fragment&param"};
         runAssertion(uri, input, result, expected);
 
         // unspecific child
         uri = new URI("type://a/b2");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://a/b2", "type://a"};
+        expected = new String[]{"type://a/b2", "type://a"};
         runAssertion(uri, input, result, expected);
 
         // very specific child
         uri = new URI("type://a/b2/c2/d/e");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://a/b2/c2","type://a/b2","type://a"};
+        expected = new String[]{"type://a/b2/c2", "type://a/b2", "type://a"};
         runAssertion(uri, input, result, expected);
 
         // less specific child
         uri = new URI("type://a/b1/c2");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://a/b1/c2", "type://a"};
+        expected = new String[]{"type://a/b1/c2", "type://a"};
         runAssertion(uri, input, result, expected);
 
         // unspecific child
         uri = new URI("type://a/b4");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://a"};
+        expected = new String[]{"type://a"};
         runAssertion(uri, input, result, expected);
 
         uri = new URI("type://b/b1");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {};
+        expected = new String[]{};
         runAssertion(uri, input, result, expected);
 
         uri = new URI("type://a/b1/c2/d1/e1/f1");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://a/b1/c2/d1","type://a/b1/c2","type://a"};
+        expected = new String[]{"type://a/b1/c2/d1", "type://a/b1/c2", "type://a"};
         runAssertion(uri, input, result, expected);
 
         uri = new URI("other:mailto:test");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"other:mailto:test"};
+        expected = new String[]{"other:mailto:test"};
         runAssertion(uri, input, result, expected);
 
         uri = new URI("type://x/a?qqq");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"type://x/a?query#fragment&param", "type://x?query#fragment&param"};
+        expected = new String[]{"type://x/a?query#fragment&param", "type://x?query#fragment&param"};
         runAssertion(uri, input, result, expected);
 
         uri = new URI("other://x/a?qqq");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {};
+        expected = new String[]{};
         runAssertion(uri, input, result, expected);
 
         // this is seen as relative, must be a full hit (no path checking)
         uri = new URI("/a/b");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {};
+        expected = new String[]{};
         runAssertion(uri, input, result, expected);
 
         // this is seen as relative
         uri = new URI("/a/b/c");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"/a/b/c"};
+        expected = new String[]{"/a/b/c"};
         runAssertion(uri, input, result, expected);
 
         // this is seen as relative
         uri = new URI("//a/b");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {};
+        expected = new String[]{};
         runAssertion(uri, input, result, expected);
 
         // this is seen as relative
         uri = new URI("//a/b/c");
         result = URIUtil.filterSort(uri, input);
-        expected = new String[] {"//a/b/c"};
+        expected = new String[]{"//a/b/c"};
         runAssertion(uri, input, result, expected);
     }
 
     private static void runAssertion(URI uriTested, Map<URI, Object> input, Collection<Map.Entry<URI, Object>> result, String[] expected)
-            throws Exception
-    {
+            throws Exception {
         // assert
         assertEquals("found: " + result.toString() + " for URI " + uriTested, expected.length, result.size());
         int index = 0;
-        for (Map.Entry<URI, Object> entry : result)
-        {
+        for (Map.Entry<URI, Object> entry : result) {
             URI expectedUri = new URI(expected[index]);
             String message = "mismatch for line " + index;
             assertEquals(message, expectedUri, entry.getKey());

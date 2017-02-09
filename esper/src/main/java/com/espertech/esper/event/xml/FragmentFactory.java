@@ -16,10 +16,10 @@ import org.w3c.dom.Node;
 /**
  * Factory for event fragments for use with DOM getters.
  */
-public interface FragmentFactory
-{
+public interface FragmentFactory {
     /**
      * Returns a fragment for the node.
+     *
      * @param result node to fragment
      * @return fragment
      */

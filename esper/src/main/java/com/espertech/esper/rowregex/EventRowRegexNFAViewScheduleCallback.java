@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.rowregex;
 
-public interface EventRowRegexNFAViewScheduleCallback
-{
+public interface EventRowRegexNFAViewScheduleCallback {
     public void triggered();
 }

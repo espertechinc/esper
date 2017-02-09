@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.epl.join.pollindex;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableList;
-import com.espertech.esper.client.EventBean;
 
 import java.util.List;
 
@@ -23,14 +23,12 @@ import java.util.List;
  * For use when caching is disabled or when no proper index could be build because no where-clause or on-clause exists or
  * these clauses don't yield indexable columns on analysis.
  */
-public class PollResultIndexingStrategyNoIndex implements PollResultIndexingStrategy
-{
+public class PollResultIndexingStrategyNoIndex implements PollResultIndexingStrategy {
     public PollResultIndexingStrategyNoIndex() {
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
-    {
-        return new EventTable[] {new UnindexedEventTableList(pollResult, -1)};
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {
+        return new EventTable[]{new UnindexedEventTableList(pollResult, -1)};
     }
 
     public String toQueryPlan() {

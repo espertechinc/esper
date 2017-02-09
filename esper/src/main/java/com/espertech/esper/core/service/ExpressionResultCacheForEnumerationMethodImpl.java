@@ -19,7 +19,7 @@ import java.util.Iterator;
 public class ExpressionResultCacheForEnumerationMethodImpl implements ExpressionResultCacheForEnumerationMethod {
 
     private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<Long[], Object>>> enumMethodCache
-                = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<Long[], Object>>>();
+            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<Long[], Object>>>();
 
     private Deque<ExpressionResultCacheStackEntry> callStack;
     private Deque<Long> lastValueCacheStack;

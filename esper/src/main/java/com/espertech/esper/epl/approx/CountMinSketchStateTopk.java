@@ -44,8 +44,7 @@ public class CountMinSketchStateTopk {
         if (!filled) {
             ByteBuffer valueBuffer = ByteBuffer.wrap(value);
             updateInternal(valueBuffer, frequency);
-        }
-        else {
+        } else {
             Long lastKey = topk.lastKey();
             if (frequency > lastKey) {
                 ByteBuffer valueBuffer = ByteBuffer.wrap(value);
@@ -73,8 +72,7 @@ public class CountMinSketchStateTopk {
                 if (deque.isEmpty()) {
                     topk.remove(frequency);
                 }
-            }
-            else {
+            } else {
                 topk.remove(frequency);
             }
         }
@@ -84,12 +82,10 @@ public class CountMinSketchStateTopk {
         Object existing = topk.get(frequency);
         if (existing == null) {
             topk.put(frequency, value);
-        }
-        else if (existing instanceof Deque) {
+        } else if (existing instanceof Deque) {
             Deque<ByteBuffer> deque = (Deque<ByteBuffer>) existing;
             deque.add(value);
-        }
-        else {
+        } else {
             Deque<ByteBuffer> deque = new ArrayDeque<ByteBuffer>(2);
             deque.add((ByteBuffer) existing);
             deque.add(value);
@@ -110,8 +106,7 @@ public class CountMinSketchStateTopk {
                 if (deque.isEmpty()) {
                     topk.remove(last.getKey());
                 }
-            }
-            else {
+            } else {
                 topk.remove(last.getKey());
                 lastFreqForItem.remove((ByteBuffer) last.getValue());
             }
@@ -126,8 +121,7 @@ public class CountMinSketchStateTopk {
                 for (ByteBuffer o : set) {
                     values.add(o);
                 }
-            }
-            else {
+            } else {
                 values.add((ByteBuffer) entry.getValue());
             }
         }

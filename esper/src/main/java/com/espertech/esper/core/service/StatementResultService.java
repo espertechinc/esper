@@ -20,28 +20,29 @@ import com.espertech.esper.epl.metric.StatementMetricHandle;
  * Interface for a statement-level service for coordinating the insert/remove stream generation,
  * native deliver to subscribers and the presence/absence of listener or subscribers to a statement.
  */
-public interface StatementResultService
-{
+public interface StatementResultService {
     /**
      * For initialization of the service to provide statement context.
-     * @param epStatement the statement
-     * @param epServiceProvider the engine instance
-     * @param isInsertInto true if this is insert into
-     * @param isPattern true if this is a pattern statement
-     * @param isDistinct true if using distinct
+     *
+     * @param epStatement           the statement
+     * @param epServiceProvider     the engine instance
+     * @param isInsertInto          true if this is insert into
+     * @param isPattern             true if this is a pattern statement
+     * @param isDistinct            true if using distinct
      * @param statementMetricHandle handle for metrics reporting
-     * @param isForClause indicator that for-clause exists
+     * @param isForClause           indicator that for-clause exists
      */
     public void setContext(EPStatementSPI epStatement, EPServiceProviderSPI epServiceProvider,
                            boolean isInsertInto, boolean isPattern, boolean isDistinct, boolean isForClause, StatementMetricHandle statementMetricHandle);
 
     /**
      * For initialize of the service providing select clause column types and names.
-     * @param selectClauseTypes types of columns in the select clause
-     * @param selectClauseColumnNames column names
-     * @param forClauseDelivery for-clause
+     *
+     * @param selectClauseTypes        types of columns in the select clause
+     * @param selectClauseColumnNames  column names
+     * @param forClauseDelivery        for-clause
      * @param groupDeliveryExpressions grouped-delivery
-     * @param exprEvaluatorContext context
+     * @param exprEvaluatorContext     context
      */
     public void setSelectClause(Class[] selectClauseTypes, String[] selectClauseColumnNames,
                                 boolean forClauseDelivery, ExprEvaluator[] groupDeliveryExpressions, ExprEvaluatorContext exprEvaluatorContext);
@@ -49,6 +50,7 @@ public interface StatementResultService
     /**
      * Returns true to indicate that synthetic events should be produced, for
      * use in select expression processing.
+     *
      * @return true to produce synthetic events
      */
     public boolean isMakeSynthetic();
@@ -56,6 +58,7 @@ public interface StatementResultService
     /**
      * Returns true to indicate that natural events should be produced, for
      * use in select expression processing.
+     *
      * @return true to produce natural (object[] column) events
      */
     public boolean isMakeNatural();
@@ -67,13 +70,15 @@ public interface StatementResultService
 
     /**
      * Indicate a change in update listener.
+     *
      * @param updateListeners is the new listeners and subscriber
-     * @param isRecovery indicator whether recovering
+     * @param isRecovery      indicator whether recovering
      */
     public void setUpdateListeners(EPStatementListenerSet updateListeners, boolean isRecovery);
 
     /**
      * Stores for dispatching the statement results.
+     *
      * @param results is the insert and remove stream data
      */
     public void indicate(UniformPair<EventBean[]> results);

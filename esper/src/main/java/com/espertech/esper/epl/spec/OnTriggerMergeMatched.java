@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * Specification for the merge statement insert/update/delete-part.
  */
-public class OnTriggerMergeMatched implements Serializable
-{
+public class OnTriggerMergeMatched implements Serializable {
     private static final long serialVersionUID = -8789870272699226779L;
 
     private final boolean matchedUnmatched;

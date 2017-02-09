@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.example.matchmaker.eventbean;
 
-public enum AgeRange
-{
+public enum AgeRange {
     AGE_1(18, 25),
     AGE_2(26, 35),
     AGE_3(36, 45),
@@ -22,19 +21,16 @@ public enum AgeRange
     private int low;
     private int high;
 
-    AgeRange(int low, int high)
-    {
+    AgeRange(int low, int high) {
         this.low = low;
         this.high = high;
     }
 
-    public int getLow()
-    {
+    public int getLow() {
         return low;
     }
 
-    public int getHigh()
-    {
+    public int getHigh() {
         return high;
     }
 

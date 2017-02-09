@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Outbound unit.
  */
-public class OutboundUnitRunnable implements Runnable
-{
+public class OutboundUnitRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(OutboundUnitRunnable.class);
 
     private final UniformPair<EventBean[]> events;
@@ -28,23 +27,19 @@ public class OutboundUnitRunnable implements Runnable
 
     /**
      * Ctor.
-     * @param events to dispatch
+     *
+     * @param events                 to dispatch
      * @param statementResultService handles result indicate
      */
-    public OutboundUnitRunnable(UniformPair<EventBean[]> events, StatementResultServiceImpl statementResultService)
-    {
+    public OutboundUnitRunnable(UniformPair<EventBean[]> events, StatementResultServiceImpl statementResultService) {
         this.events = events;
         this.statementResultService = statementResultService;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             statementResultService.processDispatch(events);
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing dispatch: " + e.getMessage(), e);
         }
     }

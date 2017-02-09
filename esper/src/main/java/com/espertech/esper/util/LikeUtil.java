@@ -11,14 +11,14 @@
 package com.espertech.esper.util;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 /**
  * Utility for performing a SQL Like comparsion.
  */
-public class LikeUtil implements Serializable
-{
+public class LikeUtil implements Serializable {
     private final static int UNDERSCORE_CHAR = 1;
-    private final static int PERCENT_CHAR    = 2;
+    private final static int PERCENT_CHAR = 2;
 
     private char[] cLike;
     private int[] wildCardType;
@@ -31,8 +31,9 @@ public class LikeUtil implements Serializable
 
     /**
      * Ctor.
-     * @param pattern is the SQL-like pattern to
-     * @param escape is the escape character
+     *
+     * @param pattern    is the SQL-like pattern to
+     * @param escape     is the escape character
      * @param ignorecase is true to ignore the case, or false if not
      */
     public LikeUtil(String pattern, Character escape, boolean ignorecase) {
@@ -43,22 +44,23 @@ public class LikeUtil implements Serializable
 
     /**
      * Execute the string.
+     *
      * @param compareString is the string to compare
      * @return true if pattern matches, or false if not
      */
     public boolean compare(String compareString) {
 
-        if (isIgnoreCase)
-        {
-            compareString = compareString.toUpperCase();
+        if (isIgnoreCase) {
+            compareString = compareString.toUpperCase(Locale.ENGLISH);
         }
 
         return compareAt(compareString, 0, 0, compareString.length()) ? Boolean.TRUE
-                                              : Boolean.FALSE;
+                : Boolean.FALSE;
     }
 
     /**
      * Resets the search pattern.
+     *
      * @param pattern is the new pattern to match against
      */
     public void resetPattern(String pattern) {
@@ -70,19 +72,19 @@ public class LikeUtil implements Serializable
         for (; i < iLen; i++) {
             switch (wildCardType[i]) {
 
-                case 0 :                  // general character
+                case 0:                  // general character
                     if ((j >= jLen) || (cLike[i] != s.charAt(j++))) {
                         return false;
                     }
                     break;
 
-                case LikeUtil.UNDERSCORE_CHAR :    // underscore: do not test this character
+                case LikeUtil.UNDERSCORE_CHAR:    // underscore: do not test this character
                     if (j++ >= jLen) {
                         return false;
                     }
                     break;
 
-                case LikeUtil.PERCENT_CHAR :       // percent: none or any character(s)
+                case LikeUtil.PERCENT_CHAR:       // percent: none or any character(s)
                     if (++i >= iLen) {
                         return true;
                     }
@@ -112,20 +114,20 @@ public class LikeUtil implements Serializable
         isNull = pattern == null;
 
         if (!isNull && isIgnoreCase) {
-            pattern = pattern.toUpperCase();
+            pattern = pattern.toUpperCase(Locale.ENGLISH);
         }
 
-        iLen           = 0;
+        iLen = 0;
         iFirstWildCard = -1;
 
         int l = pattern == null ? 0
-                                : pattern.length();
+                : pattern.length();
 
-        cLike        = new char[l];
+        cLike = new char[l];
         wildCardType = new int[l];
 
         boolean bEscaping = false,
-                bPercent  = false;
+                bPercent = false;
 
         for (int i = 0; i < l; i++) {
             char c = pattern.charAt(i);
@@ -146,7 +148,7 @@ public class LikeUtil implements Serializable
                         continue;
                     }
 
-                    bPercent           = true;
+                    bPercent = true;
                     wildCardType[iLen] = LikeUtil.PERCENT_CHAR;
 
                     if (iFirstWildCard == -1) {
@@ -156,7 +158,7 @@ public class LikeUtil implements Serializable
                     bPercent = false;
                 }
             } else {
-                bPercent  = false;
+                bPercent = false;
                 bEscaping = false;
             }
 
@@ -166,7 +168,7 @@ public class LikeUtil implements Serializable
         for (int i = 0; i < iLen - 1; i++) {
             if ((wildCardType[i] == LikeUtil.PERCENT_CHAR)
                     && (wildCardType[i + 1] == LikeUtil.UNDERSCORE_CHAR)) {
-                wildCardType[i]     = LikeUtil.UNDERSCORE_CHAR;
+                wildCardType[i] = LikeUtil.UNDERSCORE_CHAR;
                 wildCardType[i + 1] = LikeUtil.PERCENT_CHAR;
             }
         }
@@ -186,7 +188,7 @@ public class LikeUtil implements Serializable
 
     boolean isEquivalentToNotNullPredicate() {
 
-        if (isNull ||!hasWildcards()) {
+        if (isNull || !hasWildcards()) {
             return false;
         }
 
@@ -202,8 +204,8 @@ public class LikeUtil implements Serializable
     boolean isEquivalentToBetweenPredicate() {
 
         return iFirstWildCard > 0
-               && iFirstWildCard == wildCardType.length - 1
-               && cLike[iFirstWildCard] == '%';
+                && iFirstWildCard == wildCardType.length - 1
+                && cLike[iFirstWildCard] == '%';
     }
 
     boolean isEquivalentToBetweenPredicateAugmentedWithLike() {

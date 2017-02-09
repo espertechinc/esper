@@ -10,26 +10,25 @@
  */
 package com.espertech.esper.event.vaevent;
 
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.ConfigurationVariantStream;
+import com.espertech.esper.client.EventType;
 
 /**
  * Specification for a variant event stream.
  */
-public class VariantSpec
-{
+public class VariantSpec {
     private final String variantStreamName;
     private final EventType[] eventTypes;
     private final ConfigurationVariantStream.TypeVariance typeVariance;
 
     /**
      * Ctor.
+     *
      * @param variantStreamName name of variant stream
-     * @param eventTypes types of events for variant stream, or empty list
-     * @param typeVariance enum specifying type variance
+     * @param eventTypes        types of events for variant stream, or empty list
+     * @param typeVariance      enum specifying type variance
      */
-    public VariantSpec(String variantStreamName, EventType[] eventTypes, ConfigurationVariantStream.TypeVariance typeVariance)
-    {
+    public VariantSpec(String variantStreamName, EventType[] eventTypes, ConfigurationVariantStream.TypeVariance typeVariance) {
         this.variantStreamName = variantStreamName;
         this.eventTypes = eventTypes;
         this.typeVariance = typeVariance;
@@ -37,28 +36,28 @@ public class VariantSpec
 
     /**
      * Returns name of variant stream.
+     *
      * @return name
      */
-    public String getVariantStreamName()
-    {
+    public String getVariantStreamName() {
         return variantStreamName;
     }
 
     /**
      * Returns types allowed for variant streams.
+     *
      * @return types
      */
-    public EventType[] getEventTypes()
-    {
+    public EventType[] getEventTypes() {
         return eventTypes;
     }
 
     /**
      * Returns the type variance enum.
+     *
      * @return type variance
      */
-    public ConfigurationVariantStream.TypeVariance getTypeVariance()
-    {
+    public ConfigurationVariantStream.TypeVariance getTypeVariance() {
         return typeVariance;
     }
 }

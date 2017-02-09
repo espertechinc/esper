@@ -29,8 +29,7 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
     }
 
     public Object handleNestedValue(Object value) {
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             if (value instanceof EventBean) {
                 return mapGetter.get((EventBean) value);
             }
@@ -40,8 +39,7 @@ public class MapNestedEntryPropertyGetterMap extends MapNestedEntryPropertyGette
     }
 
     public Object handleNestedValueFragment(Object value) {
-        if (!(value instanceof Map))
-        {
+        if (!(value instanceof Map)) {
             if (value instanceof EventBean) {
                 return mapGetter.getFragment((EventBean) value);
             }

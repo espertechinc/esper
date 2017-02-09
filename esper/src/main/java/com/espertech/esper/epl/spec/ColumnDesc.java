@@ -17,10 +17,9 @@ import java.io.Serializable;
 /**
  * Describes a column name and type.
  */
-public class ColumnDesc implements MetaDefItem, Serializable
-{
+public class ColumnDesc implements MetaDefItem, Serializable {
     private static final long serialVersionUID = -3508097717971934622L;
-    
+
     private final String name;
     private final String type;
     private final boolean array;
@@ -28,9 +27,10 @@ public class ColumnDesc implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param name column name
-     * @param type type
-     * @param array true for array
+     *
+     * @param name           column name
+     * @param type           type
+     * @param array          true for array
      * @param primitiveArray true for array of primitives
      */
     public ColumnDesc(String name, String type, boolean array, boolean primitiveArray) {
@@ -42,28 +42,28 @@ public class ColumnDesc implements MetaDefItem, Serializable
 
     /**
      * Returns column name.
+     *
      * @return name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Return column type
+     *
      * @return type
      */
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     /**
      * Return true for array
+     *
      * @return array indicator
      */
-    public boolean isArray()
-    {
+    public boolean isArray() {
         return array;
     }
 

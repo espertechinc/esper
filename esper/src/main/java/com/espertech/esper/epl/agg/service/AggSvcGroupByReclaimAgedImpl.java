@@ -27,8 +27,7 @@ import java.util.*;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
-{
+public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped {
     private static final Logger log = LoggerFactory.getLogger(AggSvcGroupByReclaimAgedImpl.class);
 
     public static final long DEFAULT_MAX_AGE_MSEC = 60000L;
@@ -56,7 +55,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     private volatile long currentMaxAge = DEFAULT_MAX_AGE_MSEC;
     private volatile long currentReclaimFrequency = DEFAULT_MAX_AGE_MSEC;
 
-    public AggSvcGroupByReclaimAgedImpl(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[], AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency, TimeAbacus timeAbacus) {
+    public AggSvcGroupByReclaimAgedImpl(ExprEvaluator[] evaluators, AggregationMethodFactory[] aggregators, AggregationAccessorSlotPair[] accessors, AggregationStateFactory[] accessAggregations, boolean join, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionMaxAge, AggSvcGroupByReclaimAgedEvalFunc evaluationFunctionFrequency, TimeAbacus timeAbacus) {
         super(evaluators, aggregators);
         this.accessors = accessors;
         this.accessAggregations = accessAggregations;
@@ -68,21 +67,19 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         removedKeys = new ArrayList<Object>();
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         aggregatorsPerGroup.clear();
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupByKey);}
+    public void applyEnter(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupByKey);
+        }
         long currentTime = exprEvaluatorContext.getTimeProvider().getTime();
-        if ((nextSweepTime == null) || (nextSweepTime <= currentTime))
-        {
+        if ((nextSweepTime == null) || (nextSweepTime <= currentTime)) {
             currentMaxAge = getMaxAge(currentMaxAge);
             currentReclaimFrequency = getReclaimFrequency(currentReclaimFrequency);
-            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled()))
-            {
+            if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
                 log.debug("Reclaiming groups older then " + currentMaxAge + " msec and every " + currentReclaimFrequency + "msec in frequency");
             }
             nextSweepTime = currentTime + currentReclaimFrequency;
@@ -96,15 +93,12 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         // The aggregators for this group do not exist, need to create them from the prototypes
         AggregationMethod[] groupAggregators;
         AggregationState[] groupStates;
-        if (row == null)
-        {
+        if (row == null) {
             groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             row = new AggregationMethodRowAged(1, currentTime, groupAggregators, groupStates);
             aggregatorsPerGroup.put(groupByKey, row);
-        }
-        else
-        {
+        } else {
             groupAggregators = row.getMethods();
             groupStates = row.getStates();
             row.increaseRefcount();
@@ -115,78 +109,78 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         currentAggregatorMethods = groupAggregators;
         currentAggregatorStates = groupStates;
         for (int i = 0; i < evaluators.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, currentAggregatorMethods[i], aggregators[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(true, i, currentAggregatorMethods[i], aggregators[i].getAggregationExpression());
+            }
             Object columnResult = evaluators[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
             groupAggregators[i].enter(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, currentAggregatorMethods[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(true, i, currentAggregatorMethods[i]);
+            }
         }
 
         for (int i = 0; i < currentAggregatorStates.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(true, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());
+            }
             currentAggregatorStates[i].applyEnter(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, i, currentAggregatorStates[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(true, i, currentAggregatorStates[i]);
+            }
         }
 
         internalHandleUpdated(groupByKey, row);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);
+        }
     }
 
-    private void sweep(long currentTime, long currentMaxAge)
-    {
+    private void sweep(long currentTime, long currentMaxAge) {
         ArrayDeque<Object> removed = new ArrayDeque<Object>();
-        for (Map.Entry<Object, AggregationMethodRowAged> entry : aggregatorsPerGroup.entrySet())
-        {
+        for (Map.Entry<Object, AggregationMethodRowAged> entry : aggregatorsPerGroup.entrySet()) {
             long age = currentTime - entry.getValue().getLastUpdateTime();
-            if (age > currentMaxAge)
-            {
+            if (age > currentMaxAge) {
                 removed.add(entry.getKey());
             }
         }
 
-        for (Object key : removed)
-        {
+        for (Object key : removed) {
             aggregatorsPerGroup.remove(key);
             internalHandleRemoved(key);
             removedCallback.removed(key);
         }
     }
 
-    private long getMaxAge(long currentMaxAge)
-    {
+    private long getMaxAge(long currentMaxAge) {
         Double maxAge = evaluationFunctionMaxAge.getLongValue();
-        if ((maxAge == null) || (maxAge <= 0))
-        {
+        if ((maxAge == null) || (maxAge <= 0)) {
             return currentMaxAge;
         }
         return timeAbacus.deltaForSecondsDouble(maxAge);
     }
 
-    private long getReclaimFrequency(long currentReclaimFrequency)
-    {
+    private long getReclaimFrequency(long currentReclaimFrequency) {
         Double frequency = evaluationFunctionFrequency.getLongValue();
-        if ((frequency == null) || (frequency <= 0))
-        {
+        if ((frequency == null) || (frequency <= 0)) {
             return currentReclaimFrequency;
         }
         return timeAbacus.deltaForSecondsDouble(frequency);
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupByKey);}
+    public void applyLeave(EventBean[] eventsPerStream, Object groupByKey, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupByKey);
+        }
         AggregationMethodRowAged row = aggregatorsPerGroup.get(groupByKey);
         long currentTime = exprEvaluatorContext.getTimeProvider().getTime();
 
         // The aggregators for this group do not exist, need to create them from the prototypes
         AggregationMethod[] groupAggregators;
         AggregationState[] groupStates;
-        if (row != null)
-        {
+        if (row != null) {
             groupAggregators = row.getMethods();
             groupStates = row.getStates();
-        }
-        else
-        {
+        } else {
             groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
             groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupByKey, null);
             row = new AggregationMethodRowAged(1, currentTime, groupAggregators, groupStates);
@@ -197,16 +191,24 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         currentAggregatorMethods = groupAggregators;
         currentAggregatorStates = groupStates;
         for (int i = 0; i < evaluators.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, currentAggregatorMethods[i], aggregators[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggNoAccessEnterLeave(false, i, currentAggregatorMethods[i], aggregators[i].getAggregationExpression());
+            }
             Object columnResult = evaluators[i].evaluate(eventsPerStream, false, exprEvaluatorContext);
             groupAggregators[i].leave(columnResult);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, currentAggregatorMethods[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggNoAccessEnterLeave(false, i, currentAggregatorMethods[i]);
+            }
         }
 
         for (int i = 0; i < currentAggregatorStates.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggAccessEnterLeave(false, i, currentAggregatorStates[i], accessAggregations[i].getAggregationExpression());
+            }
             currentAggregatorStates[i].applyLeave(eventsPerStream, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, i, currentAggregatorStates[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggAccessEnterLeave(false, i, currentAggregatorStates[i]);
+            }
         }
 
         row.decreaseRefcount();
@@ -215,18 +217,18 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
             removedKeys.add(groupByKey);
         }
         internalHandleUpdated(groupByKey, row);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);
+        }
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         AggregationMethodRowAged row = aggregatorsPerGroup.get(groupByKey);
 
         if (row != null) {
             currentAggregatorMethods = row.getMethods();
             currentAggregatorStates = row.getStates();
-        }
-        else {
+        } else {
             currentAggregatorMethods = null;
         }
 
@@ -238,12 +240,10 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
         this.currentGroupKey = groupByKey;
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (column < aggregators.length) {
             return currentAggregatorMethods[column].getValue();
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getValue(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
         }
@@ -252,8 +252,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvents(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -262,8 +261,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     public Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableScalar(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -272,8 +270,7 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     public EventBean getEventBean(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvent(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -307,10 +304,9 @@ public class AggSvcGroupByReclaimAgedImpl extends AggregationServiceBaseGrouped
     }
 
     protected void handleRemovedKeys() {
-        if (!removedKeys.isEmpty())     // we collect removed keys lazily on the next enter to reduce the chance of empty-group queries creating empty aggregators temporarily
-        {
-            for (Object removedKey : removedKeys)
-            {
+        if (!removedKeys.isEmpty()) {
+            // we collect removed keys lazily on the next enter to reduce the chance of empty-group queries creating empty aggregators temporarily
+            for (Object removedKey : removedKeys) {
                 aggregatorsPerGroup.remove(removedKey);
                 internalHandleRemoved(removedKey);
             }

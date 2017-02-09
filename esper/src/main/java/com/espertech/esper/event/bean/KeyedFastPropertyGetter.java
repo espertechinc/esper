@@ -23,26 +23,24 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Getter for a key property identified by a given key value, using the CGLIB fast method.
  */
-public class KeyedFastPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped, EventPropertyGetterAndIndexed
-{
+public class KeyedFastPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped, EventPropertyGetterAndIndexed {
     private final FastMethod fastMethod;
     private final Object key;
 
     /**
      * Constructor.
-     * @param fastMethod is the method to use to retrieve a value from the object.
-     * @param key is the key to supply as parameter to the mapped property getter
+     *
+     * @param fastMethod          is the method to use to retrieve a value from the object.
+     * @param key                 is the key to supply as parameter to the mapped property getter
      * @param eventAdapterService factory for event beans and event types
      */
-    public KeyedFastPropertyGetter(FastMethod fastMethod, Object key, EventAdapterService eventAdapterService)
-    {
+    public KeyedFastPropertyGetter(FastMethod fastMethod, Object key, EventAdapterService eventAdapterService) {
         super(eventAdapterService, fastMethod.getReturnType(), null);
         this.key = key;
         this.fastMethod = fastMethod;
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
@@ -62,31 +60,23 @@ public class KeyedFastPropertyGetter extends BaseNativePropertyGetter implements
         return getBeanPropInternal(eventBean.getUnderlying(), index);
     }
 
-    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException
-    {
-        try
-        {
-            return fastMethod.invoke(object, new Object[] {key});
-        }
-        catch (ClassCastException e)
-        {
+    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
+        try {
+            return fastMethod.invoke(object, new Object[]{key});
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(fastMethod.getJavaMethod(), e);
         }
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "KeyedFastPropertyGetter " +
                 " fastMethod=" + fastMethod.toString() +
                 " key=" + key;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

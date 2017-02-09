@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * Specification object for a row limit.
  */
-public class RowLimitClause implements Serializable
-{
+public class RowLimitClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private Integer numRows;
@@ -32,57 +31,56 @@ public class RowLimitClause implements Serializable
     }
 
     /**
-
      * Creates a row limit clause.
+     *
      * @param numRowsVariable name of the variable providing the maximum number of rows
      * @return clause
      */
-    public static RowLimitClause create(String numRowsVariable)
-    {
+    public static RowLimitClause create(String numRowsVariable) {
         return new RowLimitClause(null, null, numRowsVariable, null);
     }
 
     /**
      * Creates a row limit clause.
+     *
      * @param numRowsVariable name of the variable providing the maximum number of rows
-     * @param offsetVariable name of the variable providing the offset
+     * @param offsetVariable  name of the variable providing the offset
      * @return clause
      */
-    public static RowLimitClause create(String numRowsVariable, String offsetVariable)
-    {
+    public static RowLimitClause create(String numRowsVariable, String offsetVariable) {
         return new RowLimitClause(null, null, numRowsVariable, offsetVariable);
     }
 
     /**
      * Creates a row limit clause.
+     *
      * @param numRows maximum number of rows
      * @return clause
      */
-    public static RowLimitClause create(int numRows)
-    {
+    public static RowLimitClause create(int numRows) {
         return new RowLimitClause(numRows, null, null, null);
     }
 
     /**
      * Creates a row limit clause.
+     *
      * @param numRows maximum number of rows
-     * @param offset offset
+     * @param offset  offset
      * @return clause
      */
-    public static RowLimitClause create(int numRows, int offset)
-    {
+    public static RowLimitClause create(int numRows, int offset) {
         return new RowLimitClause(numRows, offset, null, null);
     }
 
     /**
      * Ctor.
-     * @param numRows maximum number of rows
-     * @param optionalOffsetRows offset
-     * @param numRowsVariable name of the variable providing the maximum number of rows
+     *
+     * @param numRows                    maximum number of rows
+     * @param optionalOffsetRows         offset
+     * @param numRowsVariable            name of the variable providing the maximum number of rows
      * @param optionalOffsetRowsVariable name of the variable providing the offset
      */
-    public RowLimitClause(Integer numRows, Integer optionalOffsetRows, String numRowsVariable, String optionalOffsetRowsVariable)
-    {
+    public RowLimitClause(Integer numRows, Integer optionalOffsetRows, String numRowsVariable, String optionalOffsetRowsVariable) {
         this.numRows = numRows;
         this.optionalOffsetRows = optionalOffsetRows;
         this.numRowsVariable = numRowsVariable;
@@ -91,103 +89,96 @@ public class RowLimitClause implements Serializable
 
     /**
      * Returns the maximum number of rows, or null if using variable.
+     *
      * @return max num rows
      */
-    public Integer getNumRows()
-    {
+    public Integer getNumRows() {
         return numRows;
     }
 
     /**
      * Sets the maximum number of rows.
+     *
      * @param numRows max num rows
      */
-    public void setNumRows(Integer numRows)
-    {
+    public void setNumRows(Integer numRows) {
         this.numRows = numRows;
     }
 
     /**
      * Returns the offset, or null if using variable or not using offset.
+     *
      * @return offset
      */
-    public Integer getOptionalOffsetRows()
-    {
+    public Integer getOptionalOffsetRows() {
         return optionalOffsetRows;
     }
 
     /**
      * Sets the offset.
+     *
      * @param optionalOffsetRows offset
      */
-    public void setOptionalOffsetRows(Integer optionalOffsetRows)
-    {
+    public void setOptionalOffsetRows(Integer optionalOffsetRows) {
         this.optionalOffsetRows = optionalOffsetRows;
     }
 
     /**
      * Returns the variable providing maximum number of rows, or null if using constant.
+     *
      * @return max num rows variable
      */
-    public String getNumRowsVariable()
-    {
+    public String getNumRowsVariable() {
         return numRowsVariable;
     }
 
     /**
      * Sets the variable providing maximum number of rows.
+     *
      * @param numRowsVariable max num rows variable
      */
-    public void setNumRowsVariable(String numRowsVariable)
-    {
+    public void setNumRowsVariable(String numRowsVariable) {
         this.numRowsVariable = numRowsVariable;
     }
 
     /**
      * Returns the name of the variable providing offset values.
+     *
      * @return variable name for offset
      */
-    public String getOptionalOffsetRowsVariable()
-    {
+    public String getOptionalOffsetRowsVariable() {
         return optionalOffsetRowsVariable;
     }
 
     /**
      * Sets the name of the variable providing offset values.
+     *
      * @param optionalOffsetRowsVariable variable name for offset
      */
-    public void setOptionalOffsetRowsVariable(String optionalOffsetRowsVariable)
-    {
+    public void setOptionalOffsetRowsVariable(String optionalOffsetRowsVariable) {
         this.optionalOffsetRowsVariable = optionalOffsetRowsVariable;
     }
 
     /**
      * Renders the clause in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         if (numRowsVariable != null) {
             writer.write(numRowsVariable);
-        }
-        else {
-            if (numRows != null)
-            {
+        } else {
+            if (numRows != null) {
                 writer.write(Integer.toString(numRows));
-            }
-            else
-            {
+            } else {
                 writer.write(Integer.toString(Integer.MAX_VALUE));
             }
         }
 
-        if (optionalOffsetRowsVariable != null)
-        {
+        if (optionalOffsetRowsVariable != null) {
             writer.write(" offset ");
             writer.write(optionalOffsetRowsVariable);
-        }
-        else if ((optionalOffsetRows != null) && (optionalOffsetRows != 0))
-        {
+        } else if ((optionalOffsetRows != null) && (optionalOffsetRows != 0)) {
             writer.write(" offset ");
             writer.write(Integer.toString(optionalOffsetRows));
         }

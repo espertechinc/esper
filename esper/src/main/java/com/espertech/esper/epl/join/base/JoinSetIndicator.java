@@ -13,6 +13,5 @@ package com.espertech.esper.epl.join.base;
 /**
  * Marker interface for indicators to join set processors.
  */
-public interface JoinSetIndicator extends JoinSetProcessor
-{
+public interface JoinSetIndicator extends JoinSetProcessor {
 }

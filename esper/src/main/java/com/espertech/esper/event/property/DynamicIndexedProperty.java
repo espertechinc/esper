@@ -31,53 +31,45 @@ import java.util.Map;
  * <p>
  * Dynamic properties always exist, have an Object type and are resolved to a method during runtime.
  */
-public class DynamicIndexedProperty extends PropertyBase implements DynamicProperty, PropertyWithIndex
-{
+public class DynamicIndexedProperty extends PropertyBase implements DynamicProperty, PropertyWithIndex {
     private final int index;
 
     /**
      * Ctor.
+     *
      * @param propertyName is the property name
-     * @param index is the index of the array or indexed property
+     * @param index        is the index of the array or indexed property
      */
-    public DynamicIndexedProperty(String propertyName, int index)
-    {
+    public DynamicIndexedProperty(String propertyName, int index) {
         super(propertyName);
         this.index = index;
     }
 
-    public boolean isDynamic()
-    {
+    public boolean isDynamic() {
         return true;
     }
 
-    public String[] toPropertyArray()
-    {
-        return new String[] {this.getPropertyNameAtomic()};
+    public String[] toPropertyArray() {
+        return new String[]{this.getPropertyNameAtomic()};
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return new DynamicIndexedPropertyGetter(propertyNameAtomic, index, eventAdapterService);
     }
 
-    public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return Object.class;
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType beanEventType, EventAdapterService eventAdapterService)
-    {
+    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType beanEventType, EventAdapterService eventAdapterService) {
         return GenericPropertyDesc.getObjectGeneric();
     }
 
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService)
-    {
+    public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
         return Object.class;
     }
 
-    public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService)
-    {
+    public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
         return new MapIndexedPropertyGetter(this.getPropertyNameAtomic(), index);
     }
 
@@ -86,8 +78,7 @@ public class DynamicIndexedProperty extends PropertyBase implements DynamicPrope
         return propertyIndex == null ? null : new ObjectArrayIndexedPropertyGetter(propertyIndex, index);
     }
 
-    public void toPropertyEPL(StringWriter writer)
-    {
+    public void toPropertyEPL(StringWriter writer) {
         writer.append(propertyNameAtomic);
         writer.append('[');
         writer.append(Integer.toString(index));
@@ -95,18 +86,15 @@ public class DynamicIndexedProperty extends PropertyBase implements DynamicPrope
         writer.append('?');
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression)
-    {
+    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         return new DOMIndexedGetter(propertyNameAtomic, index, null);
     }
 
-    public SchemaItem getPropertyTypeSchema(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService)
-    {
+    public SchemaItem getPropertyTypeSchema(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService) {
         return null;  // dynamic properties always return Node
     }
 
-    public EventPropertyGetter getGetterDOM()
-    {
+    public EventPropertyGetter getGetterDOM() {
         return new DOMIndexedGetter(propertyNameAtomic, index, null);
     }
 

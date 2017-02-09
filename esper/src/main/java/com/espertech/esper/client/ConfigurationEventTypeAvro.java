@@ -14,8 +14,7 @@ import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
 
-public class ConfigurationEventTypeAvro extends ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable
-{
+public class ConfigurationEventTypeAvro extends ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable {
     private String avroSchemaText;
     private Object avroSchema;
 

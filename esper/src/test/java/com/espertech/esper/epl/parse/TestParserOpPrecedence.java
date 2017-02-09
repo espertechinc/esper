@@ -25,62 +25,60 @@ import java.io.StringWriter;
 /**
  * Test operator precedence and on-expression equivalence.
  * Precendences are similar to Java see <a>http://java.sun.com/docs/books/tutorial/java/nutsandbolts/expressions.html</a>)
- *
+ * <p>
  * Precedence ordering (highest on top):
- *  postfix operators   -   within
- *  unary operators     -   not, every
- *  AND                 -   and
- *  OR                  -   or
- *  FOLLOWED BY         -   ->
+ * postfix operators   -   within
+ * unary operators     -   not, every
+ * AND                 -   and
+ * OR                  -   or
+ * FOLLOWED BY         -   ->
  */
-public class TestParserOpPrecedence extends TestCase
-{
-    public void testEquivalency() throws Exception
-    {
+public class TestParserOpPrecedence extends TestCase {
+    public void testEquivalency() throws Exception {
         assertEquivalent("every a",
-                          "(every a)");
+                "(every a)");
 
         assertEquivalent("every a() or b()",
-                          "((every a()) or b())");
+                "((every a()) or b())");
 
         assertEquivalent("every a -> b or c",
-                          "(every a) -> (b or c)");
+                "(every a) -> (b or c)");
 
         assertEquivalent("every a() -> b() and c()",
-                          "(every a()) -> (b() and c())");
+                "(every a()) -> (b() and c())");
 
         assertEquivalent("a() and b() or c()",
-                          "(a() and b()) or c()");
+                "(a() and b()) or c()");
 
         assertEquivalent("a() or b() and c() or d()",
-                          "a() or (b() and c()) or d()");
+                "a() or (b() and c()) or d()");
 
         assertEquivalent("a() or b() and every e() -> f() -> c() or d()",
-                          "(a() or (b() and (every (e())))) -> f() -> (c() or d())");
+                "(a() or (b() and (every (e())))) -> f() -> (c() or d())");
 
         assertEquivalent("a() -> b() or e() -> f()",
-                          "a() -> (b() or e()) -> f()");
+                "a() -> (b() or e()) -> f()");
 
         String original = "every a() -> every b() and c() or d() and not e() -> f()";
         assertEquivalent(original, "every a() -> (every b()) and c() or d() and (not (e())) -> f()");
         assertEquivalent(original, "(every a()) -> ((every b()) and c()) or (d() and (not (e()))) -> f()");
 
         assertEquivalent("not a()",
-                          "(not a())");
+                "(not a())");
 
         assertEquivalent("every a() where timer:within(5)",
-                          "every (a() where timer:within(5))");
+                "every (a() where timer:within(5))");
 
         original = "every a() where timer:within(5) and not b() where timer:within(3) -> d() where timer:within(4)";
         assertEquivalent(original,
-                          "every (a() where timer:within(5)) and not (b() where timer:within(3)) -> (d() where timer:within(4))");
+                "every (a() where timer:within(5)) and not (b() where timer:within(3)) -> (d() where timer:within(4))");
         assertEquivalent(original,
-                          "(every (a() where timer:within(5))) and (not (b() where timer:within(3))) -> (d() where timer:within(4))");
+                "(every (a() where timer:within(5))) and (not (b() where timer:within(3))) -> (d() where timer:within(4))");
         assertEquivalent(original,
-                          "((every (a() where timer:within(5))) and (not (b() where timer:within(3)))) -> (d() where timer:within(4))");
+                "((every (a() where timer:within(5))) and (not (b() where timer:within(3)))) -> (d() where timer:within(4))");
 
         assertEquivalent("((a() where timer:within(10)) or (b() where timer:within(5))) where timer:within(20)",
-                          "(a() where timer:within(10) or b() where timer:within(5)) where timer:within(20)");
+                "(a() where timer:within(10) or b() where timer:within(5)) where timer:within(20)");
 
         assertEquivalent("timer:interval(20)", "(timer:interval(20))");
         assertEquivalent("every timer:interval(20)", "every (timer:interval(20))");
@@ -91,8 +89,7 @@ public class TestParserOpPrecedence extends TestCase
         assertEquivalent(original, original);
     }
 
-    public void testNotEquivalent() throws Exception
-    {
+    public void testNotEquivalent() throws Exception {
         assertNotEquivalent("a()", "every a()");
         assertNotEquivalent("a(n=6)", "a(n=7)");
         assertNotEquivalent("a(x=\"a\")", "a(x=\"b\")");
@@ -123,8 +120,7 @@ public class TestParserOpPrecedence extends TestCase
         assertNotEquivalent("EventA(value in [2:5])", "EventA(value in (2:6))");
     }
 
-    private void assertEquivalent(String expressionOne, String expressionTwo) throws Exception
-    {
+    private void assertEquivalent(String expressionOne, String expressionTwo) throws Exception {
         EPLTreeWalkerListener l1 = SupportParserHelper.parseAndWalkPattern(expressionOne);
         EPLTreeWalkerListener l2 = SupportParserHelper.parseAndWalkPattern(expressionTwo);
 
@@ -140,8 +136,7 @@ public class TestParserOpPrecedence extends TestCase
         return writer.toString();
     }
 
-    private void assertNotEquivalent(String expressionOne, String expressionTwo) throws Exception
-    {
+    private void assertNotEquivalent(String expressionOne, String expressionTwo) throws Exception {
         log.debug(".assertEquivalent parsing: " + expressionOne);
         Pair<Tree, CommonTokenStream> astOne = parse(expressionOne);
 
@@ -151,8 +146,7 @@ public class TestParserOpPrecedence extends TestCase
         assertFalse(astOne.getFirst().toStringTree().equals(astTwo.getFirst().toStringTree()));
     }
 
-    private Pair<Tree, CommonTokenStream> parse(String expression) throws Exception
-    {
+    private Pair<Tree, CommonTokenStream> parse(String expression) throws Exception {
         return SupportParserHelper.parsePattern(expression);
     }
 

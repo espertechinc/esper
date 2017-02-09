@@ -16,8 +16,7 @@ import java.io.StringWriter;
 /**
  * Disjunction represents a logical OR allowing multiple sub-expressions to be connected by OR.
  */
-public class Disjunction extends Junction
-{
+public class Disjunction extends Junction {
     private static final long serialVersionUID = -3457740552640868614L;
 
     /**
@@ -25,36 +24,31 @@ public class Disjunction extends Junction
      * <p>
      * Use add methods to add child expressions to acts upon.
      */
-    public Disjunction()
-    {
+    public Disjunction() {
     }
 
     /**
      * Ctor.
-     * @param first an expression to add to the OR-test
-     * @param second an expression to add to the OR-test
+     *
+     * @param first       an expression to add to the OR-test
+     * @param second      an expression to add to the OR-test
      * @param expressions is the expression to put in the OR-relationship.
      */
-    public Disjunction(Expression first, Expression second, Expression... expressions)
-    {
+    public Disjunction(Expression first, Expression second, Expression... expressions) {
         addChild(first);
         addChild(second);
-        for (int i = 0; i < expressions.length; i++)
-        {
+        for (int i = 0; i < expressions.length; i++) {
             addChild(expressions[i]);
-        }        
+        }
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.OR;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         String delimiter = "";
-        for (Expression child : this.getChildren())
-        {
+        for (Expression child : this.getChildren()) {
             writer.write(delimiter);
             child.toEPL(writer, getPrecedence());
             delimiter = " or ";

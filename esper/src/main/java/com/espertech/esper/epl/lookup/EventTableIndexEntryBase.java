@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.lookup;
 
-public abstract class EventTableIndexEntryBase
-{
+public abstract class EventTableIndexEntryBase {
     private final String optionalIndexName;
 
     protected EventTableIndexEntryBase(String optionalIndexName) {

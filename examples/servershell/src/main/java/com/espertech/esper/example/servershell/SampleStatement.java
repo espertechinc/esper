@@ -12,33 +12,26 @@ package com.espertech.esper.example.servershell;
 
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SampleStatement
-{
+public class SampleStatement {
     private static Logger log = LoggerFactory.getLogger(SampleStatement.class);
 
-    public static void createStatement(EPAdministrator admin)
-    {
+    public static void createStatement(EPAdministrator admin) {
         EPStatement statement = admin.createEPL("select istream ipAddress, avg(duration) from SampleEvent#time(10 sec) group by ipAddress output snapshot every 2 seconds order by ipAddress asc");
-        statement.addListener(new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
-                if (newEvents == null)
-                {
+        statement.addListener(new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+                if (newEvents == null) {
                     return;
                 }
-                
-                for (int i = 0; i < newEvents.length; i++)
-                {
-                    if (log.isInfoEnabled())
-                    {
+
+                for (int i = 0; i < newEvents.length; i++) {
+                    if (log.isInfoEnabled()) {
                         log.info("IPAddress: " + newEvents[i].get("ipAddress") +
-                             " Avg Duration: " + newEvents[i].get("avg(duration)"));
+                                " Avg Duration: " + newEvents[i].get("avg(duration)"));
                     }
                 }
             }

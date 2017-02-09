@@ -22,7 +22,7 @@ public class ExpressionResultCacheForDeclaredExprLastValueMulti implements Expre
     private final int cacheSize;
     private final ExpressionResultCacheEntry<EventBean[], Object> resultCacheEntry = new ExpressionResultCacheEntry<EventBean[], Object>(null, null);
     private final IdentityHashMap<Object, SoftReference<RollingTwoValueBuffer<EventBean[], Object>>> cache
-                = new IdentityHashMap<Object, SoftReference<RollingTwoValueBuffer<EventBean[], Object>>>();
+            = new IdentityHashMap<Object, SoftReference<RollingTwoValueBuffer<EventBean[], Object>>>();
 
     public ExpressionResultCacheForDeclaredExprLastValueMulti(int cacheSize) {
         this.cacheSize = cacheSize;
@@ -59,8 +59,7 @@ public class ExpressionResultCacheForDeclaredExprLastValueMulti implements Expre
         if (cacheRef == null) {
             buf = new RollingTwoValueBuffer<EventBean[], Object>(new EventBean[cacheSize][], new Object[cacheSize]);
             cache.put(node, new SoftReference<RollingTwoValueBuffer<EventBean[], Object>>(buf));
-        }
-        else {
+        } else {
             buf = cacheRef.get();
             if (buf == null) {
                 buf = new RollingTwoValueBuffer<EventBean[], Object>(new EventBean[cacheSize][], new Object[cacheSize]);

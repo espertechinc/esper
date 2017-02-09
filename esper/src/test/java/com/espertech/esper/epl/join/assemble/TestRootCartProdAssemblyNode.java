@@ -10,24 +10,21 @@
  */
 package com.espertech.esper.epl.join.assemble;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.supportunit.epl.join.SupportJoinProcNode;
 import com.espertech.esper.supportunit.epl.join.SupportJoinResultNodeFactory;
-import com.espertech.esper.client.EventBean;
-
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestRootCartProdAssemblyNode extends TestCase
-{
+public class TestRootCartProdAssemblyNode extends TestCase {
     private SupportJoinProcNode parentNode;
     private RootCartProdAssemblyNode rootCartNodeOneReq;
 
-    public void setUp()
-    {
-        rootCartNodeOneReq = new RootCartProdAssemblyNode(1, 5, false, new int[] {0, 0, 0, 1, 2});
+    public void setUp() {
+        rootCartNodeOneReq = new RootCartProdAssemblyNode(1, 5, false, new int[]{0, 0, 0, 1, 2});
 
         parentNode = new SupportJoinProcNode(-1, 5);
         parentNode.addChild(rootCartNodeOneReq);
@@ -38,8 +35,7 @@ public class TestRootCartProdAssemblyNode extends TestCase
         rootCartNodeOneReq.addChild(new SupportJoinProcNode(4, 5));
     }
 
-    public void testFlowOptional()
-    {
+    public void testFlowOptional() {
         RootCartProdAssemblyNode rootCartNodeAllOpt = (RootCartProdAssemblyNode) new RootCartProdAssemblyNodeFactory(1, 5, true).makeAssemblerUnassociated();
         rootCartNodeAllOpt.addChild(new SupportJoinProcNode(2, 5));
         rootCartNodeAllOpt.addChild(new SupportJoinProcNode(3, 5));
@@ -59,8 +55,7 @@ public class TestRootCartProdAssemblyNode extends TestCase
                 new EventBean[]{null, null, null, null, null}}, rowArr);
     }
 
-    public void testFlowRequired()
-    {
+    public void testFlowRequired() {
         rootCartNodeOneReq.init(null);
 
         EventBean[] stream2Events = SupportJoinResultNodeFactory.makeEvents(2); // for identifying rows in cartesian product
@@ -100,36 +95,35 @@ public class TestRootCartProdAssemblyNode extends TestCase
 
         EventBean[][] rowArr = SupportJoinResultNodeFactory.convertTo2DimArr(parentNode.getRowsList());
         EPAssertionUtil.assertEqualsAnyOrder(new EventBean[][]{
-                new EventBean[]{null, null, stream2Events[0], stream3Events[0], stream4Events[0]},
-                new EventBean[]{null, null, stream2Events[0], stream3Events[1], stream4Events[0]},
-                new EventBean[]{null, null, stream2Events[1], stream3Events[0], stream4Events[0]},
-                new EventBean[]{null, null, stream2Events[1], stream3Events[1], stream4Events[0]},
-                new EventBean[]{null, null, stream2Events[0], stream3Events[0], stream4Events[1]},
-                new EventBean[]{null, null, stream2Events[0], stream3Events[1], stream4Events[1]},
-                new EventBean[]{null, null, stream2Events[1], stream3Events[0], stream4Events[1]},
-                new EventBean[]{null, null, stream2Events[1], stream3Events[1], stream4Events[1]},
-        }
+                        new EventBean[]{null, null, stream2Events[0], stream3Events[0], stream4Events[0]},
+                        new EventBean[]{null, null, stream2Events[0], stream3Events[1], stream4Events[0]},
+                        new EventBean[]{null, null, stream2Events[1], stream3Events[0], stream4Events[0]},
+                        new EventBean[]{null, null, stream2Events[1], stream3Events[1], stream4Events[0]},
+                        new EventBean[]{null, null, stream2Events[0], stream3Events[0], stream4Events[1]},
+                        new EventBean[]{null, null, stream2Events[0], stream3Events[1], stream4Events[1]},
+                        new EventBean[]{null, null, stream2Events[1], stream3Events[0], stream4Events[1]},
+                        new EventBean[]{null, null, stream2Events[1], stream3Events[1], stream4Events[1]},
+                }
                 , rowArr);
     }
 
-    public void testComputeCombined()
-    {
-        assertNull(RootCartProdAssemblyNode.computeCombined(new int[][] {{2}} ));
-        assertNull(RootCartProdAssemblyNode.computeCombined(new int[][] {{1}, {2}} ));
+    public void testComputeCombined() {
+        assertNull(RootCartProdAssemblyNode.computeCombined(new int[][]{{2}}));
+        assertNull(RootCartProdAssemblyNode.computeCombined(new int[][]{{1}, {2}}));
 
         int[][] result = RootCartProdAssemblyNode.computeCombined(
-                    new int[][] {  {3,4}, {2,5}, {6} });
+                new int[][]{{3, 4}, {2, 5}, {6}});
         assertEquals(1, result.length);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3, 4, 2, 5}, result[0]);
 
         result = RootCartProdAssemblyNode.computeCombined(
-                    new int[][] {  {3,4}, {2,5}, {6}, {0, 8, 9} });
+                new int[][]{{3, 4}, {2, 5}, {6}, {0, 8, 9}});
         assertEquals(2, result.length);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3, 4, 2, 5}, result[0]);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3, 4, 2, 5, 6}, result[1]);
 
         result = RootCartProdAssemblyNode.computeCombined(
-                    new int[][] {  {3,4}, {2,5}, {6}, {0, 8, 9}, {1} });
+                new int[][]{{3, 4}, {2, 5}, {6}, {0, 8, 9}, {1}});
         assertEquals(3, result.length);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3, 4, 2, 5}, result[0]);
         EPAssertionUtil.assertEqualsAnyOrder(new int[]{3, 4, 2, 5, 6}, result[1]);

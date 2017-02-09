@@ -14,7 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public abstract class SortedAccessStrategyRangeBase  {
+public abstract class SortedAccessStrategyRangeBase {
     protected ExprEvaluator start;
     protected boolean includeStart;
     protected ExprEvaluator end;
@@ -34,8 +34,7 @@ public abstract class SortedAccessStrategyRangeBase  {
         this.lookupStream = lookupStream;
         if (lookupStream != -1) {
             events = new EventBean[lookupStream + 1];
-        }
-        else {
+        } else {
             events = new EventBean[numStreams + 1];
         }
     }
@@ -53,8 +52,7 @@ public abstract class SortedAccessStrategyRangeBase  {
     public Object evaluatePerStreamStart(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         if (isNWOnTrigger) {
             return start.evaluate(eventsPerStream, true, context);
-        }
-        else {
+        } else {
             System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
             return start.evaluate(events, true, context);
         }
@@ -63,8 +61,7 @@ public abstract class SortedAccessStrategyRangeBase  {
     public Object evaluatePerStreamEnd(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         if (isNWOnTrigger) {
             return end.evaluate(eventsPerStream, true, context);
-        }
-        else {
+        } else {
             System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
             return end.evaluate(events, true, context);
         }

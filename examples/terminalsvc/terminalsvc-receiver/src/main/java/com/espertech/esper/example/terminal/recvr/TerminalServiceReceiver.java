@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.example.terminal.recvr;
 
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.jms.*;
 import java.util.Hashtable;
 
-public class TerminalServiceReceiver
-{
+public class TerminalServiceReceiver {
     private static final String LISTEN_QUEUE = "jms/queue/queue_a";
 
     private static Object lock = new Object();
@@ -27,8 +26,7 @@ public class TerminalServiceReceiver
     private Queue queA;
     private QueueReceiver receiver;
 
-    public TerminalServiceReceiver(String providerURL) throws NamingException, JMSException
-    {
+    public TerminalServiceReceiver(String providerURL) throws NamingException, JMSException {
         Hashtable env = new Hashtable();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
         env.put(Context.PROVIDER_URL, providerURL);
@@ -46,19 +44,16 @@ public class TerminalServiceReceiver
     }
 
     public void stop()
-        throws JMSException
-    {
+            throws JMSException {
         conn.stop();
         session.close();
         conn.close();
     }
 
-    public static void main(String args[])
-        throws Exception
-    {
+    public static void main(String[] args)
+            throws Exception {
         String providerURL = "remote://localhost:4447";
-        if (args.length > 0)
-        {
+        if (args.length > 0) {
             providerURL = args[0];
         }
 

@@ -15,8 +15,7 @@ import com.espertech.esper.pattern.MatchedEventMap;
 /**
  * Observers observe and indicate other external events such as timing events.
  */
-public interface EventObserver
-{
+public interface EventObserver {
     /**
      * Start observing.
      */

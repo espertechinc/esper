@@ -14,9 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.StatementResultService;
-import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
-import com.espertech.esper.epl.metric.StatementMetricHandle;
 import com.espertech.esper.event.vaevent.ValueAddEventProcessor;
 import com.espertech.esper.view.ViewProcessingException;
 
@@ -25,8 +23,7 @@ import java.util.Set;
 /**
  * Service to manage named windows on an engine level.
  */
-public interface NamedWindowMgmtService
-{
+public interface NamedWindowMgmtService {
     /**
      * Error message for data windows required.
      */
@@ -39,6 +36,7 @@ public interface NamedWindowMgmtService
 
     /**
      * Returns true to indicate that the name is a named window.
+     *
      * @param name is the window name
      * @return true if a named window, false if not a named window
      */
@@ -46,6 +44,7 @@ public interface NamedWindowMgmtService
 
     /**
      * Returns the names of all named windows known.
+     *
      * @return named window names
      */
     public String[] getNamedWindows();
@@ -68,6 +67,7 @@ public interface NamedWindowMgmtService
 
     /**
      * Returns the processing instance for a given named window.
+     *
      * @param name window name
      * @return processor for the named window
      */
@@ -75,12 +75,14 @@ public interface NamedWindowMgmtService
 
     /**
      * Upon destroy of the named window creation statement, the named window processor must be removed.
+     *
      * @param name is the named window name
      */
     public void removeProcessor(String name);
 
     /**
      * Returns the statement lock for the named window, to be shared with on-delete statements for the same named window.
+     *
      * @param windowName is the window name
      * @return the lock for the named window, or null if the window dos not yet exists
      */
@@ -88,14 +90,16 @@ public interface NamedWindowMgmtService
 
     /**
      * Sets the lock to use for a named window.
-     * @param windowName is the named window name
+     *
+     * @param windowName            is the named window name
      * @param statementResourceLock is the statement lock for the create window statement
-     * @param statementName the name of the statement that is the "create window"
+     * @param statementName         the name of the statement that is the "create window"
      */
     public void addNamedWindowLock(String windowName, StatementAgentInstanceLock statementResourceLock, String statementName);
 
     /**
      * Remove the lock associated to the named window.
+     *
      * @param statementName the name of the statement that is the "create window"
      */
     public void removeNamedWindowLock(String statementName);
@@ -109,18 +113,21 @@ public interface NamedWindowMgmtService
      * Add an observer to be called back when named window state changes occur.
      * <p>
      * Observers have set-semantics: the same Observer cannot be added twice
+     *
      * @param observer to add
      */
     public void addObserver(NamedWindowLifecycleObserver observer);
 
     /**
      * Remove an observer to be called back when named window state changes occur.
+     *
      * @param observer to remove
      */
     public void removeObserver(NamedWindowLifecycleObserver observer);
 
     /**
      * Returns an index descriptor array describing all available indexes for the named window.
+     *
      * @param windowName window name
      * @return indexes
      */
@@ -128,6 +135,7 @@ public interface NamedWindowMgmtService
 
     /**
      * Remove the named window instance(s), when found
+     *
      * @param namedWindowName to remove
      */
     void removeNamedWindowIfFound(String namedWindowName);

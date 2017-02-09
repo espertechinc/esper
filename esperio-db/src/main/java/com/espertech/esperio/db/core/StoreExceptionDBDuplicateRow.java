@@ -10,15 +10,14 @@
  */
 package com.espertech.esperio.db.core;
 
-public class StoreExceptionDBDuplicateRow extends StoreExceptionDBRel
-{
+public class StoreExceptionDBDuplicateRow extends StoreExceptionDBRel {
     /**
      * Ctor.
+     *
      * @param message error message
-     * @param cause inner exception
+     * @param cause   inner exception
      */
-    public StoreExceptionDBDuplicateRow(String message, Throwable cause)
-    {
+    public StoreExceptionDBDuplicateRow(String message, Throwable cause) {
         super(message, cause);
     }
 }

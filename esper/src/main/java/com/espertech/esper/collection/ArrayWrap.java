@@ -12,27 +12,23 @@ package com.espertech.esper.collection;
 
 import java.lang.reflect.Array;
 
-public class ArrayWrap<T>
-{
+public class ArrayWrap<T> {
     private final Class componentType;
     private T[] handles;
 
-    public ArrayWrap(Class componentType, int currentSize)
-    {
+    public ArrayWrap(Class componentType, int currentSize) {
         this.componentType = componentType;
         this.handles = (T[]) Array.newInstance(componentType, currentSize);
     }
 
-    public void expand(int size)
-    {
+    public void expand(int size) {
         int newSize = handles.length + size;
         T[] newHandles = (T[]) Array.newInstance(componentType, newSize);
         System.arraycopy(handles, 0, newHandles, 0, handles.length);
         handles = newHandles;
     }
 
-    public T[] getArray()
-    {
+    public T[] getArray() {
         return handles;
     }
 }

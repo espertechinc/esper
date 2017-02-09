@@ -19,26 +19,23 @@ import com.espertech.esper.view.ViewFieldEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class StatViewAdditionalProps
-{
+public class StatViewAdditionalProps {
     private final String[] additionalProps;
     private final ExprEvaluator[] additionalExpr;
 
-    private StatViewAdditionalProps(String[] additionalProps, ExprEvaluator[] additionalExpr)
-    {
+    private StatViewAdditionalProps(String[] additionalProps, ExprEvaluator[] additionalExpr) {
         this.additionalProps = additionalProps;
         this.additionalExpr = additionalExpr;
     }
 
-    public String[] getAdditionalProps()
-    {
+    public String[] getAdditionalProps() {
         return additionalProps;
     }
 
-    public ExprEvaluator[] getAdditionalExpr()
-    {
+    public ExprEvaluator[] getAdditionalExpr() {
         return additionalExpr;
     }
 
@@ -88,8 +85,7 @@ public class StatViewAdditionalProps
         return new StatViewAdditionalProps(addPropsArr, valueExprArr);
     }
 
-    public void addProperties(Map<String, Object> newDataMap, Object[] lastValuesEventNew)
-    {
+    public void addProperties(Map<String, Object> newDataMap, Object[] lastValuesEventNew) {
         if (lastValuesEventNew != null) {
             for (int i = 0; i < additionalProps.length; i++) {
                 newDataMap.put(additionalProps[i], lastValuesEventNew[i]);
@@ -105,7 +101,7 @@ public class StatViewAdditionalProps
         for (int i = 0; i < addProps.getAdditionalProps().length; i++) {
             String name = addProps.getAdditionalProps()[i];
             for (int j = 0; j < builtin.length; j++) {
-                if ((name.toLowerCase().equals(builtin[j].getName().toLowerCase()))) {
+                if (name.toLowerCase(Locale.ENGLISH).equals(builtin[j].getName().toLowerCase(Locale.ENGLISH))) {
                     throw new IllegalArgumentException("The property by name '" + name + "' overlaps the property name that the view provides");
                 }
             }

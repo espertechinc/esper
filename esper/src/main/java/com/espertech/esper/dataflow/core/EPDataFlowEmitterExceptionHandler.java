@@ -47,7 +47,7 @@ public class EPDataFlowEmitterExceptionHandler {
 
     public void handleException(Object targetObject, FastMethod fastMethod, InvocationTargetException ex, Object[] parameters) {
         log.error("Exception encountered: " + ex.getTargetException().getMessage(), ex.getTargetException());
-        
+
         if (optionalExceptionHandler != null) {
             optionalExceptionHandler.handle(new EPDataFlowExceptionContext(dataFlowName, operatorName, operatorNumber, operatorPrettyPrint, ex.getTargetException()));
         }

@@ -19,8 +19,7 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
 /**
  * Observer that will wait a certain interval before indicating true (raising an event).
  */
-public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallback
-{
+public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallback {
     private final long deltaTime;
     private final MatchedEventMap beginState;
     private final ObserverEventEvaluator observerEventEvaluator;
@@ -31,53 +30,49 @@ public class TimerIntervalObserver implements EventObserver, ScheduleHandleCallb
 
     /**
      * Ctor.
-     * @param deltaTime - the time deltaTime
-     * @param beginState - start state
+     *
+     * @param deltaTime              - the time deltaTime
+     * @param beginState             - start state
      * @param observerEventEvaluator - receiver for events
      */
-    public TimerIntervalObserver(long deltaTime, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator)
-    {
+    public TimerIntervalObserver(long deltaTime, MatchedEventMap beginState, ObserverEventEvaluator observerEventEvaluator) {
         this.deltaTime = deltaTime;
         this.beginState = beginState;
         this.observerEventEvaluator = observerEventEvaluator;
         this.scheduleSlot = observerEventEvaluator.getContext().getPatternContext().getScheduleBucket().allocateSlot();
     }
 
-    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternObserverScheduledEval();}
+    public final void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternObserverScheduledEval();
+        }
         observerEventEvaluator.observerEvaluateTrue(beginState, true);
         isTimerActive = false;
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternObserverScheduledEval();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternObserverScheduledEval();
+        }
     }
 
     public MatchedEventMap getBeginState() {
         return beginState;
     }
 
-    public void startObserve()
-    {
-        if (isTimerActive)
-        {
+    public void startObserve() {
+        if (isTimerActive) {
             throw new IllegalStateException("Timer already active");
         }
 
-        if (deltaTime <= 0)
-        {
+        if (deltaTime <= 0) {
             observerEventEvaluator.observerEvaluateTrue(beginState, true);
-        }
-        else
-        {
+        } else {
             scheduleHandle = new EPStatementHandleCallback(observerEventEvaluator.getContext().getAgentInstanceContext().getEpStatementAgentInstanceHandle(), this);
             observerEventEvaluator.getContext().getPatternContext().getSchedulingService().add(deltaTime, scheduleHandle, scheduleSlot);
             isTimerActive = true;
         }
     }
 
-    public void stopObserve()
-    {
-        if (isTimerActive)
-        {
+    public void stopObserve() {
+        if (isTimerActive) {
             observerEventEvaluator.getContext().getPatternContext().getSchedulingService().remove(scheduleHandle, scheduleSlot);
             isTimerActive = false;
             scheduleHandle = null;

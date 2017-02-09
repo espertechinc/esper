@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.lookup;
 
-public enum LookupStrategyType
-{
+public enum LookupStrategyType {
     NULLROWS,
     FULLTABLESCAN,
     VDW,

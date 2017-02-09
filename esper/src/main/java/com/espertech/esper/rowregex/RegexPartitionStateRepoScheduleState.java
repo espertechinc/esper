@@ -15,28 +15,31 @@ import java.util.List;
 /**
  * Service for holding schedule state.
  */
-public interface RegexPartitionStateRepoScheduleState
-{
+public interface RegexPartitionStateRepoScheduleState {
     boolean isEmpty();
 
     /**
      * Add entry returning true if the key did not exist.
+     *
      * @param matchBeginTime key
-     * @param state entry
+     * @param state          entry
      * @return indicator
      */
     boolean putOrAdd(long matchBeginTime, RegexNFAStateEntry state);
 
     long firstKey();
+
     void removeAddRemoved(long matchBeginTime, List<RegexNFAStateEntry> foundStates);
+
     boolean containsKey(long matchBeginTime);
 
     /**
      * Find and remove operation, wherein removed items are added to the found list,
      * returning an indicator whether the item was found and removed
+     *
      * @param matchBeginTime key
-     * @param state entry
-     * @param foundStates list to be added to
+     * @param state          entry
+     * @param foundStates    list to be added to
      * @return indicator whether any item was found and removed
      */
     boolean findRemoveAddToList(long matchBeginTime, RegexNFAStateEntry state, List<RegexNFAStateEntry> foundStates);

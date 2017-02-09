@@ -19,16 +19,17 @@ import java.util.Map;
 /**
  * SPI interface of the runtime exposes fire-and-forget, non-continuous query functionality.
  */
-public interface EPRuntimeSPI extends EPRuntime
-{
+public interface EPRuntimeSPI extends EPRuntime {
     /**
      * Returns all declared variable names and their types.
+     *
      * @return variable names and types
      */
     public Map<String, Class> getVariableTypeAll();
 
     /**
      * Returns a variable's type.
+     *
      * @param variableName type or null if the variable is not declared
      * @return type of variable
      */
@@ -36,12 +37,14 @@ public interface EPRuntimeSPI extends EPRuntime
 
     /**
      * Number of events routed internally.
+     *
      * @return event count routed internally
      */
     public long getRoutedInternal();
 
     /**
      * Number of events routed externally.
+     *
      * @return event count routed externally
      */
     public long getRoutedExternal();
@@ -57,8 +60,8 @@ public interface EPRuntimeSPI extends EPRuntime
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent.
      *
      * @param object is the event to sent to the runtime
-     * @throws com.espertech.esper.client.EPException is thrown when the processing of the event lead to an error
      * @return returns object wrapped as event bean
+     * @throws com.espertech.esper.client.EPException is thrown when the processing of the event lead to an error
      */
     public EventBean wrapEvent(Object object);
 
@@ -68,11 +71,11 @@ public interface EPRuntimeSPI extends EPRuntime
      * Use the route method for sending events into the runtime from within UpdateListener code.
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent.
      *
-     * @param map - map that contains event property values. Keys are expected to be of type String while values
-     * can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
+     * @param map           - map that contains event property values. Keys are expected to be of type String while values
+     *                      can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
      * @param eventTypeName - the name for the Map event type that was previously configured
-     * @throws EPException - when the processing of the event leads to an error
      * @return returns map wrapped as event bean
+     * @throws EPException - when the processing of the event leads to an error
      */
     public EventBean wrapEvent(Map map, String eventTypeName);
 
@@ -83,25 +86,29 @@ public interface EPRuntimeSPI extends EPRuntime
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent.
      *
      * @param node is the DOM node as an event
-     * @throws EPException is thrown when the processing of the event lead to an error
      * @return returns node wrapped as event bean
+     * @throws EPException is thrown when the processing of the event lead to an error
      */
     public EventBean wrapEvent(org.w3c.dom.Node node);
 
     public void processThreadWorkQueue();
+
     public void dispatch();
+
     public void initialize();
+
     public void processWrappedEvent(EventBean eventBean);
+
     public String getEngineURI();
 
     /**
      * Clear short-lived memory that may temporarily retain references to stopped or destroyed statements.
      * <p>
-     *     Use this method after stopping and destroying statements for the purpose
-     *     of clearing thread-local or other short lived storage to statement handles of deleted statements.
+     * Use this method after stopping and destroying statements for the purpose
+     * of clearing thread-local or other short lived storage to statement handles of deleted statements.
      * </p>
      * <p>
-     *     NOT safe to use without first acquiring the engine lock.
+     * NOT safe to use without first acquiring the engine lock.
      * </p>
      */
     public void clearCaches();

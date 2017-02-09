@@ -12,34 +12,32 @@ package com.espertech.esper.event.vaevent;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.supportunit.bean.*;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import junit.framework.TestCase;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestPropertyUtility extends TestCase
-{
+public class TestPropertyUtility extends TestCase {
     private final EventAdapterService eventSource = SupportEventAdapterService.getService();
 
     private static final Map<String, int[]> expectedPropertyGroups = new HashMap<String, int[]>();
-    static
-    {
-        expectedPropertyGroups.put("p0", new int[] {1, 2, 3});
-        expectedPropertyGroups.put("p1", new int[] {0});
-        expectedPropertyGroups.put("p2", new int[] {1, 3});
-        expectedPropertyGroups.put("p3", new int[] {1});
-        expectedPropertyGroups.put("p4", new int[] {2});
-        expectedPropertyGroups.put("p5", new int[] {0, 3});
+
+    static {
+        expectedPropertyGroups.put("p0", new int[]{1, 2, 3});
+        expectedPropertyGroups.put("p1", new int[]{0});
+        expectedPropertyGroups.put("p2", new int[]{1, 3});
+        expectedPropertyGroups.put("p3", new int[]{1});
+        expectedPropertyGroups.put("p4", new int[]{2});
+        expectedPropertyGroups.put("p5", new int[]{0, 3});
     }
 
     private EventType types[];
     private String[] fields = "p0,p1,p2,p3,p4,p5".split(",");
 
-    public void setUp()
-    {
+    public void setUp() {
         types = new EventType[5];
         types[0] = eventSource.addBeanType("D1", SupportDeltaOne.class, false, false, false);
         types[1] = eventSource.addBeanType("D2", SupportDeltaTwo.class, false, false, false);
@@ -48,9 +46,8 @@ public class TestPropertyUtility extends TestCase
         types[4] = eventSource.addBeanType("D5", SupportDeltaFive.class, false, false, false);
     }
 
-    public void testAnalyze()
-    {
-        PropertyGroupDesc[] groups = PropertyUtility.analyzeGroups(fields, types, new String[]{"D1","D2","D3","D4","D5"});
+    public void testAnalyze() {
+        PropertyGroupDesc[] groups = PropertyUtility.analyzeGroups(fields, types, new String[]{"D1", "D2", "D3", "D4", "D5"});
         assertEquals(4, groups.length);
 
         assertEquals(0, groups[0].getGroupNum());
@@ -75,14 +72,12 @@ public class TestPropertyUtility extends TestCase
         assertEquals("D4", groups[3].getTypes().get(types[3]));
     }
 
-    public void testGetGroups()
-    {
-        PropertyGroupDesc[] groups = PropertyUtility.analyzeGroups(fields, types, new String[]{"D1","D2","D3","D4","D5"});
+    public void testGetGroups() {
+        PropertyGroupDesc[] groups = PropertyUtility.analyzeGroups(fields, types, new String[]{"D1", "D2", "D3", "D4", "D5"});
         Map<String, int[]> groupsPerProp = PropertyUtility.getGroupsPerProperty(groups);
 
         assertEquals(groupsPerProp.size(), expectedPropertyGroups.size());
-        for (Map.Entry<String, int[]> entry : expectedPropertyGroups.entrySet())
-        {
+        for (Map.Entry<String, int[]> entry : expectedPropertyGroups.entrySet()) {
             int[] result = groupsPerProp.get(entry.getKey());
             EPAssertionUtil.assertEqualsExactOrder(entry.getValue(), result);
         }

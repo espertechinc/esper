@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventBean;
 /**
  * Service for holding partition state.
  */
-public interface RegexPartitionStateRepo
-{
+public interface RegexPartitionStateRepo {
     /**
      * Return state for key or create state if not found.
      *
@@ -27,7 +26,8 @@ public interface RegexPartitionStateRepo
 
     /**
      * Return state for event or create state if not found.
-     * @param theEvent to look up
+     *
+     * @param theEvent  to look up
      * @param isCollect true if a collection of unused state can occur
      * @return state
      */
@@ -35,15 +35,17 @@ public interface RegexPartitionStateRepo
 
     /**
      * Remove old events from the state, applicable for "prev" function and partial NFA state.
-     * @param events to remove
+     *
+     * @param events  to remove
      * @param isEmpty indicator if there are not matches
-     * @param found indicator if any partial matches exist to be deleted
+     * @param found   indicator if any partial matches exist to be deleted
      * @return number removed
      */
-    public int removeOld(EventBean[] events, boolean isEmpty, boolean found[]);
+    public int removeOld(EventBean[] events, boolean isEmpty, boolean[] found);
 
     /**
      * Copy state for iteration.
+     *
      * @param forOutOfOrderReprocessing indicator whether we are processing out-of-order events
      * @return copied state
      */
@@ -58,6 +60,7 @@ public interface RegexPartitionStateRepo
     public int getStateCount();
 
     public int incrementAndGetEventSequenceNum();
+
     public void setEventSequenceNum(int num);
 
     public RegexPartitionStateRepoScheduleState getScheduleState();

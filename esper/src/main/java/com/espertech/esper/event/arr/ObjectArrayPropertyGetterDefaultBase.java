@@ -19,20 +19,19 @@ import com.espertech.esper.event.EventAdapterService;
 /**
  * Getter for map entry.
  */
-public abstract class ObjectArrayPropertyGetterDefaultBase implements ObjectArrayEventPropertyGetter
-{
+public abstract class ObjectArrayPropertyGetterDefaultBase implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
     protected final EventType fragmentEventType;
     protected final EventAdapterService eventAdapterService;
 
     /**
      * Ctor.
-     * @param propertyIndex property index
-     * @param fragmentEventType fragment type
+     *
+     * @param propertyIndex       property index
+     * @param fragmentEventType   fragment type
      * @param eventAdapterService factory for event beans and event types
      */
-    public ObjectArrayPropertyGetterDefaultBase(int propertyIndex, EventType fragmentEventType, EventAdapterService eventAdapterService)
-    {
+    public ObjectArrayPropertyGetterDefaultBase(int propertyIndex, EventType fragmentEventType, EventAdapterService eventAdapterService) {
         this.propertyIndex = propertyIndex;
         this.fragmentEventType = fragmentEventType;
         this.eventAdapterService = eventAdapterService;
@@ -40,29 +39,24 @@ public abstract class ObjectArrayPropertyGetterDefaultBase implements ObjectArra
 
     protected abstract Object handleCreateFragment(Object value);
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         return array[propertyIndex];
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         return array.length > propertyIndex;
     }
 
-    public Object get(EventBean obj) throws PropertyAccessException
-    {
+    public Object get(EventBean obj) throws PropertyAccessException {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         return getObjectArray(array);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true;
     }
 
-    public Object getFragment(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         Object value = get(eventBean);
         return handleCreateFragment(value);
     }

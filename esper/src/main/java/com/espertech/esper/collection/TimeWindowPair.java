@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.collection;
 
-public final class TimeWindowPair
-{
+public final class TimeWindowPair {
     private long timestamp;
     private Object eventHolder;
 

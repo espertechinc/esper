@@ -15,15 +15,13 @@ import java.io.StringWriter;
 /**
  * For use in pattern expression as a placeholder to represent its child nodes.
  */
-public class PatternExprPlaceholder extends PatternExprBase
-{
+public class PatternExprPlaceholder extends PatternExprBase {
     private static final long serialVersionUID = -2249254387564559395L;
-    
+
     /**
      * Ctor.
      */
-    public PatternExprPlaceholder()
-    {
+    public PatternExprPlaceholder() {
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {

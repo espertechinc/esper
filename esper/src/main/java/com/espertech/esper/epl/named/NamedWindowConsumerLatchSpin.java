@@ -21,8 +21,7 @@ import java.util.Map;
  * A spin-locking implementation of a latch for use in guaranteeing delivery between
  * a delta stream produced by a named window and consumable by another statement.
  */
-public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
-{
+public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch {
     private static final Logger log = LoggerFactory.getLogger(NamedWindowConsumerLatchSpin.class);
 
     // The earlier latch is the latch generated before this latch
@@ -32,15 +31,13 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
 
     private volatile boolean isCompleted;
 
-    public NamedWindowConsumerLatchSpin(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchSpin earlier)
-    {
+    public NamedWindowConsumerLatchSpin(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchSpin earlier) {
         super(deltaData, dispatchTo);
         this.factory = factory;
         this.earlier = earlier;
     }
 
-    public NamedWindowConsumerLatchSpin(NamedWindowConsumerLatchFactory factory)
-    {
+    public NamedWindowConsumerLatchSpin(NamedWindowConsumerLatchFactory factory) {
         super(null, null);
         this.factory = factory;
         isCompleted = true;
@@ -49,18 +46,17 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
 
     /**
      * Returns true if the dispatch completed for this future.
+     *
      * @return true for completed, false if not
      */
-    public boolean isCompleted()
-    {
+    public boolean isCompleted() {
         return isCompleted;
     }
 
     /**
      * Blocking call that returns only when the earlier latch completed.
      */
-    public void await()
-    {
+    public void await() {
         if (earlier.isCompleted) {
             currentThread = Thread.currentThread();
             return;
@@ -72,7 +68,7 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
         }
 
         long spinStartTime = factory.getTimeSourceService().getTimeMillis();
-        while(!earlier.isCompleted) {
+        while (!earlier.isCompleted) {
             Thread.yield();
             long spinDelta = factory.getTimeSourceService().getTimeMillis() - spinStartTime;
             if (spinDelta > factory.getMsecWait()) {
@@ -89,8 +85,7 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch
     /**
      * Called to indicate that the latch completed and a later latch can start.
      */
-    public void done()
-    {
+    public void done() {
         isCompleted = true;
         earlier = null;
     }

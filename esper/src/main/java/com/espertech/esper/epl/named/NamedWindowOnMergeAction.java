@@ -32,5 +32,6 @@ public abstract class NamedWindowOnMergeAction {
     }
 
     public abstract void apply(EventBean matchingEvent, EventBean[] eventsPerStream, OneEventCollection newData, OneEventCollection oldData, ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract String getName();
 }

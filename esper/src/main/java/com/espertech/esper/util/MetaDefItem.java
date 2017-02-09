@@ -15,6 +15,5 @@ import java.io.Serializable;
 /**
  * Marker interface for use with statement and engine-level specifications.
  */
-public interface MetaDefItem extends Serializable
-{
+public interface MetaDefItem extends Serializable {
 }

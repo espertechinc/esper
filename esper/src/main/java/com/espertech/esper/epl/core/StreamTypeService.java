@@ -15,19 +15,18 @@ import com.espertech.esper.client.EventType;
 /**
  * Service supplying stream number and property type information.
  */
-public interface StreamTypeService
-{
+public interface StreamTypeService {
     /**
      * Returns the offset of the stream and the type of the property for the given property name,
      * by looking through the types offered and matching up.
      * <p>
      * This method considers only a property name and looks at all streams to resolve the property name.
      *
-     * @param propertyName - property name in event
+     * @param propertyName   - property name in event
      * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws DuplicatePropertyException to indicate property was found twice
-     * @throws PropertyNotFoundException to indicate property could not be resolved
+     * @throws PropertyNotFoundException  to indicate property could not be resolved
      */
     public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment)
             throws DuplicatePropertyException, PropertyNotFoundException;
@@ -38,11 +37,11 @@ public interface StreamTypeService
      * <p>
      * This method considers only a property name and looks at all streams to resolve the property name.
      *
-     * @param propertyName - property name in event
+     * @param propertyName   - property name in event
      * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws DuplicatePropertyException to indicate property was found twice
-     * @throws PropertyNotFoundException to indicate property could not be resolved
+     * @throws PropertyNotFoundException  to indicate property could not be resolved
      */
     public PropertyResolutionDescriptor resolveByPropertyNameExplicitProps(String propertyName, boolean obtainFragment)
             throws PropertyNotFoundException, DuplicatePropertyException;
@@ -53,12 +52,12 @@ public interface StreamTypeService
      * <p>
      * This method considers and explicit stream name and property name, both parameters are required.
      *
-     * @param streamName - name of stream, required
-     * @param propertyName - property name in event, , required
+     * @param streamName     - name of stream, required
+     * @param propertyName   - property name in event, , required
      * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws PropertyNotFoundException to indicate property could not be resolved
-     * @throws StreamNotFoundException to indicate stream name could not be resolved
+     * @throws StreamNotFoundException   to indicate stream name could not be resolved
      */
     public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamName, String propertyName, boolean obtainFragment)
             throws PropertyNotFoundException, StreamNotFoundException;
@@ -69,12 +68,12 @@ public interface StreamTypeService
      * <p>
      * This method considers and explicit stream name and property name, both parameters are required.
      *
-     * @param streamName - name of stream, required
-     * @param propertyName - property name in event, , required
+     * @param streamName     - name of stream, required
+     * @param propertyName   - property name in event, , required
      * @param obtainFragment indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws PropertyNotFoundException to indicate property could not be resolved
-     * @throws StreamNotFoundException to indicate stream name could not be resolved
+     * @throws StreamNotFoundException   to indicate stream name could not be resolved
      */
     public PropertyResolutionDescriptor resolveByStreamAndPropNameExplicitProps(String streamName, String propertyName, boolean obtainFragment)
             throws PropertyNotFoundException, StreamNotFoundException;
@@ -88,28 +87,31 @@ public interface StreamTypeService
      * to consider a stream name that may be part of the property name.
      *
      * @param streamAndPropertyName - stream name and property name (e.g. s0.p0) or just a property name (p0)
-     * @param obtainFragment indicator whether fragment should be returned
+     * @param obtainFragment        indicator whether fragment should be returned
      * @return descriptor with stream number, property type and property name
      * @throws DuplicatePropertyException to indicate property was found twice
-     * @throws PropertyNotFoundException to indicate property could not be resolved
+     * @throws PropertyNotFoundException  to indicate property could not be resolved
      */
     public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamAndPropertyName, boolean obtainFragment)
             throws DuplicatePropertyException, PropertyNotFoundException;
 
     /**
      * Returns an array of event stream names in the order declared.
+     *
      * @return stream names
      */
     public String[] getStreamNames();
 
     /**
      * Returns an array of event types for each event stream in the order declared.
+     *
      * @return event types
      */
     public EventType[] getEventTypes();
 
     /**
      * Returns true for each stream without a data window.
+     *
      * @return true for non-windowed streams.
      */
     public boolean[] getIStreamOnly();

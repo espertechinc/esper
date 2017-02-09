@@ -78,8 +78,7 @@ public class AMQPSource implements DataFlowSourceOperator {
             final AMQP.Queue.DeclareOk queue;
             if (settings.getQueueName() == null || settings.getQueueName().trim().length() == 0) {
                 queue = channel.queueDeclare();
-            }
-            else {
+            } else {
                 // java.lang.String queue,boolean durable,boolean exclusive,boolean autoDelete,java.util.Map<java.lang.String,java.lang.Object> arguments) throws java.io.IOException
                 queue = channel.queueDeclare(settings.getQueueName(), settings.isDeclareDurable(), settings.isDeclareExclusive(), settings.isDeclareAutoDelete(), settings.getDeclareAdditionalArgs());
             }
@@ -92,8 +91,7 @@ public class AMQPSource implements DataFlowSourceOperator {
 
             consumer = new QueueingConsumer(channel);
             consumerTag = channel.basicConsume(queueName, settings.isConsumeAutoAck(), consumer);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             String message = "AMQP source setup failed: " + e.getMessage();
             log.error(message, e);
             throw new EPException(message, e);
@@ -103,8 +101,7 @@ public class AMQPSource implements DataFlowSourceOperator {
     public void next() throws InterruptedException {
         if (consumer == null) {
             log.warn("Consumer not started");
-        }
-        else {
+        } else {
             final QueueingConsumer.Delivery msg = consumer.nextDelivery(settings.getWaitMSecNextMsg());
             if (msg == null) {
                 if (settings.isLogMessages() && log.isDebugEnabled()) {
@@ -122,8 +119,7 @@ public class AMQPSource implements DataFlowSourceOperator {
             if (holder == null) {
                 holder = new AMQPToObjectCollectorContext(graphContext, bytes, msg);
                 collectorDataTL.set(holder);
-            }
-            else {
+            } else {
                 holder.setBytes(bytes);
                 holder.setDelivery(msg);
             }
@@ -135,23 +131,21 @@ public class AMQPSource implements DataFlowSourceOperator {
     public void close(DataFlowOpCloseContext openContext) {
         try {
             if (channel != null) {
-              if (consumerTag != null) {
-                  channel.basicCancel(consumerTag);
-              }
+                if (consumerTag != null) {
+                    channel.basicCancel(consumerTag);
+                }
 
-              channel.close();
+                channel.close();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Error closing AMQP channel", e);
         }
 
         try {
             if (connection != null) {
-              connection.close();
+                connection.close();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Error closing AMQP connection", e);
         }
     }

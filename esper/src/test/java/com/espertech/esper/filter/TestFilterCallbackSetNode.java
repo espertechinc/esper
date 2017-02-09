@@ -25,19 +25,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestFilterCallbackSetNode extends TestCase
-{
+public class TestFilterCallbackSetNode extends TestCase {
     private SupportEventEvaluator testEvaluator;
     private FilterHandleSetNode testNode;
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvaluator = new SupportEventEvaluator();
         testNode = new FilterHandleSetNode(new ReentrantReadWriteLock());
     }
 
-    public void testNodeGetSet()
-    {
+    public void testNodeGetSet() {
         FilterHandle exprOne = new SupportFilterHandle();
 
         // Check pre-conditions
@@ -73,8 +70,7 @@ public class TestFilterCallbackSetNode extends TestCase
         assertTrue(testNode.isEmpty());
     }
 
-    public void testNodeMatching()
-    {
+    public void testNodeMatching() {
         SupportBeanSimple eventObject = new SupportBeanSimple("DepositEvent_1", 1);
         EventBean eventBean = SupportEventBeanFactory.createObject(eventObject);
 

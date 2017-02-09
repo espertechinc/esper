@@ -18,27 +18,22 @@ import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 
-public class SupportStreamTypeSvc3Stream implements StreamTypeService
-{
+public class SupportStreamTypeSvc3Stream implements StreamTypeService {
     private StreamTypeService impl;
 
-    public SupportStreamTypeSvc3Stream()
-    {
+    public SupportStreamTypeSvc3Stream() {
         impl = new StreamTypeServiceImpl(getEventTypes(), getStreamNames(), new boolean[10], "default", false);
     }
 
-    public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException
-    {
+    public PropertyResolutionDescriptor resolveByPropertyName(String propertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException {
         return impl.resolveByPropertyName(propertyName, false);
     }
 
-    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamName, String propertyName, boolean obtainFragment) throws PropertyNotFoundException, StreamNotFoundException
-    {
+    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamName, String propertyName, boolean obtainFragment) throws PropertyNotFoundException, StreamNotFoundException {
         return impl.resolveByStreamAndPropName(streamName, propertyName, false);
     }
 
-    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamAndPropertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException
-    {
+    public PropertyResolutionDescriptor resolveByStreamAndPropName(String streamAndPropertyName, boolean obtainFragment) throws DuplicatePropertyException, PropertyNotFoundException {
         return impl.resolveByStreamAndPropName(streamAndPropertyName, false);
     }
 
@@ -50,41 +45,35 @@ public class SupportStreamTypeSvc3Stream implements StreamTypeService
         return impl.resolveByStreamAndPropNameExplicitProps(streamName, propertyName, false);
     }
 
-    public String[] getStreamNames()
-    {
-        return new String[] {"s0", "s1", "s2"};
+    public String[] getStreamNames() {
+        return new String[]{"s0", "s1", "s2"};
     }
 
-    public EventType[] getEventTypes()
-    {
-        EventType[] eventTypes = new EventType[] {
-            SupportEventTypeFactory.createBeanType(SupportBean.class),
-            SupportEventTypeFactory.createBeanType(SupportBean.class),
-            SupportEventTypeFactory.createBeanType(SupportBeanComplexProps.class),
+    public EventType[] getEventTypes() {
+        EventType[] eventTypes = new EventType[]{
+                SupportEventTypeFactory.createBeanType(SupportBean.class),
+                SupportEventTypeFactory.createBeanType(SupportBean.class),
+                SupportEventTypeFactory.createBeanType(SupportBeanComplexProps.class),
         };
         return eventTypes;
     }
 
-    public String[] geteventTypeNamees()
-    {
-        return new String[] {"SupportBean", "SupportBean", "SupportBeanComplexProps"};
+    public String[] geteventTypeNamees() {
+        return new String[]{"SupportBean", "SupportBean", "SupportBeanComplexProps"};
     }
 
-    public static EventBean[] getSampleEvents()
-    {
-        return new EventBean[] {SupportEventBeanFactory.createObject(new SupportBean()),
-                                SupportEventBeanFactory.createObject(new SupportBean()),
-                                SupportEventBeanFactory.createObject(SupportBeanComplexProps.makeDefaultBean()),
-                            };
+    public static EventBean[] getSampleEvents() {
+        return new EventBean[]{SupportEventBeanFactory.createObject(new SupportBean()),
+                SupportEventBeanFactory.createObject(new SupportBean()),
+                SupportEventBeanFactory.createObject(SupportBeanComplexProps.makeDefaultBean()),
+        };
     }
 
-    public boolean[] getIStreamOnly()
-    {
-        return new boolean[10]; 
+    public boolean[] getIStreamOnly() {
+        return new boolean[10];
     }
 
-    public int getStreamNumForStreamName(String streamName)
-    {
+    public int getStreamNumForStreamName(String streamName) {
         return impl.getStreamNumForStreamName(streamName);
     }
 

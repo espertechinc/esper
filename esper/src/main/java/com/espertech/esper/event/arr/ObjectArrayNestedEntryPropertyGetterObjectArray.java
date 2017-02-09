@@ -27,8 +27,7 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
     }
 
     public Object handleNestedValue(Object value) {
-        if (!(value instanceof Object[]))
-        {
+        if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
                 return arrayGetter.get((EventBean) value);
             }
@@ -38,8 +37,7 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
     }
 
     public Object handleNestedValueFragment(Object value) {
-        if (!(value instanceof Object[]))
-        {
+        if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
                 return arrayGetter.getFragment((EventBean) value);
             }
@@ -52,8 +50,7 @@ public class ObjectArrayNestedEntryPropertyGetterObjectArray extends ObjectArray
     }
 
     public boolean handleNestedValueExists(Object value) {
-        if (!(value instanceof Object[]))
-        {
+        if (!(value instanceof Object[])) {
             if (value instanceof EventBean) {
                 return arrayGetter.isExistsProperty((EventBean) value);
             }

@@ -30,8 +30,7 @@ public class CommonJMXUtil {
         ObjectName on;
         try {
             on = new ObjectName(name.getMBeanName());
-        }
-        catch (MalformedObjectNameException e) {
+        } catch (MalformedObjectNameException e) {
             log.error("Failed to obtain object name for '" + name.getMBeanName() + "': " + e.getMessage(), e);
             return;
         }
@@ -41,8 +40,7 @@ public class CommonJMXUtil {
     public static void registerMBeanNonModel(ObjectName objectName, Object internal) {
         try {
             ManagementFactory.getPlatformMBeanServer().registerMBean(internal, objectName);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error registering mbean: " + e.getMessage(), e);
         }
     }
@@ -50,8 +48,7 @@ public class CommonJMXUtil {
     public static void unregisterMbean(MBeanServer server, ObjectName name) {
         try {
             server.unregisterMBean(name);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error unregistering mbean: " + e.getMessage(), e);
         }
     }
@@ -60,8 +57,7 @@ public class CommonJMXUtil {
         ObjectName on;
         try {
             on = new ObjectName(name.getMBeanName());
-        }
-        catch (MalformedObjectNameException e) {
+        } catch (MalformedObjectNameException e) {
             log.error("Failed to obtain object name for '" + name.getMBeanName() + "': " + e.getMessage(), e);
             return;
         }
@@ -75,8 +71,7 @@ public class CommonJMXUtil {
     private static void unregisterMbean(ObjectName name) {
         try {
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(name);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error unregistering mbean: " + e.getMessage(), e);
         }
     }
@@ -84,21 +79,19 @@ public class CommonJMXUtil {
     private static void registerMbean(Object mbean, ObjectName name) {
         try {
             registerMbean(ManagementFactory.getPlatformMBeanServer(), createModelMBean(mbean), name);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error registering mbean: " + e.getMessage(), e);
         }
     }
 
     private static void registerMbean(MBeanServer server, ModelMBean mbean, ObjectName name) {
         try {
-            synchronized(LOCK) {
-                if(server.isRegistered(name))
+            synchronized (LOCK) {
+                if (server.isRegistered(name))
                     unregisterMbean(server, name);
                 server.registerMBean(mbean, name);
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error registering mbean:" + e.getMessage(), e);
         }
     }
@@ -118,36 +111,33 @@ public class CommonJMXUtil {
             mbean.setManagedResource(o, "ObjectReference");
 
             return mbean;
-        }
-        catch(MBeanException e) {
+        } catch (MBeanException e) {
             throw new RuntimeException(e);
-        }
-        catch(InvalidTargetObjectTypeException e) {
+        } catch (InvalidTargetObjectTypeException e) {
             throw new RuntimeException(e);
-        }
-        catch(InstanceNotFoundException e) {
+        } catch (InstanceNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     private static ModelMBeanOperationInfo[] extractOperationInfo(Object object) {
         ArrayList<ModelMBeanOperationInfo> infos = new ArrayList<ModelMBeanOperationInfo>();
-        for(Method m: object.getClass().getMethods()) {
+        for (Method m : object.getClass().getMethods()) {
             JmxOperation jmxOperation = m.getAnnotation(JmxOperation.class);
             JmxGetter jmxGetter = m.getAnnotation(JmxGetter.class);
             JmxSetter jmxSetter = m.getAnnotation(JmxSetter.class);
-            if(jmxOperation != null || jmxGetter != null || jmxSetter != null) {
+            if (jmxOperation != null || jmxGetter != null || jmxSetter != null) {
                 String description = "";
                 int visibility = 1;
                 int impact = MBeanOperationInfo.UNKNOWN;
-                if(jmxOperation != null) {
+                if (jmxOperation != null) {
                     description = jmxOperation.description();
                     impact = jmxOperation.impact();
-                } else if(jmxGetter != null) {
+                } else if (jmxGetter != null) {
                     description = jmxGetter.description();
                     impact = MBeanOperationInfo.INFO;
                     visibility = 4;
-                } else if(jmxSetter != null) {
+                } else if (jmxSetter != null) {
                     description = jmxSetter.description();
                     impact = MBeanOperationInfo.ACTION;
                     visibility = 4;
@@ -169,14 +159,14 @@ public class CommonJMXUtil {
         Map<String, Method> getters = new HashMap<String, Method>();
         Map<String, Method> setters = new HashMap<String, Method>();
         Map<String, String> descriptions = new HashMap<String, String>();
-        for(Method m: object.getClass().getMethods()) {
+        for (Method m : object.getClass().getMethods()) {
             JmxGetter getter = m.getAnnotation(JmxGetter.class);
-            if(getter != null) {
+            if (getter != null) {
                 getters.put(getter.name(), m);
                 descriptions.put(getter.name(), getter.description());
             }
             JmxSetter setter = m.getAnnotation(JmxSetter.class);
-            if(setter != null) {
+            if (setter != null) {
                 setters.put(setter.name(), m);
                 descriptions.put(setter.name(), setter.description());
             }
@@ -185,7 +175,7 @@ public class CommonJMXUtil {
         Set<String> attributes = new HashSet<String>(getters.keySet());
         attributes.addAll(setters.keySet());
         List<ModelMBeanAttributeInfo> infos = new ArrayList<ModelMBeanAttributeInfo>();
-        for(String name: attributes) {
+        for (String name : attributes) {
             try {
                 Method getter = getters.get(name);
                 Method setter = setters.get(name);
@@ -194,13 +184,13 @@ public class CommonJMXUtil {
                         getter,
                         setter);
                 Descriptor descriptor = info.getDescriptor();
-                if(getter != null)
+                if (getter != null)
                     descriptor.setField("getMethod", getter.getName());
-                if(setter != null)
+                if (setter != null)
                     descriptor.setField("setMethod", setter.getName());
                 info.setDescriptor(descriptor);
                 infos.add(info);
-            } catch(IntrospectionException e) {
+            } catch (IntrospectionException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -212,10 +202,10 @@ public class CommonJMXUtil {
         Class<?>[] types = m.getParameterTypes();
         Annotation[][] annotations = m.getParameterAnnotations();
         MBeanParameterInfo[] params = new MBeanParameterInfo[types.length];
-        for(int i = 0; i < params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             boolean hasAnnotation = false;
-            for(int j = 0; j < annotations[i].length; j++) {
-                if(annotations[i][j] instanceof JmxParam) {
+            for (int j = 0; j < annotations[i].length; j++) {
+                if (annotations[i][j] instanceof JmxParam) {
                     JmxParam param = (JmxParam) annotations[i][j];
                     params[i] = new MBeanParameterInfo(param.name(),
                             types[i].getName(),
@@ -224,7 +214,7 @@ public class CommonJMXUtil {
                     break;
                 }
             }
-            if(!hasAnnotation) {
+            if (!hasAnnotation) {
                 params[i] = new MBeanParameterInfo("", types[i].getName(), "");
             }
         }

@@ -16,7 +16,6 @@ import com.espertech.esper.client.PropertyAccessException;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
-import java.util.Collection;
 import java.util.Map;
 
 public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter {
@@ -33,7 +32,7 @@ public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter
         if (value == null || !(value instanceof Map)) {
             return null;
         }
-        return AvroEventBeanGetterMapped.getMappedValue((Map)value, key);
+        return AvroEventBeanGetterMapped.getMappedValue((Map) value, key);
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -47,7 +46,7 @@ public class AvroEventBeanGetterMappedDynamic implements AvroEventPropertyGetter
 
     public boolean isExistsPropertyAvro(GenericData.Record record) {
         Schema.Field field = record.getSchema().getField(propertyName);
-        if (field == null ) {
+        if (field == null) {
             return false;
         }
         Object value = record.get(propertyName);

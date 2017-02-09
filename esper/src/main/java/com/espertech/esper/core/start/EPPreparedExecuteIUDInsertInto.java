@@ -28,8 +28,7 @@ import java.util.List;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleStream
-{
+public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleStream {
     public EPPreparedExecuteIUDInsertInto(StatementSpecCompiled statementSpec, EPServicesContext services, StatementContext statementContext) throws ExprValidationException {
         super(associatedFromClause(statementSpec), services, statementContext);
     }
@@ -67,12 +66,10 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
                     if (expr.getProvidedName() == null) {
                         if (assignedSequentialNames != null && count < assignedSequentialNames.length) {
                             expr.setAssignedName(assignedSequentialNames[count]);
-                        }
-                        else {
+                        } else {
                             expr.setAssignedName(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expr.getSelectExpression()));
                         }
-                    }
-                    else {
+                    } else {
                         expr.setAssignedName(expr.getProvidedName());
                     }
                 }
@@ -105,7 +102,7 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
         String namedWindowName = statementSpec.getInsertIntoDesc().getEventTypeName();
         NamedWindowConsumerStreamSpec namedWindowStream = new NamedWindowConsumerStreamSpec(namedWindowName, null, new ViewSpec[0], Collections.<ExprNode>emptyList(),
                 new StreamSpecOptions(), null);
-        statementSpec.setStreamSpecs(new StreamSpecCompiled[] {namedWindowStream});
+        statementSpec.setStreamSpecs(new StreamSpecCompiled[]{namedWindowStream});
         return statementSpec;
     }
 

@@ -16,62 +16,60 @@ package com.espertech.esper.type;
  * Notice: value ranges are the same as the "crontab" standard values not the Java Calendar field values.
  * The Java Calendar MONTH value range is 0 to 11, while in this enum the range is 1 to 12.
  */
-public enum ScheduleUnit
-{
+public enum ScheduleUnit {
     /**
      * Minute.
      */
-    MINUTES (0, 59),
+    MINUTES(0, 59),
 
     /**
      * Hour.
      */
-    HOURS (0, 23),
+    HOURS(0, 23),
 
     /**
      * Day of month.
      */
-    DAYS_OF_MONTH (1, 31),
+    DAYS_OF_MONTH(1, 31),
 
     /**
      * Month.
      */
-    MONTHS (1, 12),
+    MONTHS(1, 12),
 
     /**
      * Day of week.
      */
-    DAYS_OF_WEEK (0, 6),
+    DAYS_OF_WEEK(0, 6),
 
     /**
      * Second.
      */
-    SECONDS (0, 59);
+    SECONDS(0, 59);
 
     private final int min;
     private final int max;
 
-    ScheduleUnit(int min, int max)
-    {
+    ScheduleUnit(int min, int max) {
         this.min = min;
         this.max = max;
     }
 
     /**
      * Returns minimum valid value for the unit.
+     *
      * @return minimum unit value
      */
-    public int min()
-    {
+    public int min() {
         return min;
     }
 
     /**
      * Returns minimum valid value for the unit.
+     *
      * @return maximum unit value
      */
-    public int max()
-    {
+    public int max() {
         return max;
     }
 }

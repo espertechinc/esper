@@ -28,10 +28,9 @@ import java.util.List;
  * A property evaluator that considers nested properties and that considers where-clauses
  * but does not consider select-clauses.
  */
-public class PropertyEvaluatorNested implements PropertyEvaluator
-{
+public class PropertyEvaluatorNested implements PropertyEvaluator {
     private static final Logger log = LoggerFactory.getLogger(PropertyEvaluatorNested.class);
-    
+
     private final ContainedEventEval[] containedEventEvals;
     private final FragmentEventType[] fragmentEventType;
     private final ExprEvaluator[] whereClauses;
@@ -41,13 +40,13 @@ public class PropertyEvaluatorNested implements PropertyEvaluator
 
     /**
      * Ctor.
+     *
      * @param containedEventEvals property getters or other evaluators
-     * @param fragmentEventType the fragments
-     * @param whereClauses the where clauses
-     * @param expressionTexts the property names that are staggered
+     * @param fragmentEventType   the fragments
+     * @param whereClauses        the where clauses
+     * @param expressionTexts     the property names that are staggered
      */
-    public PropertyEvaluatorNested(ContainedEventEval[] containedEventEvals, FragmentEventType[] fragmentEventType, ExprEvaluator[] whereClauses, List<String> expressionTexts)
-    {
+    public PropertyEvaluatorNested(ContainedEventEval[] containedEventEvals, FragmentEventType[] fragmentEventType, ExprEvaluator[] whereClauses, List<String> expressionTexts) {
         this.fragmentEventType = fragmentEventType;
         this.containedEventEvals = containedEventEvals;
         this.whereClauses = whereClauses;
@@ -56,106 +55,72 @@ public class PropertyEvaluatorNested implements PropertyEvaluator
         this.expressionTexts = expressionTexts;
     }
 
-    public EventBean[] getProperty(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public EventBean[] getProperty(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         ArrayDeque<EventBean> resultEvents = new ArrayDeque<EventBean>();
         eventsPerStream[0] = theEvent;
         populateEvents(theEvent, 0, resultEvents, exprEvaluatorContext);
-        if (resultEvents.isEmpty())
-        {
+        if (resultEvents.isEmpty()) {
             return null;
         }
         return resultEvents.toArray(new EventBean[resultEvents.size()]);
     }
 
-    private void populateEvents(EventBean branch, int level, Collection<EventBean> events, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        try
-        {
+    private void populateEvents(EventBean branch, int level, Collection<EventBean> events, ExprEvaluatorContext exprEvaluatorContext) {
+        try {
             Object result = containedEventEvals[level].getFragment(branch, eventsPerStream, exprEvaluatorContext);
 
-            if (fragmentEventType[level].isIndexed())
-            {
+            if (fragmentEventType[level].isIndexed()) {
                 EventBean[] fragments = (EventBean[]) result;
-                if (level == lastLevel)
-                {
-                    if (whereClauses[level] != null)
-                    {
-                        for (EventBean theEvent : fragments)
-                        {
-                            eventsPerStream[level+1] = theEvent;
-                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext))
-                            {
+                if (level == lastLevel) {
+                    if (whereClauses[level] != null) {
+                        for (EventBean theEvent : fragments) {
+                            eventsPerStream[level + 1] = theEvent;
+                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                                 events.add(theEvent);
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         events.addAll(Arrays.asList(fragments));
                     }
-                }
-                else
-                {
-                    if (whereClauses[level] != null)
-                    {
-                        for (EventBean next : fragments)
-                        {
-                            eventsPerStream[level+1] = next;
-                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext))
-                            {
-                                populateEvents(next, level+1, events, exprEvaluatorContext);
+                } else {
+                    if (whereClauses[level] != null) {
+                        for (EventBean next : fragments) {
+                            eventsPerStream[level + 1] = next;
+                            if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                                populateEvents(next, level + 1, events, exprEvaluatorContext);
                             }
                         }
-                    }
-                    else
-                    {
-                        for (EventBean next : fragments)
-                        {
-                            eventsPerStream[level+1] = next;
-                            populateEvents(next, level+1, events, exprEvaluatorContext);
+                    } else {
+                        for (EventBean next : fragments) {
+                            eventsPerStream[level + 1] = next;
+                            populateEvents(next, level + 1, events, exprEvaluatorContext);
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 EventBean fragment = (EventBean) result;
-                if (level == lastLevel)
-                {
-                    if (whereClauses[level] != null)
-                    {
-                        eventsPerStream[level+1] = fragment;
-                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext))
-                        {
+                if (level == lastLevel) {
+                    if (whereClauses[level] != null) {
+                        eventsPerStream[level + 1] = fragment;
+                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
                             events.add(fragment);
                         }
-                    }
-                    else
-                    {
+                    } else {
                         events.add(fragment);
                     }
-                }
-                else
-                {
-                    if (whereClauses[level] != null)
-                    {
-                        eventsPerStream[level+1] = fragment;
-                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext))
-                        {
-                            populateEvents(fragment, level+1, events, exprEvaluatorContext);
+                } else {
+                    if (whereClauses[level] != null) {
+                        eventsPerStream[level + 1] = fragment;
+                        if (ExprNodeUtility.applyFilterExpression(whereClauses[level], eventsPerStream, exprEvaluatorContext)) {
+                            populateEvents(fragment, level + 1, events, exprEvaluatorContext);
                         }
-                    }
-                    else
-                    {
-                        eventsPerStream[level+1] = fragment;
-                        populateEvents(fragment, level+1, events, exprEvaluatorContext);
+                    } else {
+                        eventsPerStream[level + 1] = fragment;
+                        populateEvents(fragment, level + 1, events, exprEvaluatorContext);
                     }
                 }
             }
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             log.error("Unexpected error evaluating property expression for event of type '" +
                     branch.getEventType().getName() +
                     "' and property '" +
@@ -163,13 +128,11 @@ public class PropertyEvaluatorNested implements PropertyEvaluator
         }
     }
 
-    public EventType getFragmentEventType()
-    {
+    public EventType getFragmentEventType() {
         return fragmentEventType[lastLevel].getFragmentType();
     }
 
-    public boolean compareTo(PropertyEvaluator otherEval)
-    {
+    public boolean compareTo(PropertyEvaluator otherEval) {
         return false;
     }
 }

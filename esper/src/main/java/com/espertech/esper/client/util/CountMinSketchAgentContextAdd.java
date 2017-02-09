@@ -20,6 +20,7 @@ public class CountMinSketchAgentContextAdd extends CountMinSketchAgentContext {
 
     /**
      * Ctor.
+     *
      * @param state the state
      */
     public CountMinSketchAgentContextAdd(CountMinSketchState state) {
@@ -28,6 +29,7 @@ public class CountMinSketchAgentContextAdd extends CountMinSketchAgentContext {
 
     /**
      * Returns the value.
+     *
      * @return value
      */
     public Object getValue() {
@@ -36,6 +38,7 @@ public class CountMinSketchAgentContextAdd extends CountMinSketchAgentContext {
 
     /**
      * Sets the value.
+     *
      * @param value to set
      */
     public void setValue(Object value) {

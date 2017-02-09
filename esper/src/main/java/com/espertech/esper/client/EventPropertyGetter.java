@@ -10,20 +10,17 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.PropertyAccessException;
-
 /**
  * Get property values from an event instance for a given event property.
  * Instances that implement this interface are usually bound to a particular {@link com.espertech.esper.client.EventType} and cannot
  * be used to access {@link EventBean} instances of a different type.
  */
-public interface EventPropertyGetter
-{
+public interface EventPropertyGetter {
     /**
      * Return the value for the property in the event object specified when the instance was obtained.
      * Useful for fast access to event properties. Throws a PropertyAccessException if the getter instance
      * doesn't match the EventType it was obtained from, and to indicate other property access problems.
+     *
      * @param eventBean is the event to get the value of a property from
      * @return value of property in event
      * @throws PropertyAccessException to indicate that property access failed
@@ -40,6 +37,7 @@ public interface EventPropertyGetter
      * <p>
      * For non-dynamic properties, this method always returns true since a getter would not be available
      * unless
+     *
      * @param eventBean is the event to check if the dynamic property exists
      * @return indictor whether the property exists, always true for non-dynamic (default) properties
      */
@@ -57,7 +55,8 @@ public interface EventPropertyGetter
      * <p>
      * Returns null if the property value is null or the property value cannot be represented as a fragment
      * by the underlying representation.
-     * @param eventBean is the event to get the fragment value of a property 
+     *
+     * @param eventBean is the event to get the fragment value of a property
      * @return the value of a property as an EventBean or array of EventBean
      * @throws PropertyAccessException - if there is no property of the specified name, or the property cannot be accessed
      */

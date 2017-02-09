@@ -35,8 +35,8 @@ public interface EventBusCollector {
      * Use the route method for sending events into the runtime from within UpdateListener code.
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent.
      *
-     * @param map - map that contains event property values. Keys are expected to be of type String while values
-     * can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
+     * @param map           - map that contains event property values. Keys are expected to be of type String while values
+     *                      can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
      * @param eventTypeName - the name for the Map event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
      */
@@ -48,9 +48,9 @@ public interface EventBusCollector {
      * Use the route method for sending events into the runtime from within UpdateListener code.
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent.
      *
-     * @param objectArray - object array that contains event property values.
-     * Your application must ensure that property values match the exact same order that the property names and
-     * types have been declared, and that the array length matches the number of properties declared.
+     * @param objectArray   - object array that contains event property values.
+     *                      Your application must ensure that property values match the exact same order that the property names and
+     *                      types have been declared, and that the array length matches the number of properties declared.
      * @param eventTypeName - the name for the Object-array event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
      */

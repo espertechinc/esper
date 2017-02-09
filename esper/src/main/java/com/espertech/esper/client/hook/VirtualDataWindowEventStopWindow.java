@@ -19,6 +19,7 @@ public class VirtualDataWindowEventStopWindow extends VirtualDataWindowEvent {
 
     /**
      * Ctor.
+     *
      * @param namedWindowName named window name
      */
     public VirtualDataWindowEventStopWindow(String namedWindowName) {
@@ -27,6 +28,7 @@ public class VirtualDataWindowEventStopWindow extends VirtualDataWindowEvent {
 
     /**
      * Returns the named window name.
+     *
      * @return named window name
      */
     public String getNamedWindowName() {

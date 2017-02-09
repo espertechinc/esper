@@ -50,8 +50,7 @@ public class Simulator implements Runnable {
             thread.interrupt();
             try {
                 thread.join();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
             }
         }
     }
@@ -67,8 +66,7 @@ public class Simulator implements Runnable {
     public void run() {
         try {
             run(true);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             // expected
         }
     }
@@ -92,8 +90,7 @@ public class Simulator implements Runnable {
                 if (!sleep) {
                     currentTime += 1000;    // advance 30 seconds, second by second
                     runtime.sendEvent(new CurrentTimeEvent(currentTime));
-                }
-                else {
+                } else {
                     Thread.sleep(1000);
                 }
 
@@ -111,8 +108,7 @@ public class Simulator implements Runnable {
                 currentTime += 1000;    // advance 30 seconds, second by second
                 runtime.sendEvent(new CurrentTimeEvent(currentTime));
             }
-        }
-        else {
+        } else {
             Thread.sleep(30000);
         }
     }

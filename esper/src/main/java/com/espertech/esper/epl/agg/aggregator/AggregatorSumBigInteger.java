@@ -15,54 +15,44 @@ import java.math.BigInteger;
 /**
  * Sum for BigInteger values.
  */
-public class AggregatorSumBigInteger implements AggregationMethod
-{
+public class AggregatorSumBigInteger implements AggregationMethod {
     protected BigInteger sum;
     protected long numDataPoints;
 
     /**
      * Ctor.
      */
-    public AggregatorSumBigInteger()
-    {
+    public AggregatorSumBigInteger() {
         sum = BigInteger.valueOf(0);
     }
 
-    public void clear()
-    {
+    public void clear() {
         sum = BigInteger.valueOf(0);
         numDataPoints = 0;
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         numDataPoints++;
-        sum = sum.add((BigInteger)object);
+        sum = sum.add((BigInteger) object);
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
         if (numDataPoints <= 1) {
             clear();
-        }
-        else {
+        } else {
             numDataPoints--;
-            sum = sum.subtract((BigInteger)object);
+            sum = sum.subtract((BigInteger) object);
         }
     }
 
-    public Object getValue()
-    {
-        if (numDataPoints == 0)
-        {
+    public Object getValue() {
+        if (numDataPoints == 0) {
             return null;
         }
         return sum;

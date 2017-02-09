@@ -27,8 +27,7 @@ import java.util.Map;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodHelperPrevious
-{
+public class EPStatementStartMethodHelperPrevious {
     public static Map<ExprPreviousNode, ExprPreviousEvalStrategy> compilePreviousNodeStrategies(ViewResourceDelegateVerified viewResourceDelegate, AgentInstanceViewFactoryChainContext[] contexts) {
 
         if (!viewResourceDelegate.isHasPrevious()) {
@@ -68,19 +67,17 @@ public class EPStatementStartMethodHelperPrevious
         if (previousRequests.isEmpty()) {
             return;
         }
-        
+
         RandomAccessByIndexGetter randomAccessGetter = null;
         RelativeAccessByEventNIndexGetter relativeAccessGetter = null;
         if (previousNodeGetter instanceof RandomAccessByIndexGetter) {
             randomAccessGetter = (RandomAccessByIndexGetter) previousNodeGetter;
-        }
-        else if (previousNodeGetter instanceof RelativeAccessByEventNIndexGetter) {
+        } else if (previousNodeGetter instanceof RelativeAccessByEventNIndexGetter) {
             relativeAccessGetter = (RelativeAccessByEventNIndexGetter) previousNodeGetter;
-        }
-        else {
+        } else {
             throw new RuntimeException("Unexpected 'previous' handler: " + previousNodeGetter);
         }
-        
+
         for (ExprPreviousNode previousNode : previousRequests) {
             int streamNumber = previousNode.getStreamNumber();
             ExprPreviousNodePreviousType previousType = previousNode.getPreviousType();
@@ -89,11 +86,9 @@ public class EPStatementStartMethodHelperPrevious
             if (previousType == ExprPreviousNodePreviousType.PREVWINDOW) {
                 evaluator = new ExprPreviousEvalStrategyWindow(streamNumber, previousNode.getChildNodes()[1].getExprEvaluator(), previousNode.getResultType().getComponentType(),
                         randomAccessGetter, relativeAccessGetter);
-            }
-            else if (previousType == ExprPreviousNodePreviousType.PREVCOUNT) {
+            } else if (previousType == ExprPreviousNodePreviousType.PREVCOUNT) {
                 evaluator = new ExprPreviousEvalStrategyCount(streamNumber, randomAccessGetter, relativeAccessGetter);
-            }
-            else {
+            } else {
                 evaluator = new ExprPreviousEvalStrategyPrev(streamNumber, previousNode.getChildNodes()[0].getExprEvaluator(), previousNode.getChildNodes()[1].getExprEvaluator(),
                         randomAccessGetter, relativeAccessGetter, previousNode.isConstantIndex(), previousNode.getConstantIndexNumber(), previousType == ExprPreviousNodePreviousType.PREVTAIL);
             }

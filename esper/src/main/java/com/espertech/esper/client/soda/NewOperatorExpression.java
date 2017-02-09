@@ -36,6 +36,7 @@ public class NewOperatorExpression extends ExpressionBase {
      * Ctor.
      * <p>
      * The list of column names should match the number of expressions provided hereunder.
+     *
      * @param columnNames list of column names
      */
     public NewOperatorExpression(List<String> columnNames) {
@@ -44,6 +45,7 @@ public class NewOperatorExpression extends ExpressionBase {
 
     /**
      * Returns the column names.
+     *
      * @return colum names
      */
     public List<String> getColumnNames() {
@@ -52,19 +54,18 @@ public class NewOperatorExpression extends ExpressionBase {
 
     /**
      * Sets the column names.
+     *
      * @param columnNames colum names to set
      */
     public void setColumnNames(List<String> columnNames) {
         this.columnNames = columnNames;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.NEGATED;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new{");
         String delimiter = "";
         for (int i = 0; i < this.getChildren().size(); i++) {
@@ -75,7 +76,7 @@ public class NewOperatorExpression extends ExpressionBase {
             boolean outputexpr = true;
             if (expr instanceof PropertyValueExpression) {
                 PropertyValueExpression prop = (PropertyValueExpression) expr;
-                if (prop.getPropertyName().equals( columnNames.get(i))) {
+                if (prop.getPropertyName().equals(columnNames.get(i))) {
                     outputexpr = false;
                 }
             }

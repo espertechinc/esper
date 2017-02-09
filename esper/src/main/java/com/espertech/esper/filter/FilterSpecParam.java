@@ -11,7 +11,6 @@
 package com.espertech.esper.filter;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.pattern.MatchedEventMap;
 import com.espertech.esper.util.MetaDefItem;
 
@@ -22,27 +21,26 @@ import java.util.Collection;
  * This class represents one filter parameter in an {@link FilterSpecCompiled} filter specification.
  * <p> Each filerting parameter has an attribute name and operator type.
  */
-public abstract class FilterSpecParam implements MetaDefItem, Serializable
-{
+public abstract class FilterSpecParam implements MetaDefItem, Serializable {
     public final static FilterSpecParam[] EMPTY_PARAM_ARRAY = new FilterSpecParam[0];
 
     /**
      * The property name of the filter parameter.
      */
     protected final FilterSpecLookupable lookupable;
-    
+
     private final FilterOperator filterOperator;
     private static final long serialVersionUID = -677137265660114030L;
 
-    FilterSpecParam(FilterSpecLookupable lookupable, FilterOperator filterOperator)
-    {
+    FilterSpecParam(FilterSpecLookupable lookupable, FilterOperator filterOperator) {
         this.lookupable = lookupable;
         this.filterOperator = filterOperator;
     }
 
     /**
      * Return the filter parameter constant to filter for.
-     * @param matchedEvents is the prior results that can be used to determine filter parameters
+     *
+     * @param matchedEvents        is the prior results that can be used to determine filter parameters
      * @param agentInstanceContext context
      * @return filter parameter constant's value
      */
@@ -54,23 +52,21 @@ public abstract class FilterSpecParam implements MetaDefItem, Serializable
 
     /**
      * Returns the filter operator type.
+     *
      * @return filter operator type
      */
-    public FilterOperator getFilterOperator()
-    {
+    public FilterOperator getFilterOperator() {
         return filterOperator;
     }
 
 
-    public String toString()
-    {
+    public String toString() {
         return "FilterSpecParam" +
-               " lookupable=" + lookupable +
-               " filterOp=" + filterOperator;
+                " lookupable=" + lookupable +
+                " filterOp=" + filterOperator;
     }
 
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -80,19 +76,16 @@ public abstract class FilterSpecParam implements MetaDefItem, Serializable
         }
 
         FilterSpecParam other = (FilterSpecParam) obj;
-        if (!(this.lookupable.equals(other.lookupable)))
-        {
+        if (!(this.lookupable.equals(other.lookupable))) {
             return false;
         }
-        if (this.filterOperator != other.filterOperator)
-        {
+        if (this.filterOperator != other.filterOperator) {
             return false;
         }
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result;
         result = lookupable.hashCode();
         result = 31 * result + filterOperator.hashCode();

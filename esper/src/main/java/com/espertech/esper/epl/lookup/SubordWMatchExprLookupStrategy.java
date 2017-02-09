@@ -16,13 +16,13 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * A lookup strategy that receives an additional match expression.
  */
-public interface SubordWMatchExprLookupStrategy
-{
+public interface SubordWMatchExprLookupStrategy {
     /**
      * Determines the events.
-     * @param newData is the correlation events
-     * @return the events
+     *
+     * @param newData              is the correlation events
      * @param exprEvaluatorContext expression evaluation context
+     * @return the events
      */
     public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext);
 

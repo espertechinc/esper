@@ -27,8 +27,7 @@ import java.util.Iterator;
 /**
  * Represents the between-clause function in an expression tree.
  */
-public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprBetweenNode
-{
+public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprBetweenNode {
     private final boolean isLowEndpointIncluded;
     private final boolean isHighEndpointIncluded;
     private final boolean isNotBetween;
@@ -41,59 +40,55 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
 
     /**
      * Ctor.
-     * @param lowEndpointIncluded is true for the regular 'between' or false for "val in (a:b)" (open range), or
-     * false if the endpoint is not included
+     *
+     * @param lowEndpointIncluded  is true for the regular 'between' or false for "val in (a:b)" (open range), or
+     *                             false if the endpoint is not included
      * @param highEndpointIncluded indicates whether the high endpoint is included
-     * @param notBetween is true for 'not between' or 'not in (a:b), or false for a regular between
+     * @param notBetween           is true for 'not between' or 'not in (a:b), or false for a regular between
      */
-    public ExprBetweenNodeImpl(boolean lowEndpointIncluded, boolean highEndpointIncluded, boolean notBetween)
-    {
+    public ExprBetweenNodeImpl(boolean lowEndpointIncluded, boolean highEndpointIncluded, boolean notBetween) {
         isLowEndpointIncluded = lowEndpointIncluded;
         isHighEndpointIncluded = highEndpointIncluded;
         isNotBetween = notBetween;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
     /**
      * Returns true if the low endpoint is included, false if not
+     *
      * @return indicator if endppoint is included
      */
-    public boolean isLowEndpointIncluded()
-    {
+    public boolean isLowEndpointIncluded() {
         return isLowEndpointIncluded;
     }
 
     /**
      * Returns true if the high endpoint is included, false if not
+     *
      * @return indicator if endppoint is included
      */
-    public boolean isHighEndpointIncluded()
-    {
+    public boolean isHighEndpointIncluded() {
         return isHighEndpointIncluded;
     }
 
     /**
      * Returns true for inverted range, or false for regular (openn/close/half-open/half-closed) ranges.
+     *
      * @return true for not betwene, false for between
      */
-    public boolean isNotBetween()
-    {
+    public boolean isNotBetween() {
         return isNotBetween;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 3)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 3) {
             throw new ExprValidationException("The Between operator requires exactly 3 child expressions");
         }
 
@@ -103,33 +98,26 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         Class typeTwo = JavaClassHelper.getBoxedType(evaluators[1].getType());
         Class typeThree = JavaClassHelper.getBoxedType(evaluators[2].getType());
 
-        if (typeOne == null)
-        {
+        if (typeOne == null) {
             throw new ExprValidationException("Null value not allowed in between-clause");
         }
 
         Class compareType;
-        if ((typeTwo == null) || (typeThree == null))
-        {
+        if ((typeTwo == null) || (typeThree == null)) {
             isAlwaysFalse = true;
-        }
-        else {
-            if ((typeOne != String.class) || (typeTwo != String.class) || (typeThree != String.class))
-            {
-                if (!JavaClassHelper.isNumeric(typeOne))
-                {
+        } else {
+            if ((typeOne != String.class) || (typeTwo != String.class) || (typeThree != String.class)) {
+                if (!JavaClassHelper.isNumeric(typeOne)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
                             typeOne.getSimpleName() +
                             "' to numeric is not allowed");
                 }
-                if (!JavaClassHelper.isNumeric(typeTwo))
-                {
+                if (!JavaClassHelper.isNumeric(typeTwo)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
                             typeTwo.getSimpleName() +
                             "' to numeric is not allowed");
                 }
-                if (!JavaClassHelper.isNumeric(typeThree))
-                {
+                if (!JavaClassHelper.isNumeric(typeThree)) {
                     throw new ExprValidationException("Implicit conversion from datatype '" +
                             typeThree.getSimpleName() +
                             "' to numeric is not allowed");
@@ -143,25 +131,27 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprBetween(this);}
-        if (isAlwaysFalse)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprBetween(false);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprBetween(this);
+        }
+        if (isAlwaysFalse) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprBetween(false);
+            }
             return false;
         }
 
         // Evaluate first child which is the base value to compare to
         Object value = evaluators[0].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-        if (value == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprBetween(false);}
+        if (value == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprBetween(false);
+            }
             return false;
         }
         Object lower = evaluators[1].evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
@@ -169,36 +159,34 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
 
         boolean result = computer.isBetween(value, lower, higher);
 
-        if (isNotBetween)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprBetween(!result);}
+        if (isNotBetween) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprBetween(!result);
+            }
             return !result;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprBetween(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprBetween(result);
+        }
         return result;
     }
 
-    public boolean equalsNode(ExprNode node_)
-    {
-        if (!(node_ instanceof ExprBetweenNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprBetweenNodeImpl)) {
             return false;
         }
 
-        ExprBetweenNodeImpl other = (ExprBetweenNodeImpl) node_;
+        ExprBetweenNodeImpl other = (ExprBetweenNodeImpl) node;
         return other.isNotBetween == this.isNotBetween;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         Iterator<ExprNode> it = Arrays.asList(this.getChildNodes()).iterator();
         it.next().toEPL(writer, getPrecedence());
-        if (isNotBetween)
-        {
+        if (isNotBetween) {
             writer.append(" not between ");
-        }
-        else
-        {
+        } else {
             writer.append(" between ");
         }
 
@@ -211,203 +199,160 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         return ExprPrecedenceEnum.RELATIONAL_BETWEEN_IN;
     }
 
-    private ExprBetweenComp makeComputer(Class compareType, Class valueType, Class lowType, Class highType)
-    {
+    private ExprBetweenComp makeComputer(Class compareType, Class valueType, Class lowType, Class highType) {
         ExprBetweenComp computer;
 
-        if (compareType == String.class)
-        {
+        if (compareType == String.class) {
             computer = new ExprBetweenCompString(isLowEndpointIncluded, isHighEndpointIncluded);
-        }
-        else if (compareType == BigDecimal.class)
-        {
+        } else if (compareType == BigDecimal.class) {
             computer = new ExprBetweenCompBigDecimal(isLowEndpointIncluded, isHighEndpointIncluded, valueType, lowType, highType);
-        }
-        else if (compareType == BigInteger.class)
-        {
+        } else if (compareType == BigInteger.class) {
             computer = new ExprBetweenCompBigInteger(isLowEndpointIncluded, isHighEndpointIncluded, valueType, lowType, highType);
-        }
-        else if (compareType == Long.class)
-        {
+        } else if (compareType == Long.class) {
             computer = new ExprBetweenCompLong(isLowEndpointIncluded, isHighEndpointIncluded);
-        }
-        else
-        {
+        } else {
             computer = new ExprBetweenCompDouble(isLowEndpointIncluded, isHighEndpointIncluded);
         }
         return computer;
     }
 
-    private interface ExprBetweenComp
-    {
+    private interface ExprBetweenComp {
         public boolean isBetween(Object value, Object lower, Object upper);
     }
 
-    private static class ExprBetweenCompString implements ExprBetweenComp
-    {
+    private static class ExprBetweenCompString implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
 
-        public ExprBetweenCompString(boolean lowIncluded, boolean isHighIncluded)
-        {
+        public ExprBetweenCompString(boolean lowIncluded, boolean isHighIncluded) {
             this.isLowIncluded = lowIncluded;
             this.isHighIncluded = isHighIncluded;
         }
 
-        public boolean isBetween(Object value, Object lower, Object upper)
-        {
-            if ((value == null) || (lower == null) || ((upper == null)))
-            {
+        public boolean isBetween(Object value, Object lower, Object upper) {
+            if ((value == null) || (lower == null) || ((upper == null))) {
                 return false;
             }
             String valueStr = (String) value;
             String lowerStr = (String) lower;
             String upperStr = (String) upper;
 
-            if (upperStr.compareTo(lowerStr) < 0)
-            {
+            if (upperStr.compareTo(lowerStr) < 0) {
                 String temp = upperStr;
                 upperStr = lowerStr;
                 lowerStr = temp;
             }
 
-            if (valueStr.compareTo(lowerStr) < 0)
-            {
+            if (valueStr.compareTo(lowerStr) < 0) {
                 return false;
             }
-            if (valueStr.compareTo(upperStr) > 0)
-            {
+            if (valueStr.compareTo(upperStr) > 0) {
                 return false;
             }
-            if (!(isLowIncluded))
-            {
-                if (valueStr.equals(lowerStr))
-                {
+            if (!isLowIncluded) {
+                if (valueStr.equals(lowerStr)) {
                     return false;
                 }
             }
-            if (!(isHighIncluded))
-            {
-                if (valueStr.equals(upperStr))
-                {
+            if (!isHighIncluded) {
+                if (valueStr.equals(upperStr)) {
                     return false;
                 }
             }
             return true;
         }
 
-        public boolean isEqualsEndpoint(Object value, Object endpoint)
-        {
+        public boolean isEqualsEndpoint(Object value, Object endpoint) {
             return value.equals(endpoint);
         }
     }
 
-    private static class ExprBetweenCompDouble implements ExprBetweenComp
-    {
+    private static class ExprBetweenCompDouble implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
 
-        public ExprBetweenCompDouble(boolean lowIncluded, boolean highIncluded)
-        {
+        public ExprBetweenCompDouble(boolean lowIncluded, boolean highIncluded) {
             isLowIncluded = lowIncluded;
             isHighIncluded = highIncluded;
         }
 
-        public boolean isBetween(Object value, Object lower, Object upper)
-        {
-            if ((value == null) || (lower == null) || ((upper == null)))
-            {
+        public boolean isBetween(Object value, Object lower, Object upper) {
+            if ((value == null) || (lower == null) || ((upper == null))) {
                 return false;
             }
             double valueD = ((Number) value).doubleValue();
             double lowerD = ((Number) lower).doubleValue();
             double upperD = ((Number) upper).doubleValue();
 
-            if (lowerD > upperD)
-            {
+            if (lowerD > upperD) {
                 double temp = upperD;
                 upperD = lowerD;
                 lowerD = temp;
             }
 
-            if (valueD > lowerD)
-            {
-                if (valueD < upperD)
-                {
+            if (valueD > lowerD) {
+                if (valueD < upperD) {
                     return true;
                 }
-                if (isHighIncluded)
-                {
+                if (isHighIncluded) {
                     return valueD == upperD;
                 }
                 return false;
             }
-            if ((isLowIncluded) && (valueD == lowerD))
-            {
+            if (isLowIncluded && (valueD == lowerD)) {
                 return true;
             }
             return false;
         }
     }
 
-    private static class ExprBetweenCompLong implements ExprBetweenComp
-    {
+    private static class ExprBetweenCompLong implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
 
-        public ExprBetweenCompLong(boolean lowIncluded, boolean highIncluded)
-        {
+        public ExprBetweenCompLong(boolean lowIncluded, boolean highIncluded) {
             isLowIncluded = lowIncluded;
             isHighIncluded = highIncluded;
         }
 
-        public boolean isBetween(Object value, Object lower, Object upper)
-        {
-            if ((value == null) || (lower == null) || ((upper == null)))
-            {
+        public boolean isBetween(Object value, Object lower, Object upper) {
+            if ((value == null) || (lower == null) || ((upper == null))) {
                 return false;
             }
             long valueD = ((Number) value).longValue();
             long lowerD = ((Number) lower).longValue();
             long upperD = ((Number) upper).longValue();
 
-            if (lowerD > upperD)
-            {
+            if (lowerD > upperD) {
                 long temp = upperD;
                 upperD = lowerD;
                 lowerD = temp;
             }
 
-            if (valueD > lowerD)
-            {
-                if (valueD < upperD)
-                {
+            if (valueD > lowerD) {
+                if (valueD < upperD) {
                     return true;
                 }
-                if (isHighIncluded)
-                {
+                if (isHighIncluded) {
                     return valueD == upperD;
                 }
                 return false;
             }
-            if ((isLowIncluded) && (valueD == lowerD))
-            {
+            if (isLowIncluded && (valueD == lowerD)) {
                 return true;
             }
             return false;
         }
     }
 
-    private static class ExprBetweenCompBigDecimal implements ExprBetweenComp
-    {
+    private static class ExprBetweenCompBigDecimal implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
         private SimpleNumberBigDecimalCoercer numberCoercerLower;
         private SimpleNumberBigDecimalCoercer numberCoercerUpper;
         private SimpleNumberBigDecimalCoercer numberCoercerValue;
 
-        public ExprBetweenCompBigDecimal(boolean lowIncluded, boolean highIncluded, Class valueType, Class lowerType, Class upperType)
-        {
+        public ExprBetweenCompBigDecimal(boolean lowIncluded, boolean highIncluded, Class valueType, Class lowerType, Class upperType) {
             isLowIncluded = lowIncluded;
             isHighIncluded = highIncluded;
 
@@ -416,18 +361,15 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
             numberCoercerValue = SimpleNumberCoercerFactory.getCoercerBigDecimal(valueType);
         }
 
-        public boolean isBetween(Object valueUncast, Object lowerUncast, Object upperUncast)
-        {
-            if ((valueUncast == null) || (lowerUncast == null) || ((upperUncast == null)))
-            {
+        public boolean isBetween(Object valueUncast, Object lowerUncast, Object upperUncast) {
+            if ((valueUncast == null) || (lowerUncast == null) || ((upperUncast == null))) {
                 return false;
             }
             BigDecimal value = numberCoercerValue.coerceBoxedBigDec((Number) valueUncast);
             BigDecimal lower = numberCoercerLower.coerceBoxedBigDec((Number) lowerUncast);
             BigDecimal upper = numberCoercerUpper.coerceBoxedBigDec((Number) upperUncast);
 
-            if (lower.compareTo(upper) > 0)
-            {
+            if (lower.compareTo(upper) > 0) {
                 BigDecimal temp = upper;
                 upper = lower;
                 lower = temp;
@@ -441,24 +383,21 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
                 }
                 return isHighIncluded && valueComparedUpper == 0;
             }
-            if (isLowIncluded && valueComparedLower == 0)
-            {
+            if (isLowIncluded && valueComparedLower == 0) {
                 return true;
             }
             return false;
         }
     }
 
-    private static class ExprBetweenCompBigInteger implements ExprBetweenComp
-    {
+    private static class ExprBetweenCompBigInteger implements ExprBetweenComp {
         private boolean isLowIncluded;
         private boolean isHighIncluded;
         private SimpleNumberBigIntegerCoercer numberCoercerLower;
         private SimpleNumberBigIntegerCoercer numberCoercerUpper;
         private SimpleNumberBigIntegerCoercer numberCoercerValue;
 
-        public ExprBetweenCompBigInteger(boolean lowIncluded, boolean highIncluded, Class valueType, Class lowerType, Class upperType)
-        {
+        public ExprBetweenCompBigInteger(boolean lowIncluded, boolean highIncluded, Class valueType, Class lowerType, Class upperType) {
             isLowIncluded = lowIncluded;
             isHighIncluded = highIncluded;
 
@@ -467,37 +406,30 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
             numberCoercerValue = SimpleNumberCoercerFactory.getCoercerBigInteger(valueType);
         }
 
-        public boolean isBetween(Object value, Object lower, Object upper)
-        {
-            if ((value == null) || (lower == null) || ((upper == null)))
-            {
+        public boolean isBetween(Object value, Object lower, Object upper) {
+            if ((value == null) || (lower == null) || ((upper == null))) {
                 return false;
             }
             BigInteger valueD = numberCoercerValue.coerceBoxedBigInt((Number) value);
             BigInteger lowerD = numberCoercerLower.coerceBoxedBigInt((Number) lower);
             BigInteger upperD = numberCoercerUpper.coerceBoxedBigInt((Number) upper);
 
-            if (lowerD.compareTo(upperD) > 0)
-            {
+            if (lowerD.compareTo(upperD) > 0) {
                 BigInteger temp = upperD;
                 upperD = lowerD;
                 lowerD = temp;
             }
 
-            if (valueD.compareTo(lowerD) > 0)
-            {
-                if (valueD.compareTo(upperD) < 0)
-                {
+            if (valueD.compareTo(lowerD) > 0) {
+                if (valueD.compareTo(upperD) < 0) {
                     return true;
                 }
-                if (isHighIncluded)
-                {
+                if (isHighIncluded) {
                     return valueD.equals(upperD);
                 }
                 return false;
             }
-            if ((isLowIncluded) && (valueD.equals(lowerD)))
-            {
+            if (isLowIncluded && (valueD.equals(lowerD))) {
                 return true;
             }
             return false;

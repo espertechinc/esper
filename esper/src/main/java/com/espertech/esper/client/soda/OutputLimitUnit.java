@@ -13,27 +13,26 @@ package com.espertech.esper.client.soda;
 /**
  * Unit for output rate limiting.
  */
-public enum OutputLimitUnit
-{
+public enum OutputLimitUnit {
     /**
      * The time period unit.
      */
-    TIME_PERIOD ("timeperiod"),
+    TIME_PERIOD("timeperiod"),
 
     /**
      * The number of events unit.
      */
-    EVENTS ("events"),
+    EVENTS("events"),
 
     /**
      * The unit representing a when-expression.
      */
-    WHEN_EXPRESSION ("when"),
+    WHEN_EXPRESSION("when"),
 
     /**
      * The unit representing a crontab-at-expression.
      */
-    CRONTAB_EXPRESSION ("crontab"),
+    CRONTAB_EXPRESSION("crontab"),
 
     /**
      * The unit representing just after a time period or after a number of events.
@@ -47,17 +46,16 @@ public enum OutputLimitUnit
 
     private String text;
 
-    private OutputLimitUnit(String text)
-    {
+    private OutputLimitUnit(String text) {
         this.text = text;
     }
 
     /**
      * Returns the text for the unit.
+     *
      * @return unit text
      */
-    public String getText()
-    {
+    public String getText() {
         return text;
     }
 }

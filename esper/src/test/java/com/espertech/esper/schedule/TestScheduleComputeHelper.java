@@ -21,12 +21,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class TestScheduleComputeHelper extends TestCase
-{
+public class TestScheduleComputeHelper extends TestCase {
     private final static SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public void testCompute() throws Exception
-    {
+    public void testCompute() throws Exception {
         ScheduleSpec spec = null;
 
         // Try next "5 minutes past the hour"
@@ -82,8 +80,7 @@ public class TestScheduleComputeHelper extends TestCase
 
         // Try hours combined with seconds
         spec = new ScheduleSpec();
-        for (int i = 10; i <= 14; i++)
-        {
+        for (int i = 10; i <= 14; i++) {
             spec.addValue(ScheduleUnit.HOURS, i);
         }
         spec.addValue(ScheduleUnit.SECONDS, 15);
@@ -141,8 +138,7 @@ public class TestScheduleComputeHelper extends TestCase
         spec = new ScheduleSpec();
         spec.addValue(ScheduleUnit.HOURS, 10);
         spec.addValue(ScheduleUnit.MINUTES, 0);
-        for (int i = 1; i <= 5; i++)
-        {
+        for (int i = 1; i <= 5; i++) {
             spec.addValue(ScheduleUnit.DAYS_OF_WEEK, i);
         }
 
@@ -188,8 +184,7 @@ public class TestScheduleComputeHelper extends TestCase
 
         // Every second month on every second weekday
         spec = new ScheduleSpec();
-        for (int i = 1; i <= 12; i += 2)
-        {
+        for (int i = 1; i <= 12; i += 2) {
             spec.addValue(ScheduleUnit.MONTHS, i);
         }
         for (int i = 0; i <= 6; i += 2) // Adds Sunday, Tuesday, Thursday, Saturday
@@ -209,8 +204,7 @@ public class TestScheduleComputeHelper extends TestCase
 
         // Every second month on every second weekday
         spec = new ScheduleSpec();
-        for (int i = 1; i <= 12; i += 2)
-        {
+        for (int i = 1; i <= 12; i += 2) {
             spec.addValue(ScheduleUnit.MONTHS, i);
         }
         for (int i = 0; i <= 6; i += 2) // Adds Sunday, Tuesday, Thursday, Saturday
@@ -228,16 +222,13 @@ public class TestScheduleComputeHelper extends TestCase
 
         // Every 5 seconds, between 9am and until 4pm, all weekdays except Saturday and Sunday
         spec = new ScheduleSpec();
-        for (int i = 0; i <= 59; i+=5)
-        {
+        for (int i = 0; i <= 59; i += 5) {
             spec.addValue(ScheduleUnit.SECONDS, i);
         }
-        for (int i = 1; i <= 5; i++)
-        {
+        for (int i = 1; i <= 5; i++) {
             spec.addValue(ScheduleUnit.DAYS_OF_WEEK, i);
         }
-        for (int i = 9; i <= 15; i++)
-        {
+        for (int i = 9; i <= 15; i++) {
             spec.addValue(ScheduleUnit.HOURS, i);
         }
 
@@ -304,37 +295,33 @@ public class TestScheduleComputeHelper extends TestCase
         checkCorrectWZone(spec, "2008-02-01T06:00:00.000GMT-4:00", "2008-02-01T08:00:00.000GMT-4:00");
     }
 
-    public void checkCorrect(ScheduleSpec spec, String now, String expected) throws Exception
-    {
+    public void checkCorrect(ScheduleSpec spec, String now, String expected) throws Exception {
         Date nowDate = timeFormat.parse(now);
         Date expectedDate = timeFormat.parse(expected);
 
         long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate.getTime(), TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE);
         Date resultDate = new Date(result);
 
-        if (!(resultDate.equals(expectedDate)))
-        {
+        if (!(resultDate.equals(expectedDate))) {
             log.debug(".checkCorrect Difference in result found, spec=" + spec);
             log.debug(".checkCorrect      now=" + timeFormat.format(nowDate) +
-                      " long=" + nowDate.getTime());
+                    " long=" + nowDate.getTime());
             log.debug(".checkCorrect expected=" + timeFormat.format(expectedDate) +
-                      " long=" + expectedDate.getTime());
+                    " long=" + expectedDate.getTime());
             log.debug(".checkCorrect   result=" + timeFormat.format(resultDate) +
-                      " long=" + resultDate.getTime());
+                    " long=" + resultDate.getTime());
             assertTrue(false);
         }
     }
 
-    public void checkCorrectWZone(ScheduleSpec spec, String nowWZone, String expectedWZone) throws Exception
-    {
+    public void checkCorrectWZone(ScheduleSpec spec, String nowWZone, String expectedWZone) throws Exception {
         long nowDate = DateTime.parseDefaultMSecWZone(nowWZone);
         long expectedDate = DateTime.parseDefaultMSecWZone(expectedWZone);
 
         long result = ScheduleComputeHelper.computeNextOccurance(spec, nowDate, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE);
         Date resultDate = new Date(result);
 
-        if (result != expectedDate)
-        {
+        if (result != expectedDate) {
             log.debug(".checkCorrect Difference in result found, spec=" + spec);
             log.debug(".checkCorrect      now=" + timeFormat.format(nowDate) +
                     " long=" + nowDate);

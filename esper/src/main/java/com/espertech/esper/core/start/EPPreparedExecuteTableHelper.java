@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 
 import java.util.Map;
 
-public class EPPreparedExecuteTableHelper
-{
+public class EPPreparedExecuteTableHelper {
     public static void assignTableAccessStrategies(EPServicesContext services, ExprTableAccessNode[] optionalTableNodes, AgentInstanceContext agentInstanceContext) {
         if (optionalTableNodes == null) {
             return;

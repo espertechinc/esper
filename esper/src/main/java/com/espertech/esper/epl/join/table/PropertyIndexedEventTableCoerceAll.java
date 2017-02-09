@@ -27,27 +27,23 @@ import java.util.Set;
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public class PropertyIndexedEventTableCoerceAll extends PropertyIndexedEventTableCoerceAdd
-{
+public class PropertyIndexedEventTableCoerceAll extends PropertyIndexedEventTableCoerceAdd {
     public PropertyIndexedEventTableCoerceAll(EventPropertyGetter[] propertyGetters, EventTableOrganization organization, SimpleNumberCoercer[] coercers, Class[] coercionType) {
         super(propertyGetters, organization, coercers, coercionType);
     }
 
     /**
      * Returns the set of events that have the same property value as the given event.
+     *
      * @param keys to compare against
      * @return set of events with property value, or null if none found (never returns zero-sized set)
      */
-    public Set<EventBean> lookup(Object[] keys)
-    {
-        for (int i = 0; i < keys.length; i++)
-        {
+    public Set<EventBean> lookup(Object[] keys) {
+        for (int i = 0; i < keys.length; i++) {
             Class coercionType = coercionTypes[i];
             Object key = keys[i];
-            if ((key != null) && (!key.getClass().equals(coercionType)))
-            {
-                if (key instanceof Number)
-                {
+            if ((key != null) && (!key.getClass().equals(coercionType))) {
+                if (key instanceof Number) {
                     key = JavaClassHelper.coerceBoxed((Number) key, coercionTypes[i]);
                     keys[i] = key;
                 }

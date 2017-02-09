@@ -29,8 +29,7 @@ public class AvroTypeWidenerCustomizerDefault implements TypeWidenerCustomizer {
     public TypeWidener widenerFor(String columnName, Class columnType, Class writeablePropertyType, String writeablePropertyName, String statementName, String engineURI) {
         if (columnType == byte[].class && writeablePropertyType == ByteBuffer.class) {
             return BYTE_ARRAY_TO_BYTE_BUFFER_COERCER;
-        }
-        else if (columnType != null && columnType.isArray() && JavaClassHelper.isImplementsInterface(writeablePropertyType, Collection.class)) {
+        } else if (columnType != null && columnType.isArray() && JavaClassHelper.isImplementsInterface(writeablePropertyType, Collection.class)) {
             return getArrayToCollectionCoercer(columnType.getComponentType());
         }
         return null;

@@ -10,23 +10,22 @@
  */
 package com.espertech.esper.example.qos_sla.monitor;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 
-public class AverageLatencyMonitor
-{
-    private AverageLatencyMonitor()
-    {
+public class AverageLatencyMonitor {
+    private AverageLatencyMonitor() {
     }
 
-    public static void start()
-    {
+    public static void start() {
         EPAdministrator admin = EPServiceProviderManager.getDefaultProvider().getEPAdministrator();
 
         EPStatement statView = admin.createEPL(
                 "select * from " + OperationMeasurement.class.getName() +
-                "#groupwin(customerId)#groupwin(operationName)" +
-                "#length(100)#uni(latency)");
+                        "#groupwin(customerId)#groupwin(operationName)" +
+                        "#length(100)#uni(latency)");
 
         statView.addListener(new AverageLatencyListener(10000));
     }

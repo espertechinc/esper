@@ -16,38 +16,35 @@ import com.espertech.esper.pattern.MatchedEventMap;
 /**
  * This class represents a range filter parameter in an {@link FilterSpecCompiled} filter specification.
  */
-public final class FilterSpecParamRange extends FilterSpecParam
-{
+public final class FilterSpecParamRange extends FilterSpecParam {
     private final FilterSpecParamRangeValue min;
     private final FilterSpecParamRangeValue max;
     private static final long serialVersionUID = -3381167844631490119L;
 
     /**
      * Constructor.
-     * @param lookupable is the lookupable
+     *
+     * @param lookupable     is the lookupable
      * @param filterOperator is the type of range operator
-     * @param min is the begin point of the range
-     * @param max is the end point of the range
+     * @param min            is the begin point of the range
+     * @param max            is the end point of the range
      * @throws IllegalArgumentException if an operator was supplied that does not take a double range value
      */
     public FilterSpecParamRange(FilterSpecLookupable lookupable, FilterOperator filterOperator, FilterSpecParamRangeValue min, FilterSpecParamRangeValue max)
-        throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.min = min;
         this.max = max;
 
-        if (!(filterOperator.isRangeOperator()) && (!(filterOperator.isInvertedRangeOperator())))
-        {
+        if (!(filterOperator.isRangeOperator()) && (!(filterOperator.isInvertedRangeOperator()))) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
                     "range filter parameter");
         }
     }
 
-    public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
-    {
+    public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
         if (lookupable.getReturnType() == String.class) {
-            return new StringRange((String)min.getFilterValue(matchedEvents, agentInstanceContext), (String) max.getFilterValue(matchedEvents, agentInstanceContext));
+            return new StringRange((String) min.getFilterValue(matchedEvents, agentInstanceContext), (String) max.getFilterValue(matchedEvents, agentInstanceContext));
         }
         Double begin = (Double) min.getFilterValue(matchedEvents, agentInstanceContext);
         Double end = (Double) max.getFilterValue(matchedEvents, agentInstanceContext);
@@ -56,55 +53,48 @@ public final class FilterSpecParamRange extends FilterSpecParam
 
     /**
      * Returns the lower endpoint.
+     *
      * @return lower endpoint
      */
-    public FilterSpecParamRangeValue getMin()
-    {
+    public FilterSpecParamRangeValue getMin() {
         return min;
     }
 
     /**
      * Returns the upper endpoint.
+     *
      * @return upper endpoint
      */
-    public FilterSpecParamRangeValue getMax()
-    {
+    public FilterSpecParamRangeValue getMax() {
         return max;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return super.toString() + "  range=(min=" + min.toString() + ",max=" + max.toString() + ')';
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof FilterSpecParamRange))
-        {
+        if (!(obj instanceof FilterSpecParamRange)) {
             return false;
         }
 
         FilterSpecParamRange other = (FilterSpecParamRange) obj;
-        if (!super.equals(other))
-        {
+        if (!super.equals(other)) {
             return false;
         }
 
-        if ((this.min.equals(other.min) &&
-            (this.max.equals(other.max))))
-        {
+        if (this.min.equals(other.min) &&
+                (this.max.equals(other.max))) {
             return true;
         }
         return false;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (min != null ? min.hashCode() : 0);
         result = 31 * result + (max != null ? max.hashCode() : 0);

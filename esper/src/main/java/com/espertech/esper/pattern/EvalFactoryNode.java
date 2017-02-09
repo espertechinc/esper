@@ -19,16 +19,17 @@ import java.util.List;
  * Follows the Composite pattern. Child nodes do not carry references to parent nodes, the tree
  * is unidirectional.
  */
-public interface EvalFactoryNode
-{
+public interface EvalFactoryNode {
     /**
      * Adds a child node.
+     *
      * @param childNode is the child evaluation tree node to add
      */
     public void addChildNode(EvalFactoryNode childNode);
 
     /**
      * Returns list of child nodes
+     *
      * @return list of child nodes
      */
     public List<EvalFactoryNode> getChildNodes();
@@ -40,19 +41,22 @@ public interface EvalFactoryNode
     public boolean isFilterChildNonQuitting();
 
     public short getFactoryNodeId();
+
     public void setFactoryNodeId(short factoryNodeId);
 
     public boolean isStateful();
 
     /**
      * Returns precendence.
+     *
      * @return precendence
      */
     public PatternExpressionPrecedenceEnum getPrecedence();
 
     /**
      * Write expression considering precendence.
-     * @param writer to use
+     *
+     * @param writer           to use
      * @param parentPrecedence precendence
      */
     public void toEPL(StringWriter writer, PatternExpressionPrecedenceEnum parentPrecedence);

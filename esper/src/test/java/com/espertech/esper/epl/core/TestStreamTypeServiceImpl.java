@@ -10,42 +10,39 @@
  */
 package com.espertech.esper.epl.core;
 
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.bean.SupportBean_A;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
-import com.espertech.esper.core.support.SupportEventAdapterService;
-import com.espertech.esper.collection.Pair;
+import junit.framework.TestCase;
 
 import java.util.LinkedHashMap;
 
-public class TestStreamTypeServiceImpl extends TestCase
-{
+public class TestStreamTypeServiceImpl extends TestCase {
     private StreamTypeServiceImpl serviceRegular;
     private StreamTypeServiceImpl serviceStreamZeroUnambigous;
     private StreamTypeServiceImpl serviceRequireStreamName;
 
-    public void setUp()
-    {
+    public void setUp() {
         SupportEventAdapterService.reset();
-        
+
         // Prepare regualar test service
-        EventType[] eventTypes = new EventType[] {
-            SupportEventTypeFactory.createBeanType(SupportBean.class),
-            SupportEventTypeFactory.createBeanType(SupportBean.class),
-            SupportEventTypeFactory.createBeanType(SupportBean_A.class),
-            SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class,"SupportMarketDataBean")
-            };
-        String[] eventTypeName = new String[] {"SupportBean", "SupportBean", "SupportBean_A", "SupportMarketDataBean"};
-        String[] streamNames = new String[] {"s1", null, "s3", "s4"};
+        EventType[] eventTypes = new EventType[]{
+                SupportEventTypeFactory.createBeanType(SupportBean.class),
+                SupportEventTypeFactory.createBeanType(SupportBean.class),
+                SupportEventTypeFactory.createBeanType(SupportBean_A.class),
+                SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class, "SupportMarketDataBean")
+        };
+        String[] eventTypeName = new String[]{"SupportBean", "SupportBean", "SupportBean_A", "SupportMarketDataBean"};
+        String[] streamNames = new String[]{"s1", null, "s3", "s4"};
         serviceRegular = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[10], "default", false);
 
         // Prepare with stream-zero being unambigous
         LinkedHashMap<String, Pair<EventType, String>> streamTypes = new LinkedHashMap<String, Pair<EventType, String>>();
-        for (int i = 0; i < streamNames.length; i++)
-        {
+        for (int i = 0; i < streamNames.length; i++) {
             streamTypes.put(streamNames[i], new Pair<EventType, String>(eventTypes[i], eventTypeName[i]));
         }
         serviceStreamZeroUnambigous = new StreamTypeServiceImpl(streamTypes, "default", true, false);
@@ -54,39 +51,32 @@ public class TestStreamTypeServiceImpl extends TestCase
         serviceRequireStreamName = new StreamTypeServiceImpl(streamTypes, "default", true, true);
     }
 
-    public void testResolveByStreamAndPropNameInOne() throws Exception
-    {
+    public void testResolveByStreamAndPropNameInOne() throws Exception {
         tryResolveByStreamAndPropNameInOne(serviceRegular);
         tryResolveByStreamAndPropNameInOne(serviceStreamZeroUnambigous);
         tryResolveByStreamAndPropNameInOne(serviceRequireStreamName);
     }
 
-    public void testResolveByPropertyName() throws Exception
-    {
+    public void testResolveByPropertyName() throws Exception {
         tryResolveByPropertyName(serviceRegular);
         serviceStreamZeroUnambigous.resolveByPropertyName("boolPrimitive", false);
         serviceRequireStreamName.resolveByPropertyName("boolPrimitive", false);
 
-        try
-        {
+        try {
             serviceRequireStreamName.resolveByPropertyName("volume", false);
             fail();
-        }
-        catch (PropertyNotFoundException ex)
-        {
+        } catch (PropertyNotFoundException ex) {
             // expected
         }
     }
 
-    public void testResolveByStreamAndPropNameBoth() throws Exception
-    {
+    public void testResolveByStreamAndPropNameBoth() throws Exception {
         tryResolveByStreamAndPropNameBoth(serviceRegular);
         tryResolveByStreamAndPropNameBoth(serviceStreamZeroUnambigous);
         tryResolveByStreamAndPropNameBoth(serviceRequireStreamName);
     }
 
-    private static void tryResolveByStreamAndPropNameBoth(StreamTypeService service) throws Exception
-    {
+    private static void tryResolveByStreamAndPropNameBoth(StreamTypeService service) throws Exception {
         // Test lookup by stream name and prop name
         PropertyResolutionDescriptor desc = service.resolveByStreamAndPropName("s4", "volume", false);
         assertEquals(3, (int) desc.getStreamNum());
@@ -95,29 +85,22 @@ public class TestStreamTypeServiceImpl extends TestCase
         assertEquals("s4", desc.getStreamName());
         assertEquals(SupportMarketDataBean.class, desc.getStreamEventType().getUnderlyingType());
 
-        try
-        {
+        try {
             service.resolveByStreamAndPropName("xxx", "volume", false);
             fail();
-        }
-        catch (StreamNotFoundException ex)
-        {
+        } catch (StreamNotFoundException ex) {
             // Expected
         }
 
-        try
-        {
+        try {
             service.resolveByStreamAndPropName("s4", "xxxx", false);
             fail();
-        }
-        catch (PropertyNotFoundException ex)
-        {
+        } catch (PropertyNotFoundException ex) {
             // Expected
         }
     }
 
-    private static void tryResolveByPropertyName(StreamTypeService service) throws Exception
-    {
+    private static void tryResolveByPropertyName(StreamTypeService service) throws Exception {
         // Test lookup by property name only
         PropertyResolutionDescriptor desc = service.resolveByPropertyName("volume", false);
         assertEquals(3, (int) (desc.getStreamNum()));
@@ -126,29 +109,22 @@ public class TestStreamTypeServiceImpl extends TestCase
         assertEquals("s4", desc.getStreamName());
         assertEquals(SupportMarketDataBean.class, desc.getStreamEventType().getUnderlyingType());
 
-        try
-        {
+        try {
             service.resolveByPropertyName("boolPrimitive", false);
             fail();
-        }
-        catch (DuplicatePropertyException ex)
-        {
+        } catch (DuplicatePropertyException ex) {
             // Expected
         }
 
-        try
-        {
+        try {
             service.resolveByPropertyName("xxxx", false);
             fail();
-        }
-        catch (PropertyNotFoundException ex)
-        {
+        } catch (PropertyNotFoundException ex) {
             // Expected
         }
     }
 
-    private static void tryResolveByStreamAndPropNameInOne(StreamTypeService service) throws Exception
-    {
+    private static void tryResolveByStreamAndPropNameInOne(StreamTypeService service) throws Exception {
         // Test lookup by stream name and prop name
         PropertyResolutionDescriptor desc = service.resolveByStreamAndPropName("s4.volume", false);
         assertEquals(3, (int) desc.getStreamNum());
@@ -157,23 +133,17 @@ public class TestStreamTypeServiceImpl extends TestCase
         assertEquals("s4", desc.getStreamName());
         assertEquals(SupportMarketDataBean.class, desc.getStreamEventType().getUnderlyingType());
 
-        try
-        {
+        try {
             service.resolveByStreamAndPropName("xxx.volume", false);
             fail();
-        }
-        catch (PropertyNotFoundException ex)
-        {
+        } catch (PropertyNotFoundException ex) {
             // Expected
         }
 
-        try
-        {
+        try {
             service.resolveByStreamAndPropName("s4.xxxx", false);
             fail();
-        }
-        catch (PropertyNotFoundException ex)
-        {
+        } catch (PropertyNotFoundException ex) {
             // Expected
         }
 

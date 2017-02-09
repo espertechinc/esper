@@ -38,9 +38,9 @@ public abstract class AbstractPollingReporter extends AbstractReporter implement
     /**
      * Creates a new {@link AbstractPollingReporter} instance.
      *
-     * @param registry    the {@link MetricsRegistry} containing the metrics this reporter will
-     *                    report
-     * @param name        the reporter's name
+     * @param registry the {@link MetricsRegistry} containing the metrics this reporter will
+     *                 report
+     * @param name     the reporter's name
      * @see AbstractReporter#AbstractReporter(MetricsRegistry)
      */
     protected AbstractPollingReporter(MetricsRegistry registry, String name) {
@@ -51,8 +51,8 @@ public abstract class AbstractPollingReporter extends AbstractReporter implement
     /**
      * Starts the reporter polling at the given period.
      *
-     * @param period    the amount of time between polls
-     * @param unit      the unit for {@code period}
+     * @param period the amount of time between polls
+     * @param unit   the unit for {@code period}
      */
     public void start(long period, TimeUnit unit) {
         executor.scheduleWithFixedDelay(this, period, period, unit);
@@ -62,8 +62,8 @@ public abstract class AbstractPollingReporter extends AbstractReporter implement
      * Shuts down the reporter polling, waiting the specific amount of time for any current polls to
      * complete.
      *
-     * @param timeout    the maximum time to wait
-     * @param unit       the unit for {@code timeout}
+     * @param timeout the maximum time to wait
+     * @param unit    the unit for {@code timeout}
      * @throws InterruptedException if interrupted while waiting
      */
     public void shutdown(long timeout, TimeUnit unit) throws InterruptedException {

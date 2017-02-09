@@ -18,37 +18,30 @@ import java.util.NoSuchElementException;
 /**
  * Reversed iterator for an array of events.
  */
-public class ReversedArrayEventIterator implements Iterator<EventBean>
-{
+public class ReversedArrayEventIterator implements Iterator<EventBean> {
     private final EventBean[] events;
     private int position;
 
-    public ReversedArrayEventIterator(EventBean[] events)
-    {
+    public ReversedArrayEventIterator(EventBean[] events) {
         position = events.length - 1;
         this.events = events;
     }
 
-    public boolean hasNext()
-    {
-        if ((events == null) || (position < 0))
-        {
+    public boolean hasNext() {
+        if ((events == null) || (position < 0)) {
             return false;
         }
         return true;
     }
 
-    public EventBean next()
-    {
-        if ((events == null) || (position < 0))
-        {
+    public EventBean next() {
+        if ((events == null) || (position < 0)) {
             throw new NoSuchElementException();
         }
         return events[position--];
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

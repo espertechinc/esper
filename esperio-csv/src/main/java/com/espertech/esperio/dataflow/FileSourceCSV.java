@@ -81,8 +81,7 @@ public class FileSourceCSV implements DataFlowSourceOperator {
         if (!hasTitleLine) {
             if (propertyNames != null) {
                 parseMake = setupProperties(false, propertyNames, outputEventType, context.getStatementContext(), dateFormat);
-            }
-            else {
+            } else {
                 parseMake = setupProperties(false, outputEventType.getPropertyNames(), outputEventType, context.getStatementContext(), dateFormat);
             }
         }
@@ -118,32 +117,30 @@ public class FileSourceCSV implements DataFlowSourceOperator {
 
             if (underlying instanceof Object[]) {
                 graphContext.submit((Object[]) underlying);
-            }
-            else {
+            } else {
                 graphContext.submit(underlying);
             }
             firstRow = false;
-        }
-        catch (EOFException e) {
+        } catch (EOFException e) {
             if (numLoops != null) {
                 loopCount++;
                 if (loopCount >= numLoops) {
-                    graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {});
-                }
-                else {
+                    graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {
+                    });
+                } else {
                     // reset
-                    graphContext.submitSignal(new EPDataFlowSignalWindowMarker() {});
+                    graphContext.submitSignal(new EPDataFlowSignalWindowMarker() {
+                    });
                     firstRow = true;
                     if (reader.isResettable()) {
                         reader.reset();
-                    }
-                    else {
+                    } else {
                         reader = new CSVReader(adapterInputSource);
                     }
                 }
-            }
-            else {
-                graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {});
+            } else {
+                graphContext.submitSignal(new EPDataFlowSignalFinalMarker() {
+                });
             }
         }
     }
@@ -170,8 +167,7 @@ public class FileSourceCSV implements DataFlowSourceOperator {
             Class propertyType;
             try {
                 propertyType = outputEventType.getPropertyType(propertyName);
-            }
-            catch (PropertyAccessException ex) {
+            } catch (PropertyAccessException ex) {
                 throw new EPException("Invalid property name '" + propertyName + "': " + ex.getMessage(), ex);
             }
             if (propertyType == null) {
@@ -186,16 +182,14 @@ public class FileSourceCSV implements DataFlowSourceOperator {
                             return DateTime.toDate(text, df);
                         }
                     };
-                }
-                else {
+                } else {
                     parser = new SimpleTypeParser() {
                         public Object parse(String text) {
                             return DateTime.toCalendar(text, df);
                         }
                     };
                 }
-            }
-            else {
+            } else {
                 parser = SimpleTypeParserFactory.getParser(propertyType);
             }
 
@@ -218,8 +212,7 @@ public class FileSourceCSV implements DataFlowSourceOperator {
         EventBeanManufacturer manufacturer;
         try {
             manufacturer = statementContext.getEventAdapterService().getManufacturer(outputEventType, writables, statementContext.getEngineImportService(), false);
-        }
-        catch (EventBeanManufactureException e) {
+        } catch (EventBeanManufactureException e) {
             throw new EPException("Event type '" + outputEventType.getName() + "' cannot be written to: " + e.getMessage(), e);
         }
         return new ParseMakePropertiesDesc(indexes, parsers, manufacturer);

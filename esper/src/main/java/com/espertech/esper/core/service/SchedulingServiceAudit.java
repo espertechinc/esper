@@ -113,8 +113,7 @@ public class SchedulingServiceAudit implements SchedulingServiceSPI {
         if (handle instanceof EPStatementHandleCallback) {
             EPStatementHandleCallback callback = (EPStatementHandleCallback) handle;
             JavaClassHelper.writeInstance(message, callback.getScheduleCallback(), true);
-        }
-        else {
+        } else {
             JavaClassHelper.writeInstance(message, handle, true);
         }
     }

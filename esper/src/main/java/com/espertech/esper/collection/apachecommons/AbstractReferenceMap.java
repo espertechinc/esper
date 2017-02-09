@@ -20,14 +20,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * An abstract implementation of a hash-based map that allows the entries to
@@ -69,32 +62,39 @@ import java.util.Set;
  * You can use {@link java.util.Collections#synchronizedMap} to
  * provide synchronized access to a <code>ReferenceMap</code>.
  *
- * @see java.lang.ref.Reference
- * @since Commons Collections 3.1 (extracted from ReferenceMap in 3.0)
- * @version $Revision$ $Date$
- *
  * @author Paul Jack
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @see java.lang.ref.Reference
+ * @since Commons Collections 3.1 (extracted from ReferenceMap in 3.0)
  */
 public abstract class AbstractReferenceMap extends AbstractHashedMap {
 
-    /** Constant indicating that hard references should be used */
+    /**
+     * Constant indicating that hard references should be used
+     */
     public static final int HARD = 0;
 
-    /** Constant indicating that soft references should be used */
+    /**
+     * Constant indicating that soft references should be used
+     */
     public static final int SOFT = 1;
 
-    /** Constant indicating that weak references should be used */
+    /**
+     * Constant indicating that weak references should be used
+     */
     public static final int WEAK = 2;
 
     /**
      * The reference type for keys.  Must be HARD, SOFT, WEAK.
+     *
      * @serial
      */
     protected int keyType;
 
     /**
      * The reference type for values.  Must be HARD, SOFT, WEAK.
+     *
      * @serial
      */
     protected int valueType;
@@ -111,6 +111,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     private transient ReferenceQueue queue;
 
     //-----------------------------------------------------------------------
+
     /**
      * Constructor used during deserialization.
      */
@@ -122,14 +123,14 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * Constructs a new empty map with the specified reference types,
      * load factor and initial capacity.
      *
-     * @param keyType  the type of reference to use for keys;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param valueType  the type of reference to use for values;
-     *   must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
-     * @param capacity  the initial capacity for the map
+     * @param keyType     the type of reference to use for keys;
+     *                    must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param valueType   the type of reference to use for values;
+     *                    must be {@link #HARD}, {@link #SOFT}, {@link #WEAK}
+     * @param capacity    the initial capacity for the map
      * @param loadFactor  the load factor for the map
-     * @param purgeValues  should the value be automatically purged when the
-     *   key is garbage collected
+     * @param purgeValues should the value be automatically purged when the
+     *                    key is garbage collected
      */
     protected AbstractReferenceMap(
             int keyType, int valueType, int capacity,
@@ -150,11 +151,12 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Checks the type int is a valid value.
      *
-     * @param name  the name for error messages
-     * @param type  the type value to check
+     * @param name the name for error messages
+     * @param type the type value to check
      * @throws IllegalArgumentException if the value if invalid
      */
     private static void verify(String name, int type) {
@@ -164,6 +166,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Gets the size of the map.
      *
@@ -187,7 +190,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     /**
      * Checks whether the map contains the specified key.
      *
-     * @param key  the key to search for
+     * @param key the key to search for
      * @return true if the map contains the key
      */
     public boolean containsKey(Object key) {
@@ -196,13 +199,13 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
         if (entry == null) {
             return false;
         }
-        return (entry.getValue() != null);
+        return entry.getValue() != null;
     }
 
     /**
      * Checks whether the map contains the specified value.
      *
-     * @param value  the value to search for
+     * @param value the value to search for
      * @return true if the map contains the value
      */
     public boolean containsValue(Object value) {
@@ -216,7 +219,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     /**
      * Gets the value mapped to the key specified.
      *
-     * @param key  the key
+     * @param key the key
      * @return the mapped value, null if no match
      */
     public Object get(Object key) {
@@ -233,8 +236,8 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * Puts a key-value mapping into this map.
      * Neither the key nor the value may be null.
      *
-     * @param key  the key to add, must not be null
-     * @param value  the value to add, must not be null
+     * @param key   the key to add, must not be null
+     * @param value the value to add, must not be null
      * @return the value previously mapped to this key, null if none
      * @throws NullPointerException if either the key or value is null
      */
@@ -253,7 +256,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     /**
      * Removes the specified mapping from this map.
      *
-     * @param key  the mapping to remove
+     * @param key the mapping to remove
      * @return the value mapped to the removed key, null if key not in map
      */
     public Object remove(Object key) {
@@ -269,10 +272,12 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      */
     public void clear() {
         super.clear();
-        while (queue.poll() != null) {} // drain the queue
+        while (queue.poll() != null) {
+        } // drain the queue
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Gets a MapIterator over the reference map.
      * The iterator only returns valid key/value pairs.
@@ -322,6 +327,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Purges stale mappings from this map before read operations.
      * <p>
@@ -359,7 +365,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     /**
      * Purges the specified reference.
      *
-     * @param reference  the reference to purge
+     * @param reference the reference to purge
      */
     protected void purge(Reference reference) {
         // The hashCode of the reference is the hashCode of the
@@ -386,10 +392,11 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Gets the entry mapped to the key specified.
      *
-     * @param key  the key
+     * @param key the key
      * @return the entry, null if no match
      */
     protected HashEntry getEntry(Object key) {
@@ -404,13 +411,13 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * Gets the hash code for a MapEntry.
      * Subclasses can override this, for example to use the identityHashCode.
      *
-     * @param key  the key to get a hash code for, may be null
-     * @param value  the value to get a hash code for, may be null
+     * @param key   the key to get a hash code for, may be null
+     * @param value the value to get a hash code for, may be null
      * @return the hash code, as per the MapEntry specification
      */
     protected int hashEntry(Object key, Object value) {
         return (key == null ? 0 : key.hashCode()) ^
-               (value == null ? 0 : value.hashCode());
+                (value == null ? 0 : value.hashCode());
     }
 
     /**
@@ -419,22 +426,22 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * This implementation converts the key from the entry to a real reference
      * before comparison.
      *
-     * @param key1  the first key to compare passed in from outside
-     * @param key2  the second key extracted from the entry via <code>entry.key</code>
+     * @param key1 the first key to compare passed in from outside
+     * @param key2 the second key extracted from the entry via <code>entry.key</code>
      * @return true if equal
      */
     protected boolean isEqualKey(Object key1, Object key2) {
-        key2 = (keyType > HARD ? ((Reference) key2).get() : key2);
-        return (key1 == key2 || key1.equals(key2));
+        key2 = keyType > HARD ? ((Reference) key2).get() : key2;
+        return key1 == key2 || key1.equals(key2);
     }
 
     /**
      * Creates a ReferenceEntry instead of a HashEntry.
      *
-     * @param next  the next entry in sequence
-     * @param hashCode  the hash code to use
-     * @param key  the key to store
-     * @param value  the value to store
+     * @param next     the next entry in sequence
+     * @param hashCode the hash code to use
+     * @param key      the key to store
+     * @param value    the value to store
      * @return the newly created entry
      */
     protected HashEntry createEntry(HashEntry next, int hashCode, Object key, Object value) {
@@ -469,6 +476,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * EntrySet implementation.
      */
@@ -495,6 +503,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * KeySet implementation.
      */
@@ -519,6 +528,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Values implementation.
      */
@@ -543,6 +553,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * A MapEntry implementation for the map.
      * <p>
@@ -552,17 +563,19 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * @since Commons Collections 3.1
      */
     protected static class ReferenceEntry extends HashEntry {
-        /** The parent map */
+        /**
+         * The parent map
+         */
         protected final AbstractReferenceMap parent;
 
         /**
          * Creates a new entry object for the ReferenceMap.
          *
-         * @param parent  the parent map
-         * @param next  the next entry in the hash bucket
-         * @param hashCode  the hash code of the key
-         * @param key  the key
-         * @param value  the value
+         * @param parent   the parent map
+         * @param next     the next entry in the hash bucket
+         * @param hashCode the hash code of the key
+         * @param key      the key
+         * @param value    the value
          */
         public ReferenceEntry(AbstractReferenceMap parent, HashEntry next, int hashCode, Object key, Object value) {
             super(next, hashCode, null, null);
@@ -594,13 +607,13 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
         /**
          * Sets the value of the entry.
          *
-         * @param obj  the object to store
+         * @param obj the object to store
          * @return the previous value
          */
         public Object setValue(Object obj) {
             Object old = getValue();
             if (parent.valueType > HARD) {
-                ((Reference)value).clear();
+                ((Reference) value).clear();
             }
             value = toReference(parent.valueType, obj, hashCode);
             return old;
@@ -612,18 +625,18 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
          * This implementation uses <code>isEqualKey</code> and
          * <code>isEqualValue</code> on the main map for comparison.
          *
-         * @param obj  the other map entry to compare to
+         * @param obj the other map entry to compare to
          * @return true if equal, false if not
          */
         public boolean equals(Object obj) {
             if (obj == this) {
                 return true;
             }
-            if (obj instanceof Map.Entry == false) {
+            if (!(obj instanceof Map.Entry)) {
                 return false;
             }
 
-            Map.Entry entry = (Map.Entry)obj;
+            Map.Entry entry = (Map.Entry) obj;
             Object entryKey = entry.getKey();  // convert to hard reference
             Object entryValue = entry.getValue();  // convert to hard reference
             if ((entryKey == null) || (entryValue == null)) {
@@ -632,7 +645,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
             // compare using map methods, aiding identity subclass
             // note that key is direct access and value is via method
             return parent.isEqualKey(entryKey, key) &&
-                   parent.isEqualValue(entryValue, getValue());
+                    parent.isEqualValue(entryValue, getValue());
         }
 
         /**
@@ -650,25 +663,30 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
          * Constructs a reference of the given type to the given referent.
          * The reference is registered with the queue for later purging.
          *
-         * @param type  HARD, SOFT or WEAK
-         * @param referent  the object to refer to
-         * @param hash  the hash code of the <i>key</i> of the mapping;
-         *    this number might be different from referent.hashCode() if
-         *    the referent represents a value and not a key
+         * @param type     HARD, SOFT or WEAK
+         * @param referent the object to refer to
+         * @param hash     the hash code of the <i>key</i> of the mapping;
+         *                 this number might be different from referent.hashCode() if
+         *                 the referent represents a value and not a key
          * @return reference
          */
         protected Object toReference(int type, Object referent, int hash) {
             switch (type) {
-                case HARD: return referent;
-                case SOFT: return new SoftRef(hash, referent, parent.queue);
-                case WEAK: return new WeakRef(hash, referent, parent.queue);
-                default: throw new Error();
+                case HARD:
+                    return referent;
+                case SOFT:
+                    return new SoftRef(hash, referent, parent.queue);
+                case WEAK:
+                    return new WeakRef(hash, referent, parent.queue);
+                default:
+                    throw new Error();
             }
         }
 
         /**
          * Purges the specified reference
-         * @param reference  the reference to purge
+         *
+         * @param reference the reference to purge
          * @return true or false
          */
         boolean purge(Reference reference) {
@@ -676,10 +694,10 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
             r = r || ((parent.valueType > HARD) && (value == reference));
             if (r) {
                 if (parent.keyType > HARD) {
-                    ((Reference)key).clear();
+                    ((Reference) key).clear();
                 }
                 if (parent.valueType > HARD) {
-                    ((Reference)value).clear();
+                    ((Reference) value).clear();
                 } else if (parent.purgeValues) {
                     value = null;
                 }
@@ -698,11 +716,14 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * The EntrySet iterator.
      */
     static class ReferenceEntrySetIterator implements Iterator {
-        /** The parent map */
+        /**
+         * The parent map
+         */
         final AbstractReferenceMap parent;
 
         // These fields keep track of where we are in the table.
@@ -721,7 +742,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
         public ReferenceEntrySetIterator(AbstractReferenceMap parent) {
             super();
             this.parent = parent;
-            index = (parent.size() != 0 ? parent.data.length : 0);
+            index = parent.size() != 0 ? parent.data.length : 0;
             // have to do this here!  size() invocation above
             // may have altered the modCount.
             expectedModCount = parent.modCount;
@@ -873,7 +894,9 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * A soft reference holder.
      */
     static class SoftRef extends SoftReference {
-        /** the hashCode of the key (even if the reference points to a value) */
+        /**
+         * the hashCode of the key (even if the reference points to a value)
+         */
         private int hash;
 
         public SoftRef(int hash, Object r, ReferenceQueue q) {
@@ -890,7 +913,9 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * A weak reference holder.
      */
     static class WeakRef extends WeakReference {
-        /** the hashCode of the key (even if the reference points to a value) */
+        /**
+         * the hashCode of the key (even if the reference points to a value)
+         */
         private int hash;
 
         public WeakRef(int hash, Object r, ReferenceQueue q) {
@@ -904,6 +929,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * Replaces the superclass method to store the state of this class.
      * <p>
@@ -920,7 +946,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * on read before this implementation will work. Generally, the read determines
      * what must be serialized here, if anything.
      *
-     * @param outStream  the output stream
+     * @param outStream the output stream
      */
     protected void doWriteObject(ObjectOutputStream outStream) throws IOException {
         outStream.writeInt(keyType);
@@ -928,7 +954,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
         outStream.writeBoolean(purgeValues);
         outStream.writeFloat(loadFactor);
         outStream.writeInt(data.length);
-        for (MapIterator it = mapIterator(); it.hasNext();) {
+        for (MapIterator it = mapIterator(); it.hasNext(); ) {
             outStream.writeObject(it.next());
             outStream.writeObject(it.getValue());
         }
@@ -951,7 +977,7 @@ public abstract class AbstractReferenceMap extends AbstractHashedMap {
      * Subclasses may override if the subclass has a specific field that must be present
      * before <code>put()</code> or <code>calculateThreshold()</code> will work correctly.
      *
-     * @param input  the input stream
+     * @param input the input stream
      */
     protected void doReadObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
         this.keyType = input.readInt();

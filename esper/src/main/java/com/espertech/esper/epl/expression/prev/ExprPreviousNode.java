@@ -19,12 +19,12 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Represents the 'prev' previous event function in an expression node tree.
  */
-public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration
-{
+public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration {
     private static final long serialVersionUID = 0L;
 
     private final ExprPreviousNodePreviousType previousType;
@@ -37,13 +37,11 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
 
     private transient ExprPreviousEvalStrategy evaluator;
 
-    public ExprPreviousNode(ExprPreviousNodePreviousType previousType)
-    {
+    public ExprPreviousNode(ExprPreviousNodePreviousType previousType) {
         this.previousType = previousType;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
@@ -67,45 +65,37 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return resultType;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if ((this.getChildNodes().length > 2) || (this.getChildNodes().length == 0))
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if ((this.getChildNodes().length > 2) || (this.getChildNodes().length == 0)) {
             throw new ExprValidationException("Previous node must have 1 or 2 parameters");
         }
 
         // add constant of 1 for previous index
-        if (this.getChildNodes().length == 1)
-        {
+        if (this.getChildNodes().length == 1) {
             if (previousType == ExprPreviousNodePreviousType.PREV) {
                 this.addChildNodeToFront(new ExprConstantNodeImpl(1));
-            }
-            else {
+            } else {
                 this.addChildNodeToFront(new ExprConstantNodeImpl(0));
             }
         }
 
         // the row recognition patterns allows "prev(prop, index)", we switch index the first position
-        if (ExprNodeUtility.isConstantValueExpr(this.getChildNodes()[1]))
-        {
+        if (ExprNodeUtility.isConstantValueExpr(this.getChildNodes()[1])) {
             ExprNode first = this.getChildNodes()[0];
             ExprNode second = this.getChildNodes()[1];
             this.setChildNodes(second, first);
         }
 
         // Determine if the index is a constant value or an expression to evaluate
-        if (this.getChildNodes()[0].isConstantResult())
-        {
+        if (this.getChildNodes()[0].isConstantResult()) {
             ExprNode constantNode = this.getChildNodes()[0];
             Object value = constantNode.getExprEvaluator().evaluate(null, false, validationContext.getExprEvaluatorContext());
-            if (!(value instanceof Number))
-            {
+            if (!(value instanceof Number)) {
                 throw new ExprValidationException("Previous function requires an integer index parameter or expression");
             }
 
             Number valueNumber = (Number) value;
-            if (JavaClassHelper.isFloatingPointNumber(valueNumber))
-            {
+            if (JavaClassHelper.isFloatingPointNumber(valueNumber)) {
                 throw new ExprValidationException("Previous function requires an integer index parameter or expression");
             }
 
@@ -118,15 +108,12 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
             ExprIdentNode identNode = (ExprIdentNode) this.getChildNodes()[1];
             streamNumber = identNode.getStreamId();
             resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getExprEvaluator().getType());
-        }
-        else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
+        } else if (this.getChildNodes()[1] instanceof ExprStreamUnderlyingNode) {
             ExprStreamUnderlyingNode streamNode = (ExprStreamUnderlyingNode) this.getChildNodes()[1];
             streamNumber = streamNode.getStreamId();
             resultType = JavaClassHelper.getBoxedType(this.getChildNodes()[1].getExprEvaluator().getType());
             enumerationMethodType = validationContext.getStreamTypeService().getEventTypes()[streamNode.getStreamId()];
-        }
-        else
-        {
+        } else {
             throw new ExprValidationException("Previous function requires an event property as parameter");
         }
 
@@ -137,26 +124,22 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
             resultType = JavaClassHelper.getArrayType(resultType);
         }
 
-        if (validationContext.getViewResourceDelegate() == null)
-        {
+        if (validationContext.getViewResourceDelegate() == null) {
             throw new ExprValidationException("Previous function cannot be used in this context");
         }
         validationContext.getViewResourceDelegate().addPreviousRequest(this);
         return null;
     }
 
-    public ExprPreviousNodePreviousType getPreviousType()
-    {
+    public ExprPreviousNodePreviousType getPreviousType() {
         return previousType;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
@@ -202,8 +185,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return resultType;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qExprPrev(this, isNewData);
             Object result = null;
@@ -221,12 +203,11 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
-        writer.append(previousType.toString().toLowerCase());
+        writer.append(previousType.toString().toLowerCase(Locale.ENGLISH));
         writer.append("(");
-        if ((previousType == ExprPreviousNodePreviousType.PREVCOUNT || previousType == ExprPreviousNodePreviousType.PREVWINDOW)) {
+        if (previousType == ExprPreviousNodePreviousType.PREVCOUNT || previousType == ExprPreviousNodePreviousType.PREVWINDOW) {
             this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
-        }
-        else {
+        } else {
             this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
             writer.append(",");
             this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
@@ -239,22 +220,18 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return previousType != null ? previousType.hashCode() : 0;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (node == null || getClass() != node.getClass())
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (node == null || getClass() != node.getClass()) {
             return false;
         }
 
         ExprPreviousNode that = (ExprPreviousNode) node;
 
-        if (previousType != that.previousType)
-        {
+        if (previousType != that.previousType) {
             return false;
         }
 

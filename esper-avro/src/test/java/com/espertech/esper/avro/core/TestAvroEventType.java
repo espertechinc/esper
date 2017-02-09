@@ -36,10 +36,8 @@ import static com.espertech.esper.avro.core.AvroConstant.PROP_JAVA_STRING_VALUE;
 import static com.espertech.esper.avro.util.support.SupportAvroUtil.makeAvroSupportEventType;
 import static org.apache.avro.SchemaBuilder.record;
 
-public class TestAvroEventType extends TestCase
-{
-    public void testGetPropertyType()
-    {
+public class TestAvroEventType extends TestCase {
+    public void testGetPropertyType() {
         Schema lvl2Schema = record("lvl2Schema").fields()
                 .name("nestedValue").type().stringBuilder().prop(PROP_JAVA_STRING_KEY, PROP_JAVA_STRING_VALUE).endString().noDefault()
                 .name("nestedIndexed").type().array().items().intBuilder().endInt().arrayDefault(Collections.emptyList())
@@ -275,11 +273,11 @@ public class TestAvroEventType extends TestCase
 
         Consumer<EventBean> asserter = eventBean -> {
             GenericData.Fixed fixed = (GenericData.Fixed) eventBean.get("aFixed");
-            assertTrue(Arrays.equals(fixed.bytes(), new byte[] {1, 2}));
+            assertTrue(Arrays.equals(fixed.bytes(), new byte[]{1, 2}));
         };
 
         GenericData.Record datum = new GenericData.Record(schema);
-        datum.put("aFixed", new GenericData.Fixed(schema.getField("aFixed").schema(), new byte[] {1, 2}));
+        datum.put("aFixed", new GenericData.Fixed(schema.getField("aFixed").schema(), new byte[]{1, 2}));
         asserter.accept(new AvroGenericDataEventBean(datum, eventType));
 
         String jsonWValues = "{'aFixed': '\\u0001\\u0002\'}";
@@ -401,7 +399,7 @@ public class TestAvroEventType extends TestCase
         assertValue(new Utf8("x"), bean, "myCharSeq");
         assertValue("y", bean, "myString");
         assertValue(true, bean, "myBoolean");
-        assertValue(ByteBuffer.wrap(new byte[] {(byte)170}), bean, "myBytes");
+        assertValue(ByteBuffer.wrap(new byte[]{(byte) 170}), bean, "myBytes");
         assertValue(50d, bean, "myDouble");
         assertValue(100f, bean, "myFloat");
         assertValue(20L, bean, "myLong");
@@ -423,8 +421,7 @@ public class TestAvroEventType extends TestCase
             assertEqualsByteBuf((ByteBuffer) expected, (ByteBuffer) bean.get(propertyName));
             EventPropertyGetter getter = bean.getEventType().getGetter(propertyName);
             assertEqualsByteBuf((ByteBuffer) expected, (ByteBuffer) getter.get(bean));
-        }
-        else {
+        } else {
             assertEquals(expected, bean.get(propertyName));
             EventPropertyGetter getter = bean.getEventType().getGetter(propertyName);
             assertEquals(expected, getter.get(bean));
@@ -452,7 +449,7 @@ public class TestAvroEventType extends TestCase
         datum.put("myCharSeq", new Utf8("x"));
         datum.put("myString", "y");
         datum.put("myBoolean", true);
-        datum.put("myBytes", ByteBuffer.wrap(new byte[] {(byte)170}));
+        datum.put("myBytes", ByteBuffer.wrap(new byte[]{(byte) 170}));
         datum.put("myDouble", 50d);
         datum.put("myFloat", 100f);
         datum.put("myLong", 20L);

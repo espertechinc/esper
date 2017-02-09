@@ -26,12 +26,13 @@ import org.slf4j.LoggerFactory;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @DataFlowOperator
 public class LogSink implements DataFlowOpLifecycle {
 
-    private static final Logger logme = LoggerFactory.getLogger(LogSink.class);
+    private static final Logger LOGME = LoggerFactory.getLogger(LogSink.class);
 
     @DataFlowOpParameter
     private String title;
@@ -72,18 +73,15 @@ public class LogSink implements DataFlowOpLifecycle {
 
         if (format == null) {
             renderer = new ConsoleOpRendererSummary();
-        }
-        else {
+        } else {
             try {
-                LogSinkOutputFormat formatEnum = LogSinkOutputFormat.valueOf(format.trim().toLowerCase());
+                LogSinkOutputFormat formatEnum = LogSinkOutputFormat.valueOf(format.trim().toLowerCase(Locale.ENGLISH));
                 if (formatEnum == LogSinkOutputFormat.summary) {
                     renderer = new ConsoleOpRendererSummary();
-                }
-                else {
+                } else {
                     renderer = new ConsoleOpRendererXmlJSon(formatEnum, context.getEngine().getEPRuntime());
                 }
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 throw new ExprValidationException("Format '" + format + "' is not supported, expecting any of " + Arrays.toString(LogSinkOutputFormat.values()));
             }
         }
@@ -126,8 +124,7 @@ public class LogSink implements DataFlowOpLifecycle {
 
             getEventOut(port, theEvent, writer);
             line = writer.toString();
-        }
-        else {
+        } else {
             String result = layout.replace("%df", dataflowName).replace("%p", Integer.toString(port));
             if (dataFlowInstanceId != null) {
                 result = result.replace("%i", dataFlowInstanceId);
@@ -149,9 +146,8 @@ public class LogSink implements DataFlowOpLifecycle {
 
         // output
         if (log) {
-            logme.info(line);
-        }
-        else {
+            LOGME.info(line);
+        } else {
             System.out.println(line);
         }
     }
@@ -164,7 +160,7 @@ public class LogSink implements DataFlowOpLifecycle {
         }
 
         if (shellPerStream[port] != null) {
-            synchronized(this) {
+            synchronized (this) {
                 shellPerStream[port].setUnderlying(theEvent);
                 renderer.render(shellPerStream[port], writer);
             }
@@ -212,8 +208,7 @@ public class LogSink implements DataFlowOpLifecycle {
                     jsonRendererCache.put(theEvent.getEventType(), renderer);
                 }
                 result = renderer.render(theEvent.getEventType().getName(), theEvent);
-            }
-            else {
+            } else {
                 XMLEventRenderer renderer = xmlRendererCache.get(theEvent.getEventType());
                 if (renderer == null) {
                     renderer = getXmlRenderer(theEvent.getEventType());
@@ -270,8 +265,7 @@ public class LogSink implements DataFlowOpLifecycle {
         public void render(EventPropertyRendererContext context) {
             if (context.getPropertyValue() instanceof Object[]) {
                 context.getStringBuilder().append(Arrays.toString((Object[]) context.getPropertyValue()));
-            }
-            else {
+            } else {
                 context.getDefaultRenderer().render(context.getPropertyValue(), context.getStringBuilder());
             }
         }

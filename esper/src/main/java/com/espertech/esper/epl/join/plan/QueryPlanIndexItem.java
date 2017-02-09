@@ -17,8 +17,7 @@ import java.util.Arrays;
 /**
  * Specifies an index to build as part of an overall query plan.
  */
-public class QueryPlanIndexItem
-{
+public class QueryPlanIndexItem {
     private final String[] indexProps;
     private Class[] optIndexCoercionTypes;
     private final String[] rangeProps;
@@ -27,12 +26,13 @@ public class QueryPlanIndexItem
 
     /**
      * Ctor.
-     * @param indexProps - array of property names with the first dimension suplying the number of
-     * distinct indexes. The second dimension can be empty and indicates a full table scan.
+     *
+     * @param indexProps            - array of property names with the first dimension suplying the number of
+     *                              distinct indexes. The second dimension can be empty and indicates a full table scan.
      * @param optIndexCoercionTypes - array of coercion types for each index, or null entry for no coercion required
-     * @param unique whether index is unique on index props (not applicable to range-only)
+     * @param unique                whether index is unique on index props (not applicable to range-only)
      * @param optRangeCoercionTypes coercion for ranges
-     * @param rangeProps range props
+     * @param rangeProps            range props
      */
     public QueryPlanIndexItem(String[] indexProps, Class[] optIndexCoercionTypes, String[] rangeProps, Class[] optRangeCoercionTypes, boolean unique) {
         this.indexProps = indexProps;

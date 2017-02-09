@@ -18,7 +18,10 @@ import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.spec.ViewSpec;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
-import com.espertech.esper.supportunit.view.*;
+import com.espertech.esper.supportunit.view.SupportBeanClassView;
+import com.espertech.esper.supportunit.view.SupportSchemaNeutralView;
+import com.espertech.esper.supportunit.view.SupportStreamImpl;
+import com.espertech.esper.supportunit.view.SupportViewSpecFactory;
 import com.espertech.esper.view.stat.UnivariateStatisticsView;
 import com.espertech.esper.view.stat.UnivariateStatisticsViewFactory;
 import com.espertech.esper.view.std.FirstElementView;
@@ -29,8 +32,7 @@ import junit.framework.TestCase;
 
 import java.util.List;
 
-public class TestViewServiceHelper extends TestCase
-{
+public class TestViewServiceHelper extends TestCase {
     private final static Class TEST_CLASS = SupportBean.class;
 
     private SupportSchemaNeutralView top;
@@ -42,8 +44,7 @@ public class TestViewServiceHelper extends TestCase
     private SupportSchemaNeutralView child_2_2_1;
     private SupportSchemaNeutralView child_2_2_2;
 
-    public void setUp()
-    {
+    public void setUp() {
         top = new SupportSchemaNeutralView("top");
 
         child_1 = new SupportSchemaNeutralView("1");
@@ -64,8 +65,7 @@ public class TestViewServiceHelper extends TestCase
         child_2_2.addView(child_2_2_2);
     }
 
-    public void testInstantiateChain() throws Exception
-    {
+    public void testInstantiateChain() throws Exception {
         SupportBeanClassView topView = new SupportBeanClassView(TEST_CLASS);
         List<ViewFactory> viewFactories = SupportViewSpecFactory.makeFactoryListOne(topView.getEventType());
         AgentInstanceViewFactoryChainContext context = SupportStatementContextFactory.makeAgentInstanceViewFactoryContext();
@@ -84,8 +84,7 @@ public class TestViewServiceHelper extends TestCase
         TimeWindowView timeWindow = (TimeWindowView) views.get(0);
     }
 
-    public void testMatch() throws Exception
-    {
+    public void testMatch() throws Exception {
         SupportStreamImpl stream = new SupportStreamImpl(TEST_CLASS, 10);
         List<ViewFactory> viewFactories = SupportViewSpecFactory.makeFactoryListOne(stream.getEventType());
         AgentInstanceContext agentInstanceContext = SupportStatementContextFactory.makeAgentInstanceContext();
@@ -160,8 +159,7 @@ public class TestViewServiceHelper extends TestCase
         assertEquals(0, viewFactories.size());
     }
 
-    public void testAddMergeViews() throws Exception
-    {
+    public void testAddMergeViews() throws Exception {
         List<ViewSpec> specOne = SupportViewSpecFactory.makeSpecListOne();
 
         ViewServiceHelper.addMergeViews(specOne);
@@ -174,8 +172,7 @@ public class TestViewServiceHelper extends TestCase
         assertEquals(specFour.get(0).getObjectParameters().size(), specFour.get(1).getObjectParameters().size());
     }
 
-    public void testRemoveChainLeafView()
-    {
+    public void testRemoveChainLeafView() {
         // Remove a non-leaf, expect no removals
         List<View> removedViews = ViewServiceHelper.removeChainLeafView(top, child_2_2);
         assertEquals(0, removedViews.size());

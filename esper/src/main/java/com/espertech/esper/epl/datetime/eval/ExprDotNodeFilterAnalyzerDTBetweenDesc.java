@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.join.util.RangeFilterAnalyzer;
 
-public class ExprDotNodeFilterAnalyzerDTBetweenDesc implements ExprDotNodeFilterAnalyzerDesc
-{
+public class ExprDotNodeFilterAnalyzerDTBetweenDesc implements ExprDotNodeFilterAnalyzerDesc {
     private final EventType[] typesPerStream;
     private final int targetStreamNum;
     private final String targetPropertyName;

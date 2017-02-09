@@ -25,6 +25,6 @@ public class GroupByRollupNodeSingleExpr extends GroupByRollupNodeBase {
 
     public List<int[]> evaluate(GroupByRollupEvalContext context) {
         int index = context.getIndex(expression);
-        return Collections.singletonList(new int[] {index});
+        return Collections.singletonList(new int[]{index});
     }
 }

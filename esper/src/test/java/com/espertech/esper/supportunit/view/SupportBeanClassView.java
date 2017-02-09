@@ -15,33 +15,28 @@ import com.espertech.esper.supportunit.event.SupportEventTypeFactory;
 import com.espertech.esper.view.CloneableView;
 import com.espertech.esper.view.View;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-public class SupportBeanClassView extends SupportBaseView implements CloneableView
-{
+public class SupportBeanClassView extends SupportBaseView implements CloneableView {
     private static List<SupportBeanClassView> instances = new LinkedList<SupportBeanClassView>();
     private Class clazz;
 
-    public SupportBeanClassView()
-    {
+    public SupportBeanClassView() {
         instances.add(this);
     }
 
-    public SupportBeanClassView(Class clazz)
-    {
+    public SupportBeanClassView(Class clazz) {
         super(SupportEventTypeFactory.createBeanType(clazz));
         this.clazz = clazz;
         instances.add(this);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new SupportBeanClassView(clazz);
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         super.setInvoked(true);
         this.lastNewData = newData;
         this.lastOldData = oldData;
@@ -49,8 +44,7 @@ public class SupportBeanClassView extends SupportBaseView implements CloneableVi
         updateChildren(newData, oldData);
     }
 
-    public static List<SupportBeanClassView> getInstances()
-    {
+    public static List<SupportBeanClassView> getInstances() {
         return instances;
     }
 }

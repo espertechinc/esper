@@ -10,22 +10,15 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.event.EventAdapterException;
-import com.espertech.esper.type.*;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.math.BigInteger;
-import java.math.BigDecimal;
 
 /**
  * Interface for number coercion resulting in BigInteger.
  */
-public interface SimpleNumberBigIntegerCoercer
-{
+public interface SimpleNumberBigIntegerCoercer {
     /**
      * Widen the number to BigInteger, if widening is required.
+     *
      * @param numToCoerce number to widen
      * @return widened number
      */

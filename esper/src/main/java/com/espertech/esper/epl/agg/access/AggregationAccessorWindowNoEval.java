@@ -22,8 +22,7 @@ import java.util.List;
 /**
  * Represents the aggregation accessor that provides the result for the "window" aggregation function.
  */
-public class AggregationAccessorWindowNoEval implements AggregationAccessor
-{
+public class AggregationAccessorWindowNoEval implements AggregationAccessor {
     private final Class componentType;
 
     public AggregationAccessorWindowNoEval(Class componentType) {
@@ -31,14 +30,14 @@ public class AggregationAccessorWindowNoEval implements AggregationAccessor
     }
 
     public Object getValue(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationStateLinear linear = ((AggregationStateLinear) state);
+        AggregationStateLinear linear = (AggregationStateLinear) state;
         if (linear.size() == 0) {
             return null;
         }
         Object array = Array.newInstance(componentType, linear.size());
         Iterator<EventBean> it = linear.iterator();
         int count = 0;
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             EventBean bean = it.next();
             Array.set(array, count++, bean.getUnderlying());
         }
@@ -46,7 +45,7 @@ public class AggregationAccessorWindowNoEval implements AggregationAccessor
     }
 
     public Collection<EventBean> getEnumerableEvents(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationStateLinear linear = ((AggregationStateLinear) state);
+        AggregationStateLinear linear = (AggregationStateLinear) state;
         if (linear.size() == 0) {
             return null;
         }
@@ -54,13 +53,13 @@ public class AggregationAccessorWindowNoEval implements AggregationAccessor
     }
 
     public Collection<Object> getEnumerableScalar(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-        AggregationStateLinear linear = ((AggregationStateLinear) state);
+        AggregationStateLinear linear = (AggregationStateLinear) state;
         if (linear.size() == 0) {
             return null;
         }
         List<Object> values = new ArrayList<Object>(linear.size());
         Iterator<EventBean> it = linear.iterator();
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             EventBean bean = it.next();
             values.add(bean.getUnderlying());
         }

@@ -30,8 +30,7 @@ import java.util.Map;
  * <p>
  * The event type for such posted events is a single field Map with the variable value.
  */
-public class CreateVariableView extends ViewSupport implements VariableChangeCallback
-{
+public class CreateVariableView extends ViewSupport implements VariableChangeCallback {
     private final EventAdapterService eventAdapterService;
     private final VariableReader reader;
     private final EventType eventType;
@@ -40,15 +39,15 @@ public class CreateVariableView extends ViewSupport implements VariableChangeCal
 
     /**
      * Ctor.
-     * @param eventAdapterService for creating events
-     * @param variableService for looking up variables
-     * @param variableName is the name of the variable to create
+     *
+     * @param eventAdapterService    for creating events
+     * @param variableService        for looking up variables
+     * @param variableName           is the name of the variable to create
      * @param statementResultService for coordinating on whether insert and remove stream events should be posted
-     * @param statementId statement id
-     * @param agentInstanceId agent instance id
+     * @param statementId            statement id
+     * @param agentInstanceId        agent instance id
      */
-    public CreateVariableView(int statementId, EventAdapterService eventAdapterService, VariableService variableService, String variableName, StatementResultService statementResultService, int agentInstanceId)
-    {
+    public CreateVariableView(int statementId, EventAdapterService eventAdapterService, VariableService variableService, String variableName, StatementResultService statementResultService, int agentInstanceId) {
         this.eventAdapterService = eventAdapterService;
         this.variableName = variableName;
         this.statementResultService = statementResultService;
@@ -63,10 +62,8 @@ public class CreateVariableView extends ViewSupport implements VariableChangeCal
         return eventAdapterService.createAnonymousMapType(outputEventTypeName, variableTypes, true);
     }
 
-    public void update(Object newValue, Object oldValue)
-    {
-        if (statementResultService.isMakeNatural() || statementResultService.isMakeSynthetic())
-        {
+    public void update(Object newValue, Object oldValue) {
+        if (statementResultService.isMakeNatural() || statementResultService.isMakeSynthetic()) {
             Map<String, Object> valuesOld = new HashMap<String, Object>();
             valuesOld.put(variableName, oldValue);
             EventBean eventOld = eventAdapterService.adapterForTypedMap(valuesOld, eventType);
@@ -75,22 +72,19 @@ public class CreateVariableView extends ViewSupport implements VariableChangeCal
             valuesNew.put(variableName, newValue);
             EventBean eventNew = eventAdapterService.adapterForTypedMap(valuesNew, eventType);
 
-            this.updateChildren(new EventBean[] {eventNew}, new EventBean[] {eventOld});
+            this.updateChildren(new EventBean[]{eventNew}, new EventBean[]{eventOld});
         }
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         throw new UnsupportedOperationException("Update not supported");
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         Object value = reader.getValue();
         Map<String, Object> values = new HashMap<String, Object>();
         values.put(variableName, value);

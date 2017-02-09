@@ -10,40 +10,38 @@
  */
 package com.espertech.esper.event.map;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.event.EventBeanWriter;
 import com.espertech.esper.event.MappedEventBean;
-import com.espertech.esper.client.EventBean;
 
 import java.util.Map;
 
 /**
  * Writer method for writing to Map-type events.
  */
-public class MapEventBeanWriterSimpleProps implements EventBeanWriter
-{
+public class MapEventBeanWriterSimpleProps implements EventBeanWriter {
     private final String[] properties;
 
     /**
      * Ctor.
+     *
      * @param properties names of properties to write
      */
-    public MapEventBeanWriterSimpleProps(String[] properties)
-    {
+    public MapEventBeanWriterSimpleProps(String[] properties) {
         this.properties = properties;
     }
 
     /**
      * Write values to an event.
-     * @param values to write
+     *
+     * @param values   to write
      * @param theEvent to write to
      */
-    public void write(Object[] values, EventBean theEvent)
-    {
+    public void write(Object[] values, EventBean theEvent) {
         MappedEventBean mappedEvent = (MappedEventBean) theEvent;
         Map<String, Object> map = mappedEvent.getProperties();
 
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             map.put(properties[i], values[i]);
         }
     }

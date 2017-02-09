@@ -12,7 +12,6 @@ package com.espertech.esperio.db.core;
 
 import java.sql.SQLException;
 
-public interface StoreExceptionHandler
-{
+public interface StoreExceptionHandler {
     public void handle(String message, SQLException ex);
 }

@@ -12,20 +12,23 @@ package com.espertech.esper.pattern.observer;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
-import com.espertech.esper.pattern.*;
+import com.espertech.esper.pattern.EvalStateNodeNumber;
+import com.espertech.esper.pattern.MatchedEventConvertor;
+import com.espertech.esper.pattern.MatchedEventMap;
+import com.espertech.esper.pattern.PatternAgentInstanceContext;
 
 import java.util.List;
 
 /**
  * Interface for factories for making observer instances.
  */
-public interface ObserverFactory
-{
+public interface ObserverFactory {
     /**
      * Sets the observer object parameters.
+     *
      * @param observerParameters is a list of parameters
-     * @param convertor for converting partial pattern matches to event-per-stream for expressions
-     * @param validationContext context
+     * @param convertor          for converting partial pattern matches to event-per-stream for expressions
+     * @param validationContext  context
      * @throws ObserverParameterException thrown to indicate a parameter problem
      */
     public void setObserverParameters(List<ExprNode> observerParameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException;
@@ -33,12 +36,11 @@ public interface ObserverFactory
     /**
      * Make an observer instance.
      *
-     *
-     * @param context - services that may be required by observer implementation
-     * @param beginState - start state for observer
-     * @param observerEventEvaluator - receiver for events observed
-     * @param stateNodeId - optional id for the associated pattern state node
-     * @param observerState - state node for observer
+     * @param context                  - services that may be required by observer implementation
+     * @param beginState               - start state for observer
+     * @param observerEventEvaluator   - receiver for events observed
+     * @param stateNodeId              - optional id for the associated pattern state node
+     * @param observerState            - state node for observer
      * @param isFilterChildNonQuitting true for non-quitting filter
      * @return observer instance
      */

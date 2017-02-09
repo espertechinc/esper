@@ -21,14 +21,12 @@ import java.util.List;
 /**
  * Plan to perform an indexed table lookup.
  */
-public class CompositeTableLookupPlan extends TableLookupPlan
-{
+public class CompositeTableLookupPlan extends TableLookupPlan {
     private final List<QueryGraphValueEntryHashKeyed> hashKeys;
     private final List<QueryGraphValueEntryRange> rangeKeyPairs;
 
-    public CompositeTableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyed> hashKeys, List<QueryGraphValueEntryRange> rangeKeyPairs)
-    {
-        super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});
+    public CompositeTableLookupPlan(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyed> hashKeys, List<QueryGraphValueEntryRange> rangeKeyPairs) {
+        super(lookupStream, indexedStream, new TableLookupIndexReqKey[]{indexNum});
         this.hashKeys = hashKeys;
         this.rangeKeyPairs = rangeKeyPairs;
     }
@@ -37,14 +35,12 @@ public class CompositeTableLookupPlan extends TableLookupPlan
         return new TableLookupKeyDesc(hashKeys, rangeKeyPairs);
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         PropertyCompositeEventTable index = (PropertyCompositeEventTable) eventTable[0];
         return new CompositeTableLookupStrategy(eventTypes[this.getLookupStream()], this.getLookupStream(), hashKeys, rangeKeyPairs, index);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "CompositeTableLookupPlan " +
                 super.toString() +
                 " directKeys=" + QueryGraphValueEntryHashKeyed.toQueryPlan(hashKeys) +

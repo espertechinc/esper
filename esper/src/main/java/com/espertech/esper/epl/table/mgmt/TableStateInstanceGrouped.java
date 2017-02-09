@@ -19,10 +19,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public interface TableStateInstanceGrouped {
     ReentrantReadWriteLock getTableLevelRWLock();
+
     ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext);
+
     void handleRowUpdated(ObjectArrayBackedEventBean row);
+
     ObjectArrayBackedEventBean getRowForGroupKey(Object groupKey);
+
     Set<Object> getGroupKeys();
+
     void clear();
+
     EventTableIndexRepository getIndexRepository();
 }

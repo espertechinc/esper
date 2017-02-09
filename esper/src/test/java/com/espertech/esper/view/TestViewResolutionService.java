@@ -26,22 +26,18 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-public class TestViewResolutionService extends TestCase
-{
+public class TestViewResolutionService extends TestCase {
     private ViewResolutionService service;
 
-    public void setUp()
-    {
-        PluggableObjectRegistryImpl registry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[] {ViewEnumHelper.getBuiltinViews()});
+    public void setUp() {
+        PluggableObjectRegistryImpl registry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[]{ViewEnumHelper.getBuiltinViews()});
         service = new ViewResolutionServiceImpl(registry, null, null);
     }
 
-    public void testInitializeFromConfig() throws Exception
-    {
-        service = createService(new String[] {"a", "b"}, new String[] {"v1", "v2"},
-                new String[] {SupportViewFactoryOne.class.getName(), SupportViewFactoryTwo.class.getName()});
+    public void testInitializeFromConfig() throws Exception {
+        service = createService(new String[]{"a", "b"}, new String[]{"v1", "v2"},
+                new String[]{SupportViewFactoryOne.class.getName(), SupportViewFactoryTwo.class.getName()});
 
         ViewFactory factory = service.create("a", "v1");
         assertTrue(factory instanceof SupportViewFactoryOne);
@@ -52,54 +48,40 @@ public class TestViewResolutionService extends TestCase
         tryInvalid("a", "v3");
         tryInvalid("c", "v1");
 
-        try
-        {
-            service = createService(new String[] {"a"}, new String[] {"v1"}, new String[] {"abc"});
+        try {
+            service = createService(new String[]{"a"}, new String[]{"v1"}, new String[]{"abc"});
             fail();
-        }
-        catch (ConfigurationException ex)
-        {
+        } catch (ConfigurationException ex) {
             // expected
         }
     }
 
-    private void tryInvalid(String namespace, String name)
-    {
-        try
-        {
+    private void tryInvalid(String namespace, String name) {
+        try {
             service.create(namespace, name);
             fail();
-        }
-        catch (ViewProcessingException ex)
-        {
+        } catch (ViewProcessingException ex) {
             // expected
         }
     }
-    
-    public void testCreate() throws Exception
-    {
+
+    public void testCreate() throws Exception {
         ViewFactory viewFactory = service.create(ViewEnum.UNIVARIATE_STATISTICS.getNamespace(), ViewEnum.UNIVARIATE_STATISTICS.getName());
         assertTrue(viewFactory instanceof UnivariateStatisticsViewFactory);
     }
 
-    public void testInvalidViewName()
-    {
-        try
-        {
+    public void testInvalidViewName() {
+        try {
             service.create("dummy", "bumblebee");
             assertFalse(true);
-        }
-        catch (ViewProcessingException ex)
-        {
+        } catch (ViewProcessingException ex) {
             log.debug(".testInvalidViewName Expected exception caught, msg=" + ex.getMessage());
         }
     }
 
-    private ViewResolutionService createService(String[] namespaces, String[] names, String[] classNames)
-    {
+    private ViewResolutionService createService(String[] namespaces, String[] names, String[] classNames) {
         List<ConfigurationPlugInView> configs = new LinkedList<ConfigurationPlugInView>();
-        for (int i = 0; i < namespaces.length; i++)
-        {
+        for (int i = 0; i < namespaces.length; i++) {
             ConfigurationPlugInView config = new ConfigurationPlugInView();
             config.setNamespace(namespaces[i]);
             config.setName(names[i]);
@@ -109,7 +91,7 @@ public class TestViewResolutionService extends TestCase
 
         PluggableObjectCollection desc = new PluggableObjectCollection();
         desc.addViews(configs, Collections.<ConfigurationPlugInVirtualDataWindow>emptyList(), SupportEngineImportServiceFactory.make());
-        PluggableObjectRegistryImpl registry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[] {desc});
+        PluggableObjectRegistryImpl registry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[]{desc});
         return new ViewResolutionServiceImpl(registry, null, null);
     }
 

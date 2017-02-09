@@ -45,8 +45,7 @@ import java.util.TreeMap;
  * The view accepts 2 parameters. The first parameter is the field name to get the event timestamp value from,
  * the second parameter defines the interval size.
  */
-public class TimeOrderView extends ViewSupport implements DataWindowView, CloneableView, StoppableView, StopCallback
-{
+public class TimeOrderView extends ViewSupport implements DataWindowView, CloneableView, StoppableView, StopCallback {
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
     private final TimeOrderViewFactory timeOrderViewFactory;
     private final ExprNode timestampExpression;
@@ -61,13 +60,12 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     protected boolean isCallbackScheduled;
     protected int eventCount;
 
-    public TimeOrderView( AgentInstanceViewFactoryChainContext agentInstanceContext,
-                          TimeOrderViewFactory timeOrderViewFactory,
-                          ExprNode timestampExpr,
-                          ExprEvaluator timestampEvaluator,
-                          ExprTimePeriodEvalDeltaConst timeDeltaComputation,
-                          IStreamSortRankRandomAccess optionalSortedRandomAccess)
-    {
+    public TimeOrderView(AgentInstanceViewFactoryChainContext agentInstanceContext,
+                         TimeOrderViewFactory timeOrderViewFactory,
+                         ExprNode timestampExpr,
+                         ExprEvaluator timestampEvaluator,
+                         ExprTimePeriodEvalDeltaConst timeDeltaComputation,
+                         IStreamSortRankRandomAccess optionalSortedRandomAccess) {
         this.agentInstanceContext = agentInstanceContext;
         this.timeOrderViewFactory = timeOrderViewFactory;
         this.timestampExpression = timestampExpr;
@@ -79,11 +77,14 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
         sortedEvents = new TreeMap<Object, Object>();
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeOrderView.this, TimeOrderView.this.timeOrderViewFactory.getViewName());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewScheduledEval(TimeOrderView.this, TimeOrderView.this.timeOrderViewFactory.getViewName());
+                }
                 TimeOrderView.this.expire();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewScheduledEval();
+                }
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
@@ -92,10 +93,10 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
 
     /**
      * Returns the timestamp property name.
+     *
      * @return property name supplying timestamp values
      */
-    public ExprNode getTimestampExpression()
-    {
+    public ExprNode getTimestampExpression() {
         return timestampExpression;
     }
 
@@ -103,38 +104,33 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
         return timeDeltaComputation;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return timeOrderViewFactory.makeView(agentInstanceContext);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, timeOrderViewFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, timeOrderViewFactory.getViewName(), newData, oldData);
+        }
 
         EventBean[] postOldEventsArray = null;
 
         // Remove old data
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 EventBean oldDataItem = oldData[i];
                 Object sortValues = getTimestamp(oldDataItem);
                 boolean result = CollectionUtil.removeEventByKeyLazyListMap(sortValues, oldDataItem, sortedEvents);
-                if (result)
-                {
+                if (result) {
                     eventCount--;
                     if (postOldEventsArray == null) {
                         postOldEventsArray = oldData;
-                    }
-                    else {
+                    } else {
                         postOldEventsArray = CollectionUtil.addArrayWithSetSemantics(postOldEventsArray, oldData);
                     }
                     internalHandleRemoved(sortValues, oldDataItem);
@@ -142,39 +138,31 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
             }
         }
 
-        if ((newData != null) && (newData.length > 0))
-        {
+        if ((newData != null) && (newData.length > 0)) {
             // figure out the current tail time
             long engineTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
             long windowTailTime = engineTime - timeDeltaComputation.deltaAdd(engineTime) + 1;
             long oldestEvent = Long.MAX_VALUE;
-            if (!sortedEvents.isEmpty())
-            {
+            if (!sortedEvents.isEmpty()) {
                 oldestEvent = (Long) sortedEvents.firstKey();
             }
             boolean addedOlderEvent = false;
 
             // add events or post events as remove stream if already older then tail time
             ArrayList<EventBean> postOldEvents = null;
-            for (int i = 0; i < newData.length; i++)
-            {
+            for (int i = 0; i < newData.length; i++) {
                 // get timestamp of event
                 EventBean newEvent = newData[i];
                 Long timestamp = getTimestamp(newEvent);
 
                 // if the event timestamp indicates its older then the tail of the window, release it
-                if (timestamp < windowTailTime)
-                {
-                    if (postOldEvents == null)
-                    {
+                if (timestamp < windowTailTime) {
+                    if (postOldEvents == null) {
                         postOldEvents = new ArrayList<EventBean>(2);
                     }
                     postOldEvents.add(newEvent);
-                }
-                else
-                {
-                    if (timestamp < oldestEvent)
-                    {
+                } else {
+                    if (timestamp < oldestEvent) {
                         addedOlderEvent = true;
                         oldestEvent = timestamp;
                     }
@@ -187,20 +175,15 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
             }
 
             // If we do have data, check the callback
-            if (!sortedEvents.isEmpty())
-            {
+            if (!sortedEvents.isEmpty()) {
                 // If we haven't scheduled a callback yet, schedule it now
-                if (!isCallbackScheduled)
-                {
+                if (!isCallbackScheduled) {
                     long callbackWait = oldestEvent - windowTailTime + 1;
                     agentInstanceContext.getStatementContext().getSchedulingService().add(callbackWait, handle, scheduleSlot);
                     isCallbackScheduled = true;
-                }
-                else
-                {
+                } else {
                     // We may need to reschedule, and older event may have been added
-                    if (addedOlderEvent)
-                    {
+                    if (addedOlderEvent) {
                         oldestEvent = (Long) sortedEvents.firstKey();
                         long callbackWait = oldestEvent - windowTailTime + 1;
                         agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
@@ -210,26 +193,29 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
                 }
             }
 
-            if (postOldEvents != null)
-            {
+            if (postOldEvents != null) {
                 postOldEventsArray = postOldEvents.toArray(new EventBean[postOldEvents.size()]);
             }
 
-            if (optionalSortedRandomAccess != null)
-            {
+            if (optionalSortedRandomAccess != null) {
                 optionalSortedRandomAccess.refresh(sortedEvents, eventCount, eventCount);
             }
         }
 
         // update child views
-        if (this.hasViews())
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeOrderViewFactory.getViewName(), newData, postOldEventsArray);}
+        if (this.hasViews()) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, timeOrderViewFactory.getViewName(), newData, postOldEventsArray);
+            }
             updateChildren(newData, postOldEventsArray);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleAdd(Object sortValues, EventBean newDataItem) {
@@ -255,20 +241,18 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
 
     /**
      * True to indicate the sort window is empty, or false if not empty.
+     *
      * @return true if empty sort window
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return sortedEvents.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new SortWindowIterator(sortedEvents);
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " timestampExpression=" + timestampExpression;
     }
@@ -281,25 +265,21 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
      * This method removes (expires) objects from the window and schedules a new callback for the
      * time when the next oldest message would expire from the window.
      */
-    protected final void expire()
-    {
+    protected final void expire() {
         long currentTime = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         long expireBeforeTimestamp = currentTime - timeDeltaComputation.deltaSubtract(currentTime) + 1;
         isCallbackScheduled = false;
 
         List<EventBean> releaseEvents = null;
         Long oldestKey;
-        while(true)
-        {
-            if (sortedEvents.isEmpty())
-            {
+        while (true) {
+            if (sortedEvents.isEmpty()) {
                 oldestKey = null;
                 break;
             }
 
             oldestKey = (Long) sortedEvents.firstKey();
-            if (oldestKey >= expireBeforeTimestamp)
-            {
+            if (oldestKey >= expireBeforeTimestamp) {
                 break;
             }
 
@@ -309,14 +289,12 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
                     List<EventBean> releasedEventList = (List<EventBean>) released;
                     if (releaseEvents == null) {
                         releaseEvents = releasedEventList;
-                    }
-                    else {
+                    } else {
                         releaseEvents.addAll(releasedEventList);
                     }
                     eventCount -= releasedEventList.size();
                     internalHandleExpired(oldestKey, releasedEventList);
-                }
-                else {
+                } else {
                     EventBean releasedEvent = (EventBean) released;
                     if (releaseEvents == null) {
                         releaseEvents = new ArrayList<EventBean>(4);
@@ -328,26 +306,26 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
             }
         }
 
-        if (optionalSortedRandomAccess != null)
-        {
+        if (optionalSortedRandomAccess != null) {
             optionalSortedRandomAccess.refresh(sortedEvents, eventCount, eventCount);
         }
 
         // If there are child views, do the update method
-        if (this.hasViews())
-        {
-            if ((releaseEvents != null) && (!releaseEvents.isEmpty()))
-            {
+        if (this.hasViews()) {
+            if ((releaseEvents != null) && (!releaseEvents.isEmpty())) {
                 EventBean[] oldEvents = releaseEvents.toArray(new EventBean[releaseEvents.size()]);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeOrderViewFactory.getViewName(), null, oldEvents);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, timeOrderViewFactory.getViewName(), null, oldEvents);
+                }
                 updateChildren(null, oldEvents);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
 
         // If we still have events in the window, schedule new callback
-        if (oldestKey == null)
-        {
+        if (oldestKey == null) {
             return;
         }
 

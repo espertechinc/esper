@@ -12,10 +12,11 @@ package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Set;
 
-public class IntersectAsymetricViewLocalState
-{
+public class IntersectAsymetricViewLocalState {
     private final EventBean[][] oldEventsPerView;
     private final Set<EventBean> removalEvents = new HashSet<EventBean>();
     private final ArrayDeque<EventBean> newEvents = new ArrayDeque<EventBean>();

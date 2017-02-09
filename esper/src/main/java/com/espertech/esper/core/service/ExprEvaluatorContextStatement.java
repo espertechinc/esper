@@ -12,16 +12,15 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.schedule.TimeProvider;
 
 /**
  * Represents a statement-level-only context for expression evaluation, not allowing for agents instances and result cache.
  */
-public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
-{
+public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
     protected final StatementContext statementContext;
     private final boolean allowTableAccess;
     private EventBean contextProperties;
@@ -33,6 +32,7 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext
 
     /**
      * Returns the time provider.
+     *
      * @return time provider
      */
     public TimeProvider getTimeProvider() {

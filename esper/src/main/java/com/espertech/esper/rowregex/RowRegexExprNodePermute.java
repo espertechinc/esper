@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Permute () regular expression in a regex expression tree.
  */
-public class RowRegexExprNodePermute extends RowRegexExprNode
-{
+public class RowRegexExprNodePermute extends RowRegexExprNode {
     private static final long serialVersionUID = 5052642981296251751L;
 
     public void toPrecedenceFreeEPL(StringWriter writer) {

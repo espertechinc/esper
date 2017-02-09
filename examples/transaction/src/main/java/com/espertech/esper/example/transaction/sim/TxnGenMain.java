@@ -10,25 +10,25 @@
  */
 package com.espertech.esper.example.transaction.sim;
 
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.example.transaction.*;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 
-/** Runs the generator.
+/**
+ * Runs the generator.
  *
  * @author Hans Gilde
- *
  */
 public class TxnGenMain implements Runnable {
 
-    private static Map<String,Integer> BUCKET_SIZES = new LinkedHashMap<String,Integer>();
+    private final static Map<String, Integer> BUCKET_SIZES = new LinkedHashMap<String, Integer>();
 
     static {
         BUCKET_SIZES.put("tiniest", 20);
@@ -55,8 +55,8 @@ public class TxnGenMain implements Runnable {
             bucketSize = BUCKET_SIZES.get(args[0]);
         } catch (NullPointerException e) {
             System.out.println("Invalid bucket size:");
-            for(String key:BUCKET_SIZES.keySet()) {
-                System.out.println("\t"+key+" -> "+BUCKET_SIZES.get(key));
+            for (String key : BUCKET_SIZES.keySet()) {
+                System.out.println("\t" + key + " -> " + BUCKET_SIZES.get(key));
             }
 
             System.exit(-2);
@@ -83,16 +83,14 @@ public class TxnGenMain implements Runnable {
     private String engineURI;
     private boolean continuousSimulation;
 
-    public TxnGenMain(int bucketSize, int numTransactions, String engineURI, boolean continuousSimulation)
-    {
+    public TxnGenMain(int bucketSize, int numTransactions, String engineURI, boolean continuousSimulation) {
         this.bucketSize = bucketSize;
         this.numTransactions = numTransactions;
         this.engineURI = engineURI;
         this.continuousSimulation = continuousSimulation;
     }
 
-    public void run()
-    {
+    public void run() {
         // Configure engine with event names to make the statements more readable.
         // This could also be done in a configuration file.
         Configuration configuration = new Configuration();
@@ -131,19 +129,16 @@ public class TxnGenMain implements Runnable {
         // Feed events
         try {
             if (continuousSimulation) {
-                while(true) {
+                while (true) {
                     output.output();
                     Thread.sleep(5000); // Send a batch every 5 seconds
                 }
-            }
-            else {
+            } else {
                 output.output();
             }
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
             // no action
-        }
-        catch(IOException ex) {
+        } catch (IOException ex) {
             throw new RuntimeException("Error outputting events: " + ex.getMessage(), ex);
         }
     }

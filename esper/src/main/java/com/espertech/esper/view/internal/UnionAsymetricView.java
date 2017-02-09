@@ -31,8 +31,7 @@ import java.util.List;
  * The view is parameterized by two or more data windows. From an external viewpoint, the
  * view retains all events that is in any of the data windows (a union).
  */
-public class UnionAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, ViewDataVisitableContainer, ViewContainer
-{
+public class UnionAsymetricView extends ViewSupport implements LastPostObserver, CloneableView, StoppableView, DataWindowView, ViewDataVisitableContainer, ViewContainer {
     private static final Logger log = LoggerFactory.getLogger(UnionAsymetricView.class);
 
     protected final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext;
@@ -49,17 +48,15 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
     private boolean isRetainObserverEvents;
     private boolean isDiscardObserverEvents;
 
-    public UnionAsymetricView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, UnionViewFactory factory, EventType eventType, List<View> viewList)
-    {
+    public UnionAsymetricView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext, UnionViewFactory factory, EventType eventType, List<View> viewList) {
         this.agentInstanceViewFactoryContext = agentInstanceViewFactoryContext;
         this.unionViewFactory = factory;
         this.eventType = eventType;
         this.views = viewList.toArray(new View[viewList.size()]);
         this.unionWindow = new RefCountedSet<EventBean>();
         oldEventsPerView = new EventBean[viewList.size()][];
-        
-        for (int i = 0; i < viewList.size(); i++)
-        {
+
+        for (int i = 0; i < viewList.size(); i++) {
             LastPostObserverView view = new LastPostObserverView(i);
             views[i].removeAllViews();
             views[i].addView(view);
@@ -67,11 +64,9 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
         }
 
         // recover
-        for (int i = 0; i < views.length; i++)
-        {
+        for (int i = 0; i < views.length; i++) {
             Iterator<EventBean> viewSnapshot = views[i].iterator();
-            for (;viewSnapshot.hasNext();)
-            {
+            for (; viewSnapshot.hasNext(); ) {
                 EventBean theEvent = viewSnapshot.next();
                 unionWindow.add(theEvent);
             }
@@ -82,35 +77,27 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
         return this.views;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return unionViewFactory.makeView(agentInstanceViewFactoryContext);
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         // handle remove stream
         OneEventCollection oldDataColl = null;
         EventBean[] newDataPosted = null;
-        if (oldData != null)
-        {
+        if (oldData != null) {
             isDiscardObserverEvents = true;    // disable reaction logic in observer
 
-            try
-            {
-                for (View view : views)
-                {
+            try {
+                for (View view : views) {
                     view.update(null, oldData);
                 }
-            }
-            finally
-            {
+            } finally {
                 isDiscardObserverEvents = false;
             }
 
             // remove from union
-            for (EventBean oldEvent : oldData)
-            {
+            for (EventBean oldEvent : oldData) {
                 unionWindow.removeAll(oldEvent);
             }
 
@@ -119,12 +106,10 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
         }
 
         // add new event to union
-        if (newData != null)
-        {
+        if (newData != null) {
             boolean[][] removedByView = new boolean[newData.length][views.length];
 
-            for (EventBean newEvent : newData)
-            {
+            for (EventBean newEvent : newData) {
                 unionWindow.add(newEvent, views.length);
             }
 
@@ -132,8 +117,7 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
             // old events, such as when removing from a named window, get removed from all views
             isHasRemovestreamData = false;  // changed by observer logic to indicate new data
             isRetainObserverEvents = true;  // enable retain logic in observer
-            try
-            {
+            try {
                 for (int viewIndex = 0; viewIndex < views.length; viewIndex++) {
                     View view = views[viewIndex];
                     view.update(newData, null);
@@ -152,17 +136,14 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
                                 removedByView[i][viewIndex] = true;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         for (int i = 0; i < newData.length; i++) {
                             removedByView[i][viewIndex] = true;
                         }
                     }
                 }
-            }
-            finally
-            {
-                isRetainObserverEvents = false;                
+            } finally {
+                isRetainObserverEvents = false;
             }
 
             // determine removed events, those that have a "true" in the remove by view index for all views
@@ -185,44 +166,34 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
             if (!removalEvents.isEmpty()) {
                 isDiscardObserverEvents = true;
                 EventBean[] viewOldData = removalEvents.toArray(new EventBean[removalEvents.size()]);
-                try
-                {
-                    for (int j = 0; j < views.length; j++)
-                    {
+                try {
+                    for (int j = 0; j < views.length; j++) {
                         views[j].update(null, viewOldData);
                     }
-                }
-                finally
-                {
+                } finally {
                     isDiscardObserverEvents = false;
                 }
             }
 
             // see if any child view has removed any events.
             // if there was an insert stream, handle pushed-out events
-            if (isHasRemovestreamData)
-            {
+            if (isHasRemovestreamData) {
                 List<EventBean> removedEvents = null;
 
                 // process each buffer
-                for (int i = 0; i < oldEventsPerView.length; i++)
-                {
-                    if (oldEventsPerView[i] == null)
-                    {
+                for (int i = 0; i < oldEventsPerView.length; i++) {
+                    if (oldEventsPerView[i] == null) {
                         continue;
                     }
 
                     EventBean[] viewOldData = oldEventsPerView[i];
-                    oldEventsPerView[i]= null;  // clear entry
+                    oldEventsPerView[i] = null;  // clear entry
 
                     // remove events for union, if the last event was removed then add it
-                    for (EventBean old : viewOldData)
-                    {
+                    for (EventBean old : viewOldData) {
                         boolean isNoMoreRef = unionWindow.remove(old);
-                        if (isNoMoreRef)
-                        {
-                            if (removedEvents == null)
-                            {
+                        if (isNoMoreRef) {
+                            if (removedEvents == null) {
                                 removalEvents.clear();
                                 removedEvents = removalEvents;
                             }
@@ -231,8 +202,7 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
                     }
                 }
 
-                if (removedEvents != null)
-                {
+                if (removedEvents != null) {
                     if (oldDataColl == null) {
                         oldDataColl = new OneEventCollection();
                     }
@@ -260,27 +230,22 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return unionWindow.keyIterator();
     }
 
-    public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents)
-    {
+    public void newData(int streamId, EventBean[] newEvents, EventBean[] oldEvents) {
         newDataChildView = newEvents;
 
-        if ((oldEvents == null) || (isDiscardObserverEvents))
-        {
+        if ((oldEvents == null) || isDiscardObserverEvents) {
             return;
         }
 
-        if (isRetainObserverEvents)
-        {
+        if (isRetainObserverEvents) {
             oldEventsPerView[streamId] = oldEvents;
             isHasRemovestreamData = true;
             return;
@@ -290,13 +255,10 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
         List<EventBean> removedEvents = null;
 
         // remove events for union, if the last event was removed then add it
-        for (EventBean old : oldEvents)
-        {
+        for (EventBean old : oldEvents) {
             boolean isNoMoreRef = unionWindow.remove(old);
-            if (isNoMoreRef)
-            {
-                if (removedEvents == null)
-                {
+            if (isNoMoreRef) {
+                if (removedEvents == null) {
                     removalEvents.clear();
                     removedEvents = removalEvents;
                 }
@@ -304,8 +266,7 @@ public class UnionAsymetricView extends ViewSupport implements LastPostObserver,
             }
         }
 
-        if (removedEvents != null)
-        {
+        if (removedEvents != null) {
             EventBean[] removed = removedEvents.toArray(new EventBean[removedEvents.size()]);
             updateChildren(null, removed);
         }

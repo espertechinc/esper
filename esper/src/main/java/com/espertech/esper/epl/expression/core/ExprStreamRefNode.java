@@ -13,8 +13,8 @@ package com.espertech.esper.epl.expression.core;
 /**
  * Represents a stream-reference.
  */
-public interface ExprStreamRefNode extends ExprNode
-{
+public interface ExprStreamRefNode extends ExprNode {
     public Integer getStreamReferencedIfAny();
+
     public String getRootPropertyNameIfAny();
 }

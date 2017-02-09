@@ -14,10 +14,12 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public interface ExprTimePeriodEvalDeltaNonConst
-{
+public interface ExprTimePeriodEvalDeltaNonConst {
     public long deltaAdd(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+
     public long deltaSubtract(long currentTime, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
+
     public long deltaUseEngineTime(EventBean[] eventsPerStream, AgentInstanceContext agentInstanceContext);
+
     public ExprTimePeriodEvalDeltaResult deltaAddWReference(long current, long reference, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 }

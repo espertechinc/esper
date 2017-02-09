@@ -15,24 +15,20 @@ import java.io.StringWriter;
 /**
  * Returns true for insert stream and false for remove stream, same as the "istream()" builtin function.
  */
-public class IStreamBuiltinExpression extends ExpressionBase
-{
+public class IStreamBuiltinExpression extends ExpressionBase {
     private static final long serialVersionUID = 2143750940825366959L;
 
     /**
      * Ctor.
      */
-    public IStreamBuiltinExpression()
-    {
+    public IStreamBuiltinExpression() {
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("istream()");
     }
 }

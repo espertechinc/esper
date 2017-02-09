@@ -16,8 +16,7 @@ import com.espertech.esper.collection.UniformPair;
 
 import java.util.Set;
 
-public class ResultSetProcessorRowForAllOutputLastHelperImpl implements ResultSetProcessorRowForAllOutputLastHelper
-{
+public class ResultSetProcessorRowForAllOutputLastHelperImpl implements ResultSetProcessorRowForAllOutputLastHelper {
     private final ResultSetProcessorRowForAll processor;
     private EventBean[] lastEventRStreamForOutputLast;
 

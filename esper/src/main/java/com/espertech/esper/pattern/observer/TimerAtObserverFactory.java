@@ -27,8 +27,7 @@ import java.util.List;
 /**
  * Factory for 'crontab' observers that indicate truth when a time point was reached.
  */
-public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Serializable
-{
+public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Serializable {
     private static final long serialVersionUID = -4463261229142331396L;
 
     /**
@@ -46,16 +45,13 @@ public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Ser
      */
     protected ScheduleSpec spec = null;
 
-    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException
-    {
+    public void setObserverParameters(List<ExprNode> parameters, MatchedEventConvertor convertor, ExprValidationContext validationContext) throws ObserverParameterException {
         ObserverParameterUtil.validateNoNamedParameters("timer:at", parameters);
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".setObserverParameters " + parameters);
         }
 
-        if ((parameters.size() < 5) || (parameters.size() > 7))
-        {
+        if ((parameters.size() < 5) || (parameters.size() > 7)) {
             throw new ObserverParameterException("Invalid number of parameters for timer:at");
         }
 
@@ -64,23 +60,17 @@ public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Ser
 
         // if all parameters are constants, lets try to evaluate and build a schedule for early validation
         boolean allConstantResult = true;
-        for (ExprNode param : parameters)
-        {
-            if (!param.isConstantResult())
-            {
+        for (ExprNode param : parameters) {
+            if (!param.isConstantResult()) {
                 allConstantResult = false;
             }
         }
 
-        if (allConstantResult)
-        {
-            try
-            {
+        if (allConstantResult) {
+            try {
                 List<Object> observerParameters = PatternExpressionUtil.evaluate("Timer-at observer", new MatchedEventMapImpl(convertor.getMatchedEventMapMeta()), parameters, convertor, null);
                 spec = ScheduleSpecUtil.computeValues(observerParameters.toArray());
-            }
-            catch (ScheduleParameterException e)
-            {
+            } catch (ScheduleParameterException e) {
                 throw new ObserverParameterException("Error computing crontab schedule specification: " + e.getMessage(), e);
             }
         }
@@ -93,8 +83,7 @@ public class TimerAtObserverFactory implements ObserverFactory, MetaDefItem, Ser
         List<Object> observerParameters = PatternExpressionUtil.evaluate("Timer-at observer", beginState, parameters, convertor, context.getAgentInstanceContext());
         try {
             return ScheduleSpecUtil.computeValues(observerParameters.toArray());
-        }
-        catch (ScheduleParameterException e) {
+        } catch (ScheduleParameterException e) {
             throw new EPException("Error computing crontab schedule specification: " + e.getMessage(), e);
         }
     }

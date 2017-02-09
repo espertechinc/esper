@@ -28,16 +28,14 @@ import com.espertech.esper.epl.expression.methodagg.ExprRateAggNode;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.schedule.TimeProvider;
 
-public class AggregationMethodFactoryRate implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryRate implements AggregationMethodFactory {
     protected final ExprRateAggNode parent;
     protected final boolean isEver;
     protected final long intervalTime;
     protected final TimeProvider timeProvider;
     protected final TimeAbacus timeAbacus;
 
-    public AggregationMethodFactoryRate(ExprRateAggNode parent, boolean isEver, long intervalTime, TimeProvider timeProvider, TimeAbacus timeAbacus)
-    {
+    public AggregationMethodFactoryRate(ExprRateAggNode parent, boolean isEver, long intervalTime, TimeProvider timeProvider, TimeAbacus timeAbacus) {
         this.parent = parent;
         this.isEver = isEver;
         this.intervalTime = intervalTime;
@@ -49,8 +47,7 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return Double.class;
     }
 
@@ -69,8 +66,7 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory
     public AggregationMethod make() {
         if (isEver) {
             return new AggregatorRateEver(intervalTime, timeAbacus.getOneSecond(), timeProvider);
-        }
-        else {
+        } else {
             return new AggregatorRate(timeAbacus.getOneSecond());
         }
     }

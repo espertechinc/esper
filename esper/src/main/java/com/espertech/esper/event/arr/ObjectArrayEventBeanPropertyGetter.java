@@ -17,20 +17,19 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 /**
  * A getter for use with Map-based events simply returns the value for the key.
  */
-public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPropertyGetter
-{
+public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
 
     /**
      * Ctor.
+     *
      * @param propertyIndex property to get
      */
     public ObjectArrayEventBeanPropertyGetter(int propertyIndex) {
         this.propertyIndex = propertyIndex;
     }
 
-    public Object getObjectArray(Object[] array) throws PropertyAccessException
-    {
+    public Object getObjectArray(Object[] array) throws PropertyAccessException {
         Object eventBean = array[propertyIndex];
         if (eventBean == null) {
             return null;
@@ -40,23 +39,19 @@ public class ObjectArrayEventBeanPropertyGetter implements ObjectArrayEventPrope
         return theEvent.getUnderlying();
     }
 
-    public boolean isObjectArrayExistsProperty(Object[] array)
-    {
+    public boolean isObjectArrayExistsProperty(Object[] array) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object get(EventBean obj)
-    {
+    public Object get(EventBean obj) {
         return getObjectArray(BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj));
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public Object getFragment(EventBean obj)
-    {
+    public Object getFragment(EventBean obj) {
         return BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj)[propertyIndex];
     }
 }

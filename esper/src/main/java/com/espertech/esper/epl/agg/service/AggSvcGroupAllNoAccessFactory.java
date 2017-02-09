@@ -18,9 +18,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 /**
  * Implementation for handling aggregation without any grouping (no group-by).
  */
-public class AggSvcGroupAllNoAccessFactory extends AggregationServiceFactoryBase
-{
-    public AggSvcGroupAllNoAccessFactory(ExprEvaluator evaluators[], AggregationMethodFactory aggregators[]) {
+public class AggSvcGroupAllNoAccessFactory extends AggregationServiceFactoryBase {
+    public AggSvcGroupAllNoAccessFactory(ExprEvaluator[] evaluators, AggregationMethodFactory[] aggregators) {
         super(evaluators, aggregators);
     }
 

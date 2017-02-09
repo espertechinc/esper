@@ -20,76 +20,70 @@ import java.io.StringWriter;
 /**
  * Represents an And-condition.
  */
-public class ExprAndNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprAndNode
-{
+public class ExprAndNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprAndNode {
     private static final long serialVersionUID = 8105121208330622813L;
 
     private transient ExprEvaluator[] evaluators;
 
-    public ExprAndNodeImpl()
-    {
+    public ExprAndNodeImpl() {
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // Sub-nodes must be returning boolean
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Class childType = child.getType();
-            if (!JavaClassHelper.isBoolean(childType))
-            {
+            if (!JavaClassHelper.isBoolean(childType)) {
                 throw new ExprValidationException("Incorrect use of AND clause, sub-expressions do not return boolean");
             }
         }
 
-        if (this.getChildNodes().length <= 1)
-        {
+        if (this.getChildNodes().length <= 1) {
             throw new ExprValidationException("The AND operator requires at least 2 child expressions");
         }
         return null;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprAnd(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprAnd(this);
+        }
         Boolean result = true;
         for (ExprEvaluator child : evaluators) {
             Boolean evaluated = (Boolean) child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
             if (evaluated == null) {
                 result = null;
-            }
-            else {
+            } else {
                 if (!evaluated) {
-                    if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprAnd(false);}
+                    if (InstrumentationHelper.ENABLED) {
+                        InstrumentationHelper.get().aExprAnd(false);
+                    }
                     return false;
                 }
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprAnd(result);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprAnd(result);
+        }
         return result;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         String appendStr = "";
-        for (ExprNode child : this.getChildNodes())
-        {
+        for (ExprNode child : this.getChildNodes()) {
             writer.append(appendStr);
             child.toEPL(writer, getPrecedence());
             appendStr = " and ";
@@ -100,10 +94,8 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprEvaluator, Expr
         return ExprPrecedenceEnum.AND;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprAndNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprAndNodeImpl)) {
             return false;
         }
 

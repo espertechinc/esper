@@ -26,14 +26,12 @@ import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class AggregationMethodFactorySum implements AggregationMethodFactory
-{
+public class AggregationMethodFactorySum implements AggregationMethodFactory {
     protected final ExprSumNode parent;
     protected final Class resultType;
     protected final Class inputValueType;
 
-    public AggregationMethodFactorySum(ExprSumNode parent, Class inputValueType)
-    {
+    public AggregationMethodFactorySum(ExprSumNode parent, Class inputValueType) {
         this.parent = parent;
         this.inputValueType = inputValueType;
         this.resultType = getSumAggregatorType(inputValueType);
@@ -55,8 +53,7 @@ public class AggregationMethodFactorySum implements AggregationMethodFactory
         throw new IllegalStateException("Not an access aggregation function");
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return resultType;
     }
 
@@ -87,87 +84,66 @@ public class AggregationMethodFactorySum implements AggregationMethodFactory
         return ExprMethodAggUtil.getDefaultEvaluator(parent.getPositionalParams(), join, typesPerStream);
     }
 
-    private Class getSumAggregatorType(Class type)
-    {
-        if (type == BigInteger.class)
-        {
+    private Class getSumAggregatorType(Class type) {
+        if (type == BigInteger.class) {
             return BigInteger.class;
         }
-        if (type == BigDecimal.class)
-        {
+        if (type == BigDecimal.class) {
             return BigDecimal.class;
         }
-        if ((type == Long.class) || (type == long.class))
-        {
+        if ((type == Long.class) || (type == long.class)) {
             return Long.class;
         }
-        if ((type == Integer.class) || (type == int.class))
-        {
+        if ((type == Integer.class) || (type == int.class)) {
             return Integer.class;
         }
-        if ((type == Double.class) || (type == double.class))
-        {
+        if ((type == Double.class) || (type == double.class)) {
             return Double.class;
         }
-        if ((type == Float.class) || (type == float.class))
-        {
+        if ((type == Float.class) || (type == float.class)) {
             return Float.class;
         }
         return Integer.class;
     }
 
-    private AggregationMethod makeSumAggregator(Class type, boolean hasFilter)
-    {
+    private AggregationMethod makeSumAggregator(Class type, boolean hasFilter) {
         if (!hasFilter) {
-            if (type == BigInteger.class)
-            {
+            if (type == BigInteger.class) {
                 return new AggregatorSumBigInteger();
             }
-            if (type == BigDecimal.class)
-            {
+            if (type == BigDecimal.class) {
                 return new AggregatorSumBigDecimal();
             }
-            if ((type == Long.class) || (type == long.class))
-            {
+            if ((type == Long.class) || (type == long.class)) {
                 return new AggregatorSumLong();
             }
-            if ((type == Integer.class) || (type == int.class))
-            {
+            if ((type == Integer.class) || (type == int.class)) {
                 return new AggregatorSumInteger();
             }
-            if ((type == Double.class) || (type == double.class))
-            {
+            if ((type == Double.class) || (type == double.class)) {
                 return new AggregatorSumDouble();
             }
-            if ((type == Float.class) || (type == float.class))
-            {
+            if ((type == Float.class) || (type == float.class)) {
                 return new AggregatorSumFloat();
             }
             return new AggregatorSumNumInteger();
-        }
-        else {
-            if (type == BigInteger.class)
-            {
+        } else {
+            if (type == BigInteger.class) {
                 return new AggregatorSumBigIntegerFilter();
             }
-            if (type == BigDecimal.class)
-            {
+            if (type == BigDecimal.class) {
                 return new AggregatorSumBigDecimalFilter();
             }
-            if ((type == Long.class) || (type == long.class))
-            {
+            if ((type == Long.class) || (type == long.class)) {
                 return new AggregatorSumLongFilter();
             }
-            if ((type == Integer.class) || (type == int.class))
-            {
+            if ((type == Integer.class) || (type == int.class)) {
                 return new AggregatorSumIntegerFilter();
             }
-            if ((type == Double.class) || (type == double.class))
-            {
+            if ((type == Double.class) || (type == double.class)) {
                 return new AggregatorSumDoubleFilter();
             }
-            if ((type == Float.class) || (type == float.class))
-            {
+            if ((type == Float.class) || (type == float.class)) {
                 return new AggregatorSumFloatFilter();
             }
             return new AggregatorSumNumIntegerFilter();

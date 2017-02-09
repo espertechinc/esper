@@ -21,21 +21,19 @@ import java.util.Set;
 /**
  * Simple table of events without an index.
  */
-public class UnindexedEventTableImpl extends UnindexedEventTable
-{
+public class UnindexedEventTableImpl extends UnindexedEventTable {
     private Set<EventBean> eventSet = new LinkedHashSet<EventBean>();
 
     /**
      * Ctor.
+     *
      * @param streamNum is the indexed stream's number
      */
-    public UnindexedEventTableImpl(int streamNum)
-    {
+    public UnindexedEventTableImpl(int streamNum) {
         super(streamNum);
     }
 
-    public void clear()
-    {
+    public void clear() {
         eventSet.clear();
     }
 
@@ -44,7 +42,9 @@ public class UnindexedEventTableImpl extends UnindexedEventTable
     }
 
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
+        }
         if (newData != null) {
             Collections.addAll(eventSet, newData);
         }
@@ -53,11 +53,12 @@ public class UnindexedEventTableImpl extends UnindexedEventTable
                 eventSet.remove(removeEvent);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexAddRemove();
+        }
     }
 
-    public void add(EventBean[] events)
-    {
+    public void add(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -71,8 +72,7 @@ public class UnindexedEventTableImpl extends UnindexedEventTable
         }
     }
 
-    public void remove(EventBean[] events)
-    {
+    public void remove(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -98,22 +98,20 @@ public class UnindexedEventTableImpl extends UnindexedEventTable
         eventSet.remove(event);
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return eventSet.isEmpty();
     }
 
     /**
      * Returns events in table.
+     *
      * @return all events
      */
-    public Set<EventBean> getEventSet()
-    {
+    public Set<EventBean> getEventSet() {
         return eventSet;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return eventSet.iterator();
     }
 

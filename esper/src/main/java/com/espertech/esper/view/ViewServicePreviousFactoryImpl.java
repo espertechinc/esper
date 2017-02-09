@@ -19,12 +19,10 @@ import com.espertech.esper.view.window.IStreamRelativeAccess;
 import com.espertech.esper.view.window.RandomAccessByIndexGetter;
 import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 
-public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactory
-{
+public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactory {
     public ViewUpdatedCollection getOptPreviousExprRandomAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         IStreamRandomAccess randomAccess = null;
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
+        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null) {
             RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
             randomAccess = new IStreamRandomAccess(getter);
             getter.updated(randomAccess);
@@ -35,8 +33,7 @@ public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactor
     public ViewUpdatedCollection getOptPreviousExprRelativeAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         IStreamRelativeAccess relativeAccessByEvent = null;
 
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
+        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null) {
             RelativeAccessByEventNIndexGetter getter = (RelativeAccessByEventNIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
             IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver observer = (IStreamRelativeAccess.IStreamRelativeAccessUpdateObserver) getter;
             relativeAccessByEvent = new IStreamRelativeAccess(observer);
@@ -49,8 +46,7 @@ public class ViewServicePreviousFactoryImpl implements ViewServicePreviousFactor
     public IStreamSortRankRandomAccess getOptPreviousExprSortedRankedAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         IStreamSortRankRandomAccess rankedRandomAccess = null;
 
-        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null)
-        {
+        if (agentInstanceViewFactoryContext.getPreviousNodeGetter() != null) {
             RandomAccessByIndexGetter getter = (RandomAccessByIndexGetter) agentInstanceViewFactoryContext.getPreviousNodeGetter();
             rankedRandomAccess = new IStreamSortRankRandomAccessImpl(getter);
             getter.updated(rankedRandomAccess);

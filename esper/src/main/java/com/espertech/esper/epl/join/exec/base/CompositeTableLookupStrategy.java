@@ -33,16 +33,14 @@ import java.util.*;
  * <p>
  * Use the sorted strategy instead if supporting a single range only and no other unique keys are part of the index.
  */
-public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy
-{
+public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy {
     private final EventType eventType;
     private final PropertyCompositeEventTable index;
     private final CompositeIndexQuery chain;
     private final List<QueryGraphValueEntryRange> rangeKeyPairs;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    public CompositeTableLookupStrategy(EventType eventType, int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys, List<QueryGraphValueEntryRange> rangeKeyPairs, PropertyCompositeEventTable index)
-    {
+    public CompositeTableLookupStrategy(EventType eventType, int lookupStream, List<QueryGraphValueEntryHashKeyed> hashKeys, List<QueryGraphValueEntryRange> rangeKeyPairs, PropertyCompositeEventTable index) {
         this.eventType = eventType;
         this.index = index;
         this.rangeKeyPairs = rangeKeyPairs;
@@ -60,24 +58,23 @@ public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy
 
     /**
      * Returns event type of the lookup event.
+     *
      * @return event type of the lookup event
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyCompositeEventTable getIndex()
-    {
+    public PropertyCompositeEventTable getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext context)
-    {
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext context) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexJoinLookup(this, index);
             ArrayList<Object> keys = new ArrayList<Object>(2);
@@ -97,8 +94,7 @@ public class CompositeTableLookupStrategy implements JoinExecTableLookupStrategy
         return lookupStrategyDesc;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "CompositeTableLookupStrategy indexProps=" + Arrays.toString(rangeKeyPairs.toArray()) +
                 " index=(" + index + ')';
     }

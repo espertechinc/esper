@@ -14,7 +14,6 @@ import com.espertech.esper.epl.join.exec.base.ExecNode;
 import com.espertech.esper.epl.join.exec.base.FullTableScanLookupStrategy;
 import com.espertech.esper.epl.join.exec.base.TableLookupExecNode;
 import com.espertech.esper.epl.join.table.EventTable;
-import com.espertech.esper.epl.join.table.UnindexedEventTable;
 import com.espertech.esper.epl.join.table.UnindexedEventTableImpl;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.view.Viewable;
@@ -24,12 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class TestTableLookupPlan extends TestCase
-{
-    public void testMakeExec()
-    {
-        Map<TableLookupIndexReqKey,EventTable>[] indexesPerStream = new Map[2];
-        indexesPerStream[1] = new HashMap<TableLookupIndexReqKey,EventTable>();
+public class TestTableLookupPlan extends TestCase {
+    public void testMakeExec() {
+        Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream = new Map[2];
+        indexesPerStream[1] = new HashMap<TableLookupIndexReqKey, EventTable>();
         indexesPerStream[1].put(new TableLookupIndexReqKey("idx1"), new UnindexedEventTableImpl(0));
 
         TableLookupNode spec = new TableLookupNode(new FullTableScanLookupPlan(0, 1, new TableLookupIndexReqKey("idx1")));

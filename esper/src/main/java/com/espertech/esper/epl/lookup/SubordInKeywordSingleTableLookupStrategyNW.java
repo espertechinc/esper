@@ -24,8 +24,7 @@ import java.util.Set;
 /**
  * Index lookup strategy for subqueries for in-keyword single-index sided.
  */
-public class SubordInKeywordSingleTableLookupStrategyNW implements SubordTableLookupStrategy
-{
+public class SubordInKeywordSingleTableLookupStrategyNW implements SubordTableLookupStrategy {
     /**
      * Index to look up in.
      */
@@ -35,8 +34,7 @@ public class SubordInKeywordSingleTableLookupStrategyNW implements SubordTableLo
 
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordInKeywordSingleTableLookupStrategyNW(ExprEvaluator[] evaluators, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc)
-    {
+    public SubordInKeywordSingleTableLookupStrategyNW(ExprEvaluator[] evaluators, PropertyIndexedEventTableSingle index, LookupStrategyDesc strategyDesc) {
         this.evaluators = evaluators;
         this.index = index;
         this.strategyDesc = strategyDesc;
@@ -44,20 +42,23 @@ public class SubordInKeywordSingleTableLookupStrategyNW implements SubordTableLo
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexSubordLookup(this, index, null);}
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
+        }
 
         Set<EventBean> result = InKeywordTableLookupUtil.singleIndexLookup(evaluators, eventsPerStream, context, index);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexSubordLookup(result, null);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexSubordLookup(result, null);
+        }
         return result;
     }
 

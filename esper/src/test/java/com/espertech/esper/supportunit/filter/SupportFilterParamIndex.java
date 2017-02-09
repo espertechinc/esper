@@ -16,38 +16,30 @@ import com.espertech.esper.filter.*;
 import java.util.Collection;
 import java.util.concurrent.locks.ReadWriteLock;
 
-public class SupportFilterParamIndex extends FilterParamIndexLookupableBase
-{
-    public SupportFilterParamIndex(FilterSpecLookupable lookupable)
-    {
+public class SupportFilterParamIndex extends FilterParamIndexLookupableBase {
+    public SupportFilterParamIndex(FilterSpecLookupable lookupable) {
         super(FilterOperator.EQUAL, lookupable);
     }
 
-    public EventEvaluator get(Object expressionValue)
-    {
+    public EventEvaluator get(Object expressionValue) {
         return null;
     }
 
-    public void put(Object expressionValue, EventEvaluator evaluator)
-    {
+    public void put(Object expressionValue, EventEvaluator evaluator) {
     }
 
-    public boolean remove(Object expressionValue)
-    {
+    public boolean remove(Object expressionValue) {
         return true;
     }
 
-    public int size()
-    {
+    public int size() {
         return 0;
     }
 
-    public ReadWriteLock getReadWriteLock()
-    {
+    public ReadWriteLock getReadWriteLock() {
         return null;
     }
 
-    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
     }
 }

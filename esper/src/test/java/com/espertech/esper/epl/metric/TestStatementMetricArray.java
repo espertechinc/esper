@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.epl.metric;
 
+import com.espertech.esper.client.metric.StatementMetric;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
-import com.espertech.esper.client.metric.StatementMetric;
 
-public class TestStatementMetricArray extends TestCase
-{
-    public void testFlowReportActive()
-    {
+public class TestStatementMetricArray extends TestCase {
+    public void testFlowReportActive() {
         StatementMetricArray rep = new StatementMetricArray("uri", "name", 3, false);
 
         assertEquals(0, rep.sizeLastElement());
@@ -38,8 +36,7 @@ public class TestStatementMetricArray extends TestCase
         assertEquals(5, rep.addStatementGetIndex("006"));
 
         StatementMetric metrics[] = new StatementMetric[6];
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             metrics[i] = rep.getAddMetric(i);
         }
 
@@ -71,15 +68,13 @@ public class TestStatementMetricArray extends TestCase
 
         flushed = rep.flushMetrics();
         assertEquals(6, flushed.length);
-        for (int i = 0; i < flushed.length; i++)
-        {
+        for (int i = 0; i < flushed.length; i++) {
             assertNull(flushed[i]);
         }
         assertEquals(1, rep.sizeLastElement());
     }
 
-    public void testFlowReportInactive()
-    {
+    public void testFlowReportInactive() {
         StatementMetricArray rep = new StatementMetricArray("uri", "name", 3, true);
 
         assertEquals(0, rep.addStatementGetIndex("001"));
@@ -88,8 +83,7 @@ public class TestStatementMetricArray extends TestCase
         rep.removeStatement("002");
 
         StatementMetric[] flushed = rep.flushMetrics();
-        for (int i = 0; i < 3; i++)
-        {
+        for (int i = 0; i < 3; i++) {
             assertNotNull(flushed[i]);
         }
     }

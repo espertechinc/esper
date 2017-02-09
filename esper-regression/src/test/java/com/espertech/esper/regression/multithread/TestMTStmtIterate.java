@@ -37,7 +37,7 @@ public class TestMTStmtIterate extends TestCase
         Configuration config = SupportConfigFactory.getConfiguration();
         engine = EPServiceProviderManager.getProvider("TestMTStmtIterate", config);
 
-        EPStatement stmt[] = new EPStatement[] {engine.getEPAdministrator().createEPL(
+        EPStatement[] stmt = new EPStatement[] {engine.getEPAdministrator().createEPL(
                 " select theString from " + SupportBean.class.getName() + "#time(5 min)")};
 
         trySend(2, 10, stmt);
@@ -49,7 +49,7 @@ public class TestMTStmtIterate extends TestCase
         config.getEngineDefaults().getViewResources().setShareViews(false);
         engine = EPServiceProviderManager.getProvider("TestMTStmtIterate", config);
 
-        EPStatement stmt[] = new EPStatement[3];
+        EPStatement[] stmt = new EPStatement[3];
         for (int i = 0; i < stmt.length; i++)
         {
             String name = "Stmt_" + i;
@@ -66,7 +66,7 @@ public class TestMTStmtIterate extends TestCase
         config.getEngineDefaults().getViewResources().setShareViews(true);
         engine = EPServiceProviderManager.getProvider("TestMTStmtIterate", config);
 
-        EPStatement stmt[] = new EPStatement[3];
+        EPStatement[] stmt = new EPStatement[3];
         for (int i = 0; i < stmt.length; i++)
         {
             String name = "Stmt_" + i;
@@ -77,7 +77,7 @@ public class TestMTStmtIterate extends TestCase
         trySend(4, 10, stmt);
     }
 
-    private void trySend(int numThreads, int numRepeats, EPStatement stmt[]) throws Exception
+    private void trySend(int numThreads, int numRepeats, EPStatement[] stmt) throws Exception
     {
         ExecutorService threadPool = Executors.newFixedThreadPool(numThreads);
         Future future[] = new Future[numThreads];

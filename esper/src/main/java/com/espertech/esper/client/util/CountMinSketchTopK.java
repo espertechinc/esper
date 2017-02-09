@@ -19,8 +19,9 @@ public class CountMinSketchTopK {
 
     /**
      * Ctor.
+     *
      * @param frequency the value frequency
-     * @param value the value object
+     * @param value     the value object
      */
     public CountMinSketchTopK(long frequency, Object value) {
         this.frequency = frequency;
@@ -29,6 +30,7 @@ public class CountMinSketchTopK {
 
     /**
      * Returns the frequency
+     *
      * @return frequency
      */
     public long getFrequency() {
@@ -37,6 +39,7 @@ public class CountMinSketchTopK {
 
     /**
      * Returns the value object
+     *
      * @return value
      */
     public Object getValue() {

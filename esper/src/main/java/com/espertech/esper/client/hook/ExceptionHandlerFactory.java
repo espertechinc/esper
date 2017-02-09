@@ -20,6 +20,7 @@ public interface ExceptionHandlerFactory {
 
     /**
      * Returns an exception handler instances, or null if the factory decided not to contribute an exception handler.
+     *
      * @param context contains the engine URI
      * @return exception handler
      */

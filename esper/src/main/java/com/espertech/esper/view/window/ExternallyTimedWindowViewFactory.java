@@ -28,8 +28,7 @@ import java.util.List;
 /**
  * Factory for {@link ExternallyTimedWindowView}.
  */
-public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     private List<ExprNode> viewParameters;
 
     private EventType eventType;
@@ -45,13 +44,11 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
      */
     protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
         if (viewParameters.size() != 2) {
             throw new ViewParameterException(getViewParamMessage());
@@ -72,30 +69,25 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
         return new RandomAccessByIndexGetter();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         return new ExternallyTimedWindowView(this, timestampExpression, timestampExpressionEval, timeDeltaComputation, randomAccess, agentInstanceViewFactoryContext);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof ExternallyTimedWindowView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof ExternallyTimedWindowView)) {
             return false;
         }
 
         ExternallyTimedWindowView myView = (ExternallyTimedWindowView) view;
         ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
-            (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression)))
-        {
+                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression))) {
             return false;
         }
         return myView.isEmpty();

@@ -12,7 +12,6 @@ package com.espertech.esper.avro.writer;
 
 import org.apache.avro.generic.GenericData;
 
-import java.util.List;
 import java.util.Map;
 
 public class AvroEventBeanPropertyWriterMapProp extends AvroEventBeanPropertyWriter {

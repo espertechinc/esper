@@ -16,8 +16,7 @@ import com.espertech.esper.epl.core.ResultSetProcessor;
 /**
  * Factory for output processing views.
  */
-public class OutputProcessViewFactoryCallback implements OutputProcessViewFactory
-{
+public class OutputProcessViewFactoryCallback implements OutputProcessViewFactory {
     private final OutputProcessViewCallback callback;
 
     public OutputProcessViewFactoryCallback(OutputProcessViewCallback callback) {

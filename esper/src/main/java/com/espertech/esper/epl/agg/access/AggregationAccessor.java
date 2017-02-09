@@ -18,23 +18,22 @@ import java.util.Collection;
 /**
  * Accessor for access aggregation functions.
  */
-public interface AggregationAccessor
-{
+public interface AggregationAccessor {
     /**
      * Return the aggregation state value either as a scalar value or any other object.
      * <p>
-     *     For enumeration over scalar values or objects return an array or collection of scalar or object values.
+     * For enumeration over scalar values or objects return an array or collection of scalar or object values.
      * </p>
      * <p>
-     *     Use the #getEnumerableEvents method to return a collection of events.
+     * Use the #getEnumerableEvents method to return a collection of events.
      * </p>
      * <p>
-     *     Use the #getEnumerableEvent to return a single events.
+     * Use the #getEnumerableEvent to return a single events.
      * </p>
      *
-     * @param state aggregation state, downcast as needed
-     * @param eventsPerStream events
-     * @param isNewData new-data indicator
+     * @param state                aggregation state, downcast as needed
+     * @param eventsPerStream      events
+     * @param isNewData            new-data indicator
      * @param exprEvaluatorContext eval context
      * @return return value
      */
@@ -42,9 +41,10 @@ public interface AggregationAccessor
 
     /**
      * Return the aggregation state value consisting of a collection of events.
-     * @param state aggregation state, downcast as needed
-     * @param eventsPerStream events
-     * @param isNewData new-data indicator
+     *
+     * @param state                aggregation state, downcast as needed
+     * @param eventsPerStream      events
+     * @param isNewData            new-data indicator
      * @param exprEvaluatorContext eval context
      * @return return collection of events or null or empty collection
      */
@@ -52,9 +52,10 @@ public interface AggregationAccessor
 
     /**
      * Return the aggregation state value consisting of a single event.
-     * @param state aggregation state, downcast as needed
-     * @param eventsPerStream events
-     * @param isNewData new-data indicator
+     *
+     * @param state                aggregation state, downcast as needed
+     * @param eventsPerStream      events
+     * @param isNewData            new-data indicator
      * @param exprEvaluatorContext eval context
      * @return return event or null
      */
@@ -62,9 +63,10 @@ public interface AggregationAccessor
 
     /**
      * Return the aggregation state value consisting of a collection of scalar values.
-     * @param state aggregation state, downcast as needed
-     * @param eventsPerStream events
-     * @param isNewData new-data indicator
+     *
+     * @param state                aggregation state, downcast as needed
+     * @param eventsPerStream      events
+     * @param isNewData            new-data indicator
      * @param exprEvaluatorContext eval context
      * @return return collection of scalar or null or empty collection
      */

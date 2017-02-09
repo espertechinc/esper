@@ -12,30 +12,24 @@ package com.espertech.esper.filter;
 
 import junit.framework.TestCase;
 
-public class TestFilterSpecParamConstant extends TestCase
-{
-    public void testConstruct()
-    {
+public class TestFilterSpecParamConstant extends TestCase {
+    public void testConstruct() {
         new FilterSpecParamConstant(make("a"), FilterOperator.GREATER, 5);
 
-        try
-        {
+        try {
             new FilterSpecParamConstant(make("a"), FilterOperator.RANGE_CLOSED, 5);
             assertTrue(false);
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // Expected exception
         }
     }
 
-    public void testEquals()
-    {
-        FilterSpecParam c1 = new FilterSpecParamConstant(make("a"),FilterOperator.GREATER, 5);
-        FilterSpecParam c2 = new FilterSpecParamConstant(make("a"),FilterOperator.GREATER, 6);
+    public void testEquals() {
+        FilterSpecParam c1 = new FilterSpecParamConstant(make("a"), FilterOperator.GREATER, 5);
+        FilterSpecParam c2 = new FilterSpecParamConstant(make("a"), FilterOperator.GREATER, 6);
         FilterSpecParam c3 = new FilterSpecParamConstant(make("b"), FilterOperator.GREATER, 5);
-        FilterSpecParam c4 = new FilterSpecParamConstant(make("a"),FilterOperator.EQUAL, 5);
-        FilterSpecParam c5 = new FilterSpecParamConstant(make("a"),FilterOperator.GREATER, 5);
+        FilterSpecParam c4 = new FilterSpecParamConstant(make("a"), FilterOperator.EQUAL, 5);
+        FilterSpecParam c5 = new FilterSpecParamConstant(make("a"), FilterOperator.GREATER, 5);
 
         assertFalse(c1.equals(c2));
         assertFalse(c1.equals(c3));

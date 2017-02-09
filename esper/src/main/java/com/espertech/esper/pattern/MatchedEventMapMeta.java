@@ -14,8 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class MatchedEventMapMeta
-{
+public final class MatchedEventMapMeta {
     private final static int MIN_MAP_LOOKUP = 3;
 
     private final String[] tagsPerIndex;

@@ -23,8 +23,7 @@ import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements ExprEvaluatorTypableReturn
-{
+public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements ExprEvaluatorTypableReturn {
     private static final long serialVersionUID = -5475434962878200767L;
 
     private transient LinkedHashMap<String, Object> eventType;
@@ -48,8 +47,7 @@ public class ExprTableAccessNodeTopLevel extends ExprTableAccessNode implements 
             Class classResult;
             if (entry.getValue() instanceof TableMetadataColumnPlain) {
                 classResult = tableMetadata.getInternalEventType().getPropertyType(entry.getKey());
-            }
-            else {
+            } else {
                 TableMetadataColumnAggregation aggcol = (TableMetadataColumnAggregation) entry.getValue();
                 classResult = JavaClassHelper.getBoxedType(aggcol.getFactory().getResultType());
             }

@@ -34,6 +34,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns the operator provider.
+     *
      * @return operator provider
      */
     public EPDataFlowOperatorProvider getOperatorProvider() {
@@ -42,6 +43,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the the operator provider.
+     *
      * @param operatorProvider operator provider
      * @return this options object
      */
@@ -52,6 +54,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the the operator provider.
+     *
      * @param operatorProvider operator provider
      */
     public void setOperatorProvider(EPDataFlowOperatorProvider operatorProvider) {
@@ -60,6 +63,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the parameter provider.
+     *
      * @param parameterProvider parameter provider
      * @return this options object
      */
@@ -70,6 +74,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns the parameter provider.
+     *
      * @return parameter provider
      */
     public EPDataFlowOperatorParameterProvider getParameterProvider() {
@@ -78,6 +83,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the parameter provider.
+     *
      * @param parameterProvider parameter provider
      */
     public void setParameterProvider(EPDataFlowOperatorParameterProvider parameterProvider) {
@@ -86,6 +92,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns the exception handler.
+     *
      * @return exception handler.
      */
     public EPDataFlowExceptionHandler getExceptionHandler() {
@@ -94,6 +101,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the exception handler.
+     *
      * @param exceptionHandler exception handler.
      * @return this options object
      */
@@ -104,6 +112,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the exception handler.
+     *
      * @param exceptionHandler exception handler.
      */
     public void setExceptionHandler(EPDataFlowExceptionHandler exceptionHandler) {
@@ -112,6 +121,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns the instance id assigned.
+     *
      * @return instance if
      */
     public String getDataFlowInstanceId() {
@@ -120,6 +130,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the data flow instance id
+     *
      * @param dataFlowInstanceId instance id
      * @return this options object
      */
@@ -130,6 +141,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the data flow instance id
+     *
      * @param dataFlowInstanceId instance id
      */
     public void setDataFlowInstanceId(String dataFlowInstanceId) {
@@ -138,6 +150,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns the user object associated to the data flow instance.
+     *
      * @return user object
      */
     public Object getDataFlowInstanceUserObject() {
@@ -146,6 +159,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the user object associated to the data flow instance.
+     *
      * @param dataFlowInstanceUserObject user object
      * @return this options object
      */
@@ -156,6 +170,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the user object associated to the data flow instance.
+     *
      * @param dataFlowInstanceUserObject this options object
      */
     public void setDataFlowInstanceUserObject(Object dataFlowInstanceUserObject) {
@@ -164,6 +179,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns indicator whether to collect operator statistics.
+     *
      * @return operator stats indicator
      */
     public boolean isOperatorStatistics() {
@@ -172,6 +188,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets indicator whether to collect operator statistics.
+     *
      * @param statistics operator stats indicator
      * @return this options object
      */
@@ -182,6 +199,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets indicator whether to collect operator statistics.
+     *
      * @param operatorStatistics operator stats indicator
      */
     public void setOperatorStatistics(boolean operatorStatistics) {
@@ -190,6 +208,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns indicator whether to collect CPU statistics.
+     *
      * @return CPU stats
      */
     public boolean isCpuStatistics() {
@@ -198,6 +217,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets indicator whether to collect CPU statistics.
+     *
      * @param cpuStatistics CPU stats
      */
     public void setCpuStatistics(boolean cpuStatistics) {
@@ -206,6 +226,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets indicator whether to collect CPU statistics.
+     *
      * @param cpuStatistics CPU stats
      * @return this options object
      */
@@ -216,6 +237,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns the event sender /runtime to use
+     *
      * @return runtime.
      */
     public EPRuntimeEventSender getSurrogateEventSender() {
@@ -224,6 +246,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets the event sender /runtime to use
+     *
      * @param surrogateEventSender runtime to use for sending
      */
     public void setSurrogateEventSender(EPRuntimeEventSender surrogateEventSender) {
@@ -232,7 +255,8 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Add a parameter.
-     * @param name is the uri
+     *
+     * @param name  is the uri
      * @param value the value
      */
     public void addParameterURI(String name, Object value) {
@@ -244,6 +268,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Returns parameters.
+     *
      * @return parameters
      */
     public Map<String, Object> getParametersURIs() {
@@ -252,6 +277,7 @@ public class EPDataFlowInstantiationOptions implements Serializable {
 
     /**
      * Sets parameters.
+     *
      * @param parametersURIs map of name value pairs
      */
     public void setParametersURIs(Map<String, Object> parametersURIs) {

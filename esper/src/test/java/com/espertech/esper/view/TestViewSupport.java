@@ -19,8 +19,7 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestViewSupport extends TestCase
-{
+public class TestViewSupport extends TestCase {
     private SupportSchemaNeutralView top;
 
     private SupportSchemaNeutralView child_1;
@@ -33,8 +32,7 @@ public class TestViewSupport extends TestCase
     private SupportSchemaNeutralView child_2_2_1;
     private SupportSchemaNeutralView child_2_2_2;
 
-    public void setUp()
-    {
+    public void setUp() {
         top = new SupportSchemaNeutralView("top");
 
         child_1 = new SupportSchemaNeutralView("1");
@@ -55,8 +53,7 @@ public class TestViewSupport extends TestCase
         child_2_2.addView(child_2_2_2);
     }
 
-    public void testFindDescendent()
-    {
+    public void testFindDescendent() {
         // Test a deep find
         List<View> descendents = ViewSupport.findDescendent(top, child_2_2_1);
         assertEquals(2, descendents.size());
@@ -81,42 +78,31 @@ public class TestViewSupport extends TestCase
         assertEquals(null, descendents);
     }
 
-    public static List<ExprNode> toExprListBean(Object[] constants) throws Exception
-    {
+    public static List<ExprNode> toExprListBean(Object[] constants) throws Exception {
         List<ExprNode> expr = new ArrayList<ExprNode>();
-        for (int i = 0; i < constants.length; i++)
-        {
-            if (constants[i] instanceof String)
-            {
+        for (int i = 0; i < constants.length; i++) {
+            if (constants[i] instanceof String) {
                 expr.add(SupportExprNodeFactory.makeIdentNodeBean(constants[i].toString()));
-            }
-            else
-            {
+            } else {
                 expr.add(new ExprConstantNodeImpl(constants[i]));
             }
         }
         return expr;
     }
 
-    public static List<ExprNode> toExprListMD(Object[] constants) throws Exception
-    {
+    public static List<ExprNode> toExprListMD(Object[] constants) throws Exception {
         List<ExprNode> expr = new ArrayList<ExprNode>();
-        for (int i = 0; i < constants.length; i++)
-        {
-            if (constants[i] instanceof String)
-            {
+        for (int i = 0; i < constants.length; i++) {
+            if (constants[i] instanceof String) {
                 expr.add(SupportExprNodeFactory.makeIdentNodeMD(constants[i].toString()));
-            }
-            else
-            {
+            } else {
                 expr.add(new ExprConstantNodeImpl(constants[i]));
             }
         }
         return expr;
     }
 
-    public static List<ExprNode> toExprList(Object constant) throws Exception
-    {
-        return toExprListBean(new Object[] {constant});
+    public static List<ExprNode> toExprList(Object constant) throws Exception {
+        return toExprListBean(new Object[]{constant});
     }
 }

@@ -23,8 +23,7 @@ import java.util.*;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationServiceBaseGrouped
-{
+public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationServiceBaseGrouped {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggregations;
     protected final boolean isJoin;
@@ -46,25 +45,25 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
 
     /**
      * Ctor.
-     * @param evaluators - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
-     * @param prototypes - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
-     * aggregation states for each group
-     * @param accessors accessor definitions
-     * @param accessAggregations access aggs
-     * @param isJoin true for join, false for single-stream
-     * @param rollupLevelDesc rollup info
+     *
+     * @param evaluators          - evaluate the sub-expression within the aggregate function (ie. sum(4*myNum))
+     * @param prototypes          - collect the aggregation state that evaluators evaluate to, act as prototypes for new aggregations
+     *                            aggregation states for each group
+     * @param accessors           accessor definitions
+     * @param accessAggregations  access aggs
+     * @param isJoin              true for join, false for single-stream
+     * @param rollupLevelDesc     rollup info
      * @param topGroupAggregators aggregators for top group
-     * @param topGroupStates states for top group
+     * @param topGroupStates      states for top group
      */
-    public AggSvcGroupByRefcountedWAccessRollupImpl(ExprEvaluator evaluators[],
-                                                    AggregationMethodFactory prototypes[],
+    public AggSvcGroupByRefcountedWAccessRollupImpl(ExprEvaluator[] evaluators,
+                                                    AggregationMethodFactory[] prototypes,
                                                     AggregationAccessorSlotPair[] accessors,
                                                     AggregationStateFactory[] accessAggregations,
                                                     boolean isJoin,
                                                     AggregationGroupByRollupDesc rollupLevelDesc,
                                                     AggregationMethod[] topGroupAggregators,
-                                                    AggregationState[] topGroupStates)
-    {
+                                                    AggregationState[] topGroupStates) {
         super(evaluators, prototypes);
 
         this.aggregatorsPerGroup = (Map<Object, AggregationMethodPairRow>[]) new Map[rollupLevelDesc.getNumLevelsAggregation()];
@@ -81,8 +80,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
         this.methodParameterValues = new Object[evaluators.length];
     }
 
-    public void clearResults(ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         for (AggregationState state : aggregatorTopGroup.getStates()) {
             state.clear();
         }
@@ -94,45 +92,46 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
         }
     }
 
-    public void applyEnter(EventBean[] eventsPerStream, Object compositeGroupKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyEnter(EventBean[] eventsPerStream, Object compositeGroupKey, ExprEvaluatorContext exprEvaluatorContext) {
         handleRemovedKeys();
 
         for (int i = 0; i < evaluators.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedRollupEvalParam(true, methodParameterValues.length);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggregationGroupedRollupEvalParam(true, methodParameterValues.length);
+            }
             methodParameterValues[i] = evaluators[i].evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedRollupEvalParam(methodParameterValues[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggregationGroupedRollupEvalParam(methodParameterValues[i]);
+            }
         }
 
         Object[] groupKeyPerLevel = (Object[]) compositeGroupKey;
         for (int i = 0; i < groupKeyPerLevel.length; i++) {
             AggregationGroupByRollupLevel level = rollupLevelDesc.getLevels()[i];
             Object groupKey = groupKeyPerLevel[i];
-            
+
             AggregationMethodPairRow row;
             if (!level.isAggregationTop()) {
                 row = aggregatorsPerGroup[level.getAggregationOffset()].get(groupKey);
-            }
-            else {
+            } else {
                 row = aggregatorTopGroup;
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupKey);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(true, aggregators.length, accessAggregations.length, groupKey);
+            }
 
             // The aggregators for this group do not exist, need to create them from the prototypes
             AggregationMethod[] groupAggregators;
             AggregationState[] groupStates;
-            if (row == null)
-            {
+            if (row == null) {
                 groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
                 groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, null);
                 row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
                 if (!level.isAggregationTop()) {
                     aggregatorsPerGroup[level.getAggregationOffset()].put(groupKey, row);
                 }
-            }
-            else
-            {
+            } else {
                 groupAggregators = row.getMethods();
                 groupStates = row.getStates();
                 row.increaseRefcount();
@@ -141,30 +140,42 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             // For this row, evaluate sub-expressions, enter result
             currentAggregatorMethods = groupAggregators;
             currentAggregatorStates = groupStates;
-            for (int j = 0; j < evaluators.length; j++)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(true, j, groupAggregators[j], aggregators[j].getAggregationExpression());}
+            for (int j = 0; j < evaluators.length; j++) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qAggNoAccessEnterLeave(true, j, groupAggregators[j], aggregators[j].getAggregationExpression());
+                }
                 groupAggregators[j].enter(methodParameterValues[j]);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(true, j, groupAggregators[j]);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aAggNoAccessEnterLeave(true, j, groupAggregators[j]);
+                }
             }
 
             for (int j = 0; j < currentAggregatorStates.length; j++) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(true, j, currentAggregatorStates[j], accessAggregations[j].getAggregationExpression());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qAggAccessEnterLeave(true, j, currentAggregatorStates[j], accessAggregations[j].getAggregationExpression());
+                }
                 currentAggregatorStates[j].applyEnter(eventsPerStream, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(true, j, currentAggregatorStates[j]);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aAggAccessEnterLeave(true, j, currentAggregatorStates[j]);
+                }
             }
 
             internalHandleGroupUpdate(groupKey, row, level);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(true);
+            }
         }
     }
 
-    public void applyLeave(EventBean[] eventsPerStream, Object compositeGroupKey, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void applyLeave(EventBean[] eventsPerStream, Object compositeGroupKey, ExprEvaluatorContext exprEvaluatorContext) {
         for (int i = 0; i < evaluators.length; i++) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedRollupEvalParam(false, methodParameterValues.length);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggregationGroupedRollupEvalParam(false, methodParameterValues.length);
+            }
             methodParameterValues[i] = evaluators[i].evaluate(eventsPerStream, false, exprEvaluatorContext);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedRollupEvalParam(methodParameterValues[i]);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggregationGroupedRollupEvalParam(methodParameterValues[i]);
+            }
         }
 
         Object[] groupKeyPerLevel = (Object[]) compositeGroupKey;
@@ -175,23 +186,21 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             AggregationMethodPairRow row;
             if (!level.isAggregationTop()) {
                 row = aggregatorsPerGroup[level.getAggregationOffset()].get(groupKey);
-            }
-            else {
+            } else {
                 row = aggregatorTopGroup;
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupKey);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qAggregationGroupedApplyEnterLeave(false, aggregators.length, accessAggregations.length, groupKey);
+            }
 
             // The aggregators for this group do not exist, need to create them from the prototypes
             AggregationMethod[] groupAggregators;
             AggregationState[] groupStates;
-            if (row != null)
-            {
+            if (row != null) {
                 groupAggregators = row.getMethods();
                 groupStates = row.getStates();
-            }
-            else
-            {
+            } else {
                 groupAggregators = AggSvcGroupByUtil.newAggregators(aggregators);
                 groupStates = AggSvcGroupByUtil.newAccesses(exprEvaluatorContext.getAgentInstanceId(), isJoin, accessAggregations, groupKey, null);
                 row = new AggregationMethodPairRow(1, groupAggregators, groupStates);
@@ -203,22 +212,28 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             // For this row, evaluate sub-expressions, enter result
             currentAggregatorMethods = groupAggregators;
             currentAggregatorStates = groupStates;
-            for (int j = 0; j < evaluators.length; j++)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggNoAccessEnterLeave(false, j, groupAggregators[j], aggregators[j].getAggregationExpression());}
+            for (int j = 0; j < evaluators.length; j++) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qAggNoAccessEnterLeave(false, j, groupAggregators[j], aggregators[j].getAggregationExpression());
+                }
                 groupAggregators[j].leave(methodParameterValues[j]);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggNoAccessEnterLeave(false, j, groupAggregators[j]);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aAggNoAccessEnterLeave(false, j, groupAggregators[j]);
+                }
             }
 
             for (int j = 0; j < currentAggregatorStates.length; j++) {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qAggAccessEnterLeave(false, j, currentAggregatorStates[j], accessAggregations[j].getAggregationExpression());}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qAggAccessEnterLeave(false, j, currentAggregatorStates[j], accessAggregations[j].getAggregationExpression());
+                }
                 currentAggregatorStates[j].applyLeave(eventsPerStream, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggAccessEnterLeave(false, j, currentAggregatorStates[j]);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aAggAccessEnterLeave(false, j, currentAggregatorStates[j]);
+                }
             }
 
             row.decreaseRefcount();
-            if (row.getRefcount() <= 0)
-            {
+            if (row.getRefcount() <= 0) {
                 hasRemovedKey = true;
                 if (!level.isAggregationTop()) {
                     removedKeys[level.getAggregationOffset()].add(groupKey);
@@ -226,25 +241,24 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             }
 
             internalHandleGroupUpdate(groupKey, row, level);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aAggregationGroupedApplyEnterLeave(false);
+            }
         }
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         AggregationMethodPairRow row;
         if (rollupLevel.isAggregationTop()) {
             row = aggregatorTopGroup;
-        }
-        else {
+        } else {
             row = aggregatorsPerGroup[rollupLevel.getAggregationOffset()].get(groupByKey);
         }
 
         if (row != null) {
             currentAggregatorMethods = row.getMethods();
             currentAggregatorStates = row.getStates();
-        }
-        else {
+        } else {
             currentAggregatorMethods = null;
         }
 
@@ -256,12 +270,10 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
         this.currentGroupKey = groupByKey;
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (column < aggregators.length) {
             return currentAggregatorMethods[column].getValue();
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getValue(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
         }
@@ -270,8 +282,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
     public Collection<EventBean> getCollectionOfEvents(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvents(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -280,8 +291,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
     public Collection<Object> getCollectionScalar(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableScalar(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -290,8 +300,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
     public EventBean getEventBean(int column, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if (column < aggregators.length) {
             return null;
-        }
-        else {
+        } else {
             AggregationAccessorSlotPair pair = accessors[column - aggregators.length];
             return pair.getAccessor().getEnumerableEvent(currentAggregatorStates[pair.getSlot()], eventsPerStream, isNewData, context);
         }
@@ -336,8 +345,7 @@ public class AggSvcGroupByRefcountedWAccessRollupImpl extends AggregationService
             if (removedKeys[i].isEmpty()) {
                 continue;
             }
-            for (Object removedKey : removedKeys[i])
-            {
+            for (Object removedKey : removedKeys[i]) {
                 aggregatorsPerGroup[i].remove(removedKey);
                 internalHandleGroupRemove(removedKey, rollupLevelDesc.getLevels()[i]);
             }

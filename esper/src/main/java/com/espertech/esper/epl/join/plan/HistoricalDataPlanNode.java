@@ -35,8 +35,7 @@ import java.util.concurrent.locks.Lock;
  * <p>
  * Translates into a particular execution for use in regular and outer joins.
  */
-public class HistoricalDataPlanNode extends QueryPlanNode
-{
+public class HistoricalDataPlanNode extends QueryPlanNode {
     private final int streamNum;
     private final int rootStreamNum;
     private final int lookupStreamNum;
@@ -45,14 +44,14 @@ public class HistoricalDataPlanNode extends QueryPlanNode
 
     /**
      * Ctor.
-     * @param streamNum the historical stream num
-     * @param rootStreamNum the stream number of the query plan providing incoming events
+     *
+     * @param streamNum       the historical stream num
+     * @param rootStreamNum   the stream number of the query plan providing incoming events
      * @param lookupStreamNum the stream that provides polling/lookup events
-     * @param numStreams number of streams in join
-     * @param exprNode outer join expression node or null if none defined
+     * @param numStreams      number of streams in join
+     * @param exprNode        outer join expression node or null if none defined
      */
-    public HistoricalDataPlanNode(int streamNum, int rootStreamNum, int lookupStreamNum, int numStreams, ExprNode exprNode)
-    {
+    public HistoricalDataPlanNode(int streamNum, int rootStreamNum, int lookupStreamNum, int numStreams, ExprNode exprNode) {
         this.streamNum = streamNum;
         this.rootStreamNum = rootStreamNum;
         this.lookupStreamNum = lookupStreamNum;
@@ -60,8 +59,7 @@ public class HistoricalDataPlanNode extends QueryPlanNode
         this.outerJoinExprNode = exprNode;
     }
 
-    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks)
-    {
+    public ExecNode makeExec(String statementName, int statementId, Annotation[] annotations, Map<TableLookupIndexReqKey, EventTable>[] indexesPerStream, EventType[] streamTypes, Viewable[] streamViews, HistoricalStreamIndexList[] historicalStreamIndexLists, VirtualDWView[] viewExternal, Lock[] tableSecondaryIndexLocks) {
         Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> pair = historicalStreamIndexLists[streamNum].getStrategy(lookupStreamNum);
         HistoricalEventViewable viewable = (HistoricalEventViewable) streamViews[streamNum];
         return new HistoricalDataExecNode(viewable, pair.getSecond(), pair.getFirst(), numStreams, streamNum);
@@ -73,20 +71,19 @@ public class HistoricalDataPlanNode extends QueryPlanNode
 
     /**
      * Returns the table lookup strategy for use in outer joins.
-     * @param streamViews all views in join
-     * @param pollingStreamNum the stream number of the stream looking up into the historical
+     *
+     * @param streamViews                all views in join
+     * @param pollingStreamNum           the stream number of the stream looking up into the historical
      * @param historicalStreamIndexLists the index management for the historical stream
      * @return strategy
      */
-    public HistoricalTableLookupStrategy makeOuterJoinStategy(Viewable[] streamViews, int pollingStreamNum, HistoricalStreamIndexList[] historicalStreamIndexLists)
-    {
+    public HistoricalTableLookupStrategy makeOuterJoinStategy(Viewable[] streamViews, int pollingStreamNum, HistoricalStreamIndexList[] historicalStreamIndexLists) {
         Pair<HistoricalIndexLookupStrategy, PollResultIndexingStrategy> pair = historicalStreamIndexLists[streamNum].getStrategy(pollingStreamNum);
         HistoricalEventViewable viewable = (HistoricalEventViewable) streamViews[streamNum];
         return new HistoricalTableLookupStrategy(viewable, pair.getSecond(), pair.getFirst(), numStreams, streamNum, rootStreamNum, outerJoinExprNode == null ? null : outerJoinExprNode.getExprEvaluator());
     }
 
-    protected void print(IndentWriter writer)
-    {
+    protected void print(IndentWriter writer) {
         writer.incrIndent();
         writer.println("HistoricalDataPlanNode streamNum=" + streamNum);
     }

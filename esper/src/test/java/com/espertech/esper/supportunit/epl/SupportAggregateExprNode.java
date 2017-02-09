@@ -10,91 +10,77 @@
  */
 package com.espertech.esper.supportunit.epl;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
-public class SupportAggregateExprNode extends ExprAggregateNodeBase
-{
+public class SupportAggregateExprNode extends ExprAggregateNodeBase {
     private static int validateCount;
 
     private Class type;
     private Object value;
     private int validateCountSnapshot;
 
-    public static void setValidateCount(int validateCount)
-    {
+    public static void setValidateCount(int validateCount) {
         SupportAggregateExprNode.validateCount = validateCount;
     }
 
-    public SupportAggregateExprNode(Class type)
-    {
+    public SupportAggregateExprNode(Class type) {
         super(false);
         this.type = type;
         this.value = null;
     }
 
-    public SupportAggregateExprNode(Object value)
-    {
+    public SupportAggregateExprNode(Object value) {
         super(false);
         this.type = value.getClass();
         this.value = value;
     }
 
-    public SupportAggregateExprNode(Object value, Class type)
-    {
+    public SupportAggregateExprNode(Object value, Class type) {
         super(false);
         this.value = value;
         this.type = type;
     }
 
-    protected AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    protected AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         // Keep a count for if and when this was validated
         validateCount++;
         validateCountSnapshot = validateCount;
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return type;
     }
 
-    public int getValidateCountSnapshot()
-    {
+    public int getValidateCountSnapshot() {
         return validateCountSnapshot;
     }
 
-    public AggregationMethod getAggregationFunction()
-    {
+    public AggregationMethod getAggregationFunction() {
         return null;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "support";
     }
 
-    public boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         throw new UnsupportedOperationException("not implemented");
     }
 
-    public void evaluateEnter(EventBean[] eventsPerStream)
-    {
+    public void evaluateEnter(EventBean[] eventsPerStream) {
     }
 
-    public void evaluateLeave(EventBean[] eventsPerStream)
-    {
+    public void evaluateLeave(EventBean[] eventsPerStream) {
     }
 
-    public void setValue(Object value)
-    {
+    public void setValue(Object value) {
         this.value = value;
     }
 }

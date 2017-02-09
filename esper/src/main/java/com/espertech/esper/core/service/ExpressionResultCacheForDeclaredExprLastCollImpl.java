@@ -20,7 +20,7 @@ import java.util.IdentityHashMap;
 public class ExpressionResultCacheForDeclaredExprLastCollImpl implements ExpressionResultCacheForDeclaredExprLastColl {
 
     private final IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>>> exprDeclCacheCollection
-                = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>>>();
+            = new IdentityHashMap<Object, SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>>>();
 
     public ExpressionResultCacheEntry<EventBean[], Collection<EventBean>> getDeclaredExpressionLastColl(Object node, EventBean[] eventsPerStream) {
         SoftReference<ExpressionResultCacheEntry<EventBean[], Collection<EventBean>>> cacheRef = exprDeclCacheCollection.get(node);

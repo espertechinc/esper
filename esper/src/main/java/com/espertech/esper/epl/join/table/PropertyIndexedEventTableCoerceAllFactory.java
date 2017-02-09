@@ -21,23 +21,22 @@ import com.espertech.esper.client.EventType;
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public class PropertyIndexedEventTableCoerceAllFactory extends PropertyIndexedEventTableCoerceAddFactory
-{
+public class PropertyIndexedEventTableCoerceAllFactory extends PropertyIndexedEventTableCoerceAddFactory {
     /**
      * Ctor.
-     * @param streamNum is the stream number of the indexed stream
-     * @param eventType is the event type of the indexed stream
+     *
+     * @param streamNum     is the stream number of the indexed stream
+     * @param eventType     is the event type of the indexed stream
      * @param propertyNames are the property names to get property values
-     * @param coercionType are the classes to coerce indexed values to
+     * @param coercionType  are the classes to coerce indexed values to
      */
-    public PropertyIndexedEventTableCoerceAllFactory(int streamNum, EventType eventType, String[] propertyNames, Class[] coercionType)
-    {
+    public PropertyIndexedEventTableCoerceAllFactory(int streamNum, EventType eventType, String[] propertyNames, Class[] coercionType) {
         super(streamNum, eventType, propertyNames, coercionType);
     }
 
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
-        return new EventTable[] {new PropertyIndexedEventTableCoerceAll(propertyGetters, organization, coercers, coercionType)};
+        return new EventTable[]{new PropertyIndexedEventTableCoerceAll(propertyGetters, organization, coercers, coercionType)};
     }
 
     protected EventTableOrganization getOrganization() {

@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.type;
 
-import junit.framework.*;
-import org.slf4j.LoggerFactory;
+import junit.framework.TestCase;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TestLongValue extends TestCase
-{
-    public void testLong()
-    {
+public class TestLongValue extends TestCase {
+    public void testLong() {
         LongValue lvp = new LongValue();
 
         assertTrue(lvp.getValueObject() == null);
@@ -28,49 +26,36 @@ public class TestLongValue extends TestCase
         assertTrue(lvp.getLong() == 200L);
         assertTrue(lvp.getValueObject().equals(200L));
 
-        try
-        {
+        try {
             lvp.setBoolean(false);
             assertTrue(false);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // Expected exception
         }
 
-        try
-        {
+        try {
             lvp.setInt(20);
             assertTrue(false);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // Expected exception
         }
 
-        try
-        {
+        try {
             lvp.setString("test");
             assertTrue(false);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // Expected exception
         }
 
-        try
-        {
+        try {
             lvp = new LongValue();
             lvp.getLong();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             // Expected exception
         }
     }
 
-    public void testParseLong()
-    {
+    public void testParseLong() {
         tryValid("0", 0);
         tryValid("11", 11);
         tryValid("12l", 12);
@@ -88,21 +73,16 @@ public class TestLongValue extends TestCase
         tryInvalid(null);
     }
 
-    private void tryValid(String strLong, long expected)
-    {
+    private void tryValid(String strLong, long expected) {
         long result = LongValue.parseString(strLong);
         assertTrue(result == expected);
     }
 
-    private void tryInvalid(String strLong)
-    {
-        try
-        {
+    private void tryInvalid(String strLong) {
+        try {
             LongValue.parseString(strLong);
             assertTrue(false);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.debug("Expected exception caught, msg=" + ex.getMessage());
         }
     }

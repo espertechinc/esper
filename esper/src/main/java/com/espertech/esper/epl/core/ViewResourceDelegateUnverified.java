@@ -20,13 +20,11 @@ import java.util.List;
  * Coordinates between view factories and requested resource (by expressions) the
  * availability of view resources to expressions.
  */
-public class ViewResourceDelegateUnverified
-{
+public class ViewResourceDelegateUnverified {
     private final List<ExprPriorNode> priorRequests;
     private final List<ExprPreviousNode> previousRequests;
 
-    public ViewResourceDelegateUnverified()
-    {
+    public ViewResourceDelegateUnverified() {
         this.priorRequests = new ArrayList<ExprPriorNode>();
         this.previousRequests = new ArrayList<ExprPreviousNode>();
     }

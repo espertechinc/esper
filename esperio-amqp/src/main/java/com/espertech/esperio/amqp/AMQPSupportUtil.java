@@ -40,17 +40,15 @@ public class AMQPSupportUtil {
             channel.basicConsume(queueName, true, consumer);
 
             int count = 0;
-            while(true) {
+            while (true) {
                 final QueueingConsumer.Delivery msg = consumer.nextDelivery(1);
                 if (msg == null) {
                     return count;
                 }
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Error attaching to AMQP: " + ex.getMessage(), ex);
-        }
-        finally {
+        } finally {
             if (channel != null) {
                 try {
                     channel.close();

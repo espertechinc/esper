@@ -10,14 +10,20 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-public interface ExprDotEvalVisitor
-{
+public interface ExprDotEvalVisitor {
     public void visitPropertySource();
+
     public void visitEnumeration(String name);
+
     public void visitMethod(String methodName);
+
     public void visitDateTime();
+
     public void visitUnderlyingEvent();
+
     public void visitUnderlyingEventColl();
+
     public void visitArraySingleItemSource();
+
     public void visitArrayLength();
 }

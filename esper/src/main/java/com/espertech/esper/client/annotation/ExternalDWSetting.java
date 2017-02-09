@@ -13,16 +13,17 @@ package com.espertech.esper.client.annotation;
 /**
  * Annotation for defining a external data window settings.
  */
-public @interface ExternalDWSetting
-{
+public @interface ExternalDWSetting {
     /**
      * Indicator whether iterable or not.
+     *
      * @return iterable flag
      */
     boolean iterable() default true;
 
     /**
      * Function name to invoke when a lookup completed.
+     *
      * @return function name
      */
     String functionLookupCompleted() default "";

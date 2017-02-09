@@ -19,8 +19,7 @@ import com.espertech.esper.epl.lookup.SubordPropRangeKey;
 
 public class SortedAccessStrategyFactory {
 
-    public static SortedAccessStrategy make(boolean isNWOnTrigger, int lookupStream, int numStreams, QueryGraphValueEntryRange rangeKeyPair, Class coercionType)
-    {
+    public static SortedAccessStrategy make(boolean isNWOnTrigger, int lookupStream, int numStreams, QueryGraphValueEntryRange rangeKeyPair, Class coercionType) {
         return make(isNWOnTrigger, lookupStream, numStreams, new SubordPropRangeKey(rangeKeyPair, coercionType));
     }
 
@@ -37,27 +36,21 @@ public class SortedAccessStrategyFactory {
             boolean includeEnd = rangeKeyPair.getType().isIncludeEnd();
             if (!rangeKeyPair.getType().isRangeInverted()) {
                 return new SortedAccessStrategyRange(isNWOnTrigger, lookupStream, numStreams, startExpr, includeStart, endExpr, includeEnd, rangeIn.isAllowRangeReversal());
-            }
-            else {
+            } else {
                 return new SortedAccessStrategyRangeInverted(isNWOnTrigger, lookupStream, numStreams, startExpr, includeStart, endExpr, includeEnd);
             }
-        }
-        else {
+        } else {
             QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeKeyPair;
             ExprEvaluator keyExpr = relOp.getExpression().getExprEvaluator();
             if (rangeKeyPair.getType() == QueryGraphRangeEnum.GREATER_OR_EQUAL) {
                 return new SortedAccessStrategyGE(isNWOnTrigger, lookupStream, numStreams, keyExpr);
-            }
-            else if (rangeKeyPair.getType() == QueryGraphRangeEnum.GREATER) {
+            } else if (rangeKeyPair.getType() == QueryGraphRangeEnum.GREATER) {
                 return new SortedAccessStrategyGT(isNWOnTrigger, lookupStream, numStreams, keyExpr);
-            }
-            else if (rangeKeyPair.getType() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
+            } else if (rangeKeyPair.getType() == QueryGraphRangeEnum.LESS_OR_EQUAL) {
                 return new SortedAccessStrategyLE(isNWOnTrigger, lookupStream, numStreams, keyExpr);
-            }
-            else if (rangeKeyPair.getType() == QueryGraphRangeEnum.LESS) {
+            } else if (rangeKeyPair.getType() == QueryGraphRangeEnum.LESS) {
                 return new SortedAccessStrategyLT(isNWOnTrigger, lookupStream, numStreams, keyExpr);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Comparison operator " + rangeKeyPair.getType() + " not supported");
             }
         }

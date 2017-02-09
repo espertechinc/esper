@@ -11,7 +11,6 @@
 package com.espertech.esperio.representation.axiom;
 
 import com.espertech.esper.event.xml.XPathNamespaceContext;
-
 import org.jaxen.NamespaceContext;
 
 /**

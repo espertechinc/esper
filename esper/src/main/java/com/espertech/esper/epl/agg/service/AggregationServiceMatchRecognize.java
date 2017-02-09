@@ -16,12 +16,12 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Aggregation result future for use with match recognize.
  */
-public interface AggregationServiceMatchRecognize extends AggregationResultFuture
-{
+public interface AggregationServiceMatchRecognize extends AggregationResultFuture {
     /**
      * Enter a single event row consisting of one or more events per stream (each stream representing a variable).
-     * @param eventsPerStream events per stream
-     * @param streamId variable number that is the base
+     *
+     * @param eventsPerStream      events per stream
+     * @param streamId             variable number that is the base
      * @param exprEvaluatorContext context for expression evaluatiom
      */
     public void applyEnter(EventBean[] eventsPerStream, int streamId, ExprEvaluatorContext exprEvaluatorContext);

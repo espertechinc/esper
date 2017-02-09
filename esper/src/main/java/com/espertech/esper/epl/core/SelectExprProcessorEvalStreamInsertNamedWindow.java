@@ -14,13 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprEvaluator
-{
+public class SelectExprProcessorEvalStreamInsertNamedWindow implements ExprEvaluator {
     private final int streamNum;
     private final EventType namedWindowAsType;
     private final Class returnType;

@@ -16,8 +16,7 @@ import com.espertech.esper.epl.spec.StatementSpecRaw;
 /**
  * Statement metadata factory context.
  */
-public class StatementMetadataFactoryContext
-{
+public class StatementMetadataFactoryContext {
     private final String statementName;
     private final int statementId;
     private final StatementContext statementContext;

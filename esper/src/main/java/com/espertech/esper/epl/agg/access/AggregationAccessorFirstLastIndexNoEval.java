@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import java.util.Collection;
 import java.util.Collections;
 
-public class AggregationAccessorFirstLastIndexNoEval implements AggregationAccessor
-{
+public class AggregationAccessorFirstLastIndexNoEval implements AggregationAccessor {
     private final ExprEvaluator indexNode;
     private final int constant;
     private final boolean isFirst;
@@ -69,8 +68,7 @@ public class AggregationAccessorFirstLastIndexNoEval implements AggregationAcces
         }
         if (isFirst) {
             bean = ((AggregationStateLinear) state).getFirstNthValue(index);
-        }
-        else {
+        } else {
             bean = ((AggregationStateLinear) state).getLastNthValue(index);
         }
         return bean;

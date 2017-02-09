@@ -46,7 +46,10 @@ import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.ScheduleSpecUtil;
-import com.espertech.esper.util.*;
+import com.espertech.esper.util.CollectionUtil;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.SimpleNumberCoercer;
+import com.espertech.esper.util.SimpleNumberCoercerFactory;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
 import org.slf4j.Logger;
@@ -145,8 +148,7 @@ public class ExprNodeUtility {
             StringWriter writer = new StringWriter();
             node.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
             return writer.toString();
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.debug("Failed to render expression text: " + ex.getMessage(), ex);
             return "";
         }
@@ -176,8 +178,7 @@ public class ExprNodeUtility {
     }
 
     public static Pair<String, ExprNode> checkGetAssignmentToVariableOrProp(ExprNode node)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Pair<String, ExprNode> prop = checkGetAssignmentToProp(node);
         if (prop != null) {
             return prop;
@@ -218,7 +219,7 @@ public class ExprNodeUtility {
 
     public static void applyFilterExpressionIterable(Iterator<EventBean> iterator, ExprEvaluator filterExpression, ExprEvaluatorContext exprEvaluatorContext, Collection<EventBean> eventsInWindow) {
         EventBean[] events = new EventBean[1];
-        for (;iterator.hasNext();) {
+        for (; iterator.hasNext(); ) {
             events[0] = iterator.next();
             Object result = filterExpression.evaluate(events, true, exprEvaluatorContext);
             if ((result == null) || (!((Boolean) result))) {
@@ -259,12 +260,12 @@ public class ExprNodeUtility {
 
     /**
      * Walk expression returning properties used.
-     * @param exprNode to walk
+     *
+     * @param exprNode            to walk
      * @param visitAggregateNodes true to visit aggregation nodes
      * @return list of props
      */
-    public static List<Pair<Integer, String>> getExpressionProperties(ExprNode exprNode, boolean visitAggregateNodes)
-    {
+    public static List<Pair<Integer, String>> getExpressionProperties(ExprNode exprNode, boolean visitAggregateNodes) {
         ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(visitAggregateNodes);
         exprNode.accept(visitor);
         return visitor.getExprProperties();
@@ -282,30 +283,28 @@ public class ExprNodeUtility {
      * Validates the expression node subtree that has this
      * node as root. Some of the nodes of the tree, including the
      * root, might be replaced in the process.
-     * @param origin validate origin
-     * @param exprNode node
+     *
+     * @param origin            validate origin
+     * @param exprNode          node
      * @param validationContext context
-     * @throws ExprValidationException when the validation fails
      * @return the root node of the validated subtree, possibly
-     *         different than the root node of the unvalidated subtree
+     * different than the root node of the unvalidated subtree
+     * @throws ExprValidationException when the validation fails
      */
-    public static ExprNode getValidatedSubtree(ExprNodeOrigin origin, ExprNode exprNode, ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public static ExprNode getValidatedSubtree(ExprNodeOrigin origin, ExprNode exprNode, ExprValidationContext validationContext) throws ExprValidationException {
         if (exprNode instanceof ExprLambdaGoesNode) {
             return exprNode;
         }
 
         try {
             return getValidatedSubtreeInternal(exprNode, validationContext, true);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             try {
                 String text;
                 if (exprNode instanceof ExprSubselectNode) {
                     ExprSubselectNode subselect = (ExprSubselectNode) exprNode;
-                    text = EPStatementStartMethodHelperSubselect.getSubqueryInfoText(subselect.getSubselectNumber()-1, subselect);
-                }
-                else {
+                    text = EPStatementStartMethodHelperSubselect.getSubqueryInfoText(subselect.getSubselectNumber() - 1, subselect);
+                } else {
                     text = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode);
                     if (text.length() > 40) {
                         String shortened = text.substring(0, 35);
@@ -318,16 +317,14 @@ public class ExprNodeUtility {
                         " expression " +
                         text + ": " +
                         ex.getMessage(), ex);
-            }
-            catch (RuntimeException rtex) {
+            } catch (RuntimeException rtex) {
                 log.debug("Failed to render nice validation message text: " + rtex.getMessage(), rtex);
                 throw ex;
             }
         }
     }
 
-    public static void getValidatedSubtree(ExprNodeOrigin origin, ExprNode[] exprNode, ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public static void getValidatedSubtree(ExprNodeOrigin origin, ExprNode[] exprNode, ExprValidationContext validationContext) throws ExprValidationException {
         if (exprNode == null) {
             return;
         }
@@ -336,8 +333,7 @@ public class ExprNodeUtility {
         }
     }
 
-    public static void getValidatedSubtree(ExprNodeOrigin origin, ExprNode[][] exprNode, ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public static void getValidatedSubtree(ExprNodeOrigin origin, ExprNode[][] exprNode, ExprValidationContext validationContext) throws ExprValidationException {
         if (exprNode == null) {
             return;
         }
@@ -346,28 +342,24 @@ public class ExprNodeUtility {
         }
     }
 
-    public static ExprNode getValidatedAssignment(OnTriggerSetAssignment assignment, ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public static ExprNode getValidatedAssignment(OnTriggerSetAssignment assignment, ExprValidationContext validationContext) throws ExprValidationException {
         Pair<String, ExprNode> strictAssignment = checkGetAssignmentToVariableOrProp(assignment.getExpression());
         if (strictAssignment != null) {
             ExprNode validatedRightSide = getValidatedSubtreeInternal(strictAssignment.getSecond(), validationContext, true);
             assignment.getExpression().setChildNode(1, validatedRightSide);
             return assignment.getExpression();
-        }
-        else {
+        } else {
             return getValidatedSubtreeInternal(assignment.getExpression(), validationContext, true);
         }
     }
 
-    private static ExprNode getValidatedSubtreeInternal(ExprNode exprNode, ExprValidationContext validationContext, boolean isTopLevel) throws ExprValidationException
-    {
+    private static ExprNode getValidatedSubtreeInternal(ExprNode exprNode, ExprValidationContext validationContext, boolean isTopLevel) throws ExprValidationException {
         ExprNode result = exprNode;
         if (exprNode instanceof ExprLambdaGoesNode) {
             return exprNode;
         }
 
-        for (int i = 0; i < exprNode.getChildNodes().length; i++)
-        {
+        for (int i = 0; i < exprNode.getChildNodes().length; i++) {
             ExprNode childNode = exprNode.getChildNodes()[i];
             if (childNode instanceof ExprDeclaredOrLambdaNode) {
                 ExprDeclaredOrLambdaNode node = (ExprDeclaredOrLambdaNode) childNode;
@@ -379,30 +371,21 @@ public class ExprNodeUtility {
             exprNode.setChildNode(i, childNodeValidated);
         }
 
-        try
-        {
+        try {
             ExprNode optionalReplacement = exprNode.validate(validationContext);
             if (optionalReplacement != null) {
                 return getValidatedSubtreeInternal(optionalReplacement, validationContext, isTopLevel);
             }
-        }
-        catch(ExprValidationException e)
-        {
-            if (exprNode instanceof ExprIdentNode)
-            {
+        } catch (ExprValidationException e) {
+            if (exprNode instanceof ExprIdentNode) {
                 ExprIdentNode identNode = (ExprIdentNode) exprNode;
-                try
-                {
+                try {
                     result = resolveStaticMethodOrField(identNode, e, validationContext);
-                }
-                catch(ExprValidationException ex)
-                {
+                } catch (ExprValidationException ex) {
                     e = ex;
                     result = resolveAsStreamName(identNode, e, validationContext);
                 }
-            }
-            else
-            {
+            } else {
                 throw e;
             }
         }
@@ -412,27 +395,22 @@ public class ExprNodeUtility {
             if (validationContext.isExpressionAudit()) {
                 return (ExprNode) ExprNodeProxy.newInstance(validationContext.getStreamTypeService().getEngineURIQualifier(), validationContext.getStatementName(), result);
             }
-        }
-        else {
+        } else {
             if (validationContext.isExpressionNestedAudit() && !(result instanceof ExprIdentNode) && !(ExprNodeUtility.isConstantValueExpr(result))) {
                 return (ExprNode) ExprNodeProxy.newInstance(validationContext.getStreamTypeService().getEngineURIQualifier(), validationContext.getStatementName(), result);
             }
         }
-        
+
         return result;
     }
 
     private static ExprNode resolveAsStreamName(ExprIdentNode identNode, ExprValidationException existingException, ExprValidationContext validationContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprStreamUnderlyingNode exprStream = new ExprStreamUnderlyingNodeImpl(identNode.getUnresolvedPropertyName(), false);
 
-        try
-        {
+        try {
             exprStream.validate(validationContext);
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             throw existingException;
         }
 
@@ -444,33 +422,26 @@ public class ExprNodeUtility {
     // this method tries to resolve the mapped property as a static method.
     // Assumes that this is an ExprIdentNode.
     private static ExprNode resolveStaticMethodOrField(ExprIdentNode identNode, ExprValidationException propertyException, ExprValidationContext validationContext)
-    throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Reconstruct the original string
         StringBuilder mappedProperty = new StringBuilder(identNode.getUnresolvedPropertyName());
-        if(identNode.getStreamOrPropertyName() != null)
-        {
+        if (identNode.getStreamOrPropertyName() != null) {
             mappedProperty.insert(0, identNode.getStreamOrPropertyName() + '.');
         }
 
         // Parse the mapped property format into a class name, method and single string parameter
         MappedPropertyParseResult parse = parseMappedProperty(mappedProperty.toString());
-        if (parse == null)
-        {
+        if (parse == null) {
             ExprConstantNode constNode = resolveIdentAsEnumConst(mappedProperty.toString(), validationContext.getEngineImportService());
-            if (constNode == null)
-            {
+            if (constNode == null) {
                 throw propertyException;
-            }
-            else
-            {
+            } else {
                 return constNode;
             }
         }
 
         // If there is a class name, assume a static method is possible.
-        if (parse.getClassName() != null)
-        {
+        if (parse.getClassName() != null) {
             List<ExprNode> parameters = Collections.singletonList((ExprNode) new ExprConstantNodeImpl(parse.getArgString()));
             List<ExprChainedSpec> chain = new ArrayList<ExprChainedSpec>();
             chain.add(new ExprChainedSpec(parse.getClassName(), Collections.<ExprNode>emptyList(), false));
@@ -478,12 +449,9 @@ public class ExprNodeUtility {
             ExprNode result = new ExprDotNode(chain, validationContext.getEngineImportService().isDuckType(), validationContext.getEngineImportService().isUdfCache());
 
             // Validate
-            try
-            {
+            try {
                 result.validate(validationContext);
-            }
-            catch(ExprValidationException e)
-            {
+            } catch (ExprValidationException e) {
                 throw new ExprValidationException("Failed to resolve enumeration method, date-time method or mapped property '" + mappedProperty + "': " + e.getMessage());
             }
 
@@ -492,59 +460,43 @@ public class ExprNodeUtility {
 
         // There is no class name, try a single-row function
         String functionName = parse.getMethodName();
-        try
-        {
+        try {
             Pair<Class, EngineImportSingleRowDesc> classMethodPair = validationContext.getEngineImportService().resolveSingleRow(functionName);
             List<ExprNode> parameters = Collections.singletonList((ExprNode) new ExprConstantNodeImpl(parse.getArgString()));
             List<ExprChainedSpec> chain = Collections.singletonList(new ExprChainedSpec(classMethodPair.getSecond().getMethodName(), parameters, false));
             ExprNode result = new ExprPlugInSingleRowNode(functionName, classMethodPair.getFirst(), chain, classMethodPair.getSecond());
 
             // Validate
-            try
-            {
+            try {
                 result.validate(validationContext);
-            }
-            catch (RuntimeException e)
-            {
+            } catch (RuntimeException e) {
                 throw new ExprValidationException("Plug-in aggregation function '" + parse.getMethodName() + "' failed validation: " + e.getMessage());
             }
 
             return result;
-        }
-        catch (EngineImportUndefinedException e)
-        {
+        } catch (EngineImportUndefinedException e) {
             // Not an single-row function
-        }
-        catch (EngineImportException e)
-        {
+        } catch (EngineImportException e) {
             throw new IllegalStateException("Error resolving single-row function: " + e.getMessage(), e);
         }
 
         // Try an aggregation function factory
-        try
-        {
+        try {
             AggregationFunctionFactory aggregationFactory = validationContext.getEngineImportService().resolveAggregationFactory(parse.getMethodName());
             ExprNode result = new ExprPlugInAggNode(false, aggregationFactory, parse.getMethodName());
             result.addChildNode(new ExprConstantNodeImpl(parse.getArgString()));
 
             // Validate
-            try
-            {
+            try {
                 result.validate(validationContext);
-            }
-            catch (RuntimeException e)
-            {
+            } catch (RuntimeException e) {
                 throw new ExprValidationException("Plug-in aggregation function '" + parse.getMethodName() + "' failed validation: " + e.getMessage());
             }
 
             return result;
-        }
-        catch (EngineImportUndefinedException e)
-        {
+        } catch (EngineImportUndefinedException e) {
             // Not an aggregation function
-        }
-        catch (EngineImportException e)
-        {
+        } catch (EngineImportException e) {
             throw new IllegalStateException("Error resolving aggregation: " + e.getMessage(), e);
         }
 
@@ -553,11 +505,9 @@ public class ExprNodeUtility {
     }
 
     private static ExprConstantNode resolveIdentAsEnumConst(String constant, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Object enumValue = JavaClassHelper.resolveIdentAsEnumConst(constant, engineImportService, false);
-        if (enumValue != null)
-        {
+        if (enumValue != null) {
             return new ExprConstantNodeImpl(enumValue);
         }
         return null;
@@ -566,66 +516,48 @@ public class ExprNodeUtility {
     /**
      * Parse the mapped property into classname, method and string argument.
      * Mind this has been parsed already and is a valid mapped property.
+     *
      * @param property is the string property to be passed as a static method invocation
      * @return descriptor object
      */
-    public static MappedPropertyParseResult parseMappedProperty(String property)
-    {
+    public static MappedPropertyParseResult parseMappedProperty(String property) {
         // get argument
         int indexFirstDoubleQuote = property.indexOf("\"");
         int indexFirstSingleQuote = property.indexOf("'");
         int startArg;
-        if ((indexFirstSingleQuote == -1) && (indexFirstDoubleQuote == -1))
-        {
+        if ((indexFirstSingleQuote == -1) && (indexFirstDoubleQuote == -1)) {
             return null;
         }
-        if ((indexFirstSingleQuote != -1) && (indexFirstDoubleQuote != -1))
-        {
-            if (indexFirstSingleQuote < indexFirstDoubleQuote)
-            {
+        if ((indexFirstSingleQuote != -1) && (indexFirstDoubleQuote != -1)) {
+            if (indexFirstSingleQuote < indexFirstDoubleQuote) {
                 startArg = indexFirstSingleQuote;
-            }
-            else
-            {
+            } else {
                 startArg = indexFirstDoubleQuote;
             }
-        }
-        else if (indexFirstSingleQuote != -1)
-        {
+        } else if (indexFirstSingleQuote != -1) {
             startArg = indexFirstSingleQuote;
-        }
-        else
-        {
+        } else {
             startArg = indexFirstDoubleQuote;
         }
 
         int indexLastDoubleQuote = property.lastIndexOf("\"");
         int indexLastSingleQuote = property.lastIndexOf("'");
         int endArg;
-        if ((indexLastSingleQuote == -1) && (indexLastDoubleQuote == -1))
-        {
+        if ((indexLastSingleQuote == -1) && (indexLastDoubleQuote == -1)) {
             return null;
         }
-        if ((indexLastSingleQuote != -1) && (indexLastDoubleQuote != -1))
-        {
-            if (indexLastSingleQuote > indexLastDoubleQuote)
-            {
+        if ((indexLastSingleQuote != -1) && (indexLastDoubleQuote != -1)) {
+            if (indexLastSingleQuote > indexLastDoubleQuote) {
                 endArg = indexLastSingleQuote;
-            }
-            else
-            {
+            } else {
                 endArg = indexLastDoubleQuote;
             }
-        }
-        else if (indexLastSingleQuote != -1)
-        {
+        } else if (indexLastSingleQuote != -1) {
             if (indexLastSingleQuote == indexFirstSingleQuote) {
                 return null;
             }
             endArg = indexLastSingleQuote;
-        }
-        else
-        {
+        } else {
             if (indexLastDoubleQuote == indexFirstDoubleQuote) {
                 return null;
             }
@@ -634,37 +566,31 @@ public class ExprNodeUtility {
         String argument = property.substring(startArg + 1, endArg);
 
         // get method
-        String splitDots[] = property.split("[\\.]");
-        if (splitDots.length == 0)
-        {
+        String[] splitDots = property.split("[\\.]");
+        if (splitDots.length == 0) {
             return null;
         }
 
         // find which element represents the method, its the element with the parenthesis
         int indexMethod = -1;
-        for (int i = 0; i < splitDots.length; i++)
-        {
-            if (splitDots[i].contains("("))
-            {
+        for (int i = 0; i < splitDots.length; i++) {
+            if (splitDots[i].contains("(")) {
                 indexMethod = i;
                 break;
             }
         }
-        if (indexMethod == -1)
-        {
+        if (indexMethod == -1) {
             return null;
         }
 
         String method = splitDots[indexMethod];
         int indexParan = method.indexOf("(");
         method = method.substring(0, indexParan);
-        if (method.length() == 0)
-        {
+        if (method.length() == 0) {
             return null;
         }
 
-        if (splitDots.length == 1)
-        {
+        if (splitDots.length == 1) {
             // no class name
             return new MappedPropertyParseResult(null, method, argument);
         }
@@ -672,10 +598,8 @@ public class ExprNodeUtility {
 
         // get class
         StringBuilder clazz = new StringBuilder();
-        for (int i = 0; i < indexMethod; i++)
-        {
-            if (i > 0)
-            {
+        for (int i = 0; i < indexMethod; i++) {
+            if (i > 0) {
                 clazz.append('.');
             }
             clazz.append(splitDots[i]);
@@ -732,8 +656,7 @@ public class ExprNodeUtility {
         boolean[] allowEventBeanCollType = new boolean[parameters.size()];
         ExprEvaluator[] childEvalsEventBeanReturnTypes = new ExprEvaluator[parameters.size()];
         boolean allConstants = true;
-        for(ExprNode childNode : parameters)
-        {
+        for (ExprNode childNode : parameters) {
             if (!EnumMethodEnum.isEnumerationMethod(methodName) && childNode instanceof ExprLambdaGoesNode) {
                 throw new ExprValidationException("Unexpected lambda-expression encountered as parameter to UDF or static method '" + methodName + "'");
             }
@@ -755,8 +678,7 @@ public class ExprNodeUtility {
                 if (tableMetadata == null) {
                     childEvals[count] = childNode.getExprEvaluator();
                     childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEvent(und.getStreamId());
-                }
-                else {
+                } else {
                     childEvals[count] = new BindProcessorEvaluatorStreamTable(und.getStreamId(), und.getEventType().getUnderlyingType(), tableMetadata);
                     childEvalsEventBeanReturnTypes[count] = new ExprNodeUtilExprEvalStreamNumEventTable(und.getStreamId(), tableMetadata);
                 }
@@ -790,8 +712,7 @@ public class ExprNodeUtility {
             childEvals[count] = eval;
             paramTypes[count] = eval.getType();
             count++;
-            if (!(childNode.isConstantResult()))
-            {
+            if (!(childNode.isConstantResult())) {
                 allConstants = false;
             }
         }
@@ -799,19 +720,15 @@ public class ExprNodeUtility {
         // Try to resolve the method
         final FastMethod staticMethod;
         Method method;
-        try
-        {
+        try {
             if (optionalClass != null) {
                 method = engineImportService.resolveMethod(optionalClass, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
-            }
-            else {
+            } else {
                 method = engineImportService.resolveMethodOverloadChecked(className, methodName, paramTypes, allowEventBeanType, allowEventBeanCollType);
             }
             FastClass declaringClass = FastClass.create(engineImportService.getFastClassClassLoader(method.getDeclaringClass()), method.getDeclaringClass());
             staticMethod = declaringClass.getMethod(method);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             throw exceptionHandler.handle(e);
         }
 
@@ -835,12 +752,12 @@ public class ExprNodeUtility {
 
         // add an evaluator if the method expects a context object
         if (!method.isVarArgs() && method.getParameterTypes().length > 0 &&
-            method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
+                method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
             childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(functionName));
         }
 
         // handle varargs
-        if (method.isVarArgs() ) {
+        if (method.isVarArgs()) {
             // handle context parameter
             int numMethodParams = method.getParameterTypes().length;
             if (numMethodParams > 1 && method.getParameterTypes()[numMethodParams - 2] == EPLMethodInvocationContext.class) {
@@ -866,15 +783,14 @@ public class ExprNodeUtility {
     }
 
     public static ExprNode validateSimpleGetSubtree(ExprNodeOrigin origin, ExprNode expression, StatementContext statementContext, EventType optionalEventType, boolean allowBindingConsumption)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         ExprNodeUtility.validatePlainExpression(origin, toExpressionStringMinPrecedenceSafe(expression), expression);
 
         StreamTypeServiceImpl streamTypes;
         if (optionalEventType != null) {
             streamTypes = new StreamTypeServiceImpl(optionalEventType, null, true, statementContext.getEngineURI());
-        }
-        else {
+        } else {
             streamTypes = new StreamTypeServiceImpl(statementContext.getEngineURI(), false);
         }
 
@@ -1016,7 +932,7 @@ public class ExprNodeUtility {
                 if (nameds == null) {
                     nameds = new HashMap<String, ExprNamedParameterNode>();
                 }
-                String lowerCaseName = named.getParameterName().toLowerCase();
+                String lowerCaseName = named.getParameterName().toLowerCase(Locale.ENGLISH);
                 if (nameds.containsKey(lowerCaseName)) {
                     throw new ExprValidationException("Duplicate parameter '" + lowerCaseName + "'");
                 }
@@ -1074,8 +990,7 @@ public class ExprNodeUtility {
         String expectedType;
         if (expected.length == 1) {
             expectedType = "a " + JavaClassHelper.getSimpleNameForClass(expected[0]) + "-typed value";
-        }
-        else {
+        } else {
             StringWriter buf = new StringWriter();
             buf.append("any of the following types: ");
             String delimiter = "";
@@ -1093,47 +1008,46 @@ public class ExprNodeUtility {
     /**
      * Encapsulates the parse result parsing a mapped property as a class and method name with args.
      */
-    public static class MappedPropertyParseResult
-    {
+    public static class MappedPropertyParseResult {
         private String className;
         private String methodName;
         private String argString;
 
         /**
          * Returns class name.
+         *
          * @return name of class
          */
-        public String getClassName()
-        {
+        public String getClassName() {
             return className;
         }
 
         /**
          * Returns the method name.
+         *
          * @return method name
          */
-        public String getMethodName()
-        {
+        public String getMethodName() {
             return methodName;
         }
 
         /**
          * Returns the method argument.
+         *
          * @return arg
          */
-        public String getArgString()
-        {
+        public String getArgString() {
             return argString;
         }
 
         /**
          * Returns the parse result of the mapped property.
-         * @param className is the class name, or null if there isn't one
+         *
+         * @param className  is the class name, or null if there isn't one
          * @param methodName is the method name
-         * @param argString is the argument
+         * @param argString  is the argument
          */
-        public MappedPropertyParseResult(String className, String methodName, String argString)
-        {
+        public MappedPropertyParseResult(String className, String methodName, String argString) {
             this.className = className;
             this.methodName = methodName;
             this.argString = argString;
@@ -1168,8 +1082,7 @@ public class ExprNodeUtility {
         int index = ExprNodeUtility.findChildNode(parentNode, nodeToReplace);
         if (index == -1) {
             parentNode.replaceUnlistedChildNode(nodeToReplace, newNode);
-        }
-        else {
+        } else {
             parentNode.setChildNode(index, newNode);
         }
     }
@@ -1192,13 +1105,11 @@ public class ExprNodeUtility {
         }
     }
 
-    public static ExprNodePropOrStreamSet getNonAggregatedProps(EventType[] types, List<ExprNode> exprNodes, ContextPropertyRegistry contextPropertyRegistry)
-    { 
+    public static ExprNodePropOrStreamSet getNonAggregatedProps(EventType[] types, List<ExprNode> exprNodes, ContextPropertyRegistry contextPropertyRegistry) {
         // Determine all event properties in the clause
         ExprNodePropOrStreamSet nonAggProps = new ExprNodePropOrStreamSet();
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(false);
-        for (ExprNode node : exprNodes)
-        {
+        for (ExprNode node : exprNodes) {
             visitor.reset();
             node.accept(visitor);
             addNonAggregatedProps(nonAggProps, visitor.getRefs(), types, contextPropertyRegistry);
@@ -1215,8 +1126,7 @@ public class ExprNodeUtility {
                 if (originType == null || contextPropertyRegistry == null || !contextPropertyRegistry.isPartitionProperty(originType, propDesc.getPropertyName())) {
                     nonAggProps.add(pair);
                 }
-            }
-            else {
+            } else {
                 nonAggProps.add(pair);
             }
         }
@@ -1228,13 +1138,11 @@ public class ExprNodeUtility {
         addNonAggregatedProps(set, visitor.getRefs(), types, contextPropertyRegistry);
     }
 
-    public static ExprNodePropOrStreamSet getAggregatedProperties(List<ExprAggregateNode> aggregateNodes)
-    {
+    public static ExprNodePropOrStreamSet getAggregatedProperties(List<ExprAggregateNode> aggregateNodes) {
         // Get a list of properties being aggregated in the clause.
         ExprNodePropOrStreamSet propertiesAggregated = new ExprNodePropOrStreamSet();
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
-        for (ExprNode selectAggExprNode : aggregateNodes)
-        {
+        for (ExprNode selectAggExprNode : aggregateNodes) {
             visitor.reset();
             selectAggExprNode.accept(visitor);
             List<ExprNodePropOrStreamDesc> properties = visitor.getRefs();
@@ -1258,8 +1166,7 @@ public class ExprNodeUtility {
         return eval;
     }
 
-    public static ExprEvaluator[] getEvaluators(List<ExprNode> childNodes)
-    {
+    public static ExprEvaluator[] getEvaluators(List<ExprNode> childNodes) {
         ExprEvaluator[] eval = new ExprEvaluator[childNodes.size()];
         for (int i = 0; i < childNodes.size(); i++) {
             eval[i] = childNodes.get(i).getExprEvaluator();
@@ -1280,8 +1187,9 @@ public class ExprNodeUtility {
 
     /**
      * Returns true if all properties within the expression are witin data window'd streams.
-     * @param child expression to interrogate
-     * @param streamTypeService streams
+     *
+     * @param child              expression to interrogate
+     * @param streamTypeService  streams
      * @param unidirectionalJoin indicator unidirection join
      * @return indicator
      */
@@ -1294,8 +1202,7 @@ public class ExprNodeUtility {
         for (boolean anIsIStreamOnly : isIStreamOnly) {
             if (!anIsIStreamOnly) {
                 isAllIStream = false;
-            }
-            else {
+            } else {
                 isAllIRStream = false;
             }
         }
@@ -1304,15 +1211,13 @@ public class ExprNodeUtility {
         boolean hasDataWindows = true;
         if (isAllIStream) {
             hasDataWindows = false;
-        }
-        else if (!isAllIRStream) {
+        } else if (!isAllIRStream) {
             if (streamTypeService.getEventTypes().length > 1) {
                 if (unidirectionalJoin) {
                     return false;
                 }
                 // In a join we assume that a data window is present or implicit via unidirectional
-            }
-            else {
+            } else {
                 hasDataWindows = false;
                 // get all aggregated properties to determine if any is from a windowed stream
                 ExprNodeIdentifierCollectVisitor visitor = new ExprNodeIdentifierCollectVisitor();
@@ -1332,34 +1237,31 @@ public class ExprNodeUtility {
 
     /**
      * Apply a filter expression.
-     * @param filter expression
-     * @param streamZeroEvent the event that represents stream zero
-     * @param streamOneEvents all events thate are stream one events
+     *
+     * @param filter               expression
+     * @param streamZeroEvent      the event that represents stream zero
+     * @param streamOneEvents      all events thate are stream one events
      * @param exprEvaluatorContext context for expression evaluation
      * @return filtered stream one events
      */
-    public static EventBean[] applyFilterExpression(ExprEvaluator filter, EventBean streamZeroEvent, EventBean[] streamOneEvents, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public static EventBean[] applyFilterExpression(ExprEvaluator filter, EventBean streamZeroEvent, EventBean[] streamOneEvents, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean[] eventsPerStream = new EventBean[2];
         eventsPerStream[0] = streamZeroEvent;
 
         EventBean[] filtered = new EventBean[streamOneEvents.length];
         int countPass = 0;
 
-        for (EventBean eventBean : streamOneEvents)
-        {
+        for (EventBean eventBean : streamOneEvents) {
             eventsPerStream[1] = eventBean;
 
             Boolean result = (Boolean) filter.evaluate(eventsPerStream, true, exprEvaluatorContext);
-            if ((result != null) && result)
-            {
+            if ((result != null) && result) {
                 filtered[countPass] = eventBean;
                 countPass++;
             }
         }
 
-        if (countPass == streamOneEvents.length)
-        {
+        if (countPass == streamOneEvents.length) {
             return streamOneEvents;
         }
         return EventBeanUtility.resizeArray(filtered, countPass);
@@ -1367,13 +1269,13 @@ public class ExprNodeUtility {
 
     /**
      * Apply a filter expression returning a pass indicator.
-     * @param filter to apply
-     * @param eventsPerStream events per stream
+     *
+     * @param filter               to apply
+     * @param eventsPerStream      events per stream
      * @param exprEvaluatorContext context for expression evaluation
      * @return pass indicator
      */
-    public static boolean applyFilterExpression(ExprEvaluator filter, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public static boolean applyFilterExpression(ExprEvaluator filter, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         Boolean result = (Boolean) filter.evaluate(eventsPerStream, true, exprEvaluatorContext);
         return (result != null) && result;
     }
@@ -1384,27 +1286,23 @@ public class ExprNodeUtility {
      * <p>
      * Recursive call since it uses this method to compare child nodes in the same exact sequence.
      * Nodes are compared using the equalsNode method.
+     *
      * @param nodeOne - first expression top node of the tree to compare
      * @param nodeTwo - second expression top node of the tree to compare
      * @return false if this or all child nodes are not equal, true if equal
      */
-    public static boolean deepEquals(ExprNode nodeOne, ExprNode nodeTwo)
-    {
-        if (nodeOne.getChildNodes().length != nodeTwo.getChildNodes().length)
-        {
+    public static boolean deepEquals(ExprNode nodeOne, ExprNode nodeTwo) {
+        if (nodeOne.getChildNodes().length != nodeTwo.getChildNodes().length) {
             return false;
         }
-        if (!nodeOne.equalsNode(nodeTwo))
-        {
+        if (!nodeOne.equalsNode(nodeTwo)) {
             return false;
         }
-        for (int i = 0; i < nodeOne.getChildNodes().length; i++)
-        {
+        for (int i = 0; i < nodeOne.getChildNodes().length; i++) {
             ExprNode childNodeOne = nodeOne.getChildNodes()[i];
             ExprNode childNodeTwo = nodeTwo.getChildNodes()[i];
 
-            if (!ExprNodeUtility.deepEquals(childNodeOne, childNodeTwo))
-            {
+            if (!ExprNodeUtility.deepEquals(childNodeOne, childNodeTwo)) {
                 return false;
             }
         }
@@ -1414,36 +1312,29 @@ public class ExprNodeUtility {
     /**
      * Compares two expression nodes via deep comparison, considering all
      * child nodes of either side.
+     *
      * @param one array of expressions
      * @param two array of expressions
      * @return true if the expressions are equal, false if not
      */
-    public static boolean deepEquals(ExprNode[] one, ExprNode[] two)
-    {
-        if (one.length != two.length)
-        {
+    public static boolean deepEquals(ExprNode[] one, ExprNode[] two) {
+        if (one.length != two.length) {
             return false;
         }
-        for (int i = 0; i < one.length; i++)
-        {
-            if (!ExprNodeUtility.deepEquals(one[i], two[i]))
-            {
+        for (int i = 0; i < one.length; i++) {
+            if (!ExprNodeUtility.deepEquals(one[i], two[i])) {
                 return false;
             }
         }
         return true;
     }
 
-    public static boolean deepEquals(List<ExprNode> one, List<ExprNode> two)
-    {
-        if (one.size() != two.size())
-        {
+    public static boolean deepEquals(List<ExprNode> one, List<ExprNode> two) {
+        if (one.size() != two.size()) {
             return false;
         }
-        for (int i = 0; i < one.size(); i++)
-        {
-            if (!ExprNodeUtility.deepEquals(one.get(i), two.get(i)))
-            {
+        for (int i = 0; i < one.size(); i++) {
+            if (!ExprNodeUtility.deepEquals(one.get(i), two.get(i))) {
                 return false;
             }
         }
@@ -1452,36 +1343,32 @@ public class ExprNodeUtility {
 
     /**
      * Check if the expression is minimal: does not have a subselect, aggregation and does not need view resources
+     *
      * @param expression to inspect
      * @return null if minimal, otherwise name of offending sub-expression
      */
-    public static String isMinimalExpression(ExprNode expression)
-    {
+    public static String isMinimalExpression(ExprNode expression) {
         ExprNodeSubselectDeclaredDotVisitor subselectVisitor = new ExprNodeSubselectDeclaredDotVisitor();
         expression.accept(subselectVisitor);
-        if (subselectVisitor.getSubselects().size() > 0)
-        {
+        if (subselectVisitor.getSubselects().size() > 0) {
             return "a subselect";
         }
 
         ExprNodeViewResourceVisitor viewResourceVisitor = new ExprNodeViewResourceVisitor();
         expression.accept(viewResourceVisitor);
-        if (viewResourceVisitor.getExprNodes().size() > 0)
-        {
+        if (viewResourceVisitor.getExprNodes().size() > 0) {
             return "a function that requires view resources (prior, prev)";
         }
 
         List<ExprAggregateNode> aggregateNodes = new LinkedList<ExprAggregateNode>();
         ExprAggregateNodeUtil.getAggregatesBottomUp(expression, aggregateNodes);
-        if (!aggregateNodes.isEmpty())
-        {
+        if (!aggregateNodes.isEmpty()) {
             return "an aggregation function";
         }
         return null;
     }
 
-    public static void toExpressionString(List<ExprChainedSpec> chainSpec, StringWriter buffer, boolean prefixDot, String functionName)
-    {
+    public static void toExpressionString(List<ExprChainedSpec> chainSpec, StringWriter buffer, boolean prefixDot, String functionName) {
         String delimiterOuter = "";
         if (prefixDot) {
             delimiterOuter = ".";
@@ -1491,8 +1378,7 @@ public class ExprNodeUtility {
             buffer.append(delimiterOuter);
             if (functionName != null) {
                 buffer.append(functionName);
-            }
-            else {
+            } else {
                 buffer.append(element.getName());
             }
 
@@ -1567,44 +1453,35 @@ public class ExprNodeUtility {
     }
 
     public static ScheduleSpec toCrontabSchedule(ExprNodeOrigin origin, List<ExprNode> scheduleSpecExpressionList, StatementContext context, boolean allowBindingConsumption)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         // Validate the expressions
         ExprEvaluator[] expressions = new ExprEvaluator[scheduleSpecExpressionList.size()];
         int count = 0;
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(context, false);
-        for (ExprNode parameters : scheduleSpecExpressionList)
-        {
+        for (ExprNode parameters : scheduleSpecExpressionList) {
             ExprValidationContext validationContext = new ExprValidationContext(new StreamTypeServiceImpl(context.getEngineURI(), false), context.getEngineImportService(), context.getStatementExtensionServicesContext(), null, context.getSchedulingService(), context.getVariableService(), context.getTableService(), evaluatorContextStmt, context.getEventAdapterService(), context.getStatementName(), context.getStatementId(), context.getAnnotations(), context.getContextDescriptor(), false, false, allowBindingConsumption, false, null, false);
             ExprNode node = ExprNodeUtility.getValidatedSubtree(origin, parameters, validationContext);
             expressions[count++] = node.getExprEvaluator();
         }
 
         // Build a schedule
-        try
-        {
+        try {
             Object[] scheduleSpecParameterList = evaluateExpressions(expressions, evaluatorContextStmt);
             return ScheduleSpecUtil.computeValues(scheduleSpecParameterList);
-        }
-        catch (ScheduleParameterException e)
-        {
+        } catch (ScheduleParameterException e) {
             throw new ExprValidationException("Invalid schedule specification: " + e.getMessage(), e);
         }
     }
 
-    public static Object[] evaluateExpressions(ExprEvaluator[] parameters, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public static Object[] evaluateExpressions(ExprEvaluator[] parameters, ExprEvaluatorContext exprEvaluatorContext) {
         Object[] results = new Object[parameters.length];
         int count = 0;
-        for (ExprEvaluator expr : parameters)
-        {
-            try
-            {
+        for (ExprEvaluator expr : parameters) {
+            try {
                 results[count] = expr.evaluate(null, true, exprEvaluatorContext);
                 count++;
-            }
-            catch (RuntimeException ex)
-            {
+            } catch (RuntimeException ex) {
                 String message = "Failed expression evaluation in crontab timer-at for parameter " + count + ": " + ex.getMessage();
                 log.error(message, ex);
                 throw new IllegalArgumentException(message);
@@ -1628,14 +1505,12 @@ public class ExprNodeUtility {
     }
 
     public static ExprNodePropOrStreamSet getGroupByPropertiesValidateHasOne(ExprNode[] groupByNodes)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Get the set of properties refered to by all group-by expression nodes.
         ExprNodePropOrStreamSet propertiesGroupBy = new ExprNodePropOrStreamSet();
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(true);
 
-        for (ExprNode groupByNode : groupByNodes)
-        {
+        for (ExprNode groupByNode : groupByNodes) {
             visitor.reset();
             groupByNode.accept(visitor);
             List<ExprNodePropOrStreamDesc> propertiesNode = visitor.getRefs();
@@ -1692,8 +1567,7 @@ public class ExprNodeUtility {
         ExprEvaluator varargEval;
         if (!needCoercion) {
             varargEval = new VarargOnlyArrayEvalNoCoerce(varargEvals, varargClass);
-        }
-        else {
+        } else {
             varargEval = new VarargOnlyArrayEvalWithCoerce(varargEvals, varargClass, coercers);
         }
         evals[method.getParameterTypes().length - 1] = varargEval;
@@ -1709,8 +1583,7 @@ public class ExprNodeUtility {
             this.varargClass = varargClass;
         }
 
-        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-        {
+        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
             Object array = Array.newInstance(varargClass, evals.length);
             for (int i = 0; i < evals.length; i++) {
                 Object value = evals[i].evaluate(eventsPerStream, isNewData, context);
@@ -1735,8 +1608,7 @@ public class ExprNodeUtility {
             this.coercers = coercers;
         }
 
-        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-        {
+        public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
             Object array = Array.newInstance(varargClass, evals.length);
             for (int i = 0; i < evals.length; i++) {
                 Object value = evals[i].evaluate(eventsPerStream, isNewData, context);

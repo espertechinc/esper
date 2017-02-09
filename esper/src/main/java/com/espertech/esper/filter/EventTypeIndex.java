@@ -12,8 +12,6 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,13 +28,11 @@ import java.util.concurrent.locks.ReadWriteLock;
  * <p>
  * The class performs all the locking required for multithreaded access.
  */
-public class EventTypeIndex implements EventEvaluator
-{
+public class EventTypeIndex implements EventEvaluator {
     private Map<EventType, FilterHandleSetNode> eventTypes;
     private ReadWriteLock eventTypesRWLock;
 
-    public EventTypeIndex(FilterServiceGranularLockFactory lockFactory)
-    {
+    public EventTypeIndex(FilterServiceGranularLockFactory lockFactory) {
         eventTypes = new HashMap<EventType, FilterHandleSetNode>();
         eventTypesRWLock = lockFactory.obtainNew();
     }
@@ -44,30 +40,25 @@ public class EventTypeIndex implements EventEvaluator
     /**
      * Destroy the service.
      */
-    public void destroy()
-    {
+    public void destroy() {
         eventTypes.clear();
     }
 
     /**
      * Add a new event type to the index and use the specified node for the root node of its subtree.
      * If the event type already existed, the method will throw an IllegalStateException.
+     *
      * @param eventType is the event type to be added to the index
-     * @param rootNode is the root node of the subtree for filter constant indizes and callbacks
+     * @param rootNode  is the root node of the subtree for filter constant indizes and callbacks
      */
-    public void add(EventType eventType, FilterHandleSetNode rootNode)
-    {
+    public void add(EventType eventType, FilterHandleSetNode rootNode) {
         eventTypesRWLock.writeLock().lock();
-        try
-        {
-            if (eventTypes.containsKey(eventType))
-            {
+        try {
+            if (eventTypes.containsKey(eventType)) {
                 throw new IllegalStateException("Event type already in index, add not performed, type=" + eventType);
             }
             eventTypes.put(eventType, rootNode);
-        }
-        finally
-        {
+        } finally {
             eventTypesRWLock.writeLock().unlock();
         }
     }
@@ -75,23 +66,20 @@ public class EventTypeIndex implements EventEvaluator
 
     public void removeType(EventType type) {
         eventTypesRWLock.writeLock().lock();
-        try
-        {
+        try {
             eventTypes.remove(type);
-        }
-        finally
-        {
+        } finally {
             eventTypesRWLock.writeLock().unlock();
         }
     }
 
     /**
      * Returns the root node for the given event type, or null if this event type has not been seen before.
+     *
      * @param eventType is an event type
      * @return the subtree's root node
      */
-    public FilterHandleSetNode get(EventType eventType)
-    {
+    public FilterHandleSetNode get(EventType eventType) {
         eventTypesRWLock.readLock().lock();
         FilterHandleSetNode result = eventTypes.get(eventType);
         eventTypesRWLock.readLock().unlock();
@@ -99,21 +87,18 @@ public class EventTypeIndex implements EventEvaluator
         return result;
     }
 
-    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches)
-    {
+    public void matchEvent(EventBean theEvent, Collection<FilterHandle> matches) {
         EventType eventType = theEvent.getEventType();
 
         // Attempt to match exact type
         matchType(eventType, theEvent, matches);
 
         // No supertype means we are done
-        if (eventType.getSuperTypes() == null)
-        {
+        if (eventType.getSuperTypes() == null) {
             return;
         }
 
-        for (Iterator<EventType> it = eventType.getDeepSuperTypes(); it.hasNext();)
-        {
+        for (Iterator<EventType> it = eventType.getDeepSuperTypes(); it.hasNext(); ) {
             EventType superType = it.next();
             matchType(superType, theEvent, matches);
         }
@@ -121,10 +106,10 @@ public class EventTypeIndex implements EventEvaluator
 
     /**
      * Returns the current size of the known event types.
+     *
      * @return collection size
      */
-    protected int size()
-    {
+    protected int size() {
         return eventTypes.size();
     }
 
@@ -139,30 +124,24 @@ public class EventTypeIndex implements EventEvaluator
                     count += index.size();
                 }
             }
-        }
-        finally {
+        } finally {
             eventTypesRWLock.readLock().unlock();
         }
         return count;
     }
 
-    private void matchType(EventType eventType, EventBean eventBean, Collection<FilterHandle> matches)
-    {
+    private void matchType(EventType eventType, EventBean eventBean, Collection<FilterHandle> matches) {
         eventTypesRWLock.readLock().lock();
         FilterHandleSetNode rootNode = null;
-        try
-        {
+        try {
             rootNode = eventTypes.get(eventType);
-        }
-        finally
-        {
+        } finally {
             eventTypesRWLock.readLock().unlock();
         }
 
         // If the top class node is null, no filters have yet been registered for this event type.
         // In this case, log a message and done.
-        if (rootNode == null)
-        {
+        if (rootNode == null) {
             return;
         }
 

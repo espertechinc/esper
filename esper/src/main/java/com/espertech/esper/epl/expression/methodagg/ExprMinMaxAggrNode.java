@@ -12,35 +12,32 @@ package com.espertech.esper.epl.expression.methodagg;
 
 import com.espertech.esper.core.service.StatementType;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.type.MinMaxTypeEnum;
 
 /**
  * Represents the min/max(distinct? ...) aggregate function is an expression tree.
  */
-public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
-{
+public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
     private final MinMaxTypeEnum minMaxTypeEnum;
     private static final long serialVersionUID = -7828413362615586145L;
 
     private final boolean hasFilter;
     private final boolean isEver;
 
-    public ExprMinMaxAggrNode(boolean distinct, MinMaxTypeEnum minMaxTypeEnum, boolean hasFilter, boolean isEver)
-    {
+    public ExprMinMaxAggrNode(boolean distinct, MinMaxTypeEnum minMaxTypeEnum, boolean hasFilter, boolean isEver) {
         super(distinct);
         this.minMaxTypeEnum = minMaxTypeEnum;
         this.hasFilter = hasFilter;
         this.isEver = isEver;
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (positionalParams.length == 0 || positionalParams.length > 2) {
             throw new ExprValidationException(minMaxTypeEnum.toString() + " node must have either 1 or 2 parameters");
         }
@@ -49,12 +46,10 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
         boolean hasDataWindows;
         if (isEver) {
             hasDataWindows = false;
-        }
-        else {
+        } else {
             if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE) {
                 hasDataWindows = true;
-            }
-            else {
+            } else {
                 hasDataWindows = ExprNodeUtility.hasRemoveStreamForAggregations(child, validationContext.getStreamTypeService(), validationContext.isResettingAggregations());
             }
         }
@@ -68,10 +63,8 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeMinMax(validationContext.getStatementExtensionSvcContext(), this, child.getExprEvaluator().getType(), hasDataWindows);
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprMinMaxAggrNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprMinMaxAggrNode)) {
             return false;
         }
 
@@ -81,10 +74,10 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
 
     /**
      * Returns the indicator for minimum or maximum.
+     *
      * @return min/max indicator
      */
-    public MinMaxTypeEnum getMinMaxTypeEnum()
-    {
+    public MinMaxTypeEnum getMinMaxTypeEnum() {
         return minMaxTypeEnum;
     }
 
@@ -92,8 +85,7 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase
         return hasFilter;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return minMaxTypeEnum.getExpressionText();
     }
 

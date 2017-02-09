@@ -21,15 +21,13 @@ import java.util.List;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordIndexedTableLookupStrategyExprFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordIndexedTableLookupStrategyExprFactory implements SubordTableLookupStrategyFactory {
     protected final ExprEvaluator[] evaluators;
     protected final boolean isNWOnTrigger;
     protected final int numStreamsOuter;
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordIndexedTableLookupStrategyExprFactory(boolean isNWOnTrigger, int numStreamsOuter, List<SubordPropHashKey> hashKeys)
-    {
+    public SubordIndexedTableLookupStrategyExprFactory(boolean isNWOnTrigger, int numStreamsOuter, List<SubordPropHashKey> hashKeys) {
         evaluators = new ExprEvaluator[hashKeys.size()];
         String[] expressions = new String[evaluators.length];
         for (int i = 0; i < hashKeys.size(); i++) {
@@ -44,8 +42,7 @@ public class SubordIndexedTableLookupStrategyExprFactory implements SubordTableL
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordIndexedTableLookupStrategyExprNW(evaluators, (PropertyIndexedEventTable) eventTable[0], strategyDesc);
-        }
-        else {
+        } else {
             return new SubordIndexedTableLookupStrategyExpr(numStreamsOuter, evaluators, (PropertyIndexedEventTable) eventTable[0], strategyDesc);
         }
     }

@@ -10,15 +10,14 @@
  */
 package com.espertech.esper.client;
 
-import java.util.List;
-import java.util.LinkedList;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Configuration information for legacy (non-JavaBean) event types.
  */
-public class ConfigurationEventTypeLegacy implements Serializable
-{
+public class ConfigurationEventTypeLegacy implements Serializable {
     private AccessorStyle accessorStyle;
     private CodeGeneration codeGeneration;
     private List<LegacyMethodPropDesc> methodProperties;
@@ -33,8 +32,7 @@ public class ConfigurationEventTypeLegacy implements Serializable
     /**
      * Ctor.
      */
-    public ConfigurationEventTypeLegacy()
-    {
+    public ConfigurationEventTypeLegacy() {
         accessorStyle = AccessorStyle.JAVABEAN;
         codeGeneration = CodeGeneration.ENABLED;
         methodProperties = new LinkedList<LegacyMethodPropDesc>();
@@ -80,58 +78,58 @@ public class ConfigurationEventTypeLegacy implements Serializable
     /**
      * Sets the accessor style. Thus controls how the engine exposes event properties
      * based on a Java class's public methods and public member variables.
+     *
      * @param accessorStyle is the style enum
      */
-    public void setAccessorStyle(AccessorStyle accessorStyle)
-    {
+    public void setAccessorStyle(AccessorStyle accessorStyle) {
         this.accessorStyle = accessorStyle;
     }
 
     /**
      * Sets the code generation flags. Thus controls whether or not the engine
      * generates code for access to event property values.
+     *
      * @param codeGeneration is the code generation enum
      */
-    public void setCodeGeneration(CodeGeneration codeGeneration)
-    {
+    public void setCodeGeneration(CodeGeneration codeGeneration) {
         this.codeGeneration = codeGeneration;
     }
 
     /**
      * Returns the accessor style.
+     *
      * @return accessor style
      */
-    public AccessorStyle getAccessorStyle()
-    {
+    public AccessorStyle getAccessorStyle() {
         return accessorStyle;
     }
 
     /**
      * Returns the code generation flag.
+     *
      * @return code generation flag
      */
-    public CodeGeneration getCodeGeneration()
-    {
+    public CodeGeneration getCodeGeneration() {
         return codeGeneration;
     }
 
     /**
      * Returns a list of descriptors specifying explicitly configured method names
      * and their property name.
+     *
      * @return list of explicit method-access descriptors
      */
-    public List<LegacyMethodPropDesc> getMethodProperties()
-    {
+    public List<LegacyMethodPropDesc> getMethodProperties() {
         return methodProperties;
     }
 
     /**
      * Returns a list of descriptors specifying explicitly configured field names
      * and their property name.
+     *
      * @return list of explicit field-access descriptors
      */
-    public List<LegacyFieldPropDesc> getFieldProperties()
-    {
+    public List<LegacyFieldPropDesc> getFieldProperties() {
         return fieldProperties;
     }
 
@@ -141,39 +139,39 @@ public class ConfigurationEventTypeLegacy implements Serializable
      * The accessor method is expected to be a public method with no parameters
      * for simple event properties, or with a single integer parameter for indexed
      * event properties, or with a single String parameter for mapped event properties.
-     * @param name is the event property name
+     *
+     * @param name           is the event property name
      * @param accessorMethod is the accessor method name.
      */
-    public void addMethodProperty(String name, String accessorMethod)
-    {
+    public void addMethodProperty(String name, String accessorMethod) {
         methodProperties.add(new LegacyMethodPropDesc(name, accessorMethod));
     }
 
     /**
      * Adds the named event property backed by the named accessor field.
-     * @param name is the event property name
+     *
+     * @param name          is the event property name
      * @param accessorField is the accessor field underlying the name
      */
-    public void addFieldProperty(String name, String accessorField)
-    {
+    public void addFieldProperty(String name, String accessorField) {
         fieldProperties.add(new LegacyFieldPropDesc(name, accessorField));
     }
 
     /**
      * Returns the type's property resolution style to use.
+     *
      * @return property resolution style
      */
-    public Configuration.PropertyResolutionStyle getPropertyResolutionStyle()
-    {
+    public Configuration.PropertyResolutionStyle getPropertyResolutionStyle() {
         return propertyResolutionStyle;
     }
 
     /**
      * Sets the type's property resolution style to use.
+     *
      * @param propertyResolutionStyle is the property resolution style to use for the type
      */
-    public void setPropertyResolutionStyle(Configuration.PropertyResolutionStyle propertyResolutionStyle)
-    {
+    public void setPropertyResolutionStyle(Configuration.PropertyResolutionStyle propertyResolutionStyle) {
         this.propertyResolutionStyle = propertyResolutionStyle;
     }
 
@@ -181,10 +179,10 @@ public class ConfigurationEventTypeLegacy implements Serializable
      * Returns the name of the factory method, either fully-qualified or just a method name if the
      * method is on the same class as the configured class, to use when instantiating
      * objects of the type.
+     *
      * @return factory methods
      */
-    public String getFactoryMethod()
-    {
+    public String getFactoryMethod() {
         return factoryMethod;
     }
 
@@ -192,33 +190,34 @@ public class ConfigurationEventTypeLegacy implements Serializable
      * Returns the name of the factory method, either fully-qualified or just a method name if the
      * method is on the same class as the configured class, to use when instantiating
      * objects of the type.
+     *
      * @param factoryMethod factory methods
      */
-    public void setFactoryMethod(String factoryMethod)
-    {
+    public void setFactoryMethod(String factoryMethod) {
         this.factoryMethod = factoryMethod;
     }
 
     /**
      * Returns the method name of the method to use to copy the underlying event object.
+     *
      * @return method name
      */
-    public String getCopyMethod()
-    {
+    public String getCopyMethod() {
         return copyMethod;
     }
 
     /**
      * Sets the method name of the method to use to copy the underlying event object.
+     *
      * @param copyMethod method name
      */
-    public void setCopyMethod(String copyMethod)
-    {
+    public void setCopyMethod(String copyMethod) {
         this.copyMethod = copyMethod;
     }
 
     /**
      * Returns the property name of the property providing the start timestamp value.
+     *
      * @return start timestamp property name
      */
     public String getStartTimestampPropertyName() {
@@ -227,6 +226,7 @@ public class ConfigurationEventTypeLegacy implements Serializable
 
     /**
      * Sets the property name of the property providing the start timestamp value.
+     *
      * @param startTimestampPropertyName start timestamp property name
      */
     public void setStartTimestampPropertyName(String startTimestampPropertyName) {
@@ -235,6 +235,7 @@ public class ConfigurationEventTypeLegacy implements Serializable
 
     /**
      * Returns the property name of the property providing the end timestamp value.
+     *
      * @return end timestamp property name
      */
     public String getEndTimestampPropertyName() {
@@ -243,6 +244,7 @@ public class ConfigurationEventTypeLegacy implements Serializable
 
     /**
      * Sets the property name of the property providing the end timestamp value.
+     *
      * @param endTimestampPropertyName start timestamp property name
      */
     public void setEndTimestampPropertyName(String endTimestampPropertyName) {
@@ -252,38 +254,37 @@ public class ConfigurationEventTypeLegacy implements Serializable
     /**
      * Encapsulates information about an accessor field backing a named event property.
      */
-    public static class LegacyFieldPropDesc implements Serializable
-    {
+    public static class LegacyFieldPropDesc implements Serializable {
         private String name;
         private String accessorFieldName;
         private static final long serialVersionUID = 3725953138684324339L;
 
         /**
          * Ctor.
-         * @param name is the event property name
+         *
+         * @param name              is the event property name
          * @param accessorFieldName is the accessor field name
          */
-        public LegacyFieldPropDesc(String name, String accessorFieldName)
-        {
+        public LegacyFieldPropDesc(String name, String accessorFieldName) {
             this.name = name;
             this.accessorFieldName = accessorFieldName;
         }
 
         /**
          * Returns the event property name.
+         *
          * @return event property name
          */
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
         /**
          * Returns the accessor field name.
+         *
          * @return accessor field name
          */
-        public String getAccessorFieldName()
-        {
+        public String getAccessorFieldName() {
             return accessorFieldName;
         }
     }
@@ -291,38 +292,37 @@ public class ConfigurationEventTypeLegacy implements Serializable
     /**
      * Encapsulates information about an accessor method backing a named event property.
      */
-    public static class LegacyMethodPropDesc implements Serializable
-    {
+    public static class LegacyMethodPropDesc implements Serializable {
         private String name;
         private String accessorMethodName;
         private static final long serialVersionUID = 3510051879181321459L;
 
         /**
          * Ctor.
-         * @param name is the event property name
+         *
+         * @param name               is the event property name
          * @param accessorMethodName is the name of the accessor method
          */
-        public LegacyMethodPropDesc(String name, String accessorMethodName)
-        {
+        public LegacyMethodPropDesc(String name, String accessorMethodName) {
             this.name = name;
             this.accessorMethodName = accessorMethodName;
         }
 
         /**
          * Returns the event property name.
+         *
          * @return event property name
          */
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
         /**
          * Returns the accessor method name.
+         *
          * @return accessor method name
          */
-        public String getAccessorMethodName()
-        {
+        public String getAccessorMethodName() {
             return accessorMethodName;
         }
     }

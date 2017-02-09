@@ -19,40 +19,35 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 /**
  * Represents the avedev(...) aggregate function is an expression tree.
  */
-public class ExprAvedevNode extends ExprAggregateNodeBase
-{
+public class ExprAvedevNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 252403936366503567L;
 
     private boolean hasFilter;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprAvedevNode(boolean distinct)
-    {
+    public ExprAvedevNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeAvedev(validationContext.getStatementExtensionSvcContext(), this, childType, positionalParams);
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprAvedevNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprAvedevNode)) {
             return false;
         }
 
         return true;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "avedev";
     }
 

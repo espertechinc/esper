@@ -22,39 +22,32 @@ import junit.framework.TestCase;
 
 import java.util.Set;
 
-public class TestIndexedTableLookupStrategy extends TestCase
-{
+public class TestIndexedTableLookupStrategy extends TestCase {
     private EventType eventType;
     private IndexedTableLookupStrategy lookupStrategy;
     private PropertyIndexedEventTable propertyMapEventIndex;
 
-    public void setUp()
-    {
+    public void setUp() {
         eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
 
-        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(0, eventType, new String[] {"theString", "intPrimitive"}, false, null);
+        PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(0, eventType, new String[]{"theString", "intPrimitive"}, false, null);
         propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
-        lookupStrategy = new IndexedTableLookupStrategy(eventType, new String[] {"theString", "intPrimitive"}, propertyMapEventIndex);
+        lookupStrategy = new IndexedTableLookupStrategy(eventType, new String[]{"theString", "intPrimitive"}, propertyMapEventIndex);
 
-        propertyMapEventIndex.add(new EventBean[] {SupportEventBeanFactory.createObject(new SupportBean("a", 1))});
+        propertyMapEventIndex.add(new EventBean[]{SupportEventBeanFactory.createObject(new SupportBean("a", 1))});
     }
 
-    public void testLookup()
-    {
+    public void testLookup() {
         Set<EventBean> events = lookupStrategy.lookup(SupportEventBeanFactory.createObject(new SupportBean("a", 1)), null, null);
 
         assertEquals(1, events.size());
     }
 
-    public void testInvalid()
-    {
-        try
-        {
-            new IndexedTableLookupStrategy(eventType, new String[] {"theString", "xxx"}, propertyMapEventIndex);
+    public void testInvalid() {
+        try {
+            new IndexedTableLookupStrategy(eventType, new String[]{"theString", "xxx"}, propertyMapEventIndex);
             fail();
-        }
-        catch (IllegalArgumentException ex)
-        {
+        } catch (IllegalArgumentException ex) {
             // expected
         }
     }

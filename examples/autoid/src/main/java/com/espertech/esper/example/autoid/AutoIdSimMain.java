@@ -10,28 +10,30 @@
  */
 package com.espertech.esper.example.autoid;
 
-import com.espertech.esper.client.*;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import java.net.URL;
-import java.util.Random;
-import java.io.StringReader;
-import java.io.IOException;
-
+import com.espertech.esper.client.Configuration;
+import com.espertech.esper.client.EPRuntime;
+import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPServiceProviderManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
+import java.util.Random;
 
 public class AutoIdSimMain implements Runnable {
 
-    private static Logger log = LoggerFactory.getLogger( AutoIdSimMain.class );
+    private static Logger log = LoggerFactory.getLogger(AutoIdSimMain.class);
 
     private final static Random RANDOM = new Random(System.currentTimeMillis());
-    private final static String[] SENSOR_IDS = {"urn:epc:1:4.16.30", "urn:epc:1:4.16.32", "urn:epc:1:4.16.36", "urn:epc:1:4.16.38" };
+    private final static String[] SENSOR_IDS = {"urn:epc:1:4.16.30", "urn:epc:1:4.16.32", "urn:epc:1:4.16.36", "urn:epc:1:4.16.38"};
     private final static String XML_ROOT = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<pmlcore:Sensor \n" +
             "  xmlns=\"urn:autoid:specification:interchange:PMLCore:xml:schema:1\" \n" +
@@ -46,8 +48,7 @@ public class AutoIdSimMain implements Runnable {
     private final boolean continuousSimulation;
     private final DocumentBuilder documentBuilder;
 
-    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException
-    {
+    public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
         if (args.length < 1) {
             System.out.println("Arguments are: <numberOfEvents>");
             System.exit(-1);
@@ -62,8 +63,7 @@ public class AutoIdSimMain implements Runnable {
             return;
         }
 
-        if (events > 1000)
-        {
+        if (events > 1000) {
             System.out.println("Invalid numberOfEvents: " + args[0]);
             System.out.println("The maxiumum for this example is 1000 events, since the example retains the last 60 seconds of events and each event is an XML document, and heap memory size is 256k for this example.");
             System.exit(-2);
@@ -75,8 +75,7 @@ public class AutoIdSimMain implements Runnable {
         autoIdSimMain.run();
     }
 
-    public AutoIdSimMain(int numEvents, String engineURI, boolean continuousSimulation) throws ParserConfigurationException
-    {
+    public AutoIdSimMain(int numEvents, String engineURI, boolean continuousSimulation) throws ParserConfigurationException {
         this.numEvents = numEvents;
         this.engineURI = engineURI;
         this.continuousSimulation = continuousSimulation;
@@ -87,8 +86,7 @@ public class AutoIdSimMain implements Runnable {
         documentBuilder = builderFactory.newDocumentBuilder();
     }
 
-    public void run()
-    {
+    public void run() {
         // load config - this defines the XML event types to be processed
         String configFile = "esper.examples.cfg.xml";
         URL url = AutoIdSimMain.class.getClassLoader().getResource(configFile);
@@ -109,13 +107,12 @@ public class AutoIdSimMain implements Runnable {
         // Send events
         if (!continuousSimulation) {
             int eventCount = 0;
-            while(eventCount < numEvents) {
+            while (eventCount < numEvents) {
                 sendEvent(epService.getEPRuntime());
                 eventCount++;
             }
-        }
-        else {
-            while(true) {
+        } else {
+            while (true) {
                 sendEvent(epService.getEPRuntime());
                 try {
                     Thread.sleep(200);
@@ -126,20 +123,17 @@ public class AutoIdSimMain implements Runnable {
         }
     }
 
-    private void sendEvent(EPRuntime epRuntime)
-    {
+    private void sendEvent(EPRuntime epRuntime) {
         try {
             String eventXMLText = generateEvent();
             Document simpleDoc = documentBuilder.parse(new InputSource(new StringReader(eventXMLText)));
             epRuntime.sendEvent(simpleDoc);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("Error sending event: " + ex.getMessage(), ex);
         }
     }
 
-    private String generateEvent()
-    {
+    private String generateEvent() {
         StringBuilder buffer = new StringBuilder();
         buffer.append(XML_ROOT);
 
@@ -151,8 +145,7 @@ public class AutoIdSimMain implements Runnable {
         buffer.append("<pmlcore:Observation>");
         buffer.append("<pmlcore:Command>READ_PALLET_TAGS_ONLY</pmlcore:Command>");
 
-        for (int i = 0; i < RANDOM.nextInt(6) + 1; i++)
-        {
+        for (int i = 0; i < RANDOM.nextInt(6) + 1; i++) {
             buffer.append("<pmlcore:Tag><pmluid:ID>urn:epc:1:2.24.400</pmluid:ID></pmlcore:Tag>");
         }
 
@@ -163,6 +156,6 @@ public class AutoIdSimMain implements Runnable {
     }
 
     public void destroy() {
-        EPServiceProviderManager.getProvider(engineURI).getEPAdministrator().destroyAllStatements();        
+        EPServiceProviderManager.getProvider(engineURI).getEPAdministrator().destroyAllStatements();
     }
 }

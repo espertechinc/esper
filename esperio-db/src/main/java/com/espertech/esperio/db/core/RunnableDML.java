@@ -19,21 +19,18 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class RunnableDML implements Runnable
-{
+public class RunnableDML implements Runnable {
     private static Logger log = LoggerFactory.getLogger(RunnableDML.class);
 
     private final RunnableDMLContext context;
     private final EventBean theEvent;
 
-    public RunnableDML(RunnableDMLContext context, EventBean theEvent)
-    {
+    public RunnableDML(RunnableDMLContext context, EventBean theEvent) {
         this.context = context;
         this.theEvent = theEvent;
     }
 
-    public void run()
-    {
+    public void run() {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled))) {
             log.debug("Executing DML work unit for event " + theEvent);
         }
@@ -41,12 +38,11 @@ public class RunnableDML implements Runnable
         int retryMax = context.getRetry() == null ? 1 : context.getRetry();
         int retryCount = 0;
 
-        while(true) {
+        while (true) {
             try {
                 tryDML();
                 break;
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error("Error in DML named '" + context.getName() + "' :" + t.getMessage(), t);
                 retryCount++;
                 if (retryCount >= retryMax) {
@@ -58,25 +54,21 @@ public class RunnableDML implements Runnable
                     log.warn("Retry DML named '" + context.getName() + "', retry interval msec " + interval + " retry count " + retryCount + " max " + retryMax);
                     try {
                         Thread.sleep(interval);
-                    }
-                    catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         break;
                     }
-                }
-                else {
+                } else {
                     log.warn("Retry DML named '" + context.getName() + "', retry count " + retryCount + " max " + retryMax);
                 }
             }
         }
     }
 
-    private void tryDML() throws DatabaseConfigException, SQLException
-    {
+    private void tryDML() throws DatabaseConfigException, SQLException {
         Connection connection = context.getConnectionFactory().getConnection();
         try {
             context.getDmlStatement().execute(connection, theEvent);
-        }
-        finally {
+        } finally {
             connection.close();
         }
     }

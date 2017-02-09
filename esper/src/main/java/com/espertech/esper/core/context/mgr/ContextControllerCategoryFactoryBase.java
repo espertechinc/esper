@@ -66,12 +66,12 @@ public abstract class ContextControllerCategoryFactoryBase extends ContextContro
 
     public void populateFilterAddendums(IdentityHashMap<FilterSpecCompiled, FilterValueSetParam[][]> filterAddendum, ContextControllerStatementDesc statement, Object categoryIndex, int contextId) {
         ContextControllerStatementCtxCacheFilters statementInfo = (ContextControllerStatementCtxCacheFilters) statement.getCaches()[factoryContext.getNestingLevel() - 1];
-        ContextDetailCategoryItem category = categorySpec.getItems().get((Integer)categoryIndex);
+        ContextDetailCategoryItem category = categorySpec.getItems().get((Integer) categoryIndex);
         getAddendumFilters(filterAddendum, category, categorySpec, statementInfo.getFilterSpecs(), statement);
     }
 
     public void populateContextInternalFilterAddendums(ContextInternalFilterAddendum filterAddendum, Object categoryIndex) {
-        ContextDetailCategoryItem category = categorySpec.getItems().get((Integer)categoryIndex);
+        ContextDetailCategoryItem category = categorySpec.getItems().get((Integer) categoryIndex);
         getAddendumFilters(filterAddendum.getFilterAddendum(), category, categorySpec, filtersSpecsNestedContexts, null);
     }
 
@@ -113,8 +113,7 @@ public abstract class ContextControllerCategoryFactoryBase extends ContextContro
     }
 
     private void validateStatementForContext(ContextControllerStatementBase statement, StatementSpecCompiledAnalyzerResult streamAnalysis)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<FilterSpecCompiled> filters = streamAnalysis.getFilters();
 
         boolean isCreateWindow = statement.getStatementSpec().getCreateWindowDesc() != null;
@@ -167,9 +166,8 @@ public abstract class ContextControllerCategoryFactoryBase extends ContextContro
                 }
                 addAddendums(addendums, filtersSpec, category, categorySpec);
             }
-        }
-        // handle segmented context for create-window
-        else {
+        } else {
+            // handle segmented context for create-window
             String declaredAsName = statement.getStatement().getStatementSpec().getCreateWindowDesc().getAsEventTypeName();
             if (declaredAsName != null) {
                 for (FilterSpecCompiled filtersSpec : filters) {

@@ -24,24 +24,19 @@ import java.util.Set;
 /**
  * Index lookup strategy into a poll-based cache result.
  */
-public class HistoricalIndexLookupStrategySorted implements HistoricalIndexLookupStrategy
-{
+public class HistoricalIndexLookupStrategySorted implements HistoricalIndexLookupStrategy {
     private final SortedAccessStrategy strategy;
 
-    public HistoricalIndexLookupStrategySorted(int lookupStream, QueryGraphValueEntryRange property)
-    {
+    public HistoricalIndexLookupStrategySorted(int lookupStream, QueryGraphValueEntryRange property) {
         strategy = SortedAccessStrategyFactory.make(false, lookupStream, -1, property, null);
     }
 
-    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext context)
-    {
+    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext context) {
         // The table may not be indexed as the cache may not actively cache, in which case indexing doesn't makes sense
-        if (indexTable[0] instanceof PropertySortedEventTable)
-        {
+        if (indexTable[0] instanceof PropertySortedEventTable) {
             PropertySortedEventTable index = (PropertySortedEventTable) indexTable[0];
             Set<EventBean> events = strategy.lookup(lookupEvent, index, context);
-            if (events != null)
-            {
+            if (events != null) {
                 return events.iterator();
             }
             return null;

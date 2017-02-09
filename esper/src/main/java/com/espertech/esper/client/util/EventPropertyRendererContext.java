@@ -17,8 +17,7 @@ import com.espertech.esper.event.util.OutputValueRenderer;
  * Context for use with the {@link EventPropertyRenderer} interface for use with the JSON or XML event renderes to handle custom event property rendering.
  * <p>Do not retain a handle to the renderer context as this object changes for each event property.</p>
  */
-public class EventPropertyRendererContext
-{
+public class EventPropertyRendererContext {
     private final EventType eventType;
     private final boolean jsonFormatted;
 
@@ -31,7 +30,8 @@ public class EventPropertyRendererContext
 
     /**
      * Ctor.
-     * @param eventType event type
+     *
+     * @param eventType     event type
      * @param jsonFormatted boolean if JSON formatted
      */
     public EventPropertyRendererContext(EventType eventType, boolean jsonFormatted) {
@@ -41,6 +41,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the property name to be rendered.
+     *
      * @return property name
      */
     public String getPropertyName() {
@@ -49,6 +50,7 @@ public class EventPropertyRendererContext
 
     /**
      * Sets the property name to be rendered.
+     *
      * @param propertyName property name
      */
     public void setPropertyName(String propertyName) {
@@ -57,6 +59,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the property value.
+     *
      * @return value
      */
     public Object getPropertyValue() {
@@ -65,6 +68,7 @@ public class EventPropertyRendererContext
 
     /**
      * Sets the property value.
+     *
      * @param propertyValue to set
      */
     public void setPropertyValue(Object propertyValue) {
@@ -73,6 +77,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the output value default renderer.
+     *
      * @return renderer
      */
     public OutputValueRenderer getDefaultRenderer() {
@@ -81,6 +86,7 @@ public class EventPropertyRendererContext
 
     /**
      * Sets the output value default renderer.
+     *
      * @param defaultRenderer renderer to set
      */
     public void setDefaultRenderer(OutputValueRenderer defaultRenderer) {
@@ -89,6 +95,7 @@ public class EventPropertyRendererContext
 
     /**
      * Sets the string builer
+     *
      * @param stringBuilder to set
      */
     public void setStringBuilderAndReset(StringBuilder stringBuilder) {
@@ -99,6 +106,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the string builder.
+     *
      * @return string builder to use
      */
     public StringBuilder getStringBuilder() {
@@ -107,6 +115,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the event type
+     *
      * @return event type
      */
     public EventType getEventType() {
@@ -115,6 +124,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the index for indexed properties.
+     *
      * @return property index
      */
     public Integer getIndexedPropertyIndex() {
@@ -123,6 +133,7 @@ public class EventPropertyRendererContext
 
     /**
      * Sets the index for indexed properties.
+     *
      * @param indexedPropertyIndex property index
      */
     public void setIndexedPropertyIndex(Integer indexedPropertyIndex) {
@@ -131,6 +142,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns the map key for mapped properties
+     *
      * @return map key
      */
     public String getMappedPropertyKey() {
@@ -139,6 +151,7 @@ public class EventPropertyRendererContext
 
     /**
      * Sets the map key for mapped properties
+     *
      * @param mappedPropertyKey map key to set
      */
     public void setMappedPropertyKey(String mappedPropertyKey) {
@@ -147,6 +160,7 @@ public class EventPropertyRendererContext
 
     /**
      * Returns true for JSON formatted.
+     *
      * @return indicator
      */
     public boolean isJsonFormatted() {
@@ -155,10 +169,11 @@ public class EventPropertyRendererContext
 
     /**
      * Copies context.
+     *
      * @return copy
      */
     public EventPropertyRendererContext copy() {
-        EventPropertyRendererContext copy = new EventPropertyRendererContext(this.getEventType(), this.isJsonFormatted());                
+        EventPropertyRendererContext copy = new EventPropertyRendererContext(this.getEventType(), this.isJsonFormatted());
         copy.setMappedPropertyKey(this.getMappedPropertyKey());
         copy.setIndexedPropertyIndex(this.getIndexedPropertyIndex());
         copy.setDefaultRenderer(this.getDefaultRenderer());

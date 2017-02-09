@@ -19,8 +19,7 @@ import com.espertech.esper.epl.lookup.IndexMultiKey;
  * An instance of this class is associated with a specific named window. The processor
  * provides the views to create-window, on-delete statements and statements selecting from a named window.
  */
-public class NamedWindowProcessorInstance
-{
+public class NamedWindowProcessorInstance {
     private final Integer agentInstanceId;
     private final NamedWindowTailViewInstance tailViewInstance;
     private final NamedWindowRootViewInstance rootViewInstance;
@@ -42,18 +41,17 @@ public class NamedWindowProcessorInstance
 
     /**
      * Returns the number of events held.
+     *
      * @return number of events
      */
-    public long getCountDataWindow()
-    {
+    public long getCountDataWindow() {
         return tailViewInstance.getNumberOfEvents();
     }
 
     /**
      * Deletes a named window and removes any associated resources.
      */
-    public void destroy()
-    {
+    public void destroy() {
         tailViewInstance.destroy();
         rootViewInstance.destroy();
     }

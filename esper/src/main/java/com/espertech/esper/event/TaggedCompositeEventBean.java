@@ -18,10 +18,10 @@ import com.espertech.esper.client.EventBean;
  * For use with patterns in which pattern tags are properties in a result event and property values
  * are the event itself that is matching in a pattern.
  */
-public interface TaggedCompositeEventBean
-{
+public interface TaggedCompositeEventBean {
     /**
      * Returns the event for the tag.
+     *
      * @param property is the tag name
      * @return event
      */

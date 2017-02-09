@@ -14,9 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
-import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;

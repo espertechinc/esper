@@ -24,8 +24,7 @@ import java.util.Map;
 /**
  * Represents an equals (=) comparator in a filter expressiun tree.
  */
-public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
-{
+public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
     private final boolean isNotEquals;
     private final boolean isIs;
     private transient ExprEvaluator evaluator;
@@ -34,22 +33,20 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
 
     /**
      * Ctor.
+     *
      * @param isNotEquals - true if this is a (!=) not equals rather then equals, false if its a '=' equals
-     * @param isIs - true when "is" or "is not" (instead of = or &lt;&gt;)
+     * @param isIs        - true when "is" or "is not" (instead of = or &lt;&gt;)
      */
-    public ExprEqualsNodeImpl(boolean isNotEquals, boolean isIs)
-    {
+    public ExprEqualsNodeImpl(boolean isNotEquals, boolean isIs) {
         this.isNotEquals = isNotEquals;
         this.isIs = isIs;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return evaluator;
     }
 
-    public boolean isNotEquals()
-    {
+    public boolean isNotEquals() {
         return isNotEquals;
     }
 
@@ -57,11 +54,9 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
         return isIs;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         // Must have 2 child nodes
-        if (this.getChildNodes().length != 2)
-        {
+        if (this.getChildNodes().length != 2) {
             throw new ExprValidationException("Invalid use of equals, expecting left-hand side and right-hand side but received " + this.getChildNodes().length + " expressions");
         }
         ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
@@ -71,26 +66,21 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
         Class typeTwo = JavaClassHelper.getBoxedType(evaluators[1].getType());
 
         // Null constants can be compared for any type
-        if ((typeOne == null) || (typeTwo == null))
-        {
+        if ((typeOne == null) || (typeTwo == null)) {
             evaluator = getEvaluator(evaluators[0], evaluators[1]);
             return null;
         }
 
-        if (typeOne.equals(typeTwo) || typeOne.isAssignableFrom(typeTwo))
-        {
+        if (typeOne.equals(typeTwo) || typeOne.isAssignableFrom(typeTwo)) {
             evaluator = getEvaluator(evaluators[0], evaluators[1]);
             return null;
         }
 
         // Get the common type such as Bool, String or Double and Long
         Class coercionType;
-        try
-        {
+        try {
             coercionType = JavaClassHelper.getCompareToCoercionType(typeOne, typeTwo);
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             throw new ExprValidationException("Implicit conversion from datatype '" +
                     typeTwo.getSimpleName() +
                     "' to '" +
@@ -100,14 +90,10 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
 
         // Check if we need to coerce
         if ((coercionType == JavaClassHelper.getBoxedType(typeOne)) &&
-            (coercionType == JavaClassHelper.getBoxedType(typeTwo)))
-        {
+                (coercionType == JavaClassHelper.getBoxedType(typeTwo))) {
             evaluator = getEvaluator(evaluators[0], evaluators[1]);
-        }
-        else
-        {
-            if (!JavaClassHelper.isNumeric(coercionType))
-            {
+        } else {
+            if (!JavaClassHelper.isNumeric(coercionType)) {
                 throw new ExprValidationException("Cannot convert datatype '" + coercionType.getName() + "' to a numeric value");
             }
             SimpleNumberCoercer numberCoercerLHS = SimpleNumberCoercerFactory.getCoercer(typeOne, coercionType);
@@ -117,8 +103,7 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
@@ -133,12 +118,10 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
             if (isNotEquals) {
                 writer.append("not ");
             }
-        }
-        else {
+        } else {
             if (!isNotEquals) {
                 writer.append("=");
-            }
-            else {
+            } else {
                 writer.append("!=");
             }
         }
@@ -149,10 +132,8 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
         return ExprPrecedenceEnum.EQUALS;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprEqualsNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprEqualsNodeImpl)) {
             return false;
         }
 
@@ -163,8 +144,7 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
     private ExprEvaluator getEvaluator(ExprEvaluator lhs, ExprEvaluator rhs) {
         if (isIs) {
             return new ExprEqualsEvaluatorIs(this, lhs, rhs);
-        }
-        else {
+        } else {
             return new ExprEqualsEvaluatorEquals(this, lhs, rhs);
         }
     }
@@ -185,9 +165,13 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
         }
 
         public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprEquals(parent);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qExprEquals(parent);
+            }
             Boolean result = evaluateInternal(eventsPerStream, isNewData, context);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprEquals(result);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprEquals(result);
+            }
             return result;
         }
 
@@ -196,12 +180,11 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
             Object rightResult = rhs.evaluate(eventsPerStream, isNewData, context);
 
             if (!parent.isIs) {
-                if (leftResult == null || rightResult == null)  // null comparison
-                {
+                if (leftResult == null || rightResult == null) {
+                    // null comparison
                     return null;
                 }
-            }
-            else {
+            } else {
                 if (leftResult == null) {
                     return rightResult == null;
                 }
@@ -278,8 +261,7 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode
                 boolean result;
                 if (leftResult == null) {
                     result = rightResult == null ^ parent.isNotEquals;
-                }
-                else {
+                } else {
                     result = (rightResult != null && leftResult.equals(rightResult)) ^ parent.isNotEquals;
                 }
                 InstrumentationHelper.get().aExprIs(result);

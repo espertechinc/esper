@@ -10,18 +10,13 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.rowregex.RowRegexExprNode;
-
-import java.util.List;
-import java.util.ArrayList;
 import java.io.Serializable;
 import java.io.StringWriter;
 
 /**
  * For use in match recognize pattern expression as a placeholder to represent its child nodes.
  */
-public class MatchRecognizeRegExPlaceholder extends MatchRecognizeRegEx implements Serializable
-{
+public class MatchRecognizeRegExPlaceholder extends MatchRecognizeRegEx implements Serializable {
     private static final long serialVersionUID = -3755313376510761985L;
 
     public void writeEPL(StringWriter writer) {

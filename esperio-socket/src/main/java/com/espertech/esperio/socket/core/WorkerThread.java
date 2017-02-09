@@ -61,8 +61,7 @@ public class WorkerThread extends Thread {
 
         if ((socketConfig.getDataType() == null) || (socketConfig.getDataType() == DataType.OBJECT)) {
             ois = new ObjectInputStream(socket.getInputStream());
-        }
-        else {
+        } else {
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         }
     }
@@ -79,34 +78,29 @@ public class WorkerThread extends Thread {
                 if (ois != null) {
                     Object object = ois.readObject();
                     handleObject(object);
-                }
-                else {
+                } else {
                     String str = br.readLine();
                     if (str != null) {
                         handleString(str);
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }
             }
-        }
-        catch (EOFException ex) {
+        } catch (EOFException ex) {
             log.debug("EOF received from connection");
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             if (!isShutdown) {
                 log.error("I/O error: " + ex.getMessage(), ex);
             }
-        }
-        catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
             log.error("Class not found: " + ex.getMessage());
-        }
-        finally {
+        } finally {
             try {
                 socket.close();
                 runnable.remove(this);
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
         }
     }
 
@@ -120,12 +114,10 @@ public class WorkerThread extends Thread {
                     return;
                 }
                 engine.getEPRuntime().sendEvent(map, type);
-            }
-            else {
+            } else {
                 engine.getEPRuntime().sendEvent(input);
             }
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error("Unexpected exception encountered sending event " + input + " service '" + serviceName + "' :" + t.getMessage(), t);
         }
     }
@@ -150,8 +142,7 @@ public class WorkerThread extends Thread {
                     }
                 }
                 eventTypeName = parameters.get("stream");
-            }
-            else {
+            } else {
                 // handle property-ordered-csv
                 int idx = -1;
                 String[] propertyOrder = socketConfig.getPropertyOrder().split(",");
@@ -187,11 +178,11 @@ public class WorkerThread extends Thread {
 
             EventBean theEvent = cacheEntry.getEventBeanManufacturer().make(values);
             engine.getEPRuntime().sendEvent(theEvent);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error("Unexpected exception encountered sending event " + input + " service '" + serviceName + "' :" + t.getMessage(), t);
         }
     }
+
     private WriterCacheEntry makeCacheEntry(String eventTypeName) {
 
         EventType eventType = engine.getEventAdapterService().getExistsTypeByName(eventTypeName);
@@ -211,8 +202,7 @@ public class WorkerThread extends Thread {
         List<WriteablePropertyDescriptor> writablePropertiesList = new ArrayList<WriteablePropertyDescriptor>();
         List<SimpleTypeParser> parserList = new ArrayList<SimpleTypeParser>();
 
-        for (WriteablePropertyDescriptor writableDesc : writablesSet)
-        {
+        for (WriteablePropertyDescriptor writableDesc : writablesSet) {
             SimpleTypeParser parser = SimpleTypeParserFactory.getParser(writableDesc.getType());
             if (parser == null) {
                 log.debug("No parser found for type '" + writableDesc.getType() + "'");
@@ -229,8 +219,7 @@ public class WorkerThread extends Thread {
         EventBeanManufacturer eventBeanManufacturer;
         try {
             eventBeanManufacturer = engine.getEventAdapterService().getManufacturer(eventType, writableProperties, engine.getEngineImportService(), false);
-        }
-        catch (EventBeanManufactureException e) {
+        } catch (EventBeanManufactureException e) {
             log.info("Unable to create manufacturer for event type: " + e.getMessage(), e);
             return null;
         }

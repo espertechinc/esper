@@ -30,16 +30,14 @@ import java.util.List;
  * and events pushed out of the window. This is useful for view testing of views that use the oldData values
  * supplied in the update method.
  */
-public class SupportStreamImpl implements EventStream
-{
+public class SupportStreamImpl implements EventStream {
     private final EventType eventType;
     private final int depth;
 
     List<EventBean> events;
     View[] childViews;
 
-    public SupportStreamImpl(Class clazz, int depth)
-    {
+    public SupportStreamImpl(Class clazz, int depth) {
         this.eventType = SupportEventTypeFactory.createBeanType(clazz);
         this.depth = depth;
 
@@ -49,86 +47,73 @@ public class SupportStreamImpl implements EventStream
 
     /**
      * Insert a single event to the stream
+     *
      * @param theEvent
      */
-    public void insert(EventBean theEvent)
-    {
+    public void insert(EventBean theEvent) {
         events.add(theEvent);
 
         EventBean[] oldEvents = null;
-        if (events.size() > depth)
-        {
-            oldEvents = new EventBean[] {events.remove(0)};
+        if (events.size() > depth) {
+            oldEvents = new EventBean[]{events.remove(0)};
         }
 
-        for (View child : childViews)
-        {
-            child.update(new EventBean[] {theEvent}, oldEvents);
+        for (View child : childViews) {
+            child.update(new EventBean[]{theEvent}, oldEvents);
         }
     }
 
     /**
      * Insert a bunch of events to the stream
+     *
      * @param eventArray
      */
-    public void insert(EventBean[] eventArray)
-    {
-        for (EventBean theEvent : eventArray)
-        {
+    public void insert(EventBean[] eventArray) {
+        for (EventBean theEvent : eventArray) {
             events.add(theEvent);
         }
 
         EventBean[] oldEvents = null;
         int expiredCount = events.size() - depth;
-        if (expiredCount > 0)
-        {
+        if (expiredCount > 0) {
             oldEvents = new EventBean[expiredCount];
-            for (int i = 0; i < expiredCount; i++)
-            {
+            for (int i = 0; i < expiredCount; i++) {
                 oldEvents[i] = events.remove(0);
             }
         }
 
-        for (View child : childViews)
-        {
+        for (View child : childViews) {
             child.update(eventArray, oldEvents);
         }
     }
 
-    public Object get(long index)
-    {
-        if ((index > Integer.MAX_VALUE) || (index < Integer.MIN_VALUE))
-        {
+    public Object get(long index) {
+        if ((index > Integer.MAX_VALUE) || (index < Integer.MIN_VALUE)) {
             throw new IllegalArgumentException("Index not within int range supported by this implementation");
         }
-        return events.get((int)index);
+        return events.get((int) index);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         log.info(".iterator Not yet implemented");
         return null;
     }
 
-    public View addView(View view)
-    {
+    public View addView(View view) {
         childViews = ViewSupport.addView(childViews, view);
         view.setParent(this);
         return view;
     }
 
-    public View[] getViews()
-    {
+    public View[] getViews() {
         return childViews;
     }
 
-    public boolean removeView(View view)
-    {
+    public boolean removeView(View view) {
         int index = ViewSupport.findViewIndex(childViews, view);
         if (index == -1) {
             return false;
@@ -138,13 +123,11 @@ public class SupportStreamImpl implements EventStream
         return true;
     }
 
-    public void removeAllViews()
-    {
+    public void removeAllViews() {
         childViews = ViewSupport.EMPTY_VIEW_ARRAY;
     }
 
-    public boolean hasViews()
-    {
+    public boolean hasViews() {
         return childViews.length > 0;
     }
 

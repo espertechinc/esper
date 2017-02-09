@@ -17,13 +17,12 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esperio.db.core.ExecutorServices;
 import junit.framework.TestCase;
 
-import javax.naming.NamingException;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class TestDBAdapterDML extends TestCase
-{
+public class TestDBAdapterDML extends TestCase {
     private final static String ENGINE_URI = "TestDBAdapterDML";
 
     private final static String TABLE_NAME = "mytestupsert";
@@ -32,8 +31,7 @@ public class TestDBAdapterDML extends TestCase
         SupportDatabaseService.truncateTable(TABLE_NAME);
     }
 
-    public void testDML() throws InterruptedException, SQLException, NamingException
-    {
+    public void testDML() throws InterruptedException, SQLException, NamingException {
         String esperIODBConfig = "<esperio-db-configuration>\n" +
                 "<jdbc-connection name=\"db1\">\n" +
                 "<drivermanager-connection class-name=\"com.mysql.jdbc.Driver\" url=\"jdbc:mysql://localhost/test\" user=\"root\" password=\"password\"/>\n" +
@@ -67,8 +65,8 @@ public class TestDBAdapterDML extends TestCase
 
         provider.getEPRuntime().sendEvent(new SupportBean("b", 15));
         rows = SupportDatabaseService.readAll(TABLE_NAME);
-        EPAssertionUtil.assertEqualsExactOrder(rows, new Object[][] {{"A", 10, "a", 10.0d}, {"A", 15, "b", 15.0d}});
-        
+        EPAssertionUtil.assertEqualsExactOrder(rows, new Object[][]{{"A", 10, "a", 10.0d}, {"A", 15, "b", 15.0d}});
+
         // look up executor services
         Context context = provider.getContext();
         ExecutorServices result = (ExecutorServices) context.lookup("EsperIODBAdapter/ExecutorServices");

@@ -16,6 +16,7 @@ import java.util.Collection;
 
 public interface ExprDotStaticMethodWrap {
     public EPType getTypeInfo();
+
     public Collection convert(Object result);
 }
 

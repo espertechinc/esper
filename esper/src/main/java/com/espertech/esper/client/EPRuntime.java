@@ -24,8 +24,7 @@ import java.util.Set;
 /**
  * Interface to event stream processing runtime services.
  */
-public interface EPRuntime
-{
+public interface EPRuntime {
     /**
      * Send an event represented by a plain Java object to the event stream processing runtime.
      * <p>
@@ -45,8 +44,8 @@ public interface EPRuntime
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent
      * (except with the outbound-threading configuration), see {@link #route(java.util.Map, String)}).
      *
-     * @param map - map that contains event property values. Keys are expected to be of type String while values
-     * can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
+     * @param map              - map that contains event property values. Keys are expected to be of type String while values
+     *                         can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
      * @param mapEventTypeName - the name for the Map event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
      */
@@ -59,8 +58,8 @@ public interface EPRuntime
      * to avoid the possibility of a stack overflow due to nested calls to sendEvent
      * (except with the outbound-threading configuration), see {@link #route(Object[], String)}).
      *
-     * @param objectarray - array that contains event property values. Your application must ensure that property values
-     * match the exact same order that the property names and types have been declared, and that the array length matches the number of properties declared.
+     * @param objectarray              - array that contains event property values. Your application must ensure that property values
+     *                                 match the exact same order that the property names and types have been declared, and that the array length matches the number of properties declared.
      * @param objectArrayEventTypeName - the name for the Object-array event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
      */
@@ -81,6 +80,7 @@ public interface EPRuntime
     /**
      * Number of events evaluated over the lifetime of the event stream processing runtime,
      * or since the last resetStats() call.
+     *
      * @return number of events received
      */
     public long getNumEventsEvaluated();
@@ -99,10 +99,11 @@ public interface EPRuntime
      * processed before the next event is sent to the runtime through the
      * EPRuntime.sendEvent method.
      * <p>
-     *     Note: when outbound-threading is enabled, the thread delivering to listeners
-     *     is not the thread processing the original event. Therefore with outbound-threading
-     *     enabled the sendEvent method should be used by listeners instead.
+     * Note: when outbound-threading is enabled, the thread delivering to listeners
+     * is not the thread processing the original event. Therefore with outbound-threading
+     * enabled the sendEvent method should be used by listeners instead.
      * </p>
+     *
      * @param theEvent to route internally for processing by the event stream processing runtime
      */
     public void route(final Object theEvent);
@@ -116,12 +117,13 @@ public interface EPRuntime
      * processed before the next event is sent to the runtime through the
      * EPRuntime.sendEvent method.
      * <p>
-     *     Note: when outbound-threading is enabled, the thread delivering to listeners
-     *     is not the thread processing the original event. Therefore with outbound-threading
-     *     enabled the sendEvent method should be used by listeners instead.
+     * Note: when outbound-threading is enabled, the thread delivering to listeners
+     * is not the thread processing the original event. Therefore with outbound-threading
+     * enabled the sendEvent method should be used by listeners instead.
      * </p>
-     * @param map - map that contains event property values. Keys are expected to be of type String while values
-     * can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
+     *
+     * @param map           - map that contains event property values. Keys are expected to be of type String while values
+     *                      can be of any type. Keys and values should match those declared via Configuration for the given eventTypeName.
      * @param eventTypeName - the name for Map event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
      */
@@ -136,12 +138,13 @@ public interface EPRuntime
      * processed before the next event is sent to the runtime through the
      * EPRuntime.sendEvent method.
      * <p>
-     *     Note: when outbound-threading is enabled, the thread delivering to listeners
-     *     is not the thread processing the original event. Therefore with outbound-threading
-     *     enabled the sendEvent method should be used by listeners instead.
+     * Note: when outbound-threading is enabled, the thread delivering to listeners
+     * is not the thread processing the original event. Therefore with outbound-threading
+     * enabled the sendEvent method should be used by listeners instead.
      * </p>
-     * @param objectArray - object array that contains event property values. Your application must ensure that property values
-     * match the exact same order that the property names and types have been declared, and that the array length matches the number of properties declared.
+     *
+     * @param objectArray   - object array that contains event property values. Your application must ensure that property values
+     *                      match the exact same order that the property names and types have been declared, and that the array length matches the number of properties declared.
      * @param eventTypeName - the name for Object-array event type that was previously configured
      * @throws EPException - when the processing of the event leads to an error
      */
@@ -156,10 +159,11 @@ public interface EPRuntime
      * processed before the next event is sent to the runtime through the
      * EPRuntime.sendEvent method.
      * <p>
-     *     Note: when outbound-threading is enabled, the thread delivering to listeners
-     *     is not the thread processing the original event. Therefore with outbound-threading
-     *     enabled the sendEvent method should be used by listeners instead.
+     * Note: when outbound-threading is enabled, the thread delivering to listeners
+     * is not the thread processing the original event. Therefore with outbound-threading
+     * enabled the sendEvent method should be used by listeners instead.
      * </p>
+     *
      * @param node is the DOM node as an event
      * @throws EPException is thrown when the processing of the event lead to an error
      */
@@ -181,16 +185,18 @@ public interface EPRuntime
      * In the following statement only a MyEvent event with a 'quantity' property value of 5 or less does not match
      * this statement's event stream filter criteria:
      * <pre>select * from MyEvent(quantity &gt; 5)</pre>
-     * <p>
+     *
      * For patterns, if no pattern sub-expression is active for such event, the event is also unmatched.
+     *
      * @param listener is the listener to receive notification of unmatched events, or null to unregister a
-     * previously registered listener
+     *                 previously registered listener
      */
     public void setUnmatchedListener(UnmatchedListener listener);
 
     /**
      * Returns the current variable value for a global variable. A null value is a valid value for a variable.
      * Not for use with context-partitioned variables.
+     *
      * @param variableName is the name of the variable to return the value for
      * @return current variable value
      * @throws VariableNotFoundException if a variable by that name has not been declared
@@ -202,7 +208,8 @@ public interface EPRuntime
      * A null value is a valid value for a variable.
      * Only for use with context-partitioned variables.
      * Variable names provided must all be associated to the same context partition.
-     * @param variableNames are the names of the variables to return the value for
+     *
+     * @param variableNames            are the names of the variables to return the value for
      * @param contextPartitionSelector selector for the context partition to return the value for
      * @return current variable value
      * @throws VariableNotFoundException if a variable by that name has not been declared
@@ -213,6 +220,7 @@ public interface EPRuntime
      * Returns current variable values for each of the global variable names passed in,
      * guaranteeing consistency in the face of concurrent updates to the variables.
      * Not for use with context-partitioned variables.
+     *
      * @param variableNames is a set of variable names for which to return values
      * @return map of variable name and variable value
      * @throws VariableNotFoundException if any of the variable names has not been declared
@@ -223,6 +231,7 @@ public interface EPRuntime
      * Returns current variable values for all global variables,
      * guaranteeing consistency in the face of concurrent updates to the variables.
      * Not for use with context-partitioned variables.
+     *
      * @return map of variable name and variable value
      */
     public Map<String, Object> getVariableValueAll();
@@ -230,14 +239,15 @@ public interface EPRuntime
     /**
      * Sets the value of a single global variable.
      * <p>
-     *     Note that the thread setting the variable value queues the changes, i.e. it does not itself
-     *     re-evaluate such new variable value for any given statement. The timer thread performs this work.
+     * Note that the thread setting the variable value queues the changes, i.e. it does not itself
+     * re-evaluate such new variable value for any given statement. The timer thread performs this work.
      * </p>
      * Not for use with context-partitioned variables.
-     * @param variableName is the name of the variable to change the value of
+     *
+     * @param variableName  is the name of the variable to change the value of
      * @param variableValue is the new value of the variable, with null an allowed value
-     * @throws VariableValueException if the value does not match variable type or cannot be safely coerced
-     * to the variable type
+     * @throws VariableValueException    if the value does not match variable type or cannot be safely coerced
+     *                                   to the variable type
      * @throws VariableNotFoundException if the variable name has not been declared
      */
     public void setVariableValue(String variableName, Object variableValue) throws VariableValueException, VariableNotFoundException;
@@ -246,13 +256,14 @@ public interface EPRuntime
      * Sets the value of multiple global variables in one update, applying all or none of the changes
      * to variable values in one atomic transaction.
      * <p>
-     *     Note that the thread setting the variable value queues the changes, i.e. it does not itself
-     *     re-evaluate such new variable value for any given statement. The timer thread performs this work.
+     * Note that the thread setting the variable value queues the changes, i.e. it does not itself
+     * re-evaluate such new variable value for any given statement. The timer thread performs this work.
      * </p>
      * Not for use with context-partitioned variables.
+     *
      * @param variableValues is the map of variable name and variable value, with null an allowed value
-     * @throws VariableValueException if any value does not match variable type or cannot be safely coerced
-     * to the variable type
+     * @throws VariableValueException    if any value does not match variable type or cannot be safely coerced
+     *                                   to the variable type
      * @throws VariableNotFoundException if any of the variable names has not been declared
      */
     public void setVariableValue(Map<String, Object> variableValues) throws VariableValueException, VariableNotFoundException;
@@ -261,14 +272,15 @@ public interface EPRuntime
      * Sets the value of multiple context-partitioned variables in one update, applying all or none of the changes
      * to variable values in one atomic transaction.
      * <p>
-     *     Note that the thread setting the variable value queues the changes, i.e. it does not itself
-     *     re-evaluate such new variable value for any given statement. The timer thread performs this work.
+     * Note that the thread setting the variable value queues the changes, i.e. it does not itself
+     * re-evaluate such new variable value for any given statement. The timer thread performs this work.
      * </p>
      * Only for use with context-partitioned variables.
-     * @param variableValues is the map of variable name and variable value, with null an allowed value
+     *
+     * @param variableValues  is the map of variable name and variable value, with null an allowed value
      * @param agentInstanceId the id of the context partition
-     * @throws VariableValueException if any value does not match variable type or cannot be safely coerced
-     * to the variable type
+     * @throws VariableValueException    if any value does not match variable type or cannot be safely coerced
+     *                                   to the variable type
      * @throws VariableNotFoundException if any of the variable names has not been declared
      */
     public void setVariableValue(Map<String, Object> variableValues, int agentInstanceId) throws VariableValueException, VariableNotFoundException;
@@ -295,6 +307,7 @@ public interface EPRuntime
      * <p>
      * For events backed by a org.w3c.Node (XML DOM events), the sender checks that the root element name
      * indeed does match the root element name for the event type name.
+     *
      * @param eventTypeName is the name of the event type
      * @return sender for fast-access processing of event objects of known type (and content)
      * @throws EventTypeException thrown to indicate that the name does not exist
@@ -305,11 +318,12 @@ public interface EPRuntime
      * For use with plug-in event representations, returns a facility to process event objects that are of one of a number of types
      * that one or more of the registered plug-in event representation extensions can reflect upon and provide an
      * event for.
+     *
      * @param uris is the URIs that specify which plug-in event representations may process an event object.
-     * <p>URIs do not need to match event representation URIs exactly, a child (hierarchical) match is enough
-     * for an event representation to participate.
-     * <p>The order of URIs is relevant as each event representation's factory is asked in turn to
-     * process the event, until the first factory processes the event.
+     *             <p>URIs do not need to match event representation URIs exactly, a child (hierarchical) match is enough
+     *             for an event representation to participate.
+     *             <p>The order of URIs is relevant as each event representation's factory is asked in turn to
+     *             process the event, until the first factory processes the event.
      * @return sender for processing of event objects of one of the plug-in event representations
      * @throws EventTypeException thrown to indicate that the URI list was invalid
      */
@@ -319,6 +333,7 @@ public interface EPRuntime
      * Execute an on-demand query.
      * <p>
      * On-demand queries are EPL queries that execute non-continuous fire-and-forget queries against named windows.
+     *
      * @param epl is the EPL query to execute
      * @return query result
      */
@@ -327,7 +342,8 @@ public interface EPRuntime
     /**
      * For use with named windows that have a context declared and that may therefore have multiple context partitions,
      * allows to target context partitions for query execution selectively.
-     * @param epl is the EPL query to execute
+     *
+     * @param epl                       is the EPL query to execute
      * @param contextPartitionSelectors selects context partitions to consider
      * @return result
      */
@@ -337,6 +353,7 @@ public interface EPRuntime
      * Execute an on-demand query.
      * <p>
      * On-demand queries are EPL queries that execute non-continuous fire-and-forget queries against named windows.
+     *
      * @param model is the EPL query to execute, obtain a model object using {@link EPAdministrator#compileEPL(String)}
      *              or via the API
      * @return query result
@@ -346,8 +363,9 @@ public interface EPRuntime
     /**
      * For use with named windows that have a context declared and that may therefore have multiple context partitions,
      * allows to target context partitions for query execution selectively.
-     * @param model is the EPL query to execute, obtain a model object using {@link EPAdministrator#compileEPL(String)}
-     *              or via the API
+     *
+     * @param model                     is the EPL query to execute, obtain a model object using {@link EPAdministrator#compileEPL(String)}
+     *                                  or via the API
      * @param contextPartitionSelectors selects context partitions to consider
      * @return result
      */
@@ -355,6 +373,7 @@ public interface EPRuntime
 
     /**
      * Prepare an unparameterized on-demand query before execution and for repeated execution.
+     *
      * @param epl to prepare
      * @return proxy to execute upon, that also provides the event type of the returned results
      */
@@ -362,6 +381,7 @@ public interface EPRuntime
 
     /**
      * Prepare an unparameterized on-demand query before execution and for repeated execution.
+     *
      * @param model is the EPL query to prepare, obtain a model object using {@link EPAdministrator#compileEPL(String)}
      *              or via the API
      * @return proxy to execute upon, that also provides the event type of the returned results
@@ -371,6 +391,7 @@ public interface EPRuntime
     /**
      * Prepare a parameterized on-demand query for repeated parameter setting and execution.
      * Set all values on the returned holder then execute using {@link #executeQuery(EPOnDemandPreparedQueryParameterized)}.
+     *
      * @param epl to prepare
      * @return parameter holder upon which to set values
      */
@@ -380,6 +401,7 @@ public interface EPRuntime
      * Execute an on-demand parameterized query.
      * <p>
      * On-demand queries are EPL queries that execute non-continuous fire-and-forget queries against named windows.
+     *
      * @param parameterizedQuery contains the query and parameter values
      * @return query result
      */
@@ -389,7 +411,8 @@ public interface EPRuntime
      * Execute an on-demand parameterized query.
      * <p>
      * On-demand queries are EPL queries that execute non-continuous fire-and-forget queries against named windows.
-     * @param parameterizedQuery contains the query and parameter values
+     *
+     * @param parameterizedQuery        contains the query and parameter values
      * @param contextPartitionSelectors selects context partitions to consider
      * @return query result
      */
@@ -397,6 +420,7 @@ public interface EPRuntime
 
     /**
      * Returns the event renderer for events generated by this runtime.
+     *
      * @return event renderer
      */
     public EventRenderer getEventRenderer();
@@ -405,6 +429,7 @@ public interface EPRuntime
      * Returns current engine time.
      * <p>
      * If time is provided externally via timer events, the function returns current time as externally provided.
+     *
      * @return current engine time
      */
     public long getCurrentTime();
@@ -412,18 +437,21 @@ public interface EPRuntime
     /**
      * Returns the time at which the next schedule execution is expected, returns null if no schedule execution is
      * outstanding.
+     *
      * @return time of next schedule if any
      */
     public Long getNextScheduledTime();
 
     /**
      * Returns the data flow runtime.
+     *
      * @return data flow runtime
      */
     public EPDataFlowRuntime getDataFlowRuntime();
 
     /**
      * Returns true for external clocking, false for internal clocking.
+     *
      * @return clocking indicator
      */
     public boolean isExternalClockingEnabled();

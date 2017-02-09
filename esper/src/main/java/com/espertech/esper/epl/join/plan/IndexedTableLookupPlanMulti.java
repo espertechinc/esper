@@ -27,20 +27,19 @@ import java.util.List;
 /**
  * Plan to perform an indexed table lookup.
  */
-public class IndexedTableLookupPlanMulti extends TableLookupPlan
-{
+public class IndexedTableLookupPlanMulti extends TableLookupPlan {
     private List<QueryGraphValueEntryHashKeyed> keyProperties;
 
     /**
      * Ctor.
-     * @param lookupStream - stream that generates event to look up for
+     *
+     * @param lookupStream  - stream that generates event to look up for
      * @param indexedStream - stream to index table lookup
-     * @param indexNum - index number for the table containing the full unindexed contents
+     * @param indexNum      - index number for the table containing the full unindexed contents
      * @param keyProperties - properties to use in lookup event to access index
      */
-    public IndexedTableLookupPlanMulti(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyed> keyProperties)
-    {
-        super(lookupStream, indexedStream, new TableLookupIndexReqKey[] {indexNum});
+    public IndexedTableLookupPlanMulti(int lookupStream, int indexedStream, TableLookupIndexReqKey indexNum, List<QueryGraphValueEntryHashKeyed> keyProperties) {
+        super(lookupStream, indexedStream, new TableLookupIndexReqKey[]{indexNum});
         this.keyProperties = keyProperties;
     }
 
@@ -48,8 +47,7 @@ public class IndexedTableLookupPlanMulti extends TableLookupPlan
         return new TableLookupKeyDesc(keyProperties, Collections.<QueryGraphValueEntryRange>emptyList());
     }
 
-    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes)
-    {
+    public JoinExecTableLookupStrategy makeStrategyInternal(EventTable[] eventTable, EventType[] eventTypes) {
         PropertyIndexedEventTable index = (PropertyIndexedEventTable) eventTable[0];
         String[] keyProps = new String[keyProperties.size()];
         ExprEvaluator[] evaluators = new ExprEvaluator[keyProperties.size()];
@@ -62,23 +60,20 @@ public class IndexedTableLookupPlanMulti extends TableLookupPlan
 
             if (keyProperties.get(i) instanceof QueryGraphValueEntryHashKeyedProp) {
                 keyProps[i] = ((QueryGraphValueEntryHashKeyedProp) keyProperties.get(i)).getKeyProperty();
-            }
-            else {
+            } else {
                 isStrictlyProps = false;
             }
         }
         if (isStrictlyProps) {
             return new IndexedTableLookupStrategy(eventTypes[this.getLookupStream()], keyProps, index);
-        }
-        else {
+        } else {
             return new IndexedTableLookupStrategyExpr(evaluators, getLookupStream(), index, new LookupStrategyDesc(LookupStrategyType.MULTIEXPR, expressions));
-        }            
+        }
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName() + " " +
                 super.toString() +
-               " keyProperties=" + QueryGraphValueEntryHashKeyed.toQueryPlan(keyProperties);
+                " keyProperties=" + QueryGraphValueEntryHashKeyed.toQueryPlan(keyProperties);
     }
 }

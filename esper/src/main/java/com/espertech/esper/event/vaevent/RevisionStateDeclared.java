@@ -15,8 +15,7 @@ import com.espertech.esper.client.EventBean;
 /**
  * State for the overlay (non-merge) strategy.
  */
-public class RevisionStateDeclared
-{
+public class RevisionStateDeclared {
     private long revisionNumber;
     private EventBean baseEventUnderlying;
     private RevisionBeanHolder[] holders;
@@ -24,12 +23,12 @@ public class RevisionStateDeclared
 
     /**
      * Ctor.
+     *
      * @param baseEventUnderlying base event
-     * @param holders revisions
-     * @param lastEvent prior event
+     * @param holders             revisions
+     * @param lastEvent           prior event
      */
-    public RevisionStateDeclared(EventBean baseEventUnderlying, RevisionBeanHolder[] holders, RevisionEventBeanDeclared lastEvent)
-    {
+    public RevisionStateDeclared(EventBean baseEventUnderlying, RevisionBeanHolder[] holders, RevisionEventBeanDeclared lastEvent) {
         this.baseEventUnderlying = baseEventUnderlying;
         this.holders = holders;
         this.lastEvent = lastEvent;
@@ -37,73 +36,73 @@ public class RevisionStateDeclared
 
     /**
      * Returns revision number.
+     *
      * @return version number
      */
-    public long getRevisionNumber()
-    {
+    public long getRevisionNumber() {
         return revisionNumber;
     }
 
     /**
      * Increments version number.
+     *
      * @return incremented version number
      */
-    public long incRevisionNumber()
-    {
+    public long incRevisionNumber() {
         return ++revisionNumber;
     }
 
     /**
      * Returns base event.
+     *
      * @return base event
      */
-    public EventBean getBaseEventUnderlying()
-    {
+    public EventBean getBaseEventUnderlying() {
         return baseEventUnderlying;
     }
 
     /**
      * Sets base event.
+     *
      * @param baseEventUnderlying to set
      */
-    public void setBaseEventUnderlying(EventBean baseEventUnderlying)
-    {
+    public void setBaseEventUnderlying(EventBean baseEventUnderlying) {
         this.baseEventUnderlying = baseEventUnderlying;
     }
 
     /**
      * Returns versions.
+     *
      * @return versions
      */
-    public RevisionBeanHolder[] getHolders()
-    {
+    public RevisionBeanHolder[] getHolders() {
         return holders;
     }
 
     /**
      * Sets versions.
+     *
      * @param holders versions to set
      */
-    public void setHolders(RevisionBeanHolder[] holders)
-    {
+    public void setHolders(RevisionBeanHolder[] holders) {
         this.holders = holders;
     }
 
     /**
      * Returns the last event.
+     *
      * @return last event
      */
-    public RevisionEventBeanDeclared getLastEvent()
-    {
+    public RevisionEventBeanDeclared getLastEvent() {
         return lastEvent;
     }
 
     /**
      * Sets the last event.
+     *
      * @param lastEvent to set
      */
-    public void setLastEvent(RevisionEventBeanDeclared lastEvent)
-    {
+    public void setLastEvent(RevisionEventBeanDeclared lastEvent) {
         this.lastEvent = lastEvent;
     }
 }

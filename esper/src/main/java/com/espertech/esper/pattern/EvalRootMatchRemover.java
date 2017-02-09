@@ -17,7 +17,6 @@ import java.util.Set;
 /**
  * Interface for a root pattern node for removing matches.
  */
-public interface EvalRootMatchRemover
-{
+public interface EvalRootMatchRemover {
     public void removeMatch(Set<EventBean> matchEvent);
 }

@@ -21,8 +21,7 @@ package com.espertech.esper.util;
  * Note that a static variable control this setting and therefore
  * the debug-enable applies to engines within the module or VM.
  */
-public class ExecutionPathDebugLog
-{
+public class ExecutionPathDebugLog {
     /**
      * Public access.
      */
@@ -35,19 +34,19 @@ public class ExecutionPathDebugLog
 
     /**
      * Sets execution path debug logging.
+     *
      * @param debugEnabled true for allowing Log4j debug log messages to be generated for the execution path
      */
-    public static void setDebugEnabled(Boolean debugEnabled)
-    {
+    public static void setDebugEnabled(Boolean debugEnabled) {
         isDebugEnabled = debugEnabled;
     }
 
     /**
      * Sets debug logging for timer.
+     *
      * @param timerDebugEnabled true for allowing Log4j debug log messages for regular timer execution
      */
-    public static void setTimerDebugEnabled(Boolean timerDebugEnabled)
-    {
+    public static void setTimerDebugEnabled(Boolean timerDebugEnabled) {
         isTimerDebugEnabled = timerDebugEnabled;
     }
 }

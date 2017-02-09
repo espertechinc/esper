@@ -10,16 +10,10 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.util.MetaDefItem;
-
-import java.io.Serializable;
-import java.util.List;
-
 /**
  * Specification for creating a named window index column type.
  */
-public enum CreateIndexType
-{
+public enum CreateIndexType {
     BTREE,
     HASH
 }

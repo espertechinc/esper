@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.spec.OutputLimitLimitType;
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.view.OutputProcessViewConditionLastAllUnord;
 import com.espertech.esper.event.EventBeanUtility;
 import org.slf4j.Logger;
@@ -27,19 +27,15 @@ import java.util.Set;
  * <p>
  * The processor generates one row for each event entering (new event) and one row for each event leaving (old event).
  */
-public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor
-{
+public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor {
     private static final Logger log = LoggerFactory.getLogger(ResultSetProcessorBaseSimple.class);
 
-    public void clear()
-    {
+    public void clear() {
         // No need to clear state, there is no state held
     }
 
-    public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
-    {
-        if (outputLimitLimitType != OutputLimitLimitType.LAST)
-        {
+    public UniformPair<EventBean[]> processOutputLimitedJoin(List<UniformPair<Set<MultiKey<EventBean>>>> joinEventsSet, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType) {
+        if (outputLimitLimitType != OutputLimitLimitType.LAST) {
             UniformPair<Set<MultiKey<EventBean>>> flattened = EventBeanUtility.flattenBatchJoin(joinEventsSet);
             return processJoinResult(flattened.getFirst(), flattened.getSecond(), generateSynthetic);
         }
@@ -47,10 +43,8 @@ public abstract class ResultSetProcessorBaseSimple implements ResultSetProcessor
         throw new IllegalStateException("Output last is provided by " + OutputProcessViewConditionLastAllUnord.class.getSimpleName());
     }
 
-    public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType)
-    {
-        if (outputLimitLimitType != OutputLimitLimitType.LAST)
-        {
+    public UniformPair<EventBean[]> processOutputLimitedView(List<UniformPair<EventBean[]>> viewEventsList, boolean generateSynthetic, OutputLimitLimitType outputLimitLimitType) {
+        if (outputLimitLimitType != OutputLimitLimitType.LAST) {
             UniformPair<EventBean[]> pair = EventBeanUtility.flattenBatchStream(viewEventsList);
             return processViewResult(pair.getFirst(), pair.getSecond(), generateSynthetic);
         }

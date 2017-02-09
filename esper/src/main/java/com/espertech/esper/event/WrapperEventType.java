@@ -538,7 +538,7 @@ public class WrapperEventType implements EventTypeSPI {
             return new WrapperEventBeanUndWriter(undWriter);
         }
 
-        EventPropertyWriter writerArr[] = new EventPropertyWriter[properties.length];
+        EventPropertyWriter[] writerArr = new EventPropertyWriter[properties.length];
         for (int i = 0; i < properties.length; i++) {
             writerArr[i] = writers.get(properties[i]).getSecond();
         }

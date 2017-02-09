@@ -16,9 +16,9 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.EnumMethodEnum;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.dot.ExprDotEnumerationSource;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeUtility;
@@ -28,7 +28,7 @@ import java.util.List;
 public class ExprDotEvalSetExceptUnionIntersect extends ExprDotEvalEnumMethodBase {
 
     public EventType[] getAddStreamTypes(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, List<ExprDotEvalParam> bodiesAndParameters, EventAdapterService eventAdapterService) {
-        return new EventType[] {};
+        return new EventType[]{};
     }
 
     public EnumEval getEnumEval(EngineImportService engineImportService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) throws ExprValidationException {
@@ -37,8 +37,7 @@ public class ExprDotEvalSetExceptUnionIntersect extends ExprDotEvalEnumMethodBas
         ExprDotEnumerationSource enumSrc = ExprDotNodeUtility.getEnumerationSource(first.getBody(), streamTypeService, eventAdapterService, statementId, true, disablePropertyExpressionEventCollCache);
         if (inputEventType != null) {
             super.setTypeInfo(EPTypeHelper.collectionOfEvents(inputEventType));
-        }
-        else {
+        } else {
             super.setTypeInfo(EPTypeHelper.collectionOfSingleValue(collectionComponentType));
         }
 
@@ -58,14 +57,11 @@ public class ExprDotEvalSetExceptUnionIntersect extends ExprDotEvalEnumMethodBas
 
         if (this.getEnumMethodEnum() == EnumMethodEnum.UNION) {
             return new EnumEvalUnion(numStreamsIncoming, enumSrc.getEnumeration(), inputEventType == null);
-        }
-        else if (this.getEnumMethodEnum() == EnumMethodEnum.INTERSECT) {
+        } else if (this.getEnumMethodEnum() == EnumMethodEnum.INTERSECT) {
             return new EnumEvalIntersect(numStreamsIncoming, enumSrc.getEnumeration(), inputEventType == null);
-        }
-        else if (this.getEnumMethodEnum() == EnumMethodEnum.EXCEPT) {
+        } else if (this.getEnumMethodEnum() == EnumMethodEnum.EXCEPT) {
             return new EnumEvalExcept(numStreamsIncoming, enumSrc.getEnumeration(), inputEventType == null);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Invalid enumeration method for this factory: " + this.getEnumMethodEnum());
         }
     }

@@ -16,8 +16,7 @@ import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
 /**
  * Represents the 'prior' prior event function in an expression node tree.
  */
-public class ExprPriorEvalStrategyRelativeAccess extends ExprPriorEvalStrategyBase
-{
+public class ExprPriorEvalStrategyRelativeAccess extends ExprPriorEvalStrategyBase {
     private final transient RelativeAccessByEventNIndex relativeAccess;
 
     public ExprPriorEvalStrategyRelativeAccess(RelativeAccessByEventNIndex relativeAccess) {

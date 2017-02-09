@@ -12,16 +12,13 @@ package com.espertech.esper.view.window;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.Map;
-import java.util.HashMap;
-
 /**
  * Provides random-access into window contents by event and index as a combination.
  */
-public interface RelativeAccessByEventNIndexGetter
-{
+public interface RelativeAccessByEventNIndexGetter {
     /**
      * Returns the access into window contents given an event.
+     *
      * @param theEvent to which the method returns relative access from
      * @return buffer
      */

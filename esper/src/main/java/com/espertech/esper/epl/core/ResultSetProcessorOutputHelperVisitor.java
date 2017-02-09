@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.core;
 
-public interface ResultSetProcessorOutputHelperVisitor
-{
+public interface ResultSetProcessorOutputHelperVisitor {
     void visit(ResultSetProcessorOutputHelper helper);
 }

@@ -24,8 +24,7 @@ import java.util.TreeMap;
 /**
  * Provides random access into a rank-window's data.
  */
-public class IStreamSortRankRandomAccessImpl implements RandomAccessByIndex, IStreamSortRankRandomAccess
-{
+public class IStreamSortRankRandomAccessImpl implements RandomAccessByIndex, IStreamSortRankRandomAccess {
     private final RandomAccessByIndexObserver updateObserver;
 
     private TreeMap<Object, Object> sortedEvents;
@@ -37,112 +36,96 @@ public class IStreamSortRankRandomAccessImpl implements RandomAccessByIndex, ISt
 
     /**
      * Ctor.
+     *
      * @param updateObserver for indicating updates to
      */
-    public IStreamSortRankRandomAccessImpl(RandomAccessByIndexObserver updateObserver)
-    {
+    public IStreamSortRankRandomAccessImpl(RandomAccessByIndexObserver updateObserver) {
         this.updateObserver = updateObserver;
     }
 
     /**
      * Refreshes the random access data with the updated information.
+     *
      * @param sortedEvents is the sorted window contents
-     * @param currentSize is the current size of the window
-     * @param maxSize is the maximum size of the window
+     * @param currentSize  is the current size of the window
+     * @param maxSize      is the maximum size of the window
      */
-    public void refresh(TreeMap<Object, Object> sortedEvents, int currentSize, int maxSize)
-    {
+    public void refresh(TreeMap<Object, Object> sortedEvents, int currentSize, int maxSize) {
         updateObserver.updated(this);
         this.sortedEvents = sortedEvents;
         this.currentSize = currentSize;
 
         this.iterator = null;
         this.cacheFilledTo = 0;
-        if (cache == null || cache.length < maxSize)
-        {
+        if (cache == null || cache.length < maxSize) {
             cache = new EventBean[maxSize];
         }
     }
 
-    public EventBean getNewData(int index)
-    {
-        if (iterator == null)
-        {
+    public EventBean getNewData(int index) {
+        if (iterator == null) {
             iterator = sortedEvents.values().iterator();
         }
 
         // if asking for more then the sorted window currently holds, return no data
-        if (index >= currentSize)
-        {
+        if (index >= currentSize) {
             return null;
         }
 
         // If we have it in cache, serve from cache
-        if (index < cacheFilledTo)
-        {
+        if (index < cacheFilledTo) {
             return cache[index];
         }
 
         // Load more into cache
-        while(true)
-        {
-            if (cacheFilledTo == currentSize)
-            {
+        while (true) {
+            if (cacheFilledTo == currentSize) {
                 break;
             }
-            if (!iterator.hasNext())
-            {
+            if (!iterator.hasNext()) {
                 break;
             }
             Object entry = iterator.next();
             if (entry instanceof List) {
                 List<EventBean> events = (List<EventBean>) entry;
-                for (EventBean theEvent : events)
-                {
+                for (EventBean theEvent : events) {
                     cache[cacheFilledTo] = theEvent;
                     cacheFilledTo++;
                 }
-            }
-            else {
+            } else {
                 EventBean theEvent = (EventBean) entry;
                 cache[cacheFilledTo] = theEvent;
                 cacheFilledTo++;
             }
 
-            if (cacheFilledTo > index)
-            {
+            if (cacheFilledTo > index) {
                 break;
             }
         }
 
         // If we have it in cache, serve from cache
-        if (index <= cacheFilledTo)
-        {
+        if (index <= cacheFilledTo) {
             return cache[index];
         }
 
         return null;
     }
 
-    public EventBean getOldData(int index)
-    {
+    public EventBean getOldData(int index) {
         return null;
     }
 
-    public EventBean getNewDataTail(int index)
-    {
+    public EventBean getNewDataTail(int index) {
         initCache();
 
-        if ((index < cacheFilledTo) && (index >= 0))
-        {
+        if ((index < cacheFilledTo) && (index >= 0)) {
             return cache[cacheFilledTo - index - 1];
         }
 
         return null;
     }
 
-    public Iterator<EventBean> getWindowIterator()
-    {
+    public Iterator<EventBean> getWindowIterator() {
         initCache();
         return new ArrayMaxEventIterator(cache, cacheFilledTo);
     }
@@ -152,39 +135,32 @@ public class IStreamSortRankRandomAccessImpl implements RandomAccessByIndex, ISt
         return new ArrayMaxEventCollectionRO(cache, cacheFilledTo);
     }
 
-    public int getWindowCount()
-    {
+    public int getWindowCount() {
         return currentSize;
     }
 
     private void initCache() {
 
-        if (iterator == null)
-        {
+        if (iterator == null) {
             iterator = sortedEvents.values().iterator();
         }
 
         // Load more into cache
-        while(true)
-        {
-            if (cacheFilledTo == currentSize)
-            {
+        while (true) {
+            if (cacheFilledTo == currentSize) {
                 break;
             }
-            if (!iterator.hasNext())
-            {
+            if (!iterator.hasNext()) {
                 break;
             }
             Object entry = iterator.next();
             if (entry instanceof List) {
                 List<EventBean> events = (List<EventBean>) entry;
-                for (EventBean theEvent : events)
-                {
+                for (EventBean theEvent : events) {
                     cache[cacheFilledTo] = theEvent;
                     cacheFilledTo++;
                 }
-            }
-            else {
+            } else {
                 EventBean theEvent = (EventBean) entry;
                 cache[cacheFilledTo] = theEvent;
                 cacheFilledTo++;

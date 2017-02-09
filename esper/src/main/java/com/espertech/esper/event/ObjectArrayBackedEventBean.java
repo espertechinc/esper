@@ -15,12 +15,13 @@ import com.espertech.esper.client.EventBean;
 /**
  * For events that are array of properties.
  */
-public interface ObjectArrayBackedEventBean extends EventBean
-{
+public interface ObjectArrayBackedEventBean extends EventBean {
     /**
      * Returns property array.
+     *
      * @return properties
      */
     public Object[] getProperties();
+
     public void setPropertyValues(Object[] objects);
 }

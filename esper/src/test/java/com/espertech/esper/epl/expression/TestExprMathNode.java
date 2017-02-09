@@ -14,31 +14,27 @@ import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.ops.ExprMathNode;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
+import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.supportunit.epl.SupportExprNode;
-import com.espertech.esper.type.MathArithTypeEnum;
 
-public class TestExprMathNode extends TestCase
-{
+public class TestExprMathNode extends TestCase {
     private ExprMathNode arithNode;
 
-    public void setUp()
-    {
+    public void setUp() {
         arithNode = new ExprMathNode(MathArithTypeEnum.ADD, false, false);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         arithNode.addChildNode(new SupportExprNode(Double.class));
         arithNode.addChildNode(new SupportExprNode(Integer.class));
         arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals(Double.class, arithNode.getType());
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         // Build (5*(4-2)), not the same as 5*4-2
         ExprMathNode arithNodeChild = new ExprMathNode(MathArithTypeEnum.SUBTRACT, false, false);
         arithNodeChild.addChildNode(new SupportExprNode(4));
@@ -51,35 +47,27 @@ public class TestExprMathNode extends TestCase
         assertEquals("5*(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(arithNode));
     }
 
-    public void testValidate()
-    {
+    public void testValidate() {
         // Must have exactly 2 subnodes
-        try
-        {
+        try {
             arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
 
         // Must have only number-type subnodes
         arithNode.addChildNode(new SupportExprNode(String.class));
         arithNode.addChildNode(new SupportExprNode(Integer.class));
-        try
-        {
+        try {
             arithNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEvaluate() throws Exception
-    {
+    public void testEvaluate() throws Exception {
         arithNode.addChildNode(new SupportExprNode(new Integer(10)));
         arithNode.addChildNode(new SupportExprNode(new Double(1.5)));
         ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.SELECT, arithNode, SupportExprValidationContextFactory.makeEmpty());
@@ -95,14 +83,12 @@ public class TestExprMathNode extends TestCase
         assertNull(arithNode.evaluate(null, false, null));
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(arithNode.equalsNode(arithNode));
         assertFalse(arithNode.equalsNode(new ExprMathNode(MathArithTypeEnum.DIVIDE, false, false)));
     }
 
-    private ExprMathNode makeNode(Object valueLeft, Class typeLeft, Object valueRight, Class typeRight) throws Exception
-    {
+    private ExprMathNode makeNode(Object valueLeft, Class typeLeft, Object valueRight, Class typeRight) throws Exception {
         ExprMathNode mathNode = new ExprMathNode(MathArithTypeEnum.MULTIPLY, false, false);
         mathNode.addChildNode(new SupportExprNode(valueLeft, typeLeft));
         mathNode.addChildNode(new SupportExprNode(valueRight, typeRight));

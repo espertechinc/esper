@@ -30,45 +30,38 @@ import java.util.Map;
  * This class accepts most of its behaviour from its parent, {@link com.espertech.esper.view.stat.BaseBivariateStatisticsView}. It adds
  * the usage of the regression bean and the appropriate schema.
  */
-public class RegressionLinestView extends BaseBivariateStatisticsView implements CloneableView
-{
-    public RegressionLinestView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xFieldName, ExprNode yFieldName, EventType eventType, StatViewAdditionalProps additionalProps)
-    {
+public class RegressionLinestView extends BaseBivariateStatisticsView implements CloneableView {
+    public RegressionLinestView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xFieldName, ExprNode yFieldName, EventType eventType, StatViewAdditionalProps additionalProps) {
         super(viewFactory, agentInstanceContext, xFieldName, yFieldName, eventType, additionalProps);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new RegressionLinestView(viewFactory, agentInstanceContext, this.getExpressionX(), this.getExpressionY(), eventType, additionalProps);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getName() +
                 " fieldX=" + this.getExpressionX() +
                 " fieldY=" + this.getExpressionY();
     }
 
     public EventBean populateMap(BaseStatisticsBean baseStatisticsBean,
-                                         EventAdapterService eventAdapterService,
-                                         EventType eventType,
-                                         StatViewAdditionalProps additionalProps,
-                                         Object[] decoration)
-    {
-        return doPopulateMap(baseStatisticsBean,eventAdapterService,eventType,additionalProps,decoration);
+                                 EventAdapterService eventAdapterService,
+                                 EventType eventType,
+                                 StatViewAdditionalProps additionalProps,
+                                 Object[] decoration) {
+        return doPopulateMap(baseStatisticsBean, eventAdapterService, eventType, additionalProps, decoration);
     }
 
     public static EventBean doPopulateMap(BaseStatisticsBean baseStatisticsBean,
-                                         EventAdapterService eventAdapterService,
-                                         EventType eventType,
-                                         StatViewAdditionalProps additionalProps,
-                                         Object[] decoration)
-    {
+                                          EventAdapterService eventAdapterService,
+                                          EventType eventType,
+                                          StatViewAdditionalProps additionalProps,
+                                          Object[] decoration) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put(ViewFieldEnum.REGRESSION__SLOPE.getName(), baseStatisticsBean.getSlope());
         result.put(ViewFieldEnum.REGRESSION__YINTERCEPT.getName(), baseStatisticsBean.getYIntercept());
@@ -95,8 +88,7 @@ public class RegressionLinestView extends BaseBivariateStatisticsView implements
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    protected static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
-    {
+    protected static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum) {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();
         eventTypeMap.put(ViewFieldEnum.REGRESSION__SLOPE.getName(), Double.class);
         eventTypeMap.put(ViewFieldEnum.REGRESSION__YINTERCEPT.getName(), Double.class);

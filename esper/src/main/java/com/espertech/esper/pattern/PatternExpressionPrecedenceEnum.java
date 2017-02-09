@@ -60,6 +60,7 @@ public enum PatternExpressionPrecedenceEnum {
 
     /**
      * Level.
+     *
      * @return level
      */
     public int getLevel() {

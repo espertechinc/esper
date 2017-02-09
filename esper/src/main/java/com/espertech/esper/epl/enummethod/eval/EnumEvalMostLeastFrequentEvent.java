@@ -40,8 +40,7 @@ public class EnumEvalMostLeastFrequentEvent extends EnumEvalBase implements Enum
 
             if (existing == null) {
                 existing = 1;
-            }
-            else {
+            } else {
                 existing++;
             }
             items.put(item, existing);

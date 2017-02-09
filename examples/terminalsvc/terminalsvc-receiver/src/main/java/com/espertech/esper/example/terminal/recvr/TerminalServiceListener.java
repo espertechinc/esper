@@ -15,26 +15,20 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class TerminalServiceListener implements MessageListener
-{
-    public void onMessage(Message message)
-    {
-        try
-        {
+public class TerminalServiceListener implements MessageListener {
+    public void onMessage(Message message) {
+        try {
             DateFormat dateFormat = SimpleDateFormat.getInstance();
             String date = dateFormat.format(new Date());
 
             if (message instanceof TextMessage) {
                 TextMessage textMessage = (TextMessage) message;
                 System.out.println(date + " " + textMessage.getText());
-            }
-            else {
+            } else {
                 ObjectMessage objectMessage = (ObjectMessage) message;
                 System.out.println(date + " " + objectMessage.getObject());
             }
-        }
-        catch (JMSException ex)
-        {
+        } catch (JMSException ex) {
             System.out.println("Error reading text message:" + ex);
         }
     }

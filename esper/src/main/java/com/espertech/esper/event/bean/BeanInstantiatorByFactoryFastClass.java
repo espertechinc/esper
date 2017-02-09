@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class BeanInstantiatorByFactoryFastClass implements BeanInstantiator
-{
+public class BeanInstantiatorByFactoryFastClass implements BeanInstantiator {
     private static Logger log = LoggerFactory.getLogger(BeanInstantiatorByFactoryFastClass.class);
 
     private final FastMethod method;
@@ -27,12 +26,9 @@ public class BeanInstantiatorByFactoryFastClass implements BeanInstantiator
     }
 
     public Object instantiate() {
-        try
-        {
+        try {
             return method.invoke(null, null);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             String message = "Unexpected exception encountered invoking factory method '" + method.getName() + "' on class '" + method.getJavaMethod().getDeclaringClass().getName() + "': " + e.getTargetException().getMessage();
             log.error(message, e);
             return null;

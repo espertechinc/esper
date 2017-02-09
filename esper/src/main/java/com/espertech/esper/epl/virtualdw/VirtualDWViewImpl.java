@@ -36,7 +36,7 @@ import java.util.*;
 
 public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
 
-    private static EventTableOrganization TABLE_ORGANIZATION = new EventTableOrganization(null, false, false, 0, null, EventTableOrganizationType.VDW);
+    private final static EventTableOrganization TABLE_ORGANIZATION = new EventTableOrganization(null, false, false, 0, null, EventTableOrganizationType.VDW);
 
     private static final Logger log = LoggerFactory.getLogger(VirtualDWViewImpl.class);
 
@@ -127,8 +127,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
             rangeField.setOperator(op);
             if (range instanceof QueryGraphValueEntryRangeRelOp) {
                 rangeField.setLookupValueType(((QueryGraphValueEntryRangeRelOp) range).getExpression().getExprEvaluator().getType());
-            }
-            else {
+            } else {
                 rangeField.setLookupValueType(((QueryGraphValueEntryRangeIn) range).getExprStart().getExprEvaluator().getType());
             }
         }
@@ -179,8 +178,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
                 Range range = (Range) rangeValue;
                 keys[j + offset] = new VirtualDataWindowKeyRange(range.getLowEndpoint(), range.getHighEndpoint());
                 noopTable.getBtreeAccess().get(j).setLookupValueType(range.getLowEndpoint() == null ? null : range.getLowEndpoint().getClass());
-            }
-            else {
+            } else {
                 keys[j + offset] = rangeValue;
                 noopTable.getBtreeAccess().get(j).setLookupValueType(rangeValue == null ? null : rangeValue.getClass());
             }
@@ -195,8 +193,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         Set<EventBean> events = null;
         try {
             events = index.lookup(keys, null);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             log.warn("Exception encountered invoking virtual data window external index for window '" + namedWindowName + "': " + ex.getMessage(), ex);
         }
         return events;
@@ -232,8 +229,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
             }
             VirtualDataWindowEventStartIndex create = new VirtualDataWindowEventStartIndex(spec.getWindowName(), spec.getIndexName(), fields, spec.isUnique());
             dataExternal.handleEvent(create);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             String message = "Exception encountered invoking virtual data window handle start-index event for window '" + namedWindowName + "': " + ex.getMessage();
             log.warn(message, ex);
             throw new EPException(message, ex);
@@ -244,8 +240,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         try {
             VirtualDataWindowEventStopIndex theEvent = new VirtualDataWindowEventStopIndex(spec.getWindowName(), spec.getIndexName());
             dataExternal.handleEvent(theEvent);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             String message = "Exception encountered invoking virtual data window handle stop-index event for window '" + namedWindowName + "': " + ex.getMessage();
             log.warn(message, ex);
         }
@@ -255,8 +250,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         try {
             VirtualDataWindowEventStopWindow theEvent = new VirtualDataWindowEventStopWindow(namedWindowName);
             dataExternal.handleEvent(theEvent);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             String message = "Exception encountered invoking virtual data window handle stop-window event for window '" + namedWindowName + "': " + ex.getMessage();
             log.warn(message, ex);
         }

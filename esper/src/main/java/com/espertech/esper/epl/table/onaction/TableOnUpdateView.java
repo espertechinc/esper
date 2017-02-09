@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.table.onaction;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
 import com.espertech.esper.epl.spec.OnTriggerType;
@@ -21,7 +20,6 @@ import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 public class TableOnUpdateView extends TableOnViewBase {
 
@@ -33,7 +31,9 @@ public class TableOnUpdateView extends TableOnViewBase {
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_UPDATE, triggerEvents, matchingEvents);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_UPDATE, triggerEvents, matchingEvents);
+        }
 
         EventBean[] eventsPerStream = new EventBean[3];
 
@@ -56,6 +56,8 @@ public class TableOnUpdateView extends TableOnViewBase {
             updateChildren(postedNew, postedOld);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 }

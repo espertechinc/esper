@@ -13,18 +13,17 @@ package com.espertech.esper.epl.agg.factory;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
+import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
+import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.methodagg.ExprLastEverNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMethodAggUtil;
 
-public class AggregationMethodFactoryLastEver implements AggregationMethodFactory
-{
+public class AggregationMethodFactoryLastEver implements AggregationMethodFactory {
     protected final ExprLastEverNode parent;
     protected final Class childType;
 
@@ -37,8 +36,7 @@ public class AggregationMethodFactoryLastEver implements AggregationMethodFactor
         return false;
     }
 
-    public Class getResultType()
-    {
+    public Class getResultType() {
         return childType;
     }
 

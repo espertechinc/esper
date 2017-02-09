@@ -19,35 +19,30 @@ import java.util.List;
 /**
  * Reader for fast access to all event properties for an event backed by a Java object.
  */
-public class BeanEventBeanReader implements EventBeanReader
-{
+public class BeanEventBeanReader implements EventBeanReader {
     private BeanEventPropertyGetter[] getterArray;
 
     /**
      * Ctor.
+     *
      * @param type the type of read
      */
-    public BeanEventBeanReader(BeanEventType type)
-    {
+    public BeanEventBeanReader(BeanEventType type) {
         String[] properties = type.getPropertyNames();
         List<BeanEventPropertyGetter> getters = new ArrayList<BeanEventPropertyGetter>();
-        for (String property : properties)
-        {
+        for (String property : properties) {
             BeanEventPropertyGetter getter = (BeanEventPropertyGetter) type.getGetter(property);
-            if (getter != null)
-            {
+            if (getter != null) {
                 getters.add(getter);
             }
         }
         getterArray = getters.toArray(new BeanEventPropertyGetter[getters.size()]);
     }
 
-    public Object[] read(EventBean theEvent)
-    {
+    public Object[] read(EventBean theEvent) {
         Object underlying = theEvent.getUnderlying();
         Object[] values = new Object[getterArray.length];
-        for (int i = 0; i < getterArray.length; i++)
-        {
+        for (int i = 0; i < getterArray.length; i++) {
             values[i] = getterArray[i].getBeanProp(underlying);
         }
         return values;

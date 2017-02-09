@@ -21,16 +21,14 @@ import com.espertech.esper.view.window.RelativeAccessByEventNIndexGetter;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
-{
+public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy {
     private final int streamNumber;
     private final ExprEvaluator evalNode;
     private final Class componentType;
     private final RandomAccessByIndexGetter randomAccessGetter;
     private final RelativeAccessByEventNIndexGetter relativeAccessGetter;
 
-    public ExprPreviousEvalStrategyWindow(int streamNumber, ExprEvaluator evalNode, Class componentType, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter)
-    {
+    public ExprPreviousEvalStrategyWindow(int streamNumber, ExprEvaluator evalNode, Class componentType, RandomAccessByIndexGetter randomAccessGetter, RelativeAccessByEventNIndexGetter relativeAccessGetter) {
         this.streamNumber = streamNumber;
         this.evalNode = evalNode;
         this.componentType = componentType;
@@ -38,18 +36,14 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
         this.relativeAccessGetter = relativeAccessGetter;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         Iterator<EventBean> events;
         int size;
-        if (randomAccessGetter != null)
-        {
+        if (randomAccessGetter != null) {
             RandomAccessByIndex randomAccess = randomAccessGetter.getAccessor();
             events = randomAccess.getWindowIterator();
             size = (int) randomAccess.getWindowCount();
-        }
-        else
-        {
+        } else {
             EventBean evalEvent = eventsPerStream[streamNumber];
             RelativeAccessByEventNIndex relativeAccess = relativeAccessGetter.getAccessor(evalEvent);
             if (relativeAccess == null) {
@@ -78,13 +72,10 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
 
     public Collection<EventBean> evaluateGetCollEvents(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         Collection<EventBean> events;
-        if (randomAccessGetter != null)
-        {
+        if (randomAccessGetter != null) {
             RandomAccessByIndex randomAccess = randomAccessGetter.getAccessor();
             events = randomAccess.getWindowCollectionReadOnly();
-        }
-        else
-        {
+        } else {
             EventBean evalEvent = eventsPerStream[streamNumber];
             RelativeAccessByEventNIndex relativeAccess = relativeAccessGetter.getAccessor(evalEvent);
             if (relativeAccess == null) {
@@ -98,14 +89,11 @@ public class ExprPreviousEvalStrategyWindow implements ExprPreviousEvalStrategy
     public Collection evaluateGetCollScalar(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         Iterator<EventBean> events;
         int size;
-        if (randomAccessGetter != null)
-        {
+        if (randomAccessGetter != null) {
             RandomAccessByIndex randomAccess = randomAccessGetter.getAccessor();
             events = randomAccess.getWindowIterator();
             size = (int) randomAccess.getWindowCount();
-        }
-        else
-        {
+        } else {
             EventBean evalEvent = eventsPerStream[streamNumber];
             RelativeAccessByEventNIndex relativeAccess = relativeAccessGetter.getAccessor(evalEvent);
             if (relativeAccess == null) {

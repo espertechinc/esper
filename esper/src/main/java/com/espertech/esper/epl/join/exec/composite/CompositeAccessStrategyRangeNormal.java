@@ -45,15 +45,13 @@ public class CompositeAccessStrategyRangeNormal extends CompositeAccessStrategyR
         comparableStart = EventBeanUtility.coerce(comparableStart, coercionType);
         comparableEnd = EventBeanUtility.coerce(comparableEnd, coercionType);
 
-        SortedMap<Object,Set<EventBean>> submap;
+        SortedMap<Object, Set<EventBean>> submap;
         try {
             submap = index.subMap(comparableStart, includeStart, comparableEnd, includeEnd);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             if (allowReverseRange) {
                 submap = index.subMap(comparableEnd, includeStart, comparableStart, includeEnd);
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -80,15 +78,13 @@ public class CompositeAccessStrategyRangeNormal extends CompositeAccessStrategyR
         comparableStart = EventBeanUtility.coerce(comparableStart, coercionType);
         comparableEnd = EventBeanUtility.coerce(comparableEnd, coercionType);
 
-        SortedMap<Object,Set<EventBean>> submap;
+        SortedMap<Object, Set<EventBean>> submap;
         try {
             submap = index.subMap(comparableStart, includeStart, comparableEnd, includeEnd);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             if (allowReverseRange) {
                 submap = index.subMap(comparableEnd, includeStart, comparableStart, includeEnd);
-            }
-            else {
+            } else {
                 return null;
             }
         }

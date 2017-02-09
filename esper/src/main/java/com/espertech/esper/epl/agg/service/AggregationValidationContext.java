@@ -18,8 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
  * This context object provides access to the parameter expressions themselves as well
  * as information compiled from the parameter expressions for your convenience.
  */
-public class AggregationValidationContext
-{
+public class AggregationValidationContext {
     private final Class[] parameterTypes;
     private final boolean[] isConstantValue;
     private final Object[] constantValues;
@@ -29,15 +28,15 @@ public class AggregationValidationContext
 
     /**
      * Ctor.
+     *
      * @param parameterTypes the type of each parameter expression.
-     * @param constantValue for each parameter expression an indicator whether the expression returns a constant result
+     * @param constantValue  for each parameter expression an indicator whether the expression returns a constant result
      * @param constantValues for each parameter expression that returns a constant result this array contains the constant value
-     * @param distinct true if 'distinct' keyword was provided
-     * @param windowed true if all event properties references by parameter expressions are from streams that have data windows declared onto the stream or are from named windows
-     * @param expressions the parameter expressions themselves
+     * @param distinct       true if 'distinct' keyword was provided
+     * @param windowed       true if all event properties references by parameter expressions are from streams that have data windows declared onto the stream or are from named windows
+     * @param expressions    the parameter expressions themselves
      */
-    public AggregationValidationContext(Class[] parameterTypes, boolean[] constantValue, Object[] constantValues, boolean distinct, boolean windowed, ExprNode[] expressions)
-    {
+    public AggregationValidationContext(Class[] parameterTypes, boolean[] constantValue, Object[] constantValues, boolean distinct, boolean windowed, ExprNode[] expressions) {
         this.parameterTypes = parameterTypes;
         this.isConstantValue = constantValue;
         this.constantValues = constantValues;
@@ -50,10 +49,10 @@ public class AggregationValidationContext
      * The return type of each parameter expression.
      * <p>
      * This information can also be obtained by calling getType on each parameter expression.
+     *
      * @return array providing result type of each parameter expression
      */
-    public Class[] getParameterTypes()
-    {
+    public Class[] getParameterTypes() {
         return parameterTypes;
     }
 
@@ -62,10 +61,10 @@ public class AggregationValidationContext
      * returns a constant result or false if the expression result is not a constant value.
      * <p>
      * This information can also be obtained by calling isConstantResult on each parameter expression.
-     * @return array providing an indicator per parameter expression that the result is a constant value 
+     *
+     * @return array providing an indicator per parameter expression that the result is a constant value
      */
-    public boolean[] getIsConstantValue()
-    {
+    public boolean[] getIsConstantValue() {
         return isConstantValue;
     }
 
@@ -75,39 +74,39 @@ public class AggregationValidationContext
      * <p>
      * This information can also be obtained by calling evaluate on each parameter expression
      * providing a constant value.
+     *
      * @return array providing the constant return value per parameter expression that has constant result value, or null
-     * if a parameter expression is deemded to not provide a constant result value 
+     * if a parameter expression is deemded to not provide a constant result value
      */
-    public Object[] getConstantValues()
-    {
+    public Object[] getConstantValues() {
         return constantValues;
     }
 
     /**
      * Returns true to indicate that the 'distinct' keyword was specified for this aggregation function.
+     *
      * @return distinct value indicator
      */
-    public boolean isDistinct()
-    {
+    public boolean isDistinct() {
         return distinct;
     }
 
     /**
      * Returns true to indicate that all parameter expressions return event properties that originate from a stream that
      * provides a remove stream.
+     *
      * @return windowed indicator
      */
-    public boolean isWindowed()
-    {
+    public boolean isWindowed() {
         return windowed;
     }
 
     /**
      * Returns the parameter expressions themselves for interrogation.
+     *
      * @return parameter expressions
      */
-    public ExprNode[] getExpressions()
-    {
+    public ExprNode[] getExpressions() {
         return expressions;
     }
 }

@@ -12,13 +12,6 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.service.AggregationService;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.spec.RowLimitSpec;
-import com.espertech.esper.epl.variable.VariableMetaData;
-import com.espertech.esper.epl.variable.VariableReader;
-import com.espertech.esper.epl.variable.VariableService;
-import com.espertech.esper.epl.variable.VariableServiceUtil;
-import com.espertech.esper.util.JavaClassHelper;
 
 /**
  * An order-by processor that sorts events according to the expressions

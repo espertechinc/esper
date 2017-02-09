@@ -27,8 +27,7 @@ import com.espertech.esper.view.ViewableDefaultImpl;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateSchema extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateSchema extends EPStatementStartMethodBase {
     public EPStatementStartMethodCreateSchema(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }
@@ -40,12 +39,11 @@ public class EPStatementStartMethodCreateSchema extends EPStatementStartMethodBa
         EventType eventType = handleCreateSchema(services, statementContext, spec);
 
         // enter a reference
-        services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), new String[] {spec.getSchemaName()});
+        services.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), new String[]{spec.getSchemaName()});
 
         final EventType allocatedEventType = eventType;
         EPStatementStopMethod stopMethod = new EPStatementStopMethod() {
-            public void stop()
-            {
+            public void stop() {
                 services.getStatementEventTypeRefService().removeReferencesStatement(statementContext.getStatementName());
                 if (services.getStatementEventTypeRefService().getStatementNamesForType(spec.getSchemaName()).isEmpty()) {
                     services.getEventAdapterService().removeType(allocatedEventType.getName());
@@ -62,15 +60,14 @@ public class EPStatementStartMethodCreateSchema extends EPStatementStartMethodBa
     }
 
     private EventType handleCreateSchema(EPServicesContext services, StatementContext statementContext, CreateSchemaDesc spec)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         EventType eventType;
 
         try {
             if (spec.getAssignedType() != CreateSchemaDesc.AssignedType.VARIANT) {
                 eventType = EventTypeUtility.createNonVariantType(false, spec, statementContext.getAnnotations(), services.getConfigSnapshot(), services.getEventAdapterService(), services.getEngineImportService());
-            }
-            else {
+            } else {
                 if (spec.getCopyFrom() != null && !spec.getCopyFrom().isEmpty()) {
                     throw new ExprValidationException("Copy-from types are not allowed with variant types");
                 }
@@ -86,15 +83,13 @@ public class EPStatementStartMethodCreateSchema extends EPStatementStartMethodBa
                 }
                 if (!isAny) {
                     config.setTypeVariance(ConfigurationVariantStream.TypeVariance.PREDEFINED);
-                }
-                else {
+                } else {
                     config.setTypeVariance(ConfigurationVariantStream.TypeVariance.ANY);
                 }
                 services.getValueAddEventService().addVariantStream(spec.getSchemaName(), config, services.getEventAdapterService(), services.getEventTypeIdGenerator());
                 eventType = services.getValueAddEventService().getValueAddProcessor(spec.getSchemaName()).getValueAddEventType();
             }
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             throw new ExprValidationException(ex.getMessage(), ex);
         }
 

@@ -20,8 +20,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.List;
 
-public class TableOnMergeMatch
-{
+public class TableOnMergeMatch {
     private ExprEvaluator optionalCond;
     private List<TableOnMergeAction> actions;
 
@@ -45,7 +44,9 @@ public class TableOnMergeMatch
                       TableOnMergeViewChangeHandler changeHandlerAdded,
                       TableOnMergeViewChangeHandler changeHandlerRemoved,
                       ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThenActions(actions.size());}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraMergeWhenThenActions(actions.size());
+        }
 
         int count = -1;
         for (TableOnMergeAction action : actions) {
@@ -65,6 +66,8 @@ public class TableOnMergeMatch
                 action.apply(matchingEvent, eventsPerStream, stateInstance, changeHandlerAdded, changeHandlerRemoved, context);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenActions();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraMergeWhenThenActions();
+        }
     }
 }

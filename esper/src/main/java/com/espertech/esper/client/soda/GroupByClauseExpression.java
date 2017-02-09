@@ -18,10 +18,10 @@ import java.io.StringWriter;
  * of expressions, parenthesis-expression-combinations, rollup, cube and grouping sets
  * and their parameters.
  */
-public interface GroupByClauseExpression extends Serializable
-{
+public interface GroupByClauseExpression extends Serializable {
     /**
      * Render group by expression
+     *
      * @param writer to render to
      */
     public void toEPL(StringWriter writer);

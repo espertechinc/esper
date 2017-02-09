@@ -23,16 +23,14 @@ import java.util.Set;
 /**
  * Lookup on an index using a set of expression results as key values.
  */
-public class IndexedTableLookupStrategyExpr implements JoinExecTableLookupStrategy
-{
+public class IndexedTableLookupStrategyExpr implements JoinExecTableLookupStrategy {
     private final PropertyIndexedEventTable index;
     private final int streamNum;
     private final EventBean[] eventsPerStream;
     private final ExprEvaluator[] evaluators;
     private final LookupStrategyDesc lookupStrategyDesc;
 
-    public IndexedTableLookupStrategyExpr(ExprEvaluator[] evaluators, int streamNum, PropertyIndexedEventTable index, LookupStrategyDesc lookupStrategyDesc)
-    {
+    public IndexedTableLookupStrategyExpr(ExprEvaluator[] evaluators, int streamNum, PropertyIndexedEventTable index, LookupStrategyDesc lookupStrategyDesc) {
         if (index == null) {
             throw new IllegalArgumentException("Unexpected null index received");
         }
@@ -45,16 +43,17 @@ public class IndexedTableLookupStrategyExpr implements JoinExecTableLookupStrate
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTable getIndex()
-    {
+    public PropertyIndexedEventTable getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) {InstrumentationHelper.get().qIndexJoinLookup(this, index); }
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, index);
+        }
 
         Object[] keys = new Object[evaluators.length];
         eventsPerStream[streamNum] = theEvent;
@@ -70,8 +69,7 @@ public class IndexedTableLookupStrategyExpr implements JoinExecTableLookupStrate
         return index.lookup(keys);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IndexedTableLookupStrategyExpr expressions" +
                 " index=(" + index + ')';
     }

@@ -20,8 +20,7 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
  * Factory for output process view that does not enforce any output policies and may simply
  * hand over events to child views, does not handle distinct.
  */
-public class OutputProcessViewDirectFactory implements OutputProcessViewFactory
-{
+public class OutputProcessViewDirectFactory implements OutputProcessViewFactory {
     private final StatementContext statementContext;
     private final StatementResultService statementResultService;
     protected final OutputStrategyPostProcessFactory postProcessFactory;

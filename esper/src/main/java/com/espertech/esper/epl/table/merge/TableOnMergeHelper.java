@@ -15,14 +15,14 @@ import com.espertech.esper.client.annotation.AuditEnum;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.named.NamedWindowOnMergeHelper;
+import com.espertech.esper.epl.spec.*;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
-import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelperFactory;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.map.MapEventType;
@@ -35,8 +35,7 @@ import java.util.List;
 /**
  * Factory for handles for updates/inserts/deletes/select
  */
-public class TableOnMergeHelper
-{
+public class TableOnMergeHelper {
     private List<TableOnMergeMatch> matched;
     private List<TableOnMergeMatch> unmatched;
     private boolean requiresWriteLock;
@@ -47,8 +46,7 @@ public class TableOnMergeHelper
                               String triggeringStreamName,
                               InternalEventRouter internalEventRouter,
                               TableMetadata tableMetadata)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         matched = new ArrayList<TableOnMergeMatch>();
         unmatched = new ArrayList<TableOnMergeMatch>();
 
@@ -65,8 +63,7 @@ public class TableOnMergeHelper
                         TableOnMergeActionIns action = setupInsert(tableMetadata, internalEventRouter, count, insertDesc, triggeringEventType, triggeringStreamName, statementContext);
                         actions.add(action);
                         hasInsertIntoTableAction = action.isInsertIntoBinding();
-                    }
-                    else if (item instanceof OnTriggerMergeActionUpdate) {
+                    } else if (item instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate updateDesc = (OnTriggerMergeActionUpdate) item;
                         EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(tableMetadata.getTableName(), tableMetadata.getInternalEventType(), updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, false, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
                         ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : updateDesc.getOptionalWhereClause().getExprEvaluator();
@@ -75,29 +72,25 @@ public class TableOnMergeHelper
                         actions.add(upd);
                         statementContext.getTableService().addTableUpdateStrategyReceiver(tableMetadata, statementContext.getStatementName(), upd, updateHelper, true);
                         hasUpdateAction = true;
-                    }
-                    else if (item instanceof OnTriggerMergeActionDelete) {
+                    } else if (item instanceof OnTriggerMergeActionDelete) {
                         OnTriggerMergeActionDelete deleteDesc = (OnTriggerMergeActionDelete) item;
                         ExprEvaluator filterEval = deleteDesc.getOptionalWhereClause() == null ? null : deleteDesc.getOptionalWhereClause().getExprEvaluator();
                         actions.add(new TableOnMergeActionDel(filterEval));
                         hasDeleteAction = true;
-                    }
-                    else {
+                    } else {
                         throw new IllegalArgumentException("Invalid type of merge item '" + item.getClass() + "'");
                     }
                     count++;
-                }
-                catch (ExprValidationException ex) {
+                } catch (ExprValidationException ex) {
                     boolean isNot = item instanceof OnTriggerMergeActionInsert;
-                    String message = "Validation failed in when-" + (isNot?"not-":"") + "matched (clause " + count + "): " + ex.getMessage();
+                    String message = "Validation failed in when-" + (isNot ? "not-" : "") + "matched (clause " + count + "): " + ex.getMessage();
                     throw new ExprValidationException(message, ex);
                 }
             }
 
             if (matchedItem.isMatchedUnmatched()) {
                 matched.add(new TableOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
-            }
-            else {
+            } else {
                 unmatched.add(new TableOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
             }
         }
@@ -107,7 +100,7 @@ public class TableOnMergeHelper
     }
 
     private TableOnMergeActionIns setupInsert(TableMetadata tableMetadata, InternalEventRouter internalEventRouter, int selectClauseNumber, OnTriggerMergeActionInsert desc, EventType triggeringEventType, String triggeringStreamName, StatementContext statementContext)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         // Compile insert-into info
         String streamName = desc.getOptionalStreamName() != null ? desc.getOptionalStreamName() : tableMetadata.getTableName();
@@ -122,8 +115,8 @@ public class TableOnMergeHelper
 
         // Set up event types for select-clause evaluation: The first type does not contain anything as its the named window row which is not present for insert
         EventType dummyTypeNoProperties = new MapEventType(EventTypeMetadata.createAnonymous("merge_named_window_insert", EventTypeMetadata.ApplicationType.MAP), "merge_named_window_insert", 0, null, Collections.<String, Object>emptyMap(), null, null, null);
-        EventType[] eventTypes = new EventType[] {dummyTypeNoProperties, triggeringEventType};
-        String[] streamNames = new String[] {UuidGenerator.generate(), triggeringStreamName};
+        EventType[] eventTypes = new EventType[]{dummyTypeNoProperties, triggeringEventType};
+        String[] streamNames = new String[]{UuidGenerator.generate(), triggeringStreamName};
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[1], statementContext.getEngineURI(), false);
 
         // Get select expr processor

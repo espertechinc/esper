@@ -12,8 +12,7 @@ package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 
-public class SubordinateQueryIndexDesc
-{
+public class SubordinateQueryIndexDesc {
     private final IndexKeyInfo indexKeyInfo;
     private final String indexName;
     private final IndexMultiKey indexMultiKey;

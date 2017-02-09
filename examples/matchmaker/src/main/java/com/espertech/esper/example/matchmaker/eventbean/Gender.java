@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.example.matchmaker.eventbean;
 
-public enum Gender
-{
+public enum Gender {
     FEMALE,
     MALE
 }

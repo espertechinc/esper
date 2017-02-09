@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.event.EventTypeMetadata;
-import com.espertech.esper.supportunit.bean.SupportBean;
-import com.espertech.esper.supportunit.bean.SupportBean_A;
-import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.core.support.SupportEventAdapterService;
+import com.espertech.esper.event.EventTypeMetadata;
+import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
+import com.espertech.esper.supportunit.bean.SupportBean_A;
 import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestMapEventBean extends TestCase
-{
+public class TestMapEventBean extends TestCase {
     private Map<String, Object> testTypesMap;
     private Map<String, Object> testValuesMap;
 
@@ -34,8 +33,7 @@ public class TestMapEventBean extends TestCase
 
     private SupportBeanComplexProps supportBean = SupportBeanComplexProps.makeDefaultBean();
 
-    public void setUp()
-    {
+    public void setUp() {
         testTypesMap = new HashMap<String, Object>();
         testTypesMap.put("aString", String.class);
         testTypesMap.put("anInt", Integer.class);
@@ -51,8 +49,7 @@ public class TestMapEventBean extends TestCase
         eventBean = new MapEventBean(testValuesMap, eventType);
     }
 
-    public void testGet()
-    {
+    public void testGet() {
         assertEquals(eventType, eventBean.getEventType());
         assertEquals(testValuesMap, eventBean.getUnderlying());
 
@@ -62,20 +59,16 @@ public class TestMapEventBean extends TestCase
         assertEquals("nestedValue", eventBean.get("myComplexBean.nested.nestedValue"));
 
         // test wrong property name
-        try
-        {
+        try {
             eventBean.get("dummy");
             assertTrue(false);
-        }
-        catch (PropertyAccessException ex)
-        {
+        } catch (PropertyAccessException ex) {
             // Expected
             log.debug(".testGetter Expected exception, msg=" + ex.getMessage());
         }
     }
 
-    public void testCreateUnderlying()
-    {
+    public void testCreateUnderlying() {
         SupportBean beanOne = new SupportBean();
         SupportBean_A beanTwo = new SupportBean_A("a");
 

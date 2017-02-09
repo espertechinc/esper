@@ -29,11 +29,10 @@ public class JSR223Helper {
         }
         engine.put(ScriptEngine.FILENAME, script.getName());
 
-        Compilable compilingEngine = (Compilable)engine;
+        Compilable compilingEngine = (Compilable) engine;
         try {
             return compilingEngine.compile(script.getExpression());
-        }
-        catch (ScriptException ex) {
+        } catch (ScriptException ex) {
             String message = "Exception compiling script '" + script.getName() + "' of dialect '" + dialect + "': " + getScriptCompileMsg(ex);
             log.info(message, ex);
             throw new ExprValidationException(message, ex);
@@ -43,8 +42,7 @@ public class JSR223Helper {
     public static String getScriptCompileMsg(ScriptException ex) {
         if (ex.getLineNumber() != 1 && ex.getColumnNumber() != -1) {
             return "At line " + ex.getLineNumber() + " column " + ex.getColumnNumber() + ": " + ex.getMessage();
-        }
-        else {
+        } else {
             return ex.getMessage();
         }
     }

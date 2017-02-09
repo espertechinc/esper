@@ -53,11 +53,9 @@ public class AggregationGroupByRollupLevel {
             Object[] keys = mk.getKeys();
             if (rollupKeys.length == keys.length) {
                 return mk;
-            }
-            else if (rollupKeys.length == 1) {
+            } else if (rollupKeys.length == 1) {
                 return keys[rollupKeys[0]];
-            }
-            else {
+            } else {
                 Object[] subkeys = new Object[rollupKeys.length];
                 int count = 0;
                 for (int rollupKey : rollupKeys) {
@@ -65,8 +63,7 @@ public class AggregationGroupByRollupLevel {
                 }
                 return new MultiKeyUntyped(subkeys);
             }
-        }
-        else {
+        } else {
             return groupKey;
         }
     }
@@ -84,7 +81,7 @@ public class AggregationGroupByRollupLevel {
             if (mk.getKeys().length == numExpected) {
                 return mk;
             }
-            Object[] keys = new Object[] {numExpected};
+            Object[] keys = new Object[]{numExpected};
             for (int i = 0; i < rollupKeys.length; i++) {
                 keys[rollupKeys[i]] = mk.getKeys()[i];
             }

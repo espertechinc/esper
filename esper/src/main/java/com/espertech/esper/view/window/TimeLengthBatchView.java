@@ -59,22 +59,22 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
 
     /**
      * Constructor.
-     * @param numberOfEvents is the event count before the batch fires off
+     *
+     * @param numberOfEvents        is the event count before the batch fires off
      * @param viewUpdatedCollection is a collection that the view must update when receiving events
-     * @param timeBatchViewFactory for copying this view in a group-by
-     * @param forceOutput is true if the batch should produce empty output if there is no value to output following time intervals
-     * @param isStartEager is true for start-eager
-     * @param agentInstanceContext context
-     * @param timeDeltaComputation time delta eval
+     * @param timeBatchViewFactory  for copying this view in a group-by
+     * @param forceOutput           is true if the batch should produce empty output if there is no value to output following time intervals
+     * @param isStartEager          is true for start-eager
+     * @param agentInstanceContext  context
+     * @param timeDeltaComputation  time delta eval
      */
     public TimeLengthBatchView(TimeLengthBatchViewFactory timeBatchViewFactory,
-                         AgentInstanceViewFactoryChainContext agentInstanceContext,
-                         ExprTimePeriodEvalDeltaConst timeDeltaComputation,
-                         long numberOfEvents,
-                         boolean forceOutput,
-                         boolean isStartEager,
-                         ViewUpdatedCollection viewUpdatedCollection)
-    {
+                               AgentInstanceViewFactoryChainContext agentInstanceContext,
+                               ExprTimePeriodEvalDeltaConst timeDeltaComputation,
+                               long numberOfEvents,
+                               boolean forceOutput,
+                               boolean isStartEager,
+                               ViewUpdatedCollection viewUpdatedCollection) {
         this.agentInstanceContext = agentInstanceContext;
         this.timeLengthBatchViewFactory = timeBatchViewFactory;
         this.timeDeltaComputation = timeDeltaComputation;
@@ -93,8 +93,7 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
         agentInstanceContext.addTerminationCallback(this);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return timeLengthBatchViewFactory.makeView(agentInstanceContext);
     }
 
@@ -104,44 +103,42 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
 
     /**
      * True for force-output.
+     *
      * @return indicates force-output
      */
-    public boolean isForceOutput()
-    {
+    public boolean isForceOutput() {
         return isForceOutput;
     }
 
     /**
      * Returns the length of the batch.
+     *
      * @return maximum number of events allowed before window gets flushed
      */
-    public long getNumberOfEvents()
-    {
+    public long getNumberOfEvents() {
         return numberOfEvents;
     }
 
     /**
      * True for start-eager.
+     *
      * @return indicates start-eager
      */
-    public boolean isStartEager()
-    {
+    public boolean isStartEager() {
         return isStartEager;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, timeLengthBatchViewFactory.getViewName(), newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, timeLengthBatchViewFactory.getViewName(), newData, oldData);
+        }
 
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 if (currentBatch.remove(oldData[i])) {
                     internalHandleRemoved(oldData[i]);
                 }
@@ -149,9 +146,10 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
         }
 
         // we don't care about removed data from a prior view
-        if ((newData == null) || (newData.length == 0))
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if ((newData == null) || (newData.length == 0)) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewProcessIRStream();
+            }
             return;
         }
 
@@ -162,22 +160,24 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
         }
 
         // We are done unless we went over the boundary
-        if (currentBatch.size() < numberOfEvents)
-        {
+        if (currentBatch.size() < numberOfEvents) {
             // Schedule a callback if there is none scheduled
-            if (callbackScheduledTime == null)
-            {
+            if (callbackScheduledTime == null) {
                 scheduleCallback(0);
             }
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewProcessIRStream();
+            }
             return;
         }
 
         // send a batch of events
         sendBatch(false);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     public void internalHandleAdded(EventBean newEvent) {
@@ -191,59 +191,53 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
     /**
      * This method updates child views and clears the batch of events.
      * We cancel and old callback and schedule a new callback at this time if there were events in the batch.
+     *
      * @param isFromSchedule true if invoked from a schedule, false if not
      */
-    protected void sendBatch(boolean isFromSchedule)
-    {
+    protected void sendBatch(boolean isFromSchedule) {
         // No more callbacks scheduled if called from a schedule
-        if (isFromSchedule)
-        {
+        if (isFromSchedule) {
             callbackScheduledTime = null;
-        }
-        else
-        {
+        } else {
             // Remove schedule if called from on overflow due to number of events
-            if (callbackScheduledTime != null)
-            {
+            if (callbackScheduledTime != null) {
                 agentInstanceContext.getStatementContext().getSchedulingService().remove(handle, scheduleSlot);
                 callbackScheduledTime = null;
             }
         }
 
         // If there are child views and the batch was filled, fireStatementStopped update method
-        if (this.hasViews())
-        {
+        if (this.hasViews()) {
             // Convert to object arrays
             EventBean[] newData = null;
             EventBean[] oldData = null;
-            if (!currentBatch.isEmpty())
-            {
+            if (!currentBatch.isEmpty()) {
                 newData = currentBatch.toArray(new EventBean[currentBatch.size()]);
             }
-            if ((lastBatch != null) && (!lastBatch.isEmpty()))
-            {
+            if ((lastBatch != null) && (!lastBatch.isEmpty())) {
                 oldData = lastBatch.toArray(new EventBean[lastBatch.size()]);
             }
 
             // Post new data (current batch) and old data (prior batch)
-            if (viewUpdatedCollection != null)
-            {
+            if (viewUpdatedCollection != null) {
                 viewUpdatedCollection.update(newData, oldData);
             }
-            if ((newData != null) || (oldData != null) || (isForceOutput))
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeLengthBatchViewFactory.getViewName(), newData, oldData);}
+            if ((newData != null) || (oldData != null) || isForceOutput) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, timeLengthBatchViewFactory.getViewName(), newData, oldData);
+                }
                 updateChildren(newData, oldData);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
 
         // Only if there have been any events in this or the last interval do we schedule a callback,
         // such as to not waste resources when no events arrive.
         if (((!currentBatch.isEmpty()) || ((lastBatch != null) && (!lastBatch.isEmpty())))
-           ||
-           (isForceOutput))
-        {
+                ||
+                isForceOutput) {
             scheduleCallback(0);
         }
 
@@ -254,39 +248,37 @@ public class TimeLengthBatchView extends ViewSupport implements CloneableView, S
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
-        if (lastBatch != null)
-        {
-            if (!lastBatch.isEmpty())
-            {
+    public boolean isEmpty() {
+        if (lastBatch != null) {
+            if (!lastBatch.isEmpty()) {
                 return false;
             }
         }
         return currentBatch.isEmpty();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return currentBatch.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() +
                 " numberOfEvents=" + numberOfEvents;
     }
 
-    protected void scheduleCallback(long delta)
-    {
+    protected void scheduleCallback(long delta) {
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeLengthBatchView.this, timeLengthBatchViewFactory.getViewName());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewScheduledEval(TimeLengthBatchView.this, timeLengthBatchViewFactory.getViewName());
+                }
                 TimeLengthBatchView.this.sendBatch(true);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewScheduledEval();
+                }
             }
         };
         handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);

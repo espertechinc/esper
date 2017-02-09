@@ -12,14 +12,13 @@ package com.espertech.esper.event.property;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.supportunit.bean.SupportBeanComplexProps;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
-public class TestSimpleProperty extends TestCase
-{
+public class TestSimpleProperty extends TestCase {
     private SimpleProperty prop;
     private SimpleProperty invalidPropMap;
     private SimpleProperty invalidPropIndexed;
@@ -27,8 +26,7 @@ public class TestSimpleProperty extends TestCase
     private EventBean theEvent;
     private BeanEventType eventType;
 
-    public void setUp()
-    {
+    public void setUp() {
         prop = new SimpleProperty("simpleProperty");
         invalidPropMap = new SimpleProperty("mapped");
         invalidPropIndexed = new SimpleProperty("indexed");
@@ -37,8 +35,7 @@ public class TestSimpleProperty extends TestCase
         eventType = (BeanEventType) theEvent.getEventType();
     }
 
-    public void testGetGetter()
-    {
+    public void testGetGetter() {
         EventPropertyGetter getter = prop.getGetter(eventType, SupportEventAdapterService.getService());
         assertEquals("simple", getter.get(theEvent));
 
@@ -47,8 +44,7 @@ public class TestSimpleProperty extends TestCase
         assertNull(invalidPropIndexed.getGetter(eventType, SupportEventAdapterService.getService()));
     }
 
-    public void testGetPropertyType()
-    {
+    public void testGetPropertyType() {
         assertEquals(String.class, prop.getPropertyType(eventType, SupportEventAdapterService.getService()));
 
         assertNull(invalidDummy.getGetter(eventType, SupportEventAdapterService.getService()));

@@ -12,8 +12,7 @@ package com.espertech.esper.epl.expression.time;
 
 import junit.framework.TestCase;
 
-public class TestTimeAbacusMicroseconds extends TestCase
-{
+public class TestTimeAbacusMicroseconds extends TestCase {
     private TimeAbacus abacus = TimeAbacusMicroseconds.INSTANCE;
 
     public void testDeltaFor() {
@@ -30,7 +29,7 @@ public class TestTimeAbacusMicroseconds extends TestCase
         assertEquals(5000001, abacus.deltaForSecondsNumber(5.000000999999));
 
         for (int i = 1; i < 1000000; i++) {
-            double d = ((double)i) / 1000000;
+            double d = ((double) i) / 1000000;
             assertEquals((long) i, abacus.deltaForSecondsNumber(d));
             assertEquals((long) i, abacus.deltaForSecondsDouble(d));
         }

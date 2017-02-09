@@ -53,17 +53,14 @@ public class StatementAgentInstanceFactoryUpdate extends StatementAgentInstanceF
         this.routerDesc = routerDesc;
     }
 
-    public StatementAgentInstanceFactoryUpdateResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryUpdateResult newContextInternal(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         final List<StopCallback> stopCallbacks = new ArrayList<StopCallback>();
 
         Map<ExprSubselectNode, SubSelectStrategyHolder> subselectStrategies;
 
         try {
-            stopCallbacks.add(new StopCallback()
-            {
-                public void stop()
-                {
+            stopCallbacks.add(new StopCallback() {
+                public void stop() {
                     services.getInternalEventRouter().removePreprocessing(streamEventType, desc);
                 }
             });
@@ -72,8 +69,7 @@ public class StatementAgentInstanceFactoryUpdate extends StatementAgentInstanceF
 
             // start subselects
             subselectStrategies = EPStatementStartMethodHelperSubselect.startSubselects(services, subSelectStrategyCollection, agentInstanceContext, stopCallbacks, isRecoveringResilient);
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             StopCallback stopCallback = StatementAgentInstanceUtil.getStopCallback(stopCallbacks, agentInstanceContext);
             StatementAgentInstanceUtil.stopSafe(stopCallback, statementContext);
             throw ex;

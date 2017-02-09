@@ -20,19 +20,16 @@ import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 
-public class TestExprSumNode extends TestExprAggregateNodeAdapter
-{
+public class TestExprSumNode extends TestExprAggregateNodeAdapter {
     private ExprSumNode sumNode;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         sumNode = new ExprSumNode(false);
 
         super.validatedNodeToTest = makeNode(5, Integer.class);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         sumNode.addChildNode(new SupportExprNode(Integer.class));
         SupportExprNodeFactory.validate3Stream(sumNode);
         assertEquals(Integer.class, sumNode.getType());
@@ -48,8 +45,7 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter
         assertEquals(Integer.class, sumNode.getType());
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         // Build sum(4-2)
         ExprMathNode arithNodeChild = new ExprMathNode(MathArithTypeEnum.SUBTRACT, false, false);
         arithNodeChild.addChildNode(new SupportExprNode(4));
@@ -61,41 +57,32 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter
         assertEquals("sum(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(sumNode));
     }
 
-    public void testValidate()
-    {
+    public void testValidate() {
         // Must have exactly 1 subnodes
-        try
-        {
+        try {
             sumNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
 
         // Must have only number-type subnodes
         sumNode.addChildNode(new SupportExprNode(String.class));
         sumNode.addChildNode(new SupportExprNode(Integer.class));
-        try
-        {
+        try {
             sumNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(sumNode.equalsNode(sumNode));
         assertFalse(sumNode.equalsNode(new ExprOrNode()));
     }
 
-    private ExprSumNode makeNode(Object value, Class type) throws Exception
-    {
+    private ExprSumNode makeNode(Object value, Class type) throws Exception {
         ExprSumNode sumNode = new ExprSumNode(false);
         sumNode.addChildNode(new SupportExprNode(value, type));
         SupportExprNodeFactory.validate3Stream(sumNode);

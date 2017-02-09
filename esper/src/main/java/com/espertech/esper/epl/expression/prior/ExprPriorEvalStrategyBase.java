@@ -17,12 +17,10 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Represents the 'prior' prior event function in an expression node tree.
  */
-public abstract class ExprPriorEvalStrategyBase implements ExprPriorEvalStrategy
-{
+public abstract class ExprPriorEvalStrategyBase implements ExprPriorEvalStrategy {
     public abstract EventBean getSubstituteEvent(EventBean originalEvent, boolean isNewData, int constantIndexNumber);
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, int streamNumber, ExprEvaluator evaluator, int constantIndexNumber)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext, int streamNumber, ExprEvaluator evaluator, int constantIndexNumber) {
         EventBean originalEvent = eventsPerStream[streamNumber];
 
         EventBean substituteEvent = getSubstituteEvent(originalEvent, isNewData, constantIndexNumber);

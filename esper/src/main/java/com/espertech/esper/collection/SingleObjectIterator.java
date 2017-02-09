@@ -16,40 +16,34 @@ import java.util.NoSuchElementException;
 /**
  * A utility class for an iterator that has zero or one element and can be reset with a new value.
  */
-public class SingleObjectIterator<T> implements Iterator<T>
-{
+public class SingleObjectIterator<T> implements Iterator<T> {
     private T object;
 
     /**
      * Constructor, takes the single object to iterate over as a parameter.
      * The single object can be null indicating that there are no more elements.
+     *
      * @param object single object that the iterator returns, or null for an empty iterator
      */
-    public SingleObjectIterator(T object)
-    {
+    public SingleObjectIterator(T object) {
         this.object = object;
     }
 
     /**
      * Ctor for an iterator starting out empty.
      */
-    public SingleObjectIterator()
-    {
+    public SingleObjectIterator() {
     }
 
-    public boolean hasNext()
-    {
-        if (object == null)
-        {
+    public boolean hasNext() {
+        if (object == null) {
             return false;
         }
         return true;
     }
 
-    public T next()
-    {
-        if (object == null)
-        {
+    public T next() {
+        if (object == null) {
             throw new NoSuchElementException();
         }
         T result = object;
@@ -57,8 +51,7 @@ public class SingleObjectIterator<T> implements Iterator<T>
         return result;
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

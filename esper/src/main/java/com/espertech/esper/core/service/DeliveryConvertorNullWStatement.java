@@ -15,8 +15,7 @@ import com.espertech.esper.client.EPStatement;
 /**
  * Implementation that does not convert columns.
  */
-public class DeliveryConvertorNullWStatement implements DeliveryConvertor
-{
+public class DeliveryConvertorNullWStatement implements DeliveryConvertor {
     private final EPStatement statement;
 
     public DeliveryConvertorNullWStatement(EPStatement statement) {

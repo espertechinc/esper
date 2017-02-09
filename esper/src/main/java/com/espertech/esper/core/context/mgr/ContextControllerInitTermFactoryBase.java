@@ -113,8 +113,7 @@ public abstract class ContextControllerInitTermFactoryBase extends ContextContro
                     return new StatementAIResourceRegistry(new AIRegistryAggregationMultiPerm(), new AIRegistryExprMultiPerm());
                 }
             };
-        }
-        else {
+        } else {
             return new StatementAIResourceRegistryFactory() {
                 public StatementAIResourceRegistry make() {
                     return new StatementAIResourceRegistry(new AIRegistryAggregationSingle(), new AIRegistryExprSingle());

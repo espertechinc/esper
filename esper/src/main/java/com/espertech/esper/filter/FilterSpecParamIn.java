@@ -23,8 +23,7 @@ import java.util.*;
  * <p>
  * The 'in' checks for a list of values.
  */
-public final class FilterSpecParamIn extends FilterSpecParam
-{
+public final class FilterSpecParamIn extends FilterSpecParam {
     private final List<FilterSpecParamInValue> listOfValues;
     private MultiKeyUntyped inListConstantsOnly;
     private boolean hasCollMapOrArray;
@@ -33,16 +32,16 @@ public final class FilterSpecParamIn extends FilterSpecParam
 
     /**
      * Ctor.
-     * @param lookupable is the event property or function
+     *
+     * @param lookupable     is the event property or function
      * @param filterOperator is expected to be the IN-list operator
-     * @param listofValues is a list of constants and event property names
+     * @param listofValues   is a list of constants and event property names
      * @throws IllegalArgumentException for illegal args
      */
     public FilterSpecParamIn(FilterSpecLookupable lookupable,
                              FilterOperator filterOperator,
                              List<FilterSpecParamInValue> listofValues)
-        throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.listOfValues = listofValues;
 
@@ -60,17 +59,13 @@ public final class FilterSpecParamIn extends FilterSpecParam
                 Class returnType = listofValues.get(0).getReturnType();
                 if (returnType == null) {
                     adders[i] = InValueAdderPlain.INSTANCE;
-                }
-                else if (returnType.isArray()) {
+                } else if (returnType.isArray()) {
                     adders[i] = InValueAdderArray.INSTANCE;
-                }
-                else if (JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
+                } else if (JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
                     adders[i] = InValueAdderMap.INSTANCE;
-                }
-                else if (JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
+                } else if (JavaClassHelper.isImplementsInterface(returnType, Collection.class)) {
                     adders[i] = InValueAdderColl.INSTANCE;
-                }
-                else {
+                } else {
                     adders[i] = InValueAdderPlain.INSTANCE;
                 }
             }
@@ -88,15 +83,13 @@ public final class FilterSpecParamIn extends FilterSpecParam
             inListConstantsOnly = getFilterValues(null, null);
         }
 
-        if ((filterOperator != FilterOperator.IN_LIST_OF_VALUES) && ((filterOperator != FilterOperator.NOT_IN_LIST_OF_VALUES)))
-        {
+        if ((filterOperator != FilterOperator.IN_LIST_OF_VALUES) && ((filterOperator != FilterOperator.NOT_IN_LIST_OF_VALUES))) {
             throw new IllegalArgumentException("Illegal filter operator " + filterOperator + " supplied to " +
                     "in-values filter parameter");
         }
     }
 
-    public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext)
-    {
+    public final Object getFilterValue(MatchedEventMap matchedEvents, AgentInstanceContext agentInstanceContext) {
         // If the list of values consists of all-constants and no event properties, then use cached version
         if (inListConstantsOnly != null) {
             return inListConstantsOnly;
@@ -106,50 +99,42 @@ public final class FilterSpecParamIn extends FilterSpecParam
 
     /**
      * Returns the list of values we are asking to match.
+     *
      * @return list of filter values
      */
-    public List<FilterSpecParamInValue> getListOfValues()
-    {
+    public List<FilterSpecParamInValue> getListOfValues() {
         return listOfValues;
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return super.toString() + "  in=(listOfValues=" + listOfValues.toString() + ')';
     }
 
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-        {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (!(obj instanceof FilterSpecParamIn))
-        {
+        if (!(obj instanceof FilterSpecParamIn)) {
             return false;
         }
 
         FilterSpecParamIn other = (FilterSpecParamIn) obj;
-        if (!super.equals(other))
-        {
+        if (!super.equals(other)) {
             return false;
         }
 
-        if (listOfValues.size() != other.listOfValues.size())
-        {
+        if (listOfValues.size() != other.listOfValues.size()) {
             return false;
         }
 
-        if (!(Arrays.deepEquals(listOfValues.toArray(), other.listOfValues.toArray())))
-        {
+        if (!(Arrays.deepEquals(listOfValues.toArray(), other.listOfValues.toArray()))) {
             return false;
         }
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (listOfValues != null ? listOfValues.hashCode() : 0);
         return result;

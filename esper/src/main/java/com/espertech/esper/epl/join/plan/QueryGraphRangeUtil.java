@@ -12,14 +12,15 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.collection.MultiKeyUntyped;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Property lists stored as a value for each stream-to-stream relationship, for use by {@link com.espertech.esper.epl.join.plan.QueryGraph}.
  */
-public class QueryGraphRangeUtil
-{
-    private static final Map<MultiKeyUntyped, QueryGraphRangeConsolidateDesc> opsTable = new HashMap<MultiKeyUntyped, QueryGraphRangeConsolidateDesc>();
+public class QueryGraphRangeUtil {
+    private static final Map<MultiKeyUntyped, QueryGraphRangeConsolidateDesc> OPS_TABLE = new HashMap<MultiKeyUntyped, QueryGraphRangeConsolidateDesc>();
+
     static {
         add(QueryGraphRangeEnum.LESS_OR_EQUAL, QueryGraphRangeEnum.GREATER_OR_EQUAL, QueryGraphRangeEnum.RANGE_CLOSED);
         add(QueryGraphRangeEnum.LESS, QueryGraphRangeEnum.GREATER, QueryGraphRangeEnum.RANGE_OPEN);
@@ -29,17 +30,17 @@ public class QueryGraphRangeUtil
 
     private static void add(QueryGraphRangeEnum opOne, QueryGraphRangeEnum opTwo, QueryGraphRangeEnum range) {
         MultiKeyUntyped keyOne = getKey(opOne, opTwo);
-        opsTable.put(keyOne, new QueryGraphRangeConsolidateDesc(range, false));
+        OPS_TABLE.put(keyOne, new QueryGraphRangeConsolidateDesc(range, false));
         MultiKeyUntyped keyRev = getKey(opTwo, opOne);
-        opsTable.put(keyRev, new QueryGraphRangeConsolidateDesc(range, true));
+        OPS_TABLE.put(keyRev, new QueryGraphRangeConsolidateDesc(range, true));
     }
 
     private static MultiKeyUntyped getKey(QueryGraphRangeEnum op1, QueryGraphRangeEnum op2) {
-        return new MultiKeyUntyped(new Object[] {op1, op2});
+        return new MultiKeyUntyped(new Object[]{op1, op2});
     }
 
     public static QueryGraphRangeConsolidateDesc getCanConsolidate(QueryGraphRangeEnum op1, QueryGraphRangeEnum op2) {
-        return opsTable.get(getKey(op1, op2));
+        return OPS_TABLE.get(getKey(op1, op2));
     }
 }
 

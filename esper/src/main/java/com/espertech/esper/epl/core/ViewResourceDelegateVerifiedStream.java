@@ -20,8 +20,7 @@ import java.util.*;
  * Coordinates between view factories and requested resource (by expressions) the
  * availability of view resources to expressions.
  */
-public class ViewResourceDelegateVerifiedStream
-{
+public class ViewResourceDelegateVerifiedStream {
     private final List<ExprPreviousNode> previousRequests;
     private final SortedMap<Integer, List<ExprPriorNode>> priorRequests;
     private final Set<ExprPreviousMatchRecognizeNode> matchRecognizePreviousRequests;

@@ -20,10 +20,9 @@ import java.util.Iterator;
  * <p>
  * This interface allows an iterator to be repeatedly reused.
  *
- * @since Commons Collections 3.0
- * @version $Revision$ $Date$
- *
  * @author Stephen Colebourne
+ * @version $Revision$ $Date$
+ * @since Commons Collections 3.0
  */
 public interface ResettableIterator extends Iterator {
 

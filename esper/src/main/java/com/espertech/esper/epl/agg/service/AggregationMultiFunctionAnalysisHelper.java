@@ -17,10 +17,12 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateLocalGroupByDesc;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 
-public class AggregationMultiFunctionAnalysisHelper
-{
+public class AggregationMultiFunctionAnalysisHelper {
     // handle accessor aggregation (direct data window by-group access to properties)
     public static AggregationMultiFunctionAnalysisResult analyzeAccessAggregations(List<AggregationServiceAggExpressionDesc> aggregations) {
         int currentSlot = 0;
@@ -28,8 +30,7 @@ public class AggregationMultiFunctionAnalysisHelper
         List<AggregationAccessorSlotPair> accessorPairs = new ArrayList<AggregationAccessorSlotPair>();
         List<AggregationStateFactory> stateFactories = new ArrayList<AggregationStateFactory>();
 
-        for (AggregationServiceAggExpressionDesc aggregation : aggregations)
-        {
+        for (AggregationServiceAggExpressionDesc aggregation : aggregations) {
             ExprAggregateNode aggregateNode = aggregation.getAggregationNode();
             if (!aggregateNode.getFactory().isAccessAggregation()) {
                 continue;
@@ -44,8 +45,7 @@ public class AggregationMultiFunctionAnalysisHelper
                 slot = currentSlot++;
                 AggregationStateFactory providerFactory = aggregateNode.getFactory().getAggregationStateFactory(false);
                 stateFactories.add(providerFactory);
-            }
-            else {
+            } else {
                 slot = existing.getSlot();
             }
 
@@ -67,8 +67,8 @@ public class AggregationMultiFunctionAnalysisHelper
                 return ident;
             }
             if (optionalOver != null &&
-                ident.optionalLocalGroupBy != null &&
-                ExprNodeUtility.deepEqualsIgnoreDupAndOrder(optionalOver.getPartitionExpressions(), ident.optionalLocalGroupBy.getPartitionExpressions())) {
+                    ident.optionalLocalGroupBy != null &&
+                    ExprNodeUtility.deepEqualsIgnoreDupAndOrder(optionalOver.getPartitionExpressions(), ident.optionalLocalGroupBy.getPartitionExpressions())) {
                 return ident;
             }
         }

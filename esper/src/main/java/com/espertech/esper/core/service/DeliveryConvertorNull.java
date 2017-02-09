@@ -13,8 +13,7 @@ package com.espertech.esper.core.service;
 /**
  * Implementation that does not convert columns.
  */
-public class DeliveryConvertorNull implements DeliveryConvertor
-{
+public class DeliveryConvertorNull implements DeliveryConvertor {
     public final static DeliveryConvertorNull INSTANCE = new DeliveryConvertorNull();
 
     private DeliveryConvertorNull() {

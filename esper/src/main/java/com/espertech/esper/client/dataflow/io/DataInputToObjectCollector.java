@@ -18,6 +18,7 @@ import java.io.IOException;
 public interface DataInputToObjectCollector {
     /**
      * Reads provided {@link java.io.DataInput} and emits an object using the provided emitter.
+     *
      * @param context contains input and emitter
      * @throws IOException when the read operation cannot be completed
      */

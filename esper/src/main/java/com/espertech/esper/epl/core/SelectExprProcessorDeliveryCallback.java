@@ -12,7 +12,6 @@ package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
 
-public interface SelectExprProcessorDeliveryCallback
-{
+public interface SelectExprProcessorDeliveryCallback {
     public EventBean selected(Object[] result);
 }

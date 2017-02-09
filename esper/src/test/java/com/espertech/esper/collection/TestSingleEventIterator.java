@@ -10,53 +10,42 @@
  */
 package com.espertech.esper.collection;
 
-import junit.framework.*;
-import java.util.NoSuchElementException;
-
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
-public class TestSingleEventIterator extends TestCase
-{
+import java.util.NoSuchElementException;
+
+public class TestSingleEventIterator extends TestCase {
     private SingleEventIterator iterator;
     private EventBean eventBean;
 
-    public void setUp()
-    {
+    public void setUp() {
         eventBean = SupportEventBeanFactory.createObject("a");
         iterator = new SingleEventIterator(eventBean);
     }
 
-    public void testNext()
-    {
+    public void testNext() {
         assertEquals(eventBean, iterator.next());
-        try
-        {
+        try {
             iterator.next();
             TestCase.fail();
-        }
-        catch (NoSuchElementException ex)
-        {
+        } catch (NoSuchElementException ex) {
             // Expected exception
         }
     }
 
-    public void testHasNext()
-    {
+    public void testHasNext() {
         assertTrue(iterator.hasNext());
         iterator.next();
         assertFalse(iterator.hasNext());
     }
 
-    public void testRemove()
-    {
-        try
-        {
+    public void testRemove() {
+        try {
             iterator.remove();
             assertTrue(false);
-        }
-        catch (UnsupportedOperationException ex)
-        {
+        } catch (UnsupportedOperationException ex) {
             // Expected exception
         }
     }

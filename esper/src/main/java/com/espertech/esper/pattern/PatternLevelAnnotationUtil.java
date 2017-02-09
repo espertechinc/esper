@@ -15,6 +15,7 @@ import com.espertech.esper.epl.spec.PatternStreamSpecRaw;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Locale;
 
 public class PatternLevelAnnotationUtil {
 
@@ -54,13 +55,11 @@ public class PatternLevelAnnotationUtil {
     }
 
     public static void validateSetFlags(PatternLevelAnnotationFlags flags, String annotation) {
-        if (annotation.toLowerCase().equals(DISCARDPARTIALSONMATCH.toLowerCase())) {
+        if (annotation.toLowerCase(Locale.ENGLISH).equals(DISCARDPARTIALSONMATCH.toLowerCase(Locale.ENGLISH))) {
             flags.setDiscardPartialsOnMatch(true);
-        }
-        else if (annotation.toLowerCase().equals(SUPPRESSOVERLAPPINGMATCHES.toLowerCase())) {
+        } else if (annotation.toLowerCase(Locale.ENGLISH).equals(SUPPRESSOVERLAPPINGMATCHES.toLowerCase(Locale.ENGLISH))) {
             flags.setSuppressSameEventMatches(true);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unrecognized pattern-level annotation '" + annotation + "'");
         }
     }

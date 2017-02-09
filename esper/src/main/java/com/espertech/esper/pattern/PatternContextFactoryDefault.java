@@ -16,8 +16,7 @@ import com.espertech.esper.core.service.StatementContext;
 /**
  * Default pattern context factory.
  */
-public class PatternContextFactoryDefault implements PatternContextFactory
-{
+public class PatternContextFactoryDefault implements PatternContextFactory {
     public PatternContext createContext(StatementContext statementContext,
                                         int streamId,
                                         EvalRootFactoryNode rootNode,

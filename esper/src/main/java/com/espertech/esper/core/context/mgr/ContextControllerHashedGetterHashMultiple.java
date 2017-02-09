@@ -35,7 +35,7 @@ public class ContextControllerHashedGetterHashMultiple implements EventPropertyG
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        EventBean[] events = new EventBean[] {eventBean};
+        EventBean[] events = new EventBean[]{eventBean};
 
         int hashCode = 0;
         for (int i = 0; i < evaluators.length; i++) {
@@ -45,8 +45,7 @@ public class ContextControllerHashedGetterHashMultiple implements EventPropertyG
             }
             if (hashCode == 0) {
                 hashCode = result.hashCode();
-            }
-            else {
+            } else {
                 hashCode = 31 * hashCode + result.hashCode();
             }
         }

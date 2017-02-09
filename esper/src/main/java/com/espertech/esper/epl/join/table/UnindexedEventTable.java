@@ -17,28 +17,25 @@ import java.util.Set;
 /**
  * Simple table of events without an index.
  */
-public abstract class UnindexedEventTable implements EventTable
-{
+public abstract class UnindexedEventTable implements EventTable {
     private final int streamNum;
 
     public abstract Set<EventBean> getEventSet();
 
     /**
      * Ctor.
+     *
      * @param streamNum is the indexed stream's number
      */
-    public UnindexedEventTable(int streamNum)
-    {
+    public UnindexedEventTable(int streamNum) {
         this.streamNum = streamNum;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return toQueryPlan();
     }
 
-    public String toQueryPlan()
-    {
+    public String toQueryPlan() {
         return this.getClass().getSimpleName() + " streamNum=" + streamNum;
     }
 

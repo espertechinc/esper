@@ -10,18 +10,16 @@
  */
 package com.espertech.esper.example.rfidassetzone;
 
+import com.espertech.esper.client.EPServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Callable;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
-import com.espertech.esper.client.EPServiceProvider;
-
-public class AssetEventGenCallable implements Callable<Boolean>
-{
+public class AssetEventGenCallable implements Callable<Boolean> {
     public static final int NUM_ZONES = 20;
 
     private static final Logger log = LoggerFactory.getLogger(AssetEventGenCallable.class);
@@ -42,8 +40,7 @@ public class AssetEventGenCallable implements Callable<Boolean>
     private boolean shutdown;
     private boolean isGenerateZoneSplit;
 
-    public AssetEventGenCallable(EPServiceProvider engine, String[][] assetIds, int[][] zoneIds, Integer[] assetGroupsForThread, int ratioZoneMove, int ratioZoneSplit)
-    {
+    public AssetEventGenCallable(EPServiceProvider engine, String[][] assetIds, int[][] zoneIds, Integer[] assetGroupsForThread, int ratioZoneMove, int ratioZoneSplit) {
         this.engine = engine;
         this.assetIds = assetIds;
         this.zoneIds = zoneIds;
@@ -53,81 +50,63 @@ public class AssetEventGenCallable implements Callable<Boolean>
         isGenerateZoneSplit = true;
     }
 
-    public void setShutdown(boolean shutdown)
-    {
+    public void setShutdown(boolean shutdown) {
         this.shutdown = shutdown;
     }
 
-    public void setGenerateZoneSplit(boolean generateZoneSplit)
-    {
+    public void setGenerateZoneSplit(boolean generateZoneSplit) {
         isGenerateZoneSplit = generateZoneSplit;
     }
 
-    public boolean isGenerateZoneSplit()
-    {
+    public boolean isGenerateZoneSplit() {
         return isGenerateZoneSplit;
     }
 
-    public int getNumEventsSend()
-    {
+    public int getNumEventsSend() {
         return numEventsSend;
     }
 
-    public Boolean call() throws Exception
-    {
-        try
-        {
+    public Boolean call() throws Exception {
+        try {
             log.info(".call Thread " + Thread.currentThread().getId() + " starting");
-            while(!shutdown)
-            {
+            while (!shutdown) {
                 boolean isZoneMove = (random.nextInt() % ratioZoneMove) == 1;
                 boolean isZoneSplit = (random.nextInt() % ratioZoneSplit) == 1;
-                if (isZoneMove)
-                {
+                if (isZoneMove) {
                     doZoneMove();
-                }
-                else if ((isZoneSplit) && (isGenerateZoneSplit))
-                {
+                } else if (isZoneSplit && isGenerateZoneSplit) {
                     doZoneSplit();
-                }
-                else
-                {
+                } else {
                     doSameZone();
                 }
             }
             log.info(".call Thread " + Thread.currentThread().getId() + " done");
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.error("Error in thread " + Thread.currentThread().getId(), ex);
             return false;
         }
         return true;
     }
 
-    private void doZoneMove()
-    {
+    private void doZoneMove() {
         // Chose among one of the groups for this thread
         int index = Math.abs(random.nextInt()) % assetGroupsForThread.length;
         int groupNum = assetGroupsForThread[index];
 
         // If this is a currently-split group, don't reunion
-        if (splitZoneGroups.contains(groupNum))
-        {
+        if (splitZoneGroups.contains(groupNum)) {
             return;
         }
 
         // Determine zone to move to
         int newZone;
-        do
-        {
+        do {
             newZone = Math.abs(random.nextInt()) % NUM_ZONES;
         }
         while (zoneIds[groupNum][0] == newZone);
 
         // Move all assets for this group to a new, random zone
-        for (int i = 0; i < assetIds[i].length; i++)
-        {
+        for (int i = 0; i < assetIds[i].length; i++) {
             zoneIds[groupNum][i] = newZone;
             LocationReport report = new LocationReport(assetIds[groupNum][i], newZone);
             engine.getEPRuntime().sendEvent(report);
@@ -136,21 +115,18 @@ public class AssetEventGenCallable implements Callable<Boolean>
         numZoneMoves++;
     }
 
-    private void doSameZone()
-    {
+    private void doSameZone() {
         // Chose among one of the groups for this thread
         int index = Math.abs(random.nextInt()) % assetGroupsForThread.length;
         int groupNum = assetGroupsForThread[index];
 
         // If this is a currently-split group, don't reunion
-        if (splitZoneGroups.contains(groupNum))
-        {
+        if (splitZoneGroups.contains(groupNum)) {
             return;
         }
 
         // Re-send all assets for this group as the same zone
-        for (int i = 0; i < assetIds[i].length; i++)
-        {
+        for (int i = 0; i < assetIds[i].length; i++) {
             LocationReport report = new LocationReport(assetIds[groupNum][i], zoneIds[groupNum][i]);
             engine.getEPRuntime().sendEvent(report);
             numEventsSend++;
@@ -158,11 +134,9 @@ public class AssetEventGenCallable implements Callable<Boolean>
         numSameZone++;
     }
 
-    private void doZoneSplit()
-    {
+    private void doZoneSplit() {
         int groupNum;
-        do
-        {
+        do {
             int index = Math.abs(random.nextInt()) % assetGroupsForThread.length;
             groupNum = assetGroupsForThread[index];
         }
@@ -172,8 +146,7 @@ public class AssetEventGenCallable implements Callable<Boolean>
         // Determine zone to move to
         int oldZone = zoneIds[groupNum][0];
         int newZone;
-        do
-        {
+        do {
             newZone = Math.abs(random.nextInt()) % NUM_ZONES;
         }
         while (zoneIds[groupNum][0] == newZone);
@@ -181,8 +154,7 @@ public class AssetEventGenCallable implements Callable<Boolean>
         log.info(".doZoneSplit Split group " + groupNum + " to different zones, from zone " + oldZone + " to zone " + newZone);
 
         // Move all assets for this group except the last asset to the new zone
-        for (int i = 0; i < assetIds[i].length - 1; i++)
-        {
+        for (int i = 0; i < assetIds[i].length - 1; i++) {
             zoneIds[groupNum][i] = newZone;
             LocationReport report = new LocationReport(assetIds[groupNum][i], newZone);
             engine.getEPRuntime().sendEvent(report);
@@ -191,23 +163,19 @@ public class AssetEventGenCallable implements Callable<Boolean>
         numZoneSplits++;
     }
 
-    public int getNumZoneMoves()
-    {
+    public int getNumZoneMoves() {
         return numZoneMoves;
     }
 
-    public int getNumZoneSplits()
-    {
+    public int getNumZoneSplits() {
         return numZoneSplits;
     }
 
-    public int getNumSameZone()
-    {
+    public int getNumSameZone() {
         return numSameZone;
     }
 
-    public Set<Integer> getSplitZoneGroups()
-    {
+    public Set<Integer> getSplitZoneGroups() {
         return splitZoneGroups;
     }
 }

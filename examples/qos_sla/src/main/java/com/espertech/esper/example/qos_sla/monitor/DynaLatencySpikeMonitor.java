@@ -11,41 +11,37 @@
 package com.espertech.esper.example.qos_sla.monitor;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.example.qos_sla.eventbean.*;
-import com.espertech.esper.client.EventBean;
+import com.espertech.esper.example.qos_sla.eventbean.LatencyLimit;
+import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DynaLatencySpikeMonitor
-{
+public class DynaLatencySpikeMonitor {
     private static EPAdministrator admin;
 
     private EPStatement spikeLatencyAlert;
 
-    public static void start()
-    {
+    public static void start() {
         admin = EPServiceProviderManager.getDefaultProvider().getEPAdministrator();
 
         String theEvent = LatencyLimit.class.getName();
         EPStatement latencyAlert = admin.createPattern("every newlimit=" + theEvent);
 
         latencyAlert.addListener(new UpdateListener() {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 LatencyLimit limitEvent = (LatencyLimit) newEvents[0].get("newlimit");
                 new DynaLatencySpikeMonitor(limitEvent);
             }
         });
     }
 
-    public DynaLatencySpikeMonitor(LatencyLimit limit)
-    {
+    public DynaLatencySpikeMonitor(LatencyLimit limit) {
         log.debug("New limit, for operation '" + limit.getOperationName() +
                 "' and customer '" + limit.getCustomerId() + "'" +
                 " setting threshold " + limit.getLatencyThreshold());
 
         String filter = "operationName='" + limit.getOperationName() +
-                        "',customerId='" + limit.getCustomerId() + "'";
+                "',customerId='" + limit.getCustomerId() + "'";
 
         // Alert specific to operation and customer
         spikeLatencyAlert = admin.createPattern("every alert=" +
@@ -58,8 +54,7 @@ public class DynaLatencySpikeMonitor
         EPStatement stopPattern = admin.createPattern(theEvent + "(" + filter + ")");
 
         stopPattern.addListener(new UpdateListener() {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
                 spikeLatencyAlert.stop();
             }
         });

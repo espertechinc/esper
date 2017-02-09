@@ -30,8 +30,9 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
 
     /**
      * Ctor.
+     *
      * @param propertyNames list of property names
-     * @param filter event type name and optional filter predicates
+     * @param filter        event type name and optional filter predicates
      */
     public ContextDescriptorKeyedSegmentedItem(List<String> propertyNames, Filter filter) {
         this.propertyNames = propertyNames;
@@ -40,6 +41,7 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
 
     /**
      * Returns the filter.
+     *
      * @return filter
      */
     public Filter getFilter() {
@@ -48,6 +50,7 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
 
     /**
      * Sets the filter.
+     *
      * @param filter filter
      */
     public void setFilter(Filter filter) {
@@ -56,6 +59,7 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
 
     /**
      * Returns the property names.
+     *
      * @return list
      */
     public List<String> getPropertyNames() {
@@ -64,6 +68,7 @@ public class ContextDescriptorKeyedSegmentedItem implements ContextDescriptor {
 
     /**
      * Sets the property names.
+     *
      * @param propertyNames list
      */
     public void setPropertyNames(List<String> propertyNames) {

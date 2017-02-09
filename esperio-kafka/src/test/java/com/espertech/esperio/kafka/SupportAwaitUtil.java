@@ -20,7 +20,7 @@ public class SupportAwaitUtil {
         long start = System.currentTimeMillis();
         long waitTimeMSec = TimeUnit.MILLISECONDS.convert(waitTime, timeUnit);
 
-        while(true) {
+        while (true) {
             T result = supplier.get();
             if (result != null) {
                 return result;
@@ -29,12 +29,10 @@ public class SupportAwaitUtil {
             long delta = System.currentTimeMillis() - start;
             if (delta > waitTimeMSec) {
                 fail("Failed after waiting for " + waitTime + " " + timeUnit.name() + ": " + message);
-            }
-            else {
+            } else {
                 try {
                     Thread.sleep(1000);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                     break;
                 }

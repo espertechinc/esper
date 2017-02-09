@@ -27,8 +27,7 @@ import java.util.Stack;
 /**
  * Render for the JSON format.
  */
-public class JSONRendererImpl implements JSONEventRenderer
-{
+public class JSONRendererImpl implements JSONEventRenderer {
     private static final Logger log = LoggerFactory.getLogger(JSONRendererImpl.class);
 
     private final static String NEWLINE = System.getProperty("line.separator");
@@ -39,11 +38,11 @@ public class JSONRendererImpl implements JSONEventRenderer
 
     /**
      * Ctor.
+     *
      * @param eventType type of event(s)
-     * @param options rendering options
+     * @param options   rendering options
      */
-    public JSONRendererImpl(EventType eventType, JSONRenderingOptions options)
-    {
+    public JSONRendererImpl(EventType eventType, JSONRenderingOptions options) {
         EventPropertyRenderer propertyRenderer = null;
         EventPropertyRendererContext propertyRendererContext = null;
         if (options.getRenderer() != null) {
@@ -55,8 +54,7 @@ public class JSONRendererImpl implements JSONEventRenderer
         meta = new RendererMeta(eventType, new Stack<EventTypePropertyPair>(), rendererOptions);
     }
 
-    public String render(String title, EventBean theEvent)
-    {
+    public String render(String title, EventBean theEvent) {
         StringBuilder buf = new StringBuilder();
         buf.append('{');
         buf.append(NEWLINE);
@@ -68,7 +66,7 @@ public class JSONRendererImpl implements JSONEventRenderer
         buf.append(NEWLINE);
 
         recursiveRender(theEvent, buf, 2, meta, rendererOptions);
-        
+
         ident(buf, 1);
         buf.append('}');
         buf.append(NEWLINE);
@@ -87,40 +85,33 @@ public class JSONRendererImpl implements JSONEventRenderer
         return buf.toString();
     }
 
-    private static void ident(StringBuilder buf, int level)
-    {
-        for (int i = 0; i < level; i++)
-        {
+    private static void ident(StringBuilder buf, int level) {
+        for (int i = 0; i < level; i++) {
             indentChar(buf);
         }
     }
 
-    private static void indentChar(StringBuilder buf)
-    {
+    private static void indentChar(StringBuilder buf) {
         buf.append(' ');
         buf.append(' ');
     }
 
-    private static void recursiveRender(EventBean theEvent, StringBuilder buf, int level, RendererMeta meta, RendererMetaOptions rendererOptions)
-    {
+    private static void recursiveRender(EventBean theEvent, StringBuilder buf, int level, RendererMeta meta, RendererMetaOptions rendererOptions) {
         String delimiter = "";
 
         // simple properties
         GetterPair[] simpleProps = meta.getSimpleProperties();
         if (rendererOptions.getRenderer() == null) {
-            for (GetterPair simpleProp : simpleProps)
-            {
+            for (GetterPair simpleProp : simpleProps) {
                 Object value = simpleProp.getGetter().get(theEvent);
                 writeDelimitedIndentedProp(buf, delimiter, level, simpleProp.getName());
                 simpleProp.getOutput().render(value, buf);
                 delimiter = COMMA_DELIMITER_NEWLINE;
             }
-        }
-        else {
+        } else {
             EventPropertyRendererContext context = rendererOptions.getRendererContext();
             context.setStringBuilderAndReset(buf);
-            for (GetterPair simpleProp : simpleProps)
-            {
+            for (GetterPair simpleProp : simpleProps) {
                 Object value = simpleProp.getGetter().get(theEvent);
                 writeDelimitedIndentedProp(buf, delimiter, level, simpleProp.getName());
                 context.setDefaultRenderer(simpleProp.getOutput());
@@ -132,40 +123,30 @@ public class JSONRendererImpl implements JSONEventRenderer
         }
 
         GetterPair[] indexProps = meta.getIndexProperties();
-        for (GetterPair indexProp : indexProps)
-        {
+        for (GetterPair indexProp : indexProps) {
             Object value = indexProp.getGetter().get(theEvent);
             writeDelimitedIndentedProp(buf, delimiter, level, indexProp.getName());
 
-            if (value == null)
-            {
+            if (value == null) {
                 buf.append("null");
-            }
-            else
-            {
-                if (!value.getClass().isArray())
-                {
+            } else {
+                if (!value.getClass().isArray()) {
                     buf.append("[]");
-                }
-                else
-                {
+                } else {
                     buf.append('[');
                     String arrayDelimiter = "";
 
                     if (rendererOptions.getRenderer() == null) {
-                        for (int i = 0; i < Array.getLength(value); i++)
-                        {
+                        for (int i = 0; i < Array.getLength(value); i++) {
                             Object arrayItem = Array.get(value, i);
                             buf.append(arrayDelimiter);
                             indexProp.getOutput().render(arrayItem, buf);
                             arrayDelimiter = ", ";
                         }
-                    }
-                    else {
+                    } else {
                         EventPropertyRendererContext context = rendererOptions.getRendererContext();
                         context.setStringBuilderAndReset(buf);
-                        for (int i = 0; i < Array.getLength(value); i++)
-                        {
+                        for (int i = 0; i < Array.getLength(value); i++) {
                             Object arrayItem = Array.get(value, i);
                             buf.append(arrayDelimiter);
                             context.setPropertyName(indexProp.getName());
@@ -183,43 +164,33 @@ public class JSONRendererImpl implements JSONEventRenderer
         }
 
         GetterPair[] mappedProps = meta.getMappedProperties();
-        for (GetterPair mappedProp : mappedProps)
-        {
+        for (GetterPair mappedProp : mappedProps) {
             Object value = mappedProp.getGetter().get(theEvent);
 
-            if ((value != null) && (!(value instanceof Map)))
-            {
+            if ((value != null) && (!(value instanceof Map))) {
                 log.warn("Property '" + mappedProp.getName() + "' expected to return Map and returned " + value.getClass() + " instead");
                 continue;
             }
 
             writeDelimitedIndentedProp(buf, delimiter, level, mappedProp.getName());
 
-            if (value == null)
-            {
+            if (value == null) {
                 buf.append("null");
                 buf.append(NEWLINE);
-            }
-            else
-            {
+            } else {
                 Map<String, Object> map = (Map<String, Object>) value;
-                if (map.isEmpty())
-                {
+                if (map.isEmpty()) {
                     buf.append("{}");
                     buf.append(NEWLINE);
-                }
-                else
-                {
+                } else {
                     buf.append('{');
                     buf.append(NEWLINE);
 
                     String localDelimiter = "";
                     Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
-                    for (;it.hasNext();)
-                    {
+                    for (; it.hasNext(); ) {
                         Map.Entry<String, Object> entry = it.next();
-                        if (entry.getKey() == null)
-                        {
+                        if (entry.getKey() == null) {
                             continue;
                         }
 
@@ -229,17 +200,13 @@ public class JSONRendererImpl implements JSONEventRenderer
                         buf.append(entry.getKey());
                         buf.append("\": ");
 
-                        if (entry.getValue() == null)
-                        {
+                        if (entry.getValue() == null) {
                             buf.append("null");
-                        }
-                        else
-                        {
+                        } else {
                             OutputValueRenderer outRenderer = OutputValueRendererFactory.getOutputValueRenderer(entry.getValue().getClass(), rendererOptions);
                             if (rendererOptions.getRenderer() == null) {
                                 outRenderer.render(entry.getValue(), buf);
-                            }
-                            else {
+                            } else {
                                 EventPropertyRendererContext context = rendererOptions.getRendererContext();
                                 context.setStringBuilderAndReset(buf);
                                 context.setPropertyName(mappedProp.getName());
@@ -262,20 +229,15 @@ public class JSONRendererImpl implements JSONEventRenderer
         }
 
         NestedGetterPair[] nestedProps = meta.getNestedProperties();
-        for (NestedGetterPair nestedProp : nestedProps)
-        {
+        for (NestedGetterPair nestedProp : nestedProps) {
             Object value = nestedProp.getGetter().getFragment(theEvent);
 
             writeDelimitedIndentedProp(buf, delimiter, level, nestedProp.getName());
 
-            if (value == null)
-            {
+            if (value == null) {
                 buf.append("null");
-            }
-            else if (!nestedProp.isArray())
-            {
-                if (!(value instanceof EventBean))
-                {
+            } else if (!nestedProp.isArray()) {
+                if (!(value instanceof EventBean)) {
                     log.warn("Property '" + nestedProp.getName() + "' expected to return EventBean and returned " + value.getClass() + " instead");
                     buf.append("null");
                     continue;
@@ -283,16 +245,13 @@ public class JSONRendererImpl implements JSONEventRenderer
                 EventBean nestedEventBean = (EventBean) value;
                 buf.append('{');
                 buf.append(NEWLINE);
-                
+
                 recursiveRender(nestedEventBean, buf, level + 1, nestedProp.getMetadata(), rendererOptions);
 
                 ident(buf, level);
                 buf.append('}');
-            }
-            else
-            {
-                if (!(value instanceof EventBean[]))
-                {
+            } else {
+                if (!(value instanceof EventBean[])) {
                     log.warn("Property '" + nestedProp.getName() + "' expected to return EventBean[] and returned " + value.getClass() + " instead");
                     buf.append("null");
                     continue;
@@ -307,9 +266,8 @@ public class JSONRendererImpl implements JSONEventRenderer
                 EventBean[] nestedEventArray = (EventBean[]) value;
                 String arrayDelimiter = "";
                 buf.append('[');
-                
-                for (int i = 0; i < nestedEventArray.length; i++)
-                {
+
+                for (int i = 0; i < nestedEventArray.length; i++) {
                     EventBean arrayItem = nestedEventArray[i];
                     buf.append(arrayDelimiter);
                     arrayDelimiter = arrayDelimiterBuf.toString();

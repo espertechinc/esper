@@ -15,35 +15,31 @@ import java.io.StringWriter;
 /**
  * Expression representing the prior function.
  */
-public class PriorExpression extends ExpressionBase
-{
+public class PriorExpression extends ExpressionBase {
     private static final long serialVersionUID = 3914409812498086994L;
 
     /**
      * Ctor - for use to create an expression tree, without child expression.
      */
-    public PriorExpression()
-    {
+    public PriorExpression() {
     }
 
     /**
      * Ctor.
-     * @param index is the index of the prior event
+     *
+     * @param index        is the index of the prior event
      * @param propertyName is the property to return
      */
-    public PriorExpression(int index, String propertyName)
-    {
+    public PriorExpression(int index, String propertyName) {
         this.addChild(new ConstantExpression(index));
         this.addChild(new PropertyValueExpression(propertyName));
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("prior(");
         this.getChildren().get(0).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         writer.write(",");

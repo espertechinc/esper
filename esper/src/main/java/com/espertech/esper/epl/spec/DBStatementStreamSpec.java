@@ -20,8 +20,7 @@ import java.util.Set;
 /**
  * Specification object for historical data poll via database SQL statement.
  */
-public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, MetaDefItem, Serializable
-{
+public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecRaw, StreamSpecCompiled, MetaDefItem, Serializable {
     private String databaseName;
     private String sqlWithSubsParams;
     private String metadataSQL;
@@ -29,14 +28,14 @@ public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecR
 
     /**
      * Ctor.
+     *
      * @param optionalStreamName is a stream name optionally given to stream
-     * @param viewSpecs is a list of views onto the stream
-     * @param databaseName is the database name to poll
-     * @param sqlWithSubsParams is the SQL with placeholder parameters
-     * @param metadataSQL is the sample SQL to retrieve statement metadata, if any was supplied
+     * @param viewSpecs          is a list of views onto the stream
+     * @param databaseName       is the database name to poll
+     * @param sqlWithSubsParams  is the SQL with placeholder parameters
+     * @param metadataSQL        is the sample SQL to retrieve statement metadata, if any was supplied
      */
-    public DBStatementStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String databaseName, String sqlWithSubsParams, String metadataSQL)
-    {
+    public DBStatementStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String databaseName, String sqlWithSubsParams, String metadataSQL) {
         super(optionalStreamName, viewSpecs, new StreamSpecOptions());
 
         this.databaseName = databaseName;
@@ -46,36 +45,35 @@ public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecR
 
     /**
      * Returns the database name.
+     *
      * @return name of database.
      */
-    public String getDatabaseName()
-    {
+    public String getDatabaseName() {
         return databaseName;
     }
 
     /**
      * Returns the SQL with substitution parameters.
+     *
      * @return SQL with parameters embedded as ${stream.param}
      */
-    public String getSqlWithSubsParams()
-    {
+    public String getSqlWithSubsParams() {
         return sqlWithSubsParams;
     }
 
     /**
      * Returns the optional sample metadata SQL
+     *
      * @return null if not supplied, or SQL to fire to retrieve metadata
      */
-    public String getMetadataSQL()
-    {
+    public String getMetadataSQL() {
         return metadataSQL;
     }
 
     public StreamSpecCompiled compile(StatementContext statementContext,
                                       Set<String> eventTypeReferences,
                                       boolean isInsertInto,
-                                      Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName)
-    {
+                                      Collection<Integer> assignedTypeNumberStack, boolean isJoin, boolean isContextDeclaration, boolean isOnTrigger, String optionalStreamName) {
         return this;
     }
 

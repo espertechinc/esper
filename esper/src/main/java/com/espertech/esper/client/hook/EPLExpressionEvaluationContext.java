@@ -21,9 +21,10 @@ public class EPLExpressionEvaluationContext {
 
     /**
      * Ctor - for engine use and not for client use.
-     * @param statementName the statement name
-     * @param contextPartitionId the context partition id
-     * @param engineURI the engine uri
+     *
+     * @param statementName       the statement name
+     * @param contextPartitionId  the context partition id
+     * @param engineURI           the engine uri
      * @param statementUserObject the statement user object or null if none was assigned
      */
     public EPLExpressionEvaluationContext(String statementName, int contextPartitionId, String engineURI, Object statementUserObject) {
@@ -35,6 +36,7 @@ public class EPLExpressionEvaluationContext {
 
     /**
      * Returns the engine URI
+     *
      * @return engine URI
      */
     public String getEngineURI() {
@@ -43,6 +45,7 @@ public class EPLExpressionEvaluationContext {
 
     /**
      * Returns the statement name.
+     *
      * @return statement name
      */
     public String getStatementName() {
@@ -51,6 +54,7 @@ public class EPLExpressionEvaluationContext {
 
     /**
      * Returns the context partition id
+     *
      * @return context partition id
      */
     public int getContextPartitionId() {
@@ -59,6 +63,7 @@ public class EPLExpressionEvaluationContext {
 
     /**
      * Returns the statement user object
+     *
      * @return statement user object, can be null if unassigned
      */
     public Object getStatementUserObject() {

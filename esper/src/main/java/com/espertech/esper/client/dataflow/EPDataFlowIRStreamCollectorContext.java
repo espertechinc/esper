@@ -18,7 +18,7 @@ import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 /**
  * Context for use with {@link EPDataFlowIRStreamCollector}.
  * <p>
- *     Do not retain a handle of this object as its contents are subject to change.
+ * Do not retain a handle of this object as its contents are subject to change.
  * </p>
  */
 public class EPDataFlowIRStreamCollectorContext {
@@ -31,11 +31,12 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Ctor.
-     * @param emitter data flow emitter
-     * @param submitEventBean indicator whether the EventBean or the underlying event object must be submmitted
-     * @param newEvents insert stream events
-     * @param oldEvents remove stream events
-     * @param statement statement posting events
+     *
+     * @param emitter           data flow emitter
+     * @param submitEventBean   indicator whether the EventBean or the underlying event object must be submmitted
+     * @param newEvents         insert stream events
+     * @param oldEvents         remove stream events
+     * @param statement         statement posting events
      * @param epServiceProvider engine instances
      */
     public EPDataFlowIRStreamCollectorContext(EPDataFlowEmitter emitter, boolean submitEventBean, EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
@@ -49,6 +50,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Returns the emitter.
+     *
      * @return emitter
      */
     public EPDataFlowEmitter getEmitter() {
@@ -57,6 +59,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Returns insert stream.
+     *
      * @return events
      */
     public EventBean[] getNewEvents() {
@@ -65,6 +68,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Returns remove stream.
+     *
      * @return events
      */
     public EventBean[] getOldEvents() {
@@ -73,6 +77,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Returns the statement.
+     *
      * @return statement
      */
     public EPStatement getStatement() {
@@ -81,6 +86,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Returns the engine instance.
+     *
      * @return engine instance
      */
     public EPServiceProvider getEpServiceProvider() {
@@ -89,6 +95,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Sets insert stream events
+     *
      * @param newEvents to set
      */
     public void setNewEvents(EventBean[] newEvents) {
@@ -97,6 +104,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Sets remove stream events
+     *
      * @param oldEvents to set
      */
     public void setOldEvents(EventBean[] oldEvents) {
@@ -105,6 +113,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Sets statement.
+     *
      * @param statement to set
      */
     public void setStatement(EPStatement statement) {
@@ -113,6 +122,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Sets engine instance.
+     *
      * @param epServiceProvider to set
      */
     public void setEpServiceProvider(EPServiceProvider epServiceProvider) {
@@ -121,6 +131,7 @@ public class EPDataFlowIRStreamCollectorContext {
 
     /**
      * Returns indicator whether to submit wrapped events (EventBean) or underlying events
+     *
      * @return wrapped event indicator
      */
     public boolean isSubmitEventBean() {

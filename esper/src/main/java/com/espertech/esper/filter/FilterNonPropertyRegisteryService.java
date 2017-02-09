@@ -19,22 +19,25 @@ import com.espertech.esper.client.EventType;
 public interface FilterNonPropertyRegisteryService {
     /**
      * Register expression.
+     *
      * @param statementName statement name
-     * @param eventType event type
-     * @param lookupable filter expression
+     * @param eventType     event type
+     * @param lookupable    filter expression
      */
     void registerNonPropertyExpression(String statementName, EventType eventType, FilterSpecLookupable lookupable);
 
     /**
      * Obtain expression
+     *
      * @param eventTypeName event type name
-     * @param expression expression text
+     * @param expression    expression text
      * @return lookupable
      */
     FilterSpecLookupable getNonPropertyExpression(String eventTypeName, String expression);
 
     /**
      * Remove references to expression
+     *
      * @param statementName statement name
      */
     void removeReferencesStatement(String statementName);

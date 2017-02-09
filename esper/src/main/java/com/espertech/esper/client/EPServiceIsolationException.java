@@ -13,35 +13,34 @@ package com.espertech.esper.client;
 /**
  * This exception is thrown to indicate a problem isolating statements.
  */
-public class EPServiceIsolationException extends RuntimeException
-{
+public class EPServiceIsolationException extends RuntimeException {
     private static final long serialVersionUID = -523456496786478265L;
 
     /**
      * Ctor.
+     *
      * @param message - error message
      */
-    public EPServiceIsolationException(final String message)
-    {
+    public EPServiceIsolationException(final String message) {
         super(message);
     }
 
     /**
      * Ctor for an inner exception and message.
+     *
      * @param message - error message
-     * @param cause - inner exception
+     * @param cause   - inner exception
      */
-    public EPServiceIsolationException(final String message, final Throwable cause)
-    {
+    public EPServiceIsolationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     /**
      * Ctor - just an inner exception.
+     *
      * @param cause - inner exception
      */
-    public EPServiceIsolationException(final Throwable cause)
-    {
+    public EPServiceIsolationException(final Throwable cause) {
         super(cause);
     }
 }

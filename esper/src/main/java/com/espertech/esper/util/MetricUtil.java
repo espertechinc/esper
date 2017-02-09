@@ -19,8 +19,7 @@ import java.lang.management.ThreadMXBean;
 /**
  * Utility for CPU and wall time metrics.
  */
-public class MetricUtil
-{
+public class MetricUtil {
     private static final Logger log = LoggerFactory.getLogger(MetricUtil.class);
 
     private static ThreadMXBean threadMXBean;
@@ -29,25 +28,22 @@ public class MetricUtil
     /**
      * Initialize metrics mgmt.
      */
-    public static void initialize()
-    {
+    public static void initialize() {
         threadMXBean = ManagementFactory.getThreadMXBean();
         isCPUEnabled = threadMXBean.isCurrentThreadCpuTimeSupported();
 
-        if (!isCPUEnabled)
-        {
+        if (!isCPUEnabled) {
             log.warn("CPU metrics reporting is not enabled by Java VM");
         }
     }
 
     /**
      * Returns CPU time for the current thread.
+     *
      * @return cpu current thread
      */
-    public static long getCPUCurrentThread()
-    {
-        if (isCPUEnabled)
-        {
+    public static long getCPUCurrentThread() {
+        if (isCPUEnabled) {
             return threadMXBean.getCurrentThreadCpuTime();
         }
         return 0;
@@ -55,10 +51,10 @@ public class MetricUtil
 
     /**
      * Returns wall time using System#nanoTime.
+     *
      * @return wall time
      */
-    public static long getWall()
-    {
+    public static long getWall() {
         return System.nanoTime();
     }
 }

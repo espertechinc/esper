@@ -20,6 +20,7 @@ public class CountMinSketchAgentContextEstimate extends CountMinSketchAgentConte
 
     /**
      * Ctor.
+     *
      * @param state the state
      */
     public CountMinSketchAgentContextEstimate(CountMinSketchState state) {
@@ -28,6 +29,7 @@ public class CountMinSketchAgentContextEstimate extends CountMinSketchAgentConte
 
     /**
      * Returns the value.
+     *
      * @return value
      */
     public Object getValue() {
@@ -36,6 +38,7 @@ public class CountMinSketchAgentContextEstimate extends CountMinSketchAgentConte
 
     /**
      * Sets the value.
+     *
      * @param value to set
      */
     public void setValue(Object value) {

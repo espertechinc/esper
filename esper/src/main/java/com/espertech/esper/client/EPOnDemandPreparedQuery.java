@@ -15,10 +15,10 @@ import com.espertech.esper.client.context.ContextPartitionSelector;
 /**
  * Interface for a prepared on-demand query that can be executed multiple times.
  */
-public interface EPOnDemandPreparedQuery
-{
+public interface EPOnDemandPreparedQuery {
     /**
      * Execute the prepared query returning query results.
+     *
      * @return query result
      */
     public EPOnDemandQueryResult execute();
@@ -26,6 +26,7 @@ public interface EPOnDemandPreparedQuery
     /**
      * For use with named windows that have a context declared and that may therefore have multiple context partitions,
      * allows to target context partitions for query execution selectively.
+     *
      * @param contextPartitionSelectors selects context partitions to consider
      * @return query result
      */
@@ -33,6 +34,7 @@ public interface EPOnDemandPreparedQuery
 
     /**
      * Returns the event type, representing the columns of the select-clause.
+     *
      * @return event type
      */
     public EventType getEventType();

@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A factory for a view that handles the setting of variables upon receipt of a triggering event.
  */
-public class OnSetVariableViewFactory
-{
+public class OnSetVariableViewFactory {
     private static final Logger log = LoggerFactory.getLogger(OnSetVariableViewFactory.class);
     private final EventAdapterService eventAdapterService;
     private final VariableService variableService;
@@ -33,17 +32,17 @@ public class OnSetVariableViewFactory
 
     /**
      * Ctor.
-     * @param desc specification for the on-set statement
-     * @param eventAdapterService for creating statements
-     * @param variableService for setting variables
+     *
+     * @param desc                   specification for the on-set statement
+     * @param eventAdapterService    for creating statements
+     * @param variableService        for setting variables
      * @param statementResultService for coordinating on whether insert and remove stream events should be posted
-     * @param exprEvaluatorContext context for expression evalauation
-     * @param statementId statement id
+     * @param exprEvaluatorContext   context for expression evalauation
+     * @param statementId            statement id
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the assignment expressions are invalid
      */
     public OnSetVariableViewFactory(int statementId, OnTriggerSetDesc desc, EventAdapterService eventAdapterService, VariableService variableService, StatementResultService statementResultService, ExprEvaluatorContext exprEvaluatorContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.eventAdapterService = eventAdapterService;
         this.variableService = variableService;
         this.statementResultService = statementResultService;
@@ -57,8 +56,7 @@ public class OnSetVariableViewFactory
         return new OnSetVariableView(this, exprEvaluatorContext);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 

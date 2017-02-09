@@ -10,17 +10,15 @@
  */
 package com.espertech.esper.example.transaction;
 
-import junit.framework.TestCase;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import junit.framework.TestCase;
 
-public abstract class TestStmtBase extends TestCase
-{
+public abstract class TestStmtBase extends TestCase {
     protected EPServiceProvider epService;
 
-    public void setUp()
-    {
+    public void setUp() {
         Configuration configuration = new Configuration();
         configuration.addEventType("TxnEventA", TxnEventA.class.getName());
         configuration.addEventType("TxnEventB", TxnEventB.class.getName());
@@ -31,8 +29,7 @@ public abstract class TestStmtBase extends TestCase
         epService.initialize();
     }
 
-    protected void sendEvent(Object theEvent)
-    {
+    protected void sendEvent(Object theEvent) {
         epService.getEPRuntime().sendEvent(theEvent);
     }
 

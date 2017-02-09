@@ -26,8 +26,7 @@ import java.util.*;
  * joins and construct a complex result.
  */
 @SuppressWarnings({"StringContatenationInLoop"})
-public class LookupInstructionExecNode extends ExecNode
-{
+public class LookupInstructionExecNode extends ExecNode {
     private final int rootStream;
     private final String rootStreamName;
     private final int numStreams;
@@ -39,11 +38,12 @@ public class LookupInstructionExecNode extends ExecNode
 
     /**
      * Ctor.
-     * @param rootStream is the stream supplying the lookup event
-     * @param rootStreamName is the name of the stream supplying the lookup event
-     * @param numStreams is the number of streams
-     * @param lookupInstructions is a list of lookups to perform
-     * @param requiredPerStream indicates which streams are required and which are optional in the lookup
+     *
+     * @param rootStream                   is the stream supplying the lookup event
+     * @param rootStreamName               is the name of the stream supplying the lookup event
+     * @param numStreams                   is the number of streams
+     * @param lookupInstructions           is a list of lookups to perform
+     * @param requiredPerStream            indicates which streams are required and which are optional in the lookup
      * @param assemblyInstructionFactories factories for assembly
      */
     public LookupInstructionExecNode(int rootStream,
@@ -51,8 +51,7 @@ public class LookupInstructionExecNode extends ExecNode
                                      int numStreams,
                                      LookupInstructionExec[] lookupInstructions,
                                      boolean[] requiredPerStream,
-                                     List<BaseAssemblyNodeFactory> assemblyInstructionFactories)
-    {
+                                     List<BaseAssemblyNodeFactory> assemblyInstructionFactories) {
         this.rootStream = rootStream;
         this.rootStreamName = rootStreamName;
         this.numStreams = numStreams;
@@ -91,51 +90,40 @@ public class LookupInstructionExecNode extends ExecNode
         // Determine up to which instruction we are dealing with optional results.
         // When dealing with optional results we don't do fast exists if we find no lookup results
         requireResultsInstruction = 1;  // we always require results from the very first lookup
-        for (int i = 1; i < lookupInstructions.length; i++)
-        {
+        for (int i = 1; i < lookupInstructions.length; i++) {
             int fromStream = lookupInstructions[i].getFromStream();
-            if (requiredPerStream[fromStream])
-            {
+            if (requiredPerStream[fromStream]) {
                 requireResultsInstruction = i + 1;      // require results as long as the from-stream is a required stream
-            }
-            else
-            {
+            } else {
                 break;
             }
         }
     }
 
-    public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> resultFinalRows, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> resultFinalRows, ExprEvaluatorContext exprEvaluatorContext) {
         RepositoryImpl repository = new RepositoryImpl(rootStream, lookupEvent, numStreams);
         boolean processOptional = true;
 
-        for (int i = 0; i < requireResultsInstruction; i++)
-        {
+        for (int i = 0; i < requireResultsInstruction; i++) {
             LookupInstructionExec currentInstruction = lookupInstructions[i];
-            boolean hasResults = currentInstruction.process(repository,exprEvaluatorContext);
+            boolean hasResults = currentInstruction.process(repository, exprEvaluatorContext);
 
             // no results, check what to do
-            if (!hasResults)
-            {
+            if (!hasResults) {
                 // If there was a required stream, we are done.
-                if (currentInstruction.hasRequiredStream())
-                {
+                if (currentInstruction.hasRequiredStream()) {
                     return;
                 }
 
                 // If this is the first stream and there are no results, we are done with lookups
-                if (i == 0)
-                {
+                if (i == 0) {
                     processOptional = false;  // go to result processing
                 }
             }
         }
 
-        if (processOptional)
-        {
-            for (int i = requireResultsInstruction; i < lookupInstructions.length; i++)
-            {
+        if (processOptional) {
+            for (int i = requireResultsInstruction; i < lookupInstructions.length; i++) {
                 LookupInstructionExec currentInstruction = lookupInstructions[i];
                 currentInstruction.process(repository, exprEvaluatorContext);
             }
@@ -145,8 +133,7 @@ public class LookupInstructionExecNode extends ExecNode
         List<Node>[] results = repository.getNodesPerStream();
 
         // no results - need to execute the very last instruction/top node
-        if (results == null)
-        {
+        if (results == null) {
             BaseAssemblyNode lastAssemblyNode = assemblyInstructions[assemblyInstructions.length - 1];
             lastAssemblyNode.init(null);
             lastAssemblyNode.process(null, resultFinalRows, lookupEvent);
@@ -155,28 +142,24 @@ public class LookupInstructionExecNode extends ExecNode
 
         // we have results - execute all instructions
         BaseAssemblyNode assemblyNode;
-        for (int i = 0; i < assemblyInstructions.length; i++)
-        {
+        for (int i = 0; i < assemblyInstructions.length; i++) {
             assemblyNode = assemblyInstructions[i];
             assemblyNode.init(results);
         }
-        for (int i = 0; i < assemblyInstructions.length; i++)
-        {
+        for (int i = 0; i < assemblyInstructions.length; i++) {
             assemblyNode = assemblyInstructions[i];
             assemblyNode.process(results, resultFinalRows, lookupEvent);
         }
     }
 
-    public void print(IndentWriter writer)
-    {
+    public void print(IndentWriter writer) {
         writer.println("LookupInstructionExecNode" +
                 " rootStream=" + rootStream +
                 " name=" + rootStreamName +
                 " requiredPerStream=" + Arrays.toString(requiredPerStream));
 
         writer.incrIndent();
-        for (int i = 0; i < lookupInstructions.length; i++)
-        {
+        for (int i = 0; i < lookupInstructions.length; i++) {
             writer.println("lookup inst node " + i);
             writer.incrIndent();
             lookupInstructions[i].print(writer);
@@ -185,8 +168,7 @@ public class LookupInstructionExecNode extends ExecNode
         writer.decrIndent();
 
         writer.incrIndent();
-        for (int i = 0; i < assemblyInstructions.length; i++)
-        {
+        for (int i = 0; i < assemblyInstructions.length; i++) {
             writer.println("assembly inst node " + i);
             writer.incrIndent();
             assemblyInstructions[i].print(writer);
@@ -198,21 +180,19 @@ public class LookupInstructionExecNode extends ExecNode
     /**
      * Receives result rows posted by result set assembly nodes.
      */
-    public static class MyResultAssembler implements ResultAssembler
-    {
+    public static class MyResultAssembler implements ResultAssembler {
         private final int rootStream;
 
         /**
          * Ctor.
+         *
          * @param rootStream is the root stream for which we get results
          */
-        public MyResultAssembler(int rootStream)
-        {
+        public MyResultAssembler(int rootStream) {
             this.rootStream = rootStream;
         }
 
-        public void result(EventBean[] row, int fromStreamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent)
-        {
+        public void result(EventBean[] row, int fromStreamNum, EventBean myEvent, Node myNode, Collection<EventBean[]> resultFinalRows, EventBean resultRootEvent) {
             row[rootStream] = resultRootEvent;
             resultFinalRows.add(row);
         }

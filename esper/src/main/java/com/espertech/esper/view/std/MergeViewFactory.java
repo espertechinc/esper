@@ -13,11 +13,14 @@ package com.espertech.esper.view.std;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.view.*;
+import com.espertech.esper.view.View;
+import com.espertech.esper.view.ViewFactory;
+import com.espertech.esper.view.ViewFactoryContext;
+import com.espertech.esper.view.ViewParameterException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +29,7 @@ import java.util.Map;
 /**
  * Factory for {@link MergeView} instances.
  */
-public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
-{
+public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker {
     private List<ExprNode> viewParameters;
     private int streamNumber;
 
@@ -35,32 +37,26 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
     private EventType eventType;
     private boolean removable = false;  // set to true when retain-age
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
         this.streamNumber = viewFactoryContext.getStreamNum();
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         // Find the group by view matching the merge view
         GroupByViewFactoryMarker groupByViewFactory = null;
         ExprNode[] unvalidated = viewParameters.toArray(new ExprNode[viewParameters.size()]);
-        for (ViewFactory parentView : parentViewFactories)
-        {
-            if (!(parentView instanceof GroupByViewFactoryMarker))
-            {
+        for (ViewFactory parentView : parentViewFactories) {
+            if (!(parentView instanceof GroupByViewFactoryMarker)) {
                 continue;
             }
             GroupByViewFactoryMarker candidateGroupByView = (GroupByViewFactoryMarker) parentView;
-            if (ExprNodeUtility.deepEquals(candidateGroupByView.getCriteriaExpressions(), unvalidated))
-            {
+            if (ExprNodeUtility.deepEquals(candidateGroupByView.getCriteriaExpressions(), unvalidated)) {
                 groupByViewFactory = candidateGroupByView;
             }
         }
 
-        if (groupByViewFactory == null)
-        {
+        if (groupByViewFactory == null) {
             throw new ViewParameterException("Groupwin view for this merge view could not be found among parent views");
         }
         criteriaExpressions = groupByViewFactory.getCriteriaExpressions();
@@ -68,8 +64,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
 
         // determine types of fields
         Class[] fieldTypes = new Class[criteriaExpressions.length];
-        for (int i = 0; i < fieldTypes.length; i++)
-        {
+        for (int i = 0; i < fieldTypes.length; i++) {
             fieldTypes[i] = criteriaExpressions[i].getExprEvaluator().getType();
         }
 
@@ -80,34 +75,28 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
         // If the parent event type contains the merge fields, we use the same event type
         boolean parentContainsMergeKeys = true;
         String[] fieldNames = new String[criteriaExpressions.length];
-        for (int i = 0; i < criteriaExpressions.length; i++)
-        {
+        for (int i = 0; i < criteriaExpressions.length; i++) {
             String name = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
             fieldNames[i] = name;
             try {
                 if (!(parentEventType.isProperty(name))) {
                     parentContainsMergeKeys = false;
                 }
-            }
-            catch (PropertyAccessException ex) {
+            } catch (PropertyAccessException ex) {
                 // expected
                 parentContainsMergeKeys = false;
             }
         }
 
         // If the parent view contains the fields to group by, the event type after merging stays the same
-        if (parentContainsMergeKeys)
-        {
+        if (parentContainsMergeKeys) {
             eventType = parentEventType;
-        }
-        else
-        // If the parent event type does not contain the fields, such as when a statistics views is
-        // grouped which simply provides a map of calculated values,
-        // then we need to add in the merge field as an event property thus changing event types.
-        {
+        } else {
+            // If the parent event type does not contain the fields, such as when a statistics views is
+            // grouped which simply provides a map of calculated values,
+            // then we need to add in the merge field as an event property thus changing event types.
             Map<String, Object> additionalProps = new HashMap<String, Object>();
-            for (int i = 0; i < fieldNames.length; i++)
-            {
+            for (int i = 0; i < fieldNames.length; i++) {
                 additionalProps.put(fieldNames[i], fieldTypes[i]);
             }
             String outputEventTypeName = statementContext.getStatementId() + "_mergeview_" + streamNumber;
@@ -115,26 +104,21 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker
         }
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new MergeView(agentInstanceViewFactoryContext, criteriaExpressions, eventType, removable);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof MergeView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof MergeView)) {
             return false;
         }
 
         MergeView myView = (MergeView) view;
-        if (!ExprNodeUtility.deepEquals(myView.getGroupFieldNames(), criteriaExpressions))
-        {
+        if (!ExprNodeUtility.deepEquals(myView.getGroupFieldNames(), criteriaExpressions)) {
             return false;
         }
         return true;

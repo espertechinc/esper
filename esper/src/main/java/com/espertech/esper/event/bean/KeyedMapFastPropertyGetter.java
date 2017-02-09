@@ -25,27 +25,25 @@ import java.util.Map;
 /**
  * Getter for a key property identified by a given key value of a map, using the CGLIB fast method.
  */
-public class KeyedMapFastPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped
-{
+public class KeyedMapFastPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped {
     private final FastMethod fastMethod;
     private final Object key;
 
     /**
      * Constructor.
-     * @param method the underlying method
-     * @param fastMethod is the method to use to retrieve a value from the object.
-     * @param key is the key to supply as parameter to the mapped property getter
+     *
+     * @param method              the underlying method
+     * @param fastMethod          is the method to use to retrieve a value from the object.
+     * @param key                 is the key to supply as parameter to the mapped property getter
      * @param eventAdapterService factory for event beans and event types
      */
-    public KeyedMapFastPropertyGetter(Method method, FastMethod fastMethod, Object key, EventAdapterService eventAdapterService)
-    {
+    public KeyedMapFastPropertyGetter(Method method, FastMethod fastMethod, Object key, EventAdapterService eventAdapterService) {
         super(eventAdapterService, JavaClassHelper.getGenericReturnTypeMap(method, false), null);
         this.key = key;
         this.fastMethod = fastMethod;
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
@@ -57,42 +55,33 @@ public class KeyedMapFastPropertyGetter extends BaseNativePropertyGetter impleme
         return getBeanPropInternal(eventBean.getUnderlying(), mapKey);
     }
 
-    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException
-    {
-        try
-        {
+    public Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
+        try {
             Object result = fastMethod.invoke(object, null);
             if (!(result instanceof Map)) {
                 return null;
             }
             Map resultMap = (Map) result;
             return resultMap.get(key);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(fastMethod.getJavaMethod(), e);
         }
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "KeyedMapFastPropertyGetter " +
                 " fastMethod=" + fastMethod.toString() +
                 " key=" + key;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

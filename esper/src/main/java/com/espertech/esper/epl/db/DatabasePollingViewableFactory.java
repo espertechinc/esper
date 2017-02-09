@@ -10,9 +10,6 @@
  */
 package com.espertech.esper.epl.db;
 
-import com.espertech.esper.client.util.ClassForNameProvider;
-import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.client.ConfigurationDBRef;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.SQLColumnTypeContext;
@@ -20,8 +17,10 @@ import com.espertech.esper.client.hook.SQLColumnTypeConversion;
 import com.espertech.esper.client.hook.SQLOutputRowConversion;
 import com.espertech.esper.client.hook.SQLOutputRowTypeContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
+import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
+import com.espertech.esper.epl.parse.NoCaseSensitiveStream;
 import com.espertech.esper.epl.parse.ParseHelper;
 import com.espertech.esper.epl.spec.DBStatementStreamSpec;
 import com.espertech.esper.event.EventAdapterService;
@@ -42,8 +41,7 @@ import java.util.*;
 /**
  * Factory for a view onto historical data via SQL statement.
  */
-public class DatabasePollingViewableFactory
-{
+public class DatabasePollingViewableFactory {
     /**
      * Placeholder name for SQL-where clause substitution.
      */
@@ -51,17 +49,18 @@ public class DatabasePollingViewableFactory
 
     /**
      * Creates the viewable for polling via database SQL query.
-     * @param streamNumber is the stream number of the view
-     * @param databaseStreamSpec provides the SQL statement, database name and additional info
-     * @param databaseConfigService for getting database connection and settings
-     * @param eventAdapterService for generating event beans from database information
+     *
+     * @param streamNumber                   is the stream number of the view
+     * @param databaseStreamSpec             provides the SQL statement, database name and additional info
+     * @param databaseConfigService          for getting database connection and settings
+     * @param eventAdapterService            for generating event beans from database information
      * @param epStatementAgentInstanceHandle is the statements-own handle for use in registering callbacks with services
-     * @param columnTypeConversionHook hook for statement-specific column conversion
-     * @param outputRowConversionHook hook for statement-specific row conversion
-     * @param enableJDBCLogging indicator to enable JDBC logging
-     * @param statementId statement id
-     * @param statementContext statement context
-     * @param dataCacheFactory factory for cache
+     * @param columnTypeConversionHook       hook for statement-specific column conversion
+     * @param outputRowConversionHook        hook for statement-specific row conversion
+     * @param enableJDBCLogging              indicator to enable JDBC logging
+     * @param statementId                    statement id
+     * @param statementContext               statement context
+     * @param dataCacheFactory               factory for cache
      * @return viewable providing poll functionality
      * @throws ExprValidationException if the validation failed
      */
@@ -76,16 +75,12 @@ public class DatabasePollingViewableFactory
                                                                 boolean enableJDBCLogging,
                                                                 DataCacheFactory dataCacheFactory,
                                                                 StatementContext statementContext)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Parse the SQL for placeholders and text fragments
         List<PlaceholderParser.Fragment> sqlFragments;
-        try
-        {
+        try {
             sqlFragments = PlaceholderParser.parsePlaceholder(databaseStreamSpec.getSqlWithSubsParams());
-        }
-        catch (PlaceholderParseException ex)
-        {
+        } catch (PlaceholderParseException ex) {
             String text = "Error parsing SQL";
             throw new ExprValidationException(text + ", reason: " + ex.getMessage());
         }
@@ -93,35 +88,28 @@ public class DatabasePollingViewableFactory
         // Assemble a PreparedStatement and parameter list
         String preparedStatementText = createPreparedStatement(sqlFragments);
         SQLParameterDesc parameterDesc = getParameters(sqlFragments);
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".createDBEventStream preparedStatementText=" + preparedStatementText +
-                " parameterDesc=" + parameterDesc);
+                    " parameterDesc=" + parameterDesc);
         }
 
         // Get a database connection
         String databaseName = databaseStreamSpec.getDatabaseName();
         DatabaseConnectionFactory databaseConnectionFactory;
         ColumnSettings metadataSetting;
-        try
-        {
+        try {
             databaseConnectionFactory = databaseConfigService.getConnectionFactory(databaseName);
             metadataSetting = databaseConfigService.getQuerySetting(databaseName);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             String text = "Error connecting to database '" + databaseName + '\'';
             log.error(text, ex);
             throw new ExprValidationException(text + ", reason: " + ex.getMessage(), ex);
         }
 
         Connection connection;
-        try
-        {
+        try {
             connection = databaseConnectionFactory.getConnection();
-        }
-        catch (DatabaseConfigException ex)
-        {
+        } catch (DatabaseConfigException ex) {
             String text = "Error connecting to database '" + databaseName + '\'';
             log.error(text, ex);
             throw new ExprValidationException(text + ", reason: " + ex.getMessage(), ex);
@@ -129,54 +117,41 @@ public class DatabasePollingViewableFactory
 
         // On default setting, if we detect Oracle in the connection then don't query metadata from prepared statement
         ConfigurationDBRef.MetadataOriginEnum metaOriginPolicy = metadataSetting.getMetadataRetrievalEnum();
-        if (metaOriginPolicy == ConfigurationDBRef.MetadataOriginEnum.DEFAULT)
-        {
+        if (metaOriginPolicy == ConfigurationDBRef.MetadataOriginEnum.DEFAULT) {
             String connectionClass = connection.getClass().getName();
-            if ((connectionClass.toLowerCase().contains("oracle") || (connectionClass.toLowerCase().contains("timesten"))))
-            {
+            if (connectionClass.toLowerCase(Locale.ENGLISH).contains("oracle") || (connectionClass.toLowerCase(Locale.ENGLISH).contains("timesten"))) {
                 // switch to sample statement if we are dealing with an oracle connection
                 metaOriginPolicy = ConfigurationDBRef.MetadataOriginEnum.SAMPLE;
             }
         }
 
         QueryMetaData queryMetaData;
-        try
-        {
-            if ((metaOriginPolicy == ConfigurationDBRef.MetadataOriginEnum.METADATA) || (metaOriginPolicy == ConfigurationDBRef.MetadataOriginEnum.DEFAULT))
-            {
+        try {
+            if ((metaOriginPolicy == ConfigurationDBRef.MetadataOriginEnum.METADATA) || (metaOriginPolicy == ConfigurationDBRef.MetadataOriginEnum.DEFAULT)) {
                 queryMetaData = getPreparedStmtMetadata(connection, parameterDesc.getParameters(), preparedStatementText, metadataSetting);
-            }
-            else
-            {
+            } else {
                 String sampleSQL;
                 boolean isGivenMetadataSQL = true;
-                if (databaseStreamSpec.getMetadataSQL() != null)
-                {
+                if (databaseStreamSpec.getMetadataSQL() != null) {
                     sampleSQL = databaseStreamSpec.getMetadataSQL();
                     isGivenMetadataSQL = true;
-                    if (log.isInfoEnabled())
-                    {
+                    if (log.isInfoEnabled()) {
                         log.info(".createDBStatementView Using provided sample SQL '" + sampleSQL + "'");
                     }
-                }
-                else
-                {
+                } else {
                     // Create the sample SQL by replacing placeholders with null and
                     // SAMPLE_WHERECLAUSE_PLACEHOLDER with a "where 1=0" clause
                     sampleSQL = createSamplePlaceholderStatement(sqlFragments);
 
-                    if (log.isInfoEnabled())
-                    {
+                    if (log.isInfoEnabled()) {
                         log.info(".createDBStatementView Using un-lexed sample SQL '" + sampleSQL + "'");
                     }
 
                     // If there is no SAMPLE_WHERECLAUSE_PLACEHOLDER, lexical analyse the SQL
                     // adding a "where 1=0" clause.
-                    if (parameterDesc.getBuiltinIdentifiers().length != 1)
-                    {
+                    if (parameterDesc.getBuiltinIdentifiers().length != 1) {
                         sampleSQL = lexSampleSQL(sampleSQL);
-                        if (log.isInfoEnabled())
-                        {
+                        if (log.isInfoEnabled()) {
                             log.info(".createDBStatementView Using lexed sample SQL '" + sampleSQL + "'");
                         }
                     }
@@ -185,27 +160,19 @@ public class DatabasePollingViewableFactory
                 // finally get the metadata by firing the sample SQL
                 queryMetaData = getExampleQueryMetaData(connection, parameterDesc.getParameters(), sampleSQL, metadataSetting, isGivenMetadataSQL);
             }
-        }
-        catch (ExprValidationException ex)
-        {
-            try
-            {
+        } catch (ExprValidationException ex) {
+            try {
                 connection.close();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 // don't handle
             }
             throw ex;
         }
 
         // Close connection
-        try
-        {
+        try {
             connection.close();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             String text = "Error closing connection";
             log.error(text, e);
             throw new ExprValidationException(text + ", reason: " + e.getMessage(), e);
@@ -215,18 +182,14 @@ public class DatabasePollingViewableFactory
         // Construct an event type from SQL query result metadata
         Map<String, Object> eventTypeFields = new HashMap<String, Object>();
         int columnNum = 1;
-        for (Map.Entry<String, DBOutputTypeDesc> entry : queryMetaData.getOutputParameters().entrySet())
-        {
+        for (Map.Entry<String, DBOutputTypeDesc> entry : queryMetaData.getOutputParameters().entrySet()) {
             String name = entry.getKey();
             DBOutputTypeDesc dbOutputDesc = entry.getValue();
 
             Class clazz;
-            if (dbOutputDesc.getOptionalBinding() != null)
-            {
+            if (dbOutputDesc.getOptionalBinding() != null) {
                 clazz = dbOutputDesc.getOptionalBinding().getType();
-            }
-            else
-            {
+            } else {
                 clazz = SQLTypeMapUtil.sqlTypeToClass(dbOutputDesc.getSqlType(), dbOutputDesc.getClassName(), statementContext.getEngineImportService().getClassForNameProvider());
             }
 
@@ -246,8 +209,7 @@ public class DatabasePollingViewableFactory
         if (outputRowConversionHook == null) {
             String outputEventType = statementId + "_dbpoll_" + streamNumber;
             eventType = eventAdapterService.createAnonymousMapType(outputEventType, eventTypeFields, true);
-        }
-        else {
+        } else {
             Class carrierClass = outputRowConversionHook.getOutputRowType(new SQLOutputRowTypeContext(databaseStreamSpec.getDatabaseName(), databaseStreamSpec.getSqlWithSubsParams(), eventTypeFields));
             if (carrierClass == null) {
                 throw new ExprValidationException("Output row conversion hook returned no type");
@@ -258,13 +220,10 @@ public class DatabasePollingViewableFactory
         // Get a proper connection and data cache
         ConnectionCache connectionCache;
         DataCache dataCache;
-        try
-        {
+        try {
             connectionCache = databaseConfigService.getConnectionCache(databaseName, preparedStatementText);
             dataCache = databaseConfigService.getDataCache(databaseName, statementContext, epStatementAgentInstanceHandle, dataCacheFactory, streamNumber);
-        }
-        catch (DatabaseConfigException e)
-        {
+        } catch (DatabaseConfigException e) {
             String text = "Error obtaining cache configuration";
             log.error(text, e);
             throw new ExprValidationException(text + ", reason: " + e.getMessage(), e);
@@ -277,31 +236,24 @@ public class DatabasePollingViewableFactory
     }
 
     private static QueryMetaData getExampleQueryMetaData(Connection connection, String[] parameters, String sampleSQL, ColumnSettings metadataSetting, boolean isUsingMetadataSQL)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Simply add up all input parameters
         List<String> inputParameters = new LinkedList<String>();
         inputParameters.addAll(Arrays.asList(parameters));
 
         Statement statement;
-        try
-        {
+        try {
             statement = connection.createStatement();
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             String text = "Error creating statement";
             log.error(text, ex);
             throw new ExprValidationException(text + ", reason: " + ex.getMessage());
         }
 
         ResultSet result = null;
-        try
-        {
+        try {
             result = statement.executeQuery(sampleSQL);
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             try {
                 statement.close();
             } catch (SQLException e) {
@@ -309,12 +261,9 @@ public class DatabasePollingViewableFactory
             }
 
             String text;
-            if (isUsingMetadataSQL)
-            {
+            if (isUsingMetadataSQL) {
                 text = "Error compiling metadata SQL to retrieve statement metadata, using sql text '" + sampleSQL + "'";
-            }
-            else
-            {
+            } else {
                 text = "Error compiling metadata SQL to retrieve statement metadata, consider using the 'metadatasql' syntax, using sql text '" + sampleSQL + "'";
             }
 
@@ -323,46 +272,34 @@ public class DatabasePollingViewableFactory
         }
 
         Map<String, DBOutputTypeDesc> outputProperties;
-        try
-        {
+        try {
             outputProperties = compileResultMetaData(result.getMetaData(), metadataSetting);
-        }
-        catch (SQLException ex)
-        {
-            try
-            {
+        } catch (SQLException ex) {
+            try {
                 result.close();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 // don't handle
             }
-            try
-            {
+            try {
                 statement.close();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 // don't handle
             }
             String text = "Error in statement '" + sampleSQL + "', failed to obtain result metadata";
             log.error(text, ex);
             throw new ExprValidationException(text + ", please check the statement, reason: " + ex.getMessage());
-        }
-        finally {
+        } finally {
             if (result != null) {
                 try {
                     result.close();
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     log.warn("Exception closing result set: " + e.getMessage());
                 }
             }
             if (statement != null) {
                 try {
                     statement.close();
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     log.warn("Exception closing result set: " + e.getMessage());
                 }
             }
@@ -373,22 +310,19 @@ public class DatabasePollingViewableFactory
 
     /**
      * Lexes the sample SQL and inserts a "where 1=0" where-clause.
+     *
      * @param querySQL to inspect using lexer
      * @return sample SQL with where-clause inserted
      * @throws ExprValidationException to indicate a lexer problem
      */
     protected static String lexSampleSQL(String querySQL)
-                throws ExprValidationException
-    {
+            throws ExprValidationException {
         querySQL = querySQL.replaceAll("\\s\\s+|\\n|\\r", " ");
         StringReader reader = new StringReader(querySQL);
         CharStream input;
-        try
-        {
+        try {
             input = new NoCaseSensitiveStream(reader);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new ExprValidationException("IOException lexing query SQL '" + querySQL + '\'', ex);
         }
 
@@ -403,57 +337,44 @@ public class DatabasePollingViewableFactory
         tokens.fill();
         List tokenList = tokens.getTokens();
 
-        for (int i = 0; i < tokenList.size(); i++)
-        {
+        for (int i = 0; i < tokenList.size(); i++) {
             Token token = (Token) tokenList.get(i);
-            if ((token == null) || token.getText() == null)
-            {
+            if ((token == null) || token.getText() == null) {
                 break;
             }
-            String text = token.getText().toLowerCase().trim();
-            if (text.equals("where"))
-            {
+            String text = token.getText().toLowerCase(Locale.ENGLISH).trim();
+            if (text.equals("where")) {
                 whereIndex = token.getCharPositionInLine() + 1;
             }
-            if (text.equals("group"))
-            {
+            if (text.equals("group")) {
                 groupbyIndex = token.getCharPositionInLine() + 1;
             }
-            if (text.equals("having"))
-            {
+            if (text.equals("having")) {
                 havingIndex = token.getCharPositionInLine() + 1;
             }
-            if (text.equals("order"))
-            {
+            if (text.equals("order")) {
                 orderByIndex = token.getCharPositionInLine() + 1;
             }
-            if (text.equals("union"))
-            {
+            if (text.equals("union")) {
                 unionIndexes.add(token.getCharPositionInLine() + 1);
             }
         }
 
         // If we have a union, break string into subselects and process each
-        if (unionIndexes.size() != 0)
-        {
+        if (unionIndexes.size() != 0) {
             StringWriter changedSQL = new StringWriter();
             int lastIndex = 0;
-            for (int i = 0; i < unionIndexes.size(); i++)
-            {
+            for (int i = 0; i < unionIndexes.size(); i++) {
                 int index = unionIndexes.get(i);
                 String fragment;
-                if (i > 0)
-                {
+                if (i > 0) {
                     fragment = querySQL.substring(lastIndex + 5, index - 1);
-                }
-                else
-                {
+                } else {
                     fragment = querySQL.substring(lastIndex, index - 1);
                 }
                 String lexedFragment = lexSampleSQL(fragment);
 
-                if (i > 0)
-                {
+                if (i > 0) {
                     changedSQL.append("union ");
                 }
                 changedSQL.append(lexedFragment);
@@ -470,8 +391,7 @@ public class DatabasePollingViewableFactory
         }
 
         // Found a where clause, simplest cases
-        if (whereIndex != -1)
-        {
+        if (whereIndex != -1) {
             StringWriter changedSQL = new StringWriter();
             String prefix = querySQL.substring(0, whereIndex + 5);
             String suffix = querySQL.substring(whereIndex + 5, querySQL.length());
@@ -483,28 +403,20 @@ public class DatabasePollingViewableFactory
 
         // No where clause, find group-by
         int insertIndex;
-        if (groupbyIndex != -1)
-        {
+        if (groupbyIndex != -1) {
             insertIndex = groupbyIndex;
-        }
-        else if (havingIndex != -1)
-        {
+        } else if (havingIndex != -1) {
             insertIndex = havingIndex;
-        }
-        else if (orderByIndex != -1)
-        {
+        } else if (orderByIndex != -1) {
             insertIndex = orderByIndex;
-        }
-        else
-        {
+        } else {
             StringWriter changedSQL = new StringWriter();
             changedSQL.write(querySQL);
             changedSQL.write(" where 1=0 ");
             return changedSQL.toString();
         }
 
-        try
-        {
+        try {
             StringWriter changedSQL = new StringWriter();
             String prefix = querySQL.substring(0, insertIndex - 1);
             changedSQL.write(prefix);
@@ -512,9 +424,7 @@ public class DatabasePollingViewableFactory
             String suffix = querySQL.substring(insertIndex - 1, querySQL.length());
             changedSQL.write(suffix);
             return changedSQL.toString();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             String text = "Error constructing sample SQL to retrieve metadata for JDBC-drivers that don't support metadata, consider using the " + SAMPLE_WHERECLAUSE_PLACEHOLDER + " placeholder or providing a sample SQL";
             log.error(text, ex);
             throw new ExprValidationException(text, ex);
@@ -525,19 +435,14 @@ public class DatabasePollingViewableFactory
                                                          String[] parameters,
                                                          String preparedStatementText,
                                                          ColumnSettings metadataSetting)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         PreparedStatement prepared;
-        try
-        {
-            if (log.isInfoEnabled())
-            {
+        try {
+            if (log.isInfoEnabled()) {
                 log.info(".getPreparedStmtMetadata Preparing statement '" + preparedStatementText + "'");
             }
             prepared = connection.prepareStatement(preparedStatementText);
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             String text = "Error preparing statement '" + preparedStatementText + '\'';
             log.error(text, ex);
             throw new ExprValidationException(text + ", reason: " + ex.getMessage());
@@ -545,19 +450,13 @@ public class DatabasePollingViewableFactory
 
         // Interrogate prepared statement - parameters and result
         List<String> inputParameters = new LinkedList<String>();
-        try
-        {
+        try {
             ParameterMetaData parameterMetaData = prepared.getParameterMetaData();
             inputParameters.addAll(Arrays.asList(parameters).subList(0, parameterMetaData.getParameterCount()));
-        }
-        catch (Exception ex)
-        {
-            try
-            {
+        } catch (Exception ex) {
+            try {
                 prepared.close();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 // don't handle
             }
             String text = "Error obtaining parameter metadata from prepared statement, consider turning off metadata interrogation via configuration, for statement '" + preparedStatementText + '\'';
@@ -566,18 +465,12 @@ public class DatabasePollingViewableFactory
         }
 
         Map<String, DBOutputTypeDesc> outputProperties;
-        try
-        {
+        try {
             outputProperties = compileResultMetaData(prepared.getMetaData(), metadataSetting);
-        }
-        catch (SQLException ex)
-        {
-            try
-            {
+        } catch (SQLException ex) {
+            try {
                 prepared.close();
-            }
-            catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 // don't handle
             }
             String text = "Error in statement '" + preparedStatementText + "', failed to obtain result metadata, consider turning off metadata interrogation via configuration";
@@ -585,19 +478,15 @@ public class DatabasePollingViewableFactory
             throw new ExprValidationException(text + ", please check the statement, reason: " + ex.getMessage());
         }
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".createDBEventStream in=" + inputParameters.toString() +
-                " out=" + outputProperties.toString());
+                    " out=" + outputProperties.toString());
         }
 
         // Close statement
-        try
-        {
+        try {
             prepared.close();
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             String text = "Error closing prepared statement";
             log.error(text, e);
             throw new ExprValidationException(text + ", reason: " + e.getMessage());
@@ -606,19 +495,13 @@ public class DatabasePollingViewableFactory
         return new QueryMetaData(inputParameters, outputProperties);
     }
 
-    private static String createPreparedStatement(List<PlaceholderParser.Fragment> parseFragements)
-    {
+    private static String createPreparedStatement(List<PlaceholderParser.Fragment> parseFragements) {
         StringBuilder buffer = new StringBuilder();
-        for (PlaceholderParser.Fragment fragment : parseFragements)
-        {
-            if (!fragment.isParameter())
-            {
+        for (PlaceholderParser.Fragment fragment : parseFragements) {
+            if (!fragment.isParameter()) {
                 buffer.append(fragment.getValue());
-            }
-            else
-            {
-                if (fragment.getValue().equals(SAMPLE_WHERECLAUSE_PLACEHOLDER))
-                {
+            } else {
+                if (fragment.getValue().equals(SAMPLE_WHERECLAUSE_PLACEHOLDER)) {
                     continue;
                 }
                 buffer.append('?');
@@ -627,24 +510,16 @@ public class DatabasePollingViewableFactory
         return buffer.toString();
     }
 
-    private static String createSamplePlaceholderStatement(List<PlaceholderParser.Fragment> parseFragements)
-    {
+    private static String createSamplePlaceholderStatement(List<PlaceholderParser.Fragment> parseFragements) {
         StringBuilder buffer = new StringBuilder();
-        for (PlaceholderParser.Fragment fragment : parseFragements)
-        {
-            if (!fragment.isParameter())
-            {
+        for (PlaceholderParser.Fragment fragment : parseFragements) {
+            if (!fragment.isParameter()) {
                 buffer.append(fragment.getValue());
-            }
-            else
-            {
-                if (fragment.getValue().equals(SAMPLE_WHERECLAUSE_PLACEHOLDER))
-                {
+            } else {
+                if (fragment.getValue().equals(SAMPLE_WHERECLAUSE_PLACEHOLDER)) {
                     buffer.append(" where 1=0 ");
                     break;
-                }
-                else
-                {
+                } else {
                     buffer.append("null");
                 }
             }
@@ -652,15 +527,11 @@ public class DatabasePollingViewableFactory
         return buffer.toString();
     }
 
-    private static SQLParameterDesc getParameters(List<PlaceholderParser.Fragment> parseFragements)
-    {
+    private static SQLParameterDesc getParameters(List<PlaceholderParser.Fragment> parseFragements) {
         List<String> eventPropertyParams = new LinkedList<String>();
-        for (PlaceholderParser.Fragment fragment : parseFragements)
-        {
-            if (fragment.isParameter())
-            {
-                if (!fragment.getValue().equals(SAMPLE_WHERECLAUSE_PLACEHOLDER))
-                {
+        for (PlaceholderParser.Fragment fragment : parseFragements) {
+            if (fragment.isParameter()) {
+                if (!fragment.getValue().equals(SAMPLE_WHERECLAUSE_PLACEHOLDER)) {
                     eventPropertyParams.add(fragment.getValue());
                 }
             }
@@ -672,12 +543,10 @@ public class DatabasePollingViewableFactory
 
     private static Map<String, DBOutputTypeDesc> compileResultMetaData(ResultSetMetaData resultMetaData,
                                                                        ColumnSettings columnSettings
-                                                                       )
-            throws SQLException
-    {
+    )
+            throws SQLException {
         Map<String, DBOutputTypeDesc> outputProperties = new HashMap<String, DBOutputTypeDesc>();
-        for (int i = 0; i < resultMetaData.getColumnCount(); i++)
-        {
+        for (int i = 0; i < resultMetaData.getColumnCount(); i++) {
             String columnName = resultMetaData.getColumnLabel(i + 1);
             if (columnName == null) {
                 columnName = resultMetaData.getColumnName(i + 1);
@@ -686,23 +555,19 @@ public class DatabasePollingViewableFactory
             String javaClass = resultMetaData.getColumnTypeName(i + 1);
 
             ConfigurationDBRef.ColumnChangeCaseEnum caseEnum = columnSettings.getColumnCaseConversionEnum();
-            if ((caseEnum != null) && (caseEnum == ConfigurationDBRef.ColumnChangeCaseEnum.LOWERCASE))
-            {
-                columnName = columnName.toLowerCase();
+            if ((caseEnum != null) && (caseEnum == ConfigurationDBRef.ColumnChangeCaseEnum.LOWERCASE)) {
+                columnName = columnName.toLowerCase(Locale.ENGLISH);
             }
-            if ((caseEnum != null) && (caseEnum == ConfigurationDBRef.ColumnChangeCaseEnum.UPPERCASE))
-            {
-                columnName = columnName.toUpperCase();
+            if ((caseEnum != null) && (caseEnum == ConfigurationDBRef.ColumnChangeCaseEnum.UPPERCASE)) {
+                columnName = columnName.toUpperCase(Locale.ENGLISH);
             }
 
             DatabaseTypeBinding binding = null;
             String javaTypeBinding = null;
-            if (columnSettings.getJavaSqlTypeBinding() != null)
-            {
+            if (columnSettings.getJavaSqlTypeBinding() != null) {
                 javaTypeBinding = columnSettings.getJavaSqlTypeBinding().get(columnType);
             }
-            if (javaTypeBinding != null)
-            {
+            if (javaTypeBinding != null) {
                 binding = DatabaseTypeEnum.getEnum(javaTypeBinding).getBinding();
             }
             DBOutputTypeDesc outputType = new DBOutputTypeDesc(columnType, javaClass, binding);

@@ -26,8 +26,7 @@ import java.lang.reflect.Method;
 /**
  * Factory for event beans created and populate anew from a set of values.
  */
-public class EventBeanManufacturerBean implements EventBeanManufacturer
-{
+public class EventBeanManufacturerBean implements EventBeanManufacturer {
     private static Logger log = LoggerFactory.getLogger(EventBeanManufacturerBean.class);
 
     private final BeanInstantiator beanInstantiator;
@@ -40,9 +39,10 @@ public class EventBeanManufacturerBean implements EventBeanManufacturer
 
     /**
      * Ctor.
-     * @param beanEventType target type
-     * @param service factory for events
-     * @param properties written properties
+     *
+     * @param beanEventType       target type
+     * @param service             factory for events
+     * @param properties          written properties
      * @param engineImportService for resolving write methods
      * @throws EventBeanManufactureException if the write method lookup fail
      */
@@ -50,9 +50,8 @@ public class EventBeanManufacturerBean implements EventBeanManufacturer
                                      EventAdapterService service,
                                      WriteablePropertyDescriptor[] properties,
                                      EngineImportService engineImportService
-                                     )
-            throws EventBeanManufactureException
-    {
+    )
+            throws EventBeanManufactureException {
         this.beanEventType = beanEventType;
         this.service = service;
 
@@ -61,15 +60,13 @@ public class EventBeanManufacturerBean implements EventBeanManufacturer
         writeMethodsReflection = new Method[properties.length];
         if (beanEventType.getFastClass() != null) {
             writeMethodsFastClass = new FastMethod[properties.length];
-        }
-        else {
+        } else {
             writeMethodsFastClass = null;
         }
 
         boolean primitiveTypeCheck = false;
         primitiveType = new boolean[properties.length];
-        for (int i = 0; i < properties.length; i++)
-        {
+        for (int i = 0; i < properties.length; i++) {
             writeMethodsReflection[i] = properties[i].getWriteMethod();
             if (beanEventType.getFastClass() != null) {
                 writeMethodsFastClass[i] = beanEventType.getFastClass().getMethod(properties[i].getWriteMethod());
@@ -81,98 +78,71 @@ public class EventBeanManufacturerBean implements EventBeanManufacturer
         hasPrimitiveTypes = primitiveTypeCheck;
     }
 
-    public EventBean make(Object[] propertyValues)
-    {
+    public EventBean make(Object[] propertyValues) {
         Object outObject = makeUnderlying(propertyValues);
         return service.adapterForTypedBean(outObject, beanEventType);
     }
 
-    public Object makeUnderlying(Object[] propertyValues)
-    {
+    public Object makeUnderlying(Object[] propertyValues) {
         Object outObject = beanInstantiator.instantiate();
 
         if (writeMethodsFastClass != null) {
             if (!hasPrimitiveTypes) {
                 Object[] parameters = new Object[1];
-                for (int i = 0; i < writeMethodsFastClass.length; i++)
-                {
+                for (int i = 0; i < writeMethodsFastClass.length; i++) {
                     parameters[0] = propertyValues[i];
-                    try
-                    {
+                    try {
                         writeMethodsFastClass[i].invoke(outObject, parameters);
-                    }
-                    catch (InvocationTargetException e)
-                    {
+                    } catch (InvocationTargetException e) {
                         handle(e, writeMethodsFastClass[i].getName());
                     }
                 }
-            }
-            else
-            {
+            } else {
                 Object[] parameters = new Object[1];
-                for (int i = 0; i < writeMethodsFastClass.length; i++)
-                {
+                for (int i = 0; i < writeMethodsFastClass.length; i++) {
                     if (primitiveType[i]) {
                         if (propertyValues[i] == null) {
                             continue;
                         }
                     }
                     parameters[0] = propertyValues[i];
-                    try
-                    {
+                    try {
                         writeMethodsFastClass[i].invoke(outObject, parameters);
-                    }
-                    catch (InvocationTargetException e)
-                    {
+                    } catch (InvocationTargetException e) {
                         handle(e, writeMethodsFastClass[i].getName());
                     }
                 }
             }
-        }
-        else {
+        } else {
 
             if (!hasPrimitiveTypes) {
                 Object[] parameters = new Object[1];
-                for (int i = 0; i < writeMethodsReflection.length; i++)
-                {
+                for (int i = 0; i < writeMethodsReflection.length; i++) {
                     parameters[0] = propertyValues[i];
-                    try
-                    {
+                    try {
                         writeMethodsReflection[i].invoke(outObject, parameters);
-                    }
-                    catch (InvocationTargetException e)
-                    {
+                    } catch (InvocationTargetException e) {
                         String message = "Unexpected exception encountered invoking setter-method '" + writeMethodsReflection[i] + "' on class '" +
                                 beanEventType.getUnderlyingType().getName() + "' : " + e.getTargetException().getMessage();
                         log.error(message, e);
-                    }
-                    catch (IllegalAccessException e)
-                    {
+                    } catch (IllegalAccessException e) {
                         handle(e, writeMethodsReflection[i].getName());
                     }
                 }
-            }
-            else
-            {
+            } else {
                 Object[] parameters = new Object[1];
-                for (int i = 0; i < writeMethodsReflection.length; i++)
-                {
+                for (int i = 0; i < writeMethodsReflection.length; i++) {
                     if (primitiveType[i]) {
                         if (propertyValues[i] == null) {
                             continue;
                         }
                     }
                     parameters[0] = propertyValues[i];
-                    try
-                    {
+                    try {
                         writeMethodsReflection[i].invoke(outObject, parameters);
-                    }
-                    catch (InvocationTargetException e)
-                    {
+                    } catch (InvocationTargetException e) {
                         handle(e, writeMethodsReflection[i].getName());
-                    }
-                    catch (IllegalAccessException e)
-                    {
+                    } catch (IllegalAccessException e) {
                         handle(e, writeMethodsReflection[i].getName());
                     }
                 }

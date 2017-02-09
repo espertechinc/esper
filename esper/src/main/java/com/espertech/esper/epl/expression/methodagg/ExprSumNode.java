@@ -13,42 +13,38 @@ package com.espertech.esper.epl.expression.methodagg;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 
 /**
  * Represents the sum(...) aggregate function is an expression tree.
  */
-public class ExprSumNode extends ExprAggregateNodeBase
-{
+public class ExprSumNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 208249604168283643L;
 
     private boolean hasFilter;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprSumNode(boolean distinct)
-    {
+    public ExprSumNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         hasFilter = positionalParams.length > 1;
         Class childType = super.validateNumericChildAllowFilter(hasFilter);
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeSum(validationContext.getStatementExtensionSvcContext(), this, childType);
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "sum";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
-        if (!(node instanceof ExprSumNode))
-        {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
+        if (!(node instanceof ExprSumNode)) {
             return false;
         }
 

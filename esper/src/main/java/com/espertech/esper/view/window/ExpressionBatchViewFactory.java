@@ -13,7 +13,6 @@ package com.espertech.esper.view.window;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.view.*;
@@ -23,12 +22,10 @@ import java.util.List;
 /**
  * Factory for {@link ExpressionBatchView}.
  */
-public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implements DataWindowBatchingViewFactory
-{
+public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implements DataWindowBatchingViewFactory {
     protected boolean includeTriggeringEvent = true;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         if (expressionParameters.size() != 1 && expressionParameters.size() != 2) {
             String errorMessage = getViewName() + " view requires a single expression as a parameter, or an expression and boolean flag";
             throw new ViewParameterException(errorMessage);
@@ -41,8 +38,7 @@ public class ExpressionBatchViewFactory extends ExpressionViewFactoryBase implem
         }
     }
 
-    public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(final AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ObjectArrayEventBean builtinBean = new ObjectArrayEventBean(ExpressionViewOAFieldEnum.getPrototypeOA(), builtinMapType);
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         return new ExpressionBatchView(this, viewUpdatedCollection, expiryExpressionEvaluator, aggregationServiceFactoryDesc, builtinBean, variableNames, agentInstanceViewFactoryContext);

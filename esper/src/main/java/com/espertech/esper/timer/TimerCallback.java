@@ -13,8 +13,7 @@ package com.espertech.esper.timer;
 /**
  * Callback interface for a time provider that triggers at scheduled intervals.
  */
-public interface TimerCallback
-{
+public interface TimerCallback {
     /**
      * Invoked by the internal clocking service at regular intervals.
      */

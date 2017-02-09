@@ -19,19 +19,18 @@ import java.util.Set;
 /**
  * An uncompiled, unoptimize for of stream specification created by a parser.
  */
-public interface StreamSpecRaw extends StreamSpec
-{
+public interface StreamSpecRaw extends StreamSpec {
     /**
      * Compiles a raw stream specification consisting event type information and filter expressions
      * to an validated, optimized form for use with filter service
      *
-     * @param statementContext statement-level services
-     * @param eventTypeReferences event type names used by the statement
-     * @param isInsertInto true for insert-into
-     * @param isJoin indicates whether a join or not a join
-     * @param isContextDeclaration indicates whether declared as part of the context declarations, if any
-     * @param isOnTrigger indicator for on-trigger
-     * @param optionalStreamName stream name
+     * @param statementContext        statement-level services
+     * @param eventTypeReferences     event type names used by the statement
+     * @param isInsertInto            true for insert-into
+     * @param isJoin                  indicates whether a join or not a join
+     * @param isContextDeclaration    indicates whether declared as part of the context declarations, if any
+     * @param isOnTrigger             indicator for on-trigger
+     * @param optionalStreamName      stream name
      * @param assignedTypeNumberStack for assigning nested type numbers
      * @return compiled stream
      * @throws ExprValidationException to indicate validation errors
@@ -44,6 +43,6 @@ public interface StreamSpecRaw extends StreamSpec
                                       boolean isContextDeclaration,
                                       boolean isOnTrigger,
                                       String optionalStreamName)
-        throws ExprValidationException;
+            throws ExprValidationException;
 
 }

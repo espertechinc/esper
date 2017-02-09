@@ -13,10 +13,9 @@ package com.espertech.esper.client.soda;
 import java.io.StringWriter;
 
 /**
- * SQL-Like expression for matching '%' and '_' wildcard strings following SQL standards. 
+ * SQL-Like expression for matching '%' and '_' wildcard strings following SQL standards.
  */
-public class LikeExpression extends ExpressionBase
-{
+public class LikeExpression extends ExpressionBase {
     private boolean not;
     private static final long serialVersionUID = 6873736361487805660L;
 
@@ -25,8 +24,7 @@ public class LikeExpression extends ExpressionBase
      * <p>
      * Use add methods to add child expressions to acts upon.
      */
-    public LikeExpression()
-    {
+    public LikeExpression() {
         not = false;
     }
 
@@ -34,35 +32,34 @@ public class LikeExpression extends ExpressionBase
      * Ctor - for use to create an expression tree, without child expression.
      * <p>
      * Use add methods to add child expressions to acts upon.
+     *
      * @param isNot if the like-expression is negated
      */
-    public LikeExpression(boolean isNot)
-    {
+    public LikeExpression(boolean isNot) {
         this.not = isNot;
     }
 
     /**
      * Ctor.
-     * @param left provides the value to match
+     *
+     * @param left  provides the value to match
      * @param right provides the like-expression to match against
      */
-    public LikeExpression(Expression left, Expression right)
-    {
+    public LikeExpression(Expression left, Expression right) {
         this(left, right, null);
     }
 
     /**
      * Ctor.
-     * @param left provides the value to match
-     * @param right provides the like-expression to match against
+     *
+     * @param left   provides the value to match
+     * @param right  provides the like-expression to match against
      * @param escape is the expression providing the string escape character
      */
-    public LikeExpression(Expression left, Expression right, Expression escape)
-    {
+    public LikeExpression(Expression left, Expression right, Expression escape) {
         this.getChildren().add(left);
         this.getChildren().add(right);
-        if (escape != null)
-        {
+        if (escape != null) {
             this.getChildren().add(escape);
         }
         this.not = false;
@@ -70,50 +67,45 @@ public class LikeExpression extends ExpressionBase
 
     /**
      * Ctor.
-     * @param left provides the value to match
+     *
+     * @param left  provides the value to match
      * @param right provides the like-expression to match against
      * @param isNot if the like-expression is negated
      */
-    public LikeExpression(Expression left, Expression right, boolean isNot)
-    {
+    public LikeExpression(Expression left, Expression right, boolean isNot) {
         this(left, right, null, isNot);
     }
 
     /**
      * Ctor.
-     * @param left provides the value to match
-     * @param right provides the like-expression to match against
+     *
+     * @param left   provides the value to match
+     * @param right  provides the like-expression to match against
      * @param escape is the expression providing the string escape character
-     * @param isNot if the like-expression is negated
+     * @param isNot  if the like-expression is negated
      */
-    public LikeExpression(Expression left, Expression right, Expression escape, boolean isNot)
-    {
+    public LikeExpression(Expression left, Expression right, Expression escape, boolean isNot) {
         this.getChildren().add(left);
         this.getChildren().add(right);
-        if (escape != null)
-        {
+        if (escape != null) {
             this.getChildren().add(escape);
         }
         this.not = isNot;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.RELATIONAL_BETWEEN_IN;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         this.getChildren().get(0).toEPL(writer, getPrecedence());
-        if (not)
-        {
+        if (not) {
             writer.write(" not");
         }
         writer.write(" like ");
         this.getChildren().get(1).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
 
-        if (this.getChildren().size() > 2)
-        {
+        if (this.getChildren().size() > 2) {
             writer.write(" escape ");
             this.getChildren().get(2).toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }
@@ -121,15 +113,16 @@ public class LikeExpression extends ExpressionBase
 
     /**
      * Returns true if this is a "not like", or false if just a like
+     *
      * @return indicator whether negated or not
      */
-    public boolean isNot()
-    {
+    public boolean isNot() {
         return not;
     }
 
     /**
      * Set to true if this is a "not like", or false if just a like
+     *
      * @param not indicator whether negated or not
      */
     public void setNot(boolean not) {
@@ -138,10 +131,10 @@ public class LikeExpression extends ExpressionBase
 
     /**
      * Returns true if this is a "not like", or false if just a like
+     *
      * @return indicator whether negated or not
      */
-    public boolean getNot()
-    {
+    public boolean getNot() {
         return not;
     }
 }

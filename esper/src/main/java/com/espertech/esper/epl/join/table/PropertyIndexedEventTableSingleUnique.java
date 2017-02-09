@@ -19,13 +19,11 @@ import java.util.*;
 /**
  * Unique index.
  */
-public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventTableSingle implements EventTableAsSet
-{
+public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventTableSingle implements EventTableAsSet {
     private final Map<Object, EventBean> propertyIndex;
     private final boolean canClear;
 
-    public PropertyIndexedEventTableSingleUnique(EventPropertyGetter propertyGetter, EventTableOrganization organization)
-    {
+    public PropertyIndexedEventTableSingleUnique(EventPropertyGetter propertyGetter, EventTableOrganization organization) {
         super(propertyGetter, organization);
         propertyIndex = new HashMap<Object, EventBean>();
         canClear = true;
@@ -37,8 +35,7 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         canClear = false;
     }
 
-    public Set<EventBean> lookup(Object key)
-    {
+    public Set<EventBean> lookup(Object key) {
         EventBean event = propertyIndex.get(key);
         if (event != null) {
             return Collections.singleton(event);
@@ -56,12 +53,15 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
 
     /**
      * Remove then add events.
+     *
      * @param newData to add
      * @param oldData to remove
      */
     @Override
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
+        }
         if (oldData != null) {
             for (EventBean theEvent : oldData) {
                 remove(theEvent);
@@ -72,11 +72,12 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
                 add(theEvent);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexAddRemove();
+        }
     }
 
-    public void add(EventBean theEvent)
-    {
+    public void add(EventBean theEvent) {
         Object key = getKey(theEvent);
 
         EventBean existing = propertyIndex.put(key, theEvent);
@@ -85,24 +86,20 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         }
     }
 
-    public void remove(EventBean theEvent)
-    {
+    public void remove(EventBean theEvent) {
         Object key = getKey(theEvent);
         propertyIndex.remove(key);
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return propertyIndex.isEmpty();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return propertyIndex.values().iterator();
     }
 
-    public void clear()
-    {
+    public void clear() {
         if (canClear) {
             propertyIndex.clear();
         }
@@ -112,8 +109,7 @@ public class PropertyIndexedEventTableSingleUnique extends PropertyIndexedEventT
         clear();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return toQueryPlan();
     }
 

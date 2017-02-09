@@ -25,7 +25,7 @@ public class EsperIOKafkaInputRunnable implements Runnable {
     }
 
     public void run() {
-        while(!shutdown) {
+        while (!shutdown) {
             ConsumerRecords<Object, Object> records = consumer.poll(1000);
             processor.process(records);
         }

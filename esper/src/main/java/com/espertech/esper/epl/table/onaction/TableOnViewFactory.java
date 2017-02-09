@@ -13,11 +13,9 @@ package com.espertech.esper.epl.table.onaction;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
-import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategyFactory;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 
-public interface TableOnViewFactory
-{
+public interface TableOnViewFactory {
     public TableOnViewBase make(SubordWMatchExprLookupStrategy lookupStrategy,
                                 TableStateInstance tableState,
                                 AgentInstanceContext agentInstanceContext,

@@ -13,28 +13,24 @@ package com.espertech.esper.epl.expression.core;
 import java.io.Serializable;
 import java.util.List;
 
-public class ExprChainedSpec implements Serializable
-{
+public class ExprChainedSpec implements Serializable {
     private static final long serialVersionUID = -5618484186038424466L;
-    
+
     private String name;
     private List<ExprNode> parameters;
     private boolean property;
 
-    public ExprChainedSpec(String name, List<ExprNode> parameters, boolean property)
-    {
+    public ExprChainedSpec(String name, List<ExprNode> parameters, boolean property) {
         this.name = name;
         this.parameters = parameters;
         this.property = property;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public List<ExprNode> getParameters()
-    {
+    public List<ExprNode> getParameters() {
         return parameters;
     }
 
@@ -46,35 +42,29 @@ public class ExprChainedSpec implements Serializable
         this.parameters = parameters;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
-        {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
         ExprChainedSpec that = (ExprChainedSpec) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null)
-        {
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
         return ExprNodeUtility.deepEquals(parameters, that.parameters);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (parameters != null ? parameters.hashCode() : 0);

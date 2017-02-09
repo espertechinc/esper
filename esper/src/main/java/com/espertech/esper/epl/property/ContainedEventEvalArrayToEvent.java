@@ -11,16 +11,11 @@
 package com.espertech.esper.epl.property;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventBeanFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanManufacturer;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 public class ContainedEventEvalArrayToEvent implements ContainedEventEval {
 
@@ -43,7 +38,7 @@ public class ContainedEventEvalArrayToEvent implements ContainedEventEval {
         for (int i = 0; i < events.length; i++) {
             Object column = Array.get(result, i);
             if (column != null) {
-                events[i] = manufacturer.make(new Object[] {column});
+                events[i] = manufacturer.make(new Object[]{column});
             }
         }
         return events;

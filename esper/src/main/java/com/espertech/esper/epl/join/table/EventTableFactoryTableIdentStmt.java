@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.core.service.StatementContext;
 
-public class EventTableFactoryTableIdentStmt implements EventTableFactoryTableIdent
-{
+public class EventTableFactoryTableIdentStmt implements EventTableFactoryTableIdent {
     private final StatementContext statementContext;
 
     public EventTableFactoryTableIdentStmt(StatementContext statementContext) {

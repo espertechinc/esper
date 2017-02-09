@@ -28,8 +28,7 @@ import java.util.Set;
 /**
  * A lookup strategy for use in outer joins onto historical streams.
  */
-public class HistoricalTableLookupStrategy implements JoinExecTableLookupStrategy
-{
+public class HistoricalTableLookupStrategy implements JoinExecTableLookupStrategy {
     private final HistoricalEventViewable viewable;
     private final PollResultIndexingStrategy indexingStrategy;
     private final HistoricalIndexLookupStrategy lookupStrategy;
@@ -40,16 +39,16 @@ public class HistoricalTableLookupStrategy implements JoinExecTableLookupStrateg
 
     /**
      * Ctor.
-     * @param viewable providing the polling access
-     * @param indexingStrategy strategy for indexing results
-     * @param lookupStrategy strategy for using indexed results
-     * @param numStreams number of streams
-     * @param streamNum stream number of the historical stream
-     * @param rootStreamNum the query plan root stream number
+     *
+     * @param viewable          providing the polling access
+     * @param indexingStrategy  strategy for indexing results
+     * @param lookupStrategy    strategy for using indexed results
+     * @param numStreams        number of streams
+     * @param streamNum         stream number of the historical stream
+     * @param rootStreamNum     the query plan root stream number
      * @param outerJoinExprNode an optional outer join expression
      */
-    public HistoricalTableLookupStrategy(HistoricalEventViewable viewable, PollResultIndexingStrategy indexingStrategy, HistoricalIndexLookupStrategy lookupStrategy, int numStreams, int streamNum, int rootStreamNum, ExprEvaluator outerJoinExprNode)
-    {
+    public HistoricalTableLookupStrategy(HistoricalEventViewable viewable, PollResultIndexingStrategy indexingStrategy, HistoricalIndexLookupStrategy lookupStrategy, int numStreams, int streamNum, int rootStreamNum, ExprEvaluator outerJoinExprNode) {
         this.viewable = viewable;
         this.indexingStrategy = indexingStrategy;
         this.lookupStrategy = lookupStrategy;
@@ -59,8 +58,7 @@ public class HistoricalTableLookupStrategy implements JoinExecTableLookupStrateg
         lookupEventsPerStream = new EventBean[1][numStreams];
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
         int currStream = cursor.getStream();
 
         // fill the current stream and the deep cursor events
@@ -71,39 +69,31 @@ public class HistoricalTableLookupStrategy implements JoinExecTableLookupStrateg
         EventTable[][] indexPerLookupRow = viewable.poll(lookupEventsPerStream, indexingStrategy, exprEvaluatorContext);
 
         Set<EventBean> result = null;
-        for (EventTable[] index : indexPerLookupRow)
-        {
+        for (EventTable[] index : indexPerLookupRow) {
             // Using the index, determine a subset of the whole indexed table to process, unless
             // the strategy is a full table scan
             Iterator<EventBean> subsetIter = lookupStrategy.lookup(theEvent, index, exprEvaluatorContext);
 
-            if (subsetIter != null)
-            {
+            if (subsetIter != null) {
                 if (outerJoinExprNode != null) {
                     // Add each row to the join result or, for outer joins, run through the outer join filter
-                    for (;subsetIter.hasNext();)
-                    {
+                    for (; subsetIter.hasNext(); ) {
                         EventBean candidate = subsetIter.next();
 
                         lookupEventsPerStream[0][streamNum] = candidate;
                         Boolean pass = (Boolean) outerJoinExprNode.evaluate(lookupEventsPerStream[0], true, exprEvaluatorContext);
-                        if ((pass != null) && (pass))
-                        {
-                            if (result == null)
-                            {
+                        if ((pass != null) && pass) {
+                            if (result == null) {
                                 result = new HashSet<EventBean>();
                             }
                             result.add(candidate);
                         }
                     }
-                }
-                else {
+                } else {
                     // Add each row to the join result or, for outer joins, run through the outer join filter
-                    for (;subsetIter.hasNext();)
-                    {
+                    for (; subsetIter.hasNext(); ) {
                         EventBean candidate = subsetIter.next();
-                        if (result == null)
-                        {
+                        if (result == null) {
                             result = new HashSet<EventBean>();
                         }
                         result.add(candidate);
@@ -115,16 +105,13 @@ public class HistoricalTableLookupStrategy implements JoinExecTableLookupStrateg
         return result;
     }
 
-    private void recursiveFill(EventBean[] lookupEventsPerStream, Node node)
-    {
-        if (node == null)
-        {
+    private void recursiveFill(EventBean[] lookupEventsPerStream, Node node) {
+        if (node == null) {
             return;
         }
 
         Node parent = node.getParent();
-        if (parent == null)
-        {
+        if (parent == null) {
             lookupEventsPerStream[rootStreamNum] = node.getParentEvent();
             return;
         }

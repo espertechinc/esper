@@ -14,8 +14,12 @@ import com.espertech.esper.epl.join.plan.QueryPlan;
 
 public interface QueryPlanIndexHook {
     public void subquery(QueryPlanIndexDescSubquery subquery);
+
     public void infraOnExpr(QueryPlanIndexDescOnExpr onexpr);
+
     public void fireAndForget(QueryPlanIndexDescFAF queryPlanIndexDescFAF);
+
     public void join(QueryPlan join);
+
     public void historical(QueryPlanIndexDescHistorical historical);
 }

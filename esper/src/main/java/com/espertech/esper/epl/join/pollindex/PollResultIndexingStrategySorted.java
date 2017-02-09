@@ -20,32 +20,27 @@ import java.util.List;
 /**
  * Strategy for building an index out of poll-results knowing the properties to base the index on.
  */
-public class PollResultIndexingStrategySorted implements PollResultIndexingStrategy
-{
+public class PollResultIndexingStrategySorted implements PollResultIndexingStrategy {
     private final int streamNum;
     private final EventType eventType;
     private final String propertyName;
     private final Class coercionType;
 
-    public PollResultIndexingStrategySorted(int streamNum, EventType eventType, String propertyName, Class coercionType)
-    {
+    public PollResultIndexingStrategySorted(int streamNum, EventType eventType, String propertyName, Class coercionType) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyName = propertyName;
         this.coercionType = coercionType;
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
-    {
-        if (!isActiveCache)
-        {
-            return new EventTable[] {new UnindexedEventTableList(pollResult, streamNum)};
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {
+        if (!isActiveCache) {
+            return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
         PropertySortedEventTableFactory tableFactory;
         if (coercionType == null) {
             tableFactory = new PropertySortedEventTableFactory(streamNum, eventType, propertyName);
-        }
-        else {
+        } else {
             tableFactory = new PropertySortedEventTableCoercedFactory(streamNum, eventType, propertyName, coercionType);
         }
         EventTable[] tables = tableFactory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext));

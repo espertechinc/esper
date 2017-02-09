@@ -15,24 +15,22 @@ import java.util.concurrent.locks.Lock;
 /**
  * A Statement-lock implementation that doesn't lock.
  */
-public class StatementNoLockImpl implements StatementAgentInstanceLock
-{
+public class StatementNoLockImpl implements StatementAgentInstanceLock {
     private final String name;
 
     /**
      * Ctor.
+     *
      * @param name of lock
      */
-    public StatementNoLockImpl(String name)
-    {
+    public StatementNoLockImpl(String name) {
         this.name = name;
     }
 
     /**
      * Lock write lock.
      */
-    public void acquireWriteLock()
-    {
+    public void acquireWriteLock() {
     }
 
     /**
@@ -45,26 +43,22 @@ public class StatementNoLockImpl implements StatementAgentInstanceLock
     /**
      * Unlock write lock.
      */
-    public void releaseWriteLock()
-    {
+    public void releaseWriteLock() {
     }
 
     /**
      * Lock read lock.
      */
-    public void acquireReadLock()
-    {
+    public void acquireReadLock() {
     }
 
     /**
      * Unlock read lock.
      */
-    public void releaseReadLock()
-    {
+    public void releaseReadLock() {
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName() + " name=" + name;
     }
 

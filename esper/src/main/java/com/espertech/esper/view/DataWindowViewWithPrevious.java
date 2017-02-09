@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.view;
 
-public interface DataWindowViewWithPrevious
-{
+public interface DataWindowViewWithPrevious {
     public Object makePreviousGetter();
 }

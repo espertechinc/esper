@@ -11,12 +11,14 @@
 package com.espertech.esper.epl.parse;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarLexer;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.Tree;
@@ -38,13 +40,13 @@ public class ParseHelper {
     /**
      * Newline.
      */
-    public final static String newline = System.getProperty("line.separator");
+    public final static String NEWLINE = System.getProperty("line.separator");
 
     /**
      * Walk parse tree starting at the rule the walkRuleSelector supplies.
      *
      * @param ast                     - ast to walk
-     * @param listener                  - walker instance
+     * @param listener                - walker instance
      * @param expression              - the expression we are walking in string form
      * @param eplStatementForErrorMsg - statement text for error messages
      */
@@ -57,8 +59,7 @@ public class ParseHelper {
             ParseTreeWalker walker = new ParseTreeWalker();
             walker.walk(listener, (ParseTree) ast);
             listener.end();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             log.info("Error walking statement [" + expression + "]", e);
             throw e;
         }
@@ -71,7 +72,7 @@ public class ParseHelper {
      * @param parseRuleSelector    - parse rule to select
      * @param addPleaseCheck       - true to include depth paraphrase
      * @param eplStatementErrorMsg - text for error
-     * @param rewriteScript - whether to rewrite script expressions
+     * @param rewriteScript        - whether to rewrite script expressions
      * @return AST - syntax tree
      * @throws EPException when the AST could not be parsed
      */
@@ -95,20 +96,17 @@ public class ParseHelper {
         Tree tree;
         try {
             tree = parseRuleSelector.invokeParseRule(parser);
-        }
-        catch (RecognitionException ex) {
+        } catch (RecognitionException ex) {
             tokens.fill();
             if (rewriteScript && isContainsScriptExpression(tokens)) {
                 return handleScriptRewrite(tokens, eplStatementErrorMsg, addPleaseCheck, parseRuleSelector);
             }
             log.debug("Error parsing statement [" + expression + "]", ex);
             throw ExceptionConvertor.convertStatement(ex, eplStatementErrorMsg, addPleaseCheck, parser);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             try {
                 tokens.fill();
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 log.debug("Token-fill produced exception: " + e.getMessage(), e);
             }
             if (log.isDebugEnabled()) {
@@ -138,8 +136,7 @@ public class ParseHelper {
         if (tree instanceof EsperEPL2GrammarParser.StartEPLExpressionRuleContext) {
             EsperEPL2GrammarParser.StartEPLExpressionRuleContext epl = (EsperEPL2GrammarParser.StartEPLExpressionRuleContext) tree;
             expressionWithoutAnnotation = getNoAnnotation(expression, epl.annotationEnum(), tokens);
-        }
-        else if (tree instanceof EsperEPL2GrammarParser.StartPatternExpressionRuleContext) {
+        } else if (tree instanceof EsperEPL2GrammarParser.StartPatternExpressionRuleContext) {
             EsperEPL2GrammarParser.StartPatternExpressionRuleContext pattern = (EsperEPL2GrammarParser.StartPatternExpressionRuleContext) tree;
             expressionWithoutAnnotation = getNoAnnotation(expression, pattern.annotationEnum(), tokens);
         }
@@ -177,7 +174,7 @@ public class ParseHelper {
             for (int i = line; i < lines.length; i++) {
                 buf.append(lines[i]);
                 if (i < lines.length - 1) {
-                    buf.append(newline);
+                    buf.append(NEWLINE);
                 }
             }
             return buf.toString().trim();
@@ -218,7 +215,7 @@ public class ParseHelper {
     }
 
     private static Token getTokenBefore(int i, CommonTokenStream tokens) {
-        int position = i-1;
+        int position = i - 1;
         while (position >= 0) {
             Token t = tokens.get(position);
             if (t.getChannel() != 99 && t.getType() != EsperEPL2GrammarLexer.WS) {
@@ -241,7 +238,7 @@ public class ParseHelper {
                 break;
             }
             // find beginning of script, ignore brackets
-            if (tokens.get(i).getType() == EsperEPL2GrammarParser.LBRACK && tokens.get(i+1).getType() != EsperEPL2GrammarParser.RBRACK) {
+            if (tokens.get(i).getType() == EsperEPL2GrammarParser.LBRACK && tokens.get(i + 1).getType() != EsperEPL2GrammarParser.RBRACK) {
                 break;
             }
         }
@@ -266,29 +263,24 @@ public class ParseHelper {
             }
             if (i < current.getFirst()) {
                 writer.append(t.getText());
-            }
-            else if (i == current.getFirst()) {
+            } else if (i == current.getFirst()) {
                 writer.append(t.getText());
                 writer.append("'");
-            }
-            else if (i == current.getSecond()) {
+            } else if (i == current.getSecond()) {
                 writer.append("'");
                 writer.append(t.getText());
                 rangeIndex++;
                 if (ranges.size() > rangeIndex) {
                     current = ranges.get(rangeIndex);
-                }
-                else {
+                } else {
                     current = new UniformPair<Integer>(-1, -1);
                 }
-            }
-            else {
+            } else {
                 if (t.getType() == EsperEPL2GrammarParser.QUOTED_STRING_LITERAL && i > current.getFirst() && i < current.getSecond()) {
                     writer.append("\\'");
                     writer.append(t.getText().substring(1, t.getText().length() - 1));
                     writer.append("\\'");
-                }
-                else {
+                } else {
                     writer.append(t.getText());
                 }
             }

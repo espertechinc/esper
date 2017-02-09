@@ -1,10 +1,10 @@
 package com.espertech.esperio.http.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -45,11 +45,9 @@ public class EsperHttpServiceClassicRunnable implements Runnable {
                 t.setDaemon(true);
                 t.start();
                 workers.add(t);
-            }
-            catch (InterruptedIOException ex) {
+            } catch (InterruptedIOException ex) {
                 break;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 if (!shutdown) {
                     log.error("I/O error initialising connection thread for service '" + serviceName + "' : " + e.getMessage());
                 }
@@ -70,8 +68,7 @@ public class EsperHttpServiceClassicRunnable implements Runnable {
             }
             try {
                 worker.join(1000);
-            }
-            catch (InterruptedException e) {               
+            } catch (InterruptedException e) {
             }
         }
         workers.clear();

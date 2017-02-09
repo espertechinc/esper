@@ -12,28 +12,21 @@ package com.espertech.esper.epl.expression.baseagg;
 
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.core.*;
-import com.espertech.esper.epl.expression.ops.ExprEqualsNode;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
-public class ExprAggregateNodeUtil
-{
+public class ExprAggregateNodeUtil {
     public static ExprAggregateNodeParamDesc getValidatePositionalParams(ExprNode[] childNodes, boolean allowOnlyGroupBy)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         ExprAggregateLocalGroupByDesc optionalLocalGroupBy = null;
         int count = 0;
         for (ExprNode node : childNodes) {
             if (!isNonPositionalParameter(node)) {
                 count++;
-            }
-            else {
+            } else {
                 ExprNamedParameterNodeImpl namedParameterNode = (ExprNamedParameterNodeImpl) node;
                 if (allowOnlyGroupBy &&
-                    !namedParameterNode.getParameterName().toLowerCase().equals("group_by")) {
+                        !namedParameterNode.getParameterName().toLowerCase(Locale.ENGLISH).equals("group_by")) {
                     throw new ExprValidationException("Invalid named parameter '" + namedParameterNode.getParameterName() + "' (did you mean 'group_by'?)");
                 }
                 optionalLocalGroupBy = new ExprAggregateLocalGroupByDesc(namedParameterNode.getChildNodes());
@@ -57,7 +50,7 @@ public class ExprAggregateNodeUtil
         if (nodes == null) {
             return;
         }
-        for (ExprNode[] node: nodes) {
+        for (ExprNode[] node : nodes) {
             getAggregatesBottomUp(node, aggregateNodes);
         }
     }
@@ -66,7 +59,7 @@ public class ExprAggregateNodeUtil
         if (nodes == null) {
             return;
         }
-        for (ExprNode node: nodes) {
+        for (ExprNode node : nodes) {
             getAggregatesBottomUp(node, aggregateNodes);
         }
     }
@@ -75,11 +68,11 @@ public class ExprAggregateNodeUtil
      * Populates into the supplied list all aggregation functions within this expression, if any.
      * <p>Populates by going bottom-up such that nested aggregates appear first.
      * <p>I.e. sum(volume * sum(price)) would put first A then B into the list with A=sum(price) and B=sum(volume * A)
-     * @param topNode is the expression node to deep inspect
+     *
+     * @param topNode        is the expression node to deep inspect
      * @param aggregateNodes is a list of node to populate into
      */
-    public static void getAggregatesBottomUp(ExprNode topNode, List<ExprAggregateNode> aggregateNodes)
-    {
+    public static void getAggregatesBottomUp(ExprNode topNode, List<ExprAggregateNode> aggregateNodes) {
         // Map to hold per level of the node (1 to N depth) of expression node a list of aggregation expr nodes, if any
         // exist at that level
         TreeMap<Integer, List<ExprAggregateNode>> aggregateExprPerLevel = new TreeMap<Integer, List<ExprAggregateNode>>();
@@ -90,18 +83,15 @@ public class ExprAggregateNodeUtil
         recursiveAggregateEnter(topNode, aggregateExprPerLevel, 1);
 
         // Done if none found
-        if (aggregateExprPerLevel.isEmpty())
-        {
+        if (aggregateExprPerLevel.isEmpty()) {
             return;
         }
 
         // From the deepest (highest) level to the lowest, add aggregates to list
         int deepLevel = aggregateExprPerLevel.lastKey();
-        for (int i = deepLevel; i >= 1; i--)
-        {
+        for (int i = deepLevel; i >= 1; i--) {
             List<ExprAggregateNode> list = aggregateExprPerLevel.get(i);
-            if (list == null)
-            {
+            if (list == null) {
                 continue;
             }
             aggregateNodes.addAll(list);
@@ -123,29 +113,25 @@ public class ExprAggregateNodeUtil
         }
     }
 
-    private static void recursiveAggregateEnter(ExprNode currentNode, Map<Integer, List<ExprAggregateNode>> aggregateExprPerLevel, int currentLevel)
-    {
+    private static void recursiveAggregateEnter(ExprNode currentNode, Map<Integer, List<ExprAggregateNode>> aggregateExprPerLevel, int currentLevel) {
         // ask all child nodes to enter themselves
-        for (ExprNode node : currentNode.getChildNodes())
-        {
+        for (ExprNode node : currentNode.getChildNodes()) {
             recursiveAggregateHandleSpecial(node, aggregateExprPerLevel, currentLevel + 1);
 
             recursiveAggregateEnter(node, aggregateExprPerLevel, currentLevel + 1);
         }
 
-        if (!(currentNode instanceof ExprAggregateNode))
-        {
-           return;
+        if (!(currentNode instanceof ExprAggregateNode)) {
+            return;
         }
 
         // Add myself to list, I'm an aggregate function
         List<ExprAggregateNode> aggregates = aggregateExprPerLevel.get(currentLevel);
-        if (aggregates == null)
-        {
+        if (aggregates == null) {
             aggregates = new LinkedList<ExprAggregateNode>();
             aggregateExprPerLevel.put(currentLevel, aggregates);
         }
-        aggregates.add((ExprAggregateNode)currentNode);
+        aggregates.add((ExprAggregateNode) currentNode);
     }
 
     public static int countPositionalArgs(List<ExprNode> args) {

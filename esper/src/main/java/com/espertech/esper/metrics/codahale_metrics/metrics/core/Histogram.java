@@ -47,7 +47,7 @@ import static java.lang.Math.sqrt;
  * A metric which calculates the distribution of a value.
  *
  * @see <a href="http://www.johndcook.com/standard_deviation.html">Accurately computing running
- *      variance</a>
+ * variance</a>
  */
 public class Histogram implements Metric, Sampling, Summarizable {
     private static final int DEFAULT_SAMPLE_SIZE = 1028;

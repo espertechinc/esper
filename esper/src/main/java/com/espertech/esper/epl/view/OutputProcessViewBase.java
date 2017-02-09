@@ -19,19 +19,19 @@ import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.Viewable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class OutputProcessViewBase implements View, JoinSetIndicator, OutputProcessViewTerminable, StopCallback
-{
+public abstract class OutputProcessViewBase implements View, JoinSetIndicator, OutputProcessViewTerminable, StopCallback {
     protected final ResultSetProcessor resultSetProcessor;
     protected JoinExecutionStrategy joinExecutionStrategy;
     protected UpdateDispatchView childView;
     protected Viewable parentView;
 
     public abstract int getNumChangesetRows();
+
     public abstract OutputCondition getOptionalOutputCondition();
+
     public abstract OutputProcessViewConditionDeltaSet getOptionalDeltaSet();
+
     public abstract OutputProcessViewAfterState getOptionalAfterConditionState();
 
     protected OutputProcessViewBase(ResultSetProcessor resultSetProcessor) {
@@ -47,8 +47,7 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
     }
 
     public View addView(View view) {
-        if (childView != null)
-        {
+        if (childView != null) {
             throw new IllegalStateException("Child view has already been supplied");
         }
         childView = (UpdateDispatchView) view;
@@ -59,17 +58,15 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
         if (childView == null) {
             return ViewSupport.EMPTY_VIEW_ARRAY;
         }
-        return new View[] {childView};
+        return new View[]{childView};
     }
 
-    public void removeAllViews()
-    {
+    public void removeAllViews() {
         childView = null;
     }
 
     public boolean removeView(View view) {
-        if (view != childView)
-        {
+        if (view != childView) {
             throw new IllegalStateException("Cannot remove child view, view has not been supplied");
         }
         childView = null;
@@ -80,11 +77,9 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
         return childView != null;
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         EventType eventType = resultSetProcessor.getResultEventType();
-        if (eventType != null)
-        {
+        if (eventType != null) {
             return eventType;
         }
         return parentView.getEventType();
@@ -92,10 +87,10 @@ public abstract class OutputProcessViewBase implements View, JoinSetIndicator, O
 
     /**
      * For joins, supplies the join execution strategy that provides iteration over statement results.
+     *
      * @param joinExecutionStrategy executes joins including static (non-continuous) joins
      */
-    public void setJoinExecutionStrategy(JoinExecutionStrategy joinExecutionStrategy)
-    {
+    public void setJoinExecutionStrategy(JoinExecutionStrategy joinExecutionStrategy) {
         this.joinExecutionStrategy = joinExecutionStrategy;
     }
 

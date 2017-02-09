@@ -52,8 +52,7 @@ import java.util.Map;
 /**
  * Default implementation for making a statement-specific context class.
  */
-public class StatementContextFactoryDefault implements StatementContextFactory
-{
+public class StatementContextFactoryDefault implements StatementContextFactory {
     private final PluggableObjectRegistryImpl viewRegistry;
     private final PluggableObjectCollection patternObjectClasses;
     private final Class systemVirtualDWViewFactory;
@@ -62,13 +61,13 @@ public class StatementContextFactoryDefault implements StatementContextFactory
 
     /**
      * Ctor.
-     * @param viewPlugIns is the view plug-in object descriptions
-     * @param plugInPatternObj is the pattern plug-in object descriptions
+     *
+     * @param viewPlugIns                is the view plug-in object descriptions
+     * @param plugInPatternObj           is the pattern plug-in object descriptions
      * @param systemVirtualDWViewFactory virtual DW factory
      */
-    public StatementContextFactoryDefault(PluggableObjectCollection viewPlugIns, PluggableObjectCollection plugInPatternObj, Class systemVirtualDWViewFactory)
-    {
-        viewRegistry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[] {ViewEnumHelper.getBuiltinViews(), viewPlugIns});
+    public StatementContextFactoryDefault(PluggableObjectCollection viewPlugIns, PluggableObjectCollection plugInPatternObj, Class systemVirtualDWViewFactory) {
+        viewRegistry = new PluggableObjectRegistryImpl(new PluggableObjectCollection[]{ViewEnumHelper.getBuiltinViews(), viewPlugIns});
 
         this.systemVirtualDWViewFactory = systemVirtualDWViewFactory;
 
@@ -109,7 +108,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 services.getEngineImportService(),
                 services.getAggregationFactoryFactory(),
                 services.getSchedulingService()
-                );
+        );
     }
 
     public StatementContext makeContext(int statementId,
@@ -125,8 +124,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                                         StatementSpecRaw statementSpecRaw,
                                         List<ExprSubselectNode> subselectNodes,
                                         boolean writesToTables,
-                                        Object statementUserObject)
-    {
+                                        Object statementUserObject) {
         // Allocate the statement's schedule bucket which stays constant over it's lifetime.
         // The bucket allows callbacks for the same time to be ordered (within and across statements) and thus deterministic.
         ScheduleBucket scheduleBucket = engineServices.getSchedulingMgmtService().allocateBucket();
@@ -144,29 +142,22 @@ public class StatementContextFactoryDefault implements StatementContextFactory
                 if (defaultStatementAgentInstanceLock == null) {
                     throw new EPStatementException("Named window or table '" + windowName + "' has not been declared", expression);
                 }
-            }
-            else {
+            } else {
                 defaultStatementAgentInstanceLock = engineServices.getStatementLockFactory().getStatementLock(statementName, annotations, stateless);
             }
-        }
-        // For creating a named window, save the lock for use with on-delete/on-merge/on-update etc. statements
-        else if (optCreateWindowDesc != null)
-        {
+        } else if (optCreateWindowDesc != null) {
+            // For creating a named window, save the lock for use with on-delete/on-merge/on-update etc. statements
             defaultStatementAgentInstanceLock = engineServices.getNamedWindowMgmtService().getNamedWindowLock(optCreateWindowDesc.getWindowName());
-            if (defaultStatementAgentInstanceLock == null)
-            {
+            if (defaultStatementAgentInstanceLock == null) {
                 defaultStatementAgentInstanceLock = engineServices.getStatementLockFactory().getStatementLock(statementName, annotations, false);
                 engineServices.getNamedWindowMgmtService().addNamedWindowLock(optCreateWindowDesc.getWindowName(), defaultStatementAgentInstanceLock, statementName);
             }
-        }
-        else
-        {
+        } else {
             defaultStatementAgentInstanceLock = engineServices.getStatementLockFactory().getStatementLock(statementName, annotations, stateless);
         }
 
         StatementMetricHandle stmtMetric = null;
-        if (!isFireAndForget)
-        {
+        if (!isFireAndForget) {
             stmtMetric = engineServices.getMetricsReportingService().getStatementHandle(statementId, statementName);
         }
 
@@ -183,8 +174,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
 
         SchedulingServiceSPI schedulingService = engineServices.getSchedulingService();
         FilterServiceSPI filterService = engineServices.getFilterService();
-        if (isolationUnitServices != null)
-        {
+        if (isolationUnitServices != null) {
             filterService = isolationUnitServices.getFilterService();
             schedulingService = isolationUnitServices.getSchedulingService();
         }
@@ -286,8 +276,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory
             if (replacementCache != null) {
                 return new ContextControllerFactoryServiceImpl(replacementCache);
             }
-        }
-        catch (ExprValidationException e) {
+        } catch (ExprValidationException e) {
             throw new EPException("Failed to obtain hook for " + HookType.CONTEXT_STATE_CACHE);
         }
         return ContextControllerFactoryServiceImpl.DEFAULT_FACTORY;
@@ -296,64 +285,59 @@ public class StatementContextFactoryDefault implements StatementContextFactory
     /**
      * Analysis result of analysing annotations for a statement.
      */
-    public static class AnnotationAnalysisResult
-    {
+    public static class AnnotationAnalysisResult {
         private int priority;
         private boolean isPremptive;
 
         /**
          * Ctor.
-         * @param priority priority
+         *
+         * @param priority  priority
          * @param premptive preemptive indicator
          */
-        private AnnotationAnalysisResult(int priority, boolean premptive)
-        {
+        private AnnotationAnalysisResult(int priority, boolean premptive) {
             this.priority = priority;
             isPremptive = premptive;
         }
 
         /**
          * Returns execution priority.
+         *
          * @return priority.
          */
-        public int getPriority()
-        {
+        public int getPriority() {
             return priority;
         }
 
         /**
          * Returns preemptive indicator (drop or normal).
+         *
          * @return true for drop
          */
-        public boolean isPremptive()
-        {
+        public boolean isPremptive() {
             return isPremptive;
         }
 
         /**
          * Analyze the annotations and return priority and drop settings.
+         *
          * @param annotations to analyze
          * @return analysis result
          */
-        public static AnnotationAnalysisResult analyzeAnnotations(Annotation[] annotations)
-        {
+        public static AnnotationAnalysisResult analyzeAnnotations(Annotation[] annotations) {
             boolean preemptive = false;
             int priority = 0;
             boolean hasPrioritySetting = false;
-            for (Annotation annotation : annotations)
-            {
-                if (annotation instanceof Priority)
-                {
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof Priority) {
                     priority = ((Priority) annotation).value();
                     hasPrioritySetting = true;
                 }
-                if (annotation instanceof Drop)
-                {
+                if (annotation instanceof Drop) {
                     preemptive = true;
                 }
             }
-            if (!hasPrioritySetting && preemptive)
-            {
+            if (!hasPrioritySetting && preemptive) {
                 priority = 1;
             }
             return new AnnotationAnalysisResult(priority, preemptive);

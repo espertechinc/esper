@@ -22,53 +22,49 @@ import java.util.*;
  * Events can be expired from the window via the expireEvents method when their timestamp is before
  * (or less then) an expiry timestamp passed in. Expiry removes the event from the window.
  * The window allows iteration through its contents.
- *
+ * <p>
  * It is assumed that the timestamp passed to the add method is ascending. The window is backed by a
  * collection reflecting the timestamp order rather then any sorted map or linked hash map for performance reasons.
  */
-public final class TimeWindow implements Iterable
-{
+public final class TimeWindow implements Iterable {
     private ArrayDeque<TimeWindowPair> window;
     private Map<EventBean, TimeWindowPair> reverseIndex;
     private int size;
 
     /**
      * Ctor.
+     *
      * @param isSupportRemoveStream true to indicate the time window should support effective removal of events
-     * in the window based on the remove stream events received, or false to not accomodate removal at all
+     *                              in the window based on the remove stream events received, or false to not accomodate removal at all
      */
-    public TimeWindow(boolean isSupportRemoveStream)
-    {
+    public TimeWindow(boolean isSupportRemoveStream) {
         this.window = new ArrayDeque<TimeWindowPair>();
 
-        if (isSupportRemoveStream)
-        {
+        if (isSupportRemoveStream) {
             reverseIndex = new HashMap<EventBean, TimeWindowPair>();
         }
     }
 
     /**
      * Adjust expiry dates.
+     *
      * @param delta delta to adjust for
      */
-    public void adjust(long delta)
-    {
-        for (TimeWindowPair data : window)
-        {
+    public void adjust(long delta) {
+        for (TimeWindowPair data : window) {
             data.setTimestamp(data.getTimestamp() + delta);
         }
     }
 
     /**
      * Adds event to the time window for the specified timestamp.
+     *
      * @param timestamp - the time slot for the event
-     * @param bean - event to add
+     * @param bean      - event to add
      */
-    public final void add(long timestamp, EventBean bean)
-    {
+    public final void add(long timestamp, EventBean bean) {
         // Empty window
-        if (window.isEmpty())
-        {
+        if (window.isEmpty()) {
             TimeWindowPair pair = new TimeWindowPair(timestamp, bean);
             window.add(pair);
 
@@ -82,16 +78,13 @@ public final class TimeWindow implements Iterable
         TimeWindowPair lastPair = window.getLast();
 
         // Windows last timestamp matches the one supplied
-        if (lastPair.getTimestamp() == timestamp)
-        {
+        if (lastPair.getTimestamp() == timestamp) {
             if (lastPair.getEventHolder() instanceof List) {
                 List<EventBean> list = (List<EventBean>) lastPair.getEventHolder();
                 list.add(bean);
-            }
-            else if (lastPair.getEventHolder() == null) {
+            } else if (lastPair.getEventHolder() == null) {
                 lastPair.setEventHolder(bean);
-            }
-            else {
+            } else {
                 EventBean existing = (EventBean) lastPair.getEventHolder();
                 List<EventBean> list = new ArrayList<EventBean>(4);
                 list.add(existing);
@@ -116,12 +109,11 @@ public final class TimeWindow implements Iterable
 
     /**
      * Removes the event from the window, if remove stream handling is enabled.
+     *
      * @param theEvent to remove
      */
-    public final void remove(EventBean theEvent)
-    {
-        if (reverseIndex == null)
-        {
+    public final void remove(EventBean theEvent) {
+        if (reverseIndex == null) {
             throw new UnsupportedOperationException("Time window does not accept event removal");
         }
         TimeWindowPair pair = reverseIndex.get(theEvent);
@@ -129,8 +121,7 @@ public final class TimeWindow implements Iterable
             if (pair.getEventHolder() != null && pair.getEventHolder().equals(theEvent)) {
                 pair.setEventHolder(null);
                 size--;
-            }
-            else if (pair.getEventHolder() != null) {
+            } else if (pair.getEventHolder() != null) {
                 List<EventBean> list = (List<EventBean>) pair.getEventHolder();
                 boolean removed = list.remove(theEvent);
                 if (removed) {
@@ -144,21 +135,19 @@ public final class TimeWindow implements Iterable
     /**
      * Return and remove events in time-slots earlier (less) then the timestamp passed in,
      * returning the list of events expired.
+     *
      * @param expireBefore is the timestamp from which on to keep events in the window
      * @return a list of events expired and removed from the window, or null if none expired
      */
-    public final ArrayDeque<EventBean> expireEvents(long expireBefore)
-    {
-        if (window.isEmpty())
-        {
+    public final ArrayDeque<EventBean> expireEvents(long expireBefore) {
+        if (window.isEmpty()) {
             return null;
         }
 
         TimeWindowPair pair = window.getFirst();
 
         // If the first entry's timestamp is after the expiry date, nothing to expire
-        if (pair.getTimestamp() >= expireBefore)
-        {
+        if (pair.getTimestamp() >= expireBefore) {
             return null;
         }
 
@@ -169,8 +158,7 @@ public final class TimeWindow implements Iterable
             if (pair.getEventHolder() != null) {
                 if (pair.getEventHolder() instanceof EventBean) {
                     resultBeans.add((EventBean) pair.getEventHolder());
-                }
-                else {
+                } else {
                     resultBeans.addAll((List<EventBean>) pair.getEventHolder());
                 }
             }
@@ -197,20 +185,20 @@ public final class TimeWindow implements Iterable
 
     /**
      * Returns event iterator.
+     *
      * @return iterator over events currently in window
      */
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return new TimeWindowIterator(window);
     }
 
     /**
      * Returns the oldest timestamp in the collection if there is at least one entry,
      * else it returns null if the window is empty.
+     *
      * @return null if empty, oldest timestamp if not empty
      */
-    public final Long getOldestTimestamp()
-    {
+    public final Long getOldestTimestamp() {
         if (window.isEmpty()) {
             return null;
         }
@@ -227,15 +215,16 @@ public final class TimeWindow implements Iterable
 
     /**
      * Returns true if the window is currently empty.
+     *
      * @return true if empty, false if not
      */
-    public final boolean isEmpty()
-    {
+    public final boolean isEmpty() {
         return getOldestTimestamp() == null;
     }
 
     /**
      * Returns the reverse index, for testing purposes.
+     *
      * @return reverse index
      */
     public Map<EventBean, TimeWindowPair> getReverseIndex() {

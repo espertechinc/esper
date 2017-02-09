@@ -59,8 +59,7 @@ public class EsperIOKafkaInputAdapter {
         // Obtain Kafka consumer
         try {
             consumer = new KafkaConsumer<>(consumerProperties);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error("Error obtaining Kafka consumer for URI '{}': {}", engineURI, t.getMessage(), t);
         }
 
@@ -74,8 +73,7 @@ public class EsperIOKafkaInputAdapter {
             subscriber = (EsperIOKafkaInputSubscriber) JavaClassHelper.instantiate(EsperIOKafkaInputSubscriber.class, subscriberClassName, engine.getEngineImportService().getClassForNameProvider());
             EsperIOKafkaInputSubscriberContext subscriberContext = new EsperIOKafkaInputSubscriberContext(consumer, engine, properties);
             subscriber.subscribe(subscriberContext);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new ConfigurationException("Unexpected exception invoking subscriber subscribe method on class " + subscriberClassName + " for engine URI '" + engineURI + "': " + t.getMessage(), t);
         }
 
@@ -85,8 +83,7 @@ public class EsperIOKafkaInputAdapter {
             processor = (EsperIOKafkaInputProcessor) JavaClassHelper.instantiate(EsperIOKafkaInputProcessor.class, processorClassName, engine.getEngineImportService().getClassForNameProvider());
             EsperIOKafkaInputProcessorContext processorContext = new EsperIOKafkaInputProcessorContext(consumer, engine, properties, this);
             processor.init(processorContext);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new ConfigurationException("Unexpected exception invoking processor init method on class " + processorClassName + " for engine URI '" + engineURI + "': " + t.getMessage(), t);
         }
 
@@ -112,8 +109,7 @@ public class EsperIOKafkaInputAdapter {
         executorService.shutdown();
         try {
             executorService.awaitTermination(10, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 

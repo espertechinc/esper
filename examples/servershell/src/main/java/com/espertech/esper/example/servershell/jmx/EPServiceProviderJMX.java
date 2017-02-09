@@ -16,35 +16,29 @@ import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EPServiceProviderJMX implements EPServiceProviderJMXMBean
-{
+public class EPServiceProviderJMX implements EPServiceProviderJMXMBean {
     private static Logger log = LoggerFactory.getLogger(EPServiceProviderJMX.class);
     private EPServiceProvider engine;
 
-    public EPServiceProviderJMX(EPServiceProvider engine)
-    {
-        if (engine == null)
-        {
+    public EPServiceProviderJMX(EPServiceProvider engine) {
+        if (engine == null) {
             throw new IllegalArgumentException("No engine instance supplied");
         }
         this.engine = engine;
     }
 
-    public void createEPL(String expression, String statementName)
-    {
+    public void createEPL(String expression, String statementName) {
         log.info("Via Java Management JMX proxy: Creating statement '" + expression + "' named '" + statementName + "'");
         engine.getEPAdministrator().createEPL(expression, statementName);
     }
 
-    public void createEPL(String expression, String statementName, UpdateListener listener)
-    {
+    public void createEPL(String expression, String statementName, UpdateListener listener) {
         log.info("Via Java Management JMX proxy: Creating statement '" + expression + "' named '" + statementName + "'");
         EPStatement stmt = engine.getEPAdministrator().createEPL(expression, statementName);
         stmt.addListener(listener);
     }
 
-    public void destroy(String statementName)
-    {
+    public void destroy(String statementName) {
         log.info("Via Java Management JMX proxy: Destroying statement '" + statementName + "'");
         engine.getEPAdministrator().getStatement(statementName).destroy();
     }

@@ -16,35 +16,31 @@ import com.espertech.esper.view.window.RelativeAccessByEventNIndex;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class PriorEventViewRelAccess implements RelativeAccessByEventNIndex
-{
+public class PriorEventViewRelAccess implements RelativeAccessByEventNIndex {
     private final RelativeAccessByEventNIndex buffer;
     private final int relativeIndex;
 
     /**
      * Ctor.
-     * @param buffer is the buffer to acces
+     *
+     * @param buffer        is the buffer to acces
      * @param relativeIndex is the index to pull out
      */
-    public PriorEventViewRelAccess(RelativeAccessByEventNIndex buffer, int relativeIndex)
-    {
+    public PriorEventViewRelAccess(RelativeAccessByEventNIndex buffer, int relativeIndex) {
         this.buffer = buffer;
         this.relativeIndex = relativeIndex;
     }
 
-    public EventBean getRelativeToEvent(EventBean theEvent, int prevIndex)
-    {
+    public EventBean getRelativeToEvent(EventBean theEvent, int prevIndex) {
         return buffer.getRelativeToEvent(theEvent, relativeIndex);
     }
 
-    public EventBean getRelativeToEnd(int index)
-    {
+    public EventBean getRelativeToEnd(int index) {
         // No requirement to index from end of current buffer
         return null;
     }
 
-    public Iterator<EventBean> getWindowToEvent()
-    {
+    public Iterator<EventBean> getWindowToEvent() {
         return null;
     }
 
@@ -52,8 +48,7 @@ public class PriorEventViewRelAccess implements RelativeAccessByEventNIndex
         return null;
     }
 
-    public int getWindowToEventCount()
-    {
+    public int getWindowToEventCount() {
         return 0;
     }
 }

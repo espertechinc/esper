@@ -13,17 +13,16 @@ package com.espertech.esper.client;
 /**
  * This exception is thrown to indicate a problem in statement creation.
  */
-public class EPStatementSyntaxException extends EPStatementException
-{
+public class EPStatementSyntaxException extends EPStatementException {
     private static final long serialVersionUID = -1042773433127517692L;
 
     /**
      * Ctor.
-     * @param message - error message
+     *
+     * @param message    - error message
      * @param expression - expression text
      */
-    public EPStatementSyntaxException(String message, String expression)
-    {
+    public EPStatementSyntaxException(String message, String expression) {
         super(message, expression);
     }
 }

@@ -14,8 +14,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.util.DestroyCallback;
 
-public class EPStatementDestroyCallbackTableUpdStr implements DestroyCallback
-{
+public class EPStatementDestroyCallbackTableUpdStr implements DestroyCallback {
     private final TableService tableService;
     private final TableMetadata tableMetadata;
     private final String statementName;

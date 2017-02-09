@@ -12,8 +12,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public final class OutputConditionTermFactory implements OutputConditionFactory
-{
+public final class OutputConditionTermFactory implements OutputConditionFactory {
     public OutputCondition make(AgentInstanceContext agentInstanceContext, OutputCallback outputCallback) {
         return new OutputConditionTerm(outputCallback);
     }

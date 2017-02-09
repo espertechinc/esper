@@ -19,14 +19,16 @@ import java.util.Collection;
 /**
  * Interface for evaluating of an event tuple.
  */
-public interface ExprEvaluatorEnumeration
-{
+public interface ExprEvaluatorEnumeration {
     public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException;
+
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     public Class getComponentTypeCollection() throws ExprValidationException;
+
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 
     public EventType getEventTypeSingle(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException;
+
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context);
 }

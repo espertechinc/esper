@@ -12,17 +12,14 @@ package com.espertech.esperio.support.util;
 
 import java.io.Serializable;
 
-public class SupportSerializableBean implements Serializable
-{
+public class SupportSerializableBean implements Serializable {
     private String theString;
 
-    public SupportSerializableBean(String theString)
-    {
+    public SupportSerializableBean(String theString) {
         this.theString = theString;
     }
 
-    public String getTheString()
-    {
+    public String getTheString() {
         return theString;
     }
 }

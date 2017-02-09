@@ -14,27 +14,22 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 
 import java.io.Serializable;
 
-public class SupportPluginAggregationMethodOne implements AggregationMethod, Serializable
-{
+public class SupportPluginAggregationMethodOne implements AggregationMethod, Serializable {
     private int count;
 
-    public void clear()
-    {
-        count = 0;    
+    public void clear() {
+        count = 0;
     }
 
-    public void enter(Object value)
-    {
+    public void enter(Object value) {
         count--;
     }
 
-    public void leave(Object value)
-    {
+    public void leave(Object value) {
         count++;
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return count;
     }
 

@@ -29,21 +29,20 @@ import java.util.List;
  * Parses event property names and transforms to XPath expressions using the schema information supplied. Supports the
  * nested, indexed and mapped event properties.
  */
-public class SchemaXMLPropertyParser
-{
+public class SchemaXMLPropertyParser {
     /**
      * Return the xPath corresponding to the given property.
      * The propertyName String may be simple, nested, indexed or mapped.
      *
-     * @param propertyName is the event property name
-     * @param namespace is the default namespace
-     * @param schemaModel is the schema model
-     * @param xPathFactory is the xpath factory instance to use
-     * @param rootElementName is the name of the root element
+     * @param propertyName        is the event property name
+     * @param namespace           is the default namespace
+     * @param schemaModel         is the schema model
+     * @param xPathFactory        is the xpath factory instance to use
+     * @param rootElementName     is the name of the root element
      * @param eventAdapterService for type lookup and creation
-     * @param xmlEventType the resolving type
-     * @param isAllowFragment whether fragmenting is allowed
-     * @param defaultNamespace default namespace
+     * @param xmlEventType        the resolving type
+     * @param isAllowFragment     whether fragmenting is allowed
+     * @param defaultNamespace    default namespace
      * @return xpath expression
      * @throws EPException is there are XPath errors
      */
@@ -55,8 +54,7 @@ public class SchemaXMLPropertyParser
                                                          EventAdapterService eventAdapterService,
                                                          BaseXMLEventType xmlEventType,
                                                          boolean isAllowFragment,
-                                                         String defaultNamespace) throws EPException
-    {
+                                                         String defaultNamespace) throws EPException {
         if (log.isDebugEnabled()) {
             log.debug("Determining XPath expression for property '" + propertyName + "'");
         }
@@ -80,8 +78,7 @@ public class SchemaXMLPropertyParser
         String prefix = ctx.getPrefix(rootComplexElement.getNamespace());
         if (prefix == null) {
             prefix = "";
-        }
-        else {
+        } else {
             prefix += ':';
         }
 
@@ -89,9 +86,8 @@ public class SchemaXMLPropertyParser
         xPathBuf.append('/');
         xPathBuf.append(prefix);
         if (rootElementName.startsWith("//")) {
-            xPathBuf.append(rootElementName.substring(2));    
-        }
-        else {
+            xPathBuf.append(rootElementName.substring(2));
+        } else {
             xPathBuf.append(rootElementName);
         }
 
@@ -104,8 +100,7 @@ public class SchemaXMLPropertyParser
                 throw new PropertyAccessException("Failed to locate property '" + propertyName + "' in schema");
             }
             xPathBuf.append(pair.getFirst());
-        }
-        else {
+        } else {
             NestedProperty nestedProperty = (NestedProperty) property;
             int indexLast = nestedProperty.getProperties().size() - 1;
             for (int i = 0; i < indexLast + 1; i++) {
@@ -139,14 +134,11 @@ public class SchemaXMLPropertyParser
         }
 
         XPathExpression expr;
-        try
-        {
+        try {
             expr = path.compile(xPath);
-        }
-        catch (XPathExpressionException e) {
+        } catch (XPathExpressionException e) {
             String detail = "Error constructing XPath expression from property expression '" + propertyName + "' expression '" + xPath + "'";
-            if (e.getMessage() != null)
-            {
+            if (e.getMessage() != null) {
                 throw new EPException(detail + " :" + e.getMessage(), e);
             }
             throw new EPException(detail, e);
@@ -154,54 +146,43 @@ public class SchemaXMLPropertyParser
 
         // get type
         SchemaItem item = property.getPropertyTypeSchema(rootComplexElement, eventAdapterService);
-        if ((item == null) && (!isDynamic))
-        {
+        if ((item == null) && (!isDynamic)) {
             return null;
         }
 
         Class resultType;
-        if (!isDynamic)
-        {
+        if (!isDynamic) {
             resultType = SchemaUtil.toReturnType(item);
-        }
-        else
-        {
+        } else {
             resultType = Node.class;
         }
 
         FragmentFactory fragmentFactory = null;
-        if (isAllowFragment)
-        {
+        if (isAllowFragment) {
             fragmentFactory = new FragmentFactoryDOMGetter(eventAdapterService, xmlEventType, propertyName);
         }
         return new XPathPropertyGetter(propertyName, xPath, expr, pair.getSecond(), resultType, fragmentFactory);
     }
 
-    private static Pair<String, QName> makeProperty(SchemaElementComplex parent, Property property, XPathNamespaceContext ctx, boolean isLast, boolean isDynamic, String defaultNamespacePrefix)
-    {
+    private static Pair<String, QName> makeProperty(SchemaElementComplex parent, Property property, XPathNamespaceContext ctx, boolean isLast, boolean isDynamic, String defaultNamespacePrefix) {
         String text = property.getPropertyNameAtomic();
         SchemaItem obj = SchemaUtil.findPropertyMapping(parent, text);
-        if ((obj instanceof SchemaElementSimple) || (obj instanceof SchemaElementComplex)){
+        if ((obj instanceof SchemaElementSimple) || (obj instanceof SchemaElementComplex)) {
             return makeElementProperty((SchemaElement) obj, property, ctx, isLast, isDynamic, defaultNamespacePrefix);
-        }
-        else if (obj != null) {
+        } else if (obj != null) {
             return makeAttributeProperty((SchemaItemAttribute) obj, property, ctx);
-        }
-        else if (isDynamic) {
+        } else if (isDynamic) {
             return makeElementProperty(null, property, ctx, isLast, isDynamic, defaultNamespacePrefix);
-        }
-        else {
+        } else {
             return null;
         }
     }
 
-    private static Pair<String, QName> makeAttributeProperty(SchemaItemAttribute attribute, Property property, XPathNamespaceContext ctx)
-    {
+    private static Pair<String, QName> makeAttributeProperty(SchemaItemAttribute attribute, Property property, XPathNamespaceContext ctx) {
         String prefix = ctx.getPrefix(attribute.getNamespace());
         if (prefix == null) {
             prefix = "";
-        }
-        else {
+        } else {
             prefix += ':';
         }
 
@@ -217,21 +198,17 @@ public class SchemaXMLPropertyParser
         throw new RuntimeException("Indexed properties not applicable to attributes");
     }
 
-    private static Pair<String, QName> makeElementProperty(SchemaElement schemaElement, Property property, XPathNamespaceContext ctx, boolean isAlone, boolean isDynamic, String defaultNamespacePrefix)
-    {
+    private static Pair<String, QName> makeElementProperty(SchemaElement schemaElement, Property property, XPathNamespaceContext ctx, boolean isAlone, boolean isDynamic, String defaultNamespacePrefix) {
         QName type;
         if (isDynamic) {
             type = XPathConstants.NODE;
-        }
-        else if (schemaElement instanceof SchemaElementSimple) {
+        } else if (schemaElement instanceof SchemaElementSimple) {
             type = SchemaUtil.simpleTypeToQName(((SchemaElementSimple) schemaElement).getXsSimpleType());
-        }
-        else {
+        } else {
             SchemaElementComplex complex = (SchemaElementComplex) schemaElement;
             if (complex.getOptionalSimpleType() != null) {
                 type = SchemaUtil.simpleTypeToQName(complex.getOptionalSimpleType());
-            }
-            else {
+            } else {
                 // The result is a node
                 type = XPathConstants.NODE;
             }
@@ -240,14 +217,12 @@ public class SchemaXMLPropertyParser
         String prefix;
         if (!isDynamic) {
             prefix = ctx.getPrefix(schemaElement.getNamespace());
-        }
-        else {
+        } else {
             prefix = defaultNamespacePrefix;
         }
         if (prefix == null) {
             prefix = "";
-        }
-        else {
+        } else {
             prefix += ':';
         }
 

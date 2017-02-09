@@ -22,8 +22,7 @@ import java.util.*;
 /**
  * Utility for handling collection or array tasks.
  */
-public class CollectionUtil
-{
+public class CollectionUtil {
     public final static Iterator<EventBean> NULL_EVENT_ITERATOR = new NullIterator<EventBean>();
     public final static Iterable<EventBean> NULL_EVENT_ITERABLE = new Iterable<EventBean>() {
         public Iterator<EventBean> iterator() {
@@ -36,12 +35,12 @@ public class CollectionUtil
     public final static Set<EventBean> SINGLE_NULL_ROW_EVENT_SET = new HashSet<EventBean>();
     public final static String[] EMPTY_STRING_ARRAY = new String[0];
 
-    static
-    {
+    static {
         SINGLE_NULL_ROW_EVENT_SET.add(null);
     }
 
     public final static StopCallback STOP_CALLBACK_NONE;
+
     static {
         STOP_CALLBACK_NONE = new StopCallback() {
             public void stop() {
@@ -53,13 +52,11 @@ public class CollectionUtil
     public static Comparator<Object> getComparator(ExprEvaluator[] sortCriteriaEvaluators, boolean isSortUsingCollator, boolean[] isDescendingValues) {
         // determine string-type sorting
         boolean hasStringTypes = false;
-        boolean stringTypes[] = new boolean[sortCriteriaEvaluators.length];
+        boolean[] stringTypes = new boolean[sortCriteriaEvaluators.length];
 
         int count = 0;
-        for(ExprEvaluator node : sortCriteriaEvaluators)
-        {
-            if (node.getType() == String.class)
-            {
+        for (ExprEvaluator node : sortCriteriaEvaluators) {
+            if (node.getType() == String.class) {
                 hasStringTypes = true;
                 stringTypes[count] = true;
             }
@@ -70,17 +67,14 @@ public class CollectionUtil
             if ((!hasStringTypes) || (!isSortUsingCollator)) {
                 MultiKeyComparator comparatorMK = new MultiKeyComparator(isDescendingValues);
                 return new MultiKeyCastingComparator(comparatorMK);
-            }
-            else {
+            } else {
                 MultiKeyCollatingComparator comparatorMk = new MultiKeyCollatingComparator(isDescendingValues, stringTypes);
                 return new MultiKeyCastingComparator(comparatorMk);
             }
-        }
-        else {
+        } else {
             if ((!hasStringTypes) || (!isSortUsingCollator)) {
                 return new ObjectComparator(isDescendingValues[0]);
-            }
-            else {
+            } else {
                 return new ObjectCollatingComparator(isDescendingValues[0]);
             }
         }
@@ -128,7 +122,7 @@ public class CollectionUtil
             System.arraycopy(array, 0, newArray, 0, index);
         }
         if (index < newLength) {
-            System.arraycopy(array, index+1, newArray, index, newLength - index);
+            System.arraycopy(array, index + 1, newArray, index, newLength - index);
         }
         return newArray;
     }
@@ -179,13 +173,12 @@ public class CollectionUtil
 
     /**
      * Returns an array of integer values from the set of integer values
+     *
      * @param set to return array for
      * @return array
      */
-    public static int[] intArray(Collection<Integer> set)
-    {
-        if (set == null)
-        {
+    public static int[] intArray(Collection<Integer> set) {
+        if (set == null) {
             return new int[0];
         }
         int[] result = new int[set.size()];
@@ -220,26 +213,22 @@ public class CollectionUtil
 
     /**
      * Returns a list of the elements invoking toString on non-null elements.
+     *
      * @param collection to render
-     * @param <T> type
+     * @param <T>        type
      * @return comma-separate list of values (no escape)
      */
-    public static <T> String toString(Collection<T> collection)
-    {
-        if (collection == null)
-        {
+    public static <T> String toString(Collection<T> collection) {
+        if (collection == null) {
             return "null";
         }
-        if (collection.isEmpty())
-        {
+        if (collection.isEmpty()) {
             return "";
         }
         StringBuilder buf = new StringBuilder();
         String delimiter = "";
-        for (T t : collection)
-        {
-            if (t == null)
-            {
+        for (T t : collection) {
+            if (t == null) {
                 continue;
             }
             buf.append(delimiter);
@@ -275,16 +264,13 @@ public class CollectionUtil
         StringBuilder buf = new StringBuilder();
         String delimiter = "";
         buf.append("[");
-        for (Object t : received)
-        {
+        for (Object t : received) {
             buf.append(delimiter);
             if (t == null) {
                 buf.append("null");
-            }
-            else if (t instanceof Object[]) {
+            } else if (t instanceof Object[]) {
                 buf.append(toStringArray((Object[]) t));
-            }
-            else {
+            } else {
                 buf.append(t);
             }
             delimiter = ", ";
@@ -347,9 +333,8 @@ public class CollectionUtil
         if (arrayOne.length == 1 && arrayTwo.length == 1) {
             if (arrayOne[0].equals(arrayTwo[0])) {
                 return arrayOne;
-            }
-            else {
-                return new EventBean[] {arrayOne[0], arrayOne[0]};
+            } else {
+                return new EventBean[]{arrayOne[0], arrayOne[0]};
             }
         }
         if (arrayOne.length == 1 && arrayTwo.length > 1) {
@@ -388,24 +373,20 @@ public class CollectionUtil
         return -1;
     }
 
-    public static boolean removeEventByKeyLazyListMap(Object key, EventBean bean, Map<Object, Object> eventMap)
-    {
+    public static boolean removeEventByKeyLazyListMap(Object key, EventBean bean, Map<Object, Object> eventMap) {
         Object listOfBeans = eventMap.get(key);
-        if (listOfBeans == null)
-        {
+        if (listOfBeans == null) {
             return false;
         }
 
         if (listOfBeans instanceof List) {
             List<EventBean> events = (List<EventBean>) listOfBeans;
             boolean result = events.remove(bean);
-            if (events.isEmpty())
-            {
+            if (events.isEmpty()) {
                 eventMap.remove(key);
             }
             return result;
-        }
-        else if (listOfBeans != null && listOfBeans.equals(bean)) {
+        } else if (listOfBeans != null && listOfBeans.equals(bean)) {
             eventMap.remove(key);
             return true;
         }
@@ -417,38 +398,33 @@ public class CollectionUtil
         Object existing = eventMap.get(sortKey);
         if (existing == null) {
             eventMap.put(sortKey, eventBean);
-        }
-        else {
+        } else {
             if (existing instanceof List) {
                 List<EventBean> existingList = (List<EventBean>) existing;
                 existingList.add(eventBean);
-            }
-            else {
+            } else {
                 List<EventBean> existingList = new LinkedList<EventBean>();
-                existingList.add((EventBean)existing);
+                existingList.add((EventBean) existing);
                 existingList.add(eventBean);
                 eventMap.put(sortKey, existingList);
             }
         }
     }
 
-    public static void addEventByKeyLazyListMapFront(Object key, EventBean bean, Map<Object, Object> eventMap)
-    {
+    public static void addEventByKeyLazyListMapFront(Object key, EventBean bean, Map<Object, Object> eventMap) {
         Object current = eventMap.get(key);
         if (current != null) {
             if (current instanceof List) {
                 List<EventBean> events = (List<EventBean>) current;
                 events.add(0, bean);    // add to front, newest are listed first
-            }
-            else {
+            } else {
                 EventBean theEvent = (EventBean) current;
                 List<EventBean> events = new LinkedList<EventBean>();
                 events.add(bean);
                 events.add(theEvent);
                 eventMap.put(key, events);
             }
-        }
-        else {
+        } else {
             eventMap.put(key, bean);
         }
     }

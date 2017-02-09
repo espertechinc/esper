@@ -24,18 +24,32 @@ import com.espertech.esper.epl.variable.VariableService;
 
 public interface AggregationServiceFactoryService {
     public AggregationServiceFactory getNullAggregationService();
+
     public AggregationServiceFactory getNoGroupNoAccess(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getNoGroupAccessOnly(AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggSpecs, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getNoGroupAccessMixed(ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupedNoReclaimNoAccess(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupNoReclaimAccessOnly(ExprNode[] groupByNodes, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggSpecs, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupNoReclaimMixed(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupReclaimAged(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, Hint reclaimGroupAged, Hint reclaimGroupFrequency, VariableService variableService, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, String optionalContextName, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect) throws ExprValidationException;
+
     public AggregationServiceFactory getGroupReclaimNoAccess(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupReclaimMixable(ExprNode[] groupByNodes, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupReclaimMixableRollup(ExprNode[] groupByNodes, AggregationGroupByRollupDesc byRollupDesc, ExprEvaluator[] evaluatorsArr, AggregationMethodFactory[] aggregatorsArr, AggregationAccessorSlotPair[] pairs, AggregationStateFactory[] accessAggregations, boolean join, AggregationGroupByRollupDesc groupByRollupDesc, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupWBinding(TableMetadata tableMetadata, TableColumnMethodPair[] methodPairs, AggregationAccessorSlotPair[] accessorPairs, boolean join, IntoTableSpec bindings, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents, AggregationGroupByRollupDesc groupByRollupDesc);
+
     public AggregationServiceFactory getNoGroupWBinding(AggregationAccessorSlotPair[] accessors, boolean join, TableColumnMethodPair[] methodPairs, String tableName, int[] targetStates, ExprNode[] accessStateExpr, AggregationAgent[] agents);
+
     public AggregationServiceFactory getNoGroupLocalGroupBy(boolean join, AggregationLocalGroupByPlan localGroupByPlan, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
+
     public AggregationServiceFactory getGroupLocalGroupBy(boolean join, AggregationLocalGroupByPlan localGroupByPlan, boolean isUnidirectional, boolean isFireAndForget, boolean isOnSelect);
 }

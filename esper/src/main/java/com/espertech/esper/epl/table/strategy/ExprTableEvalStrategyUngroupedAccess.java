@@ -16,11 +16,9 @@ import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
-import com.espertech.esper.epl.table.mgmt.TableStateInstanceUngrouped;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collection;
-import java.util.concurrent.locks.Lock;
 
 public class ExprTableEvalStrategyUngroupedAccess extends ExprTableEvalStrategyUngroupedBase implements ExprTableAccessEvalStrategy {
 

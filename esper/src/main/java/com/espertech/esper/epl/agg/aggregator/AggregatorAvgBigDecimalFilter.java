@@ -17,14 +17,12 @@ import java.math.MathContext;
 /**
  * Average that generates a BigDecimal numbers.
  */
-public class AggregatorAvgBigDecimalFilter extends AggregatorAvgBigDecimal
-{
+public class AggregatorAvgBigDecimalFilter extends AggregatorAvgBigDecimal {
     public AggregatorAvgBigDecimalFilter(MathContext optionalMathContext) {
         super(optionalMathContext);
     }
 
-    public void enter(Object parameters)
-    {
+    public void enter(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;
@@ -32,8 +30,7 @@ public class AggregatorAvgBigDecimalFilter extends AggregatorAvgBigDecimal
         super.enter(paramArray[0]);
     }
 
-    public void leave(Object parameters)
-    {
+    public void leave(Object parameters) {
         Object[] paramArray = (Object[]) parameters;
         if (!AggregatorUtil.checkFilter(paramArray)) {
             return;

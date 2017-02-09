@@ -39,8 +39,7 @@ import java.util.Map;
 /**
  * Expression instance as declared elsewhere.
  */
-public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNode, ExprDeclaredOrLambdaNode, ExprFilterOptimizableNode, ExprNodeInnerNodeProvider, ExprConstantNode
-{
+public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNode, ExprDeclaredOrLambdaNode, ExprFilterOptimizableNode, ExprNodeInnerNodeProvider, ExprConstantNode {
     private static final long serialVersionUID = 9140100131374697808L;
 
     private final ExpressionDeclItem prototype;
@@ -54,7 +53,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
 
         // copy expression - we do it at this time and not later
         try {
-             expressionBodyCopy = (ExprNode) SerializableObjectCopier.copy(prototype.getInner());
+            expressionBodyCopy = (ExprNode) SerializableObjectCopier.copy(prototype.getInner());
         } catch (Exception e) {
             throw new RuntimeException("Internal error providing expression tree: " + e.getMessage(), e);
         }
@@ -71,8 +70,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
                 ExprContextPropertyNode context = new ExprContextPropertyNode(pair.getSecond().getUnresolvedPropertyName());
                 if (pair.getFirst() == null) {
                     expressionBodyCopy = context;
-                }
-                else {
+                } else {
                     ExprNodeUtility.replaceChildNode(pair.getFirst(), pair.getSecond(), context);
                 }
             }
@@ -103,8 +101,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return expressionBodyCopy.isConstantResult();
     }
 
-    public LinkedHashMap<String, Integer> getOuterStreamNames(Map<String, Integer> outerStreamNames) throws ExprValidationException
-    {
+    public LinkedHashMap<String, Integer> getOuterStreamNames(Map<String, Integer> outerStreamNames) throws ExprValidationException {
         checkParameterCount();
 
         // determine stream ids for each parameter
@@ -124,13 +121,11 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return streamParameters;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (prototype.isAlias()) {
             try {
                 expressionBodyCopy = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.ALIASEXPRBODY, expressionBodyCopy, validationContext);
-            }
-            catch (ExprValidationException ex) {
+            } catch (ExprValidationException ex) {
                 String message = "Error validating expression alias '" + prototype.getName() + "': " + ex.getMessage();
                 throw new ExprValidationException(message, ex);
             }
@@ -173,16 +168,14 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
                 eventTypes[i] = validationContext.getStreamTypeService().getEventTypes()[und.getStreamId()];
                 isIStreamOnly[i] = validationContext.getStreamTypeService().getIStreamOnly()[und.getStreamId()];
                 streamsIdsPerStream[i] = und.getStreamId();
-            }
-            else if (parameter instanceof ExprWildcard) {
+            } else if (parameter instanceof ExprWildcard) {
                 if (validationContext.getStreamTypeService().getEventTypes().length != 1) {
                     throw new ExprValidationException("Expression '" + prototype.getName() + "' only allows a wildcard parameter if there is a single stream available, please use a stream or tag name instead");
                 }
                 eventTypes[i] = validationContext.getStreamTypeService().getEventTypes()[0];
                 isIStreamOnly[i] = validationContext.getStreamTypeService().getIStreamOnly()[0];
                 streamsIdsPerStream[i] = 0;
-            }
-            else {
+            } else {
                 throw new ExprValidationException("Expression '" + prototype.getName() + "' requires a stream name as a parameter");
             }
 
@@ -199,8 +192,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         try {
             ExprValidationContext expressionBodyContext = new ExprValidationContext(copyTypes, validationContext);
             expressionBodyCopy = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.DECLAREDEXPRBODY, expressionBodyCopy, expressionBodyContext);
-        }
-        catch (ExprValidationException ex) {
+        } catch (ExprValidationException ex) {
             String message = "Error validating expression declaration '" + prototype.getName() + "': " + ex.getMessage();
             throw new ExprValidationException(message, ex);
         }
@@ -215,12 +207,10 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         if (expressionBodyCopy.isConstantResult()) {
             // pre-evaluated
             exprEvaluator = new ExprDeclaredEvalConstant(expressionBodyCopy.getExprEvaluator().getType(), prototype, expressionBodyCopy.getExprEvaluator().evaluate(null, true, null));
-        }
-        else if (prototype.getParametersNames().isEmpty() ||
+        } else if (prototype.getParametersNames().isEmpty() ||
                 (allStreamIdsMatch && prototype.getParametersNames().size() == streamTypeService.getEventTypes().length)) {
             exprEvaluator = new ExprDeclaredEvalNoRewrite(expressionBodyCopy.getExprEvaluator(), prototype, isCache);
-        }
-        else {
+        } else {
             exprEvaluator = new ExprDeclaredEvalRewrite(expressionBodyCopy.getExprEvaluator(), prototype, isCache, streamsIdsPerStream);
         }
 
@@ -240,15 +230,12 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return new FilterSpecLookupable(ExprNodeUtility.toExpressionStringMinPrecedenceSafe(this), new DeclaredNodeEventPropertyGetter(exprEvaluator), exprEvaluator.getType(), true);
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprDeclaredNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprDeclaredNodeImpl)) {
             return false;
         }
 
@@ -296,7 +283,7 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
     private void checkParameterCount() throws ExprValidationException {
         if (chainParameters.size() != prototype.getParametersNames().size()) {
             throw new ExprValidationException("Parameter count mismatches for declared expression '" + prototype.getName() + "', expected " +
-                prototype.getParametersNames().size() + " parameters but received " + chainParameters.size() + " parameters");
+                    prototype.getParametersNames().size() + " parameters but received " + chainParameters.size() + " parameters");
         }
     }
 

@@ -25,8 +25,7 @@ import java.util.Set;
  * Query strategy for use with {@link HistoricalEventViewable}
  * to perform lookup for a given stream using the poll method on a viewable.
  */
-public class HistoricalDataQueryStrategy implements QueryStrategy
-{
+public class HistoricalDataQueryStrategy implements QueryStrategy {
     private final int myStreamNumber;
     private final int historicalStreamNumber;
     private final HistoricalEventViewable historicalEventViewable;
@@ -38,15 +37,16 @@ public class HistoricalDataQueryStrategy implements QueryStrategy
 
     /**
      * Ctor.
-     * @param myStreamNumber is the strategy's stream number
-     * @param historicalStreamNumber is the stream number of the view to be polled
-     * @param historicalEventViewable is the view to be polled from
-     * @param isOuterJoin is this is an outer join
-     * @param outerJoinCompareNode is the node to perform the on-comparison for outer joins
-     * @param indexLookupStrategy the strategy to use for limiting the cache result set
-     *   to only those rows that match filter criteria
+     *
+     * @param myStreamNumber             is the strategy's stream number
+     * @param historicalStreamNumber     is the stream number of the view to be polled
+     * @param historicalEventViewable    is the view to be polled from
+     * @param isOuterJoin                is this is an outer join
+     * @param outerJoinCompareNode       is the node to perform the on-comparison for outer joins
+     * @param indexLookupStrategy        the strategy to use for limiting the cache result set
+     *                                   to only those rows that match filter criteria
      * @param pollResultIndexingStrategy the strategy for indexing poll-results such that a
-     *   strategy can use the index instead of a full table scan to resolve rows
+     *                                   strategy can use the index instead of a full table scan to resolve rows
      */
     public HistoricalDataQueryStrategy(int myStreamNumber,
                                        int historicalStreamNumber,
@@ -54,8 +54,7 @@ public class HistoricalDataQueryStrategy implements QueryStrategy
                                        boolean isOuterJoin,
                                        ExprEvaluator outerJoinCompareNode,
                                        HistoricalIndexLookupStrategy indexLookupStrategy,
-                                       PollResultIndexingStrategy pollResultIndexingStrategy)
-    {
+                                       PollResultIndexingStrategy pollResultIndexingStrategy) {
         this.myStreamNumber = myStreamNumber;
         this.historicalStreamNumber = historicalStreamNumber;
         this.historicalEventViewable = historicalEventViewable;
@@ -69,22 +68,17 @@ public class HistoricalDataQueryStrategy implements QueryStrategy
         this.pollResultIndexingStrategy = pollResultIndexingStrategy;
     }
 
-    public void lookup(EventBean[] lookupEvents, Set<MultiKey<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void lookup(EventBean[] lookupEvents, Set<MultiKey<EventBean>> joinSet, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean[][] lookupRows;
 
         // If looking up a single event, reuse the buffered array
-        if (lookupEvents.length == 1)
-        {
+        if (lookupEvents.length == 1) {
             lookupRows = lookupRows1Event;
             lookupRows[0][myStreamNumber] = lookupEvents[0];
-        }
-        else
-        {
+        } else {
             // Prepare rows with each row N events where N is the number of streams
             lookupRows = new EventBean[lookupEvents.length][];
-            for (int i = 0; i < lookupEvents.length; i++)
-            {
+            for (int i = 0; i < lookupEvents.length; i++) {
                 lookupRows[i] = new EventBean[2];
                 lookupRows[i][myStreamNumber] = lookupEvents[i];
             }
@@ -93,50 +87,39 @@ public class HistoricalDataQueryStrategy implements QueryStrategy
         EventTable[][] indexPerLookupRow = historicalEventViewable.poll(lookupRows, pollResultIndexingStrategy, exprEvaluatorContext);
 
         int count = 0;
-        for (EventTable[] index : indexPerLookupRow)
-        {
+        for (EventTable[] index : indexPerLookupRow) {
             // Using the index, determine a subset of the whole indexed table to process, unless
             // the strategy is a full table scan
             Iterator<EventBean> subsetIter = indexLookupStrategy.lookup(lookupEvents[count], index, exprEvaluatorContext);
 
             // In an outer join
-            if ((isOuterJoin) && ((subsetIter == null || (!subsetIter.hasNext())) ))
-            {
+            if (isOuterJoin && ((subsetIter == null || (!subsetIter.hasNext())))) {
                 EventBean[] resultRow = new EventBean[2];
                 resultRow[myStreamNumber] = lookupEvents[count];
                 joinSet.add(new MultiKey<EventBean>(resultRow));
-            }
-            else
-            {
+            } else {
                 boolean foundMatch = false;
-                if (subsetIter != null)
-                {
+                if (subsetIter != null) {
                     // Add each row to the join result or, for outer joins, run through the outer join filter
-                    for (;subsetIter.hasNext();)
-                    {
+                    for (; subsetIter.hasNext(); ) {
                         EventBean[] resultRow = new EventBean[2];
                         resultRow[myStreamNumber] = lookupEvents[count];
                         resultRow[historicalStreamNumber] = subsetIter.next();
 
                         // In an outer join compare the on-fields
-                        if (outerJoinCompareNode != null)
-                        {
+                        if (outerJoinCompareNode != null) {
                             Boolean compareResult = (Boolean) outerJoinCompareNode.evaluate(resultRow, true, exprEvaluatorContext);
-                            if ((compareResult != null) && (compareResult))
-                            {
+                            if ((compareResult != null) && compareResult) {
                                 joinSet.add(new MultiKey<EventBean>(resultRow));
                                 foundMatch = true;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             joinSet.add(new MultiKey<EventBean>(resultRow));
                         }
                     }
                 }
 
-                if ((isOuterJoin) && (!foundMatch))
-                {
+                if (isOuterJoin && (!foundMatch)) {
                     EventBean[] resultRow = new EventBean[2];
                     resultRow[myStreamNumber] = lookupEvents[count];
                     joinSet.add(new MultiKey<EventBean>(resultRow));

@@ -13,12 +13,11 @@ package com.espertech.esper.view;
 import com.espertech.esper.collection.ViewUpdatedCollection;
 import com.espertech.esper.core.context.util.AgentInstanceViewFactoryChainContext;
 import com.espertech.esper.view.ext.IStreamSortRankRandomAccess;
-import com.espertech.esper.view.window.IStreamRandomAccess;
-import com.espertech.esper.view.window.IStreamRelativeAccess;
 
-public interface ViewServicePreviousFactory
-{
+public interface ViewServicePreviousFactory {
     ViewUpdatedCollection getOptPreviousExprRandomAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext);
+
     ViewUpdatedCollection getOptPreviousExprRelativeAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext);
+
     IStreamSortRankRandomAccess getOptPreviousExprSortedRankedAccess(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext);
 }

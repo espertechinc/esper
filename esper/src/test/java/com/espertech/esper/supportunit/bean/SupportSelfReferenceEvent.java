@@ -10,28 +10,23 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public class SupportSelfReferenceEvent
-{
+public class SupportSelfReferenceEvent {
     private SupportSelfReferenceEvent selfRef;
 
     private String value;
 
-    public SupportSelfReferenceEvent()
-    {
+    public SupportSelfReferenceEvent() {
     }
 
-    public SupportSelfReferenceEvent getSelfRef()
-    {
+    public SupportSelfReferenceEvent getSelfRef() {
         return selfRef;
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
-    public void setSelfRef(SupportSelfReferenceEvent selfRef)
-    {
+    public void setSelfRef(SupportSelfReferenceEvent selfRef) {
         this.selfRef = selfRef;
     }
 }

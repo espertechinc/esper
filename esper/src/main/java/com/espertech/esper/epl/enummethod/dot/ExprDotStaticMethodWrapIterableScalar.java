@@ -15,7 +15,9 @@ import com.espertech.esper.epl.rettype.EPTypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class ExprDotStaticMethodWrapIterableScalar implements ExprDotStaticMethodWrap {
 
@@ -43,8 +45,7 @@ public class ExprDotStaticMethodWrapIterableScalar implements ExprDotStaticMetho
         }
         ArrayList items = new ArrayList();
         Iterator iterator = ((Iterable) result).iterator();
-        for (;iterator.hasNext();)
-        {
+        for (; iterator.hasNext(); ) {
             items.add(iterator.next());
         }
         return items;

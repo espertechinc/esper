@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
  * Property evaluator that considers only level one and considers a where-clause,
  * but does not consider a select clause or N-level.
  */
-public class PropertyEvaluatorSimple implements PropertyEvaluator
-{
+public class PropertyEvaluatorSimple implements PropertyEvaluator {
     private static final Logger log = LoggerFactory.getLogger(PropertyEvaluatorSimple.class);
     private final ContainedEventEval containedEventEval;
     private final FragmentEventType fragmentEventType;
@@ -33,43 +32,35 @@ public class PropertyEvaluatorSimple implements PropertyEvaluator
 
     /**
      * Ctor.
+     *
      * @param containedEventEval property getter or other evaluator
-     * @param fragmentEventType property event type
-     * @param filter optional where-clause expression
-     * @param expressionText the property name
+     * @param fragmentEventType  property event type
+     * @param filter             optional where-clause expression
+     * @param expressionText     the property name
      */
-    public PropertyEvaluatorSimple(ContainedEventEval containedEventEval, FragmentEventType fragmentEventType, ExprEvaluator filter, String expressionText)
-    {
+    public PropertyEvaluatorSimple(ContainedEventEval containedEventEval, FragmentEventType fragmentEventType, ExprEvaluator filter, String expressionText) {
         this.fragmentEventType = fragmentEventType;
         this.containedEventEval = containedEventEval;
         this.filter = filter;
         this.expressionText = expressionText;
     }
 
-    public EventBean[] getProperty(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        try
-        {
-            Object result = containedEventEval.getFragment(theEvent, new EventBean[] {theEvent}, exprEvaluatorContext);
+    public EventBean[] getProperty(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
+        try {
+            Object result = containedEventEval.getFragment(theEvent, new EventBean[]{theEvent}, exprEvaluatorContext);
 
             EventBean[] rows;
-            if (fragmentEventType.isIndexed())
-            {
+            if (fragmentEventType.isIndexed()) {
                 rows = (EventBean[]) result;
-            }
-            else
-            {
-                rows = new EventBean[] {(EventBean) result};
+            } else {
+                rows = new EventBean[]{(EventBean) result};
             }
 
-            if (filter == null)
-            {
+            if (filter == null) {
                 return rows;
             }
             return ExprNodeUtility.applyFilterExpression(filter, theEvent, (EventBean[]) result, exprEvaluatorContext);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             log.error("Unexpected error evaluating property expression for event of type '" +
                     theEvent.getEventType().getName() +
                     "' and property '" +
@@ -78,42 +69,37 @@ public class PropertyEvaluatorSimple implements PropertyEvaluator
         return null;
     }
 
-    public EventType getFragmentEventType()
-    {
+    public EventType getFragmentEventType() {
         return fragmentEventType.getFragmentType();
     }
 
     /**
      * Returns the property name.
+     *
      * @return property name
      */
-    public String getExpressionText()
-    {
+    public String getExpressionText() {
         return expressionText;
     }
 
     /**
      * Returns the filter.
+     *
      * @return filter
      */
-    public ExprEvaluator getFilter()
-    {
+    public ExprEvaluator getFilter() {
         return filter;
     }
 
-    public boolean compareTo(PropertyEvaluator otherEval)
-    {
-        if (!(otherEval instanceof PropertyEvaluatorSimple))
-        {
+    public boolean compareTo(PropertyEvaluator otherEval) {
+        if (!(otherEval instanceof PropertyEvaluatorSimple)) {
             return false;
         }
         PropertyEvaluatorSimple other = (PropertyEvaluatorSimple) otherEval;
-        if (!other.getExpressionText().equals(this.getExpressionText()))
-        {
+        if (!other.getExpressionText().equals(this.getExpressionText())) {
             return false;
         }
-        if ((other.getFilter() == null) && (this.getFilter() == null))
-        {
+        if ((other.getFilter() == null) && (this.getFilter() == null)) {
             return true;
         }
         return false;

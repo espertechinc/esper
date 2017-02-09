@@ -19,43 +19,35 @@ import java.io.StringWriter;
 /**
  * Represents the CURRENT_TIMESTAMP() function or reserved keyword in an expression tree.
  */
-public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = -6332243334897136751L;
 
     /**
      * Ctor.
      */
-    public ExprTimestampNode()
-    {
+    public ExprTimestampNode() {
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 0)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 0) {
             throw new ExprValidationException("current_timestamp function node cannot have a child node");
         }
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Long.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             long value = exprEvaluatorContext.getTimeProvider().getTime();
             InstrumentationHelper.get().qaExprTimestamp(this, value);
@@ -72,10 +64,8 @@ public class ExprTimestampNode extends ExprNodeBase implements ExprEvaluator
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprTimestampNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprTimestampNode)) {
             return false;
         }
         return true;

@@ -19,11 +19,11 @@ import java.io.Serializable;
 /**
  * Denotes a value for use by the in-keyword within a list of values
  */
-public interface FilterSpecParamInValue extends MetaDefItem, Serializable
-{
+public interface FilterSpecParamInValue extends MetaDefItem, Serializable {
     /**
      * Returns the actual value to filter for from prior matching events
-     * @param matchedEvents is a map of matching events
+     *
+     * @param matchedEvents    is a map of matching events
      * @param evaluatorContext eval context
      * @return filter-for value
      */

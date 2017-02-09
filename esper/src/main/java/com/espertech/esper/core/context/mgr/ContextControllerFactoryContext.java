@@ -12,7 +12,6 @@ package com.espertech.esper.core.context.mgr;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.epl.spec.ContextDetail;
 
 public class ContextControllerFactoryContext {
     private final String outermostContextName;

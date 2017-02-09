@@ -27,86 +27,84 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- *
- 2 Stream query strategy/execution tree
- (stream 0)         Lookup in stream 1
- (stream 1)         Lookup in stream 0
-
+ * 2 Stream query strategy/execution tree
+ * (stream 0)         Lookup in stream 1
+ * (stream 1)         Lookup in stream 0
+ * <p>
  * ------ Example 1   a 3 table join
- *
- *          " where streamA.id = streamB.id " +
-            "   and streamB.id = streamC.id";
-
- => Index propery names for each stream
-    for stream 0 to 4 = "id"
-
- => join order, ie.
-    for stream 0 = {1, 2}
-    for stream 1 = {factor [0,2]}
-    for stream 2 = {1, 0}
-
- => IndexKeyGen optionalIndexKeyGen, created by nested query plan nodes
-
-
- 3 Stream query strategy
- (stream 0)          Nested iteration
-    Lookup in stream 1        Lookup in stream 2
-
- (stream 1)         Factor
-    Lookup in stream 0        Lookup in stream 2
-
- (stream 2)         Nested iteration
-    Lookup in stream 1        Lookup in stream 0
-
-
+ * <p>
+ * " where streamA.id = streamB.id " +
+ * "   and streamB.id = streamC.id";
+ * <p>
+ * => Index propery names for each stream
+ * for stream 0 to 4 = "id"
+ * <p>
+ * => join order, ie.
+ * for stream 0 = {1, 2}
+ * for stream 1 = {factor [0,2]}
+ * for stream 2 = {1, 0}
+ * <p>
+ * => IndexKeyGen optionalIndexKeyGen, created by nested query plan nodes
+ * <p>
+ * <p>
+ * 3 Stream query strategy
+ * (stream 0)          Nested iteration
+ * Lookup in stream 1        Lookup in stream 2
+ * <p>
+ * (stream 1)         Factor
+ * Lookup in stream 0        Lookup in stream 2
+ * <p>
+ * (stream 2)         Nested iteration
+ * Lookup in stream 1        Lookup in stream 0
+ * <p>
+ * <p>
  * ------ Example 2  a 4 table join
- *
- *          " where streamA.id = streamB.id " +
-            "   and streamB.id = streamC.id";
-            "   and streamC.id = streamD.id";
-
- => join order, ie.
-    for stream 0 = {1, 2, 3}
-    for stream 1 = {factor [0,2], use 2 for 3}
-    for stream 2 = {factor [1,3], use 1 for 0}
-    for stream 3 = {2, 1, 0}
-
-
- concepts... nested iteration, inner loop
-
- select * from s1, s2, s3, s4 where s1.id=s2.id and s2.id=s3.id and s3.id=s4.id
-
-
- (stream 0)              Nested iteration
-    Lookup in stream 1        Lookup in stream 2        Lookup in stream 3
-
- (stream 1)              Factor
- lookup in stream 0                 Nested iteration
-                          Lookup in stream 2        Lookup in stream 3
-
- (stream 2)              Factor
- lookup in stream 3                 Nested iteration
-                          Lookup in stream 1        Lookup in stream 0
-
- (stream 3)              Nested iteration
-    Lookup in stream 2        Lookup in stream 1        Lookup in stream 0
-
+ * <p>
+ * " where streamA.id = streamB.id " +
+ * "   and streamB.id = streamC.id";
+ * "   and streamC.id = streamD.id";
+ * <p>
+ * => join order, ie.
+ * for stream 0 = {1, 2, 3}
+ * for stream 1 = {factor [0,2], use 2 for 3}
+ * for stream 2 = {factor [1,3], use 1 for 0}
+ * for stream 3 = {2, 1, 0}
+ * <p>
+ * <p>
+ * concepts... nested iteration, inner loop
+ * <p>
+ * select * from s1, s2, s3, s4 where s1.id=s2.id and s2.id=s3.id and s3.id=s4.id
+ * <p>
+ * <p>
+ * (stream 0)              Nested iteration
+ * Lookup in stream 1        Lookup in stream 2        Lookup in stream 3
+ * <p>
+ * (stream 1)              Factor
+ * lookup in stream 0                 Nested iteration
+ * Lookup in stream 2        Lookup in stream 3
+ * <p>
+ * (stream 2)              Factor
+ * lookup in stream 3                 Nested iteration
+ * Lookup in stream 1        Lookup in stream 0
+ * <p>
+ * (stream 3)              Nested iteration
+ * Lookup in stream 2        Lookup in stream 1        Lookup in stream 0
+ * <p>
  * ------ Example 4  a 4 table join, orphan table
- *
- *          " where streamA.id = streamB.id " +
-            "   and streamB.id = streamC.id"; (no table D join criteria)
-
+ * <p>
+ * " where streamA.id = streamB.id " +
+ * "   and streamB.id = streamC.id"; (no table D join criteria)
+ * <p>
  * ------ Example 5  a 3 table join with 2 indexes for stream B
- *
- *          " where streamA.A1 = streamB.B1 " +
-            "   and streamB.B2 = streamC.C1"; (no table D join criteria)
+ * <p>
+ * " where streamA.A1 = streamB.B1 " +
+ * "   and streamB.B2 = streamC.C1"; (no table D join criteria)
  */
 
 /**
  * Builds a query plan for 3 or more streams in a join.
  */
-public class NStreamQueryPlanBuilder
-{
+public class NStreamQueryPlanBuilder {
     protected static QueryPlan build(QueryGraph queryGraph,
                                      EventType[] typesPerStream,
                                      HistoricalViewableDesc historicalViewableDesc,
@@ -114,27 +112,21 @@ public class NStreamQueryPlanBuilder
                                      HistoricalStreamIndexList[] historicalStreamIndexLists,
                                      boolean hasForceNestedIter,
                                      String[][][] indexedStreamsUniqueProps,
-                                     TableMetadata[] tablesPerStream)
-    {
-        if (log.isDebugEnabled())
-        {
+                                     TableMetadata[] tablesPerStream) {
+        if (log.isDebugEnabled()) {
             log.debug(".build queryGraph=" + queryGraph);
         }
 
         int numStreams = queryGraph.getNumStreams();
         QueryPlanIndex[] indexSpecs = QueryPlanIndexBuilder.buildIndexSpec(queryGraph, typesPerStream, indexedStreamsUniqueProps);
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             log.debug(".build Index build completed, indexes=" + QueryPlanIndex.print(indexSpecs));
         }
 
         // any historical streams don't get indexes, the lookup strategy accounts for cached indexes
-        if (historicalViewableDesc.isHasHistorical())
-        {
-            for (int i = 0; i < historicalViewableDesc.getHistorical().length; i++)
-            {
-                if (historicalViewableDesc.getHistorical()[i])
-                {
+        if (historicalViewableDesc.isHasHistorical()) {
+            for (int i = 0; i < historicalViewableDesc.getHistorical().length; i++) {
+                if (historicalViewableDesc.getHistorical()[i]) {
                     indexSpecs[i] = null;
                 }
             }
@@ -142,19 +134,16 @@ public class NStreamQueryPlanBuilder
 
         QueryPlanNode[] planNodeSpecs = new QueryPlanNode[numStreams];
         int worstDepth = Integer.MAX_VALUE;
-        for (int streamNo = 0; streamNo < numStreams; streamNo++)
-        {
+        for (int streamNo = 0; streamNo < numStreams; streamNo++) {
             // no plan for historical streams that are dependent upon other streams
-            if ((historicalViewableDesc.getHistorical()[streamNo]) && (dependencyGraph.hasDependency(streamNo)))
-            {
+            if ((historicalViewableDesc.getHistorical()[streamNo]) && (dependencyGraph.hasDependency(streamNo))) {
                 planNodeSpecs[streamNo] = new QueryPlanNodeNoOp();
                 continue;
             }
 
             BestChainResult bestChainResult = computeBestPath(streamNo, queryGraph, dependencyGraph);
             int[] bestChain = bestChainResult.getChain();
-            if (log.isDebugEnabled())
-            {
+            if (log.isDebugEnabled()) {
                 log.debug(".build For stream " + streamNo + " bestChain=" + Arrays.toString(bestChain));
             }
 
@@ -163,8 +152,7 @@ public class NStreamQueryPlanBuilder
             }
 
             planNodeSpecs[streamNo] = createStreamPlan(streamNo, bestChain, queryGraph, indexSpecs, typesPerStream, historicalViewableDesc.getHistorical(), historicalStreamIndexLists, tablesPerStream);
-            if (log.isDebugEnabled())
-            {
+            if (log.isDebugEnabled()) {
                 log.debug(".build spec=" + planNodeSpecs[streamNo]);
             }
         }
@@ -179,41 +167,36 @@ public class NStreamQueryPlanBuilder
     /**
      * Walks the chain of lookups and constructs lookup strategy and plan specification based
      * on the index specifications.
-     * @param lookupStream - the stream to construct the query plan for
-     * @param bestChain - the chain that the lookup follows to make best use of indexes
-     * @param queryGraph - the repository for key properties to indexes
-     * @param indexSpecsPerStream - specifications of indexes
-     * @param typesPerStream - event types for each stream
-     * @param isHistorical - indicator for each stream if it is a historical streams or not
+     *
+     * @param lookupStream               - the stream to construct the query plan for
+     * @param bestChain                  - the chain that the lookup follows to make best use of indexes
+     * @param queryGraph                 - the repository for key properties to indexes
+     * @param indexSpecsPerStream        - specifications of indexes
+     * @param typesPerStream             - event types for each stream
+     * @param isHistorical               - indicator for each stream if it is a historical streams or not
      * @param historicalStreamIndexLists - index management, populated for the query plan
-     * @param tablesPerStream tables
+     * @param tablesPerStream            tables
      * @return NestedIterationNode with lookups attached underneath
      */
     protected static QueryPlanNode createStreamPlan(int lookupStream, int[] bestChain, QueryGraph queryGraph,
                                                     QueryPlanIndex[] indexSpecsPerStream, EventType[] typesPerStream,
                                                     boolean[] isHistorical, HistoricalStreamIndexList[] historicalStreamIndexLists,
-                                                    TableMetadata[] tablesPerStream)
-    {
+                                                    TableMetadata[] tablesPerStream) {
         NestedIterationNode nestedIterNode = new NestedIterationNode(bestChain);
         int currentLookupStream = lookupStream;
 
         // Walk through each successive lookup
-        for (int i = 0; i < bestChain.length; i++)
-        {
+        for (int i = 0; i < bestChain.length; i++) {
             int indexedStream = bestChain[i];
 
             QueryPlanNode node;
-            if (isHistorical[indexedStream])
-            {
-                if (historicalStreamIndexLists[indexedStream] == null)
-                {
+            if (isHistorical[indexedStream]) {
+                if (historicalStreamIndexLists[indexedStream] == null) {
                     historicalStreamIndexLists[indexedStream] = new HistoricalStreamIndexList(indexedStream, typesPerStream, queryGraph);
                 }
                 historicalStreamIndexLists[indexedStream].addIndex(currentLookupStream);
                 node = new HistoricalDataPlanNode(indexedStream, lookupStream, currentLookupStream, typesPerStream.length, null);
-            }
-            else
-            {
+            } else {
                 TableLookupPlan tableLookupPlan = createLookupPlan(queryGraph, currentLookupStream, indexedStream, indexSpecsPerStream[indexedStream], typesPerStream, tablesPerStream[indexedStream]);
                 node = new TableLookupNode(tableLookupPlan);
             }
@@ -229,18 +212,18 @@ public class NStreamQueryPlanBuilder
      * Create the table lookup plan for a from-stream to look up in an indexed stream
      * using the columns supplied in the query graph and looking at the actual indexes available
      * and their index number.
-     * @param queryGraph - contains properties joining the 2 streams
-     * @param currentLookupStream - stream to use key values from
-     * @param indexedStream - stream to look up in
-     * @param indexSpecs - index specification defining indexes to be created for stream
-     * @param typesPerStream - event types for each stream
+     *
+     * @param queryGraph             - contains properties joining the 2 streams
+     * @param currentLookupStream    - stream to use key values from
+     * @param indexedStream          - stream to look up in
+     * @param indexSpecs             - index specification defining indexes to be created for stream
+     * @param typesPerStream         - event types for each stream
      * @param indexedStreamTableMeta table info
      * @return plan for performing a lookup in a given table using one of the indexes supplied
      */
     public static TableLookupPlan createLookupPlan(QueryGraph queryGraph, int currentLookupStream, int indexedStream,
-                                               QueryPlanIndex indexSpecs, EventType[] typesPerStream,
-                                               TableMetadata indexedStreamTableMeta)
-    {
+                                                   QueryPlanIndex indexSpecs, EventType[] typesPerStream,
+                                                   TableMetadata indexedStreamTableMeta) {
         QueryGraphValue queryGraphValue = queryGraph.getGraphValue(currentLookupStream, indexedStream);
         QueryGraphValuePairHashKeyIndex hashKeyProps = queryGraphValue.getHashKeyProps();
         List<QueryGraphValueEntryHashKeyed> hashPropsKeys = hashKeyProps.getKeys();
@@ -288,8 +271,7 @@ public class NStreamQueryPlanBuilder
                         }
                         count++;
                     }
-                }
-                else {
+                } else {
                     single = singles.getKey().get(0);
                     Pair<TableLookupIndexReqKey, int[]> pairIndex = indexSpecs.getIndexNum(new String[]{singles.getIndexed()[0]}, null);
                     indexNum = pairIndex.getFirst();
@@ -314,8 +296,7 @@ public class NStreamQueryPlanBuilder
                     Pair<TableLookupIndexReqKey, int[]> pairIndex = indexSpecs.getIndexNum(new String[]{identNode.getResolvedPropertyName()}, null);
                     if (pairIndex == null) {
                         foundAll = false;
-                    }
-                    else {
+                    } else {
                         indexNameArray[i] = pairIndex.getFirst();
                     }
                 }
@@ -356,20 +337,17 @@ public class NStreamQueryPlanBuilder
                 if (hashIndexProps.length == 0 && rangeIndexProps.length == 0) {
                     return getFullTableScanTable(currentLookupStream, indexedStream, indexedStreamTableMeta);
                 }
-            }
-            else {
+            } else {
                 return getFullTableScanTable(currentLookupStream, indexedStream, indexedStreamTableMeta);
             }
         }
 
         // straight keyed-index lookup
-        if (hashIndexProps.length > 0 && rangeIndexProps.length == 0)
-        {
+        if (hashIndexProps.length > 0 && rangeIndexProps.length == 0) {
             TableLookupPlan tableLookupPlan;
             if (hashPropsKeys.size() == 1) {
                 tableLookupPlan = new IndexedTableLookupPlanSingle(currentLookupStream, indexedStream, indexNum, hashPropsKeys.get(0));
-            }
-            else {
+            } else {
                 tableLookupPlan = new IndexedTableLookupPlanMulti(currentLookupStream, indexedStream, indexNum, hashPropsKeys);
             }
 
@@ -393,9 +371,8 @@ public class NStreamQueryPlanBuilder
         if (hashIndexProps.length == 0 && rangeIndexProps.length == 1) {
             QueryGraphValueEntryRange range = rangePropsKeys.get(0);
             return new SortedTableLookupPlan(currentLookupStream, indexedStream, indexNum, range);
-        }
-        // composite range and index lookup
-        else {
+        } else {
+            // composite range and index lookup
             return new CompositeTableLookupPlan(currentLookupStream, indexedStream, indexNum, hashPropsKeys, rangePropsKeys);
         }
     }
@@ -409,49 +386,42 @@ public class NStreamQueryPlanBuilder
      * the first one or more streams are index accesses.
      * If no depth other then zero is found, returns the default nesting order.
      *
-     * @param lookupStream - stream to start look up
-     * @param queryGraph - navigability between streams
+     * @param lookupStream    - stream to start look up
+     * @param queryGraph      - navigability between streams
      * @param dependencyGraph - dependencies between historical streams
      * @return chain and chain depth
      */
-    protected static BestChainResult computeBestPath(int lookupStream, QueryGraph queryGraph, DependencyGraph dependencyGraph)
-    {
+    protected static BestChainResult computeBestPath(int lookupStream, QueryGraph queryGraph, DependencyGraph dependencyGraph) {
         int[] defNestingorder = buildDefaultNestingOrder(queryGraph.getNumStreams(), lookupStream);
         Enumeration<int[]> streamEnum;
         if (defNestingorder.length < 6) {
             streamEnum = new NumberSetPermutationEnumeration(defNestingorder);
-        }
-        else {
+        } else {
             streamEnum = new NumberSetShiftGroupEnumeration(defNestingorder);
         }
         int[] bestPermutation = null;
         int bestDepth = -1;
 
-        while(streamEnum.hasMoreElements())
-        {
+        while (streamEnum.hasMoreElements()) {
             int[] permutation = streamEnum.nextElement();
 
             // Only if the permutation satisfies all dependencies is the permutation considered
-            if (dependencyGraph != null)
-            {
+            if (dependencyGraph != null) {
                 boolean pass = isDependencySatisfied(lookupStream, permutation, dependencyGraph);
-                if (!pass)
-                {
+                if (!pass) {
                     continue;
-                }                    
+                }
             }
 
             int permutationDepth = computeNavigableDepth(lookupStream, permutation, queryGraph);
 
-            if (permutationDepth > bestDepth)
-            {
+            if (permutationDepth > bestDepth) {
                 bestPermutation = permutation;
                 bestDepth = permutationDepth;
             }
 
             // Stop when the permutation yielding the full depth (lenght of stream chain) was hit
-            if (permutationDepth == queryGraph.getNumStreams() - 1)
-            {
+            if (permutationDepth == queryGraph.getNumStreams() - 1) {
                 break;
             }
         }
@@ -461,33 +431,28 @@ public class NStreamQueryPlanBuilder
 
     /**
      * Determine if the proposed permutation of lookups passes dependencies
-     * @param lookupStream stream to initiate
-     * @param permutation permutation of lookups
+     *
+     * @param lookupStream    stream to initiate
+     * @param permutation     permutation of lookups
      * @param dependencyGraph dependencies
      * @return pass or fail indication
      */
-    protected static boolean isDependencySatisfied(int lookupStream, int[] permutation, DependencyGraph dependencyGraph)
-    {
-        for (Map.Entry<Integer, SortedSet<Integer>> entry : dependencyGraph.getDependencies().entrySet())
-        {
+    protected static boolean isDependencySatisfied(int lookupStream, int[] permutation, DependencyGraph dependencyGraph) {
+        for (Map.Entry<Integer, SortedSet<Integer>> entry : dependencyGraph.getDependencies().entrySet()) {
             int target = entry.getKey();
             int positionTarget = positionOf(target, lookupStream, permutation);
-            if (positionTarget == -1)
-            {
+            if (positionTarget == -1) {
                 throw new IllegalArgumentException("Target dependency not found in permutation for target " + target + " and permutation " + Arrays.toString(permutation) + " and lookup stream " + lookupStream);
             }
 
             // check the position of each dependency, it must be higher
-            for (int dependency : entry.getValue())
-            {
+            for (int dependency : entry.getValue()) {
                 int positonDep = positionOf(dependency, lookupStream, permutation);
-                if (positonDep == -1)
-                {
-                    throw new IllegalArgumentException("Dependency not found in permutation for dependency " + dependency + " and permutation " + Arrays.toString(permutation)  + " and lookup stream " + lookupStream);
+                if (positonDep == -1) {
+                    throw new IllegalArgumentException("Dependency not found in permutation for dependency " + dependency + " and permutation " + Arrays.toString(permutation) + " and lookup stream " + lookupStream);
                 }
 
-                if (positonDep > positionTarget)
-                {
+                if (positonDep > positionTarget) {
                     return false;
                 }
             }
@@ -495,16 +460,12 @@ public class NStreamQueryPlanBuilder
         return true;
     }
 
-    private static int positionOf(int stream, int lookupStream, int[] permutation)
-    {
-        if (stream == lookupStream)
-        {
+    private static int positionOf(int stream, int lookupStream, int[] permutation) {
+        if (stream == lookupStream) {
             return 0;
         }
-        for (int i = 0; i < permutation.length; i++)
-        {
-            if (permutation[i] == stream)
-            {
+        for (int i = 0; i < permutation.length; i++) {
+            if (permutation[i] == stream) {
                 return i + 1;
             }
         }
@@ -514,22 +475,20 @@ public class NStreamQueryPlanBuilder
     /**
      * Given a chain of streams to look up and indexing information, compute the index within the
      * chain of the first non-index lookup.
+     *
      * @param lookupStream - stream to start lookup for
-     * @param nextStreams - list of stream numbers next in lookup
-     * @param queryGraph - indexing information
+     * @param nextStreams  - list of stream numbers next in lookup
+     * @param queryGraph   - indexing information
      * @return value between 0 and (nextStreams.lenght - 1)
      */
-    protected static int computeNavigableDepth(int lookupStream, int[] nextStreams, QueryGraph queryGraph)
-    {
+    protected static int computeNavigableDepth(int lookupStream, int[] nextStreams, QueryGraph queryGraph) {
         int currentStream = lookupStream;
         int currentDepth = 0;
 
-        for (int i = 0; i < nextStreams.length; i++)
-        {
+        for (int i = 0; i < nextStreams.length; i++) {
             int nextStream = nextStreams[i];
             boolean navigable = queryGraph.isNavigableAtAll(currentStream, nextStream);
-            if (!navigable)
-            {
+            if (!navigable) {
                 break;
             }
             currentStream = nextStream;
@@ -543,20 +502,18 @@ public class NStreamQueryPlanBuilder
      * Returns default nesting order for a given number of streams for a certain stream.
      * Example: numStreams = 5, forStream = 2, result = {0, 1, 3, 4}
      * The resulting array has all streams except the forStream, in ascdending order.
+     *
      * @param numStreams - number of streams
-     * @param forStream - stream to generate a nesting order for
+     * @param forStream  - stream to generate a nesting order for
      * @return int array with all stream numbers starting at 0 to (numStreams - 1) leaving the
      * forStream out
      */
-    protected static int[] buildDefaultNestingOrder(int numStreams, int forStream)
-    {
+    protected static int[] buildDefaultNestingOrder(int numStreams, int forStream) {
         int[] nestingOrder = new int[numStreams - 1];
 
         int count = 0;
-        for (int i = 0; i < numStreams; i++)
-        {
-            if (i == forStream)
-            {
+        for (int i = 0; i < numStreams; i++) {
+            if (i == forStream) {
                 continue;
             }
             nestingOrder[count++] = i;
@@ -610,42 +567,40 @@ public class NStreamQueryPlanBuilder
     /**
      * Encapsulates the chain information.
      */
-    public static class BestChainResult
-    {
+    public static class BestChainResult {
         private int depth;
         private int[] chain;
 
         /**
          * Ctor.
+         *
          * @param depth - depth this chain resolves into a indexed lookup
          * @param chain - chain for nested lookup
          */
-        public BestChainResult(int depth, int[] chain)
-        {
+        public BestChainResult(int depth, int[] chain) {
             this.depth = depth;
             this.chain = chain;
         }
 
         /**
          * Returns depth of lookups via index in chain.
+         *
          * @return depth
          */
-        public int getDepth()
-        {
+        public int getDepth() {
             return depth;
         }
 
         /**
          * Returns chain of stream numbers.
+         *
          * @return array of stream numbers
          */
-        public int[] getChain()
-        {
+        public int[] getChain() {
             return chain;
         }
 
-        public String toString()
-        {
+        public String toString() {
             return "depth=" + depth + " chain=" + Arrays.toString(chain);
         }
     }

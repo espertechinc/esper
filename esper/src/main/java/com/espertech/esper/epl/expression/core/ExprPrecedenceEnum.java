@@ -73,6 +73,7 @@ public enum ExprPrecedenceEnum {
 
     /**
      * Level.
+     *
      * @return level
      */
     public int getLevel() {

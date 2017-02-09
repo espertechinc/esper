@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.epl.spec;
 
-import com.espertech.esper.epl.expression.ops.ExprAndNode;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.epl.parse.EPLTreeWalkerListener;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.parse.SupportParserHelper;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collections;
@@ -24,18 +24,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class TestFilterStreamSpecRaw extends TestCase
-{
-    public void testNoExpr() throws Exception
-    {
+public class TestFilterStreamSpecRaw extends TestCase {
+    public void testNoExpr() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName());
         FilterSpecCompiled spec = compile(raw);
         assertEquals(SupportBean.class, spec.getFilterForEventType().getUnderlyingType());
         assertEquals(0, spec.getParameters().length);
     }
 
-    public void testMultipleExpr() throws Exception
-    {
+    public void testMultipleExpr() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() +
                 "(intPrimitive-1>2 and intBoxed-5>3)");
         FilterSpecCompiled spec = compile(raw);
@@ -49,30 +46,24 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertTrue(exprNode.getExprNode() instanceof ExprAndNode);
     }
 
-    public void testInvalid() throws Exception
-    {
+    public void testInvalid() throws Exception {
         tryInvalid("select * from " + SupportBean.class.getName() + "(intPrimitive=5L)");
         tryInvalid("select * from " + SupportBean.class.getName() + "(5d = byteBoxed)");
         tryInvalid("select * from " + SupportBean.class.getName() + "(5d > longBoxed)");
         tryInvalid("select * from " + SupportBean.class.getName() + "(longBoxed in (5d, 1.1d))");
     }
 
-    private void tryInvalid(String text) throws Exception
-    {
-        try
-        {
+    private void tryInvalid(String text) throws Exception {
+        try {
             FilterStreamSpecRaw raw = makeSpec(text);
             compile(raw);
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // expected
         }
     }
 
-    public void testEquals() throws Exception
-    {
+    public void testEquals() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() + "(intPrimitive=5)");
         FilterSpecCompiled spec = compile(raw);
         assertEquals(1, spec.getParameters().length);
@@ -81,8 +72,7 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertEquals(5, getConstant(spec.getParameters()[0][0]));
     }
 
-    public void testEqualsAndLess() throws Exception
-    {
+    public void testEqualsAndLess() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() + "(theString='a' and intPrimitive<9)");
         FilterSpecCompiled spec = compile(raw);
         assertEquals(2, spec.getParameters()[0].length);
@@ -95,18 +85,15 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertEquals(9, getConstant(parameters.get("intPrimitive")));
     }
 
-    private Map<String, FilterSpecParam> mapParameters(FilterSpecParam[] parameters)
-    {
+    private Map<String, FilterSpecParam> mapParameters(FilterSpecParam[] parameters) {
         Map<String, FilterSpecParam> map = new HashMap<String, FilterSpecParam>();
-        for (FilterSpecParam param : parameters)
-        {
+        for (FilterSpecParam param : parameters) {
             map.put(param.getLookupable().getExpression(), param);
         }
         return map;
     }
 
-    public void testCommaAndCompar() throws Exception
-    {
+    public void testCommaAndCompar() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() +
                 "(doubleBoxed>1.11, doublePrimitive>=9.11 and intPrimitive<=9, theString || 'a' = 'sa')");
         FilterSpecCompiled spec = compile(raw);
@@ -126,8 +113,7 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertTrue(parameters.get(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION) instanceof FilterSpecParamExprNode);
     }
 
-    public void testNestedAnd() throws Exception
-    {
+    public void testNestedAnd() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() +
                 "((doubleBoxed=1 and doublePrimitive=2) and (intPrimitive=3 and (theString like '%_a' and theString = 'a')))");
         FilterSpecCompiled spec = compile(raw);
@@ -150,8 +136,7 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertTrue(parameters.get(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION) instanceof FilterSpecParamExprNode);
     }
 
-    public void testIn() throws Exception
-    {
+    public void testIn() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() + "(doubleBoxed in (1, 2, 3))");
         FilterSpecCompiled spec = compile(raw);
         assertEquals(1, spec.getParameters().length);
@@ -165,8 +150,7 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertEquals(3.0, getConstant(inParam.getListOfValues().get(2)));
     }
 
-    public void testNotIn() throws Exception
-    {
+    public void testNotIn() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() + "(theString not in (\"a\"))");
         FilterSpecCompiled spec = compile(raw);
         assertEquals(1, spec.getParameters().length);
@@ -178,8 +162,7 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertEquals("a", getConstant(inParam.getListOfValues().get(0)));
     }
 
-    public void testRanges() throws Exception
-    {
+    public void testRanges() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() +
                 "(intBoxed in [1:5] and doubleBoxed in (2:6) and floatBoxed in (3:7] and byteBoxed in [0:1))");
         FilterSpecCompiled spec = compile(raw);
@@ -207,8 +190,7 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertEquals(1.0, getConstant(rangeParam.getMax()));
     }
 
-    public void testRangesNot() throws Exception
-    {
+    public void testRangesNot() throws Exception {
         FilterStreamSpecRaw raw = makeSpec("select * from " + SupportBean.class.getName() +
                 "(intBoxed not in [1:5] and doubleBoxed not in (2:6) and floatBoxed not in (3:7] and byteBoxed not in [0:1))");
         FilterSpecCompiled spec = compile(raw);
@@ -236,31 +218,26 @@ public class TestFilterStreamSpecRaw extends TestCase
         assertEquals(1.0, getConstant(rangeParam.getMax()));
     }
 
-    private double getConstant(FilterSpecParamRangeValue param)
-    {
+    private double getConstant(FilterSpecParamRangeValue param) {
         return ((RangeValueDouble) param).getDoubleValue();
     }
 
-    private Object getConstant(FilterSpecParamInValue param)
-    {
+    private Object getConstant(FilterSpecParamInValue param) {
         InSetOfValuesConstant constant = (InSetOfValuesConstant) param;
         return constant.getConstant();
     }
 
-    private Object getConstant(FilterSpecParam param)
-    {
+    private Object getConstant(FilterSpecParam param) {
         FilterSpecParamConstant constant = (FilterSpecParamConstant) param;
         return constant.getFilterConstant();
     }
 
-    private FilterSpecCompiled compile(FilterStreamSpecRaw raw) throws Exception
-    {
+    private FilterSpecCompiled compile(FilterStreamSpecRaw raw) throws Exception {
         FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) raw.compile(SupportStatementContextFactory.makeContext(), new HashSet<String>(), false, Collections.<Integer>emptyList(), false, false, false, null);
         return compiled.getFilterSpec();
     }
 
-    private static FilterStreamSpecRaw makeSpec(String expression) throws Exception
-    {
+    private static FilterStreamSpecRaw makeSpec(String expression) throws Exception {
         EPLTreeWalkerListener walker = SupportParserHelper.parseAndWalkEPL(expression);
         return (FilterStreamSpecRaw) walker.getStatementSpec().getStreamSpecs().get(0);
     }

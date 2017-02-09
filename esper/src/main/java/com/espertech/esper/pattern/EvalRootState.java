@@ -10,17 +10,13 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.client.EventBean;
-
-import java.util.Set;
-
 /**
  * Interface for a root state node accepting a callback to use to indicate pattern results.
  */
-public interface EvalRootState extends PatternStopCallback, EvalRootMatchRemover
-{
+public interface EvalRootState extends PatternStopCallback, EvalRootMatchRemover {
     /**
      * Accept callback to indicate pattern results.
+     *
      * @param callback is a pattern result call
      */
     public void setCallback(PatternMatchCallback callback);

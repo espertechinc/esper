@@ -11,8 +11,8 @@
 package com.espertech.esper.example.cycledetect;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
+import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;

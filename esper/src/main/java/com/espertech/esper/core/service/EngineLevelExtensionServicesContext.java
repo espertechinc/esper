@@ -14,13 +14,13 @@ package com.espertech.esper.core.service;
  * Marker interface for extension services that provide additional engine or statement-level extensions,
  * such as views backed by a write-behind store.
  */
-public interface EngineLevelExtensionServicesContext
-{
+public interface EngineLevelExtensionServicesContext {
     /**
      * Invoked to initialize extension services after engine services initialization.
-     * @param engine the engine
+     *
+     * @param engine     the engine
      * @param runtimeSPI runtime SPI
-     * @param adminSPI admin SPI
+     * @param adminSPI   admin SPI
      */
     public void init(EPServicesContext engine, EPRuntimeSPI runtimeSPI, EPAdministratorSPI adminSPI);
 
@@ -28,6 +28,6 @@ public interface EngineLevelExtensionServicesContext
      * Invoked to destroy the extension services, when an existing engine is initialized.
      */
     public void destroy();
-    
+
     public boolean isHAEnabled();
 }

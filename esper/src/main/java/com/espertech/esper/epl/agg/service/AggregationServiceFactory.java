@@ -19,7 +19,6 @@ import com.espertech.esper.epl.core.EngineImportService;
  * Consolidates aggregation nodes such that result futures point to a single instance and
  * no re-evaluation of the same result occurs.
  */
-public interface AggregationServiceFactory
-{
+public interface AggregationServiceFactory {
     public AggregationService makeService(AgentInstanceContext agentInstanceContext, EngineImportService engineImportService, boolean isSubquery, Integer subqueryNumber);
 }

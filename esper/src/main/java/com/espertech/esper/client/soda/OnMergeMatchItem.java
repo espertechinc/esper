@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * As part of on-merge, this represents a single "matched" or "not matched" entry.
  */
-public class OnMergeMatchItem extends OnClause
-{
+public class OnMergeMatchItem extends OnClause {
     private static final long serialVersionUID = 0L;
 
     private boolean matched;
@@ -34,9 +33,10 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Ctor.
-     * @param matched true for matched, false for not-matched
+     *
+     * @param matched           true for matched, false for not-matched
      * @param optionalCondition an optional additional filter
-     * @param actions one or more actions to take
+     * @param actions           one or more actions to take
      */
     public OnMergeMatchItem(boolean matched, Expression optionalCondition, List<OnMergeMatchedAction> actions) {
         this.matched = matched;
@@ -46,20 +46,18 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Renders the clause in textual representation.
-     * @param writer to output to
+     *
+     * @param writer    to output to
      * @param formatter for newline-whitespace formatting
      */
-    public void toEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
         formatter.beginMergeWhenMatched(writer);
         if (matched) {
             writer.write("when matched");
-        }
-        else {
+        } else {
             writer.write("when not matched");
         }
-        if (optionalCondition != null)
-        {
+        if (optionalCondition != null) {
             writer.write(" and ");
             optionalCondition.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }
@@ -71,6 +69,7 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Returns true for matched, and false for not-matched.
+     *
      * @return matched or not-matched indicator
      */
     public boolean isMatched() {
@@ -79,6 +78,7 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Set to true for matched, and false for not-matched.
+     *
      * @param matched matched or not-matched indicator
      */
     public void setMatched(boolean matched) {
@@ -87,6 +87,7 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Returns the condition to apply or null if none is provided.
+     *
      * @return condition
      */
     public Expression getOptionalCondition() {
@@ -95,6 +96,7 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Sets the condition to apply or null if none is provided.
+     *
      * @param optionalCondition condition to apply or null to have no condition
      */
     public void setOptionalCondition(Expression optionalCondition) {
@@ -103,6 +105,7 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Returns all actions.
+     *
      * @return actions
      */
     public List<OnMergeMatchedAction> getActions() {
@@ -111,6 +114,7 @@ public class OnMergeMatchItem extends OnClause
 
     /**
      * Sets all actions.
+     *
      * @param actions to set
      */
     public void setActions(List<OnMergeMatchedAction> actions) {

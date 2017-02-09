@@ -17,8 +17,7 @@ import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
 import net.sf.cglib.reflect.FastMethod;
 
-public class MethodPollingExecStrategyPOJOIterator extends MethodPollingExecStrategyBaseIterator
-{
+public class MethodPollingExecStrategyPOJOIterator extends MethodPollingExecStrategyBaseIterator {
     public MethodPollingExecStrategyPOJOIterator(EventAdapterService eventAdapterService, FastMethod method, EventType eventType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, VariableReader variableReader, String variableName, VariableService variableService) {
         super(eventAdapterService, method, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
     }

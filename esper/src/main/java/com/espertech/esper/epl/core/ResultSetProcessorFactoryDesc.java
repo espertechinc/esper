@@ -16,8 +16,7 @@ import com.espertech.esper.epl.agg.service.AggregationServiceFactoryDesc;
  * Processor prototype for result sets for instances that apply the select-clause, group-by-clause and having-clauses
  * as supplied.
  */
-public class ResultSetProcessorFactoryDesc
-{
+public class ResultSetProcessorFactoryDesc {
     private final ResultSetProcessorFactory resultSetProcessorFactory;
     private final OrderByProcessorFactory orderByProcessorFactory;
     private final AggregationServiceFactoryDesc aggregationServiceFactoryDesc;

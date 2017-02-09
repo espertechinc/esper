@@ -18,8 +18,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.*;
 
-public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable implements EventTableAsSet
-{
+public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable implements EventTableAsSet {
     protected final Map<MultiKeyUntyped, EventBean> propertyIndex;
     private final boolean canClear;
 
@@ -37,12 +36,15 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
 
     /**
      * Remove then add events.
+     *
      * @param newData to add
      * @param oldData to remove
      */
     @Override
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
+        }
         if (oldData != null) {
             for (EventBean theEvent : oldData) {
                 remove(theEvent);
@@ -53,11 +55,12 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
                 add(theEvent);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexAddRemove();
+        }
     }
 
-    public Set<EventBean> lookup(Object[] keys)
-    {
+    public Set<EventBean> lookup(Object[] keys) {
         MultiKeyUntyped key = new MultiKeyUntyped(keys);
         EventBean event = propertyIndex.get(key);
         if (event != null) {
@@ -66,8 +69,7 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         return null;
     }
 
-    public void add(EventBean theEvent)
-    {
+    public void add(EventBean theEvent) {
         MultiKeyUntyped key = getMultiKey(theEvent);
 
         EventBean existing = propertyIndex.put(key, theEvent);
@@ -81,24 +83,20 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         throw new EPException("Unique index violation, index" + indexNameDisplay + " is a unique index and key '" + key + "' already exists");
     }
 
-    public void remove(EventBean theEvent)
-    {
+    public void remove(EventBean theEvent) {
         MultiKeyUntyped key = getMultiKey(theEvent);
         propertyIndex.remove(key);
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return propertyIndex.isEmpty();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return propertyIndex.values().iterator();
     }
 
-    public void clear()
-    {
+    public void clear() {
         if (canClear) {
             propertyIndex.clear();
         }

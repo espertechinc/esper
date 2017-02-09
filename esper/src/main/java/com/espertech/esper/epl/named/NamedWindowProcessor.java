@@ -32,8 +32,7 @@ import java.util.*;
  * An instance of this class is associated with a specific named window. The processor
  * provides the views to create-window, on-delete statements and statements selecting from a named window.
  */
-public class NamedWindowProcessor
-{
+public class NamedWindowProcessor {
     private final String namedWindowName;
     private final NamedWindowTailView tailView;
     private final NamedWindowRootView rootView;
@@ -48,8 +47,7 @@ public class NamedWindowProcessor
     private final EventTableIndexMetadata eventTableIndexMetadataRepo = new EventTableIndexMetadata();
     private final StatementContext statementContextCreateWindow;
 
-    public NamedWindowProcessor(String namedWindowName, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow)
-    {
+    public NamedWindowProcessor(String namedWindowName, NamedWindowMgmtService namedWindowMgmtService, NamedWindowDispatchService namedWindowDispatchService, String contextName, EventType eventType, StatementResultService statementResultService, ValueAddEventProcessor revisionProcessor, String eplExpression, String statementName, boolean isPrioritized, boolean isEnableSubqueryIndexShare, boolean enableQueryPlanLog, MetricReportingService metricReportingService, boolean isBatchingDataWindow, boolean isVirtualDataWindow, Set<String> optionalUniqueKeyProps, String eventTypeAsName, StatementContext statementContextCreateWindow) {
         this.namedWindowName = namedWindowName;
         this.contextName = contextName;
         this.eventType = eventType;
@@ -109,7 +107,7 @@ public class NamedWindowProcessor
         if (agentInstanceContext.getStatementContext().getContextDescriptor() == null) {
             return null;
         }
-        
+
         if (this.contextName.equals(agentInstanceContext.getStatementContext().getContextDescriptor().getContextName())) {
             return getProcessorInstance(agentInstanceContext.getAgentInstanceId());
         }
@@ -131,8 +129,7 @@ public class NamedWindowProcessor
             if (contextDescriptor != null && contextName.equals(contextDescriptor.getContextName())) {
                 StatementResourceHolder holder = statementResourceService.getPartitioned(consumerDesc.getAgentInstanceContext().getAgentInstanceId());
                 return holder.getNamedWindowProcessorInstance().getTailViewInstance().addConsumer(consumerDesc, isSubselect);
-            }
-            else {
+            } else {
                 // consumer is out-of-context
                 return tailView.addConsumer(consumerDesc);  // non-context consumers
             }
@@ -149,55 +146,54 @@ public class NamedWindowProcessor
     /**
      * Returns the tail view of the named window, hooked into the view chain after the named window's data window views,
      * as the last view.
+     *
      * @return tail view
      */
-    public NamedWindowTailView getTailView()
-    {
+    public NamedWindowTailView getTailView() {
         return tailView;    // hooked as the tail sview before any data windows
     }
 
     /**
      * Returns the root view of the named window, hooked into the view chain before the named window's data window views,
      * right after the filter stream that filters for insert-into events.
+     *
      * @return tail view
      */
-    public NamedWindowRootView getRootView()
-    {
+    public NamedWindowRootView getRootView() {
         return rootView;    // hooked as the top view before any data windows
     }
 
     /**
      * Returns the event type of the named window.
+     *
      * @return event type
      */
-    public EventType getNamedWindowType()
-    {
+    public EventType getNamedWindowType() {
         return eventType;
     }
 
     /**
      * Returns the EPL expression.
+     *
      * @return epl
      */
-    public String getEplExpression()
-    {
+    public String getEplExpression() {
         return eplExpression;
     }
 
     /**
      * Returns the statement name.
+     *
      * @return name
      */
-    public String getStatementName()
-    {
+    public String getStatementName() {
         return statementName;
     }
 
     /**
      * Deletes a named window and removes any associated resources.
      */
-    public void destroy()
-    {
+    public void destroy() {
     }
 
     public boolean isEnableSubqueryIndexShare() {
@@ -258,8 +254,7 @@ public class NamedWindowProcessor
             if (holder != null && holder.getNamedWindowProcessorInstance() != null) {
                 holder.getNamedWindowProcessorInstance().removeIndex(index);
             }
-        }
-        else {
+        } else {
             for (Map.Entry<Integer, StatementResourceHolder> entry : statementResourceService.getResourcesPartitioned().entrySet()) {
                 if (entry.getValue().getNamedWindowProcessorInstance() != null) {
                     entry.getValue().getNamedWindowProcessorInstance().removeIndex(index);

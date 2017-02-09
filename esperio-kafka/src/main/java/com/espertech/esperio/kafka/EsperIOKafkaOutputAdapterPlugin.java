@@ -15,27 +15,23 @@ import com.espertech.esper.plugin.PluginLoaderInitContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EsperIOKafkaOutputAdapterPlugin implements PluginLoader
-{
+public class EsperIOKafkaOutputAdapterPlugin implements PluginLoader {
     private static Logger log = LoggerFactory.getLogger(EsperIOKafkaOutputAdapterPlugin.class);
 
     private EsperIOKafkaOutputAdapter kafkaOutputAdapter;
     private PluginLoaderInitContext context;
 
-    public void init(PluginLoaderInitContext context)
-    {
+    public void init(PluginLoaderInitContext context) {
         this.context = context;
     }
 
-    public void postInitialize()
-    {
+    public void postInitialize() {
         log.info("Starting Kafka Output Adapter");
         kafkaOutputAdapter = new EsperIOKafkaOutputAdapter(context.getProperties(), context.getEpServiceProvider().getURI());
         kafkaOutputAdapter.start();
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         if (kafkaOutputAdapter != null) {
             kafkaOutputAdapter.destroy();
         }

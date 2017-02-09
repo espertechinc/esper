@@ -24,26 +24,22 @@ import java.util.List;
  * Strategy for building an index out of poll-results knowing the properties to base the index on, and their
  * coercion types.
  */
-public class PollResultIndexingStrategyIndexCoerceSingle implements PollResultIndexingStrategy
-{
+public class PollResultIndexingStrategyIndexCoerceSingle implements PollResultIndexingStrategy {
     private final int streamNum;
     private final EventType eventType;
     private final String propertyName;
     private final Class coercionType;
 
-    public PollResultIndexingStrategyIndexCoerceSingle(int streamNum, EventType eventType, String propertyName, Class coercionType)
-    {
+    public PollResultIndexingStrategyIndexCoerceSingle(int streamNum, EventType eventType, String propertyName, Class coercionType) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.propertyName = propertyName;
         this.coercionType = coercionType;
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
-    {
-        if (!isActiveCache)
-        {
-            return new EventTable[] {new UnindexedEventTableList(pollResult, streamNum)};
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {
+        if (!isActiveCache) {
+            return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
         PropertyIndexedEventTableSingleCoerceAllFactory factory = new PropertyIndexedEventTableSingleCoerceAllFactory(streamNum, eventType, propertyName, coercionType);
         EventTable[] tables = factory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext));

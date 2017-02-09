@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.event.xml;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
 
 /**
  * Provides the namespace context information for compiling XPath expressions.

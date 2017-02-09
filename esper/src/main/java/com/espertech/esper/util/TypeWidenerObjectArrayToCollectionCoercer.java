@@ -15,10 +15,8 @@ import java.util.Arrays;
 /**
  * Type widner that coerces from String to char if required.
  */
-public class TypeWidenerObjectArrayToCollectionCoercer implements TypeWidener
-{
-    public Object widen(Object input)
-    {
+public class TypeWidenerObjectArrayToCollectionCoercer implements TypeWidener {
+    public Object widen(Object input) {
         return input == null ? null : Arrays.asList((Object[]) input);
     }
 }

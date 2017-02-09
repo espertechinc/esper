@@ -17,8 +17,7 @@ import com.espertech.esper.client.FragmentEventType;
 /**
  * Descriptor of a property item.
  */
-public class PropertySetDescriptorItem
-{
+public class PropertySetDescriptorItem {
     private EventPropertyDescriptor propertyDescriptor;
     private Class simplePropertyType;
     private EventPropertyGetter propertyGetter;

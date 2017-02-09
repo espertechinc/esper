@@ -33,8 +33,7 @@ public class ExprSubselectRowEvalStrategyFilteredSelected implements ExprSubsele
         Object result;
         if (parent.selectClauseEvaluator.length == 1) {
             result = parent.selectClauseEvaluator[0].evaluate(eventsZeroBased, true, exprEvaluatorContext);
-        }
-        else {
+        } else {
             // we are returning a Map here, not object-array, preferring the self-describing structure
             result = parent.evaluateRow(eventsZeroBased, true, exprEvaluatorContext);
         }
@@ -54,7 +53,7 @@ public class ExprSubselectRowEvalStrategyFilteredSelected implements ExprSubsele
         for (EventBean subselectEvent : matchingEvents) {
             events[0] = subselectEvent;
             Boolean pass = (Boolean) parent.filterExpr.evaluate(events, true, context);
-            if ((pass != null) && (pass)) {
+            if ((pass != null) && pass) {
                 result.add(parent.selectClauseEvaluator[0].evaluate(events, isNewData, context));
             }
         }
@@ -85,7 +84,7 @@ public class ExprSubselectRowEvalStrategyFilteredSelected implements ExprSubsele
             events[0] = matchingEvent;
 
             Boolean pass = (Boolean) parent.filterExpr.evaluate(events, newData, exprEvaluatorContext);
-            if ((pass != null) && (pass)) {
+            if ((pass != null) && pass) {
                 index++;
                 Object[] results = new Object[parent.selectClauseEvaluator.length];
                 for (int i = 0; i < results.length; i++) {
@@ -100,7 +99,8 @@ public class ExprSubselectRowEvalStrategyFilteredSelected implements ExprSubsele
         if (index == -1) {
             return new Object[0][];
         }
-        Object[][] rowArray = new Object[index + 1][];
+        int access = index + 1;
+        Object[][] rowArray = new Object[access][];
         System.arraycopy(rows, 0, rowArray, 0, rowArray.length);
         return rowArray;
     }

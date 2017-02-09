@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * An stream that polls from a method.
  */
-public class MethodInvocationStream extends Stream
-{
+public class MethodInvocationStream extends Stream {
     private String className;
     private String methodName;
     private List<Expression> parameterExpressions;
@@ -32,35 +31,35 @@ public class MethodInvocationStream extends Stream
 
     /**
      * Creates a new method-invocation-based stream without parameters.
-     * @param className is the name of the class providing the method
+     *
+     * @param className  is the name of the class providing the method
      * @param methodName is the name of the public static method
      * @return stream
      */
-    public static MethodInvocationStream create(String className, String methodName)
-    {
+    public static MethodInvocationStream create(String className, String methodName) {
         return new MethodInvocationStream(className, methodName, null);
     }
 
     /**
      * Creates a new method-invocation-based stream without parameters.
-     * @param className is the name of the class providing the method
-     * @param methodName is the name of the public static method
+     *
+     * @param className     is the name of the class providing the method
+     * @param methodName    is the name of the public static method
      * @param optStreamName is the optional as-name of the stream, or null if unnamed
      * @return stream
      */
-    public static MethodInvocationStream create(String className, String methodName, String optStreamName)
-    {
+    public static MethodInvocationStream create(String className, String methodName, String optStreamName) {
         return new MethodInvocationStream(className, methodName, optStreamName);
     }
 
     /**
      * Ctor.
-     * @param className is the name of the class providing the method
-     * @param methodName is the name of the public static method
+     *
+     * @param className     is the name of the class providing the method
+     * @param methodName    is the name of the public static method
      * @param optStreamName is the optional as-name of the stream, or null if unnamed
      */
-    public MethodInvocationStream(String className, String methodName, String optStreamName)
-    {
+    public MethodInvocationStream(String className, String methodName, String optStreamName) {
         super(optStreamName);
         this.className = className;
         this.methodName = methodName;
@@ -69,71 +68,70 @@ public class MethodInvocationStream extends Stream
 
     /**
      * Returns the name of the class providing the method.
+     *
      * @return class name
      */
-    public String getClassName()
-    {
+    public String getClassName() {
         return className;
     }
 
     /**
      * Sets the name of the class providing the method.
+     *
      * @param className class name
      */
-    public void setClassName(String className)
-    {
+    public void setClassName(String className) {
         this.className = className;
     }
 
     /**
      * Returns the name of the static method to invoke in the from-clause.
+     *
      * @return method name
      */
-    public String getMethodName()
-    {
+    public String getMethodName() {
         return methodName;
     }
 
     /**
      * Sets the name of the static method to invoke in the from-clause.
+     *
      * @param methodName method name
      */
-    public void setMethodName(String methodName)
-    {
+    public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
 
     /**
      * Returns a list of expressions that are parameters to the method.
+     *
      * @return list of parameter expressions
      */
-    public List<Expression> getParameterExpressions()
-    {
+    public List<Expression> getParameterExpressions() {
         return parameterExpressions;
     }
 
     /**
      * Sets a list of expressions that are parameters to the method.
+     *
      * @param parameterExpressions list of parameter expressions
      */
-    public void setParameterExpressions(List<Expression> parameterExpressions)
-    {
+    public void setParameterExpressions(List<Expression> parameterExpressions) {
         this.parameterExpressions = parameterExpressions;
     }
 
     /**
      * Adds a parameters to the method invocation.
+     *
      * @param parameterExpression is the expression to add
      * @return stream
      */
-    public MethodInvocationStream addParameter(Expression parameterExpression)
-    {
+    public MethodInvocationStream addParameter(Expression parameterExpression) {
         parameterExpressions.add(parameterExpression);
         return this;
     }
 
-    public void toEPLStream(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toEPLStream(StringWriter writer, EPStatementFormatter formatter) {
         writer.write("method:");
         writer.write(className);
         writer.write(".");
@@ -141,17 +139,15 @@ public class MethodInvocationStream extends Stream
         writer.write("(");
 
         String delimiter = "";
-        for (Expression expr : parameterExpressions)
-        {
+        for (Expression expr : parameterExpressions) {
             writer.append(delimiter);
             expr.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
             delimiter = ",";
         }
         writer.write(")");
     }
-    
-    public void toEPLStreamType(StringWriter writer)
-    {
+
+    public void toEPLStreamType(StringWriter writer) {
         writer.write("method:");
         writer.write(className);
         writer.write(".");
@@ -159,7 +155,6 @@ public class MethodInvocationStream extends Stream
         writer.write("(..)");
     }
 
-    public void toEPLStreamOptions(StringWriter writer)
-    {
+    public void toEPLStreamOptions(StringWriter writer) {
     }
 }

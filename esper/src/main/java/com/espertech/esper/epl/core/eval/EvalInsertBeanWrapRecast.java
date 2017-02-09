@@ -28,8 +28,7 @@ public class EvalInsertBeanWrapRecast implements SelectExprProcessor {
     private final int streamNumber;
 
     public EvalInsertBeanWrapRecast(WrapperEventType targetType, EventAdapterService eventAdapterService, int streamNumber, EventType[] typesPerStream)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         this.eventType = targetType;
         this.eventAdapterService = eventAdapterService;
         this.streamNumber = streamNumber;

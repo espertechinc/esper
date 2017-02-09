@@ -17,7 +17,6 @@ import java.util.TreeMap;
 /**
  * Provides random access into a rank-window's data.
  */
-public interface IStreamSortRankRandomAccess extends RandomAccessByIndex
-{
+public interface IStreamSortRankRandomAccess extends RandomAccessByIndex {
     void refresh(TreeMap<Object, Object> sortedEvents, int currentSize, int maxSize);
 }

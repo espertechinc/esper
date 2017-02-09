@@ -12,22 +12,20 @@ package com.espertech.esper.example.terminal.sender;
 
 import com.espertech.esper.example.terminal.common.BaseTerminalEvent;
 
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.jms.*;
 import java.util.Hashtable;
 
-public class InboundQueueSender
-{
+public class InboundQueueSender {
     public static final String SEND_QUEUE = "jms/queue/queue_b";
 
     private final QueueConnection conn;
     private final QueueSession session;
     private final QueueSender sender;
 
-    public InboundQueueSender(String providerURL) throws JMSException, NamingException
-    {
+    public InboundQueueSender(String providerURL) throws JMSException, NamingException {
         Hashtable env = new Hashtable();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
         env.put(Context.PROVIDER_URL, providerURL);
@@ -44,21 +42,16 @@ public class InboundQueueSender
         conn.start();
     }
 
-    public void sendEvent(BaseTerminalEvent baseDeskEvent)
-    {
-        try
-        {
+    public void sendEvent(BaseTerminalEvent baseDeskEvent) {
+        try {
             ObjectMessage textMessage = session.createObjectMessage(baseDeskEvent);
             sender.send(textMessage);
-        }
-        catch (JMSException ex)
-        {
+        } catch (JMSException ex) {
             System.out.println("Error sending event:" + ex.toString());
         }
     }
 
-    public void destroy() throws JMSException
-    {
+    public void destroy() throws JMSException {
         sender.close();
         conn.stop();
         session.close();

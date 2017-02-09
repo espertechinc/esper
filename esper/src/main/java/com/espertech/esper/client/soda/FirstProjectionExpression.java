@@ -13,10 +13,9 @@ package com.espertech.esper.client.soda;
 /**
  * Represents the "first" aggregation function.
  */
-public class FirstProjectionExpression extends AccessProjectionExpressionBase
-{
+public class FirstProjectionExpression extends AccessProjectionExpressionBase {
     private static final long serialVersionUID = -4943040862553084545L;
-    
+
     /**
      * Ctor.
      */
@@ -25,10 +24,10 @@ public class FirstProjectionExpression extends AccessProjectionExpressionBase
 
     /**
      * Ctor.
+     *
      * @param expression to aggregate
      */
-    public FirstProjectionExpression(Expression expression)
-    {
+    public FirstProjectionExpression(Expression expression) {
         super(expression);
     }
 

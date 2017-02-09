@@ -17,26 +17,27 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SubordWMatchExprLookupStrategyAllUnfiltered implements SubordWMatchExprLookupStrategy
-{
+public class SubordWMatchExprLookupStrategyAllUnfiltered implements SubordWMatchExprLookupStrategy {
     private Iterable<EventBean> source;
 
-    public SubordWMatchExprLookupStrategyAllUnfiltered(Iterable<EventBean> source)
-    {
+    public SubordWMatchExprLookupStrategyAllUnfiltered(Iterable<EventBean> source) {
         this.source = source;
     }
 
-    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.FULLTABLESCAN_UNFILTERED); }
+    public EventBean[] lookup(EventBean[] newData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraTriggeredLookup(SubordWMatchExprLookupStrategyType.FULLTABLESCAN_UNFILTERED);
+        }
 
         ArrayList<EventBean> events = new ArrayList<EventBean>();
-        for (Iterator<EventBean> it = source.iterator(); it.hasNext();) {
+        for (Iterator<EventBean> it = source.iterator(); it.hasNext(); ) {
             events.add(it.next());
         }
         EventBean[] result = events.toArray(new EventBean[events.size()]);
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraTriggeredLookup(result); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraTriggeredLookup(result);
+        }
         return result;
     }
 

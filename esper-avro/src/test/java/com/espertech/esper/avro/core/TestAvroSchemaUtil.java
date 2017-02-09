@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TestAvroSchemaUtil extends TestCase {
-    private final static EventAdapterService eventAdapterService = SupportEventAdapterService.getService();
+    private final static EventAdapterService EVENT_ADAPTER_SERVICE = SupportEventAdapterService.getService();
 
     public void testAssemble() {
         ConfigurationEngineDefaults.EventMeta.AvroSettings defaults = new ConfigurationEngineDefaults.EventMeta.AvroSettings();
@@ -95,18 +95,18 @@ public class TestAvroSchemaUtil extends TestCase {
         assertTypeArray(String.class, Schema.Type.STRING, true, false, disableRequired);
         assertTypeArray(CharSequence.class, Schema.Type.STRING, true, false, disableRequired);
 
-        assertEquals(Schema.Type.BYTES, assemble(byte[].class, null, defaults, eventAdapterService).getType());
-        Schema bytesUnion = assemble(byte[].class, null, disableRequired, eventAdapterService);
+        assertEquals(Schema.Type.BYTES, assemble(byte[].class, null, defaults, EVENT_ADAPTER_SERVICE).getType());
+        Schema bytesUnion = assemble(byte[].class, null, disableRequired, EVENT_ADAPTER_SERVICE);
         assertEquals(2, bytesUnion.getTypes().size());
         assertEquals(Schema.Type.NULL, bytesUnion.getTypes().get(0).getType());
         assertEquals(Schema.Type.BYTES, bytesUnion.getTypes().get(1).getType());
 
-        for (Class mapClass : new Class[] {LinkedHashMap.class, Map.class}) {
-            Schema schemaReq = assemble(mapClass, null, defaults, eventAdapterService);
+        for (Class mapClass : new Class[]{LinkedHashMap.class, Map.class}) {
+            Schema schemaReq = assemble(mapClass, null, defaults, EVENT_ADAPTER_SERVICE);
             assertEquals(Schema.Type.MAP, schemaReq.getType());
             System.out.println(schemaReq);
 
-            Schema schemaOpt = assemble(mapClass, null, disableRequired, eventAdapterService);
+            Schema schemaOpt = assemble(mapClass, null, disableRequired, EVENT_ADAPTER_SERVICE);
             assertEquals(2, schemaOpt.getTypes().size());
             assertEquals(Schema.Type.NULL, schemaOpt.getTypes().get(0).getType());
             assertEquals(Schema.Type.MAP, schemaOpt.getTypes().get(1).getType());
@@ -115,14 +115,13 @@ public class TestAvroSchemaUtil extends TestCase {
     }
 
     private void assertTypeArray(Class componentType, Schema.Type expectedElementType, boolean unionOfNull, boolean unionOfNullElements, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
-        Schema schema = assemble(JavaClassHelper.getArrayType(componentType), null, avroSettings, eventAdapterService);
+        Schema schema = assemble(JavaClassHelper.getArrayType(componentType), null, avroSettings, EVENT_ADAPTER_SERVICE);
 
         Schema elementSchema;
         if (!unionOfNull) {
             assertEquals(Schema.Type.ARRAY, schema.getType());
             elementSchema = schema.getElementType();
-        }
-        else {
+        } else {
             assertEquals(2, schema.getTypes().size());
             assertEquals(Schema.Type.NULL, schema.getTypes().get(0).getType());
             assertEquals(Schema.Type.ARRAY, schema.getTypes().get(1).getType());
@@ -133,8 +132,7 @@ public class TestAvroSchemaUtil extends TestCase {
         if (!unionOfNullElements) {
             assertEquals(expectedElementType, elementSchema.getType());
             assertStringNative(elementSchema, avroSettings);
-        }
-        else {
+        } else {
             assertEquals(2, elementSchema.getTypes().size());
             assertEquals(Schema.Type.NULL, elementSchema.getTypes().get(0).getType());
             assertEquals(expectedElementType, elementSchema.getTypes().get(1).getType());
@@ -142,12 +140,11 @@ public class TestAvroSchemaUtil extends TestCase {
     }
 
     private void assertType(Class clazz, Schema.Type expected, boolean unionOfNull, ConfigurationEngineDefaults.EventMeta.AvroSettings avroSettings) {
-        Schema schema = assemble(clazz, null, avroSettings, eventAdapterService);
+        Schema schema = assemble(clazz, null, avroSettings, EVENT_ADAPTER_SERVICE);
         if (!unionOfNull) {
             assertEquals(expected, schema.getType());
             assertStringNative(schema, avroSettings);
-        }
-        else {
+        } else {
             assertEquals(Schema.Type.UNION, schema.getType());
             assertEquals(2, schema.getTypes().size());
             assertEquals(Schema.Type.NULL, schema.getTypes().get(0).getType());
@@ -169,8 +166,7 @@ public class TestAvroSchemaUtil extends TestCase {
         String prop = elementType.getProp(AvroConstant.PROP_JAVA_STRING_KEY);
         if (avroSettings.isEnableNativeString()) {
             assertEquals(prop, AvroConstant.PROP_JAVA_STRING_VALUE);
-        }
-        else {
+        } else {
             assertNull(prop);
         }
     }

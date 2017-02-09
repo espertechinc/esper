@@ -18,18 +18,17 @@ import java.util.*;
  * To add a full outer join between streams 0 and 1 use "add(0, 1)" and "add(1, 0)".
  * To add a right outer join between streams 0 and 1 use "add(1, 0)".
  */
-public class OuterInnerDirectionalGraph
-{
+public class OuterInnerDirectionalGraph {
     private final Map<Integer, Set<Integer>> streamToInnerMap;
     private final Map<Integer, Set<Integer>> unqualifiedNavigableStreams;
     private final int numStreams;
 
     /**
      * Ctor.
+     *
      * @param numStreams - number of streams
      */
-    public OuterInnerDirectionalGraph(int numStreams)
-    {
+    public OuterInnerDirectionalGraph(int numStreams) {
         this.numStreams = numStreams;
         this.streamToInnerMap = new HashMap<Integer, Set<Integer>>();
         this.unqualifiedNavigableStreams = new HashMap<Integer, Set<Integer>>();
@@ -37,25 +36,23 @@ public class OuterInnerDirectionalGraph
 
     /**
      * Add an outer-to-inner join stream relationship.
+     *
      * @param outerStream is the stream number of the outer stream
      * @param innerStream is the stream number of the inner stream
      * @return graph object
      */
-    public OuterInnerDirectionalGraph add(int outerStream, int innerStream)
-    {
+    public OuterInnerDirectionalGraph add(int outerStream, int innerStream) {
         checkArgs(outerStream, innerStream);
 
         // add set
         Set<Integer> innerSet = streamToInnerMap.get(outerStream);
-        if (innerSet == null)
-        {
+        if (innerSet == null) {
             innerSet = new HashSet<Integer>();
             streamToInnerMap.put(outerStream, innerSet);
         }
 
         // populate
-        if (innerSet.contains(innerStream))
-        {
+        if (innerSet.contains(innerStream)) {
             throw new IllegalArgumentException("Inner stream already in collection");
         }
         innerSet.add(innerStream);
@@ -65,36 +62,33 @@ public class OuterInnerDirectionalGraph
 
     /**
      * Returns the set of inner streams for the given outer stream number.
+     *
      * @param outerStream is the stream number of the outer stream
      * @return set of inner streams, or null if empty
      */
-    public Set<Integer> getInner(int outerStream)
-    {
+    public Set<Integer> getInner(int outerStream) {
         checkArgs(outerStream);
         return streamToInnerMap.get(outerStream);
     }
 
     /**
      * Returns the set of outer streams for the given inner stream number.
+     *
      * @param innerStream is the stream number of the inner stream
      * @return set of outer streams, or null if empty
      */
-    public Set<Integer> getOuter(int innerStream)
-    {
+    public Set<Integer> getOuter(int innerStream) {
         checkArgs(innerStream);
 
         Set<Integer> result = new HashSet<Integer>();
-        for (Integer key : streamToInnerMap.keySet())
-        {
+        for (Integer key : streamToInnerMap.keySet()) {
             Set<Integer> set = streamToInnerMap.get(key);
-            if (set.contains(innerStream))
-            {
+            if (set.contains(innerStream)) {
                 result.add(key);
             }
         }
 
-        if (result.isEmpty())
-        {
+        if (result.isEmpty()) {
             return null;
         }
         return result;
@@ -102,17 +96,16 @@ public class OuterInnerDirectionalGraph
 
     /**
      * Returns true if the outer stream has an optional relationship to the inner stream.
+     *
      * @param outerStream is the stream number of the outer stream
      * @param innerStream is the stream number of the inner stream
      * @return true if outer-inner relationship between streams, false if not
      */
-    public boolean isInner(int outerStream, int innerStream)
-    {
+    public boolean isInner(int outerStream, int innerStream) {
         checkArgs(outerStream, innerStream);
 
         Set<Integer> innerSet = streamToInnerMap.get(outerStream);
-        if (innerSet == null)
-        {
+        if (innerSet == null) {
             return false;
         }
         return innerSet.contains(innerStream);
@@ -120,17 +113,16 @@ public class OuterInnerDirectionalGraph
 
     /**
      * Returns true if the inner stream has a relationship to the outer stream.
+     *
      * @param outerStream is the stream number of the outer stream
      * @param innerStream is the stream number of the inner stream
      * @return true if outer-inner relationship between streams, false if not
      */
-    public boolean isOuter(int outerStream, int innerStream)
-    {
+    public boolean isOuter(int outerStream, int innerStream) {
         checkArgs(outerStream, innerStream);
         Set<Integer> outerStreams = getOuter(innerStream);
 
-        if (outerStreams == null)
-        {
+        if (outerStreams == null) {
             return false;
         }
         return outerStreams.contains(outerStream);
@@ -138,15 +130,14 @@ public class OuterInnerDirectionalGraph
 
     /**
      * Prints out collection.
+     *
      * @return textual output of keys and values
      */
-    public String print()
-    {
+    public String print() {
         StringBuilder buffer = new StringBuilder();
         String delimiter = "";
 
-        for (Integer key : streamToInnerMap.keySet())
-        {
+        for (Integer key : streamToInnerMap.keySet()) {
             Set<Integer> set = streamToInnerMap.get(key);
 
             buffer.append(delimiter);
@@ -177,23 +168,18 @@ public class OuterInnerDirectionalGraph
         set.add(streamTwo);
     }
 
-    private void checkArgs(int stream)
-    {
-        if ((stream >= numStreams) || (stream < 0))
-        {
+    private void checkArgs(int stream) {
+        if ((stream >= numStreams) || (stream < 0)) {
             throw new IllegalArgumentException("Out of bounds parameter for stream num");
         }
     }
 
-    private void checkArgs(int outerStream, int innerStream)
-    {
+    private void checkArgs(int outerStream, int innerStream) {
         if ((outerStream >= numStreams) || (innerStream >= numStreams) ||
-            (outerStream < 0) || (innerStream < 0))
-        {
+                (outerStream < 0) || (innerStream < 0)) {
             throw new IllegalArgumentException("Out of bounds parameter for inner or outer stream num");
         }
-        if (outerStream == innerStream)
-        {
+        if (outerStream == innerStream) {
             throw new IllegalArgumentException("Unexpected equal stream num for inner and outer stream");
         }
     }

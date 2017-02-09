@@ -24,28 +24,26 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 /**
  * Handler for split-stream evaluating the all where-clauses and their matching select-clauses.
  */
-public class RouteResultViewHandlerAll extends RouteResultViewHandlerBase
-{
+public class RouteResultViewHandlerAll extends RouteResultViewHandlerBase {
     public RouteResultViewHandlerAll(EPStatementHandle epStatementHandle, InternalEventRouter internalEventRouter, TableStateInstance[] tableStateInstances, EPStatementStartMethodOnTriggerItem[] items, ResultSetProcessor[] processors, ExprEvaluator[] whereClauses, AgentInstanceContext agentInstanceContext) {
         super(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
     }
 
-    public boolean handle(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStream(true, theEvent, whereClauses);}
+    public boolean handle(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qSplitStream(true, theEvent, whereClauses);
+        }
 
         boolean isHandled = false;
-        for (int i = 0; i < whereClauses.length; i++)
-        {
+        for (int i = 0; i < whereClauses.length; i++) {
             EPStatementStartMethodOnTriggerItem currentItem = items[i];
             eventsPerStream[0] = theEvent;
 
             // handle no-contained-event evaluation
             if (currentItem.getPropertyEvaluator() == null) {
                 isHandled |= processAllCurrentEvent(i, exprEvaluatorContext);
-            }
-            // handle contained-event evaluation
-            else {
+            } else {
+                // handle contained-event evaluation
                 EventBean[] containeds = currentItem.getPropertyEvaluator().getProperty(eventsPerStream[0], exprEvaluatorContext);
                 if (containeds == null || containeds.length == 0) {
                     continue;
@@ -58,7 +56,9 @@ public class RouteResultViewHandlerAll extends RouteResultViewHandlerBase
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStream(true, isHandled);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aSplitStream(true, isHandled);
+        }
         return isHandled;
     }
 

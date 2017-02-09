@@ -18,15 +18,11 @@ import com.espertech.esper.epl.spec.OnTriggerType;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.util.CollectionUtil;
-
-import java.util.Iterator;
 
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public class TableOnDeleteView extends TableOnViewBase
-{
+public class TableOnDeleteView extends TableOnViewBase {
     private final TableOnDeleteViewFactory parent;
 
     public TableOnDeleteView(SubordWMatchExprLookupStrategy lookupStrategy, TableStateInstance rootView, ExprEvaluatorContext exprEvaluatorContext, TableMetadata metadata,
@@ -36,10 +32,11 @@ public class TableOnDeleteView extends TableOnViewBase
     }
 
     public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_DELETE, triggerEvents, matchingEvents);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_DELETE, triggerEvents, matchingEvents);
+        }
 
-        if ((matchingEvents != null) && (matchingEvents.length > 0))
-        {
+        if ((matchingEvents != null) && (matchingEvents.length > 0)) {
             for (EventBean event : matchingEvents) {
                 tableStateInstance.deleteEvent(event);
             }
@@ -51,7 +48,9 @@ public class TableOnDeleteView extends TableOnViewBase
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
     public EventType getEventType() {

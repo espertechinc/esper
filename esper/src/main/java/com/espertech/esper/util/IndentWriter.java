@@ -15,26 +15,23 @@ import java.io.PrintWriter;
 /**
  * Writer that uses an underlying PrintWriter to indent output text for easy reading.
  */
-public class IndentWriter
-{
+public class IndentWriter {
     private final PrintWriter writer;
     private final int deltaIndent;
     private int currentIndent;
 
     /**
      * Ctor.
-     * @param writer to output to
+     *
+     * @param writer      to output to
      * @param startIndent is the depth of indent to start
      * @param deltaIndent is the number of characters to indent for every incrIndent() call
      */
-    public IndentWriter(PrintWriter writer, int startIndent, int deltaIndent)
-    {
-        if (startIndent < 0)
-        {
+    public IndentWriter(PrintWriter writer, int startIndent, int deltaIndent) {
+        if (startIndent < 0) {
             throw new IllegalArgumentException("Invalid start indent");
         }
-        if (deltaIndent < 0)
-        {
+        if (deltaIndent < 0) {
             throw new IllegalArgumentException("Invalid delta indent");
         }
 
@@ -46,28 +43,25 @@ public class IndentWriter
     /**
      * Increase the indentation one level.
      */
-    public void incrIndent()
-    {
+    public void incrIndent() {
         currentIndent += deltaIndent;
     }
 
     /**
      * Decrease the indentation one level.
      */
-    public void decrIndent()
-    {
+    public void decrIndent() {
         currentIndent -= deltaIndent;
     }
 
     /**
      * Print text to the underlying writer.
+     *
      * @param text to print
      */
-    public void println(String text)
-    {
+    public void println(String text) {
         int indent = currentIndent;
-        if (indent < 0)
-        {
+        if (indent < 0) {
             indent = 0;
         }
         writer.println(Indent.indent(indent) + text);

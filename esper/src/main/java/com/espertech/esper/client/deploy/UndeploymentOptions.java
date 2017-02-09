@@ -22,6 +22,7 @@ public class UndeploymentOptions implements Serializable {
 
     /**
      * Returns indicator whether undeploy will destroy any associated statements (true by default).
+     *
      * @return flag indicating whether undeploy also destroys associated statements
      */
     public boolean isDestroyStatements() {
@@ -30,6 +31,7 @@ public class UndeploymentOptions implements Serializable {
 
     /**
      * Sets indicator whether undeploy will destroy any associated statements.
+     *
      * @param destroyStatements flag indicating whether undeploy also destroys associated statements
      */
     public void setDestroyStatements(boolean destroyStatements) {

@@ -15,8 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 
-public class SubordWMatchExprLookupStrategyFactoryIndexedUnfiltered implements SubordWMatchExprLookupStrategyFactory
-{
+public class SubordWMatchExprLookupStrategyFactoryIndexedUnfiltered implements SubordWMatchExprLookupStrategyFactory {
     private final SubordTableLookupStrategyFactory lookupStrategyFactory;
 
     public SubordWMatchExprLookupStrategyFactoryIndexedUnfiltered(SubordTableLookupStrategyFactory lookupStrategyFactory) {

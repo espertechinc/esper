@@ -21,11 +21,17 @@ import java.util.Collection;
 
 public abstract class FireAndForgetInstance {
     public abstract EventBean[] processInsert(EPPreparedExecuteIUDSingleStreamExecInsert insert);
+
     public abstract EventBean[] processDelete(EPPreparedExecuteIUDSingleStreamExecDelete delete);
+
     public abstract EventBean[] processUpdate(EPPreparedExecuteIUDSingleStreamExecUpdate update);
+
     public abstract Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery epPreparedExecuteMethodQuery, FilterSpecCompiled filter, Annotation[] annotations);
+
     public abstract AgentInstanceContext getAgentInstanceContext();
+
     public abstract Viewable getTailViewInstance();
+
     public abstract VirtualDWView getVirtualDataWindow();
 
 }

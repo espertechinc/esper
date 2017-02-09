@@ -22,8 +22,7 @@ import java.io.Serializable;
  * Use by {@link EPRuntimeImpl} for determining callback-statement affinity and locking of statement
  * resources.
  */
-public class EPStatementHandle implements MetaDefItem, Serializable
-{
+public class EPStatementHandle implements MetaDefItem, Serializable {
     private static final long serialVersionUID = 0L;
 
     private final String statementName;
@@ -45,20 +44,20 @@ public class EPStatementHandle implements MetaDefItem, Serializable
 
     /**
      * Ctor.
-     * @param statementId is the statement id uniquely indentifying the handle
-     * @param expressionText is the expression
-     * @param hasVariables indicator whether the statement uses variables
-     * @param metricsHandle handle for metrics reporting
-     * @param priority priority, zero is default
-     * @param preemptive true for drop after done
-     * @param statementName statement name
-     * @param statementText epl
-     * @param statementType statement type
-     * @param hasTableAccess indicator whether tables are accessed
+     *
+     * @param statementId       is the statement id uniquely indentifying the handle
+     * @param expressionText    is the expression
+     * @param hasVariables      indicator whether the statement uses variables
+     * @param metricsHandle     handle for metrics reporting
+     * @param priority          priority, zero is default
+     * @param preemptive        true for drop after done
+     * @param statementName     statement name
+     * @param statementText     epl
+     * @param statementType     statement type
+     * @param hasTableAccess    indicator whether tables are accessed
      * @param multiMatchHandler handler for multimatches for statement
      */
-    public EPStatementHandle(int statementId, String statementName, String statementText, StatementType statementType, String expressionText, boolean hasVariables, StatementMetricHandle metricsHandle, int priority, boolean preemptive, boolean hasTableAccess, MultiMatchHandler multiMatchHandler)
-    {
+    public EPStatementHandle(int statementId, String statementName, String statementText, StatementType statementType, String expressionText, boolean hasVariables, StatementMetricHandle metricsHandle, int priority, boolean preemptive, boolean hasTableAccess, MultiMatchHandler multiMatchHandler) {
         this.statementId = statementId;
         this.statementName = statementName;
         this.statementText = statementText;
@@ -77,15 +76,16 @@ public class EPStatementHandle implements MetaDefItem, Serializable
      * that is a single event may dispatch into multiple streams or patterns for the same statement,
      * requiring internal dispatch logic to not shortcut evaluation of all filters for the statement
      * within one lock, requiring the callback handle to be sorted.
+     *
      * @param canSelfJoin is true if the statement potentially self-joins, false if not
      */
-    public void setCanSelfJoin(boolean canSelfJoin)
-    {
+    public void setCanSelfJoin(boolean canSelfJoin) {
         this.canSelfJoin = canSelfJoin;
     }
 
     /**
      * Returns the statement id.
+     *
      * @return statement id
      */
     public int getStatementId() {
@@ -94,10 +94,10 @@ public class EPStatementHandle implements MetaDefItem, Serializable
 
     /**
      * Sets the factory for latches in insert-into guaranteed order of delivery.
+     *
      * @param insertIntoFrontLatchFactory latch factory for the statement if it performs insert-into (route) of events
      */
-    public void setInsertIntoFrontLatchFactory(InsertIntoLatchFactory insertIntoFrontLatchFactory)
-    {
+    public void setInsertIntoFrontLatchFactory(InsertIntoLatchFactory insertIntoFrontLatchFactory) {
         this.insertIntoFrontLatchFactory = insertIntoFrontLatchFactory;
     }
 
@@ -107,10 +107,10 @@ public class EPStatementHandle implements MetaDefItem, Serializable
 
     /**
      * Returns the factory for latches in insert-into guaranteed order of delivery.
+     *
      * @return latch factory for the statement if it performs insert-into (route) of events
      */
-    public InsertIntoLatchFactory getInsertIntoFrontLatchFactory()
-    {
+    public InsertIntoLatchFactory getInsertIntoFrontLatchFactory() {
         return insertIntoFrontLatchFactory;
     }
 
@@ -120,35 +120,33 @@ public class EPStatementHandle implements MetaDefItem, Serializable
 
     /**
      * Returns true if the statement uses variables, false if not.
+     *
      * @return indicator if variables are used by statement
      */
-    public boolean isHasVariables()
-    {
+    public boolean isHasVariables() {
         return hasVariables;
     }
 
     /**
      * Returns the statement priority.
+     *
      * @return priority, default 0
      */
-    public int getPriority()
-    {
+    public int getPriority() {
         return priority;
     }
 
     /**
      * True for preemptive (drop) statements.
+     *
      * @return preemptive indicator
      */
-    public boolean isPreemptive()
-    {
+    public boolean isPreemptive() {
         return preemptive;
     }
 
-    public boolean equals(Object otherObj)
-    {
-        if (!(otherObj instanceof EPStatementHandle))
-        {
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof EPStatementHandle)) {
             return false;
         }
 
@@ -156,26 +154,25 @@ public class EPStatementHandle implements MetaDefItem, Serializable
         return other.statementId == this.statementId;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return hashCode;
     }
 
     /**
      * Returns true if the statement potentially self-joins amojng the events it processes.
+     *
      * @return true for self-joins possible, false for not possible (most statements)
      */
-    public boolean isCanSelfJoin()
-    {
+    public boolean isCanSelfJoin() {
         return canSelfJoin;
     }
 
     /**
      * Returns handle for metrics reporting.
+     *
      * @return handle for metrics reporting
      */
-    public StatementMetricHandle getMetricsHandle()
-    {
+    public StatementMetricHandle getMetricsHandle() {
         return metricsHandle;
     }
 

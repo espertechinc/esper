@@ -23,38 +23,41 @@ import java.util.Set;
 /**
  * Lookup on an unindexed table returning the full table as matching events.
  */
-public class FullTableScanLookupStrategy implements JoinExecTableLookupStrategy
-{
+public class FullTableScanLookupStrategy implements JoinExecTableLookupStrategy {
     private UnindexedEventTable eventIndex;
 
     /**
      * Ctor.
+     *
      * @param eventIndex - table to use
      */
-    public FullTableScanLookupStrategy(UnindexedEventTable eventIndex)
-    {
+    public FullTableScanLookupStrategy(UnindexedEventTable eventIndex) {
         this.eventIndex = eventIndex;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexJoinLookup(this, eventIndex); }
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, eventIndex);
+        }
         Set<EventBean> result = eventIndex.getEventSet();
-        if (result.isEmpty())
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexJoinLookup(null, null); }
+        if (result.isEmpty()) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aIndexJoinLookup(null, null);
+            }
             return null;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexJoinLookup(result, null); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexJoinLookup(result, null);
+        }
         return result;
     }
 
     /**
      * Returns the associated table.
+     *
      * @return table for lookup.
      */
-    public UnindexedEventTable getEventIndex()
-    {
+    public UnindexedEventTable getEventIndex() {
         return eventIndex;
     }
 

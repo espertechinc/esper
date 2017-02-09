@@ -16,11 +16,10 @@ import java.io.StringWriter;
 /**
  * Clause for creating an expression for use across one or more statements.
  * <p>
- *     Both expressions and scripts can be created using this clause.
+ * Both expressions and scripts can be created using this clause.
  * </p>
  */
-public class CreateExpressionClause implements Serializable
-{
+public class CreateExpressionClause implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private ExpressionDeclaration expressionDeclaration;
@@ -34,6 +33,7 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param expressionDeclaration expression
      */
     public CreateExpressionClause(ExpressionDeclaration expressionDeclaration) {
@@ -42,6 +42,7 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * Ctor.
+     *
      * @param scriptExpression script
      */
     public CreateExpressionClause(ScriptExpression scriptExpression) {
@@ -50,6 +51,7 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * Returns the expression declaration or null if script instead.
+     *
      * @return expression declaration
      */
     public ExpressionDeclaration getExpressionDeclaration() {
@@ -58,6 +60,7 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * Sets the expression declaration or null if script instead.
+     *
      * @param expressionDeclaration expression declaration
      */
     public void setExpressionDeclaration(ExpressionDeclaration expressionDeclaration) {
@@ -66,6 +69,7 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * Returns the script expression or null if declaring an EPL expression.
+     *
      * @return script expression
      */
     public ScriptExpression getScriptExpression() {
@@ -74,6 +78,7 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * Sets the script expression or null if declaring an EPL expression.
+     *
      * @param scriptExpression script expression
      */
     public void setScriptExpression(ScriptExpression scriptExpression) {
@@ -82,15 +87,14 @@ public class CreateExpressionClause implements Serializable
 
     /**
      * EPL output
+     *
      * @param writer to write to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         writer.append("create ");
         if (expressionDeclaration != null) {
             expressionDeclaration.toEPL(writer);
-        }
-        else {
+        } else {
             scriptExpression.toEPL(writer);
         }
     }

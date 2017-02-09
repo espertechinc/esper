@@ -11,15 +11,14 @@
 package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.agg.access.AggregationAccessorSlotPair;
+import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.core.EngineImportService;
 
 /**
  * Aggregation service for use when only first/last/window aggregation functions are used an none other.
  */
-public class AggSvcGroupAllAccessOnlyFactory implements AggregationServiceFactory
-{
+public class AggSvcGroupAllAccessOnlyFactory implements AggregationServiceFactory {
     protected final AggregationAccessorSlotPair[] accessors;
     protected final AggregationStateFactory[] accessAggSpecs;
     protected final boolean isJoin;

@@ -10,14 +10,11 @@
  */
 package com.espertech.esper.client;
 
+import com.espertech.esper.core.service.EPServiceProviderSPI;
 import junit.framework.TestCase;
 
-import com.espertech.esper.core.service.EPServiceProviderSPI;
-
-public class TestEPServiceProviderManager extends TestCase
-{
-    public void testGetInstance()
-    {
+public class TestEPServiceProviderManager extends TestCase {
+    public void testGetInstance() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(true);
 
@@ -51,32 +48,27 @@ public class TestEPServiceProviderManager extends TestCase
         runtimeA3.destroy();
     }
 
-    public void testInvalid()
-    {
+    public void testInvalid() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         configuration.addEventType("x", "xxx.noclass");
 
-        try
-        {
+        try {
             EPServiceProviderManager.getProvider("someURI", configuration);
             fail();
-        }
-        catch (ConfigurationException ex)
-        {
+        } catch (ConfigurationException ex) {
             // Expected
         }
     }
-    
-    public void testDefaultNaming()
-    {
-    	assertEquals("default", EPServiceProviderSPI.DEFAULT_ENGINE_URI__QUALIFIER);
-    	EPServiceProvider epNoArg = EPServiceProviderManager.getDefaultProvider();
-    	EPServiceProvider epDefault = EPServiceProviderManager.getProvider("default");
-    	EPServiceProvider epNull = EPServiceProviderManager.getProvider(null);
-    	
-    	assertTrue(epNoArg == epDefault);
-    	assertTrue(epNull == epDefault);
-    	assertEquals("default", epNull.getURI());
+
+    public void testDefaultNaming() {
+        assertEquals("default", EPServiceProviderSPI.DEFAULT_ENGINE_URI_QUALIFIER);
+        EPServiceProvider epNoArg = EPServiceProviderManager.getDefaultProvider();
+        EPServiceProvider epDefault = EPServiceProviderManager.getProvider("default");
+        EPServiceProvider epNull = EPServiceProviderManager.getProvider(null);
+
+        assertTrue(epNoArg == epDefault);
+        assertTrue(epNull == epDefault);
+        assertEquals("default", epNull.getURI());
     }
 }

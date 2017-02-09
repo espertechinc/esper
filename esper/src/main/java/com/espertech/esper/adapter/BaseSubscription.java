@@ -26,8 +26,7 @@ import java.util.List;
 /**
  * Subscription is a concept for selecting events for processing out of all events available from an engine instance.
  */
-public abstract class BaseSubscription implements Subscription, FilterHandleCallback
-{
+public abstract class BaseSubscription implements Subscription, FilterHandleCallback {
     /**
      * The output adapter to which the subscription applies.
      */
@@ -48,52 +47,46 @@ public abstract class BaseSubscription implements Subscription, FilterHandleCall
     /**
      * Ctor, assigns default name.
      */
-    public BaseSubscription()
-    {
+    public BaseSubscription() {
         subscriptionName = "default";
     }
 
-    public void setSubscriptionName(String subscriptionName)
-    {
+    public void setSubscriptionName(String subscriptionName) {
         this.subscriptionName = subscriptionName;
     }
 
-    public String getSubscriptionName()
-    {
+    public String getSubscriptionName() {
         return subscriptionName;
     }
 
-    public String getEventTypeName()
-    {
+    public String getEventTypeName() {
         return eventTypeName;
     }
 
     /**
      * Set the event type name we are looking for.
+     *
      * @param eventTypeName is a type name
      */
-    public void seteventTypeName(String eventTypeName)
-    {
+    public void seteventTypeName(String eventTypeName) {
         this.eventTypeName = eventTypeName;
     }
 
-    public OutputAdapter getAdapter()
-    {
+    public OutputAdapter getAdapter() {
         return adapter;
     }
 
-    public void registerAdapter(OutputAdapter adapter)
-    {
+    public void registerAdapter(OutputAdapter adapter) {
         this.adapter = adapter;
         registerAdapter(((AdapterSPI) adapter).getEPServiceProvider());
     }
 
     /**
      * Register an adapter.
+     *
      * @param epService engine
      */
-    public void registerAdapter(EPServiceProvider epService)
-    {
+    public void registerAdapter(EPServiceProvider epService) {
         EPServiceProviderSPI spi = (EPServiceProviderSPI) epService;
         EventType eventType = spi.getEventAdapterService().getExistsTypeByName(eventTypeName);
         FilterValueSet fvs = new FilterSpecCompiled(eventType, null, new List[0], null).getValueSet(null, null, null);

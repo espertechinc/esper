@@ -35,8 +35,7 @@ import java.util.Map;
  * When the buffer receives old data (rstream) events it removes the prior events to the rstream events
  * from the buffer the next time it receives a post (not immediatly) to allow queries to the buffer.
  */
-public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAccessByEventNIndex
-{
+public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAccessByEventNIndex {
     private final int priorEventIndex;
     private final Map<EventBean, EventBean> priorEventMap;
     private final RollingEventBuffer newEvents;
@@ -44,32 +43,27 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
 
     /**
      * Ctor.
+     *
      * @param priorEventIndex is the number-of-events prior to the current event we are interested in
      */
-    public PriorEventBufferSingle(int priorEventIndex)
-    {
+    public PriorEventBufferSingle(int priorEventIndex) {
         this.priorEventIndex = priorEventIndex;
         // Construct a rolling buffer of new data for holding max index + 1 (position 1 requires 2 events to keep)
         newEvents = new RollingEventBuffer(priorEventIndex + 1);
         priorEventMap = new HashMap<EventBean, EventBean>();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData) {
         // Remove last old data posted in previous post
-        if (lastOldData != null)
-        {
-            for (int i = 0; i < lastOldData.length; i++)
-            {
+        if (lastOldData != null) {
+            for (int i = 0; i < lastOldData.length; i++) {
                 priorEventMap.remove(lastOldData[i]);
             }
         }
 
         // Post new data to rolling buffer starting with the oldest
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 EventBean newEvent = newData[i];
 
                 // Add new event
@@ -84,13 +78,10 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
         lastOldData = oldData;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData, PriorEventBufferChangeCaptureSingle captureSingle)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData, PriorEventBufferChangeCaptureSingle captureSingle) {
         // Remove last old data posted in previous post
-        if (lastOldData != null)
-        {
-            for (int i = 0; i < lastOldData.length; i++)
-            {
+        if (lastOldData != null) {
+            for (int i = 0; i < lastOldData.length; i++) {
                 EventBean oldDataItem = lastOldData[i];
                 priorEventMap.remove(oldDataItem);
                 captureSingle.removed(oldDataItem);
@@ -98,10 +89,8 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
         }
 
         // Post new data to rolling buffer starting with the oldest
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 EventBean newEvent = newData[i];
 
                 // Add new event
@@ -118,29 +107,24 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
     }
 
     // Users are assigned an index
-    public EventBean getRelativeToEvent(EventBean theEvent, int priorToIndex)
-    {
-        if (priorToIndex != 0)
-        {
+    public EventBean getRelativeToEvent(EventBean theEvent, int priorToIndex) {
+        if (priorToIndex != 0) {
             throw new IllegalArgumentException("Single prior event buffer takes only a given index of zero");
         }
         return priorEventMap.get(theEvent);
     }
 
-    public EventBean getRelativeToEnd(int index)
-    {
+    public EventBean getRelativeToEnd(int index) {
         // No requirement to index from end of current buffer
         return null;
     }
 
-    public Iterator<EventBean> getWindowToEvent()
-    {
+    public Iterator<EventBean> getWindowToEvent() {
         // no requirement for window iterator support
         return null;
     }
 
-    public int getWindowToEventCount()
-    {
+    public int getWindowToEventCount() {
         // no requirement for count support
         return 0;
     }
@@ -157,8 +141,7 @@ public class PriorEventBufferSingle implements ViewUpdatedCollection, RelativeAc
         return newEvents;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         // No action required
     }
 

@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.example.servershell.jms;
 
-import com.espertech.esper.example.servershell.jms.JMSContext;
-
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;

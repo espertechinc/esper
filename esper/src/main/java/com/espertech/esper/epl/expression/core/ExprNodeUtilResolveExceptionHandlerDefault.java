@@ -23,8 +23,7 @@ public class ExprNodeUtilResolveExceptionHandlerDefault implements ExprNodeUtilR
         String message;
         if (configuredAsSingleRow) {
             message = e.getMessage();
-        }
-        else {
+        } else {
             message = "Failed to resolve '" + resolvedExpression + "' to a property, single-row function, aggregation function, script, stream or class name";
         }
         return new ExprValidationException(message, e);

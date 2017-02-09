@@ -10,30 +10,26 @@
  */
 package com.espertech.esper.pattern;
 
-import com.espertech.esper.client.ConfigurationPlugInPatternObject;
 import com.espertech.esper.client.ConfigurationException;
+import com.espertech.esper.client.ConfigurationPlugInPatternObject;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.epl.spec.PatternGuardSpec;
 import com.espertech.esper.epl.spec.PatternObserverSpec;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
-import com.espertech.esper.supportunit.pattern.SupportObserverFactory;
-import com.espertech.esper.supportunit.pattern.SupportGuardFactory;
 import com.espertech.esper.pattern.guard.TimerWithinGuardFactory;
 import com.espertech.esper.pattern.observer.TimerIntervalObserverFactory;
+import com.espertech.esper.supportunit.pattern.SupportGuardFactory;
+import com.espertech.esper.supportunit.pattern.SupportObserverFactory;
 import com.espertech.esper.view.TestViewSupport;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-
 import junit.framework.TestCase;
 
-public class TestPatternObjectResolutionServiceImpl extends TestCase
-{
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestPatternObjectResolutionServiceImpl extends TestCase {
     private PatternObjectResolutionServiceImpl service;
 
-    public void setUp()
-    {
+    public void setUp() {
         List<ConfigurationPlugInPatternObject> init = new ArrayList<ConfigurationPlugInPatternObject>();
         init.add(makeGuardSpec("g", "h", SupportGuardFactory.class.getName()));
         init.add(makeObserverSpec("a", "b", SupportObserverFactory.class.getName()));
@@ -43,16 +39,14 @@ public class TestPatternObjectResolutionServiceImpl extends TestCase
         service = new PatternObjectResolutionServiceImpl(desc);
     }
 
-    public void testMake() throws Exception
-    {
-        assertTrue(service.create(new PatternGuardSpec("g", "h", TestViewSupport.toExprListBean(new Object[] {100}))) instanceof SupportGuardFactory);
-        assertTrue(service.create(new PatternObserverSpec("a", "b", TestViewSupport.toExprListBean(new Object[] {100}))) instanceof SupportObserverFactory);
-        assertTrue(service.create(new PatternGuardSpec("timer", "within", TestViewSupport.toExprListBean(new Object[] {100}))) instanceof TimerWithinGuardFactory);
-        assertTrue(service.create(new PatternObserverSpec("timer", "interval", TestViewSupport.toExprListBean(new Object[] {100}))) instanceof TimerIntervalObserverFactory);
+    public void testMake() throws Exception {
+        assertTrue(service.create(new PatternGuardSpec("g", "h", TestViewSupport.toExprListBean(new Object[]{100}))) instanceof SupportGuardFactory);
+        assertTrue(service.create(new PatternObserverSpec("a", "b", TestViewSupport.toExprListBean(new Object[]{100}))) instanceof SupportObserverFactory);
+        assertTrue(service.create(new PatternGuardSpec("timer", "within", TestViewSupport.toExprListBean(new Object[]{100}))) instanceof TimerWithinGuardFactory);
+        assertTrue(service.create(new PatternObserverSpec("timer", "interval", TestViewSupport.toExprListBean(new Object[]{100}))) instanceof TimerIntervalObserverFactory);
     }
 
-    public void testInvalidConfig()
-    {
+    public void testInvalidConfig() {
         List<ConfigurationPlugInPatternObject> init = new ArrayList<ConfigurationPlugInPatternObject>();
         init.add(makeGuardSpec("x", "y", "a"));
         tryInvalid(init);
@@ -62,34 +56,28 @@ public class TestPatternObjectResolutionServiceImpl extends TestCase
         tryInvalid(init);
     }
 
-    private void tryInvalid(List<ConfigurationPlugInPatternObject> config)
-    {
-        try
-        {
+    private void tryInvalid(List<ConfigurationPlugInPatternObject> config) {
+        try {
             PluggableObjectCollection desc = new PluggableObjectCollection();
             desc.addPatternObjects(config, SupportEngineImportServiceFactory.make());
             service = new PatternObjectResolutionServiceImpl(desc);
             fail();
-        }
-        catch (ConfigurationException ex)
-        {
+        } catch (ConfigurationException ex) {
             // expected
         }
     }
 
 
-    private ConfigurationPlugInPatternObject makeGuardSpec(String namespace, String name, String factory)
-    {
+    private ConfigurationPlugInPatternObject makeGuardSpec(String namespace, String name, String factory) {
         ConfigurationPlugInPatternObject guardSpec = new ConfigurationPlugInPatternObject();
         guardSpec.setNamespace(namespace);
         guardSpec.setName(name);
         guardSpec.setPatternObjectType(ConfigurationPlugInPatternObject.PatternObjectType.GUARD);
         guardSpec.setFactoryClassName(factory);
-        return guardSpec; 
+        return guardSpec;
     }
 
-    private ConfigurationPlugInPatternObject makeObserverSpec(String namespace, String name, String factory)
-    {
+    private ConfigurationPlugInPatternObject makeObserverSpec(String namespace, String name, String factory) {
         ConfigurationPlugInPatternObject obsSpec = new ConfigurationPlugInPatternObject();
         obsSpec.setNamespace(namespace);
         obsSpec.setName(name);

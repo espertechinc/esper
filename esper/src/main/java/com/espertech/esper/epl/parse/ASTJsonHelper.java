@@ -24,23 +24,18 @@ import java.util.Map;
 /**
  * Walker to annotation stuctures.
  */
-public class ASTJsonHelper
-{
-    public static Object walk(CommonTokenStream tokenStream, EsperEPL2GrammarParser.JsonvalueContext node) throws ASTWalkException
-    {
+public class ASTJsonHelper {
+    public static Object walk(CommonTokenStream tokenStream, EsperEPL2GrammarParser.JsonvalueContext node) throws ASTWalkException {
         if (node.constant() != null) {
             EsperEPL2GrammarParser.ConstantContext constCtx = node.constant();
             if (constCtx.stringconstant() != null) {
                 return extractString(constCtx.stringconstant().getText());
-            }
-            else {
+            } else {
                 return ASTConstantHelper.parse(constCtx.getChild(0));
             }
-        }
-        else if (node.jsonobject() != null) {
+        } else if (node.jsonobject() != null) {
             return walkObject(tokenStream, node.jsonobject());
-        }
-        else if (node.jsonarray() != null) {
+        } else if (node.jsonarray() != null) {
             return walkArray(tokenStream, node.jsonarray());
         }
         throw ASTWalkException.from("Encountered unexpected node type in json tree", tokenStream, node);
@@ -73,8 +68,7 @@ public class ASTJsonHelper
         String label;
         if (ctx.stringconstant() != null) {
             label = extractString(ctx.stringconstant().getText());
-        }
-        else {
+        } else {
             label = ctx.keywordAllowedIdent().getText();
         }
         Object value = walk(tokenStream, ctx.jsonvalue());
@@ -91,7 +85,7 @@ public class ASTJsonHelper
             }
             char escapeType = sb.charAt(slashIndex + 1);
             switch (escapeType) {
-                case'u':
+                case 'u':
                     String unicode = extractUnicode(sb, slashIndex);
                     sb.replace(slashIndex, slashIndex + 6, unicode); // backspace
                     break; // back to the loop
@@ -128,7 +122,7 @@ public class ASTJsonHelper
                 default:
                     break;
             }
-            startPoint = slashIndex+1;
+            startPoint = slashIndex + 1;
         }
         sb.deleteCharAt(0);
         sb.deleteCharAt(sb.length() - 1);
@@ -145,8 +139,7 @@ public class ASTJsonHelper
             osw.write(charNum);
             osw.flush();
             result = baos.toString("UTF-8"); // Thanks to Silvester Pozarnik for the tip about adding "UTF-8" here
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw ASTWalkException.from("Failed to obtain for unicode '" + charNum + "'", e);
         }
         return result;

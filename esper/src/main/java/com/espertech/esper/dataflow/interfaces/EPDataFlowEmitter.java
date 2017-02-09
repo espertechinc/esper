@@ -14,6 +14,8 @@ import com.espertech.esper.client.dataflow.EPDataFlowSignal;
 
 public interface EPDataFlowEmitter {
     public void submit(Object object);
+
     public void submitSignal(EPDataFlowSignal signal);
+
     public void submitPort(int portNumber, Object object);
 }

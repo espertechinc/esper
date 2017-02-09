@@ -25,21 +25,18 @@ import java.util.Set;
 /**
  * Index lookup strategy into a poll-based cache result.
  */
-public class HistoricalIndexLookupStrategyInKeywordSingle implements HistoricalIndexLookupStrategy
-{
+public class HistoricalIndexLookupStrategyInKeywordSingle implements HistoricalIndexLookupStrategy {
     private final EventBean[] eventsPerStream;
     private final ExprEvaluator[] evaluators;
     private final int lookupStream;
 
-    public HistoricalIndexLookupStrategyInKeywordSingle(int lookupStream, ExprNode[] expressions)
-    {
+    public HistoricalIndexLookupStrategyInKeywordSingle(int lookupStream, ExprNode[] expressions) {
         this.eventsPerStream = new EventBean[lookupStream + 1];
         this.evaluators = ExprNodeUtility.getEvaluators(expressions);
         this.lookupStream = lookupStream;
     }
 
-    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Iterator<EventBean> lookup(EventBean lookupEvent, EventTable[] indexTable, ExprEvaluatorContext exprEvaluatorContext) {
         PropertyIndexedEventTableSingle table = (PropertyIndexedEventTableSingle) indexTable[0];
         eventsPerStream[lookupStream] = lookupEvent;
 

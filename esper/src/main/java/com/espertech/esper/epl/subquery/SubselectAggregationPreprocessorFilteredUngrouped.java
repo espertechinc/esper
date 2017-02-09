@@ -35,9 +35,9 @@ public class SubselectAggregationPreprocessorFilteredUngrouped extends Subselect
         for (EventBean subselectEvent : matchingEvents) {
             events[0] = subselectEvent;
             Boolean pass = (Boolean) filterExpr.evaluate(events, true, exprEvaluatorContext);
-            if ((pass != null) && (pass)) {
+            if ((pass != null) && pass) {
                 aggregationService.applyEnter(events, null, exprEvaluatorContext);
             }
-        }                
+        }
     }
 }

@@ -33,16 +33,27 @@ public abstract class TableStateInstance {
     protected final EventTableIndexRepository indexRepository = new EventTableIndexRepository();
 
     public abstract Iterable<EventBean> getIterableTableScan();
+
     public abstract void addEvent(EventBean theEvent);
+
     public abstract void deleteEvent(EventBean matchingEvent);
+
     public abstract void clearInstance();
+
     public abstract void destroyInstance();
+
     public abstract void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException;
+
     public abstract String[] getSecondaryIndexes();
+
     public abstract EventTable getIndex(String indexName);
+
     public abstract ObjectArrayBackedEventBean getCreateRowIntoTable(Object groupByKey, ExprEvaluatorContext exprEvaluatorContext);
+
     public abstract Collection<EventBean> getEventCollection();
+
     public abstract int getRowCount();
+
     public abstract AggregationServicePassThru getAggregationServicePassThru();
 
     public void handleRowUpdated(ObjectArrayBackedEventBean row) {

@@ -15,7 +15,7 @@ import com.espertech.esper.epl.rettype.EPTypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
 
 public class ExprDotStaticMethodWrapArrayScalar implements ExprDotStaticMethodWrap {
     private static final Logger log = LoggerFactory.getLogger(ExprDotStaticMethodWrapArrayScalar.class);

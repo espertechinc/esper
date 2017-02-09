@@ -31,19 +31,18 @@ import java.util.*;
  * The group view splits the data in a stream to multiple subviews, based on a key index.
  * The key is one or more fields in the stream. Any view that follows the GROUP view will be executed
  * separately on each subview, one per unique key.
- *
+ * <p>
  * The view takes a single parameter which is the field name returning the key value to group.
- *
+ * <p>
  * This view can, for example, be used to calculate the average price per symbol for a list of symbols.
- *
+ * <p>
  * The view treats its child views and their child views as prototypes. It dynamically instantiates copies
  * of each child view and their child views, and the child view's child views as so on. When there are
  * no more child views or the special merge view is encountered, it ends. The view installs a special merge
  * view unto each leaf child view that merges the value key that was grouped by back into the stream
  * using the group-by field name.
  */
-public class GroupByViewImpl extends ViewSupport implements CloneableView, GroupByView
-{
+public class GroupByViewImpl extends ViewSupport implements CloneableView, GroupByView {
     public final static String VIEWNAME = "Group-By";
 
     private final ExprNode[] criteriaExpressions;
@@ -58,52 +57,49 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
 
     /**
      * Constructor.
-     * @param criteriaExpressions is the fields from which to pull the values to group by
+     *
+     * @param criteriaExpressions  is the fields from which to pull the values to group by
      * @param agentInstanceContext contains required view services
-     * @param criteriaEvaluators evaluators
+     * @param criteriaEvaluators   evaluators
      */
-    public GroupByViewImpl(AgentInstanceViewFactoryChainContext agentInstanceContext, ExprNode[] criteriaExpressions, ExprEvaluator[] criteriaEvaluators)
-    {
+    public GroupByViewImpl(AgentInstanceViewFactoryChainContext agentInstanceContext, ExprNode[] criteriaExpressions, ExprEvaluator[] criteriaEvaluators) {
         this.agentInstanceContext = agentInstanceContext;
         this.criteriaExpressions = criteriaExpressions;
         this.criteriaEvaluators = criteriaEvaluators;
 
         propertyNames = new String[criteriaExpressions.length];
-        for (int i = 0; i < criteriaExpressions.length; i++)
-        {
+        for (int i = 0; i < criteriaExpressions.length; i++) {
             propertyNames[i] = ExprNodeUtility.toExpressionStringMinPrecedenceSafe(criteriaExpressions[i]);
         }
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new GroupByViewImpl(agentInstanceContext, criteriaExpressions, criteriaEvaluators);
     }
 
     /**
      * Returns the field name that provides the key valie by which to group by.
+     *
      * @return field name providing group-by key.
      */
-    public ExprNode[] getCriteriaExpressions()
-    {
+    public ExprNode[] getCriteriaExpressions() {
         return criteriaExpressions;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         // The schema is the parent view's schema
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, "Grouped", newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, "Grouped", newData, oldData);
+        }
 
         // Algorithm for single new event
-        if ((newData != null) && (oldData == null) && (newData.length == 1))
-        {
+        if ((newData != null) && (oldData == null) && (newData.length == 1)) {
             EventBean theEvent = newData[0];
-            EventBean[] newDataToPost = new EventBean[] {theEvent};
+            EventBean[] newDataToPost = new EventBean[]{theEvent};
 
             Object groupByValuesKey = getGroupKey(theEvent);
 
@@ -111,36 +107,28 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
             Object subViews = this.subViewsPerKey.get(groupByValuesKey);
 
             // If this is a new group-by value, the list of subviews is null and we need to make clone sub-views
-            if (subViews == null)
-            {
+            if (subViews == null) {
                 subViews = makeSubViews(this, propertyNames, groupByValuesKey, agentInstanceContext);
                 subViewsPerKey.put(groupByValuesKey, subViews);
             }
 
             updateChildViews(subViews, newDataToPost, null);
-        }
-        else
-        {
+        } else {
             // Algorithm for dispatching multiple events
-            if (newData != null)
-            {
-                for (EventBean newValue : newData)
-                {
+            if (newData != null) {
+                for (EventBean newValue : newData) {
                     handleEvent(newValue, true);
                 }
             }
 
-            if (oldData != null)
-            {
-                for (EventBean oldValue : oldData)
-                {
+            if (oldData != null) {
+                for (EventBean oldValue : oldData) {
                     handleEvent(oldValue, false);
                 }
             }
 
             // Update child views
-            for (Map.Entry<Object, Pair<Object, Object>> entry : groupedEvents.entrySet())
-            {
+            for (Map.Entry<Object, Pair<Object, Object>> entry : groupedEvents.entrySet()) {
                 EventBean[] newEvents = convertToArray(entry.getValue().getFirst());
                 EventBean[] oldEvents = convertToArray(entry.getValue().getSecond());
                 updateChildViews(entry.getKey(), newEvents, oldEvents);
@@ -149,16 +137,16 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
             groupedEvents.clear();
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         throw new UnsupportedOperationException("Cannot iterate over group view, this operation is not supported");
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName() + " groupFieldNames=" + Arrays.toString(criteriaExpressions);
     }
 
@@ -166,18 +154,17 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
      * Instantiate subviews for the given group view and the given key value to group-by.
      * Makes shallow copies of each child view and its subviews up to the merge point.
      * Sets up merge data views for merging the group-by key value back in.
-     * @param groupView is the parent view for which to copy subviews for
-     * @param groupByValues is the key values to group-by
+     *
+     * @param groupView            is the parent view for which to copy subviews for
+     * @param groupByValues        is the key values to group-by
      * @param agentInstanceContext is the view services that sub-views may need
-     * @param propertyNames names of expressions or properties
+     * @param propertyNames        names of expressions or properties
      * @return a single view or a list of views that are copies of the original list, with copied children, with
      * data merge views added to the copied child leaf views.
      */
     public static Object makeSubViews(GroupByView groupView, String[] propertyNames, Object groupByValues,
-                                             AgentInstanceViewFactoryChainContext agentInstanceContext)
-    {
-        if (!groupView.hasViews())
-        {
+                                      AgentInstanceViewFactoryChainContext agentInstanceContext) {
+        if (!groupView.hasViews()) {
             String message = "Unexpected empty list of child nodes for group view";
             log.error(".copySubViews " + message);
             throw new EPException(message);
@@ -186,8 +173,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         Object subviewHolder;
         if (groupView.getViews().length == 1) {
             subviewHolder = copyChildView(groupView, propertyNames, groupByValues, agentInstanceContext, groupView.getViews()[0]);
-        }
-        else {
+        } else {
             // For each child node
             ArrayList<View> subViewList = new ArrayList<View>(4);
             subviewHolder = subViewList;
@@ -249,8 +235,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
                     }
                     removedKeys.add(entry.getKey());
                 }
-            }
-            else if (value instanceof List) {
+            } else if (value instanceof List) {
                 List<View> subviews = (List<View>) value;
                 for (int i = 0; i < subviews.size(); i++) {
                     GroupableView subview = (GroupableView) subviews.get(i);
@@ -283,14 +268,12 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         if (subViews instanceof List) {
             List<View> viewList = (List<View>) subViews;
             ViewSupport.updateChildren(viewList, newData, oldData);
-        }
-        else {
+        } else {
             ((View) subViews).update(newData, oldData);
         }
     }
 
-    private void handleEvent(EventBean theEvent, boolean isNew)
-    {
+    private void handleEvent(EventBean theEvent, boolean isNew) {
         Object groupByValuesKey = getGroupKey(theEvent);
 
         // Get child views that belong to this group-by value combination
@@ -312,22 +295,19 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         // Add event to a child view event list for later child update that includes new and old events
         if (isNew) {
             pair.setFirst(addUpgradeToDequeIfPopulated(pair.getFirst(), theEvent));
-        }
-        else {
+        } else {
             pair.setSecond(addUpgradeToDequeIfPopulated(pair.getSecond(), theEvent));
         }
     }
 
     private static View copyChildView(GroupByView groupView, String[] propertyNames, Object groupByValues, AgentInstanceViewFactoryChainContext agentInstanceContext, View originalChildView) {
-        if (originalChildView instanceof MergeView)
-        {
+        if (originalChildView instanceof MergeView) {
             String message = "Unexpected merge view as child of group-by view";
             log.error(".copySubViews " + message);
             throw new EPException(message);
         }
 
-        if (!(originalChildView instanceof CloneableView))
-        {
+        if (!(originalChildView instanceof CloneableView)) {
             throw new EPException("Unexpected error copying subview " + originalChildView.getClass().getName());
         }
         CloneableView cloneableView = (CloneableView) originalChildView;
@@ -344,16 +324,12 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
     }
 
     private static void copySubViews(ExprNode[] criteriaExpressions, String[] propertyNames, Object groupByValues, View originalView, View copyView,
-                                     AgentInstanceViewFactoryChainContext agentInstanceContext)
-    {
-        for (View subView : originalView.getViews())
-        {
+                                     AgentInstanceViewFactoryChainContext agentInstanceContext) {
+        for (View subView : originalView.getViews()) {
             // Determine if view is our merge view
-            if (subView instanceof MergeViewMarker)
-            {
+            if (subView instanceof MergeViewMarker) {
                 MergeViewMarker mergeView = (MergeViewMarker) subView;
-                if (ExprNodeUtility.deepEquals(mergeView.getGroupFieldNames(), criteriaExpressions))
-                {
+                if (ExprNodeUtility.deepEquals(mergeView.getGroupFieldNames(), criteriaExpressions)) {
                     if (mergeView.getEventType() != copyView.getEventType()) {
                         // We found our merge view - install a new data merge view on top of it
                         AddPropertyValueOptionalView addPropertyView = new AddPropertyValueOptionalView(agentInstanceContext, propertyNames, groupByValues, mergeView.getEventType());
@@ -366,8 +342,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
 
                         // Add a parent view to the single merge view instance
                         mergeView.addParentView(addPropertyView);
-                    }
-                    else {
+                    } else {
                         // Add to the copied parent subview the view merge data view
                         copyView.addView(mergeView);
 
@@ -379,8 +354,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
                 }
             }
 
-            if (!(subView instanceof CloneableView))
-            {
+            if (!(subView instanceof CloneableView)) {
                 throw new EPException("Unexpected error copying subview");
             }
             CloneableView cloneableView = (CloneableView) subView;
@@ -392,16 +366,14 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
         }
     }
 
-    private Object getGroupKey(EventBean theEvent)
-    {
+    private Object getGroupKey(EventBean theEvent) {
         eventsPerStream[0] = theEvent;
         if (criteriaEvaluators.length == 1) {
             return criteriaEvaluators[0].evaluate(eventsPerStream, true, agentInstanceContext);
         }
 
         Object[] values = new Object[criteriaEvaluators.length];
-        for (int i = 0; i < criteriaEvaluators.length; i++)
-        {
+        for (int i = 0; i < criteriaEvaluators.length; i++) {
             values[i] = criteriaEvaluators[i].evaluate(eventsPerStream, true, agentInstanceContext);
         }
         return new MultiKeyUntyped(values);
@@ -410,15 +382,13 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
     protected static Object addUpgradeToDequeIfPopulated(Object holder, EventBean theEvent) {
         if (holder == null) {
             return theEvent;
-        }
-        else if (holder instanceof Deque) {
+        } else if (holder instanceof Deque) {
             Deque<EventBean> deque = (Deque<EventBean>) holder;
             deque.add(theEvent);
             return deque;
-        }
-        else {
+        } else {
             ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(4);
-            deque.add((EventBean)holder);
+            deque.add((EventBean) holder);
             deque.add(theEvent);
             return deque;
         }
@@ -429,7 +399,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
             return null;
         }
         if (eventOrDeque instanceof EventBean) {
-            return new EventBean[] {(EventBean) eventOrDeque};
+            return new EventBean[]{(EventBean) eventOrDeque};
         }
         return EventBeanUtility.toArray((ArrayDeque<EventBean>) eventOrDeque);
     }

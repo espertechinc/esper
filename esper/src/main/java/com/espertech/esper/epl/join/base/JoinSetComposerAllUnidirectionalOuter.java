@@ -15,21 +15,16 @@ import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoadIndexVisitor;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.join.plan.TableLookupIndexReqKey;
-import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Implements the function to determine a join result for a all-unidirectional full-outer-join (all streams),
  * in which a single stream's events are ever only evaluated and repositories don't exist.
  */
-public class JoinSetComposerAllUnidirectionalOuter implements JoinSetComposer
-{
+public class JoinSetComposerAllUnidirectionalOuter implements JoinSetComposer {
     private final QueryStrategy[] queryStrategies;
 
     private Set<MultiKey<EventBean>> emptyResults = new LinkedHashSet<MultiKey<EventBean>>();
@@ -43,33 +38,34 @@ public class JoinSetComposerAllUnidirectionalOuter implements JoinSetComposer
         return false;
     }
 
-    public void init(EventBean[][] eventsPerStream)
-    {
+    public void init(EventBean[][] eventsPerStream) {
     }
 
-    public void destroy()
-    {
+    public void destroy() {
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionStreamToWin();}
+    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qJoinCompositionStreamToWin();
+        }
         newResults.clear();
 
         for (int i = 0; i < queryStrategies.length; i++) {
-            if (newDataPerStream[i] != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qJoinCompositionQueryStrategy(true, i, newDataPerStream[i]);}
+            if (newDataPerStream[i] != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qJoinCompositionQueryStrategy(true, i, newDataPerStream[i]);
+                }
                 queryStrategies[i].lookup(newDataPerStream[i], newResults, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aJoinCompositionQueryStrategy();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aJoinCompositionQueryStrategy();
+                }
             }
         }
 
         return new UniformPair<>(newResults, emptyResults);
     }
 
-    public Set<MultiKey<EventBean>> staticJoin()
-    {
+    public Set<MultiKey<EventBean>> staticJoin() {
         throw new UnsupportedOperationException("Iteration over a unidirectional join is not supported");
     }
 

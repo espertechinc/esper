@@ -13,10 +13,8 @@ package com.espertech.esper.epl.agg;
 import com.espertech.esper.epl.agg.aggregator.AggregatorAvedev;
 import junit.framework.TestCase;
 
-public class TestAvedevAggregator extends TestCase
-{
-    public void testAggregateFunction()
-    {
+public class TestAvedevAggregator extends TestCase {
+    public void testAggregateFunction() {
         AggregatorAvedev agg = new AggregatorAvedev();
 
         assertNull(agg.getValue());
@@ -28,7 +26,7 @@ public class TestAvedevAggregator extends TestCase
         assertEquals(2D, agg.getValue());
 
         agg.enter(70);
-        double result = (Double)agg.getValue();
+        double result = (Double) agg.getValue();
         assertEquals("4.4444", Double.toString(result).substring(0, 6));
 
         agg.enter(58);
@@ -41,7 +39,7 @@ public class TestAvedevAggregator extends TestCase
         assertEquals(12D, agg.getValue());
 
         agg.leave(58);
-        result = (Double)agg.getValue();
+        result = (Double) agg.getValue();
         assertEquals("14.2222", Double.toString(result).substring(0, 7));
     }
 

@@ -16,8 +16,7 @@ import com.espertech.esper.view.window.RandomAccessByIndex;
 /**
  * Represents the 'prior' prior event function in an expression node tree.
  */
-public class ExprPriorEvalStrategyRandomAccess extends ExprPriorEvalStrategyBase
-{
+public class ExprPriorEvalStrategyRandomAccess extends ExprPriorEvalStrategyBase {
     private final transient RandomAccessByIndex randomAccess;
 
     public ExprPriorEvalStrategyRandomAccess(RandomAccessByIndex randomAccess) {
@@ -25,12 +24,9 @@ public class ExprPriorEvalStrategyRandomAccess extends ExprPriorEvalStrategyBase
     }
 
     public EventBean getSubstituteEvent(EventBean originalEvent, boolean isNewData, int constantIndexNumber) {
-        if (isNewData)
-        {
+        if (isNewData) {
             return randomAccess.getNewData(constantIndexNumber);
-        }
-        else
-        {
+        } else {
             return randomAccess.getOldData(constantIndexNumber);
         }
     }

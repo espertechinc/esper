@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.expression.time;
 
-public class ExprTimePeriodEvalDeltaResult
-{
+public class ExprTimePeriodEvalDeltaResult {
     private final long delta;
     private final long lastReference;
 

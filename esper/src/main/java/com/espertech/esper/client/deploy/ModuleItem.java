@@ -28,14 +28,14 @@ public class ModuleItem implements Serializable {
 
     /**
      * Ctor.
-     * @param expression EPL
-     * @param commentOnly true if the statement consists only of comments or whitespace
-     * @param lineNumber line number
+     *
+     * @param expression   EPL
+     * @param commentOnly  true if the statement consists only of comments or whitespace
+     * @param lineNumber   line number
      * @param charPosStart character position of start of segment
-     * @param charPosEnd character position of end of segment
+     * @param charPosEnd   character position of end of segment
      */
-    public ModuleItem(String expression, boolean commentOnly, int lineNumber, int charPosStart, int charPosEnd)
-    {
+    public ModuleItem(String expression, boolean commentOnly, int lineNumber, int charPosStart, int charPosEnd) {
         this.expression = expression;
         this.commentOnly = commentOnly;
         this.lineNumber = lineNumber;
@@ -45,6 +45,7 @@ public class ModuleItem implements Serializable {
 
     /**
      * Returns the EPL.
+     *
      * @return expression
      */
     public String getExpression() {
@@ -53,6 +54,7 @@ public class ModuleItem implements Serializable {
 
     /**
      * Sets the EPL.
+     *
      * @param expression to set
      */
     public void setExpression(String expression) {
@@ -61,6 +63,7 @@ public class ModuleItem implements Serializable {
 
     /**
      * Returns true to indicate comments-only expression.
+     *
      * @return comments-only indicator
      */
     public boolean isCommentOnly() {
@@ -69,6 +72,7 @@ public class ModuleItem implements Serializable {
 
     /**
      * Set true to indicate comments-only expression.
+     *
      * @param commentOnly comments-only indicator
      */
     public void setCommentOnly(boolean commentOnly) {
@@ -77,55 +81,55 @@ public class ModuleItem implements Serializable {
 
     /**
      * Returns the line number of item.
+     *
      * @return item line num
      */
-    public int getLineNumber()
-    {
+    public int getLineNumber() {
         return lineNumber;
     }
 
     /**
      * Sets item line num
+     *
      * @param lineNumber to set
      */
-    public void setLineNumber(int lineNumber)
-    {
+    public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
 
     /**
      * Returns item char position in line.
+     *
      * @return char position
      */
-    public int getCharPosStart()
-    {
+    public int getCharPosStart() {
         return charPosStart;
     }
 
     /**
      * Sets item char position in line.
+     *
      * @param charPosStart char position
      */
-    public void setCharPosStart(int charPosStart)
-    {
+    public void setCharPosStart(int charPosStart) {
         this.charPosStart = charPosStart;
     }
 
     /**
      * Returns end position of character on line for the item.
+     *
      * @return position
      */
-    public int getCharPosEnd()
-    {
+    public int getCharPosEnd() {
         return charPosEnd;
     }
 
     /**
      * Sets the end position of character on line for the item.
+     *
      * @param charPosEnd position
      */
-    public void setCharPosEnd(int charPosEnd)
-    {
+    public void setCharPosEnd(int charPosEnd) {
         this.charPosEnd = charPosEnd;
     }
 }

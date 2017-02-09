@@ -72,8 +72,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
         EventBean[] eventsPerStream = new EventBean[3];
         if (events == null) {
             update.getTableUpdateStrategy().updateTable(instance.getEventCollection(), instance, eventsPerStream, instance.getAgentInstanceContext());
-        }
-        else {
+        } else {
             update.getTableUpdateStrategy().updateTable(events, instance, eventsPerStream, instance.getAgentInstanceContext());
         }
         return CollectionUtil.EVENTBEANARRAY_EMPTY;
@@ -108,8 +107,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
         ArrayDeque<EventBean> deque = new ArrayDeque<EventBean>(sourceCollection.size());
         if (filterExpr != null) {
             ExprNodeUtility.applyFilterExpressionIterable(sourceCollection.iterator(), filterExpr.getExprEvaluator(), agentInstanceContext, deque);
-        }
-        else {
+        } else {
             while (it.hasNext()) {
                 deque.add(it.next());
             }

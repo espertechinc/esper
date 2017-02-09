@@ -112,8 +112,8 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI {
     public void postInitialize() {
         // plugin-loaders
         List<ConfigurationPluginLoader> pluginLoaders = engine.getServices().getConfigSnapshot().getPluginLoaders();
-        for (ConfigurationPluginLoader config : pluginLoaders)  // in the order configured
-        {
+        // in the order configured
+        for (ConfigurationPluginLoader config : pluginLoaders) {
             try {
                 PluginLoader plugin = (PluginLoader) engine.getServices().getEngineEnvContext().lookup("plugin-loader/" + config.getLoaderName());
                 plugin.postInitialize();

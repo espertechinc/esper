@@ -31,14 +31,14 @@ public class RealizationFactoryInterface {
     private static final Logger log = LoggerFactory.getLogger(RealizationFactoryInterface.class);
 
     public static DataflowStartDesc realize(String dataFlowName,
-                                         Map<Integer, Object> operators,
-                                         Map<Integer, OperatorMetadataDescriptor> operatorMetadata,
-                                         Set<Integer> operatorBuildOrder,
-                                         List<LogicalChannelBinding> bindings,
-                                         DataFlowSignalManager dataFlowSignalManager,
-                                         EPDataFlowInstantiationOptions options,
-                                         EPServicesContext services,
-                                         StatementContext statementContext) {
+                                            Map<Integer, Object> operators,
+                                            Map<Integer, OperatorMetadataDescriptor> operatorMetadata,
+                                            Set<Integer> operatorBuildOrder,
+                                            List<LogicalChannelBinding> bindings,
+                                            DataFlowSignalManager dataFlowSignalManager,
+                                            EPDataFlowInstantiationOptions options,
+                                            EPServicesContext services,
+                                            StatementContext statementContext) {
 
 
         // First pass: inject runtime context
@@ -54,7 +54,7 @@ public class RealizationFactoryInterface {
             if (log.isDebugEnabled()) {
                 log.debug("Generating runtime context for " + operatorPrettyPrint);
             }
-            
+
             // determine the number of output streams
             Object producingOp = operators.get(producerOpNum);
             int numOutputStreams = operatorMetadata.get(producerOpNum).getOperatorSpec().getOutput().getItems().size();
@@ -113,7 +113,7 @@ public class RealizationFactoryInterface {
         for (int i = 0; i < numOutputStreams; i++) {
             submitTargets[i] = new ArrayList<ObjectBindingPair>();
         }
-        
+
         for (LogicalChannelBinding binding : channelsForProducer) {
             int consumingOp = binding.getLogicalChannel().getConsumingOpNum();
             Object operator = operators.get(consumingOp);
@@ -128,16 +128,13 @@ public class RealizationFactoryInterface {
     private static SignalHandler getSignalHandler(int producerNum, Object target, LogicalChannelBindingMethodDesc consumingSignalBindingDesc, EngineImportService engineImportService) {
         if (consumingSignalBindingDesc == null) {
             return SignalHandlerDefault.INSTANCE;
-        }
-        else {
+        } else {
             if (consumingSignalBindingDesc.getBindingType() instanceof LogicalChannelBindingTypePassAlong) {
                 return new SignalHandlerDefaultWInvoke(target, consumingSignalBindingDesc.getMethod(), engineImportService);
-            }
-            else if (consumingSignalBindingDesc.getBindingType() instanceof LogicalChannelBindingTypePassAlongWStream) {
+            } else if (consumingSignalBindingDesc.getBindingType() instanceof LogicalChannelBindingTypePassAlongWStream) {
                 LogicalChannelBindingTypePassAlongWStream streamInfo = (LogicalChannelBindingTypePassAlongWStream) consumingSignalBindingDesc.getBindingType();
                 return new SignalHandlerDefaultWInvokeStream(target, consumingSignalBindingDesc.getMethod(), engineImportService, streamInfo.getStreamNum());
-            }
-            else {
+            } else {
                 throw new IllegalStateException("Unrecognized signal binding: " + consumingSignalBindingDesc.getBindingType());
             }
         }
@@ -154,15 +151,12 @@ public class RealizationFactoryInterface {
         LogicalChannelBindingType bindingType = target.getBinding().getConsumingBindingDesc().getBindingType();
         if (bindingType instanceof LogicalChannelBindingTypePassAlong) {
             return new EPDataFlowEmitter1Stream1TargetPassAlong(producerOpNum, dataFlowSignalManager, signalHandler, exceptionHandler, target, engineImportService);
-        }
-        else if (bindingType instanceof LogicalChannelBindingTypePassAlongWStream) {
+        } else if (bindingType instanceof LogicalChannelBindingTypePassAlongWStream) {
             LogicalChannelBindingTypePassAlongWStream type = (LogicalChannelBindingTypePassAlongWStream) bindingType;
             return new EPDataFlowEmitter1Stream1TargetPassAlongWStream(producerOpNum, dataFlowSignalManager, signalHandler, exceptionHandler, target, type.getStreamNum(), engineImportService);
-        }
-        else if (bindingType instanceof LogicalChannelBindingTypeUnwind) {
+        } else if (bindingType instanceof LogicalChannelBindingTypeUnwind) {
             return new EPDataFlowEmitter1Stream1TargetUnwind(producerOpNum, dataFlowSignalManager, signalHandler, exceptionHandler, target, engineImportService);
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Unsupported binding type '" + bindingType + "'");
         }
     }
@@ -197,9 +191,8 @@ public class RealizationFactoryInterface {
                 handlers[i] = getSubmitHandler(engineURI, statementName, audit, dataflowName, producerOpNum, operatorPrettyPrint, dataFlowSignalManager, targets.get(i), options.getExceptionHandler(), engineImportService);
             }
             return new EPDataFlowEmitter1StreamNTarget(producerOpNum, dataFlowSignalManager, handlers);
-        }
-        // handle multi-stream case
-        else {
+        } else {
+            // handle multi-stream case
             SubmitHandler[][] handlersPerStream = new SubmitHandler[targetsPerStream.length][];
             for (int streamNum = 0; streamNum < targetsPerStream.length; streamNum++) {
                 SubmitHandler[] handlers = new SubmitHandler[targetsPerStream[streamNum].size()];

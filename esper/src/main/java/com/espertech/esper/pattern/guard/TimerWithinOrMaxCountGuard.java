@@ -21,8 +21,7 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
  * and also keeps a count of the number of matches so far, checking both count and timer,
  * letting all {@link com.espertech.esper.pattern.MatchedEventMap} instances pass until then.
  */
-public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
-{
+public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback {
     private final long deltaTime;
     private final int numCountTo;
     private final Quitable quitable;
@@ -34,9 +33,10 @@ public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
 
     /**
      * Ctor.
-     * @param deltaTime - number of millisecond to guard expiration
+     *
+     * @param deltaTime  - number of millisecond to guard expiration
      * @param numCountTo - max number of counts
-     * @param quitable - to use to indicate that the gaurd quitted
+     * @param quitable   - to use to indicate that the gaurd quitted
      */
     public TimerWithinOrMaxCountGuard(long deltaTime, int numCountTo, Quitable quitable) {
         this.deltaTime = deltaTime;
@@ -73,11 +73,15 @@ public class TimerWithinOrMaxCountGuard implements Guard, ScheduleHandleCallback
     }
 
     public void scheduledTrigger(EngineLevelExtensionServicesContext engineLevelExtensionServicesContext) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qPatternGuardScheduledEval();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qPatternGuardScheduledEval();
+        }
         // Timer callback is automatically removed when triggering
         isTimerActive = false;
         quitable.guardQuit();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aPatternGuardScheduledEval();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aPatternGuardScheduledEval();
+        }
     }
 
     public void accept(EventGuardVisitor visitor) {

@@ -11,25 +11,21 @@
 package com.espertech.esper.filter;
 
 import junit.framework.TestCase;
-
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestFilterSpecParamComparator extends TestCase
-{
+import java.util.Arrays;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+public class TestFilterSpecParamComparator extends TestCase {
     private FilterSpecParamComparator comparator;
 
-    public void setUp()
-    {
+    public void setUp() {
         comparator = new FilterSpecParamComparator();
     }
 
-    public void testCompareOneByOne()
-    {
+    public void testCompareOneByOne() {
         FilterOperator param1 = FilterOperator.EQUAL;
         FilterOperator param4 = FilterOperator.RANGE_CLOSED;
         FilterOperator param7 = FilterOperator.GREATER;
@@ -65,12 +61,10 @@ public class TestFilterSpecParamComparator extends TestCase
         assertTrue(comparator.compare(param11, param8) == -1);
     }
 
-    public void testCompareAll()
-    {
+    public void testCompareAll() {
         SortedSet<FilterOperator> sorted = new TreeSet<FilterOperator>(comparator);
 
-        for (int i = 0; i < FilterOperator.values().length; i++)
-        {
+        for (int i = 0; i < FilterOperator.values().length; i++) {
             FilterOperator op = FilterOperator.values()[i];
             sorted.add(op);
         }

@@ -1,10 +1,10 @@
 package com.espertech.esperio.http.core;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.Map;
 import java.util.LinkedHashMap;
-import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 public class URIUtil {
 

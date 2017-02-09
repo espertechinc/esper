@@ -20,8 +20,7 @@ import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.lang.annotation.Annotation;
 
-public class EPPreparedExecuteIUDSingleStreamExecUpdate implements EPPreparedExecuteIUDSingleStreamExec
-{
+public class EPPreparedExecuteIUDSingleStreamExecUpdate implements EPPreparedExecuteIUDSingleStreamExec {
     private final FilterSpecCompiled filter;
     private final ExprNode optionalWhereClause;
     private final Annotation[] annotations;

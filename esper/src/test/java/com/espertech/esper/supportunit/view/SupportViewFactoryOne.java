@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportunit.view;
 
-public class SupportViewFactoryOne extends SupportViewFactory 
-{
+public class SupportViewFactoryOne extends SupportViewFactory {
     public String getViewName() {
         return "support";
     }

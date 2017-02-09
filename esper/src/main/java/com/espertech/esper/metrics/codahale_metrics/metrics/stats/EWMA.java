@@ -31,9 +31,9 @@ import static java.lang.Math.exp;
  * An exponentially-weighted moving average.
  *
  * @see <a href="http://www.teamquest.com/pdfs/whitepaper/ldavg1.pdf">UNIX Load Average Part 1: How
- *      It Works</a>
+ * It Works</a>
  * @see <a href="http://www.teamquest.com/pdfs/whitepaper/ldavg2.pdf">UNIX Load Average Part 2: Not
- *      Your Average Average</a>
+ * Your Average Average</a>
  */
 public class EWMA {
     private static final int INTERVAL = 5;
@@ -109,7 +109,7 @@ public class EWMA {
         final long count = uncounted.getAndSet(0);
         final double instantRate = count / interval;
         if (initialized) {
-            rate += (alpha * (instantRate - rate));
+            rate += alpha * (instantRate - rate);
         } else {
             rate = instantRate;
             initialized = true;

@@ -15,8 +15,7 @@ import java.io.StringWriter;
 /**
  * Part of a select-clause to describe individual select-clause expressions.
  */
-public class SelectClauseExpression implements SelectClauseElement
-{
+public class SelectClauseExpression implements SelectClauseElement {
     private static final long serialVersionUID = 0L;
 
     private Expression expression;
@@ -31,62 +30,63 @@ public class SelectClauseExpression implements SelectClauseElement
 
     /**
      * Ctor.
+     *
      * @param expression is the selection expression
      */
-    public SelectClauseExpression(Expression expression)
-    {
+    public SelectClauseExpression(Expression expression) {
         this.expression = expression;
     }
 
     /**
      * Ctor.
-     * @param expression is the selection expression
+     *
+     * @param expression     is the selection expression
      * @param optionalAsName is the "as"-tag for the expression
      */
-    public SelectClauseExpression(Expression expression, String optionalAsName)
-    {
+    public SelectClauseExpression(Expression expression, String optionalAsName) {
         this.expression = expression;
         this.asName = optionalAsName;
     }
 
     /**
      * Returns the selection expression.
+     *
      * @return expression
      */
-    public Expression getExpression()
-    {
+    public Expression getExpression() {
         return expression;
     }
 
     /**
      * Sets the selection expression.
+     *
      * @param expression is the selection expression
      */
-    public void setExpression(Expression expression)
-    {
+    public void setExpression(Expression expression) {
         this.expression = expression;
     }
 
     /**
      * Returns the optional "as"-name of the expression, or null if not defined
+     *
      * @return tag or null for selection expression
      */
-    public String getAsName()
-    {
+    public String getAsName() {
         return asName;
     }
 
     /**
      * Sets the optional "as"-name of the expression, or null if not defined
+     *
      * @param asName column name or null for selection expression
      */
-    public void setAsName(String asName)
-    {
+    public void setAsName(String asName) {
         this.asName = asName;
     }
 
     /**
      * Returns indicator whether annotated as "@eventbean"
+     *
      * @return "@eventbean" indicator
      */
     public boolean isAnnotatedByEventFlag() {
@@ -95,6 +95,7 @@ public class SelectClauseExpression implements SelectClauseElement
 
     /**
      * Sets indicator whether annotated as "@eventbean"
+     *
      * @param annotatedByEventFlag "@eventbean" indicator
      */
     public void setAnnotatedByEventFlag(boolean annotatedByEventFlag) {
@@ -103,16 +104,15 @@ public class SelectClauseExpression implements SelectClauseElement
 
     /**
      * Renders the element in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPLElement(StringWriter writer)
-    {
+    public void toEPLElement(StringWriter writer) {
         expression.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         if (annotatedByEventFlag) {
             writer.write(" @eventbean");
         }
-        if (asName != null)
-        {
+        if (asName != null) {
             writer.write(" as ");
             writer.write(asName);
         }

@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Strategy for building an index out of poll-results knowing the properties to base the index on.
  */
-public class PollResultIndexingStrategyComposite implements PollResultIndexingStrategy
-{
+public class PollResultIndexingStrategyComposite implements PollResultIndexingStrategy {
     private final int streamNum;
     private final EventType eventType;
     private final String[] indexPropertiesJoin;
@@ -33,8 +32,7 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
     private final String[] rangePropertiesJoin;
     private final Class[] rangeCoercionTypes;
 
-    public PollResultIndexingStrategyComposite(int streamNum, EventType eventType, String[] indexPropertiesJoin, Class[] keyCoercionTypes, String[] rangePropertiesJoin, Class[] rangeCoercionTypes)
-    {
+    public PollResultIndexingStrategyComposite(int streamNum, EventType eventType, String[] indexPropertiesJoin, Class[] keyCoercionTypes, String[] rangePropertiesJoin, Class[] rangeCoercionTypes) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.keyCoercionTypes = keyCoercionTypes;
@@ -43,10 +41,8 @@ public class PollResultIndexingStrategyComposite implements PollResultIndexingSt
         this.rangeCoercionTypes = rangeCoercionTypes;
     }
 
-    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext)
-    {
-        if (!isActiveCache)
-        {
+    public EventTable[] index(List<EventBean> pollResult, boolean isActiveCache, StatementContext statementContext) {
+        if (!isActiveCache) {
             return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
         PropertyCompositeEventTableFactory factory = new PropertyCompositeEventTableFactory(streamNum, eventType, indexPropertiesJoin, keyCoercionTypes, rangePropertiesJoin, rangeCoercionTypes);

@@ -35,13 +35,11 @@ public class ExprTableEvalStrategyUtil {
             if (entry.getValue() instanceof TableMetadataColumnPlain) {
                 TableMetadataColumnPlain plain = (TableMetadataColumnPlain) entry.getValue();
                 cols.put(entry.getKey(), event.getProperties()[plain.getIndexPlain()]);
-            }
-            else {
+            } else {
                 TableMetadataColumnAggregation aggcol = (TableMetadataColumnAggregation) entry.getValue();
                 if (!aggcol.getFactory().isAccessAggregation()) {
                     cols.put(entry.getKey(), row.getMethods()[aggcol.getMethodOffset()].getValue());
-                }
-                else {
+                } else {
                     AggregationAccessorSlotPair pair = aggcol.getAccessAccessorSlotPair();
                     Object value = pair.getAccessor().getValue(row.getStates()[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
                     cols.put(entry.getKey(), value);
@@ -63,13 +61,11 @@ public class ExprTableEvalStrategyUtil {
             if (entry.getValue() instanceof TableMetadataColumnPlain) {
                 TableMetadataColumnPlain plain = (TableMetadataColumnPlain) entry.getValue();
                 values[count] = event.getProperties()[plain.getIndexPlain()];
-            }
-            else {
+            } else {
                 TableMetadataColumnAggregation aggcol = (TableMetadataColumnAggregation) entry.getValue();
                 if (!aggcol.getFactory().isAccessAggregation()) {
                     values[count] = row.getMethods()[aggcol.getMethodOffset()].getValue();
-                }
-                else {
+                } else {
                     AggregationAccessorSlotPair pair = aggcol.getAccessAccessorSlotPair();
                     values[count] = pair.getAccessor().getValue(row.getStates()[pair.getSlot()], eventsPerStream, isNewData, exprEvaluatorContext);
                 }

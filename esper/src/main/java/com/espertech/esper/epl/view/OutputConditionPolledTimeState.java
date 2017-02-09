@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.epl.view;
 
-public final class OutputConditionPolledTimeState implements OutputConditionPolledState
-{
+public final class OutputConditionPolledTimeState implements OutputConditionPolledState {
     private Long lastUpdate;
 
     public OutputConditionPolledTimeState(Long lastUpdate) {

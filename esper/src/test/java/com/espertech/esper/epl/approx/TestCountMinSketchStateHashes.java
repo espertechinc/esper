@@ -8,6 +8,7 @@ package com.espertech.esper.epl.approx;/*
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
+
 import com.espertech.esper.util.MurmurHash;
 import junit.framework.TestCase;
 
@@ -51,8 +52,7 @@ public class TestCountMinSketchStateHashes extends TestCase {
             ByteBuffer bytes;
             if (randomized) {
                 bytes = TestCountMinSketchStateTopK.generateBytesRandom(random, space);
-            }
-            else {
+            } else {
                 bytes = TestCountMinSketchStateTopK.generateBytesModulo(i, space);
             }
             state.add(bytes.array(), 1);
@@ -60,8 +60,7 @@ public class TestCountMinSketchStateHashes extends TestCase {
             Long count = sent.get(bytes);
             if (count == null) {
                 sent.put(bytes, 1L);
-            }
-            else {
+            } else {
                 sent.put(bytes, count + 1);
             }
 
@@ -88,7 +87,7 @@ public class TestCountMinSketchStateHashes extends TestCase {
         final int measureLoopCount = 1; // 1000000000;
 
         // init
-        String[] texts = new String[] {"joe", "melissa", "townhall", "ballpark", "trial-by-error", "house", "teamwork", "recommendation", "partial", "soccer ball"};
+        String[] texts = new String[]{"joe", "melissa", "townhall", "ballpark", "trial-by-error", "house", "teamwork", "recommendation", "partial", "soccer ball"};
         byte[][] bytes = new byte[texts.length][];
         for (int i = 0; i < texts.length; i++) {
             bytes[i] = texts[i].getBytes();

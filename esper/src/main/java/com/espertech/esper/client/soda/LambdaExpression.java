@@ -20,8 +20,7 @@ import java.util.List;
  * <p>
  * Used with expression declaration and with enumeration methods, for example, to parameterize by an expression.
  */
-public class LambdaExpression extends ExpressionBase
-{
+public class LambdaExpression extends ExpressionBase {
     private static final long serialVersionUID = 353451331713297154L;
 
     private List<String> parameters;
@@ -34,6 +33,7 @@ public class LambdaExpression extends ExpressionBase
 
     /**
      * Ctor.
+     *
      * @param parameters the lambda expression parameters
      */
     public LambdaExpression(List<String> parameters) {
@@ -42,6 +42,7 @@ public class LambdaExpression extends ExpressionBase
 
     /**
      * Returns the lambda expression parameters.
+     *
      * @return lambda expression parameters
      */
     public List<String> getParameters() {
@@ -50,6 +51,7 @@ public class LambdaExpression extends ExpressionBase
 
     /**
      * Sets the lambda expression parameters.
+     *
      * @param parameters lambda expression parameters
      */
     public void setParameters(List<String> parameters) {
@@ -70,8 +72,7 @@ public class LambdaExpression extends ExpressionBase
                 delimiter = ",";
             }
             writer.append(")");
-        }
-        else {
+        } else {
             writer.append(parameters.get(0));
         }
         writer.append(" => ");

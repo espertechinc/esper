@@ -19,32 +19,26 @@ import java.io.StringWriter;
 /**
  * Represents the EXISTS(property) function in an expression tree.
  */
-public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluator {
     private ExprIdentNode identNode;
     private static final long serialVersionUID = -6304444201237275628L;
 
     /**
      * Ctor.
      */
-    public ExprPropertyExistsNode()
-    {
+    public ExprPropertyExistsNode() {
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 1)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 1) {
             throw new ExprValidationException("Exists function node must have exactly 1 child node");
         }
 
-        if (!(this.getChildNodes()[0] instanceof ExprIdentNode))
-        {
+        if (!(this.getChildNodes()[0] instanceof ExprIdentNode)) {
             throw new ExprValidationException("Exists function expects an property value expression as the child node");
         }
 
@@ -52,21 +46,22 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Boolean.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprPropExists(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprPropExists(this);
+        }
         boolean exists = identNode.getExprEvaluatorIdent().evaluatePropertyExists(eventsPerStream, isNewData);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprPropExists(exists);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprPropExists(exists);
+        }
         return exists;
     }
 
@@ -80,10 +75,8 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprPropertyExistsNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprPropertyExistsNode)) {
             return false;
         }
 

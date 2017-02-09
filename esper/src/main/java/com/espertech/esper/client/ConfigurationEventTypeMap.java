@@ -10,15 +10,9 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.util.MetaDefItem;
-
-import java.io.Serializable;
-import java.util.*;
-
 /**
  * Configuration object for Map-based event types.
  */
-public class ConfigurationEventTypeMap extends ConfigurationEventTypeWithSupertype
-{
+public class ConfigurationEventTypeMap extends ConfigurationEventTypeWithSupertype {
     private static final long serialVersionUID = 7908506327712155191L;
 }

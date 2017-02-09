@@ -23,8 +23,7 @@ import java.util.List;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordCompositeTableLookupStrategyFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordCompositeTableLookupStrategyFactory implements SubordTableLookupStrategyFactory {
     private final CompositeIndexQuery innerIndexQuery;
     private final Collection<SubordPropRangeKey> rangeDescs;
     private final LookupStrategyDesc strategyDesc;

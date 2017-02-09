@@ -17,8 +17,7 @@ import com.espertech.esper.event.EventAdapterService;
 /**
  * Getter for map entry.
  */
-public class MapPropertyGetterDefaultObjectArray extends MapPropertyGetterDefaultBase
-{
+public class MapPropertyGetterDefaultObjectArray extends MapPropertyGetterDefaultBase {
     public MapPropertyGetterDefaultObjectArray(String propertyName, EventType fragmentEventType, EventAdapterService eventAdapterService) {
         super(propertyName, fragmentEventType, eventAdapterService);
     }

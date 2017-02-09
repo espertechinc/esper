@@ -15,11 +15,11 @@ import com.espertech.esper.client.EventBean;
 /**
  * Interface for writing a set of event properties to an event.
  */
-public interface EventBeanWriter
-{
+public interface EventBeanWriter {
     /**
      * Write property values to the event.
-     * @param values to write
+     *
+     * @param values   to write
      * @param theEvent to write to
      */
     public void write(Object[] values, EventBean theEvent);

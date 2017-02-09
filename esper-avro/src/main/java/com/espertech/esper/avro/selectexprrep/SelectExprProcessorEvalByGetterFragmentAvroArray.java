@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.avro.selectexprrep;
 
-import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -18,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Arrays;
 
-public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEvaluator
-{
+public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEvaluator {
     private final int streamNum;
     private final EventPropertyGetter getter;
     private final Class returnType;
@@ -30,8 +28,7 @@ public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEva
         this.returnType = returnType;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         EventBean streamEvent = eventsPerStream[streamNum];
         if (streamEvent == null) {
             return null;
@@ -43,8 +40,7 @@ public class SelectExprProcessorEvalByGetterFragmentAvroArray implements ExprEva
         return null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return returnType;
     }
 }

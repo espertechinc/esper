@@ -24,8 +24,7 @@ import java.util.Set;
 /**
  * Factory for {@link FirstUniqueByPropertyView} instances.
  */
-public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowViewFactory, DataWindowViewFactoryUniqueCandidate
-{
+public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowViewFactory, DataWindowViewFactoryUniqueCandidate {
     public static final String NAME = "First-Unique-By";
 
     /**
@@ -40,17 +39,14 @@ public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowView
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         criteriaExpressions = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, false);
 
-        if (criteriaExpressions.length == 0)
-        {
+        if (criteriaExpressions.length == 0) {
             String errorMessage = getViewName() + " view requires a one or more expressions provinding unique values as parameters";
             throw new ViewParameterException(errorMessage);
         }
@@ -58,26 +54,21 @@ public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowView
         this.eventType = parentEventType;
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new FirstUniqueByPropertyView(this, agentInstanceViewFactoryContext);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof FirstUniqueByPropertyView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof FirstUniqueByPropertyView)) {
             return false;
         }
 
         FirstUniqueByPropertyView myView = (FirstUniqueByPropertyView) view;
-        if (!ExprNodeUtility.deepEquals(criteriaExpressions, myView.getUniqueCriteria()))
-        {
+        if (!ExprNodeUtility.deepEquals(criteriaExpressions, myView.getUniqueCriteria())) {
             return false;
         }
 

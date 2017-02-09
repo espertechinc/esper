@@ -14,25 +14,19 @@ import com.espertech.esper.client.EPServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SendEventRunnable implements Runnable
-{
+public class SendEventRunnable implements Runnable {
     private Object eventToSend;
     private EPServiceProvider epService;
 
-    public SendEventRunnable(EPServiceProvider epService, Object eventToSend)
-    {
+    public SendEventRunnable(EPServiceProvider epService, Object eventToSend) {
         this.epService = epService;
         this.eventToSend = eventToSend;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             epService.getEPRuntime().sendEvent(eventToSend);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.error("Failed to run: {}", ex.getMessage(), ex);
         }
     }

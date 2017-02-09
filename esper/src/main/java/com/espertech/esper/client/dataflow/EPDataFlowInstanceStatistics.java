@@ -18,6 +18,7 @@ import java.util.List;
 public interface EPDataFlowInstanceStatistics {
     /**
      * Returns operator stats.
+     *
      * @return stats
      */
     public List<EPDataFlowInstanceOperatorStat> getOperatorStatistics();

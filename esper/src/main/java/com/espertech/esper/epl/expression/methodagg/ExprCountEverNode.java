@@ -20,21 +20,19 @@ import com.espertech.esper.epl.expression.core.ExprWildcard;
 /**
  * Represents the "countever" aggregate function is an expression tree.
  */
-public class ExprCountEverNode extends ExprAggregateNodeBase
-{
+public class ExprCountEverNode extends ExprAggregateNodeBase {
     private static final long serialVersionUID = 1436994080693454617L;
 
     /**
      * Ctor.
+     *
      * @param distinct - flag indicating unique or non-unique value aggregation
      */
-    public ExprCountEverNode(boolean distinct)
-    {
+    public ExprCountEverNode(boolean distinct) {
         super(distinct);
     }
 
-    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
         if (positionalParams.length > 2) {
             throw makeExceptionExpectedParamNum(0, 2);
         }
@@ -45,8 +43,7 @@ public class ExprCountEverNode extends ExprAggregateNodeBase
         boolean ignoreNulls = false;
         if (positionalParams.length == 0) {
             // no parameters is allowed
-        }
-        else {
+        } else {
             ignoreNulls = !(positionalParams[0] instanceof ExprWildcard);
             if (positionalParams.length == 2) {
                 super.validateFilter(positionalParams[1].getExprEvaluator());
@@ -59,13 +56,11 @@ public class ExprCountEverNode extends ExprAggregateNodeBase
         return positionalParams.length == 2;
     }
 
-    public String getAggregationFunctionName()
-    {
+    public String getAggregationFunctionName() {
         return "countever";
     }
 
-    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node)
-    {
+    public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprCountEverNode;
     }
 }

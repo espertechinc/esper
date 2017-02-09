@@ -37,8 +37,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
             for (int i = 0; i < levelCount; i++) {
                 groupRepsOutputLastUnordRStream[i] = new LinkedHashMap<Object, EventBean>();
             }
-        }
-        else {
+        } else {
             groupRepsOutputLastUnordRStream = null;
         }
     }
@@ -51,7 +50,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
         EventBean[] eventsPerStream;
         if (newData != null) {
             for (EventBean aNewData : newData) {
-                eventsPerStream = new EventBean[] {aNewData};
+                eventsPerStream = new EventBean[]{aNewData};
                 Object groupKeyComplete = processor.generateGroupKey(eventsPerStream, true);
                 for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
                     Object groupKey = level.computeSubkey(groupKeyComplete);
@@ -67,7 +66,7 @@ public class ResultSetProcessorRowPerGroupRollupOutputAllHelperImpl implements R
         }
         if (oldData != null) {
             for (EventBean anOldData : oldData) {
-                eventsPerStream = new EventBean[] {anOldData};
+                eventsPerStream = new EventBean[]{anOldData};
                 Object groupKeyComplete = processor.generateGroupKey(eventsPerStream, false);
                 for (AggregationGroupByRollupLevel level : processor.prototype.getGroupByRollupDesc().getLevels()) {
                     Object groupKey = level.computeSubkey(groupKeyComplete);

@@ -22,21 +22,18 @@ import com.espertech.esper.type.MathArithTypeEnum;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 
-public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
-{
+public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter {
     private ExprMinMaxAggrNode maxNode;
     private ExprMinMaxAggrNode minNode;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         maxNode = new ExprMinMaxAggrNode(false, MinMaxTypeEnum.MAX, false, false);
         minNode = new ExprMinMaxAggrNode(false, MinMaxTypeEnum.MIN, false, false);
 
         super.validatedNodeToTest = makeNode(MinMaxTypeEnum.MAX, 5, Integer.class);
     }
 
-    public void testGetType() throws Exception
-    {
+    public void testGetType() throws Exception {
         maxNode.addChildNode(new SupportExprNode(Integer.class));
         SupportExprNodeFactory.validate3Stream(maxNode);
         assertEquals(Integer.class, maxNode.getType());
@@ -51,8 +48,7 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
         assertEquals(Short.class, maxNode.getType());
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         // Build sum(4-2)
         ExprMathNode arithNodeChild = new ExprMathNode(MathArithTypeEnum.SUBTRACT, false, false);
         arithNodeChild.addChildNode(new SupportExprNode(4));
@@ -64,16 +60,12 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
         assertEquals("min(4-2)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(minNode));
     }
 
-    public void testValidate()
-    {
+    public void testValidate() {
         // Must have exactly 1 subnodes
-        try
-        {
+        try {
             minNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
 
@@ -81,26 +73,21 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter
         minNode = new ExprMinMaxAggrNode(false, MinMaxTypeEnum.MIN, true, false);
         minNode.addChildNode(new SupportExprNode(String.class));
         minNode.addChildNode(new SupportExprNode(Integer.class));
-        try
-        {
+        try {
             minNode.validate(SupportExprValidationContextFactory.make(new SupportStreamTypeSvc3Stream()));
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEqualsNode() throws Exception
-    {
+    public void testEqualsNode() throws Exception {
         assertTrue(minNode.equalsNode(minNode));
         assertFalse(maxNode.equalsNode(minNode));
         assertFalse(minNode.equalsNode(new ExprSumNode(false)));
     }
 
-    private ExprMinMaxAggrNode makeNode(MinMaxTypeEnum minMaxType, Object value, Class type) throws Exception
-    {
+    private ExprMinMaxAggrNode makeNode(MinMaxTypeEnum minMaxType, Object value, Class type) throws Exception {
         ExprMinMaxAggrNode minMaxNode = new ExprMinMaxAggrNode(false, minMaxType, false, false);
         minMaxNode.addChildNode(new SupportExprNode(value, type));
         SupportExprNodeFactory.validate3Stream(minMaxNode);

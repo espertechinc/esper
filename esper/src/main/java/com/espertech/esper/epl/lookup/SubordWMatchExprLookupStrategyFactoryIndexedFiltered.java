@@ -16,8 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 
-public class SubordWMatchExprLookupStrategyFactoryIndexedFiltered implements SubordWMatchExprLookupStrategyFactory
-{
+public class SubordWMatchExprLookupStrategyFactoryIndexedFiltered implements SubordWMatchExprLookupStrategyFactory {
     private final ExprEvaluator exprEvaluator;
     private final SubordTableLookupStrategyFactory lookupStrategyFactory;
 

@@ -15,10 +15,10 @@ import java.util.Iterator;
 /**
  * Interface to add and remove update listeners.
  */
-public interface EPListenable
-{
+public interface EPListenable {
     /**
      * Add a listener that observes events.
+     *
      * @param listener to add
      * @throws IllegalStateException when attempting to add a listener to a destroyed statement
      */
@@ -26,6 +26,7 @@ public interface EPListenable
 
     /**
      * Remove a listener that observes events.
+     *
      * @param listener to remove
      */
     public void removeListener(UpdateListener listener);
@@ -37,6 +38,7 @@ public interface EPListenable
 
     /**
      * Add a statement-aware listener that observes events.
+     *
      * @param listener to add
      * @throws IllegalStateException when attempting to add a listener to a destroyed statement
      */
@@ -44,6 +46,7 @@ public interface EPListenable
 
     /**
      * Remove a statement-aware listener that observes events.
+     *
      * @param listener to remove
      */
     public void removeListener(StatementAwareUpdateListener listener);
@@ -52,6 +55,7 @@ public interface EPListenable
      * Returns an iterator of statement-aware update listeners.
      * <p>
      * The returned iterator does not allow the remove operation.
+     *
      * @return iterator of statement-aware update listeners
      */
     public Iterator<StatementAwareUpdateListener> getStatementAwareListeners();
@@ -60,6 +64,7 @@ public interface EPListenable
      * Returns an iterator of update listeners.
      * <p>
      * The returned iterator does not allow the remove operation.
+     *
      * @return iterator of update listeners
      */
     public Iterator<UpdateListener> getUpdateListeners();

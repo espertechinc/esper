@@ -26,8 +26,7 @@ import java.util.Map;
  * Variables are updated atomically and thus a separate commit actually updates the
  * new variable values, or a rollback if an exception occured during validation.
  */
-public class OnSetVariableView extends ViewSupport
-{
+public class OnSetVariableView extends ViewSupport {
     private final OnSetVariableViewFactory factory;
     private final ExprEvaluatorContext exprEvaluatorContext;
 
@@ -38,39 +37,33 @@ public class OnSetVariableView extends ViewSupport
         this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if ((newData == null) || (newData.length == 0))
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if ((newData == null) || (newData.length == 0)) {
             return;
         }
 
         Map<String, Object> values = null;
-        boolean produceOutputEvents = (factory.getStatementResultService().isMakeNatural() || factory.getStatementResultService().isMakeSynthetic());
+        boolean produceOutputEvents = factory.getStatementResultService().isMakeNatural() || factory.getStatementResultService().isMakeSynthetic();
 
-        if (produceOutputEvents)
-        {
+        if (produceOutputEvents) {
             values = new HashMap<String, Object>();
         }
 
         eventsPerStream[0] = newData[newData.length - 1];
         factory.getVariableReadWritePackage().writeVariables(factory.getVariableService(), eventsPerStream, values, exprEvaluatorContext);
-        
-        if (values != null)
-        {
-            EventBean newDataOut[] = new EventBean[1];
+
+        if (values != null) {
+            EventBean[] newDataOut = new EventBean[1];
             newDataOut[0] = factory.getEventAdapterService().adapterForTypedMap(values, factory.getEventType());
             this.updateChildren(newDataOut, null);
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return factory.getEventType();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         Map<String, Object> values = factory.getVariableReadWritePackage().iterate(exprEvaluatorContext.getAgentInstanceId());
         EventBean theEvent = factory.getEventAdapterService().adapterForTypedMap(values, factory.getEventType());
         return new SingleEventIterator(theEvent);

@@ -19,8 +19,7 @@ import java.util.Collections;
 /**
  * Represents the aggregation accessor that provides the result for the "maxBy" aggregation function.
  */
-public abstract class AggregationAccessorMinMaxByBase implements AggregationAccessor
-{
+public abstract class AggregationAccessorMinMaxByBase implements AggregationAccessor {
     private final boolean max;
 
     protected AggregationAccessorMinMaxByBase(boolean max) {
@@ -42,8 +41,7 @@ public abstract class AggregationAccessorMinMaxByBase implements AggregationAcce
     public EventBean getEnumerableEvent(AggregationState state, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         if (max) {
             return ((AggregationStateSorted) state).getLastValue();
-        }
-        else {
+        } else {
             return ((AggregationStateSorted) state).getFirstValue();
         }
     }

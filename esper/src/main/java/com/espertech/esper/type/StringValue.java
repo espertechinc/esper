@@ -13,65 +13,56 @@ package com.espertech.esper.type;
 /**
  * Placeholder for a String value in an event expression.
  */
-public final class StringValue extends PrimitiveValueBase
-{
+public final class StringValue extends PrimitiveValueBase {
     private String stringValue;
 
     /**
      * Constructor.
+     *
      * @param stringValue sets initial value
      */
-    public StringValue(String stringValue)
-    {
+    public StringValue(String stringValue) {
         this.stringValue = stringValue;
     }
 
     /**
      * Constructor.
      */
-    public StringValue()
-    {
+    public StringValue() {
     }
 
-    public PrimitiveValueType getType()
-    {
+    public PrimitiveValueType getType() {
         return PrimitiveValueType.STRING;
     }
 
     /**
      * Parse the string array returning a string array.
+     *
      * @param values - string array
      * @return typed array
      */
-    public static String[] parseString(String[] values)
-    {
+    public static String[] parseString(String[] values) {
         String[] result = new String[values.length];
-        for (int i = 0; i < result.length; i++)
-        {
+        for (int i = 0; i < result.length; i++) {
             result[i] = parseString(values[i]);
         }
         return result;
     }
 
-    public final void parse(String value)
-    {
+    public final void parse(String value) {
         stringValue = parseString(value);
     }
 
-    public final Object getValueObject()
-    {
+    public final Object getValueObject() {
         return stringValue;
     }
 
-    public final void setString(String x)
-    {
+    public final void setString(String x) {
         this.stringValue = x;
     }
 
-    public final String toString()
-    {
-        if (stringValue == null)
-        {
+    public final String toString() {
+        if (stringValue == null) {
             return "null";
         }
         return stringValue;
@@ -79,18 +70,15 @@ public final class StringValue extends PrimitiveValueBase
 
     /**
      * Parse the string literal consisting of text between double-quotes or single-quotes.
+     *
      * @param value is the text wthin double or single quotes
      * @return parsed value
      */
-    public static String parseString(String value)
-    {
-        if ( (value.startsWith("\"")) && (value.endsWith("\"")) ||
-             (value.startsWith("'")) && (value.endsWith("'")) )
-        {
-            if (value.length() > 1)
-            {
-                if (value.indexOf('\\') != -1)
-                {
+    public static String parseString(String value) {
+        if ((value.startsWith("\"")) && (value.endsWith("\"")) ||
+                (value.startsWith("'")) && (value.endsWith("'"))) {
+            if (value.length() > 1) {
+                if (value.indexOf('\\') != -1) {
                     return unescape(value.substring(1, value.length() - 1));
                 }
                 return value.substring(1, value.length() - 1);
@@ -100,21 +88,16 @@ public final class StringValue extends PrimitiveValueBase
         throw new IllegalArgumentException("String value of '" + value + "' cannot be parsed");
     }
 
-    private static String unescape(String s)
-    {
+    private static String unescape(String s) {
         int i = 0, len = s.length();
         char c;
         StringBuilder sb = new StringBuilder(len);
-        while (i < len)
-        {
+        while (i < len) {
             c = s.charAt(i++);
-            if (c == '\\')
-            {
-                if (i < len)
-                {
+            if (c == '\\') {
+                if (i < len) {
                     c = s.charAt(i++);
-                    if (c == 'u')
-                    {
+                    if (c == 'u') {
                         c = (char) Integer.parseInt(s.substring(i, i + 4), 16);
                         i += 4;
                     } // add other cases here as desired...

@@ -10,21 +10,19 @@
  */
 package com.espertech.esper.epl.join.base;
 
-import com.espertech.esper.view.internal.BufferView;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.epl.SupportJoinExecutionStrategy;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import com.espertech.esper.view.internal.BufferView;
 import junit.framework.TestCase;
 
-public class TestJoinExecStrategyDispatchable extends TestCase
-{
+public class TestJoinExecStrategyDispatchable extends TestCase {
     private JoinExecStrategyDispatchable dispatchable;
     private BufferView bufferViewOne;
     private BufferView bufferViewTwo;
     private SupportJoinExecutionStrategy joinExecutionStrategy;
 
-    public void setUp()
-    {
+    public void setUp() {
         bufferViewOne = new BufferView(0);
         bufferViewTwo = new BufferView(1);
 
@@ -36,12 +34,11 @@ public class TestJoinExecStrategyDispatchable extends TestCase
         bufferViewTwo.setObserver(dispatchable);
     }
 
-    public void testFlow()
-    {
-        EventBean[] oldDataOne = SupportEventBeanFactory.makeEvents(new String[] {"a"});
-        EventBean[] newDataOne = SupportEventBeanFactory.makeEvents(new String[] {"b"});
-        EventBean[] oldDataTwo = SupportEventBeanFactory.makeEvents(new String[] {"c"});
-        EventBean[] newDataTwo = SupportEventBeanFactory.makeEvents(new String[] {"d"});
+    public void testFlow() {
+        EventBean[] oldDataOne = SupportEventBeanFactory.makeEvents(new String[]{"a"});
+        EventBean[] newDataOne = SupportEventBeanFactory.makeEvents(new String[]{"b"});
+        EventBean[] oldDataTwo = SupportEventBeanFactory.makeEvents(new String[]{"c"});
+        EventBean[] newDataTwo = SupportEventBeanFactory.makeEvents(new String[]{"d"});
 
         bufferViewOne.update(newDataOne, oldDataOne);
         dispatchable.execute();

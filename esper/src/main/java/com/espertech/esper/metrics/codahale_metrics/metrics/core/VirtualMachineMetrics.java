@@ -79,7 +79,7 @@ public class VirtualMachineMetrics {
         /**
          * Returns the amount of time in the given unit the garbage collector has taken in total.
          *
-         * @param unit    the time unit for the return value
+         * @param unit the time unit for the return value
          * @return the amount of time in the given unit the garbage collector
          */
         public long getTime(TimeUnit unit) {
@@ -117,8 +117,8 @@ public class VirtualMachineMetrics {
          * alignment, memory allocator, and other implementation specific reasons.
          *
          * @return An estimate of the memory that the Java virtual machine is using for this buffer
-         *         pool in bytes, or {@code -1L} if an estimate of the memory usage is not
-         *         available
+         * pool in bytes, or {@code -1L} if an estimate of the memory usage is not
+         * available
          */
         public long getMemoryUsed() {
             return memoryUsed;
@@ -188,6 +188,7 @@ public class VirtualMachineMetrics {
         return memory.getHeapMemoryUsage().getMax() +
                 memory.getNonHeapMemoryUsage().getMax();
     }
+
     /**
      * Returns the total memory committed to the JVM.
      *
@@ -197,6 +198,7 @@ public class VirtualMachineMetrics {
         return memory.getHeapMemoryUsage().getCommitted() +
                 memory.getNonHeapMemoryUsage().getCommitted();
     }
+
     /**
      * Returns the heap initial memory of the current JVM.
      *
@@ -205,6 +207,7 @@ public class VirtualMachineMetrics {
     public double heapInit() {
         return memory.getHeapMemoryUsage().getInit();
     }
+
     /**
      * Returns the heap memory currently used by the current JVM.
      *
@@ -213,6 +216,7 @@ public class VirtualMachineMetrics {
     public double heapUsed() {
         return memory.getHeapMemoryUsage().getUsed();
     }
+
     /**
      * Returns the heap memory currently used by the current JVM.
      *
@@ -221,6 +225,7 @@ public class VirtualMachineMetrics {
     public double heapMax() {
         return memory.getHeapMemoryUsage().getMax();
     }
+
     /**
      * Returns the heap memory committed to the JVM.
      *
@@ -271,7 +276,7 @@ public class VirtualMachineMetrics {
      * Returns the percentage of available file descriptors which are currently in use.
      *
      * @return the percentage of available file descriptors which are currently in use, or {@code
-     *         NaN} if the running JVM does not have access to this information
+     * NaN} if the running JVM does not have access to this information
      */
     public double fileDescriptorUsage() {
         try {
@@ -296,7 +301,7 @@ public class VirtualMachineMetrics {
      *
      * @return the version of the currently-running jvm, eg "1.6.0_24"
      * @see <a href="http://java.sun.com/j2se/versioning_naming.html">J2SE SDK/JRE Version String
-     *      Naming Convention</a>
+     * Naming Convention</a>
      */
     public String version() {
         return System.getProperty("java.runtime.version");
@@ -348,8 +353,8 @@ public class VirtualMachineMetrics {
         final Map<String, GarbageCollectorStats> stats = new HashMap<String, GarbageCollectorStats>();
         for (GarbageCollectorMXBean gc : garbageCollectors) {
             stats.put(gc.getName(),
-                      new GarbageCollectorStats(gc.getCollectionCount(),
-                                                gc.getCollectionTime()));
+                    new GarbageCollectorStats(gc.getCollectionCount(),
+                            gc.getCollectionTime()));
         }
         return Collections.unmodifiableMap(stats);
     }
@@ -423,21 +428,21 @@ public class VirtualMachineMetrics {
         for (int ti = threads.length - 1; ti >= 0; ti--) {
             final ThreadInfo t = threads[ti];
             writer.printf("%s id=%d state=%s",
-                          t.getThreadName(),
-                          t.getThreadId(),
-                          t.getThreadState());
+                    t.getThreadName(),
+                    t.getThreadId(),
+                    t.getThreadState());
             final LockInfo lock = t.getLockInfo();
             if (lock != null && t.getThreadState() != State.BLOCKED) {
                 writer.printf("\n    - waiting on <0x%08x> (a %s)",
-                              lock.getIdentityHashCode(),
-                              lock.getClassName());
+                        lock.getIdentityHashCode(),
+                        lock.getClassName());
                 writer.printf("\n    - locked <0x%08x> (a %s)",
-                              lock.getIdentityHashCode(),
-                              lock.getClassName());
+                        lock.getIdentityHashCode(),
+                        lock.getClassName());
             } else if (lock != null && t.getThreadState() == State.BLOCKED) {
                 writer.printf("\n    - waiting to lock <0x%08x> (a %s)",
-                              lock.getIdentityHashCode(),
-                              lock.getClassName());
+                        lock.getIdentityHashCode(),
+                        lock.getClassName());
             }
 
             if (t.isSuspended()) {
@@ -481,10 +486,10 @@ public class VirtualMachineMetrics {
         writer.println();
         writer.flush();
     }
-    
+
     public Map<String, BufferPoolStats> getBufferPoolStats() {
         try {
-            final String[] attributes = { "Count", "MemoryUsed", "TotalCapacity" };
+            final String[] attributes = {"Count", "MemoryUsed", "TotalCapacity"};
 
             final ObjectName direct = new ObjectName("java.nio:type=BufferPool,name=direct");
             final ObjectName mapped = new ObjectName("java.nio:type=BufferPool,name=mapped");
@@ -495,14 +500,14 @@ public class VirtualMachineMetrics {
             final Map<String, BufferPoolStats> stats = new TreeMap<String, BufferPoolStats>();
 
             final BufferPoolStats directStats = new BufferPoolStats((Long) ((Attribute) directAttributes.get(0)).getValue(),
-                                                                    (Long) ((Attribute) directAttributes.get(1)).getValue(),
-                                                                    (Long) ((Attribute) directAttributes.get(2)).getValue());
+                    (Long) ((Attribute) directAttributes.get(1)).getValue(),
+                    (Long) ((Attribute) directAttributes.get(2)).getValue());
 
             stats.put("direct", directStats);
 
             final BufferPoolStats mappedStats = new BufferPoolStats((Long) ((Attribute) mappedAttributes.get(0)).getValue(),
-                                                                    (Long) ((Attribute) mappedAttributes.get(1)).getValue(),
-                                                                    (Long) ((Attribute) mappedAttributes.get(2)).getValue());
+                    (Long) ((Attribute) mappedAttributes.get(1)).getValue(),
+                    (Long) ((Attribute) mappedAttributes.get(2)).getValue());
 
             stats.put("mapped", mappedStats);
 

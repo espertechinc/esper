@@ -30,42 +30,38 @@ import java.util.Map;
  * This class accepts most of its behaviour from its parent, {@link com.espertech.esper.view.stat.BaseBivariateStatisticsView}. It adds
  * the usage of the correlation bean and the appropriate schema.
  */
-public class CorrelationView extends BaseBivariateStatisticsView implements CloneableView
-{
-    public CorrelationView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xExpression, ExprNode yExpression, EventType eventType, StatViewAdditionalProps additionalProps)
-    {
+public class CorrelationView extends BaseBivariateStatisticsView implements CloneableView {
+    public CorrelationView(ViewFactory viewFactory, AgentInstanceContext agentInstanceContext, ExprNode xExpression, ExprNode yExpression, EventType eventType, StatViewAdditionalProps additionalProps) {
         super(viewFactory, agentInstanceContext, xExpression, yExpression, eventType, additionalProps);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new CorrelationView(viewFactory, agentInstanceContext, this.getExpressionX(), this.getExpressionY(), eventType, additionalProps);
     }
 
     public EventBean populateMap(BaseStatisticsBean baseStatisticsBean,
-                                         EventAdapterService eventAdapterService,
-                                         EventType eventType,
-                                         StatViewAdditionalProps additionalProps,
-                                         Object[] decoration)
-    {
-        return doPopulateMap(baseStatisticsBean,eventAdapterService,eventType,additionalProps,decoration);
+                                 EventAdapterService eventAdapterService,
+                                 EventType eventType,
+                                 StatViewAdditionalProps additionalProps,
+                                 Object[] decoration) {
+        return doPopulateMap(baseStatisticsBean, eventAdapterService, eventType, additionalProps, decoration);
     }
 
     /**
      * Populate bean.
-     * @param baseStatisticsBean results
+     *
+     * @param baseStatisticsBean  results
      * @param eventAdapterService event wrapping
-     * @param eventType type to produce
-     * @param additionalProps addition properties
-     * @param decoration decoration values
+     * @param eventType           type to produce
+     * @param additionalProps     addition properties
+     * @param decoration          decoration values
      * @return bean
      */
     public static EventBean doPopulateMap(BaseStatisticsBean baseStatisticsBean,
-                                         EventAdapterService eventAdapterService,
-                                         EventType eventType,
-                                         StatViewAdditionalProps additionalProps,
-                                         Object[] decoration)
-    {
+                                          EventAdapterService eventAdapterService,
+                                          EventType eventType,
+                                          StatViewAdditionalProps additionalProps,
+                                          Object[] decoration) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put(ViewFieldEnum.CORRELATION__CORRELATION.getName(), baseStatisticsBean.getCorrelation());
         if (additionalProps != null) {
@@ -74,20 +70,17 @@ public class CorrelationView extends BaseBivariateStatisticsView implements Clon
         return eventAdapterService.adapterForTypedMap(result, eventType);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getName() +
                 " fieldX=" + this.getExpressionX() +
                 " fieldY=" + this.getExpressionY();
     }
 
-    protected static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
-    {
+    protected static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum) {
         Map<String, Object> eventTypeMap = new HashMap<String, Object>();
         eventTypeMap.put(ViewFieldEnum.CORRELATION__CORRELATION.getName(), Double.class);
         StatViewAdditionalProps.addCheckDupProperties(eventTypeMap, additionalProps,

@@ -12,7 +12,6 @@ package com.espertech.esper.filter;
 
 import java.util.concurrent.locks.ReadWriteLock;
 
-public interface FilterServiceGranularLockFactory
-{
+public interface FilterServiceGranularLockFactory {
     public ReadWriteLock obtainNew();
 }

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportunit.bean;
 
-public interface ISupportB extends ISupportBaseAB
-{
-    public String getB();        
+public interface ISupportB extends ISupportBaseAB {
+    public String getB();
 }

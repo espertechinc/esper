@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.metric;
 
-import com.espertech.esper.schedule.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +18,7 @@ import java.util.*;
 /**
  * Scheduling for metrics execution is handles=d by this service.
  */
-public final class MetricScheduleService implements MetricTimeSource
-{
+public final class MetricScheduleService implements MetricTimeSource {
     private static final Logger log = LoggerFactory.getLogger(MetricScheduleService.class);
 
     private final SortedMap<Long, List<MetricExec>> timeHandleMap;
@@ -33,21 +31,18 @@ public final class MetricScheduleService implements MetricTimeSource
     /**
      * Constructor.
      */
-    public MetricScheduleService()
-    {
+    public MetricScheduleService() {
         this.timeHandleMap = new TreeMap<Long, List<MetricExec>>();
     }
 
-    public long getCurrentTime()
-    {
+    public long getCurrentTime() {
         return currentTime;
     }
 
     /**
      * Clears the schedule.
      */
-    public void clear()
-    {
+    public void clear() {
         log.debug("Clearing scheduling service");
         timeHandleMap.clear();
         nearestTime = null;
@@ -55,28 +50,26 @@ public final class MetricScheduleService implements MetricTimeSource
 
     /**
      * Sets current time.
+     *
      * @param currentTime to set
      */
-    public synchronized final void setTime(long currentTime)
-    {
+    public synchronized final void setTime(long currentTime) {
         this.currentTime = currentTime;
     }
 
     /**
      * Adds an execution to the schedule.
+     *
      * @param afterMSec offset to add at
      * @param execution execution to add
      */
-    public synchronized final void add(long afterMSec, MetricExec execution)
-    {
-        if (execution == null)
-        {
+    public synchronized final void add(long afterMSec, MetricExec execution) {
+        if (execution == null) {
             throw new IllegalArgumentException("Unexpected parameters : null execution");
         }
         long triggerOnTime = currentTime + afterMSec;
         List<MetricExec> handleSet = timeHandleMap.get(triggerOnTime);
-        if (handleSet == null)
-        {
+        if (handleSet == null) {
             handleSet = new ArrayList<MetricExec>();
             timeHandleMap.put(triggerOnTime, handleSet);
         }
@@ -87,58 +80,51 @@ public final class MetricScheduleService implements MetricTimeSource
 
     /**
      * Evaluate the schedule and populates executions, if any.
+     *
      * @param handles to populate
      */
-    public synchronized final void evaluate(Collection<MetricExec> handles)
-    {
+    public synchronized final void evaluate(Collection<MetricExec> handles) {
         SortedMap<Long, List<MetricExec>> headMap = timeHandleMap.headMap(currentTime + 1);
 
         // First determine all triggers to shoot
         List<Long> removeKeys = new LinkedList<Long>();
-        for (Map.Entry<Long, List<MetricExec>> entry : headMap.entrySet())
-        {
+        for (Map.Entry<Long, List<MetricExec>> entry : headMap.entrySet()) {
             Long key = entry.getKey();
             List<MetricExec> value = entry.getValue();
             removeKeys.add(key);
-            for (MetricExec handle : value)
-            {
+            for (MetricExec handle : value) {
                 handles.add(handle);
             }
         }
 
         // Remove all triggered msec values
-        for (Long key : removeKeys)
-        {
+        for (Long key : removeKeys) {
             timeHandleMap.remove(key);
         }
 
-        if (!timeHandleMap.isEmpty())
-        {
+        if (!timeHandleMap.isEmpty()) {
             nearestTime = timeHandleMap.firstKey();
-        }
-        else
-        {
+        } else {
             nearestTime = null;
         }
     }
 
     /**
      * Returns nearest scheduled time.
+     *
      * @return nearest scheduled time, or null if none/empty schedule.
      */
-    public Long getNearestTime()
-    {
+    public Long getNearestTime() {
         return nearestTime;
     }
 
     /**
      * Remove from schedule an execution.
+     *
      * @param metricExec to remove
      */
-    public void remove(MetricExec metricExec)
-    {
-        for (Map.Entry<Long, List<MetricExec>> entry : timeHandleMap.entrySet())
-        {
+    public void remove(MetricExec metricExec) {
+        for (Map.Entry<Long, List<MetricExec>> entry : timeHandleMap.entrySet()) {
             entry.getValue().remove(metricExec);
         }
     }

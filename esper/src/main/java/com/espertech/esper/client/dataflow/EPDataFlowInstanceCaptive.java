@@ -25,7 +25,8 @@ public class EPDataFlowInstanceCaptive {
 
     /**
      * Ctor.
-     * @param emitters any emitters that are part of the data flow
+     *
+     * @param emitters  any emitters that are part of the data flow
      * @param runnables any runnables that represent source operators
      */
     public EPDataFlowInstanceCaptive(Map<String, Emitter> emitters, List<GraphSourceRunnable> runnables) {
@@ -35,6 +36,7 @@ public class EPDataFlowInstanceCaptive {
 
     /**
      * Map of named emitters.
+     *
      * @return emitters
      */
     public Map<String, Emitter> getEmitters() {
@@ -43,6 +45,7 @@ public class EPDataFlowInstanceCaptive {
 
     /**
      * List of operator source runnables.
+     *
      * @return runnables
      */
     public List<GraphSourceRunnable> getRunnables() {

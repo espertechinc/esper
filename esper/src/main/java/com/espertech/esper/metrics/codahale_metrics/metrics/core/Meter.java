@@ -139,7 +139,7 @@ public class Meter implements Metered, Stoppable {
         if (count() == 0) {
             return 0.0;
         } else {
-            final long elapsed = (clock.tick() - startTime);
+            final long elapsed = clock.tick() - startTime;
             return convertNsRate(count() / (double) elapsed);
         }
     }

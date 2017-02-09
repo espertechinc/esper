@@ -17,22 +17,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByReclaimAgedEvalFuncVariable implements AggSvcGroupByReclaimAgedEvalFunc
-{
+public class AggSvcGroupByReclaimAgedEvalFuncVariable implements AggSvcGroupByReclaimAgedEvalFunc {
     private static final Logger log = LoggerFactory.getLogger(AggSvcGroupByReclaimAgedEvalFuncVariable.class);
 
     private VariableReader variableReader;
 
-    public AggSvcGroupByReclaimAgedEvalFuncVariable(VariableReader variableReader)
-    {
+    public AggSvcGroupByReclaimAgedEvalFuncVariable(VariableReader variableReader) {
         this.variableReader = variableReader;
     }
 
-    public Double getLongValue()
-    {
+    public Double getLongValue() {
         Object val = variableReader.getValue();
-        if ((val != null) && (val instanceof Number))
-        {
+        if ((val != null) && (val instanceof Number)) {
             return ((Number) val).doubleValue();
         }
         log.warn("Variable '" + variableReader.getVariableMetaData().getVariableName() + " returned a null value, using last valid value");

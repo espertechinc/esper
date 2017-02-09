@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.epl.view;
 
-public interface OutputProcessViewTerminable
-{
+public interface OutputProcessViewTerminable {
     public void terminated();
 }

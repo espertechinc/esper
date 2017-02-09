@@ -11,11 +11,7 @@
 package com.espertech.esper.view.internal;
 
 import com.espertech.esper.view.View;
-import com.espertech.esper.view.ViewFactory;
 
-import java.util.Collection;
-
-public interface ViewContainer
-{
+public interface ViewContainer {
     public View[] getViewContained();
 }

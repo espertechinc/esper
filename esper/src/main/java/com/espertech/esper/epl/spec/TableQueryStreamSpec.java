@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Specification for use of an existing table.
  */
-public class TableQueryStreamSpec extends StreamSpecBase implements StreamSpecCompiled
-{
+public class TableQueryStreamSpec extends StreamSpecBase implements StreamSpecCompiled {
     private static final long serialVersionUID = 3585037637891782659L;
 
     private final String tableName;

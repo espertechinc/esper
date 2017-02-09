@@ -14,26 +14,26 @@ package com.espertech.esper.client;
  * This exception is thrown to indicate a problem in statement creation, such as syntax error or type checking problem
  * etc.
  */
-public class EPStatementException extends EPException
-{
+public class EPStatementException extends EPException {
     private String expression;
     private static final long serialVersionUID = 3279540500985257610L;
 
     /**
      * Ctor.
-     * @param message - error message
+     *
+     * @param message    - error message
      * @param expression - expression text
      */
-    public EPStatementException(final String message, final String expression)
-    {
+    public EPStatementException(final String message, final String expression) {
         super(message);
         this.expression = expression;
     }
 
     /**
      * Ctor.
-     * @param message error message
-     * @param cause inner exception
+     *
+     * @param message    error message
+     * @param cause      inner exception
      * @param expression expression text
      */
     public EPStatementException(String message, Throwable cause, String expression) {
@@ -43,34 +43,30 @@ public class EPStatementException extends EPException
 
     /**
      * Returns expression text for statement.
+     *
      * @return expression text
      */
-    public String getExpression()
-    {
+    public String getExpression() {
         return expression;
     }
 
     /**
      * Sets expression text for statement.
+     *
      * @param expression text
      */
-    public void setExpression(String expression)
-    {
+    public void setExpression(String expression) {
         this.expression = expression;
     }
 
     public String getMessage() {
         StringBuilder msg;
-        if (super.getMessage() != null)
-        {
+        if (super.getMessage() != null) {
             msg = new StringBuilder(super.getMessage());
-        }
-        else
-        {
+        } else {
             msg = new StringBuilder("Unexpected exception");
         }
-        if (expression != null)
-        {
+        if (expression != null) {
             msg.append(" [");
             msg.append(expression);
             msg.append(']');

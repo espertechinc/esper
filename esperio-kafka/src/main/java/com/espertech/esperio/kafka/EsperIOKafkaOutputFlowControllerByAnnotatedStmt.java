@@ -37,8 +37,7 @@ public class EsperIOKafkaOutputFlowControllerByAnnotatedStmt implements EsperIOK
         // obtain producer
         try {
             producer = new KafkaProducer<>(context.getProperties());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error("Error obtaining Kafka producer for URI '{}': {}", context.getEngine().getURI(), t.getMessage(), t);
         }
 
@@ -65,8 +64,7 @@ public class EsperIOKafkaOutputFlowControllerByAnnotatedStmt implements EsperIOK
             public void onStatementStateChange(EPServiceProvider serviceProvider, EPStatement statement) {
                 if (statement.getState() == EPStatementState.STARTED) {
                     processStatement(statement);
-                }
-                else if (statement.getState() == EPStatementState.STOPPED || statement.getState() == EPStatementState.DESTROYED) {
+                } else if (statement.getState() == EPStatementState.STOPPED || statement.getState() == EPStatementState.DESTROYED) {
                     detachStatement(statement);
                 }
             }
@@ -89,7 +87,7 @@ public class EsperIOKafkaOutputFlowControllerByAnnotatedStmt implements EsperIOK
     private void detachStatement(EPStatement statement) {
         Iterator<UpdateListener> listeners = statement.getUpdateListeners();
         UpdateListener found = null;
-        while(listeners.hasNext()) {
+        while (listeners.hasNext()) {
             UpdateListener listener = listeners.next();
             if (listener instanceof KafkaOutputDefaultListener) {
                 found = listener;

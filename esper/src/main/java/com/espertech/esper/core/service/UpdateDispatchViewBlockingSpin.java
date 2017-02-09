@@ -21,21 +21,20 @@ import org.slf4j.LoggerFactory;
  * Convenience view for dispatching view updates received from a parent view to update listeners
  * via the dispatch service.
  */
-public class UpdateDispatchViewBlockingSpin extends UpdateDispatchViewBase
-{
+public class UpdateDispatchViewBlockingSpin extends UpdateDispatchViewBase {
     private UpdateDispatchFutureSpin currentFutureSpin;
     private long msecTimeout;
     private TimeSourceService timeSourceService;
 
     /**
      * Ctor.
-     * @param dispatchService - for performing the dispatch
-     * @param msecTimeout - timeout for preserving dispatch order through blocking
+     *
+     * @param dispatchService        - for performing the dispatch
+     * @param msecTimeout            - timeout for preserving dispatch order through blocking
      * @param statementResultService - handles result delivery
-     * @param timeSourceService time source provider
+     * @param timeSourceService      time source provider
      */
-    public UpdateDispatchViewBlockingSpin(StatementResultService statementResultService, DispatchService dispatchService, long msecTimeout, TimeSourceService timeSourceService)
-    {
+    public UpdateDispatchViewBlockingSpin(StatementResultService statementResultService, DispatchService dispatchService, long msecTimeout, TimeSourceService timeSourceService) {
         super(statementResultService, dispatchService);
         this.currentFutureSpin = new UpdateDispatchFutureSpin(timeSourceService); // use a completed future as a start
         this.msecTimeout = msecTimeout;
@@ -46,15 +45,12 @@ public class UpdateDispatchViewBlockingSpin extends UpdateDispatchViewBase
         newResult(new UniformPair<EventBean[]>(newData, oldData));
     }
 
-    public void newResult(UniformPair<EventBean[]> result)
-    {
+    public void newResult(UniformPair<EventBean[]> result) {
         statementResultService.indicate(result);
 
-        if (!isDispatchWaiting.get())
-        {
+        if (!isDispatchWaiting.get()) {
             UpdateDispatchFutureSpin nextFutureSpin;
-            synchronized(this)
-            {
+            synchronized (this) {
                 nextFutureSpin = new UpdateDispatchFutureSpin(this, currentFutureSpin, msecTimeout, timeSourceService);
                 currentFutureSpin = nextFutureSpin;
             }

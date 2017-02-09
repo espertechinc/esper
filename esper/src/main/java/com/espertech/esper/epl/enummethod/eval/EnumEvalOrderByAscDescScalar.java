@@ -36,8 +36,7 @@ public class EnumEvalOrderByAscDescScalar extends EnumEvalBase implements EnumEv
         List list = new ArrayList(target);
         if (descending) {
             Collections.sort(list, Collections.reverseOrder());
-        }
-        else {
+        } else {
             Collections.sort(list);
         }
         return list;

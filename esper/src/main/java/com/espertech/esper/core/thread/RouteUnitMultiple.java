@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Route execution work unit.
  */
-public class RouteUnitMultiple implements RouteUnitRunnable
-{
+public class RouteUnitMultiple implements RouteUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(RouteUnitMultiple.class);
 
     private final EPRuntimeImpl epRuntime;
@@ -31,14 +30,14 @@ public class RouteUnitMultiple implements RouteUnitRunnable
 
     /**
      * Ctor.
-     * @param epRuntime runtime to process
-     * @param callbackList callback list
-     * @param theEvent event to pass
-     * @param handle statement handle
+     *
+     * @param epRuntime     runtime to process
+     * @param callbackList  callback list
+     * @param theEvent      event to pass
+     * @param handle        statement handle
      * @param filterVersion version of filter
      */
-    public RouteUnitMultiple(EPRuntimeImpl epRuntime, Object callbackList, EventBean theEvent, EPStatementAgentInstanceHandle handle, long filterVersion)
-    {
+    public RouteUnitMultiple(EPRuntimeImpl epRuntime, Object callbackList, EventBean theEvent, EPStatementAgentInstanceHandle handle, long filterVersion) {
         this.epRuntime = epRuntime;
         this.callbackList = callbackList;
         this.theEvent = theEvent;
@@ -46,18 +45,14 @@ public class RouteUnitMultiple implements RouteUnitRunnable
         this.filterVersion = filterVersion;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             epRuntime.processStatementFilterMultiple(handle, callbackList, theEvent, filterVersion);
 
             epRuntime.dispatch();
 
             epRuntime.processThreadWorkQueue();
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing multiple route execution: " + e.getMessage(), e);
         }
     }

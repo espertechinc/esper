@@ -28,8 +28,7 @@ import java.util.Collections;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateGraph extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateGraph extends EPStatementStartMethodBase {
     private static final Logger log = LoggerFactory.getLogger(EPStatementStartMethodCreateGraph.class);
 
     public EPStatementStartMethodCreateGraph(StatementSpecCompiled statementSpec) {

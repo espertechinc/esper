@@ -20,15 +20,18 @@ import com.espertech.esper.filter.FilterSpecLookupable;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 public interface ContextManager extends FilterFaultHandler {
     public ContextDescriptor getContextDescriptor();
+
     public int getNumNestingLevels();
+
     public ContextStateCache getContextStateCache();
 
     public void addStatement(ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException;
+
     public void stopStatement(String statementName, int statementId);
+
     public void destroyStatement(String statementName, int statementId);
 
     public void safeDestroy();
@@ -36,11 +39,16 @@ public interface ContextManager extends FilterFaultHandler {
     public FilterSpecLookupable getFilterLookupable(EventType eventType);
 
     public ContextStatePathDescriptor extractPaths(ContextPartitionSelector contextPartitionSelector);
+
     public ContextStatePathDescriptor extractStopPaths(ContextPartitionSelector contextPartitionSelector);
+
     public ContextStatePathDescriptor extractDestroyPaths(ContextPartitionSelector contextPartitionSelector);
+
     public void importStartPaths(ContextControllerState state, AgentInstanceSelector agentInstanceSelector);
+
     public Map<Integer, ContextPartitionDescriptor> startPaths(ContextPartitionSelector contextPartitionSelector);
 
     public Collection<Integer> getAgentInstanceIds(ContextPartitionSelector contextPartitionSelector);
+
     public Map<Integer, ContextControllerStatementDesc> getStatements();
 }

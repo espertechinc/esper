@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.example.transaction;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RealtimeSummaryTotalsListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
-        if (newEvents == null)
-        {
+public class RealtimeSummaryTotalsListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+        if (newEvents == null) {
             // we don't care about events leaving the window (old events)
             return;
         }
@@ -28,15 +25,15 @@ public class RealtimeSummaryTotalsListener implements UpdateListener
         EventBean theEvent = newEvents[0];
         log.debug(
                 " Totals minAC=" + theEvent.get("minLatencyAC") +
-                " maxAC=" + theEvent.get("maxLatencyAC") +
-                " avgAC=" + theEvent.get("avgLatencyAC") +
-                " minAB=" + theEvent.get("minLatencyAB") +
-                " maxAB=" + theEvent.get("maxLatencyAB") +
-                " avgAB=" + theEvent.get("avgLatencyAB") +
-                " minBC=" + theEvent.get("minLatencyBC") +
-                " maxBC=" + theEvent.get("maxLatencyBC") +
-                " avgBC=" + theEvent.get("avgLatencyBC")
-                );
+                        " maxAC=" + theEvent.get("maxLatencyAC") +
+                        " avgAC=" + theEvent.get("avgLatencyAC") +
+                        " minAB=" + theEvent.get("minLatencyAB") +
+                        " maxAB=" + theEvent.get("maxLatencyAB") +
+                        " avgAB=" + theEvent.get("avgLatencyAB") +
+                        " minBC=" + theEvent.get("minLatencyBC") +
+                        " maxBC=" + theEvent.get("maxLatencyBC") +
+                        " avgBC=" + theEvent.get("avgLatencyBC")
+        );
     }
 
     private static final Logger log = LoggerFactory.getLogger(RealtimeSummaryTotalsListener.class);

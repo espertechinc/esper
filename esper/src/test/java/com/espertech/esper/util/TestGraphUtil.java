@@ -15,22 +15,20 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class TestGraphUtil extends TestCase
-{
-    public void testMerge()
-    {
-        Map<String, Object> mapOne = makeMap(new Object[][] {
+public class TestGraphUtil extends TestCase {
+    public void testMerge() {
+        Map<String, Object> mapOne = makeMap(new Object[][]{
                 {"base1", 1},
-                {"base3", makeMap(new Object[][] {{"n1", 9}})},
+                {"base3", makeMap(new Object[][]{{"n1", 9}})},
                 {"base4", null},
-                });
+        });
 
-        Map<String, Object> mapTwo = makeMap(new Object[][] {
+        Map<String, Object> mapTwo = makeMap(new Object[][]{
                 {"base1", null},
                 {"base2", 5},
                 {"base5", null},
-                {"base3", makeMap(new Object[][] {{"n1", 7}, {"n2", 10}})}
-                });
+                {"base3", makeMap(new Object[][]{{"n1", 7}, {"n2", 10}})}
+        });
 
         Map<String, Object> merged = GraphUtil.mergeNestableMap(mapOne, mapTwo);
         assertEquals(1, merged.get("base1"));
@@ -44,8 +42,7 @@ public class TestGraphUtil extends TestCase
         assertEquals(10, nested.get("n2"));
     }
 
-    public void testSimpleTopDownOrder() throws Exception
-    {
+    public void testSimpleTopDownOrder() throws Exception {
         Map<String, Set<String>> graph = new LinkedHashMap<String, Set<String>>();
         assertEquals(0, GraphUtil.getTopDownOrder(graph).size());
 
@@ -74,8 +71,7 @@ public class TestGraphUtil extends TestCase
         EPAssertionUtil.assertEqualsExactOrder(GraphUtil.getTopDownOrder(graph).toArray(), "R,0,0_1,1,1_1,1_1_1,1_1_2,1_2,1_2_1".split(","));
     }
 
-    public void testAcyclicTopDownOrder() throws Exception
-    {
+    public void testAcyclicTopDownOrder() throws Exception {
         Map<String, Set<String>> graph = new LinkedHashMap<String, Set<String>>();
 
         add(graph, "1_1", "R2");
@@ -96,8 +92,7 @@ public class TestGraphUtil extends TestCase
         tryInvalid(graph, "Circular dependency detected between [1_1, A, R1, 0]");
     }
 
-    public void testInvalidTopDownOder() throws Exception
-    {
+    public void testInvalidTopDownOder() throws Exception {
         Map<String, Set<String>> graph = new LinkedHashMap<String, Set<String>>();
         add(graph, "1_1", "1");
         add(graph, "1", "1_1");
@@ -110,41 +105,32 @@ public class TestGraphUtil extends TestCase
         tryInvalid(graph, "Circular dependency detected between [1, 2, 3]");
     }
 
-    private void tryInvalid(Map<String, Set<String>> graph, String msg)
-    {
-        try
-        {
+    private void tryInvalid(Map<String, Set<String>> graph, String msg) {
+        try {
             GraphUtil.getTopDownOrder(graph);
             fail();
-        }
-        catch (GraphCircularDependencyException ex)
-        {
+        } catch (GraphCircularDependencyException ex) {
             // expected
             assertEquals(msg, ex.getMessage());
         }
 
     }
 
-    private void add(Map<String, Set<String>> graph, String child, String parent)
-    {
+    private void add(Map<String, Set<String>> graph, String child, String parent) {
         Set<String> parents = graph.get(child);
-        if (parents == null)
-        {
+        if (parents == null) {
             parents = new HashSet<String>();
             graph.put(child, parents);
         }
         parents.add(parent);
     }
 
-    private Map<String, Object> makeMap(Object[][] entries)
-    {
+    private Map<String, Object> makeMap(Object[][] entries) {
         Map result = new HashMap<String, Object>();
-        if (entries == null)
-        {
+        if (entries == null) {
             return result;
         }
-        for (int i = 0; i < entries.length; i++)
-        {
+        for (int i = 0; i < entries.length; i++) {
             result.put(entries[i][0], entries[i][1]);
         }
         return result;

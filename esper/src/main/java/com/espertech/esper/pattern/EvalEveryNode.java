@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class represents an 'every' operator in the evaluation tree representing an event expression.
  */
-public class EvalEveryNode extends EvalNodeBase
-{
+public class EvalEveryNode extends EvalNodeBase {
     protected final EvalEveryFactoryNode factoryNode;
     private final EvalNode childNode;
 
@@ -36,8 +35,7 @@ public class EvalEveryNode extends EvalNodeBase
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalEveryStateNode(parentNode, this);
     }
 

@@ -23,8 +23,7 @@ import java.util.*;
 /**
  * View to handle pattern discarding for a single stream (no join).
  */
-public final class PatternRemoveDispatchView extends ViewSupport implements EPStatementDispatch
-{
+public final class PatternRemoveDispatchView extends ViewSupport implements EPStatementDispatch {
     private final EvalRootMatchRemover matchRemoveCallback;
     private final boolean suppressSameEventMatches;
     private final boolean discardPartialsOnMatch;
@@ -38,24 +37,20 @@ public final class PatternRemoveDispatchView extends ViewSupport implements EPSt
         this.discardPartialsOnMatch = discardPartialsOnMatch;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return parent.iterator();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
+    public final void update(EventBean[] newData, EventBean[] oldData) {
         newDataBuffer.add(newData);
         hasData = true;
     }
 
-    public void execute()
-    {
+    public void execute() {
         if (hasData) {
             hasData = false;
 
@@ -77,10 +72,9 @@ public final class PatternRemoveDispatchView extends ViewSupport implements EPSt
                 if (matches.length == 2) {
                     boolean overlaps = addEventsFromMatch(matches[1], events);
                     if (overlaps) {
-                        matches = new EventBean[] {matches[0]};
+                        matches = new EventBean[]{matches[0]};
                     }
-                }
-                else {
+                } else {
                     List<EventBean> matchesNonOverlapping = new ArrayList<EventBean>(matches.length);
                     matchesNonOverlapping.add(matches[0]);
                     for (int i = 1; i < matches.length; i++) {
@@ -107,11 +101,9 @@ public final class PatternRemoveDispatchView extends ViewSupport implements EPSt
         for (EventPropertyDescriptor desc : properties) {
             Object prop = ((Map) match.getUnderlying()).get(desc.getPropertyName());
             if (prop == null) {
-            }
-            else if (prop instanceof EventBean) {
+            } else if (prop instanceof EventBean) {
                 overlaps |= !events.add((EventBean) prop);
-            }
-            else if (prop instanceof EventBean[]) {
+            } else if (prop instanceof EventBean[]) {
                 EventBean[] arr = (EventBean[]) prop;
                 for (EventBean ele : arr) {
                     overlaps |= !events.add(ele);

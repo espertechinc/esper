@@ -66,7 +66,7 @@ public class HealthCheckRegistry {
     /**
      * Unregisters the given {@link HealthCheck}.
      *
-     * @param healthCheck    a {@link HealthCheck}
+     * @param healthCheck a {@link HealthCheck}
      */
     public void unregister(HealthCheck healthCheck) {
         unregister(healthCheck.getName());

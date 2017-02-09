@@ -28,17 +28,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class TestFileSourceGraphs extends TestCase
-{
-	private EPServiceProvider epService;
+public class TestFileSourceGraphs extends TestCase {
+    private EPServiceProvider epService;
 
-	protected void setUp()
-	{
+    protected void setUp() {
         Configuration configuration = new Configuration();
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
         configuration.addImport(FileSourceFactory.class.getName());
-		epService = EPServiceProviderManager.getDefaultProvider(configuration);
-		epService.initialize();
+        epService = EPServiceProviderManager.getDefaultProvider(configuration);
+        epService.initialize();
 
         HashMap<String, Object> propertyTypes = new HashMap<String, Object>();
         propertyTypes.put("myInt", Integer.class);
@@ -63,8 +61,7 @@ public class TestFileSourceGraphs extends TestCase
         runAssertionCSVGraphSchema(EventRepresentationChoice.MAP);
     }
 
-    public void testPropertyOrderWLoop() throws Exception
-    {
+    public void testPropertyOrderWLoop() throws Exception {
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyMapEvent> { file: 'regression/noTimestampOne.csv', classpathFile: true, propertyNames: ['myInt','myDouble','myString'], numLoops: 3}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -81,33 +78,30 @@ public class TestFileSourceGraphs extends TestCase
                 "DefaultSupportCaptureOp(mystream) {}";
         List<List<Object>> received = runDataFlow(graph);
         assertEquals(1, received.size());
-        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "myInt,myDouble,myString".split(","), new Object[][] {{1, 1.1, "moreProperties.one"}, {2, 2.2, "moreProperties.two"}, {3, 3.3, "moreProperties.three"}});
+        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "myInt,myDouble,myString".split(","), new Object[][]{{1, 1.1, "moreProperties.one"}, {2, 2.2, "moreProperties.two"}, {3, 3.3, "moreProperties.three"}});
     }
 
-    public void testConflictingPropertyOrderIgnoreTitle()
-    {
+    public void testConflictingPropertyOrderIgnoreTitle() {
         epService.getEPAdministrator().createEPL("create schema MyIntRowEvent (intOne int, intTwo int)");
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyIntRowEvent> { file: 'regression/intsTitleRow.csv', hasHeaderLine:true, classpathFile: true, propertyNames: ['intTwo','intOne'], numLoops: 1}" +
                 "DefaultSupportCaptureOp(mystream) {}";
         List<List<Object>> received = runDataFlow(graph);
         assertEquals(1, received.size());
-        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "intOne,intTwo".split(","), new Object[][] {{0, 1}, {0, 2}, {0, 3}});
+        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "intOne,intTwo".split(","), new Object[][]{{0, 1}, {0, 2}, {0, 3}});
     }
 
-    public void testReorder()
-    {
+    public void testReorder() {
         epService.getEPAdministrator().createEPL("create schema MyIntRowEvent (p3 string, p1 int, p0 long, p2 double)");
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyIntRowEvent> { file: 'regression/timestampOne.csv', classpathFile: true, propertyNames: ['p0','p1','p2','p3']}" +
                 "DefaultSupportCaptureOp(mystream) {}";
         List<List<Object>> received = runDataFlow(graph);
         assertEquals(1, received.size());
-        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "p0,p1,p2,p3".split(","), new Object[][] {{ 100L, 1, 1.1, "timestampOne.one"}, { 300L, 3, 3.3, "timestampOne.three"}, { 500L, 5, 5.5, "timestampOne.five"}});
+        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "p0,p1,p2,p3".split(","), new Object[][]{{100L, 1, 1.1, "timestampOne.one"}, {300L, 3, 3.3, "timestampOne.three"}, {500L, 5, 5.5, "timestampOne.five"}});
     }
 
-    public void testStringPropertyTypes()
-    {
+    public void testStringPropertyTypes() {
         epService.getEPAdministrator().createEPL("create schema MyStrRowEvent (myInt string, myDouble string, myString string)");
 
         String graph = "create dataflow ReadCSV " +
@@ -115,11 +109,10 @@ public class TestFileSourceGraphs extends TestCase
                 "DefaultSupportCaptureOp(mystream) {}";
         List<List<Object>> received = runDataFlow(graph);
         assertEquals(1, received.size());
-        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "myInt,myDouble,myString".split(","), new Object[][] {{"1", "1.1", "noTimestampOne.one"}, {"2", "2.2", "noTimestampOne.two"}, {"3", "3.3", "noTimestampOne.three"}});
+        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), "myInt,myDouble,myString".split(","), new Object[][]{{"1", "1.1", "noTimestampOne.one"}, {"2", "2.2", "noTimestampOne.two"}, {"3", "3.3", "noTimestampOne.three"}});
     }
 
-    public void testEmptyFile()
-    {
+    public void testEmptyFile() {
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyMapEvent> { file: 'regression/emptyFile.csv', classpathFile: true}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -128,8 +121,7 @@ public class TestFileSourceGraphs extends TestCase
         assertTrue(received.get(0).isEmpty());
     }
 
-    public void testTitleRowOnlyFile()
-    {
+    public void testTitleRowOnlyFile() {
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyMapEvent> { file: 'regression/titleRowOnly.csv', classpathFile: true, hasTitleLine: true}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -138,12 +130,11 @@ public class TestFileSourceGraphs extends TestCase
         assertTrue(received.get(0).isEmpty());
     }
 
-    public void testDateFormat()
-    {
+    public void testDateFormat() {
         // no date format specified
         long testtime = DateTime.parseDefaultMSec("2012-01-30T08:43:32.116");
         epService.getEPAdministrator().getConfiguration().addEventType("MyOAType",
-                "p0,p1".split(","), new Object[] {Date.class, Calendar.class});
+                "p0,p1".split(","), new Object[]{Date.class, Calendar.class});
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyOAType> { file: 'regression/dateprocessing_one.csv', classpathFile: true, hasTitleLine: false}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -156,7 +147,7 @@ public class TestFileSourceGraphs extends TestCase
         // with date format specified
         testtime = DateTime.toMillisec("20120320084332000", "yyyyMMDDHHmmssSSS");
         epService.getEPAdministrator().getConfiguration().addEventType("MyOAType",
-                "p0,p1".split(","), new Object[] {Date.class, Calendar.class});
+                "p0,p1".split(","), new Object[]{Date.class, Calendar.class});
         graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyOAType> { file: 'regression/dateprocessing_two.csv', classpathFile: true, hasTitleLine: false, dateFormat: 'yyyyMMDDHHmmssSSS'}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -214,11 +205,9 @@ public class TestFileSourceGraphs extends TestCase
             epService.getEPRuntime().getDataFlowRuntime().instantiate(dataflowName,
                     new EPDataFlowInstantiationOptions().operatorProvider(new DefaultSupportGraphOpProvider(outputOp)));
             fail();
-        }
-        catch (EPDataFlowInstantiationException ex) {
+        } catch (EPDataFlowInstantiationException ex) {
             assertEquals(message, ex.getMessage());
-        }
-        finally {
+        } finally {
             stmtGraph.destroy();
         }
     }
@@ -231,8 +220,7 @@ public class TestFileSourceGraphs extends TestCase
         try {
             df.run();
             fail();
-        }
-        catch (EPDataFlowExecutionException ex) {
+        } catch (EPDataFlowExecutionException ex) {
             assertEquals(message, ex.getMessage());
         }
         stmtGraph.destroy();
@@ -249,8 +237,7 @@ public class TestFileSourceGraphs extends TestCase
         return outputOp.getAndReset();
     }
 
-    public void testLoopTitleRow() throws Exception
-    {
+    public void testLoopTitleRow() throws Exception {
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyMapEvent> { file: 'regression/titleRow.csv', classpathFile: true, hasTitleLine:true, numLoops: 3}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -261,8 +248,7 @@ public class TestFileSourceGraphs extends TestCase
         }
     }
 
-    public void testCommentAndOtherProp() throws Exception
-    {
+    public void testCommentAndOtherProp() throws Exception {
         String graph = "create dataflow ReadCSV " +
                 "FileSource -> mystream<MyMapEvent> { file: 'regression/comments.csv', classpathFile: true, propertyNames: ['other', 'myInt','myDouble','myString']}" +
                 "DefaultSupportCaptureOp(mystream) {}";
@@ -285,12 +271,12 @@ public class TestFileSourceGraphs extends TestCase
         instance.run();
         List<List<Object>> received = outputOp.getAndReset();
         assertEquals(1, received.size());
-        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), fields, new Object[][] {{"one", 1, 100L, 1.1}, {"three", 3, 300L, 3.3}, {"five", 5, 500L, 5.5}});
+        EPAssertionUtil.assertPropsPerRow(received.get(0).toArray(), fields, new Object[][]{{"one", 1, 100L, 1.1}, {"three", 3, 300L, 3.3}, {"five", 5, 500L, 5.5}});
         assertTrue(representationEnum.matchesClass(received.get(0).toArray()[0].getClass()));
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyEvent", true);
-	}
+    }
 
     public static class MyArgCtorClass {
         private final String arg;

@@ -10,12 +10,8 @@
  */
 package com.espertech.esper.client;
 
-import com.espertech.esper.core.service.Configurator;
-import com.espertech.esper.core.service.ConfiguratorContext;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
-import com.espertech.esper.util.TransientConfigurationResolver;
-import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Map;
 import java.util.Set;

@@ -25,8 +25,7 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.view.window.TimeAccumView}.
  */
-public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     private EventType eventType;
 
     /**
@@ -34,16 +33,14 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
      */
     protected ExprTimePeriodEvalDeltaConstFactory timeDeltaComputationFactory;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         if (expressionParameters.size() != 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
         timeDeltaComputationFactory = ViewFactoryTimePeriodHelper.validateAndEvaluateTimeDeltaFactory(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0), getViewParamMessage(), 0);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -51,34 +48,28 @@ public class TimeAccumViewFactory implements DataWindowViewFactory, DataWindowVi
         return new RandomAccessByIndexGetter();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new TimeAccumViewRStream(this, agentInstanceViewFactoryContext, timeDeltaComputation);
-        }
-        else {
+        } else {
             return new TimeAccumView(this, agentInstanceViewFactoryContext, timeDeltaComputation, randomAccess);
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
-        if (!(view instanceof TimeAccumView))
-        {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
+        if (!(view instanceof TimeAccumView)) {
             return false;
         }
 
         TimeAccumView myView = (TimeAccumView) view;
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
-        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation()))
-        {
+        if (!timeDeltaComputation.equalsTimePeriod(myView.getTimeDeltaComputation())) {
             return false;
         }
 

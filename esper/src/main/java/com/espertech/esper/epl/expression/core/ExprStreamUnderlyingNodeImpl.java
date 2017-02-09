@@ -19,8 +19,7 @@ import java.io.StringWriter;
 /**
  * Represents an stream selector that returns the streams underlying event, or null if undefined.
  */
-public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprStreamUnderlyingNode
-{
+public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprStreamUnderlyingNode {
     private final String streamName;
     private final boolean isWildcard;
     private int streamNum = -1;
@@ -28,10 +27,8 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
     private transient EventType eventType;
     private static final long serialVersionUID = 6611578192872250478L;
 
-    public ExprStreamUnderlyingNodeImpl(String streamName, boolean isWildcard)
-    {
-        if ((streamName == null) && (!isWildcard))
-        {
+    public ExprStreamUnderlyingNodeImpl(String streamName, boolean isWildcard) {
+        if ((streamName == null) && (!isWildcard)) {
             throw new IllegalArgumentException("Stream name is null");
         }
         this.streamName = streamName;
@@ -45,10 +42,10 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
 
     /**
      * Returns the stream name.
+     *
      * @return stream name
      */
-    public String getStreamName()
-    {
+    public String getStreamName() {
         return streamName;
     }
 
@@ -60,20 +57,17 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         return null;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (streamName == null && isWildcard) {
             if (validationContext.getStreamTypeService().getStreamNames().length > 1) {
                 throw new ExprValidationException("Wildcard must be stream wildcard if specifying multiple streams, use the 'streamname.*' syntax instead");
             }
             streamNum = 0;
-        }
-        else {
+        } else {
             streamNum = validationContext.getStreamTypeService().getStreamNumForStreamName(streamName);
         }
 
-        if (streamNum == -1)
-        {
+        if (streamNum == -1) {
             throw new ExprValidationException("Stream by name '" + streamName + "' could not be found among all streams");
         }
 
@@ -82,49 +76,48 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         return null;
     }
 
-    public Class getType()
-    {
-        if (streamNum == -1)
-        {
+    public Class getType() {
+        if (streamNum == -1) {
             throw new IllegalStateException("Stream underlying node has not been validated");
         }
         return type;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
     /**
      * Returns stream id supplying the property value.
+     *
      * @return stream number
      */
-    public int getStreamId()
-    {
-        if (streamNum == -1)
-        {
+    public int getStreamId() {
+        if (streamNum == -1) {
             throw new IllegalStateException("Stream underlying node has not been validated");
         }
         return streamNum;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "streamName=" + streamName +
                 " streamNum=" + streamNum;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprStreamUnd(this);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprStreamUnd(this);
+        }
         EventBean theEvent = eventsPerStream[streamNum];
-        if (theEvent == null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprStreamUnd(null);}
+        if (theEvent == null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprStreamUnd(null);
+            }
             return null;
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprStreamUnd(theEvent.getUnderlying());}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprStreamUnd(theEvent.getUnderlying());
+        }
         return theEvent.getUnderlying();
     }
 
@@ -143,10 +136,8 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         return eventType;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprStreamUnderlyingNodeImpl))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprStreamUnderlyingNodeImpl)) {
             return false;
         }
 
@@ -157,6 +148,6 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         if (this.isWildcard) {
             return true;
         }
-        return (this.streamName.equals(other.streamName));
+        return this.streamName.equals(other.streamName);
     }
 }

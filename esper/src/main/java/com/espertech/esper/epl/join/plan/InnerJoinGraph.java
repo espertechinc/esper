@@ -51,32 +51,26 @@ public class InnerJoinGraph {
             return true;
         }
         boolean hasInnerJoin = false;
-        for (InterchangeablePair<Integer, Integer> pair : innerJoins)
-        {
-            if (pair.getFirst() == toStream)
-            {
+        for (InterchangeablePair<Integer, Integer> pair : innerJoins) {
+            if (pair.getFirst() == toStream) {
                 hasInnerJoin = true;
             }
-            if (pair.getSecond() == toStream)
-            {
+            if (pair.getSecond() == toStream) {
                 hasInnerJoin = true;
             }
         }
         return hasInnerJoin;
     }
 
-    public static InnerJoinGraph graphInnerJoins(int numStreams, OuterJoinDesc[] outerJoinDescList)
-    {
-        if ((outerJoinDescList.length + 1) != numStreams)
-        {
+    public static InnerJoinGraph graphInnerJoins(int numStreams, OuterJoinDesc[] outerJoinDescList) {
+        if ((outerJoinDescList.length + 1) != numStreams) {
             throw new IllegalArgumentException("Number of outer join descriptors and number of streams not matching up");
         }
 
         Set<InterchangeablePair<Integer, Integer>> graph = new HashSet<InterchangeablePair<Integer, Integer>>();
 
         boolean allInnerJoin = true;
-        for (int i = 0; i < outerJoinDescList.length; i++)
-        {
+        for (int i = 0; i < outerJoinDescList.length; i++) {
             OuterJoinDesc desc = outerJoinDescList[i];
             int streamMax = i + 1;       // the outer join must references streams less then streamMax
 
@@ -86,19 +80,16 @@ public class InnerJoinGraph {
                 int streamTwo = desc.getOptRightNode().getStreamId();
 
                 if ((streamOne > streamMax) || (streamTwo > streamMax) ||
-                    (streamOne == streamTwo))
-                {
+                        (streamOne == streamTwo)) {
                     throw new IllegalArgumentException("Outer join descriptors reference future streams, or same streams");
                 }
 
-                if (desc.getOuterJoinType() == OuterJoinType.INNER)
-                {
+                if (desc.getOuterJoinType() == OuterJoinType.INNER) {
                     graph.add(new InterchangeablePair<Integer, Integer>(streamOne, streamTwo));
                 }
             }
 
-            if (desc.getOuterJoinType() != OuterJoinType.INNER)
-            {
+            if (desc.getOuterJoinType() != OuterJoinType.INNER) {
                 allInnerJoin = false;
             }
         }
@@ -119,19 +110,14 @@ public class InnerJoinGraph {
             return;
         }
 
-        for (InterchangeablePair<Integer, Integer> pair : innerJoins)
-        {
-            if (pair.getFirst() == streamNum)
-            {
-                if (!completedStreams.contains(pair.getSecond()))
-                {
+        for (InterchangeablePair<Integer, Integer> pair : innerJoins) {
+            if (pair.getFirst() == streamNum) {
+                if (!completedStreams.contains(pair.getSecond())) {
                     requiredStreams.add(pair.getSecond());
                 }
             }
-            if (pair.getSecond() == streamNum)
-            {
-                if (!completedStreams.contains(pair.getFirst()))
-                {
+            if (pair.getSecond() == streamNum) {
+                if (!completedStreams.contains(pair.getFirst())) {
                     requiredStreams.add(pair.getFirst());
                 }
             }

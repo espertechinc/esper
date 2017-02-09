@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.supportunit.util;
 
-public class SupportCtorObjectArray
-{
+public class SupportCtorObjectArray {
     private Object[] arguments;
 
-    public SupportCtorObjectArray(Object[] arguments)
-    {
+    public SupportCtorObjectArray(Object[] arguments) {
         this.arguments = arguments;
     }
 
-    public Object[] getArguments()
-    {
+    public Object[] getArguments() {
         return arguments;
-    }    
+    }
 }

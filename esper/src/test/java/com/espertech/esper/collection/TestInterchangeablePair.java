@@ -10,15 +10,14 @@
  */
 package com.espertech.esper.collection;
 
-import junit.framework.TestCase;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class TestInterchangeablePair extends TestCase
-{
+public class TestInterchangeablePair extends TestCase {
     private InterchangeablePair<String, String> pair1a = new InterchangeablePair<String, String>("a", "b");
     private InterchangeablePair<String, String> pair1b = new InterchangeablePair<String, String>("a", "c");
     private InterchangeablePair<String, String> pair1c = new InterchangeablePair<String, String>("c", "b");
@@ -36,8 +35,7 @@ public class TestInterchangeablePair extends TestCase
     private InterchangeablePair<String, String> pair4a = new InterchangeablePair<String, String>(null, null);
     private InterchangeablePair<String, String> pair4b = new InterchangeablePair<String, String>(null, null);
 
-    public void testEquals()
-    {
+    public void testEquals() {
         assertTrue(pair1a.equals(pair1d) && pair1d.equals(pair1a));
         assertTrue(pair1a.equals(pair1e) && pair1e.equals(pair1a));
         assertFalse(pair1a.equals(pair1b));
@@ -66,8 +64,7 @@ public class TestInterchangeablePair extends TestCase
         assertFalse(pair4a.equals(pair1b) || pair4a.equals(pair2a) || pair4a.equals(pair3a));
     }
 
-    public void testHashCode()
-    {
+    public void testHashCode() {
         assertTrue(pair1a.hashCode() == ("a".hashCode() ^ "b".hashCode()));
         assertTrue(pair2a.hashCode() == "a".hashCode());
         assertTrue(pair3a.hashCode() == "b".hashCode());
@@ -85,13 +82,11 @@ public class TestInterchangeablePair extends TestCase
         assertTrue(pair2b.hashCode() == pair3a.hashCode());
     }
 
-    public void testSetBehavior()
-    {
+    public void testSetBehavior() {
         Set<InterchangeablePair<EventBean, EventBean>> eventPairs = new HashSet<InterchangeablePair<EventBean, EventBean>>();
 
         EventBean[] events = new EventBean[4];
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             events[i] = SupportEventBeanFactory.createObject(new Integer(i));
         }
 

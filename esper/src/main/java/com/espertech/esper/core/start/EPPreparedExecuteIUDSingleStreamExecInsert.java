@@ -13,11 +13,10 @@ package com.espertech.esper.core.start;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 
-public class EPPreparedExecuteIUDSingleStreamExecInsert implements EPPreparedExecuteIUDSingleStreamExec
-{
+public class EPPreparedExecuteIUDSingleStreamExecInsert implements EPPreparedExecuteIUDSingleStreamExec {
     private final ExprEvaluatorContext exprEvaluatorContext;
     private final SelectExprProcessor insertHelper;
     private final ExprTableAccessNode[] optionalTableNodes;

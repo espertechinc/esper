@@ -48,15 +48,23 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
             throw new EPException("Unique index violation, table '" + tableMetadata.getTableName() + "' " +
                     "is a declared to hold a single un-keyed row");
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qTableAddEvent(theEvent); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qTableAddEvent(theEvent);
+        }
         eventReference.set((ObjectArrayBackedEventBean) theEvent);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aTableAddEvent(); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aTableAddEvent();
+        }
     }
 
     public void deleteEvent(EventBean matchingEvent) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qTableDeleteEvent(matchingEvent); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qTableDeleteEvent(matchingEvent);
+        }
         eventReference.set(null);
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aTableDeleteEvent(); }
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aTableDeleteEvent();
+        }
     }
 
     public AtomicReference<ObjectArrayBackedEventBean> getEventReference() {

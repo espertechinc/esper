@@ -19,45 +19,39 @@ import java.io.StringWriter;
 /**
  * Represents the "current_evaluation_context" function in an expression tree.
  */
-public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = -7345152240852371730L;
 
     /**
      * Ctor.
      */
-    public ExprCurrentEvaluationContextNode()
-    {
+    public ExprCurrentEvaluationContextNode() {
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
-        if (this.getChildNodes().length != 0)
-        {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+        if (this.getChildNodes().length != 0) {
             throw new ExprValidationException("current_evaluation_context function node cannot have a child node");
         }
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return EPLExpressionEvaluationContext.class;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         EPLExpressionEvaluationContext ctx = new EPLExpressionEvaluationContext(exprEvaluatorContext.getStatementName(), exprEvaluatorContext.getAgentInstanceId(), exprEvaluatorContext.getEngineURI(), exprEvaluatorContext.getStatementUserObject());
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qaExprConst(ctx);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qaExprConst(ctx);
+        }
         return ctx;
     }
 
@@ -69,10 +63,8 @@ public class ExprCurrentEvaluationContextNode extends ExprNodeBase implements Ex
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprCurrentEvaluationContextNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprCurrentEvaluationContextNode)) {
             return false;
         }
         return true;

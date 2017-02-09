@@ -15,7 +15,6 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
-public interface ExprSubselectStrategy
-{
+public interface ExprSubselectStrategy {
     public Collection<EventBean> evaluateMatching(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext);
 }

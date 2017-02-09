@@ -13,7 +13,6 @@ package com.espertech.esper.client;
 import com.espertech.esper.client.annotation.Name;
 import com.espertech.esper.dataflow.ops.BeaconSource;
 import com.espertech.esper.event.EventTypeUtility;
-import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

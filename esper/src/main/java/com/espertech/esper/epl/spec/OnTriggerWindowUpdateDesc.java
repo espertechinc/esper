@@ -15,17 +15,17 @@ import java.util.List;
 /**
  * Specification for the on-select and on-delete (no split-stream) statement.
  */
-public class OnTriggerWindowUpdateDesc extends OnTriggerWindowDesc
-{
+public class OnTriggerWindowUpdateDesc extends OnTriggerWindowDesc {
     private static final long serialVersionUID = 3796573624109335943L;
-    
+
     private List<OnTriggerSetAssignment> assignments;
 
     /**
      * Ctor.
-     * @param windowName the window name
+     *
+     * @param windowName     the window name
      * @param optionalAsName the optional name
-     * @param assignments set-assignments
+     * @param assignments    set-assignments
      */
     public OnTriggerWindowUpdateDesc(String windowName, String optionalAsName, List<OnTriggerSetAssignment> assignments) {
         super(windowName, optionalAsName, OnTriggerType.ON_UPDATE, false);
@@ -34,6 +34,7 @@ public class OnTriggerWindowUpdateDesc extends OnTriggerWindowDesc
 
     /**
      * Returns assignments.
+     *
      * @return assignments
      */
     public List<OnTriggerSetAssignment> getAssignments() {

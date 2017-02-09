@@ -32,7 +32,7 @@ import java.util.*;
 
 public class PopulateUtil {
     private final static String CLASS_PROPERTY_NAME = "class";
-    private final static String SYSTEM_PROPETIES_NAME = "systemProperties".toLowerCase();
+    private final static String SYSTEM_PROPETIES_NAME = "systemProperties".toLowerCase(Locale.ENGLISH);
 
     private static Logger log = LoggerFactory.getLogger(PopulateUtil.class);
 
@@ -46,14 +46,11 @@ public class PopulateUtil {
         Object top;
         try {
             top = applicableClass.newInstance();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             throw new ExprValidationException("Exception instantiating class " + applicableClass.getName() + ": " + e.getMessage(), e);
-        }
-        catch (InstantiationException e) {
+        } catch (InstantiationException e) {
             throw new ExprValidationException(getMessageExceptionInstantiating(applicableClass), e);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new ExprValidationException("Illegal access to construct class " + applicableClass.getName() + ": " + e.getMessage(), e);
         }
 
@@ -63,8 +60,7 @@ public class PopulateUtil {
     }
 
     public static void populateObject(String operatorName, int operatorNum, String dataFlowName, Map<String, Object> objectProperties, Object top, EngineImportService engineImportService, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         Class applicableClass = top.getClass();
         Set<WriteablePropertyDescriptor> writables = PropertyHelper.getWritableProperties(applicableClass);
         Set<Field> annotatedFields = JavaClassHelper.findAnnotatedFields(top.getClass(), DataFlowOpParameter.class);
@@ -93,18 +89,16 @@ public class PopulateUtil {
             // invoke catch-all setters
             for (Method method : catchAllMethods) {
                 try {
-                    method.invoke(top, new Object[] {propertyName, property.getValue()});
-                }
-                catch (IllegalAccessException e) {
+                    method.invoke(top, new Object[]{propertyName, property.getValue()});
+                } catch (IllegalAccessException e) {
                     throw new ExprValidationException("Illegal access invoking method for property '" + propertyName + "' for class " + applicableClass.getName() + " method " + method.getName(), e);
-                }
-                catch (InvocationTargetException e) {
+                } catch (InvocationTargetException e) {
                     throw new ExprValidationException("Exception invoking method for property '" + propertyName + "' for class " + applicableClass.getName() + " method " + method.getName() + ": " + e.getTargetException().getMessage(), e);
                 }
                 found = true;
             }
 
-            if (propertyName.toLowerCase().equals(CLASS_PROPERTY_NAME)) {
+            if (propertyName.toLowerCase(Locale.ENGLISH).equals(CLASS_PROPERTY_NAME)) {
                 continue;
             }
 
@@ -114,15 +108,12 @@ public class PopulateUtil {
                 Object coerceProperty = coerceProperty(propertyName, applicableClass, property.getValue(), descriptor.getType(), engineImportService, false, true);
 
                 try {
-                    descriptor.getWriteMethod().invoke(top, new Object[] {coerceProperty});
-                }
-                catch (IllegalArgumentException e) {
+                    descriptor.getWriteMethod().invoke(top, new Object[]{coerceProperty});
+                } catch (IllegalArgumentException e) {
                     throw new ExprValidationException("Illegal argument invoking setter method for property '" + propertyName + "' for class " + applicableClass.getName() + " method " + descriptor.getWriteMethod().getName() + " provided value " + coerceProperty, e);
-                }
-                catch (IllegalAccessException e) {
+                } catch (IllegalAccessException e) {
                     throw new ExprValidationException("Illegal access invoking setter method for property '" + propertyName + "' for class " + applicableClass.getName() + " method " + descriptor.getWriteMethod().getName(), e);
-                }
-                catch (InvocationTargetException e) {
+                } catch (InvocationTargetException e) {
                     throw new ExprValidationException("Exception invoking setter method for property '" + propertyName + "' for class " + applicableClass.getName() + " method " + descriptor.getWriteMethod().getName() + ": " + e.getTargetException().getMessage(), e);
                 }
                 continue;
@@ -136,8 +127,7 @@ public class PopulateUtil {
                     try {
                         annotatedField.setAccessible(true);
                         annotatedField.set(top, coerceProperty);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         throw new ExprValidationException("Failed to set field '" + annotatedField.getName() + "': " + e.getMessage(), e);
                     }
                     found = true;
@@ -163,14 +153,12 @@ public class PopulateUtil {
                         if (log.isDebugEnabled()) {
                             log.debug("Found parameter '" + uri + "' for data flow " + dataFlowName + " setting " + value);
                         }
-                    }
-                    else {
+                    } else {
                         if (log.isDebugEnabled()) {
                             log.debug("Not found parameter '" + uri + "' for data flow " + dataFlowName);
                         }
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw new ExprValidationException("Failed to set field '" + annotatedField.getName() + "': " + e.getMessage(), e);
                 }
             }
@@ -183,16 +171,14 @@ public class PopulateUtil {
                             String[] elements = URIUtil.parsePathElements(URI.create(entry.getKey()));
                             if (elements.length < 2) {
                                 throw new ExprValidationException("Failed to parse URI '" + entry.getKey() + "', expected " +
-                                        "'operator_name/property_name' format" );
+                                        "'operator_name/property_name' format");
                             }
                             if (elements[0].equals(operatorName)) {
                                 try {
-                                    method.invoke(top, new Object[] {elements[1], entry.getValue()});
-                                }
-                                catch (IllegalAccessException e) {
+                                    method.invoke(top, new Object[]{elements[1], entry.getValue()});
+                                } catch (IllegalAccessException e) {
                                     throw new ExprValidationException("Illegal access invoking method for property '" + entry.getKey() + "' for class " + applicableClass.getName() + " method " + method.getName(), e);
-                                }
-                                catch (InvocationTargetException e) {
+                                } catch (InvocationTargetException e) {
                                     throw new ExprValidationException("Exception invoking method for property '" + entry.getKey() + "' for class " + applicableClass.getName() + " method " + method.getName() + ": " + e.getTargetException().getMessage(), e);
                                 }
                             }
@@ -213,8 +199,7 @@ public class PopulateUtil {
                     if (value != null) {
                         annotatedField.set(top, value);
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw new ExprValidationException("Failed to set field '" + annotatedField.getName() + "': " + e.getMessage(), e);
                 }
             }
@@ -233,15 +218,13 @@ public class PopulateUtil {
         String className = (String) properties.get(CLASS_PROPERTY_NAME);
         try {
             clazz = JavaClassHelper.getClassForName(className, engineImportService.getClassForNameProvider());
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
 
             if (!className.contains(".")) {
                 className = topClass.getPackage().getName() + "." + className;
                 try {
                     clazz = JavaClassHelper.getClassForName(className, engineImportService.getClassForNameProvider());
-                }
-                catch (ClassNotFoundException ex) {
+                } catch (ClassNotFoundException ex) {
                 }
             }
 
@@ -257,18 +240,17 @@ public class PopulateUtil {
     }
 
     public static void populateSpecCheckParameters(PopulateFieldWValueDescriptor[] descriptors, Map<String, Object> jsonRaw, Object spec, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // lowercase keys
         Map<String, Object> lowerCaseJsonRaw = new LinkedHashMap<String, Object>();
         for (Map.Entry<String, Object> entry : jsonRaw.entrySet()) {
-            lowerCaseJsonRaw.put(entry.getKey().toLowerCase(), entry.getValue());
+            lowerCaseJsonRaw.put(entry.getKey().toLowerCase(Locale.ENGLISH), entry.getValue());
         }
         jsonRaw = lowerCaseJsonRaw;
 
         // apply values
         for (PopulateFieldWValueDescriptor desc : descriptors) {
-            Object value = jsonRaw.remove(desc.getPropertyName().toLowerCase());
+            Object value = jsonRaw.remove(desc.getPropertyName().toLowerCase(Locale.ENGLISH));
             Object coerced = coerceProperty(desc.getPropertyName(), desc.getContainerType(), value, desc.getFieldType(), engineImportService, desc.isForceNumeric(), false);
             desc.getSetter().set(coerced);
         }
@@ -286,19 +268,17 @@ public class PopulateUtil {
                 Property prop;
                 try {
                     prop = PropertyParser.parseAndWalkLaxToSimple(identNode.getFullUnresolvedName());
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     throw new ExprValidationException("Failed to parse property '" + identNode.getFullUnresolvedName() + "'");
                 }
                 if (!(prop instanceof MappedProperty)) {
                     throw new ExprValidationException("Unrecognized property '" + identNode.getFullUnresolvedName() + "'");
                 }
                 MappedProperty mappedProperty = (MappedProperty) prop;
-                if (mappedProperty.getPropertyNameAtomic().toLowerCase().equals(SYSTEM_PROPETIES_NAME)) {
+                if (mappedProperty.getPropertyNameAtomic().toLowerCase(Locale.ENGLISH).equals(SYSTEM_PROPETIES_NAME)) {
                     return System.getProperty(mappedProperty.getKey());
                 }
-            }
-            else {
+            } else {
                 ExprNode exprNode = (ExprNode) value;
                 ExprEvaluator evaluator = exprNode.getExprEvaluator();
                 if (evaluator == null) {
@@ -354,9 +334,9 @@ public class PopulateUtil {
     }
 
     private static WriteablePropertyDescriptor findDescriptor(Class clazz, String propertyName, Set<WriteablePropertyDescriptor> writables)
-        throws ExprValidationException {
+            throws ExprValidationException {
         for (WriteablePropertyDescriptor desc : writables) {
-            if (desc.getPropertyName().toLowerCase().equals(propertyName.toLowerCase())) {
+            if (desc.getPropertyName().toLowerCase(Locale.ENGLISH).equals(propertyName.toLowerCase(Locale.ENGLISH))) {
                 return desc;
             }
         }

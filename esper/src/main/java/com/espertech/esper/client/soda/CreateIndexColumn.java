@@ -12,14 +12,12 @@ package com.espertech.esper.client.soda;
 
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Locale;
 
 /**
  * Create an index on a named window.
  */
-public class CreateIndexColumn implements Serializable
-{
+public class CreateIndexColumn implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private String columnName;
@@ -33,6 +31,7 @@ public class CreateIndexColumn implements Serializable
 
     /**
      * Ctor.
+     *
      * @param columnName column name
      */
     public CreateIndexColumn(String columnName) {
@@ -41,8 +40,9 @@ public class CreateIndexColumn implements Serializable
 
     /**
      * Ctor.
+     *
      * @param columnName colum name
-     * @param type index type
+     * @param type       index type
      */
     public CreateIndexColumn(String columnName, CreateIndexColumnType type) {
         this.columnName = columnName;
@@ -51,19 +51,20 @@ public class CreateIndexColumn implements Serializable
 
     /**
      * Renders the clause in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPL(StringWriter writer)
-    {
+    public void toEPL(StringWriter writer) {
         writer.write(columnName);
         if (type != CreateIndexColumnType.HASH) {
             writer.write(' ');
-            writer.write(type.toString().toLowerCase());
+            writer.write(type.toString().toLowerCase(Locale.ENGLISH));
         }
     }
 
     /**
      * Returns the column name.
+     *
      * @return column name
      */
     public String getColumnName() {
@@ -72,6 +73,7 @@ public class CreateIndexColumn implements Serializable
 
     /**
      * Set the column name.
+     *
      * @param columnName name to set
      */
     public void setColumnName(String columnName) {
@@ -80,6 +82,7 @@ public class CreateIndexColumn implements Serializable
 
     /**
      * Returns the index type.
+     *
      * @return index type
      */
     public CreateIndexColumnType getType() {
@@ -88,6 +91,7 @@ public class CreateIndexColumn implements Serializable
 
     /**
      * Sets the index type.
+     *
      * @param type of index
      */
     public void setType(CreateIndexColumnType type) {

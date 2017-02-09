@@ -14,8 +14,8 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
+import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.spec.ContextDetailPartitionItem;
 import com.espertech.esper.epl.spec.ContextDetailPartitioned;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -24,7 +24,10 @@ import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.util.JavaClassHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 public class ContextControllerPartitionedUtil {
 
@@ -48,7 +51,7 @@ public class ContextControllerPartitionedUtil {
         // verify property number and types compatible
         ContextDetailPartitionItem firstItem = segmentedSpec.getItems().get(0);
         if (segmentedSpec.getItems().size() > 1) {
-        // verify the same filter event type is only listed once
+            // verify the same filter event type is only listed once
 
             for (int i = 0; i < segmentedSpec.getItems().size(); i++) {
                 EventType compareTo = segmentedSpec.getItems().get(i).getFilterSpecCompiled().getFilterForEventType();
@@ -118,8 +121,7 @@ public class ContextControllerPartitionedUtil {
     }
 
     protected static void validateStatementForContext(String contextName, ContextControllerStatementBase statement, StatementSpecCompiledAnalyzerResult streamAnalysis, Collection<EventType> itemEventTypes, NamedWindowMgmtService namedWindowMgmtService)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<FilterSpecCompiled> filters = streamAnalysis.getFilters();
 
         boolean isCreateWindow = statement.getStatementSpec().getCreateWindowDesc() != null;
@@ -198,8 +200,7 @@ public class ContextControllerPartitionedUtil {
                     foundPartition = partitionItem;
                 }
             }
-        }
-        else {
+        } else {
             String declaredAsName = optionalStatementSpecCompiled.getCreateWindowDesc().getAsEventTypeName();
             if (declaredAsName == null) {
                 return null;
@@ -224,8 +225,7 @@ public class ContextControllerPartitionedUtil {
             FilterSpecLookupable lookupable = new FilterSpecLookupable(propertyName, getter, resultType, false);
             FilterValueSetParam filter = getFilterMayEqualOrNull(lookupable, keyValue);
             addendumFilters.add(filter);
-        }
-        else {
+        } else {
             Object[] keys = ((MultiKeyUntyped) keyValue).getKeys();
             for (int i = 0; i < foundPartition.getPropertyNames().size(); i++) {
                 String partitionPropertyName = foundPartition.getPropertyNames().get(i);

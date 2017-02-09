@@ -11,16 +11,13 @@
 package com.espertech.esper.example.rfidassetzone;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.client.EventBean;
 
-import java.awt.Container;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JFrame;
-
-public class RFIDMouseDragExample extends JFrame
-{
+public class RFIDMouseDragExample extends JFrame {
     private final static int WIDTH = 600;
     private final static int HEIGHT = 400;
 
@@ -35,12 +32,9 @@ public class RFIDMouseDragExample extends JFrame
 
         EPServiceProvider epService = EPServiceProviderManager.getDefaultProvider(config);
 
-        LRMovingZoneStmt.createStmt(epService, 10, new UpdateListener()
-        {
-            public void update(EventBean[] newEvents, EventBean[] oldEvents)
-            {
-                for (int i = 0; i < newEvents.length; i++)
-                {
+        LRMovingZoneStmt.createStmt(epService, 10, new UpdateListener() {
+            public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+                for (int i = 0; i < newEvents.length; i++) {
                     System.out.println("ALERT: Asset group not moving together, zone " +
                             newEvents[i].get("Part.zone"));
                 }
@@ -61,7 +55,7 @@ public class RFIDMouseDragExample extends JFrame
         setVisible(true);
     }
 
-    public static void main(String arg[]) {
+    public static void main(String[] arg) {
         new RFIDMouseDragExample();
     }
 }

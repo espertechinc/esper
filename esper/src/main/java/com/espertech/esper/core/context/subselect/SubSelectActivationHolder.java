@@ -18,8 +18,7 @@ import com.espertech.esper.view.ViewFactoryChain;
 /**
  * Entry holding lookup resource references for use by {@link SubSelectActivationCollection}.
  */
-public class SubSelectActivationHolder
-{
+public class SubSelectActivationHolder {
     private final int streamNumber;
     private final EventType viewableType;
     private final ViewFactoryChain viewFactoryChain;
@@ -36,10 +35,10 @@ public class SubSelectActivationHolder
 
     /**
      * Returns lookup stream number.
+     *
      * @return stream num
      */
-    public int getStreamNumber()
-    {
+    public int getStreamNumber() {
         return streamNumber;
     }
 
@@ -49,10 +48,10 @@ public class SubSelectActivationHolder
 
     /**
      * Returns the lookup view factory chain
+     *
      * @return view factory chain
      */
-    public ViewFactoryChain getViewFactoryChain()
-    {
+    public ViewFactoryChain getViewFactoryChain() {
         return viewFactoryChain;
     }
 

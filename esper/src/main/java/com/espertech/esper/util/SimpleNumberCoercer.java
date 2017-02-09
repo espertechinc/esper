@@ -13,11 +13,11 @@ package com.espertech.esper.util;
 /**
  * Interface for number coercion.
  */
-public interface SimpleNumberCoercer
-{
+public interface SimpleNumberCoercer {
     /**
      * Coerce the given number to a previously determined type, assuming the type is a Boxed type. Allows coerce to lower resultion number.
      * Does't coerce to primitive types.
+     *
      * @param numToCoerce is the number to coerce to the given type
      * @return the numToCoerce as a value in the given result type
      */

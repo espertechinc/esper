@@ -23,12 +23,16 @@ import java.util.Deque;
 public interface ExpressionResultCacheForEnumerationMethod {
 
     void pushStack(ExpressionResultCacheStackEntry lambda);
+
     boolean popLambda();
+
     Deque<ExpressionResultCacheStackEntry> getStack();
 
     ExpressionResultCacheEntry<Long[], Object> getEnumerationMethodLastValue(Object node);
+
     void saveEnumerationMethodLastValue(Object node, Object result);
 
     void pushContext(long contextNumber);
+
     void popContext();
 }

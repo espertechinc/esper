@@ -10,40 +10,34 @@
  */
 package com.espertech.esper.supportunit.epl;
 
-import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoadIndexVisitor;
-import com.espertech.esper.epl.join.base.JoinSetComposer;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoadIndexVisitor;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.join.base.JoinSetComposer;
 
 import java.util.Set;
 
-public class SupportJoinSetComposer implements JoinSetComposer
-{
+public class SupportJoinSetComposer implements JoinSetComposer {
     private UniformPair<Set<MultiKey<EventBean>>> result;
 
-    public SupportJoinSetComposer(UniformPair<Set<MultiKey<EventBean>>> result)
-    {
+    public SupportJoinSetComposer(UniformPair<Set<MultiKey<EventBean>>> result) {
         this.result = result;
     }
 
-    public void init(EventBean[][] eventsPerStream)
-    {        
+    public void init(EventBean[][] eventsPerStream) {
     }
 
-    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public UniformPair<Set<MultiKey<EventBean>>> join(EventBean[][] newDataPerStream, EventBean[][] oldDataPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         return result;
     }
 
-    public Set<MultiKey<EventBean>> staticJoin()
-    {
+    public Set<MultiKey<EventBean>> staticJoin() {
         return null;
     }
 
-    public void destroy()
-    {        
+    public void destroy() {
     }
 
     public void visitIndexes(StatementAgentInstancePostLoadIndexVisitor visitor) {

@@ -20,17 +20,17 @@ import org.antlr.v4.runtime.tree.Tree;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class ASTExpressionDeclHelper
-{
+public class ASTExpressionDeclHelper {
     public static Pair<ExpressionDeclItem, ExpressionScriptProvided> walkExpressionDecl(EsperEPL2GrammarParser.ExpressionDeclContext ctx, List<String> scriptBodies, Map<Tree, ExprNode> astExprNodeMap, CommonTokenStream tokenStream) {
 
         String name = ctx.name.getText();
 
         if (ctx.alias != null) {
-            if (!ctx.alias.getText().toLowerCase().trim().equals("alias")) {
-                throw ASTWalkException.from("For expression alias '" + name + "' expecting 'alias' keyword but received '" + ctx.alias.getText() +"'");
+            if (!ctx.alias.getText().toLowerCase(Locale.ENGLISH).trim().equals("alias")) {
+                throw ASTWalkException.from("For expression alias '" + name + "' expecting 'alias' keyword but received '" + ctx.alias.getText() + "'");
             }
             if (ctx.columnList() != null) {
                 throw ASTWalkException.from("For expression alias '" + name + "' expecting no parameters but received '" + tokenStream.getText(ctx.columnList()) + "'");

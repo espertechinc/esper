@@ -23,19 +23,18 @@ import java.lang.reflect.Method;
 /**
  * Getter for a key property identified by a given key value, using vanilla reflection.
  */
-public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped, EventPropertyGetterAndIndexed
-{
+public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implements BeanEventPropertyGetter, EventPropertyGetterAndMapped, EventPropertyGetterAndIndexed {
     private final Method method;
     private final Object key;
 
     /**
      * Constructor.
-     * @param method is the method to use to retrieve a value from the object.
-     * @param key is the key to supply as parameter to the mapped property getter
+     *
+     * @param method              is the method to use to retrieve a value from the object.
+     * @param key                 is the key to supply as parameter to the mapped property getter
      * @param eventAdapterService factory for event beans and event types
      */
-    public KeyedMethodPropertyGetter(Method method, Object key, EventAdapterService eventAdapterService)
-    {
+    public KeyedMethodPropertyGetter(Method method, Object key, EventAdapterService eventAdapterService) {
         super(eventAdapterService, method.getReturnType(), null);
         this.key = key;
         this.method = method;
@@ -53,50 +52,36 @@ public class KeyedMethodPropertyGetter extends BaseNativePropertyGetter implemen
         return getBeanPropInternal(object, key);
     }
 
-    private Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException
-    {
-        try
-        {
+    private Object getBeanPropInternal(Object object, Object key) throws PropertyAccessException {
+        try {
             return method.invoke(object, key);
-        }
-        catch (ClassCastException e)
-        {
+        } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
-        }
-        catch (InvocationTargetException e)
-        {
+        } catch (InvocationTargetException e) {
             throw PropertyUtility.getInvocationTargetException(method, e);
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             throw PropertyUtility.getIllegalAccessException(method, e);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(method, e);
         }
     }
 
-    public boolean isBeanExistsProperty(Object object)
-    {
+    public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 
-    public final Object get(EventBean obj) throws PropertyAccessException
-    {
+    public final Object get(EventBean obj) throws PropertyAccessException {
         Object underlying = obj.getUnderlying();
         return getBeanProp(underlying);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "KeyedMethodPropertyGetter " +
                 " method=" + method.toString() +
                 " key=" + key;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
 }

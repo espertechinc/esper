@@ -84,12 +84,10 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
         if (next instanceof EPDataFlowSignal) {
             EPDataFlowSignal signal = (EPDataFlowSignal) next;
             graphContext.submitSignal(signal);
-        }
-        else if (next instanceof PortAndMessagePair) {
+        } else if (next instanceof PortAndMessagePair) {
             PortAndMessagePair pair = (PortAndMessagePair) next;
             graphContext.submitPort(pair.getPort(), pair.getMessage());
-        }
-        else {
+        } else {
             graphContext.submit(next);
         }
     }
@@ -103,8 +101,7 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
             if (stmt != null) {
                 addStatement(stmt);
             }
-        }
-        else {
+        } else {
             String[] statements = statementLifecycleSvc.getStatementNames();
             for (String name : statements) {
                 EPStatement stmt = statementLifecycleSvc.getStatementByName(name);
@@ -129,8 +126,7 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
                     if (theEvent.getStatement().getName().equals(statementName)) {
                         addStatement(stmt);
                     }
-                }
-                else {
+                } else {
                     if (statementFilter.pass(stmt)) {
                         addStatement(stmt);
                     }
@@ -143,8 +139,7 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
         for (Map.Entry<EPStatement, StatementAwareUpdateListener> entry : listeners.entrySet()) {
             try {
                 entry.getKey().removeListener(entry.getValue());
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 log.debug("Exception encountered removing listener: " + ex.getMessage(), ex);
                 // possible
             }
@@ -162,8 +157,7 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
         StatementAwareUpdateListener listener;
         if (collector == null) {
             listener = new EmitterUpdateListener(emittables, submitEventBean);
-        }
-        else {
+        } else {
             LocalEmitter emitterForCollector = new LocalEmitter(emittables);
             listener = new EmitterCollectorUpdateListener(collector, emitterForCollector, collectorDataTL, submitEventBean);
         }
@@ -187,8 +181,7 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
                 for (EventBean newEvent : newEvents) {
                     if (submitEventBean) {
                         queue.add(newEvent);
-                    }
-                    else {
+                    } else {
                         Object underlying = newEvent.getUnderlying();
                         queue.add(underlying);
                     }
@@ -216,8 +209,7 @@ public class EPStatementSource implements DataFlowSourceOperator, DataFlowOpLife
             if (holder == null) {
                 holder = new EPDataFlowIRStreamCollectorContext(emitterForCollector, submitEventBean, newEvents, oldEvents, statement, epServiceProvider);
                 collectorDataTL.set(holder);
-            }
-            else {
+            } else {
                 holder.setEpServiceProvider(epServiceProvider);
                 holder.setStatement(statement);
                 holder.setOldEvents(oldEvents);

@@ -31,8 +31,7 @@ import java.util.Map;
  * The view computes a single long-typed count of the number of events passed through it similar
  * to the base statistics COUNT column.
  */
-public class SizeView extends ViewSupport implements CloneableView
-{
+public class SizeView extends ViewSupport implements CloneableView {
     private final AgentInstanceContext agentInstanceContext;
     private final EventType eventType;
     private final StatViewAdditionalProps additionalProps;
@@ -41,34 +40,30 @@ public class SizeView extends ViewSupport implements CloneableView
     private EventBean lastSizeEvent;
     protected Object[] lastValuesEventNew;
 
-    public SizeView(AgentInstanceContext agentInstanceContext, EventType eventType, StatViewAdditionalProps additionalProps)
-    {
+    public SizeView(AgentInstanceContext agentInstanceContext, EventType eventType, StatViewAdditionalProps additionalProps) {
         this.agentInstanceContext = agentInstanceContext;
         this.eventType = eventType;
         this.additionalProps = additionalProps;
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return new SizeView(agentInstanceContext, eventType, additionalProps);
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return eventType;
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, SizeViewFactory.NAME, newData, oldData);}
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, SizeViewFactory.NAME, newData, oldData);
+        }
         long priorSize = size;
 
         // If we have child views, keep a reference to the old values, so we can update them as old data event.
         EventBean oldDataMap = null;
-        if (lastSizeEvent == null)
-        {
-            if (this.hasViews())
-            {
+        if (lastSizeEvent == null) {
+            if (this.hasViews()) {
                 Map<String, Object> postOldData = new HashMap<String, Object>();
                 postOldData.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), priorSize);
                 addProperties(postOldData);
@@ -77,8 +72,7 @@ public class SizeView extends ViewSupport implements CloneableView
         }
 
         // add data points to the window
-        if (newData != null)
-        {
+        if (newData != null) {
             size += newData.length;
 
             if ((additionalProps != null) && (newData.length != 0)) {
@@ -86,19 +80,17 @@ public class SizeView extends ViewSupport implements CloneableView
                     lastValuesEventNew = new Object[additionalProps.getAdditionalExpr().length];
                 }
                 for (int val = 0; val < additionalProps.getAdditionalExpr().length; val++) {
-                    lastValuesEventNew[val] = additionalProps.getAdditionalExpr()[val].evaluate(new EventBean[] {newData[newData.length - 1]}, true, agentInstanceContext);
+                    lastValuesEventNew[val] = additionalProps.getAdditionalExpr()[val].evaluate(new EventBean[]{newData[newData.length - 1]}, true, agentInstanceContext);
                 }
             }
         }
 
-        if (oldData != null)
-        {
+        if (oldData != null) {
             size -= oldData.length;
         }
 
         // If there are child views, fireStatementStopped update method
-        if ((this.hasViews()) && (priorSize != size))
-        {
+        if ((this.hasViews()) && (priorSize != size)) {
             Map<String, Object> postNewData = new HashMap<String, Object>();
             postNewData.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), size);
             addProperties(postNewData);
@@ -106,38 +98,40 @@ public class SizeView extends ViewSupport implements CloneableView
 
             EventBean[] oldEvents;
             if (lastSizeEvent != null) {
-                oldEvents = new EventBean[] {lastSizeEvent};
+                oldEvents = new EventBean[]{lastSizeEvent};
+            } else {
+                oldEvents = new EventBean[]{oldDataMap};
             }
-            else {
-                oldEvents =  new EventBean[] {oldDataMap};
-            }
-            EventBean[] newEvents = new EventBean[] {newEvent};
+            EventBean[] newEvents = new EventBean[]{newEvent};
 
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, SizeViewFactory.NAME, newEvents, oldEvents);}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, SizeViewFactory.NAME, newEvents, oldEvents);
+            }
             updateChildren(newEvents, oldEvents);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
 
             lastSizeEvent = newEvent;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         HashMap<String, Object> current = new HashMap<String, Object>();
         current.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), size);
         addProperties(current);
         return new SingleEventIterator(agentInstanceContext.getStatementContext().getEventAdapterService().adapterForTypedMap(current, eventType));
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 
-    public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum)
-    {
+    public static EventType createEventType(StatementContext statementContext, StatViewAdditionalProps additionalProps, int streamNum) {
         Map<String, Object> schemaMap = new HashMap<String, Object>();
         schemaMap.put(ViewFieldEnum.SIZE_VIEW__SIZE.getName(), long.class);
         StatViewAdditionalProps.addCheckDupProperties(schemaMap, additionalProps, ViewFieldEnum.SIZE_VIEW__SIZE);
@@ -145,8 +139,7 @@ public class SizeView extends ViewSupport implements CloneableView
         return statementContext.getEventAdapterService().createAnonymousMapType(outputEventTypeName, schemaMap, false);
     }
 
-    private void addProperties(Map<String, Object> newDataMap)
-    {
+    private void addProperties(Map<String, Object> newDataMap) {
         if (additionalProps == null) {
             return;
         }

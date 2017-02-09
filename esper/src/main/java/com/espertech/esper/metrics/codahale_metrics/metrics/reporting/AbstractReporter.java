@@ -34,8 +34,8 @@ public abstract class AbstractReporter {
     /**
      * Creates a new {@link AbstractReporter} instance.
      *
-     * @param registry    the {@link MetricsRegistry} containing the metrics this reporter will
-     *                    report
+     * @param registry the {@link MetricsRegistry} containing the metrics this reporter will
+     *                 report
      */
     protected AbstractReporter(MetricsRegistry registry) {
         this.metricsRegistry = registry;

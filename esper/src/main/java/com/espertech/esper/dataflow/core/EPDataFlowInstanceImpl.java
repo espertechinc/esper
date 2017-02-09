@@ -103,7 +103,7 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
                 emitters.put(emitter.getName(), emitter);
             }
         }
-        
+
         return new EPDataFlowInstanceCaptive(emitters, sourceRunnables);
     }
 
@@ -117,19 +117,17 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
         }
 
         callOperatorOpen();
-        
+
         GraphSourceRunnable sourceRunnable = sourceRunnables.get(0);
         setState(EPDataFlowState.RUNNING);
         runCurrentThread = Thread.currentThread();
         try {
             sourceRunnable.runSync();
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             callOperatorClose();
             setState(EPDataFlowState.CANCELLED);
             throw new EPDataFlowCancellationException("Data flow '" + dataFlowName + "' execution was cancelled", dataFlowName);
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             callOperatorClose();
             setState(EPDataFlowState.COMPLETE);
             throw new EPDataFlowExecutionException("Exception encountered running data flow '" + dataFlowName + "': " + t.getMessage(), t, dataFlowName);
@@ -182,8 +180,7 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
             for (Thread thread : threads) {
                 thread.join();
             }
-        }
-        else {
+        } else {
             CountDownLatch latch = new CountDownLatch(1);
             synchronized (this) {
                 if (joinedThreadLatches == null) {
@@ -218,9 +215,8 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
                     thread.interrupt();
                 }
             }
-        }
-        // handle run
-        else {
+        } else {
+            // handle run
             if (runCurrentThread != null) {
                 runCurrentThread.interrupt();
             }
@@ -276,8 +272,7 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
                 try {
                     DataFlowOpLifecycle lf = (DataFlowOpLifecycle) operatorStatePair.getFirst();
                     lf.close(new DataFlowOpCloseContext());
-                }
-                catch (RuntimeException ex) {
+                } catch (RuntimeException ex) {
                     log.error("Exception encountered closing data flow '" + dataFlowName + "': " + ex.getMessage(), ex);
                 }
                 operatorStatePair.setSecond(true);
@@ -292,8 +287,7 @@ public class EPDataFlowInstanceImpl implements EPDataFlowInstance, CompletionLis
                 try {
                     DataFlowOpLifecycle lf = (DataFlowOpLifecycle) operatorStatePair.getFirst();
                     lf.open(new DataFlowOpOpenContext());
-                }
-                catch (RuntimeException ex) {
+                } catch (RuntimeException ex) {
                     throw new EPDataFlowExecutionException("Exception encountered opening data flow 'FlowOne' in operator " + operatorStatePair.getFirst().getClass().getSimpleName() + ": " + ex.getMessage(), ex, dataFlowName);
                 }
             }

@@ -3,11 +3,10 @@ package com.espertech.esper.example.stockticker;
 import com.espertech.esper.example.stockticker.eventbean.PriceLimit;
 import com.espertech.esper.example.stockticker.eventbean.StockTick;
 
-import java.util.Random;
 import java.util.LinkedList;
+import java.util.Random;
 
-public class StockTickerEventGenerator
-{
+public class StockTickerEventGenerator {
     private Random random = new Random(System.currentTimeMillis());
 
     public LinkedList<Object> makeEventStream(int numberOfTicks,
@@ -17,39 +16,33 @@ public class StockTickerEventGenerator
                                               double priceLimitPctUpperLimit,
                                               double priceLowerLimit,
                                               double priceUpperLimit,
-                                              boolean isLastTickOutOfLimit)
-    {
+                                              boolean isLastTickOutOfLimit) {
         LinkedList<Object> stream = new LinkedList<Object>();
 
-        PriceLimit limitBeans[] = makeLimits("example_user", numberOfStocks, priceLimitPctLowerLimit, priceLimitPctUpperLimit);
+        PriceLimit[] limitBeans = makeLimits("example_user", numberOfStocks, priceLimitPctLowerLimit, priceLimitPctUpperLimit);
 
-        for (int i = 0; i < limitBeans.length; i++)
-        {
+        for (int i = 0; i < limitBeans.length; i++) {
             stream.add(limitBeans[i]);
         }
 
         // The first stock ticker sets up an initial price
-        StockTick initialPrices[] = makeInitialPriceStockTicks(limitBeans, priceLowerLimit, priceUpperLimit);
+        StockTick[] initialPrices = makeInitialPriceStockTicks(limitBeans, priceLowerLimit, priceUpperLimit);
 
-        for (int i = 0; i < initialPrices.length; i++)
-        {
+        for (int i = 0; i < initialPrices.length; i++) {
             stream.add(initialPrices[i]);
         }
 
-        for (int i = 0; i < numberOfTicks; i++)
-        {
+        for (int i = 0; i < numberOfTicks; i++) {
             int index = i % limitBeans.length;
             StockTick tick = makeStockTick(limitBeans[index], initialPrices[index]);
 
             // Generate an out-of-limit price
-            if ((i % ratioOutOfLimit) == 0)
-            {
+            if ((i % ratioOutOfLimit) == 0) {
                 tick = new StockTick(tick.getStockSymbol(), -1);
             }
 
             // Last tick is out-of-limit as well
-            if ((i == (numberOfTicks - 1)) && (isLastTickOutOfLimit))
-            {
+            if ((i == (numberOfTicks - 1)) && isLastTickOutOfLimit) {
                 tick = new StockTick(tick.getStockSymbol(), 9999);
             }
 
@@ -59,21 +52,18 @@ public class StockTickerEventGenerator
         return stream;
     }
 
-    public StockTick makeStockTick(PriceLimit limitBean, StockTick initialPrice)
-    {
+    public StockTick makeStockTick(PriceLimit limitBean, StockTick initialPrice) {
         String stockSymbol = limitBean.getStockSymbol();
         double range = initialPrice.getPrice() * limitBean.getLimitPct() / 100;
-        double price = (initialPrice.getPrice() - range + (range * 2 * random.nextDouble()));
+        double price = initialPrice.getPrice() - range + (range * 2 * random.nextDouble());
 
         double priceReducedPrecision = to1tenthPrecision(price);
 
-        if (priceReducedPrecision < (initialPrice.getPrice() - range))
-        {
+        if (priceReducedPrecision < (initialPrice.getPrice() - range)) {
             priceReducedPrecision = initialPrice.getPrice();
         }
 
-        if (priceReducedPrecision > (initialPrice.getPrice() + range))
-        {
+        if (priceReducedPrecision > (initialPrice.getPrice() + range)) {
             priceReducedPrecision = initialPrice.getPrice();
         }
 
@@ -81,18 +71,16 @@ public class StockTickerEventGenerator
     }
 
     public PriceLimit[] makeLimits(String userName,
-                                          int numBeans,
-                                          double limit_pct_lower_boundary,
-                                          double limit_pct_upper_boundary)
-    {
+                                   int numBeans,
+                                   double limitPctLowerBoundary,
+                                   double limitPctUpperBoundary) {
         PriceLimit[] limitBeans = new PriceLimit[numBeans];
 
-        for (int i = 0; i < numBeans; i++)
-        {
+        for (int i = 0; i < numBeans; i++) {
             String stockSymbol = "SYM_" + i;
 
-            double diff = limit_pct_upper_boundary - limit_pct_lower_boundary;
-            double limitPct = limit_pct_lower_boundary + (random.nextDouble() * diff);
+            double diff = limitPctUpperBoundary - limitPctLowerBoundary;
+            double limitPct = limitPctLowerBoundary + (random.nextDouble() * diff);
 
             limitBeans[i] = new PriceLimit(userName, stockSymbol, to1tenthPrecision(limitPct));
         }
@@ -100,19 +88,17 @@ public class StockTickerEventGenerator
         return limitBeans;
     }
 
-    public StockTick[] makeInitialPriceStockTicks(PriceLimit limitBeans[],
-                                              double price_lower_boundary,
-                                              double price_upper_boundary)
-    {
+    public StockTick[] makeInitialPriceStockTicks(PriceLimit[] limitBeans,
+                                                  double priceLowerBoundary,
+                                                  double priceUpperBoundary) {
         StockTick[] stockTickBeans = new StockTick[limitBeans.length];
 
-        for (int i = 0; i < stockTickBeans.length; i++)
-        {
+        for (int i = 0; i < stockTickBeans.length; i++) {
             String stockSymbol = limitBeans[i].getStockSymbol();
 
             // Determine a random price
-            double diff = price_upper_boundary - price_lower_boundary;
-            double price = price_lower_boundary + random.nextDouble() * diff;
+            double diff = priceUpperBoundary - priceLowerBoundary;
+            double price = priceLowerBoundary + random.nextDouble() * diff;
 
             stockTickBeans[i] = new StockTick(stockSymbol, to1tenthPrecision(price));
         }
@@ -120,8 +106,7 @@ public class StockTickerEventGenerator
         return stockTickBeans;
     }
 
-    private double to1tenthPrecision(double aDouble)
-    {
+    private double to1tenthPrecision(double aDouble) {
         int intValue = (int) (aDouble * 10);
         return intValue / 10.0;
     }

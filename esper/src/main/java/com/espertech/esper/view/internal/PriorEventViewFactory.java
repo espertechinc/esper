@@ -25,8 +25,7 @@ import java.util.SortedMap;
 /**
  * Factory for making {@link PriorEventView} instances.
  */
-public class PriorEventViewFactory implements ViewFactory
-{
+public class PriorEventViewFactory implements ViewFactory {
     private EventType eventType;
 
     /**
@@ -35,16 +34,14 @@ public class PriorEventViewFactory implements ViewFactory
      */
     protected boolean isUnbound;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         if (expressionParameters.size() != 1) {
             throw new ViewParameterException("View requires a single parameter indicating unbound or not");
         }
         isUnbound = (Boolean) ViewFactorySupport.validateAndEvaluate(getViewName(), viewFactoryContext.getStatementContext(), expressionParameters.get(0));
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         eventType = parentEventType;
     }
 
@@ -54,31 +51,24 @@ public class PriorEventViewFactory implements ViewFactory
 
     public ViewUpdatedCollection makeViewUpdatedCollection(SortedMap<Integer, List<ExprPriorNode>> callbacksPerIndex, int agentInstanceId) {
 
-        if (callbacksPerIndex.isEmpty())
-        {
+        if (callbacksPerIndex.isEmpty()) {
             throw new IllegalStateException("No resources requested");
         }
 
         // Construct an array of requested prior-event indexes (such as 10th prior event, 8th prior = {10, 8})
         int[] requested = new int[callbacksPerIndex.size()];
         int count = 0;
-        for (int reqIndex : callbacksPerIndex.keySet())
-        {
+        for (int reqIndex : callbacksPerIndex.keySet()) {
             requested[count++] = reqIndex;
         }
 
         // For unbound streams the buffer is strictly rolling new events
-        if (isUnbound)
-        {
+        if (isUnbound) {
             return new PriorEventBufferUnbound(callbacksPerIndex.lastKey());
-        }
-        // For bound streams (with views posting old and new data), and if only one prior index requested
-        else if (requested.length == 1)
-        {
+        } else if (requested.length == 1) {
+            // For bound streams (with views posting old and new data), and if only one prior index requested
             return new PriorEventBufferSingle(requested[0]);
-        }
-        else
-        {
+        } else {
             // For bound streams (with views posting old and new data)
             // Multiple prior event indexes requested, such as "prior(2, price), prior(8, price)"
             // Sharing a single viewUpdatedCollection for multiple prior-event indexes
@@ -86,13 +76,11 @@ public class PriorEventViewFactory implements ViewFactory
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         return false;
     }
 

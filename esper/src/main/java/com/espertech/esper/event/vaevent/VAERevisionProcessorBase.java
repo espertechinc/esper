@@ -21,8 +21,7 @@ import java.util.Map;
 /**
  * Base revision processor.
  */
-public abstract class VAERevisionProcessorBase implements ValueAddEventProcessor
-{
+public abstract class VAERevisionProcessorBase implements ValueAddEventProcessor {
     /**
      * Revision type specification.
      */
@@ -50,56 +49,47 @@ public abstract class VAERevisionProcessorBase implements ValueAddEventProcessor
 
     /**
      * Ctor.
-     * @param revisionSpec specification
+     *
+     * @param revisionSpec          specification
      * @param revisioneventTypeName name of event type
-     * @param eventAdapterService for nested property handling
+     * @param eventAdapterService   for nested property handling
      */
-    protected VAERevisionProcessorBase(RevisionSpec revisionSpec, String revisioneventTypeName, EventAdapterService eventAdapterService)
-    {
+    protected VAERevisionProcessorBase(RevisionSpec revisionSpec, String revisioneventTypeName, EventAdapterService eventAdapterService) {
         this.revisionSpec = revisionSpec;
         this.revisionEventTypeName = revisioneventTypeName;
         this.eventAdapterService = eventAdapterService;
         this.typeDescriptors = new HashMap<EventType, RevisionTypeDesc>();
     }
 
-    public RevisionEventType getValueAddEventType()
-    {
+    public RevisionEventType getValueAddEventType() {
         return revisionEventType;
     }
 
-    public void validateEventType(EventType eventType) throws ExprValidationException
-    {
-        if (eventType == revisionSpec.getBaseEventType())
-        {
+    public void validateEventType(EventType eventType) throws ExprValidationException {
+        if (eventType == revisionSpec.getBaseEventType()) {
             return;
         }
-        if (typeDescriptors.containsKey(eventType))
-        {
+        if (typeDescriptors.containsKey(eventType)) {
             return;
         }
 
-        if (eventType == null)
-        {
+        if (eventType == null) {
             throw new ExprValidationException(getMessage());
         }
 
         // Check all the supertypes to see if one of the matches the full or delta types
         Iterator<EventType> deepSupers = eventType.getDeepSuperTypes();
-        if (deepSupers == null)
-        {
+        if (deepSupers == null) {
             throw new ExprValidationException(getMessage());
         }
 
         EventType type;
-        for (;deepSupers.hasNext();)
-        {
+        for (; deepSupers.hasNext(); ) {
             type = deepSupers.next();
-            if (type == revisionSpec.getBaseEventType())
-            {
+            if (type == revisionSpec.getBaseEventType()) {
                 return;
             }
-            if (typeDescriptors.containsKey(type))
-            {
+            if (typeDescriptors.containsKey(type)) {
                 return;
             }
         }
@@ -107,8 +97,7 @@ public abstract class VAERevisionProcessorBase implements ValueAddEventProcessor
         throw new ExprValidationException(getMessage());
     }
 
-    private String getMessage()
-    {
+    private String getMessage() {
         return "Selected event type is not a valid base or delta event type of revision event type '"
                 + revisionEventTypeName + "'";
     }

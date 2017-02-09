@@ -17,8 +17,7 @@ import junit.framework.TestCase;
 
 import java.util.*;
 
-public class TestCollectionUtil extends TestCase
-{
+public class TestCollectionUtil extends TestCase {
     public void testArrayExpandSingle() {
         runAssertionExpandSingle("a", "", "a");
         runAssertionExpandSingle("a,b", "a", "b");
@@ -79,19 +78,19 @@ public class TestCollectionUtil extends TestCase
         }
         assertFalse(e[0].equals(e[1]));
 
-        Object[][] testData = new Object[][] {
-                {new EventBean[] {}, new EventBean[] {}, "p2"},
-                {new EventBean[] {}, new EventBean[] {e[0], e[1]}, "p2"},
-                {new EventBean[] {e[0]}, new EventBean[] {}, "p1"},
-                {new EventBean[] {e[0]}, new EventBean[] {e[0]}, "p1"},
-                {new EventBean[] {e[0]}, new EventBean[] {e[1]}, new EventBean[] {e[0], e[1]}},
-                {new EventBean[] {e[0], e[1]}, new EventBean[] {e[1]}, "p1"},
-                {new EventBean[] {e[0], e[1]}, new EventBean[] {e[0]}, "p1"},
-                {new EventBean[] {e[0]}, new EventBean[] {e[0], e[1]}, "p2"},
-                {new EventBean[] {e[1]}, new EventBean[] {e[0], e[1]}, "p2"},
-                {new EventBean[] {e[2]}, new EventBean[] {e[0], e[1]}, new EventBean[] {e[0], e[1], e[2]}},
-                {new EventBean[] {e[2], e[0]}, new EventBean[] {e[0], e[1]}, new EventBean[] {e[0], e[1], e[2]}},
-                {new EventBean[] {e[2], e[0]}, new EventBean[] {e[0], e[1], e[2]}, new EventBean[] {e[0], e[1], e[2]}}
+        Object[][] testData = new Object[][]{
+                {new EventBean[]{}, new EventBean[]{}, "p2"},
+                {new EventBean[]{}, new EventBean[]{e[0], e[1]}, "p2"},
+                {new EventBean[]{e[0]}, new EventBean[]{}, "p1"},
+                {new EventBean[]{e[0]}, new EventBean[]{e[0]}, "p1"},
+                {new EventBean[]{e[0]}, new EventBean[]{e[1]}, new EventBean[]{e[0], e[1]}},
+                {new EventBean[]{e[0], e[1]}, new EventBean[]{e[1]}, "p1"},
+                {new EventBean[]{e[0], e[1]}, new EventBean[]{e[0]}, "p1"},
+                {new EventBean[]{e[0]}, new EventBean[]{e[0], e[1]}, "p2"},
+                {new EventBean[]{e[1]}, new EventBean[]{e[0], e[1]}, "p2"},
+                {new EventBean[]{e[2]}, new EventBean[]{e[0], e[1]}, new EventBean[]{e[0], e[1], e[2]}},
+                {new EventBean[]{e[2], e[0]}, new EventBean[]{e[0], e[1]}, new EventBean[]{e[0], e[1], e[2]}},
+                {new EventBean[]{e[2], e[0]}, new EventBean[]{e[0], e[1], e[2]}, new EventBean[]{e[0], e[1], e[2]}}
         };
 
         for (int i = 0; i < testData.length; i++) {
@@ -103,11 +102,9 @@ public class TestCollectionUtil extends TestCase
 
             if (expectedObj.equals("p1")) {
                 assertTrue(result == p1);
-            }
-            else if (expectedObj.equals("p2")) {
+            } else if (expectedObj.equals("p2")) {
                 assertTrue(result == p2);
-            }
-            else {
+            } else {
                 EventBean[] resultArray = (EventBean[]) result;
                 EventBean[] expectedArray = (EventBean[]) result;
                 EPAssertionUtil.assertEqualsAnyOrder(resultArray, expectedArray);
@@ -116,28 +113,26 @@ public class TestCollectionUtil extends TestCase
     }
 
     public void testAddArray() {
-        tryAddStringArr("b,a".split(","), CollectionUtil.addArrays(new String[] {"b"}, new String[] {"a"}));
-        tryAddStringArr("a".split(","), CollectionUtil.addArrays(null, new String[] {"a"}));
-        tryAddStringArr("b".split(","), CollectionUtil.addArrays(new String[] {"b"}, null));
-        tryAddStringArr("a,b,c,d".split(","), CollectionUtil.addArrays(new String[] {"a", "b"}, new String[] {"c", "d"}));
+        tryAddStringArr("b,a".split(","), CollectionUtil.addArrays(new String[]{"b"}, new String[]{"a"}));
+        tryAddStringArr("a".split(","), CollectionUtil.addArrays(null, new String[]{"a"}));
+        tryAddStringArr("b".split(","), CollectionUtil.addArrays(new String[]{"b"}, null));
+        tryAddStringArr("a,b,c,d".split(","), CollectionUtil.addArrays(new String[]{"a", "b"}, new String[]{"c", "d"}));
         assertEquals(null, CollectionUtil.addArrays(null, null));
 
-        Object result = CollectionUtil.addArrays(new int[] {1,2}, new int[] {3,4});
-        EPAssertionUtil.assertEqualsExactOrder(new int[] {1,2,3,4}, (int[]) result);
+        Object result = CollectionUtil.addArrays(new int[]{1, 2}, new int[]{3, 4});
+        EPAssertionUtil.assertEqualsExactOrder(new int[]{1, 2, 3, 4}, (int[]) result);
 
         try {
             CollectionUtil.addArrays("a", null);
             fail();
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             assertEquals("Parameter is not an array: a", ex.getMessage());
         }
 
         try {
             CollectionUtil.addArrays(null, "b");
             fail();
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             assertEquals("Parameter is not an array: b", ex.getMessage());
         }
     }
@@ -149,16 +144,15 @@ public class TestCollectionUtil extends TestCase
     }
 
     public void testCopySort() {
-        Object[][] testdata = new Object[][] {
-                {new String[]{"a", "b"}, new String[] {"a", "b"}},
-                {new String[]{"b", "a"}, new String[] {"a", "b"}},
-                {new String[]{"a"}, new String[] {"a"}},
-                {new String[]{"c", "b", "a"}, new String[] {"a", "b", "c"}},
+        Object[][] testdata = new Object[][]{
+                {new String[]{"a", "b"}, new String[]{"a", "b"}},
+                {new String[]{"b", "a"}, new String[]{"a", "b"}},
+                {new String[]{"a"}, new String[]{"a"}},
+                {new String[]{"c", "b", "a"}, new String[]{"a", "b", "c"}},
                 {new String[0], new String[0]},
-              };
+        };
 
-        for (int i = 0; i < testdata.length; i++)
-        {
+        for (int i = 0; i < testdata.length; i++) {
             String[] expected = (String[]) testdata[i][1];
             String[] input = (String[]) testdata[i][0];
             String[] received = CollectionUtil.copySortArray(input);
@@ -169,9 +163,8 @@ public class TestCollectionUtil extends TestCase
         }
     }
 
-    public void testCompare()
-    {
-        Object[][] testdata = new Object[][] {
+    public void testCompare() {
+        Object[][] testdata = new Object[][]{
                 {new String[]{"a", "b"}, new String[]{"a", "b"}, true},
                 {new String[]{"a"}, new String[]{"a", "b"}, false},
                 {new String[]{"a"}, new String[]{"a"}, true},
@@ -180,10 +173,9 @@ public class TestCollectionUtil extends TestCase
                 {new String[]{"a", "b", "b"}, new String[]{"a", "b"}, false},
                 {new String[]{"a", "b", "b"}, new String[]{"b", "a", "b"}, true},
                 {new String[0], new String[0], true},
-              };
+        };
 
-        for (int i = 0; i < testdata.length; i++)
-        {
+        for (int i = 0; i < testdata.length; i++) {
             String[] left = (String[]) testdata[i][0];
             String[] right = (String[]) testdata[i][1];
             boolean expected = (Boolean) testdata[i][2];
@@ -193,9 +185,8 @@ public class TestCollectionUtil extends TestCase
         }
     }
 
-    public void testToString()
-    {
-        Object[][] testdata = new Object[][] {
+    public void testToString() {
+        Object[][] testdata = new Object[][]{
                 {new String[]{"a", "b"}, "a, b"},
                 {new String[]{"a"}, "a"},
                 {new String[]{""}, ""},
@@ -203,29 +194,24 @@ public class TestCollectionUtil extends TestCase
                 {new String[]{null, "b"}, "b"},
                 {new String[0], ""},
                 {null, "null"}
-              };
+        };
 
-        for (int i = 0; i < testdata.length; i++)
-        {
+        for (int i = 0; i < testdata.length; i++) {
             String expected = (String) testdata[i][1];
             String[] input = (String[]) testdata[i][0];
             assertEquals("Failed for input " + Arrays.toString(input), expected, CollectionUtil.toString(toSet(input)));
         }
     }
 
-    private Set<String> toSet(String[] arr)
-    {
-        if (arr == null)
-        {
+    private Set<String> toSet(String[] arr) {
+        if (arr == null) {
             return null;
         }
-        if (arr.length == 0)
-        {
+        if (arr.length == 0) {
             return new HashSet<String>();
         }
         Set<String> set = new LinkedHashSet<String>();
-        for (String a : arr)
-        {
+        for (String a : arr) {
             set.add(a);
         }
         return set;

@@ -13,6 +13,8 @@ package com.espertech.esper.epl.enummethod.dot;
 import com.espertech.esper.epl.enummethod.eval.*;
 import com.espertech.esper.epl.methodbase.DotMethodFP;
 
+import java.util.Locale;
+
 public enum EnumMethodEnum {
 
     AGGREGATE("aggregate", ExprDotEvalAggregate.class, EnumMethodEnumParams.AGGREGATE_FP),
@@ -53,8 +55,7 @@ public enum EnumMethodEnum {
     REVERSE("reverse", ExprDotEvalReverse.class, EnumMethodEnumParams.NOOP_REVERSE),
     NOOP("esperInternalNoop", ExprDotEvalNoOp.class, EnumMethodEnumParams.NOOP_REVERSE),
 
-    SEQUENCE_EQUAL("sequenceequal", ExprDotEvalSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP),
-    ;
+    SEQUENCE_EQUAL("sequenceequal", ExprDotEvalSequenceEqual.class, EnumMethodEnumParams.SEQ_EQUALS_FP);
 
     private final String nameCamel;
     private final Class implementation;
@@ -76,7 +77,7 @@ public enum EnumMethodEnum {
 
     public static boolean isEnumerationMethod(String name) {
         for (EnumMethodEnum e : EnumMethodEnum.values()) {
-            if (e.getNameCamel().toLowerCase().equals(name.toLowerCase())) {
+            if (e.getNameCamel().toLowerCase(Locale.ENGLISH).equals(name.toLowerCase(Locale.ENGLISH))) {
                 return true;
             }
         }
@@ -85,7 +86,7 @@ public enum EnumMethodEnum {
 
     public static EnumMethodEnum fromName(String name) {
         for (EnumMethodEnum e : EnumMethodEnum.values()) {
-            if (e.getNameCamel().toLowerCase().equals(name.toLowerCase())) {
+            if (e.getNameCamel().toLowerCase(Locale.ENGLISH).equals(name.toLowerCase(Locale.ENGLISH))) {
                 return e;
             }
         }

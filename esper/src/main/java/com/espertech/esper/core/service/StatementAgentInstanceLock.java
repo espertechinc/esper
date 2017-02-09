@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.core.service;
 
-public interface StatementAgentInstanceLock
-{
+public interface StatementAgentInstanceLock {
     /**
      * Acquire text.
      */
-    public final static String ACQUIRE_TEXT  = "Acquire ";
+    public final static String ACQUIRE_TEXT = "Acquire ";
 
     /**
      * Acquired text.
@@ -25,7 +24,7 @@ public interface StatementAgentInstanceLock
     /**
      * Release text.
      */
-    public final static String RELEASE_TEXT  = "Release ";
+    public final static String RELEASE_TEXT = "Release ";
 
     /**
      * Released text.
@@ -33,8 +32,12 @@ public interface StatementAgentInstanceLock
     public final static String RELEASED_TEXT = "Freed   ";
 
     public void acquireWriteLock();
+
     public boolean acquireWriteLock(long msecTimeout);
+
     public void releaseWriteLock();
+
     public void acquireReadLock();
+
     public void releaseReadLock();
 }

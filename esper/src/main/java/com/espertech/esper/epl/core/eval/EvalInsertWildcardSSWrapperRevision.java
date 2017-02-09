@@ -34,18 +34,13 @@ public class EvalInsertWildcardSSWrapperRevision extends EvalBaseMap implements 
 
     // In case of a wildcard and single stream that is itself a
     // wrapper bean, we also need to add the map properties
-    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        DecoratingEventBean wrapper = (DecoratingEventBean)eventsPerStream[0];
-        if(wrapper != null)
-        {
+    public EventBean processSpecific(Map<String, Object> props, EventBean[] eventsPerStream, boolean isNewData, boolean isSynthesize, ExprEvaluatorContext exprEvaluatorContext) {
+        DecoratingEventBean wrapper = (DecoratingEventBean) eventsPerStream[0];
+        if (wrapper != null) {
             Map<String, Object> map = wrapper.getDecoratingProperties();
-            if ((super.getExprNodes().length == 0) && (!map.isEmpty()))
-            {
+            if ((super.getExprNodes().length == 0) && (!map.isEmpty())) {
                 // no action
-            }
-            else
-            {
+            } else {
                 props.putAll(map);
             }
         }

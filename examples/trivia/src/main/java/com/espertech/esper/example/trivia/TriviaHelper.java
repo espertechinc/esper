@@ -31,8 +31,7 @@ public class TriviaHelper {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
             date = sdf.parse(datestr);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("Error parsing date '" + datestr + "' as format '" + DATE_FORMAT + "' : " + ex.getMessage(), ex);
         }
         return date;
@@ -87,7 +86,7 @@ public class TriviaHelper {
     public static Map<String, Integer> getScores(EPServiceProvider engine) {
         EPStatement stmt = engine.getEPAdministrator().getStatement("Score window");
         Map<String, Integer> result = new LinkedHashMap<String, Integer>();
-        for (Iterator<EventBean> it = stmt.iterator(); it.hasNext();) {
+        for (Iterator<EventBean> it = stmt.iterator(); it.hasNext(); ) {
             EventBean next = it.next();
             String playerId = (String) next.get("playerId");
             Integer score = (Integer) next.get("score");

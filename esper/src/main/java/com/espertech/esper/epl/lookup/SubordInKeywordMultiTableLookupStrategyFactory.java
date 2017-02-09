@@ -19,26 +19,23 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordInKeywordMultiTableLookupStrategyFactory implements SubordTableLookupStrategyFactory
-{
+public class SubordInKeywordMultiTableLookupStrategyFactory implements SubordTableLookupStrategyFactory {
     protected final ExprEvaluator evaluator;
     protected boolean isNWOnTrigger;
     protected int streamCountOuter;
     protected final LookupStrategyDesc strategyDesc;
 
-    public SubordInKeywordMultiTableLookupStrategyFactory(boolean isNWOnTrigger, int streamCountOuter, ExprNode exprNode)
-    {
+    public SubordInKeywordMultiTableLookupStrategyFactory(boolean isNWOnTrigger, int streamCountOuter, ExprNode exprNode) {
         this.streamCountOuter = streamCountOuter;
         this.evaluator = exprNode.getExprEvaluator();
         this.isNWOnTrigger = isNWOnTrigger;
-        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[] {ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode)});
+        this.strategyDesc = new LookupStrategyDesc(LookupStrategyType.INKEYWORDMULTIIDX, new String[]{ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode)});
     }
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordInKeywordMultiTableLookupStrategyNW(evaluator, eventTable, strategyDesc);
-        }
-        else {
+        } else {
             return new SubordInKeywordMultiTableLookupStrategy(streamCountOuter, evaluator, eventTable, strategyDesc);
         }
     }

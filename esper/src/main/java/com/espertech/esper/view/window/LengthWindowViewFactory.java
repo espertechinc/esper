@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Factory for {@link LengthWindowView}.
  */
-public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious
-{
+public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious {
     /**
      * Size of length window.
      */
@@ -33,13 +32,11 @@ public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindo
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         sizeEvaluator = ViewFactorySupport.validateSizeSingleParam(getViewName(), viewFactoryContext, expressionParameters);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -47,20 +44,17 @@ public class LengthWindowViewFactory implements DataWindowViewFactory, DataWindo
         return new RandomAccessByIndexGetter();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection randomAccess = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRandomAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new LengthWindowViewRStream(agentInstanceViewFactoryContext, this, size);
-        }
-        else {
+        } else {
             return new LengthWindowView(agentInstanceViewFactoryContext, this, size, randomAccess);
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 

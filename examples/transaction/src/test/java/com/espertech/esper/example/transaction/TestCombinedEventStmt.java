@@ -3,12 +3,10 @@ package com.espertech.esper.example.transaction;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 
-public class TestCombinedEventStmt extends TestStmtBase
-{
+public class TestCombinedEventStmt extends TestStmtBase {
     private SupportUpdateListener listener;
 
-    public void setUp()
-    {
+    public void setUp() {
         super.setUp();
 
         listener = new SupportUpdateListener();
@@ -16,8 +14,7 @@ public class TestCombinedEventStmt extends TestStmtBase
         stmt.addListener(listener);
     }
 
-    public void testFlow()
-    {
+    public void testFlow() {
         TxnEventA a = new TxnEventA("id1", 1, "c1");
         TxnEventB b = new TxnEventB("id1", 2);
         TxnEventC c = new TxnEventC("id1", 3, "s1");
@@ -57,8 +54,7 @@ public class TestCombinedEventStmt extends TestStmtBase
         assertCombinedEvent(a, b, c);
     }
 
-    private void assertCombinedEvent(TxnEventA expectedA, TxnEventB expectedB, TxnEventC expectedC)
-    {
+    private void assertCombinedEvent(TxnEventA expectedA, TxnEventB expectedB, TxnEventC expectedC) {
         assertEquals(1, listener.getNewDataList().size());
         assertEquals(1, listener.getLastNewData().length);
         EventBean combinedEvent = listener.getLastNewData()[0];

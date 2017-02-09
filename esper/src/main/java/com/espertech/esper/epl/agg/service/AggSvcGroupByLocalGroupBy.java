@@ -22,8 +22,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 /**
  * Implementation for handling aggregation with grouping by group-keys.
  */
-public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase
-{
+public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase {
     private AggregationMethod[] currentAggregatorMethods;
     private AggregationState[] currentAggregatorStates;
 
@@ -38,8 +37,7 @@ public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase
         return AggSvcGroupAllLocalGroupBy.computeGroupKey(partitionEval, eventsPerStream, true, exprEvaluatorContext);
     }
 
-    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel)
-    {
+    public void setCurrentAccess(Object groupByKey, int agentInstanceId, AggregationGroupByRollupLevel rollupLevel) {
         if (!localGroupByPlan.getAllLevels()[0].isDefaultLevel()) {
             return;
         }
@@ -48,8 +46,7 @@ public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase
         if (row != null) {
             currentAggregatorMethods = row.getMethods();
             currentAggregatorStates = row.getStates();
-        }
-        else {
+        } else {
             currentAggregatorMethods = null;
         }
 
@@ -59,8 +56,7 @@ public class AggSvcGroupByLocalGroupBy extends AggSvcGroupLocalGroupByBase
         }
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         AggregationLocalGroupByColumn col = localGroupByPlan.getColumns()[column];
         if (col.isDefaultGroupLevel()) {
             if (col.isMethodAgg()) {

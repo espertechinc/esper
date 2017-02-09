@@ -18,24 +18,20 @@ import java.io.StringWriter;
 /**
  * Represents a string concatenation.
  */
-public class ExprConcatNode extends ExprNodeBase
-{
+public class ExprConcatNode extends ExprNodeBase {
     private static final long serialVersionUID = 5811427566733004327L;
     private ExprEvaluator evaluator;
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         if (this.getChildNodes().length < 2) {
             throw new ExprValidationException("Concat node must have at least 2 parameters");
         }
         ExprEvaluator[] evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
-        for (int i = 0; i < evaluators.length; i++)
-        {
+        for (int i = 0; i < evaluators.length; i++) {
             Class childType = evaluators[i].getType();
             String childTypeName = childType == null ? "null" : childType.getSimpleName();
-            if (childType != String.class)
-            {
+            if (childType != String.class) {
                 throw new ExprValidationException("Implicit conversion from datatype '" +
                         childTypeName +
                         "' to string is not allowed");
@@ -45,28 +41,24 @@ public class ExprConcatNode extends ExprNodeBase
         ConfigurationEngineDefaults.ThreadingProfile threadingProfile = validationContext.getEngineImportService().getThreadingProfile();
         if (threadingProfile == ConfigurationEngineDefaults.ThreadingProfile.LARGE) {
             this.evaluator = new ExprConcatNodeEvalWNew(this, evaluators);
-        }
-        else {
+        } else {
             this.evaluator = new ExprConcatNodeEvalThreadLocal(this, evaluators);
         }
 
         return null;
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return evaluator;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return false;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         String delimiter = "";
-        for (ExprNode child : this.getChildNodes())
-        {
+        for (ExprNode child : this.getChildNodes()) {
             writer.append(delimiter);
             child.toEPL(writer, getPrecedence());
             delimiter = "||";
@@ -77,10 +69,8 @@ public class ExprConcatNode extends ExprNodeBase
         return ExprPrecedenceEnum.CONCAT;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprConcatNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprConcatNode)) {
             return false;
         }
 

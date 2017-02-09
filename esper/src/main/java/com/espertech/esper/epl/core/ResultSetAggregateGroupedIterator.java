@@ -21,8 +21,7 @@ import java.util.NoSuchElementException;
 /**
  * Iterator for group-by with aggregation.
  */
-public class ResultSetAggregateGroupedIterator implements Iterator<EventBean>
-{
+public class ResultSetAggregateGroupedIterator implements Iterator<EventBean> {
     private final Iterator<EventBean> sourceIterator;
     private final ResultSetProcessorAggregateGrouped resultSetProcessor;
     private final AggregationService aggregationService;
@@ -32,13 +31,13 @@ public class ResultSetAggregateGroupedIterator implements Iterator<EventBean>
 
     /**
      * Ctor.
-     * @param sourceIterator is the parent iterator
-     * @param resultSetProcessor for constructing result rows
-     * @param aggregationService for pointing to the right aggregation row
+     *
+     * @param sourceIterator       is the parent iterator
+     * @param resultSetProcessor   for constructing result rows
+     * @param aggregationService   for pointing to the right aggregation row
      * @param exprEvaluatorContext context for expression evalauation
      */
-    public ResultSetAggregateGroupedIterator(Iterator<EventBean> sourceIterator, ResultSetProcessorAggregateGrouped resultSetProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public ResultSetAggregateGroupedIterator(Iterator<EventBean> sourceIterator, ResultSetProcessorAggregateGrouped resultSetProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
         this.sourceIterator = sourceIterator;
         this.resultSetProcessor = resultSetProcessor;
         this.aggregationService = aggregationService;
@@ -46,31 +45,25 @@ public class ResultSetAggregateGroupedIterator implements Iterator<EventBean>
         this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
-    public boolean hasNext()
-    {
-        if (nextResult != null)
-        {
+    public boolean hasNext() {
+        if (nextResult != null) {
             return true;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             return true;
         }
         return false;
     }
 
-    public EventBean next()
-    {
-        if (nextResult != null)
-        {
+    public EventBean next() {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
@@ -78,10 +71,8 @@ public class ResultSetAggregateGroupedIterator implements Iterator<EventBean>
         throw new NoSuchElementException();
     }
 
-    private void findNext()
-    {
-        while (sourceIterator.hasNext())
-        {
+    private void findNext() {
+        while (sourceIterator.hasNext()) {
             EventBean candidate = sourceIterator.next();
             eventsPerStream[0] = candidate;
 
@@ -89,14 +80,16 @@ public class ResultSetAggregateGroupedIterator implements Iterator<EventBean>
             aggregationService.setCurrentAccess(groupKey, exprEvaluatorContext.getAgentInstanceId(), null);
 
             Boolean pass = true;
-            if (resultSetProcessor.getOptionalHavingNode() != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);}
+            if (resultSetProcessor.getOptionalHavingNode() != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseJoin(eventsPerStream);
+                }
                 pass = (Boolean) resultSetProcessor.getOptionalHavingNode().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(pass);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseJoin(pass);
+                }
             }
-            if (!pass)
-            {
+            if (!pass) {
                 continue;
             }
 
@@ -106,8 +99,7 @@ public class ResultSetAggregateGroupedIterator implements Iterator<EventBean>
         }
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

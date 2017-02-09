@@ -18,7 +18,6 @@ import com.espertech.esper.epl.expression.dot.ExprDotEvalRootChildInnerEval;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 public class InnerEvaluatorColl implements ExprDotEvalRootChildInnerEval {

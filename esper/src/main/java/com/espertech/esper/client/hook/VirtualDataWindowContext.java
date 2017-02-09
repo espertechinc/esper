@@ -38,15 +38,16 @@ public class VirtualDataWindowContext {
 
     /**
      * Ctor.
+     *
      * @param agentInstanceContext statement services and statement information such as statement name, statement id, EPL expression
-     * @param eventType the event type that the named window is declared to hold.
-     * @param parameters the parameters passed when declaring the named window, for example "create window ABC.my:vdw("10.0.0.1")" passes one paramater here.
-     * @param eventFactory factory for converting row objects to EventBean instances
-     * @param outputStream forward the input and output stream received from the update method here
-     * @param namedWindowName the name of the named window
+     * @param eventType            the event type that the named window is declared to hold.
+     * @param parameters           the parameters passed when declaring the named window, for example "create window ABC.my:vdw("10.0.0.1")" passes one paramater here.
+     * @param eventFactory         factory for converting row objects to EventBean instances
+     * @param outputStream         forward the input and output stream received from the update method here
+     * @param namedWindowName      the name of the named window
      * @param parameterExpressions parameter expressions passed to the virtual data window
-     * @param viewFactoryContext context of services
-     * @param customConfiguration additional configuration
+     * @param viewFactoryContext   context of services
+     * @param customConfiguration  additional configuration
      */
     public VirtualDataWindowContext(AgentInstanceContext agentInstanceContext, EventType eventType, Object[] parameters, ExprNode[] parameterExpressions, EventBeanFactory eventFactory, VirtualDataWindowOutStream outputStream, String namedWindowName, ViewFactoryContext viewFactoryContext, Serializable customConfiguration) {
         this.agentInstanceContext = agentInstanceContext;
@@ -62,6 +63,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the statement context which holds statement information (name, expression, id) and statement-level services.
+     *
      * @return statement context
      */
     public StatementContext getStatementContext() {
@@ -70,6 +72,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the event type of the events held in the virtual data window as per declaration of the named window.
+     *
      * @return event type
      */
     public EventType getEventType() {
@@ -78,6 +81,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the parameters passed; for example "create window ABC.my:vdw("10.0.0.1")" passes one paramater here.
+     *
      * @return parameters
      */
     public Object[] getParameters() {
@@ -86,6 +90,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the factory for creating instances of EventBean from rows.
+     *
      * @return event bean factory
      */
     public EventBeanFactory getEventFactory() {
@@ -96,6 +101,7 @@ public class VirtualDataWindowContext {
      * Returns a handle for use to send insert and remove stream data to consuming statements.
      * <p>
      * Typically use "context.getOutputStream().update(newData, oldData);" in the update method of the virtual data window.
+     *
      * @return handle for posting insert and remove stream
      */
     public VirtualDataWindowOutStream getOutputStream() {
@@ -104,6 +110,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the name of the named window used in connection with the virtual data window.
+     *
      * @return named window
      */
     public String getNamedWindowName() {
@@ -112,6 +119,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the expressions passed as parameters to the virtual data window.
+     *
      * @return parameter expressions
      */
     public ExprNode[] getParameterExpressions() {
@@ -120,6 +128,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the engine services context.
+     *
      * @return engine services context
      */
     public ViewFactoryContext getViewFactoryContext() {
@@ -128,6 +137,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns any additional configuration provided.
+     *
      * @return additional config
      */
     public Serializable getCustomConfiguration() {
@@ -136,6 +146,7 @@ public class VirtualDataWindowContext {
 
     /**
      * Returns the agent instance (context partition) context.
+     *
      * @return context
      */
     public AgentInstanceContext getAgentInstanceContext() {

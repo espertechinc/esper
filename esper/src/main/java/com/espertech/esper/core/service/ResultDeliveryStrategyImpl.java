@@ -31,8 +31,7 @@ import java.util.Arrays;
  * optional start, end, and updateRStream methods, to deliver column-wise to parameters
  * of the update method.
  */
-public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
-{
+public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy {
     private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyImpl.class);
     private final EPStatement statement;
     private final Object subscriber;
@@ -46,16 +45,16 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
 
     /**
      * Ctor.
-     * @param subscriber is the subscriber receiving method invocations
+     *
+     * @param subscriber        is the subscriber receiving method invocations
      * @param deliveryConvertor for converting individual rows
-     * @param method to deliver the insert stream to
-     * @param startMethod to call to indicate when delivery starts, or null if no such indication is required
-     * @param endMethod to call to indicate when delivery ends, or null if no such indication is required
-     * @param rStreamMethod to deliver the remove stream to, or null if no such indication is required
-     * @param statement statement
+     * @param method            to deliver the insert stream to
+     * @param startMethod       to call to indicate when delivery starts, or null if no such indication is required
+     * @param endMethod         to call to indicate when delivery ends, or null if no such indication is required
+     * @param rStreamMethod     to deliver the remove stream to, or null if no such indication is required
+     * @param statement         statement
      */
-    public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod, EngineImportService engineImportService)
-    {
+    public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod, EngineImportService engineImportService) {
         this.statement = statement;
         this.subscriber = subscriber;
         this.deliveryConvertor = deliveryConvertor;
@@ -65,8 +64,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
         if (startMethod != null) {
             this.startMethodFast = fastClass.getMethod(startMethod);
             this.startMethodHasEPStatement = isMethodAcceptsStatement(startMethod);
-        }
-        else {
+        } else {
             this.startMethodFast = null;
             this.startMethodHasEPStatement = false;
         }
@@ -74,24 +72,20 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
         if (endMethod != null) {
             this.endMethodFast = fastClass.getMethod(endMethod);
             this.endMethodHasEPStatement = isMethodAcceptsStatement(endMethod);
-        }
-        else {
+        } else {
             this.endMethodFast = null;
             this.endMethodHasEPStatement = false;
         }
 
         if (rStreamMethod != null) {
             updateRStreamMethodFast = fastClass.getMethod(rStreamMethod);
-        }
-        else {
+        } else {
             updateRStreamMethodFast = null;
         }
     }
 
-    public void execute(UniformPair<EventBean[]> result)
-    {
-        if (startMethodFast != null)
-        {
+    public void execute(UniformPair<EventBean[]> result) {
+        if (startMethodFast != null) {
             int countNew = 0;
             int countOld = 0;
             if (result != null) {
@@ -101,26 +95,22 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
 
             Object[] parameters;
             if (!startMethodHasEPStatement) {
-                parameters = new Object[] {countNew, countOld};
-            }
-            else {
-                parameters = new Object[] {statement, countNew, countOld};
+                parameters = new Object[]{countNew, countOld};
+            } else {
+                parameters = new Object[]{statement, countNew, countOld};
             }
             try {
                 startMethodFast.invoke(subscriber, parameters);
-            }
-            catch (InvocationTargetException e) {
+            } catch (InvocationTargetException e) {
                 handle(statement.getName(), log, e, parameters, subscriber, startMethodFast);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 handleThrowable(log, t, null, subscriber, startMethodFast);
             }
         }
 
         EventBean[] newData = null;
         EventBean[] oldData = null;
-        if (result != null)
-        {
+        if (result != null) {
             newData = result.getFirst();
             oldData = result.getSecond();
         }
@@ -133,11 +123,9 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
                     Object[] parameters = deliveryConvertor.convertRow(natural.getNatural());
                     try {
                         updateMethodFast.invoke(subscriber, parameters);
-                    }
-                    catch (InvocationTargetException e) {
+                    } catch (InvocationTargetException e) {
                         handle(statement.getName(), log, e, parameters, subscriber, updateMethodFast);
-                    }
-                    catch (Throwable t) {
+                    } catch (Throwable t) {
                         handleThrowable(log, t, parameters, subscriber, updateMethodFast);
                     }
                 }
@@ -152,11 +140,9 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
                     Object[] parameters = deliveryConvertor.convertRow(natural.getNatural());
                     try {
                         updateRStreamMethodFast.invoke(subscriber, parameters);
-                    }
-                    catch (InvocationTargetException e) {
+                    } catch (InvocationTargetException e) {
                         handle(statement.getName(), log, e, parameters, subscriber, updateRStreamMethodFast);
-                    }
-                    catch (Throwable t) {
+                    } catch (Throwable t) {
                         handleThrowable(log, t, parameters, subscriber, updateRStreamMethodFast);
                     }
                 }
@@ -164,14 +150,12 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
         }
 
         if (endMethodFast != null) {
-            Object[] parameters = endMethodHasEPStatement ? new Object[] {statement} : null;
+            Object[] parameters = endMethodHasEPStatement ? new Object[]{statement} : null;
             try {
                 endMethodFast.invoke(subscriber, parameters);
-            }
-            catch (InvocationTargetException e) {
+            } catch (InvocationTargetException e) {
                 handle(statement.getName(), log, e, null, subscriber, endMethodFast);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 handleThrowable(log, t, null, subscriber, endMethodFast);
             }
         }
@@ -179,11 +163,12 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
 
     /**
      * Handle the exception, displaying a nice message and converting to {@link EPException}.
-     * @param logger is the logger to use for error logging
-     * @param e is the exception
-     * @param parameters the method parameters
-     * @param subscriber the object to deliver to
-     * @param method the method to call
+     *
+     * @param logger        is the logger to use for error logging
+     * @param e             is the exception
+     * @param parameters    the method parameters
+     * @param subscriber    the object to deliver to
+     * @param method        the method to call
      * @param statementName statement name
      * @throws EPException converted from the passed invocation exception
      */
@@ -194,11 +179,12 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
 
     /**
      * Handle the exception, displaying a nice message and converting to {@link EPException}.
-     * @param logger is the logger to use for error logging
-     * @param t is the throwable
+     *
+     * @param logger     is the logger to use for error logging
+     * @param t          is the throwable
      * @param parameters the method parameters
      * @param subscriber the object to deliver to
-     * @param method the method to call
+     * @param method     the method to call
      * @throws EPException converted from the passed invocation exception
      */
     protected static void handleThrowable(Logger logger, Throwable t, Object[] parameters, Object subscriber, FastMethod method) {
@@ -210,16 +196,13 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy
     }
 
     private int count(EventBean[] events) {
-        if (events == null)
-        {
+        if (events == null) {
             return 0;
         }
         int count = 0;
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             EventBean theEvent = events[i];
-            if (theEvent instanceof NaturalEventBean)
-            {
+            if (theEvent instanceof NaturalEventBean) {
                 count++;
             }
         }

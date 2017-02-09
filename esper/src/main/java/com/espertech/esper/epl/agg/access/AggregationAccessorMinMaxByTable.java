@@ -17,8 +17,7 @@ import com.espertech.esper.epl.table.mgmt.TableMetadata;
 /**
  * Represents the aggregation accessor that provides the result for the "maxBy" aggregation function.
  */
-public class AggregationAccessorMinMaxByTable extends AggregationAccessorMinMaxByBase
-{
+public class AggregationAccessorMinMaxByTable extends AggregationAccessorMinMaxByBase {
     private final TableMetadata tableMetadata;
 
     public AggregationAccessorMinMaxByTable(boolean max, TableMetadata tableMetadata) {

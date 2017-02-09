@@ -30,21 +30,19 @@ import net.sf.cglib.reflect.FastMethod;
 
 import java.util.*;
 
-public class ExprDotNodeUtility
-{
+public class ExprDotNodeUtility {
     public static boolean isDatetimeOrEnumMethod(String name) {
         return EnumMethodEnum.isEnumerationMethod(name) || DatetimeMethodEnum.isDateTimeMethod(name);
     }
 
     public static ExprDotNodeRealizedChain getChainEvaluators(
-                                                   Integer streamOfProviderIfApplicable,
-                                                   EPType inputType,
-                                                   List<ExprChainedSpec> chainSpec,
-                                                   ExprValidationContext validationContext,
-                                                   boolean isDuckTyping,
-                                                   ExprDotNodeFilterAnalyzerInput inputDesc)
-            throws ExprValidationException
-    {
+            Integer streamOfProviderIfApplicable,
+            EPType inputType,
+            List<ExprChainedSpec> chainSpec,
+            ExprValidationContext validationContext,
+            boolean isDuckTyping,
+            ExprDotNodeFilterAnalyzerInput inputDesc)
+            throws ExprValidationException {
         List<ExprDotEval> methodEvals = new ArrayList<ExprDotEval>();
         EPType currentInputType = inputType;
         EnumMethodEnum lastLambdaFunc = null;
@@ -67,13 +65,13 @@ public class ExprDotNodeUtility
             // check if special 'size' method
             if (currentInputType instanceof ClassMultiValuedEPType) {
                 ClassMultiValuedEPType type = (ClassMultiValuedEPType) currentInputType;
-                if (chainElement.getName().toLowerCase().equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
+                if (chainElement.getName().toLowerCase(Locale.ENGLISH).equals("size") && paramTypes.length == 0 && lastElement == chainElement) {
                     ExprDotEvalArraySize sizeExpr = new ExprDotEvalArraySize();
                     methodEvals.add(sizeExpr);
                     currentInputType = sizeExpr.getTypeInfo();
                     continue;
                 }
-                if (chainElement.getName().toLowerCase().equals("get") && paramTypes.length == 1 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class) {
+                if (chainElement.getName().toLowerCase(Locale.ENGLISH).equals("get") && paramTypes.length == 1 && JavaClassHelper.getBoxedType(paramTypes[0]) == Integer.class) {
                     Class componentType = type.getComponent();
                     ExprDotEvalArrayGet get = new ExprDotEvalArrayGet(paramEvals[0], componentType);
                     methodEvals.add(get);
@@ -89,8 +87,7 @@ public class ExprDotNodeUtility
                 try {
                     getValidateMethodDescriptor(methodTarget, chainElement.getName(), chainElement.getParameters(), validationContext);
                     matchingMethod = true;
-                }
-                catch (ExprValidationException ex) {
+                } catch (ExprValidationException ex) {
                     // expected
                 }
             }
@@ -110,7 +107,7 @@ public class ExprDotNodeUtility
             }
 
             // resolve datetime
-            if (DatetimeMethodEnum.isDateTimeMethod(chainElement.getName()) && (!matchingMethod  || methodTarget == Calendar.class || methodTarget == Date.class)) {
+            if (DatetimeMethodEnum.isDateTimeMethod(chainElement.getName()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
                 DatetimeMethodEnum datetimeMethod = DatetimeMethodEnum.fromName(chainElement.getName());
                 ExprDotEvalDTMethodDesc datetimeImpl = ExprDotEvalDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getEngineImportService().getTimeZone(), validationContext.getEngineImportService().getTimeAbacus());
                 currentInputType = datetimeImpl.getReturnType();
@@ -137,8 +134,7 @@ public class ExprDotNodeUtility
 
             // Finally try to resolve the method
             if (methodTarget != null) {
-                try
-                {
+                try {
                     // find descriptor again, allow for duck typing
                     ExprNodeUtilMethodDesc desc = getValidateMethodDescriptor(methodTarget, chainElement.getName(), chainElement.getParameters(), validationContext);
                     FastMethod fastMethod = desc.getFastMethod();
@@ -149,23 +145,18 @@ public class ExprDotNodeUtility
                         // if followed by an enumeration method, convert array to collection
                         if (fastMethod.getReturnType().isArray() && !chainSpecStack.isEmpty() && EnumMethodEnum.isEnumerationMethod(chainSpecStack.getFirst().getName())) {
                             eval = new ExprDotMethodEvalNoDuckWrapArray(validationContext.getStatementName(), fastMethod, paramEvals);
-                        }
-                        else {
+                        } else {
                             eval = new ExprDotMethodEvalNoDuck(validationContext.getStatementName(), fastMethod, paramEvals);
                         }
-                    }
-                    else {
+                    } else {
                         eval = new ExprDotMethodEvalNoDuckUnderlying(validationContext.getStatementName(), fastMethod, paramEvals);
                     }
                     methodEvals.add(eval);
                     currentInputType = eval.getTypeInfo();
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     if (!isDuckTyping) {
                         throw new ExprValidationException(e.getMessage(), e);
-                    }
-                    else {
+                    } else {
                         ExprDotMethodEvalDuck duck = new ExprDotMethodEvalDuck(validationContext.getStatementName(), validationContext.getEngineImportService(), chainElement.getName(), paramTypes, paramEvals);
                         methodEvals.add(duck);
                         currentInputType = duck.getTypeInfo();
@@ -188,18 +179,15 @@ public class ExprDotNodeUtility
                 TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(mvType.getComponent());
                 if (tableMetadata != null) {
                     finalEval = new ExprDotEvalUnpackCollEventBeanTable(mvType.getComponent(), tableMetadata);
-                }
-                else {
+                } else {
                     finalEval = new ExprDotEvalUnpackCollEventBean(mvType.getComponent());
                 }
-            }
-            else if (currentInputType instanceof EventEPType) {
+            } else if (currentInputType instanceof EventEPType) {
                 EventEPType epType = (EventEPType) currentInputType;
                 TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(epType.getType());
                 if (tableMetadata != null) {
                     finalEval = new ExprDotEvalUnpackBeanTable(epType.getType(), tableMetadata);
-                }
-                else {
+                } else {
                     finalEval = new ExprDotEvalUnpackBean(epType.getType());
                 }
             }
@@ -215,8 +203,7 @@ public class ExprDotNodeUtility
     private static Class getMethodTarget(EPType currentInputType) {
         if (currentInputType instanceof ClassEPType) {
             return ((ClassEPType) currentInputType).getType();
-        }
-        else if (currentInputType instanceof EventEPType) {
+        } else if (currentInputType instanceof EventEPType) {
             return ((EventEPType) currentInputType).getType().getUnderlyingType();
         }
         return null;
@@ -231,10 +218,9 @@ public class ExprDotNodeUtility
 
     public static EventType[] getSingleLambdaParamEventType(String enumMethodUsedName, List<String> goesToNames, EventType inputEventType, Class collectionComponentType, EventAdapterService eventAdapterService) {
         if (inputEventType != null) {
-            return new EventType[] {inputEventType};
-        }
-        else {
-            return new EventType[] {ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(0), collectionComponentType, eventAdapterService)};
+            return new EventType[]{inputEventType};
+        } else {
+            return new EventType[]{ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(0), collectionComponentType, eventAdapterService)};
         }
     }
 
@@ -251,8 +237,7 @@ public class ExprDotNodeUtility
                 }
             }
             return inner;
-        }
-        else {
+        } else {
             for (ExprDotEval methodEval : evaluators) {
                 inner = methodEval.evaluate(inner, eventsPerStream, isNewData, context);
                 if (inner == null) {
@@ -283,12 +268,10 @@ public class ExprDotNodeUtility
             EPType typeInfo;
             if (resultWrapLambda != null) {
                 typeInfo = resultWrapLambda.getTypeInfo();
-            }
-            else {
+            } else {
                 if (optionalResultSingleEventType != null) {
                     typeInfo = EPTypeHelper.singleEvent(optionalResultSingleEventType);
-                }
-                else {
+                } else {
                     typeInfo = EPTypeHelper.singleValue(resultType);
                 }
             }
@@ -328,18 +311,14 @@ public class ExprDotNodeUtility
 
             if (rootLambdaEvaluator.getEventTypeCollection(eventAdapterService, statementId) != null) {
                 info = EPTypeHelper.collectionOfEvents(rootLambdaEvaluator.getEventTypeCollection(eventAdapterService, statementId));
-            }
-            else if (rootLambdaEvaluator.getEventTypeSingle(eventAdapterService, statementId) != null) {
+            } else if (rootLambdaEvaluator.getEventTypeSingle(eventAdapterService, statementId) != null) {
                 info = EPTypeHelper.singleEvent(rootLambdaEvaluator.getEventTypeSingle(eventAdapterService, statementId));
-            }
-            else if (rootLambdaEvaluator.getComponentTypeCollection() != null) {
+            } else if (rootLambdaEvaluator.getComponentTypeCollection() != null) {
                 info = EPTypeHelper.collectionOfSingleValue(rootLambdaEvaluator.getComponentTypeCollection());
-            }
-            else {
+            } else {
                 rootLambdaEvaluator = null; // not a lambda evaluator
             }
-        }
-        else if (inputExpression instanceof ExprIdentNode) {
+        } else if (inputExpression instanceof ExprIdentNode) {
             ExprIdentNode identNode = (ExprIdentNode) inputExpression;
             int streamId = identNode.getStreamId();
             EventType streamType = streamTypeService.getEventTypes()[streamId];
@@ -366,25 +345,20 @@ public class ExprDotNodeUtility
             if (fragmentEventType.isIndexed()) {
                 enumEvaluator = new PropertyExprEvaluatorEventCollection(propertyName, streamId, fragmentEventType.getFragmentType(), getter, disablePropertyExpressionEventCollCache);
                 typeInfo = EPTypeHelper.collectionOfEvents(fragmentEventType.getFragmentType());
-            }
-            else {   // we don't want native to require an eventbean instance
+            } else {   // we don't want native to require an eventbean instance
                 enumEvaluator = new PropertyExprEvaluatorEventSingle(streamId, fragmentEventType.getFragmentType(), getter);
                 typeInfo = EPTypeHelper.singleEvent(fragmentEventType.getFragmentType());
             }
-        }
-        else {
+        } else {
             EventPropertyDescriptor desc = EventTypeUtility.getNestablePropertyDescriptor(streamType, propertyName);
             if (desc != null && desc.isIndexed() && !desc.isRequiresIndex() && desc.getPropertyComponentType() != null) {
                 if (JavaClassHelper.isImplementsInterface(propertyType, Collection.class)) {
                     enumEvaluator = new PropertyExprEvaluatorScalarCollection(propertyName, streamId, getter, desc.getPropertyComponentType());
-                }
-                else if (JavaClassHelper.isImplementsInterface(propertyType, Iterable.class)) {
+                } else if (JavaClassHelper.isImplementsInterface(propertyType, Iterable.class)) {
                     enumEvaluator = new PropertyExprEvaluatorScalarIterable(propertyName, streamId, getter, desc.getPropertyComponentType());
-                }
-                else if (propertyType.isArray()) {
+                } else if (propertyType.isArray()) {
                     enumEvaluator = new PropertyExprEvaluatorScalarArray(propertyName, streamId, getter, desc.getPropertyComponentType());
-                }
-                else {
+                } else {
                     throw new IllegalStateException("Property indicated indexed-type but failed to find proper collection adapter for use with enumeration methods");
                 }
                 typeInfo = EPTypeHelper.collectionOfSingleValue(desc.getPropertyComponentType());
@@ -395,7 +369,7 @@ public class ExprDotNodeUtility
     }
 
     private static ExprNodeUtilMethodDesc getValidateMethodDescriptor(Class methodTarget, final String methodName, List<ExprNode> parameters, ExprValidationContext validationContext)
-        throws ExprValidationException {
+            throws ExprValidationException {
         ExprNodeUtilResolveExceptionHandler exceptionHandler = new ExprNodeUtilResolveExceptionHandler() {
             public ExprValidationException handle(Exception e) {
                 return new ExprValidationException("Failed to resolve method '" + methodName + "': " + e.getMessage(), e);

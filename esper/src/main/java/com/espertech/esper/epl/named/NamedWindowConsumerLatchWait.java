@@ -21,8 +21,7 @@ import java.util.Map;
  * A suspend-and-notify implementation of a latch for use in guaranteeing delivery between
  * a named window delta result and consumable by another statement.
  */
-public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
-{
+public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch {
     private static final Logger log = LoggerFactory.getLogger(NamedWindowConsumerLatchWait.class);
 
     // The earlier latch is the latch generated before this latch
@@ -34,15 +33,13 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
     private volatile boolean isCompleted;
     private Thread currentThread;
 
-    public NamedWindowConsumerLatchWait(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchWait earlier)
-    {
+    public NamedWindowConsumerLatchWait(NamedWindowDeltaData deltaData, Map<EPStatementAgentInstanceHandle, List<NamedWindowConsumerView>> dispatchTo, NamedWindowConsumerLatchFactory factory, NamedWindowConsumerLatchWait earlier) {
         super(deltaData, dispatchTo);
         this.factory = factory;
         this.earlier = earlier;
     }
 
-    public NamedWindowConsumerLatchWait(NamedWindowConsumerLatchFactory factory)
-    {
+    public NamedWindowConsumerLatchWait(NamedWindowConsumerLatchFactory factory) {
         super(null, null);
         this.factory = factory;
         isCompleted = true;
@@ -51,27 +48,26 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
 
     /**
      * Returns true if the dispatch completed for this future.
+     *
      * @return true for completed, false if not
      */
-    public boolean isCompleted()
-    {
+    public boolean isCompleted() {
         return isCompleted;
     }
 
     /**
      * Hand a later latch to use for indicating completion via notify.
+     *
      * @param later is the later latch
      */
-    public void setLater(NamedWindowConsumerLatchWait later)
-    {
+    public void setLater(NamedWindowConsumerLatchWait later) {
         this.later = later;
     }
 
     /**
      * Blcking call that returns only when the earlier latch completed.
      */
-    public void await()
-    {
+    public void await() {
         if (earlier.isCompleted) {
             currentThread = Thread.currentThread();
             return;
@@ -82,12 +78,11 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
             return;
         }
 
-        synchronized(this) {
+        synchronized (this) {
             if (!earlier.isCompleted) {
                 try {
                     this.wait(factory.getMsecWait());
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     log.error("Interrupted: " + e.getMessage(), e);
                 }
             }
@@ -105,13 +100,10 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch
     /**
      * Called to indicate that the latch completed and a later latch can start.
      */
-    public void done()
-    {
+    public void done() {
         isCompleted = true;
-        if (later != null)
-        {
-            synchronized(later)
-            {
+        if (later != null) {
+            synchronized (later) {
                 later.notify();
             }
         }

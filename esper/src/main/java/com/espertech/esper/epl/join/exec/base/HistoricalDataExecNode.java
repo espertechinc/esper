@@ -28,8 +28,7 @@ import java.util.Iterator;
  * using an lookup strategy for looking up into cached indexes, and an indexing strategy for indexing poll results
  * for future lookups.
  */
-public class HistoricalDataExecNode extends ExecNode
-{
+public class HistoricalDataExecNode extends ExecNode {
     private static final Logger log = LoggerFactory.getLogger(HistoricalDataExecNode.class);
 
     private final EventBean[][] lookupRows1Event;
@@ -41,14 +40,14 @@ public class HistoricalDataExecNode extends ExecNode
 
     /**
      * Ctor.
+     *
      * @param historicalEventViewable the view of the historical
-     * @param indexingStrategy the strategy to index poll result for future use
-     * @param indexLookupStrategy the strategy to use past indexed results
-     * @param numStreams the number of streams in the join
-     * @param historicalStreamNumber the stream number of the historical
+     * @param indexingStrategy        the strategy to index poll result for future use
+     * @param indexLookupStrategy     the strategy to use past indexed results
+     * @param numStreams              the number of streams in the join
+     * @param historicalStreamNumber  the stream number of the historical
      */
-    public HistoricalDataExecNode(HistoricalEventViewable historicalEventViewable, PollResultIndexingStrategy indexingStrategy, HistoricalIndexLookupStrategy indexLookupStrategy, int numStreams, int historicalStreamNumber)
-    {
+    public HistoricalDataExecNode(HistoricalEventViewable historicalEventViewable, PollResultIndexingStrategy indexingStrategy, HistoricalIndexLookupStrategy indexLookupStrategy, int numStreams, int historicalStreamNumber) {
         this.historicalEventViewable = historicalEventViewable;
         this.indexingStrategy = indexingStrategy;
         this.indexLookupStrategy = indexLookupStrategy;
@@ -59,22 +58,18 @@ public class HistoricalDataExecNode extends ExecNode
         lookupRows1Event[0] = new EventBean[numStreams];
     }
 
-    public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> result, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public void process(EventBean lookupEvent, EventBean[] prefillPath, Collection<EventBean[]> result, ExprEvaluatorContext exprEvaluatorContext) {
         lookupRows1Event[0] = prefillPath;
         EventTable[][] indexPerLookupRow = historicalEventViewable.poll(lookupRows1Event, indexingStrategy, exprEvaluatorContext);
 
-        for (EventTable[] index : indexPerLookupRow)
-        {
+        for (EventTable[] index : indexPerLookupRow) {
             // Using the index, determine a subset of the whole indexed table to process, unless
             // the strategy is a full table scan
             Iterator<EventBean> subsetIter = indexLookupStrategy.lookup(lookupEvent, index, exprEvaluatorContext);
 
-            if (subsetIter != null)
-            {
+            if (subsetIter != null) {
                 // Add each row to the join result or, for outer joins, run through the outer join filter
-                for (;subsetIter.hasNext();)
-                {
+                for (; subsetIter.hasNext(); ) {
                     EventBean[] resultRow = new EventBean[numStreams];
                     System.arraycopy(prefillPath, 0, resultRow, 0, numStreams);
                     resultRow[historicalStreamNumber] = subsetIter.next();
@@ -84,8 +79,7 @@ public class HistoricalDataExecNode extends ExecNode
         }
     }
 
-    public void print(IndentWriter writer)
-    {
+    public void print(IndentWriter writer) {
         writer.println("HistoricalDataExecNode");
     }
 }

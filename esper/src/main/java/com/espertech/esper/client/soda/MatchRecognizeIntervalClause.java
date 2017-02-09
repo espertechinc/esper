@@ -28,7 +28,8 @@ public class MatchRecognizeIntervalClause implements Serializable {
 
     /**
      * Ctor.
-     * @param expression interval expression
+     *
+     * @param expression   interval expression
      * @param orTerminated indicator whether or-terminated
      */
     public MatchRecognizeIntervalClause(TimePeriodExpression expression, boolean orTerminated) {
@@ -38,6 +39,7 @@ public class MatchRecognizeIntervalClause implements Serializable {
 
     /**
      * Returns the interval expression.
+     *
      * @return expression
      */
     public Expression getExpression() {
@@ -46,6 +48,7 @@ public class MatchRecognizeIntervalClause implements Serializable {
 
     /**
      * Sets the interval expression.
+     *
      * @param expression to set
      */
     public void setExpression(Expression expression) {
@@ -54,6 +57,7 @@ public class MatchRecognizeIntervalClause implements Serializable {
 
     /**
      * Returns indicator whether or-terminated is set
+     *
      * @return indicator
      */
     public boolean isOrTerminated() {
@@ -62,6 +66,7 @@ public class MatchRecognizeIntervalClause implements Serializable {
 
     /**
      * Sets indicator whether or-terminated is set
+     *
      * @param orTerminated indicator
      */
     public void setOrTerminated(boolean orTerminated) {

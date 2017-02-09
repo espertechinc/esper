@@ -29,7 +29,7 @@ public class Antlr4ErrorListener implements ANTLRErrorListener {
     private Antlr4ErrorListener() {
     }
 
-    public void syntaxError(Recognizer<?, ?> recognizer,  Object offendingSymbol, int line, int charPositionInLine, String msg,  RecognitionException e) {
+    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
         throw e;
     }
 
@@ -37,7 +37,7 @@ public class Antlr4ErrorListener implements ANTLRErrorListener {
         log.debug("reportAmbiguity");
     }
 
-    public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex,  BitSet conflictingAlts, ATNConfigSet configs) {
+    public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, ATNConfigSet configs) {
         log.debug("reportAttemptingFullContext");
     }
 

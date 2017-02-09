@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
-public class SubselectAggregatorViewFilteredGrouped extends SubselectAggregatorViewBase
-{
+public class SubselectAggregatorViewFilteredGrouped extends SubselectAggregatorViewBase {
     private final ExprNode filterExprNode;
 
     public SubselectAggregatorViewFilteredGrouped(AggregationService aggregationService, ExprEvaluator optionalFilterExpr, ExprEvaluatorContext exprEvaluatorContext, ExprEvaluator[] groupKeys, ExprNode filterExprNode) {
@@ -27,7 +26,9 @@ public class SubselectAggregatorViewFilteredGrouped extends SubselectAggregatorV
     }
 
     public void update(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSubselectAggregation(filterExprNode);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qSubselectAggregation(filterExprNode);
+        }
         if (newData != null) {
             for (EventBean theEvent : newData) {
                 eventsPerStream[0] = theEvent;
@@ -49,6 +50,8 @@ public class SubselectAggregatorViewFilteredGrouped extends SubselectAggregatorV
                 }
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSubselectAggregation();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aSubselectAggregation();
+        }
     }
 }

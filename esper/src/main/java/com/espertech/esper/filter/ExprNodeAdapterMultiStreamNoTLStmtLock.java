@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.variable.VariableService;
 
-public class ExprNodeAdapterMultiStreamNoTLStmtLock extends ExprNodeAdapterMultiStreamNoTL
-{
+public class ExprNodeAdapterMultiStreamNoTLStmtLock extends ExprNodeAdapterMultiStreamNoTL {
     public ExprNodeAdapterMultiStreamNoTLStmtLock(int filterSpecId, int filterSpecParamPathNum, ExprNode exprNode, ExprEvaluatorContext evaluatorContext, VariableService variableService, EventBean[] prototype) {
         super(filterSpecId, filterSpecParamPathNum, exprNode, evaluatorContext, variableService, prototype);
     }
@@ -29,8 +28,7 @@ public class ExprNodeAdapterMultiStreamNoTLStmtLock extends ExprNodeAdapterMulti
         }
         try {
             return super.evaluatePerStream(eventsPerStream);
-        }
-        finally {
+        } finally {
             evaluatorContext.getAgentInstanceLock().releaseWriteLock();
         }
     }

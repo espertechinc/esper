@@ -23,8 +23,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Set;
 
-public class IndexedTableLookupStrategySingle implements JoinExecTableLookupStrategy
-{
+public class IndexedTableLookupStrategySingle implements JoinExecTableLookupStrategy {
     private final EventType eventType;
     private final String property;
     private final PropertyIndexedEventTableSingle index;
@@ -32,12 +31,12 @@ public class IndexedTableLookupStrategySingle implements JoinExecTableLookupStra
 
     /**
      * Ctor.
+     *
      * @param eventType - event type to expect for lookup
-     * @param index - index to look up in
-     * @param property property name
+     * @param index     - index to look up in
+     * @param property  property name
      */
-    public IndexedTableLookupStrategySingle(EventType eventType, String property, PropertyIndexedEventTableSingle index)
-    {
+    public IndexedTableLookupStrategySingle(EventType eventType, String property, PropertyIndexedEventTableSingle index) {
         this.eventType = eventType;
         this.property = property;
         if (index == null) {
@@ -49,25 +48,26 @@ public class IndexedTableLookupStrategySingle implements JoinExecTableLookupStra
 
     /**
      * Returns event type of the lookup event.
+     *
      * @return event type of the lookup event
      */
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
     /**
      * Returns index to look up in.
+     *
      * @return index to use
      */
-    public PropertyIndexedEventTableSingle getIndex()
-    {
+    public PropertyIndexedEventTableSingle getIndex() {
         return index;
     }
 
-    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexJoinLookup(this, index);}
+    public Set<EventBean> lookup(EventBean theEvent, Cursor cursor, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexJoinLookup(this, index);
+        }
 
         Object key = getKey(theEvent);
 
@@ -80,16 +80,14 @@ public class IndexedTableLookupStrategySingle implements JoinExecTableLookupStra
     }
 
     public LookupStrategyDesc getStrategyDesc() {
-        return new LookupStrategyDesc(LookupStrategyType.SINGLEPROP, new String[] {property});
+        return new LookupStrategyDesc(LookupStrategyType.SINGLEPROP, new String[]{property});
     }
 
-    private Object getKey(EventBean theEvent)
-    {
+    private Object getKey(EventBean theEvent) {
         return propertyGetter.get(theEvent);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "IndexedTableLookupStrategy indexProp=" + property +
                 " index=(" + index + ')';
     }

@@ -27,15 +27,14 @@ public class SubordPropUtil {
 
     /**
      * Returns the key stream numbers.
+     *
      * @param descList a list of descriptors
      * @return key stream numbers
      */
-    public static int[] getKeyStreamNums(Collection<SubordPropHashKey> descList)
-    {
+    public static int[] getKeyStreamNums(Collection<SubordPropHashKey> descList) {
         int[] streamIds = new int[descList.size()];
         int count = 0;
-        for (SubordPropHashKey desc : descList)
-        {
+        for (SubordPropHashKey desc : descList) {
             if (!(desc.getHashKey() instanceof QueryGraphValueEntryHashKeyedProp)) {
                 throw new UnsupportedOperationException("Not a strict key compare");
             }
@@ -46,15 +45,14 @@ public class SubordPropUtil {
 
     /**
      * Returns the key property names.
+     *
      * @param descList a list of descriptors
      * @return key property names
      */
-    public static String[] getKeyProperties(Collection<SubordPropHashKey> descList)
-    {
+    public static String[] getKeyProperties(Collection<SubordPropHashKey> descList) {
         String[] result = new String[descList.size()];
         int count = 0;
-        for (SubordPropHashKey desc : descList)
-        {
+        for (SubordPropHashKey desc : descList) {
             if (!(desc.getHashKey() instanceof QueryGraphValueEntryHashKeyedProp)) {
                 throw new UnsupportedOperationException("Not a strict key compare");
             }
@@ -66,15 +64,14 @@ public class SubordPropUtil {
 
     /**
      * Returns the key property names.
+     *
      * @param descList a list of descriptors
      * @return key property names
      */
-    public static String[] getKeyProperties(SubordPropHashKey[] descList)
-    {
+    public static String[] getKeyProperties(SubordPropHashKey[] descList) {
         String[] result = new String[descList.length];
         int count = 0;
-        for (SubordPropHashKey desc : descList)
-        {
+        for (SubordPropHashKey desc : descList) {
             if (!(desc.getHashKey() instanceof QueryGraphValueEntryHashKeyedProp)) {
                 throw new UnsupportedOperationException("Not a strict key compare");
             }
@@ -86,15 +83,14 @@ public class SubordPropUtil {
 
     /**
      * Returns the key coercion types.
+     *
      * @param descList a list of descriptors
      * @return key coercion types
      */
-    public static Class[] getCoercionTypes(Collection<SubordPropHashKey> descList)
-    {
+    public static Class[] getCoercionTypes(Collection<SubordPropHashKey> descList) {
         Class[] result = new Class[descList.size()];
         int count = 0;
-        for (SubordPropHashKey desc : descList)
-        {
+        for (SubordPropHashKey desc : descList) {
             result[count++] = desc.getCoercionType();
         }
         return result;
@@ -102,15 +98,14 @@ public class SubordPropUtil {
 
     /**
      * Returns the key coercion types.
+     *
      * @param descList a list of descriptors
      * @return key coercion types
      */
-    public static Class[] getCoercionTypes(SubordPropHashKey[] descList)
-    {
+    public static Class[] getCoercionTypes(SubordPropHashKey[] descList) {
         Class[] result = new Class[descList.length];
         int count = 0;
-        for (SubordPropHashKey desc : descList)
-        {
+        for (SubordPropHashKey desc : descList) {
             result[count++] = desc.getCoercionType();
         }
         return result;

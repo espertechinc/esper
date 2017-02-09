@@ -24,8 +24,7 @@ import com.espertech.esper.event.arr.ObjectArrayEventType;
  * <p>
  * Allows sending only event objects of type map, does not check map contents. Any other event object generates an error.
  */
-public class EventSenderObjectArray implements EventSender
-{
+public class EventSenderObjectArray implements EventSender {
     private final EPRuntimeEventSender runtimeEventSender;
     private final EventAdapterService eventAdapterService;
     private final ObjectArrayEventType objectArrayEventType;
@@ -33,43 +32,36 @@ public class EventSenderObjectArray implements EventSender
 
     /**
      * Ctor.
-     * @param runtimeEventSender for processing events
+     *
+     * @param runtimeEventSender   for processing events
      * @param objectArrayEventType the event type
-     * @param threadingService for inbound threading
-     * @param eventAdapterService for event bean creation
+     * @param threadingService     for inbound threading
+     * @param eventAdapterService  for event bean creation
      */
-    public EventSenderObjectArray(EPRuntimeEventSender runtimeEventSender, ObjectArrayEventType objectArrayEventType, EventAdapterService eventAdapterService, ThreadingService threadingService)
-    {
+    public EventSenderObjectArray(EPRuntimeEventSender runtimeEventSender, ObjectArrayEventType objectArrayEventType, EventAdapterService eventAdapterService, ThreadingService threadingService) {
         this.runtimeEventSender = runtimeEventSender;
         this.objectArrayEventType = objectArrayEventType;
         this.threadingService = threadingService;
         this.eventAdapterService = eventAdapterService;
     }
 
-    public void sendEvent(Object theEvent)
-    {
-        if (!(theEvent.getClass().isArray()))
-        {
+    public void sendEvent(Object theEvent) {
+        if (!(theEvent.getClass().isArray())) {
             throw new EPException("Unexpected event object of type " + theEvent.getClass().getName() + ", expected Object[]");
         }
-        
+
         Object[] arr = (Object[]) theEvent;
         EventBean objectArrayEvent = eventAdapterService.adapterForTypedObjectArray(arr, objectArrayEventType);
 
-        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading()))
-        {
+        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading())) {
             threadingService.submitInbound(new InboundUnitSendWrapped(objectArrayEvent, runtimeEventSender));
-        }
-        else
-        {
+        } else {
             runtimeEventSender.processWrappedEvent(objectArrayEvent);
         }
     }
 
-    public void route(Object theEvent)
-    {
-        if (!(theEvent.getClass().isArray()))
-        {
+    public void route(Object theEvent) {
+        if (!(theEvent.getClass().isArray())) {
             throw new EPException("Unexpected event object of type " + theEvent.getClass().getName() + ", expected Object[]");
         }
         Object[] arr = (Object[]) theEvent;

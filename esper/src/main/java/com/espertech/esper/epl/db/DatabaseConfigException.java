@@ -13,26 +13,25 @@ package com.espertech.esper.epl.db;
 /**
  * Exception to indicate that a stream name could not be resolved.
  */
-public class DatabaseConfigException extends Exception
-{
+public class DatabaseConfigException extends Exception {
     private static final long serialVersionUID = 6493251258537897912L;
 
     /**
      * Ctor.
+     *
      * @param msg - message
      */
-    public DatabaseConfigException(String msg)
-    {
+    public DatabaseConfigException(String msg) {
         super(msg);
     }
 
     /**
      * Ctor.
+     *
      * @param message - error message
-     * @param cause - cause is the inner exception
+     * @param cause   - cause is the inner exception
      */
-    public DatabaseConfigException(String message, Throwable cause)
-    {
+    public DatabaseConfigException(String message, Throwable cause) {
         super(message, cause);
     }
 }

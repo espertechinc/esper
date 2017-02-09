@@ -11,13 +11,11 @@
 package com.espertech.esper.rowregex;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.collection.MultiKeyUntyped;
 
 /**
  * State for a partial NFA match.
  */
-public class RegexNFAStateEntry
-{
+public class RegexNFAStateEntry {
     private final int matchBeginEventSeqNo;
     private final long matchBeginEventTime;
     private RegexNFAState state;
@@ -29,13 +27,14 @@ public class RegexNFAStateEntry
 
     /**
      * Ctor.
+     *
      * @param matchBeginEventSeqNo the event number where the match started
-     * @param matchBeginEventTime the time the first match occured
-     * @param state the current match state
-     * @param eventsPerStream events for each single-match variable
-     * @param greedycountPerState number of greedy matches over all variables
+     * @param matchBeginEventTime  the time the first match occured
+     * @param state                the current match state
+     * @param eventsPerStream      events for each single-match variable
+     * @param greedycountPerState  number of greedy matches over all variables
      * @param optionalMultiMatches matches for multirow-variables
-     * @param partitionKey key of partition
+     * @param partitionKey         key of partition
      */
     public RegexNFAStateEntry(int matchBeginEventSeqNo,
                               long matchBeginEventTime,
@@ -55,6 +54,7 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the event number of the first matching event.
+     *
      * @return event number
      */
     public int getMatchBeginEventSeqNo() {
@@ -63,15 +63,16 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the time of the first matching event.
+     *
      * @return time
      */
-    public long getMatchBeginEventTime()
-    {
+    public long getMatchBeginEventTime() {
         return matchBeginEventTime;
     }
 
     /**
      * Returns the partial matches.
+     *
      * @return state
      */
     public RegexNFAState getState() {
@@ -80,6 +81,7 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the single-variable matches.
+     *
      * @return match events
      */
     public EventBean[] getEventsPerStream() {
@@ -88,6 +90,7 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the multirow-variable matches, if any.
+     *
      * @return matches
      */
     public MultimatchState[] getOptionalMultiMatches() {
@@ -96,15 +99,16 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the count of greedy matches per state.
+     *
      * @return greedy counts
      */
-    public int[] getGreedycountPerState()
-    {
+    public int[] getGreedycountPerState() {
         return greedycountPerState;
     }
 
     /**
      * Sets the match end event number.
+     *
      * @param matchEndEventSeqNo match end event num
      */
     public void setMatchEndEventSeqNo(int matchEndEventSeqNo) {
@@ -113,6 +117,7 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the match end event number.
+     *
      * @return num
      */
     public int getMatchEndEventSeqNo() {
@@ -121,15 +126,14 @@ public class RegexNFAStateEntry
 
     /**
      * Returns the partition key.
+     *
      * @return key
      */
-    public Object getPartitionKey()
-    {
+    public Object getPartitionKey() {
         return partitionKey;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "Entry " + state.toString();
     }
 

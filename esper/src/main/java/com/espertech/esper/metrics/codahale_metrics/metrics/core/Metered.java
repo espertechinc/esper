@@ -66,7 +66,7 @@ public interface Metered extends Metric {
      * {@code top} Unix command.
      *
      * @return the fifteen-minute exponentially-weighted moving average rate at which events have
-     *         occurred since the meter was created
+     * occurred since the meter was created
      */
     double fifteenMinuteRate();
 
@@ -77,7 +77,7 @@ public interface Metered extends Metric {
      * top} Unix command.
      *
      * @return the five-minute exponentially-weighted moving average rate at which events have
-     *         occurred since the meter was created
+     * occurred since the meter was created
      */
     double fiveMinuteRate();
 
@@ -95,7 +95,7 @@ public interface Metered extends Metric {
      * top} Unix command.
      *
      * @return the one-minute exponentially-weighted moving average rate at which events have
-     *         occurred since the meter was created
+     * occurred since the meter was created
      */
     double oneMinuteRate();
 }

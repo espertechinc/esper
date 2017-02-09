@@ -17,8 +17,7 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
 /**
  * Index lookup strategy that coerces the key values before performing a lookup.
  */
-public class SubordIndexedTableLookupStrategySingleCoercingFactory extends SubordIndexedTableLookupStrategySingleExprFactory
-{
+public class SubordIndexedTableLookupStrategySingleCoercingFactory extends SubordIndexedTableLookupStrategySingleExprFactory {
     private Class coercionType;
 
     public SubordIndexedTableLookupStrategySingleCoercingFactory(boolean isNWOnTrigger, int streamCountOuter, SubordPropHashKey hashKey, Class coercionType) {
@@ -30,8 +29,7 @@ public class SubordIndexedTableLookupStrategySingleCoercingFactory extends Subor
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
             return new SubordIndexedTableLookupStrategySingleCoercingNW(evaluator, (PropertyIndexedEventTableSingle) eventTable[0], coercionType, strategyDesc);
-        }
-        else {
+        } else {
             return new SubordIndexedTableLookupStrategySingleCoercing(streamCountOuter, evaluator, (PropertyIndexedEventTableSingle) eventTable[0], coercionType, strategyDesc);
         }
     }

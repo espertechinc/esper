@@ -12,7 +12,6 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 
-public interface AggSvcGroupByReclaimAgedEvalFuncFactory
-{
+public interface AggSvcGroupByReclaimAgedEvalFuncFactory {
     public AggSvcGroupByReclaimAgedEvalFunc make(AgentInstanceContext agentInstanceContext);
 }

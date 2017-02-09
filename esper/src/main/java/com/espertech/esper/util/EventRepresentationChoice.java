@@ -42,8 +42,7 @@ public enum EventRepresentationChoice {
         EventUnderlyingType configured = spi.getConfigurationInformation().getEngineDefaults().getEventMeta().getDefaultEventRepresentation();
         if (configured == EventUnderlyingType.OBJECTARRAY) {
             return ARRAY;
-        }
-        else if (configured == EventUnderlyingType.AVRO) {
+        } else if (configured == EventUnderlyingType.AVRO) {
             return AVRO;
         }
         return MAP;

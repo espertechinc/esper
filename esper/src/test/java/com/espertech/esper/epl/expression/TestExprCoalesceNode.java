@@ -14,16 +14,14 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCoalesceNode;
 import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
+import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
-import com.espertech.esper.supportunit.epl.SupportExprNode;
 
-public class TestExprCoalesceNode extends TestCase
-{
+public class TestExprCoalesceNode extends TestCase {
     private ExprCoalesceNode[] coalesceNodes;
 
-    public void setUp()
-    {
+    public void setUp() {
         coalesceNodes = new ExprCoalesceNode[5];
 
         coalesceNodes[0] = new ExprCoalesceNode();
@@ -50,10 +48,8 @@ public class TestExprCoalesceNode extends TestCase
         coalesceNodes[4].addChildNode(new SupportExprNode(null, Double.class));
     }
 
-    public void testGetType() throws Exception
-    {
-        for (int i = 0; i < coalesceNodes.length; i++)
-        {
+    public void testGetType() throws Exception {
+        for (int i = 0; i < coalesceNodes.length; i++) {
             coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
@@ -64,39 +60,30 @@ public class TestExprCoalesceNode extends TestCase
         assertEquals(Double.class, coalesceNodes[4].getType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         ExprCoalesceNode coalesceNode = new ExprCoalesceNode();
         coalesceNode.addChildNode(new SupportExprNode(1));
 
         // Test too few nodes under this node
-        try
-        {
+        try {
             coalesceNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
 
         // Test node result type not fitting
         coalesceNode.addChildNode(new SupportExprNode("s"));
-        try
-        {
+        try {
             coalesceNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEvaluate() throws Exception
-    {
-        for (int i = 0; i < coalesceNodes.length; i++)
-        {
+    public void testEvaluate() throws Exception {
+        for (int i = 0; i < coalesceNodes.length; i++) {
             coalesceNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
@@ -107,14 +94,12 @@ public class TestExprCoalesceNode extends TestCase
         assertEquals(5D, coalesceNodes[4].evaluate(null, false, null));
     }
 
-    public void testEquals() throws Exception
-    {
+    public void testEquals() throws Exception {
         assertFalse(coalesceNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false)));
         assertTrue(coalesceNodes[0].equalsNode(coalesceNodes[1]));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         coalesceNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals("coalesce(null,null,4)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(coalesceNodes[0]));
     }

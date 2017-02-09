@@ -13,8 +13,7 @@ package com.espertech.esper.rowregex;
 /**
  * Enum for NFA types.
  */
-public enum RegexNFATypeEnum
-{
+public enum RegexNFATypeEnum {
     /**
      * For single multiplicity.
      */
@@ -64,6 +63,7 @@ public enum RegexNFATypeEnum
 
     /**
      * Returns indicator if single or multiple matches.
+     *
      * @return indicator
      */
     public boolean isMultipleMatches() {
@@ -72,6 +72,7 @@ public enum RegexNFATypeEnum
 
     /**
      * Returns indicator if optional matches.
+     *
      * @return indicator
      */
     public boolean isOptional() {
@@ -80,45 +81,39 @@ public enum RegexNFATypeEnum
 
     /**
      * Returns indicator if greedy or reluctant.
+     *
      * @return indicator
      */
-    public Boolean isGreedy()
-    {
+    public Boolean isGreedy() {
         return greedy;
     }
 
     /**
      * Inspect code and return enum for code.
-     * @param code to inspect
+     *
+     * @param code              to inspect
      * @param reluctantQuestion null for greedy or questionmark for reluctant
      * @return enum
      */
-    public static RegexNFATypeEnum fromString(String code, String reluctantQuestion)
-    {
+    public static RegexNFATypeEnum fromString(String code, String reluctantQuestion) {
         boolean reluctant = false;
-        if (reluctantQuestion != null)
-        {
-            if (!reluctantQuestion.equals("?"))
-            {
+        if (reluctantQuestion != null) {
+            if (!reluctantQuestion.equals("?")) {
                 throw new IllegalArgumentException("Invalid code for pattern type: " + code + " reluctant '" + reluctantQuestion + "'");
             }
             reluctant = true;
         }
 
-        if (code == null)
-        {
+        if (code == null) {
             return SINGLE;
         }
-        if (code.equals("*"))
-        {
+        if (code.equals("*")) {
             return reluctant ? ZERO_TO_MANY_RELUCTANT : ZERO_TO_MANY;
         }
-        if (code.equals("+"))
-        {
+        if (code.equals("+")) {
             return reluctant ? ONE_TO_MANY_RELUCTANT : ONE_TO_MANY;
         }
-        if (code.equals("?"))
-        {
+        if (code.equals("?")) {
             return reluctant ? ONE_OPTIONAL_RELUCTANT : ONE_OPTIONAL;
         }
         throw new IllegalArgumentException("Invalid code for pattern type: " + code);
@@ -126,6 +121,7 @@ public enum RegexNFATypeEnum
 
     /**
      * Return postfix.
+     *
      * @return postfix
      */
     public String getOptionalPostfix() {

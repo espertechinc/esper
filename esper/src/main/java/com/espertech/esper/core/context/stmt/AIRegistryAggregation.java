@@ -14,6 +14,8 @@ import com.espertech.esper.epl.agg.service.AggregationService;
 
 public interface AIRegistryAggregation extends AggregationService {
     public void assignService(int serviceId, AggregationService aggregationService);
+
     public void deassignService(int serviceId);
+
     public int getInstanceCount();
 }

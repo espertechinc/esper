@@ -10,15 +10,13 @@
  */
 package com.espertech.esper.view.stat;
 
-import junit.framework.TestCase;
 import com.espertech.esper.supportunit.util.DoubleValueAssertionUtil;
+import junit.framework.TestCase;
 
-public class TestBaseStatisticsBean extends TestCase
-{
+public class TestBaseStatisticsBean extends TestCase {
     private final int PRECISION_DIGITS = 6;
 
-    public void testAddRemoveXOnly()
-    {
+    public void testAddRemoveXOnly() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
         assertEquals(Double.NaN, stat.getXAverage());
@@ -36,8 +34,7 @@ public class TestBaseStatisticsBean extends TestCase
         assertEquals(1, stat.getN());
     }
 
-    public void testAverage()
-    {
+    public void testAverage() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
         assertEquals(Double.NaN, stat.getXAverage());
@@ -100,8 +97,7 @@ public class TestBaseStatisticsBean extends TestCase
         assertEquals(0, stat.getN());
     }
 
-    public void testSum()
-    {
+    public void testSum() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
         assertEquals(0d, stat.getXSum());
@@ -118,56 +114,55 @@ public class TestBaseStatisticsBean extends TestCase
         assertEquals(-5d, stat.getYSum());
         assertEquals(2, stat.getN());
 
-        stat.addPoint(1,5);
+        stat.addPoint(1, 5);
         assertEquals(14.5d, stat.getXSum());
         assertEquals(0d, stat.getYSum());
         assertEquals(3, stat.getN());
 
-        stat.removePoint(9,1.5);
+        stat.removePoint(9, 1.5);
         assertEquals(5.5d, stat.getXSum());
         assertEquals(-1.5d, stat.getYSum());
         assertEquals(2, stat.getN());
 
-        stat.removePoint(9.5,-1.5);
+        stat.removePoint(9.5, -1.5);
         assertEquals(-4d, stat.getXSum());
         assertEquals(0d, stat.getYSum());
         assertEquals(1, stat.getN());
 
-        stat.removePoint(1,-1);
+        stat.removePoint(1, -1);
         assertEquals(0d, stat.getXSum());
         assertEquals(0d, stat.getYSum());
         assertEquals(0, stat.getN());
 
-        stat.removePoint(1,1);
+        stat.removePoint(1, 1);
         assertEquals(0d, stat.getXSum());
         assertEquals(0d, stat.getYSum());
         assertEquals(0, stat.getN());
 
-        stat.addPoint(1.11,-3.333);
+        stat.addPoint(1.11, -3.333);
         assertEquals(1.11d, stat.getXSum());
         assertEquals(-3.333d, stat.getYSum());
         assertEquals(1, stat.getN());
 
-        stat.addPoint(2.22,3.333);
+        stat.addPoint(2.22, 3.333);
         assertEquals(1.11d + 2.22d, stat.getXSum());
         assertEquals(0d, stat.getYSum());
         assertEquals(2, stat.getN());
 
-        stat.addPoint(-3.32,0);
+        stat.addPoint(-3.32, 0);
         assertEquals(1.11d + 2.22d - 3.32d, stat.getXSum());
         assertEquals(0d, stat.getYSum());
         assertEquals(3, stat.getN());
     }
 
-    public void testStddev_STDEVPA()
-    {
+    public void testStddev_STDEVPA() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
         assertEquals(Double.NaN, stat.getXStandardDeviationPop());
         assertEquals(Double.NaN, stat.getYStandardDeviationPop());
         assertEquals(0, stat.getN());
 
-        stat.addPoint(1,10500);
+        stat.addPoint(1, 10500);
         assertEquals(0.0d, stat.getXStandardDeviationPop());
         assertEquals(0.0d, stat.getYStandardDeviationPop());
         assertEquals(1, stat.getN());
@@ -178,33 +173,32 @@ public class TestBaseStatisticsBean extends TestCase
         assertEquals(2, stat.getN());
 
         stat.addPoint(1.5, 10500);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(),0.40824829, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(),141.4213562, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(), 0.40824829, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(), 141.4213562, PRECISION_DIGITS));
         assertEquals(3, stat.getN());
 
-        stat.addPoint(-0.1,10500);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(),0.777817459, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(),129.9038106, PRECISION_DIGITS));
+        stat.addPoint(-0.1, 10500);
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(), 0.777817459, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(), 129.9038106, PRECISION_DIGITS));
         assertEquals(4, stat.getN());
 
-        stat.removePoint(2,10200);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(),0.668331255, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(),0.0, PRECISION_DIGITS));
+        stat.removePoint(2, 10200);
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(), 0.668331255, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(), 0.0, PRECISION_DIGITS));
         assertEquals(3, stat.getN());
 
-        stat.addPoint(0.89,10499);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(),0.580102362, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(),0.433012702, PRECISION_DIGITS));
+        stat.addPoint(0.89, 10499);
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(), 0.580102362, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(), 0.433012702, PRECISION_DIGITS));
         assertEquals(4, stat.getN());
 
-        stat.addPoint(1.23,10500);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(),0.543860276, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(),0.4, PRECISION_DIGITS));
+        stat.addPoint(1.23, 10500);
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationPop(), 0.543860276, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationPop(), 0.4, PRECISION_DIGITS));
         assertEquals(5, stat.getN());
     }
 
-    public void testStddevAndVariance_STDEV()
-    {
+    public void testStddevAndVariance_STDEV() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
         assertEquals(Double.NaN, stat.getXStandardDeviationSample());
@@ -221,34 +215,33 @@ public class TestBaseStatisticsBean extends TestCase
         stat.addPoint(150, -1);
         assertEquals(1250d, stat.getXVariance());
         assertEquals(0d, stat.getYVariance());
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(),35.35533906, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(),0, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(), 35.35533906, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(), 0, PRECISION_DIGITS));
 
-        stat.addPoint(0,-1.1);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXVariance(),5833.33333333, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYVariance(),0.003333333, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(),76.37626158, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(),0.057735027, PRECISION_DIGITS));
+        stat.addPoint(0, -1.1);
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXVariance(), 5833.33333333, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYVariance(), 0.003333333, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(), 76.37626158, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(), 0.057735027, PRECISION_DIGITS));
 
-        stat.removePoint(100,-1);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXVariance(),11250, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYVariance(),0.005, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(),106.0660172, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(),0.070710678, PRECISION_DIGITS));
+        stat.removePoint(100, -1);
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXVariance(), 11250, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYVariance(), 0.005, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(), 106.0660172, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(), 0.070710678, PRECISION_DIGITS));
 
         stat.addPoint(-149, 0);
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXVariance(),22350.333333, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYVariance(),0.37, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(),149.5002787, PRECISION_DIGITS));
-        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(),0.608276253, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXVariance(), 22350.333333, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYVariance(), 0.37, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getXStandardDeviationSample(), 149.5002787, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(stat.getYStandardDeviationSample(), 0.608276253, PRECISION_DIGITS));
     }
 
-    public void testClone()
-    {
+    public void testClone() {
         BaseStatisticsBean stat = new BaseStatisticsBean();
 
-        stat.addPoint(100,10);
-        stat.addPoint(200,20);
+        stat.addPoint(100, 10);
+        stat.addPoint(200, 20);
 
         BaseStatisticsBean cloned = (BaseStatisticsBean) stat.clone();
         assertEquals(2, cloned.getN());
@@ -256,6 +249,6 @@ public class TestBaseStatisticsBean extends TestCase
         assertEquals(150d, cloned.getXAverage());
         assertEquals(30d, cloned.getYSum());
         assertEquals(15d, cloned.getYAverage());
-        assertTrue(DoubleValueAssertionUtil.equals(cloned.getXStandardDeviationPop(),50.0, PRECISION_DIGITS));
+        assertTrue(DoubleValueAssertionUtil.equals(cloned.getXStandardDeviationPop(), 50.0, PRECISION_DIGITS));
     }
 }

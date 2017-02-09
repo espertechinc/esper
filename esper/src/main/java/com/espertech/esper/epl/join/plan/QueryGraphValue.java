@@ -24,15 +24,13 @@ import java.util.List;
 /**
  * Property lists stored as a value for each stream-to-stream relationship, for use by {@link QueryGraph}.
  */
-public class QueryGraphValue
-{
+public class QueryGraphValue {
     private List<QueryGraphValueDesc> items;
 
     /**
      * Ctor.
      */
-    public QueryGraphValue()
-    {
+    public QueryGraphValue() {
         items = new ArrayList<QueryGraphValueDesc>();
     }
 
@@ -47,13 +45,12 @@ public class QueryGraphValue
     /**
      * Add key and index property.
      *
-     * @param keyProperty - key property
+     * @param keyProperty        - key property
      * @param indexPropertyIdent - index property
-     * @param keyPropNode key node
+     * @param keyPropNode        key node
      * @return true if added and either property did not exist, false if either already existed
      */
-    public boolean addStrictCompare(String keyProperty, ExprIdentNode keyPropNode, ExprIdentNode indexPropertyIdent)
-    {
+    public boolean addStrictCompare(String keyProperty, ExprIdentNode keyPropNode, ExprIdentNode indexPropertyIdent) {
         QueryGraphValueDesc value = findIdentEntry(indexPropertyIdent);
         if (value != null && value.getEntry() instanceof QueryGraphValueEntryHashKeyedExpr) {
             // if this index property exists and is compared to a constant, ignore the index prop
@@ -80,7 +77,7 @@ public class QueryGraphValue
             return;
         }
 
-        items.add(new QueryGraphValueDesc(new ExprNode[] {propertyValueIdent}, new QueryGraphValueEntryRangeIn(rangeType, propertyStart, propertyEnd, true)));
+        items.add(new QueryGraphValueDesc(new ExprNode[]{propertyValueIdent}, new QueryGraphValueEntryRangeIn(rangeType, propertyStart, propertyEnd, true)));
     }
 
     public void addRelOp(ExprNode propertyKey, QueryGraphRangeEnum op, ExprIdentNode propertyValueIdent, boolean isBetweenOrIn) {
@@ -103,14 +100,14 @@ public class QueryGraphValue
         QueryGraphRangeConsolidateDesc opsDesc = QueryGraphRangeUtil.getCanConsolidate(op, relOp.getType());
         if (opsDesc != null) {
             ExprNode start = !opsDesc.isReverse() ? relOp.getExpression() : propertyKey;
-            ExprNode end = !opsDesc.isReverse() ?  propertyKey : relOp.getExpression();
+            ExprNode end = !opsDesc.isReverse() ? propertyKey : relOp.getExpression();
             items.remove(existing);
             addRange(opsDesc.getType(), start, end, propertyValueIdent);
         }
     }
 
     public void addUnkeyedExpr(ExprIdentNode indexedPropIdent, ExprNode exprNodeNoIdent) {
-        items.add(new QueryGraphValueDesc(new ExprNode[] {indexedPropIdent}, new QueryGraphValueEntryHashKeyedExpr(exprNodeNoIdent, false)));
+        items.add(new QueryGraphValueDesc(new ExprNode[]{indexedPropIdent}, new QueryGraphValueEntryHashKeyedExpr(exprNodeNoIdent, false)));
     }
 
     public void addKeyedExpr(ExprIdentNode indexedPropIdent, ExprNode exprNodeNoIdent) {
@@ -156,8 +153,7 @@ public class QueryGraphValue
         return new QueryGraphValuePairRangeIndex(indexed.toArray(new String[indexed.size()]), keys);
     }
 
-    public String toString()
-    {
+    public String toString() {
         StringWriter writer = new StringWriter();
         writer.append("QueryGraphValue ");
         String delimiter = "";

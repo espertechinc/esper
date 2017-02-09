@@ -18,15 +18,13 @@ import com.espertech.esper.core.service.EPRuntimeEventSender;
 import com.espertech.esper.core.thread.InboundUnitSendWrapped;
 import com.espertech.esper.core.thread.ThreadingOption;
 import com.espertech.esper.core.thread.ThreadingService;
-import com.espertech.esper.event.arr.ObjectArrayEventType;
 
 /**
  * Event sender for avro-backed events.
  * <p>
  * Allows sending only event objects of type GenericData.Record, does not check contents. Any other event object generates an error.
  */
-public class EventSenderAvro implements EventSender
-{
+public class EventSenderAvro implements EventSender {
     private final EPRuntimeEventSender runtimeEventSender;
     private final EventAdapterService eventAdapterService;
     private final EventType eventType;
@@ -34,35 +32,30 @@ public class EventSenderAvro implements EventSender
 
     /**
      * Ctor.
-     * @param runtimeEventSender for processing events
-     * @param eventType the event type
-     * @param threadingService for inbound threading
+     *
+     * @param runtimeEventSender  for processing events
+     * @param eventType           the event type
+     * @param threadingService    for inbound threading
      * @param eventAdapterService for event bean creation
      */
-    public EventSenderAvro(EPRuntimeEventSender runtimeEventSender, EventType eventType, EventAdapterService eventAdapterService, ThreadingService threadingService)
-    {
+    public EventSenderAvro(EPRuntimeEventSender runtimeEventSender, EventType eventType, EventAdapterService eventAdapterService, ThreadingService threadingService) {
         this.runtimeEventSender = runtimeEventSender;
         this.eventType = eventType;
         this.threadingService = threadingService;
         this.eventAdapterService = eventAdapterService;
     }
 
-    public void sendEvent(Object theEvent)
-    {
+    public void sendEvent(Object theEvent) {
         EventBean eventBean = eventAdapterService.adapterForTypedAvro(theEvent, eventType);
 
-        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading()))
-        {
+        if ((ThreadingOption.isThreadingEnabled) && (threadingService.isInboundThreading())) {
             threadingService.submitInbound(new InboundUnitSendWrapped(eventBean, runtimeEventSender));
-        }
-        else
-        {
+        } else {
             runtimeEventSender.processWrappedEvent(eventBean);
         }
     }
 
-    public void route(Object theEvent)
-    {
+    public void route(Object theEvent) {
         if (!(theEvent.getClass().isArray())) {
             throw new EPException("Unexpected event object of type " + theEvent.getClass().getName() + ", expected Object[]");
         }

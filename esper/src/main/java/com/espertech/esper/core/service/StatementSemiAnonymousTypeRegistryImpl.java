@@ -14,5 +14,7 @@ import com.espertech.esper.client.EventType;
 
 public class StatementSemiAnonymousTypeRegistryImpl implements StatementSemiAnonymousTypeRegistry {
     public final static StatementSemiAnonymousTypeRegistryImpl INSTANCE = new StatementSemiAnonymousTypeRegistryImpl();
-    public void register(EventType anonymouseType) {}
+
+    public void register(EventType anonymouseType) {
+    }
 }

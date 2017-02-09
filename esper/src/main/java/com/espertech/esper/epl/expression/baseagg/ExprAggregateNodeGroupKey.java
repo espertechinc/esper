@@ -17,8 +17,7 @@ import com.espertech.esper.epl.expression.core.*;
 
 import java.io.StringWriter;
 
-public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprEvaluator
-{
+public class ExprAggregateNodeGroupKey extends ExprNodeBase implements ExprEvaluator {
     private static final long serialVersionUID = 154204964713946760L;
     private final int groupKeyIndex;
     private final Class returnType;

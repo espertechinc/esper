@@ -12,8 +12,7 @@ package com.espertech.esper.epl.join.base;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
-public class JoinSetComposerDesc
-{
+public class JoinSetComposerDesc {
     private final JoinSetComposer joinSetComposer;
     private final ExprEvaluator postJoinFilterEvaluator;
 

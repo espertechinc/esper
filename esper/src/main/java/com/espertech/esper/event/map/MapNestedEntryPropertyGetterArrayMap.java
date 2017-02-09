@@ -10,13 +10,9 @@
  */
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
-
-import java.lang.reflect.Array;
-import java.util.Map;
 
 /**
  * A getter that works on EventBean events residing within a Map as an event property.

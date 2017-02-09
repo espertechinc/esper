@@ -13,10 +13,12 @@ package com.espertech.esper.core.context.mgr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.context.*;
 import com.espertech.esper.core.context.util.ContextControllerSelectorUtil;
-import com.espertech.esper.client.context.ContextPartitionState;
 import com.espertech.esper.epl.spec.ContextDetailCategoryItem;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 public class ContextControllerCategory implements ContextController {
 
@@ -96,7 +98,7 @@ public class ContextControllerCategory implements ContextController {
             }
             return;
         }
-        throw ContextControllerSelectorUtil.getInvalidSelector(new Class[] {ContextPartitionSelectorCategory.class}, contextPartitionSelector);
+        throw ContextControllerSelectorUtil.getInvalidSelector(new Class[]{ContextPartitionSelectorCategory.class}, contextPartitionSelector);
     }
 
     public void activate(EventBean optionalTriggeringEvent, Map<String, Object> optionalTriggeringPattern, ContextControllerState controllerState, ContextInternalFilterAddendum activationFilterAddendum, Integer importPathId) {
@@ -188,4 +190,5 @@ public class ContextControllerCategory implements ContextController {
         if (!controllerState.isImported()) {
             currentSubpathId = maxSubpathId != Integer.MIN_VALUE ? maxSubpathId : 0;
         }
-    }}
+    }
+}

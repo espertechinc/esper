@@ -17,25 +17,21 @@ import java.net.URL;
 public class TestConfig extends TestCase {
     private ConfigurationHTTPAdapter config;
 
-    public void setUp()
-    {
+    public void setUp() {
         config = new ConfigurationHTTPAdapter();
     }
 
-    public void testConfigureFromStream() throws Exception
-    {
+    public void testConfigureFromStream() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("esperio-http-sample-config.xml");
         ConfigurationHTTPAdapterParser.doConfigure(config, url.openStream(), url.toString());
         assertFileConfig(config);
     }
 
-    public void testEngineDefaults()
-    {
+    public void testEngineDefaults() {
         config = new ConfigurationHTTPAdapter();
     }
 
-    protected static void assertFileConfig(ConfigurationHTTPAdapter config) throws Exception
-    {
+    protected static void assertFileConfig(ConfigurationHTTPAdapter config) throws Exception {
         assertEquals(1, config.getServices().size());
         Service service = config.getServices().get("myservice");
         assertEquals(8079, service.getPort());

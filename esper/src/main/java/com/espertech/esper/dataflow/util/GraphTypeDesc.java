@@ -12,8 +12,6 @@ package com.espertech.esper.dataflow.util;
 
 import com.espertech.esper.client.EventType;
 
-import java.io.Serializable;
-
 public class GraphTypeDesc {
 
     private final boolean wildcard;

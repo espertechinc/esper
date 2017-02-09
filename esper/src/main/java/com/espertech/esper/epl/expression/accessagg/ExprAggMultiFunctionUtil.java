@@ -15,11 +15,9 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
-public class ExprAggMultiFunctionUtil
-{
+public class ExprAggMultiFunctionUtil {
     public static int validateStreamWildcardGetStreamNum(ExprNode node)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!(node instanceof ExprStreamUnderlyingNode)) {
             throw new IllegalStateException("Expression not stream-wildcard");
         }
@@ -31,21 +29,20 @@ public class ExprAggMultiFunctionUtil
     }
 
     public static void validateWildcardStreamNumbers(StreamTypeService streamTypeService, String aggFuncName)
-        throws ExprValidationException {
+            throws ExprValidationException {
         checkWildcardNotJoinOrSubquery(streamTypeService, aggFuncName);
         checkWildcardHasStream(streamTypeService, aggFuncName);
     }
 
     public static void checkWildcardNotJoinOrSubquery(StreamTypeService streamTypeService, String aggFuncName)
-        throws ExprValidationException {
+            throws ExprValidationException {
         if (streamTypeService.getStreamNames().length > 1) {
             throw new ExprValidationException(getErrorPrefix(aggFuncName) + " requires that in joins or subqueries the stream-wildcard (stream-alias.*) syntax is used instead");
         }
     }
 
     private static void checkWildcardHasStream(StreamTypeService streamTypeService, String aggFuncName)
-        throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (streamTypeService.getStreamNames().length == 0) {    // could be the case for
             throw new ExprValidationException(getErrorPrefix(aggFuncName) + " requires that at least one stream is provided");
         }

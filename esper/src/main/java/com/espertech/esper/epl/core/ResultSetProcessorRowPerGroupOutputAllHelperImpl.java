@@ -33,7 +33,7 @@ public class ResultSetProcessorRowPerGroupOutputAllHelperImpl implements ResultS
 
         if (newData != null) {
             for (EventBean aNewData : newData) {
-                EventBean[] eventsPerStream = new EventBean[] {aNewData};
+                EventBean[] eventsPerStream = new EventBean[]{aNewData};
                 Object mk = processor.generateGroupKey(eventsPerStream, true);
                 groupReps.put(mk, eventsPerStream);
 
@@ -48,7 +48,7 @@ public class ResultSetProcessorRowPerGroupOutputAllHelperImpl implements ResultS
         }
         if (oldData != null) {
             for (EventBean anOldData : oldData) {
-                EventBean[] eventsPerStream = new EventBean[] {anOldData};
+                EventBean[] eventsPerStream = new EventBean[]{anOldData};
                 Object mk = processor.generateGroupKey(eventsPerStream, true);
 
                 if (processor.prototype.isSelectRStream() && !groupRepsOutputLastUnordRStream.containsKey(mk)) {

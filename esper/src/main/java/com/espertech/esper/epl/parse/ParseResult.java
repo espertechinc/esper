@@ -18,8 +18,7 @@ import java.util.List;
 /**
  * Result of a parse action.
  */
-public class ParseResult
-{
+public class ParseResult {
     private Tree tree;
     private String expressionWithoutAnnotations;
     private CommonTokenStream tokenStream;
@@ -27,13 +26,13 @@ public class ParseResult
 
     /**
      * Ctor.
-     * @param tree parse tree
+     *
+     * @param tree                         parse tree
      * @param expressionWithoutAnnotations expression text no annotations, or null if same
-     * @param scripts script list
-     * @param tokenStream tokens
+     * @param scripts                      script list
+     * @param tokenStream                  tokens
      */
-    public ParseResult(Tree tree, String expressionWithoutAnnotations, CommonTokenStream tokenStream, List<String> scripts)
-    {
+    public ParseResult(Tree tree, String expressionWithoutAnnotations, CommonTokenStream tokenStream, List<String> scripts) {
         this.tree = tree;
         this.expressionWithoutAnnotations = expressionWithoutAnnotations;
         this.tokenStream = tokenStream;
@@ -42,19 +41,19 @@ public class ParseResult
 
     /**
      * AST.
+     *
      * @return ast
      */
-    public Tree getTree()
-    {
+    public Tree getTree() {
         return tree;
     }
 
     /**
      * Returns the expression text no annotations.
+     *
      * @return expression text no annotations.
      */
-    public String getExpressionWithoutAnnotations()
-    {
+    public String getExpressionWithoutAnnotations() {
         return expressionWithoutAnnotations;
     }
 

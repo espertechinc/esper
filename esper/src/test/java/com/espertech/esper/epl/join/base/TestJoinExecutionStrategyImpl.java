@@ -10,26 +10,24 @@
  */
 package com.espertech.esper.epl.join.base;
 
-import junit.framework.TestCase;
-import com.espertech.esper.supportunit.epl.SupportJoinSetComposer;
-import com.espertech.esper.supportunit.epl.SupportJoinSetProcessor;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.MultiKey;
 import com.espertech.esper.collection.UniformPair;
+import com.espertech.esper.supportunit.epl.SupportJoinSetComposer;
+import com.espertech.esper.supportunit.epl.SupportJoinSetProcessor;
+import junit.framework.TestCase;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
-public class TestJoinExecutionStrategyImpl extends TestCase
-{
+public class TestJoinExecutionStrategyImpl extends TestCase {
     private JoinExecutionStrategyImpl join;
     private Set<MultiKey<EventBean>> oldEvents;
     private Set<MultiKey<EventBean>> newEvents;
     private SupportJoinSetProcessor filter;
     private SupportJoinSetProcessor indicator;
 
-    public void setUp()
-    {
+    public void setUp() {
         oldEvents = new HashSet<MultiKey<EventBean>>();
         newEvents = new HashSet<MultiKey<EventBean>>();
 
@@ -40,8 +38,7 @@ public class TestJoinExecutionStrategyImpl extends TestCase
         join = new JoinExecutionStrategyImpl(composer, filter, indicator, null);
     }
 
-    public void testJoin()
-    {
+    public void testJoin() {
         join.join(null, null);
 
         assertSame(newEvents, filter.getLastNewEvents());

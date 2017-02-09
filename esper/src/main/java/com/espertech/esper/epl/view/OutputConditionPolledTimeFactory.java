@@ -15,8 +15,7 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 
-public final class OutputConditionPolledTimeFactory implements OutputConditionPolledFactory
-{
+public final class OutputConditionPolledTimeFactory implements OutputConditionPolledFactory {
     private final ExprTimePeriod timePeriod;
 
     public OutputConditionPolledTimeFactory(ExprTimePeriod timePeriod, StatementContext statementContext) {

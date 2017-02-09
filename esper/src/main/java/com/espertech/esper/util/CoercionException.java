@@ -15,16 +15,15 @@ import com.espertech.esper.client.EPException;
 /**
  * Exception to represent a mismatch in Java types in an expression.
  */
-public class CoercionException extends EPException
-{
+public class CoercionException extends EPException {
     private static final long serialVersionUID = 6562892150768930307L;
 
     /**
      * Ctor.
+     *
      * @param message supplies the detailed description
      */
-    public CoercionException(final String message)
-    {
+    public CoercionException(final String message) {
         super(message);
     }
 }

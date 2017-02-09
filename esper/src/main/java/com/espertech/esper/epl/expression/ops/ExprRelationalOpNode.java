@@ -17,7 +17,6 @@ import com.espertech.esper.type.RelationalOpEnum;
 /**
  * Represents a lesser or greater then (&lt;/&lt;=/&gt;/&gt;=) expression in a filter expression tree.
  */
-public interface ExprRelationalOpNode extends ExprNode, ExprEvaluator
-{
+public interface ExprRelationalOpNode extends ExprNode, ExprEvaluator {
     public RelationalOpEnum getRelationalOpEnum();
 }

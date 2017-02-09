@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.view.internal;
 
-public interface IntersectViewMarker
-{
+public interface IntersectViewMarker {
 }

@@ -10,17 +10,15 @@
  */
 package com.espertech.esper.supportunit.view;
 
-import com.espertech.esper.view.ViewSupport;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.EventBean;
-
-import java.util.Iterator;
-
+import com.espertech.esper.client.EventType;
+import com.espertech.esper.view.ViewSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SupportBaseView extends ViewSupport
-{
+import java.util.Iterator;
+
+public abstract class SupportBaseView extends ViewSupport {
     protected EventBean[] lastNewData;
     protected EventBean[] lastOldData;
     protected EventType eventType;
@@ -29,75 +27,61 @@ public abstract class SupportBaseView extends ViewSupport
     /**
      * Default constructor since views are also beans.
      */
-    public SupportBaseView()
-    {
+    public SupportBaseView() {
     }
 
-    public SupportBaseView(EventType eventType)
-    {
+    public SupportBaseView(EventType eventType) {
         this.eventType = eventType;
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public void setEventType(EventType eventType)
-    {
+    public void setEventType(EventType eventType) {
         this.eventType = eventType;
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         log.info(".iterator Not implemented");
         return null;
     }
 
-    public EventBean[] getLastNewData()
-    {
+    public EventBean[] getLastNewData() {
         return lastNewData;
     }
 
-    public EventBean[] getLastOldData()
-    {
+    public EventBean[] getLastOldData() {
         return lastOldData;
     }
 
-    public void setLastNewData(EventBean[] lastNewData)
-    {
+    public void setLastNewData(EventBean[] lastNewData) {
         this.lastNewData = lastNewData;
     }
 
-    public void setLastOldData(EventBean[] lastOldData)
-    {
+    public void setLastOldData(EventBean[] lastOldData) {
         this.lastOldData = lastOldData;
     }
 
-    public void clearLastNewData()
-    {
+    public void clearLastNewData() {
         lastNewData = null;
     }
 
-    public void clearLastOldData()
-    {
+    public void clearLastOldData() {
         lastOldData = null;
     }
 
-    public void setInvoked(boolean invoked)
-    {
+    public void setInvoked(boolean invoked) {
         isInvoked = invoked;
     }
 
-    public boolean getAndClearIsInvoked()
-    {
+    public boolean getAndClearIsInvoked() {
         boolean invoked = isInvoked;
         isInvoked = false;
         return invoked;
     }
 
-    public void reset()
-    {
+    public void reset() {
         isInvoked = false;
         lastNewData = null;
         lastOldData = null;

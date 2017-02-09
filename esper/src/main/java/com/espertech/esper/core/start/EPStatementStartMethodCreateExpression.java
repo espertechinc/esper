@@ -25,8 +25,7 @@ import java.util.Collections;
 /**
  * Starts and provides the stop method for EPL statements.
  */
-public class EPStatementStartMethodCreateExpression extends EPStatementStartMethodBase
-{
+public class EPStatementStartMethodCreateExpression extends EPStatementStartMethodBase {
     public EPStatementStartMethodCreateExpression(StatementSpecCompiled statementSpec) {
         super(statementSpec);
     }

@@ -13,8 +13,7 @@ package com.espertech.esper.client.metric;
 /**
  * Reports engine-level instrumentation values.
  */
-public class EngineMetric extends MetricEvent
-{
+public class EngineMetric extends MetricEvent {
     private final long timestamp;
     private final long inputCount;
     private final long inputCountDelta;
@@ -22,14 +21,14 @@ public class EngineMetric extends MetricEvent
 
     /**
      * Ctor.
-     * @param engineURI engine URI
-     * @param timestamp engine timestamp
-     * @param inputCount number of input events
+     *
+     * @param engineURI       engine URI
+     * @param timestamp       engine timestamp
+     * @param inputCount      number of input events
      * @param inputCountDelta number of input events since last
-     * @param scheduleDepth schedule depth
+     * @param scheduleDepth   schedule depth
      */
-    public EngineMetric(String engineURI, long timestamp, long inputCount, long inputCountDelta, long scheduleDepth)
-    {
+    public EngineMetric(String engineURI, long timestamp, long inputCount, long inputCountDelta, long scheduleDepth) {
         super(engineURI);
         this.timestamp = timestamp;
         this.inputCount = inputCount;
@@ -39,33 +38,34 @@ public class EngineMetric extends MetricEvent
 
     /**
      * Returns input count since engine initialization cumulative.
+     *
      * @return input count
      */
-    public long getInputCount()
-    {
+    public long getInputCount() {
         return inputCount;
     }
 
     /**
      * Returns schedule depth.
+     *
      * @return schedule depth
      */
-    public long getScheduleDepth()
-    {
+    public long getScheduleDepth() {
         return scheduleDepth;
     }
 
     /**
      * Returns engine timestamp.
+     *
      * @return timestamp
      */
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
     /**
      * Returns input count since last reporting period.
+     *
      * @return input count
      */
     public long getInputCountDelta() {

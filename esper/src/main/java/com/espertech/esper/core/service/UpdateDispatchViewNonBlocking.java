@@ -20,15 +20,14 @@ import org.slf4j.LoggerFactory;
  * Convenience view for dispatching view updates received from a parent view to update listeners
  * via the dispatch service.
  */
-public class UpdateDispatchViewNonBlocking extends UpdateDispatchViewBase
-{
+public class UpdateDispatchViewNonBlocking extends UpdateDispatchViewBase {
     /**
      * Ctor.
-     * @param dispatchService - for performing the dispatch
+     *
+     * @param dispatchService            - for performing the dispatch
      * @param statementResultServiceImpl - handles result delivery
      */
-    public UpdateDispatchViewNonBlocking(StatementResultService statementResultServiceImpl, DispatchService dispatchService)
-    {
+    public UpdateDispatchViewNonBlocking(StatementResultService statementResultServiceImpl, DispatchService dispatchService) {
         super(statementResultServiceImpl, dispatchService);
     }
 
@@ -36,11 +35,9 @@ public class UpdateDispatchViewNonBlocking extends UpdateDispatchViewBase
         newResult(new UniformPair<EventBean[]>(newData, oldData));
     }
 
-    public void newResult(UniformPair<EventBean[]> results)
-    {
+    public void newResult(UniformPair<EventBean[]> results) {
         statementResultService.indicate(results);
-        if (!isDispatchWaiting.get())
-        {
+        if (!isDispatchWaiting.get()) {
             dispatchService.addExternal(this);
             isDispatchWaiting.set(true);
         }

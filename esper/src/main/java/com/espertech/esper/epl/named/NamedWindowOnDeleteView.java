@@ -23,8 +23,7 @@ import java.util.Iterator;
 /**
  * View for the on-delete statement that handles removing events from a named window.
  */
-public class NamedWindowOnDeleteView extends NamedWindowOnExprBaseView
-{
+public class NamedWindowOnDeleteView extends NamedWindowOnExprBaseView {
     private final NamedWindowOnDeleteViewFactory parent;
     private EventBean[] lastResult;
 
@@ -33,12 +32,12 @@ public class NamedWindowOnDeleteView extends NamedWindowOnExprBaseView
         this.parent = parent;
     }
 
-    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_DELETE, triggerEvents, matchingEvents);}
+    public void handleMatching(EventBean[] triggerEvents, EventBean[] matchingEvents) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraOnAction(OnTriggerType.ON_DELETE, triggerEvents, matchingEvents);
+        }
 
-        if ((matchingEvents != null) && (matchingEvents.length > 0))
-        {
+        if ((matchingEvents != null) && (matchingEvents.length > 0)) {
             // Events to delete are indicated via old data
             this.rootView.update(null, matchingEvents);
 
@@ -51,16 +50,16 @@ public class NamedWindowOnDeleteView extends NamedWindowOnExprBaseView
         // Keep the last delete records
         lastResult = matchingEvents;
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraOnAction();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraOnAction();
+        }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return rootView.getEventType();
     }
 
-    public Iterator<EventBean> iterator()
-    {
+    public Iterator<EventBean> iterator() {
         return new ArrayEventIterator(lastResult);
     }
 }

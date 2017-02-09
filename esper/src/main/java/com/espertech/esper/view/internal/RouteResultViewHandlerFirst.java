@@ -11,8 +11,6 @@
 package com.espertech.esper.view.internal;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.annotation.AuditEnum;
-import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPStatementHandle;
 import com.espertech.esper.core.service.InternalEventRouter;
@@ -22,25 +20,23 @@ import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.util.AuditPath;
 
 /**
  * Handler for split-stream evaluating the first where-clause matching select-clause.
  */
-public class RouteResultViewHandlerFirst extends RouteResultViewHandlerBase
-{
+public class RouteResultViewHandlerFirst extends RouteResultViewHandlerBase {
     public RouteResultViewHandlerFirst(EPStatementHandle epStatementHandle, InternalEventRouter internalEventRouter, TableStateInstance[] tableStateInstances, EPStatementStartMethodOnTriggerItem[] items, ResultSetProcessor[] processors, ExprEvaluator[] whereClauses, AgentInstanceContext agentInstanceContext) {
         super(epStatementHandle, internalEventRouter, tableStateInstances, items, processors, whereClauses, agentInstanceContext);
     }
 
-    public boolean handle(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qSplitStream(false, theEvent, whereClauses);}
+    public boolean handle(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qSplitStream(false, theEvent, whereClauses);
+        }
 
         int index = -1;
 
-        for (int i = 0; i < whereClauses.length; i++)
-        {
+        for (int i = 0; i < whereClauses.length; i++) {
             EPStatementStartMethodOnTriggerItem item = items[i];
             eventsPerStream[0] = theEvent;
 
@@ -51,8 +47,7 @@ public class RouteResultViewHandlerFirst extends RouteResultViewHandlerBase
                     index = i;
                     break;
                 }
-            }
-            else {
+            } else {
                 // need to get contained events first
                 EventBean[] containeds = items[i].getPropertyEvaluator().getProperty(eventsPerStream[0], exprEvaluatorContext);
                 if (containeds == null || containeds.length == 0) {
@@ -78,7 +73,9 @@ public class RouteResultViewHandlerFirst extends RouteResultViewHandlerBase
             mayRouteCurrentEvent(index, exprEvaluatorContext);
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aSplitStream(false, index != -1);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aSplitStream(false, index != -1);
+        }
         return index != -1;
     }
 }

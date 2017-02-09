@@ -31,14 +31,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class TestResultSetProcessorSimple extends TestCase
-{
+public class TestResultSetProcessorSimple extends TestCase {
     private ResultSetProcessorSimple outputProcessorAll;
     private SelectExprProcessor selectExprProcessor;
     private OrderByProcessor orderByProcessor;
 
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         SelectExprEventTypeRegistry selectExprEventTypeRegistry = new SelectExprEventTypeRegistry("abc", new StatementEventTypeRefImpl());
         StatementContext statementContext = SupportStatementContextFactory.makeContext();
 
@@ -47,20 +45,19 @@ public class TestResultSetProcessorSimple extends TestCase
         orderByProcessor = null;
 
         ResultSetProcessorSimpleFactory prototype = new ResultSetProcessorSimpleFactory(selectExprProcessor, null, true, null, false, null, 1);
-		outputProcessorAll = (ResultSetProcessorSimple) prototype.instantiate(null, null, null);
+        outputProcessorAll = (ResultSetProcessorSimple) prototype.instantiate(null, null, null);
     }
 
-    public void testUpdateAll() throws Exception
-    {
+    public void testUpdateAll() throws Exception {
         assertNull(ResultSetProcessorUtil.getSelectEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, (EventBean[]) null, true, false, null));
 
         EventBean testEvent1 = makeEvent(10, 5, 6);
-	    EventBean testEvent2 = makeEvent(11, 6, 7);
-        EventBean[] newData = new EventBean[] {testEvent1, testEvent2};
+        EventBean testEvent2 = makeEvent(11, 6, 7);
+        EventBean[] newData = new EventBean[]{testEvent1, testEvent2};
 
         EventBean testEvent3 = makeEvent(20, 1, 2);
-	    EventBean testEvent4 = makeEvent(21, 3, 4);
-	    EventBean[] oldData = new EventBean[] {testEvent3, testEvent4};
+        EventBean testEvent4 = makeEvent(21, 3, 4);
+        EventBean[] oldData = new EventBean[]{testEvent3, testEvent4};
 
         UniformPair<EventBean[]> result = outputProcessorAll.processViewResult(newData, oldData, false);
         EventBean[] newEvents = result.getFirst();
@@ -70,30 +67,29 @@ public class TestResultSetProcessorSimple extends TestCase
         assertEquals(10d, newEvents[0].get("resultOne"));
         assertEquals(30, newEvents[0].get("resultTwo"));
 
-	    assertEquals(11d, newEvents[1].get("resultOne"));
-	    assertEquals(42, newEvents[1].get("resultTwo"));
+        assertEquals(11d, newEvents[1].get("resultOne"));
+        assertEquals(42, newEvents[1].get("resultTwo"));
 
         assertEquals(2, oldEvents.length);
         assertEquals(20d, oldEvents[0].get("resultOne"));
         assertEquals(2, oldEvents[0].get("resultTwo"));
 
-	    assertEquals(21d, oldEvents[1].get("resultOne"));
-	    assertEquals(12, oldEvents[1].get("resultTwo"));
+        assertEquals(21d, oldEvents[1].get("resultOne"));
+        assertEquals(12, oldEvents[1].get("resultTwo"));
     }
 
-    public void testProcessAll() throws Exception
-    {
+    public void testProcessAll() throws Exception {
         assertNull(ResultSetProcessorUtil.getSelectJoinEventsNoHavingWithOrderBy(selectExprProcessor, orderByProcessor, new HashSet<MultiKey<EventBean>>(), true, false, null));
 
         EventBean testEvent1 = makeEvent(10, 5, 6);
-	    EventBean testEvent2 = makeEvent(11, 6, 7);
+        EventBean testEvent2 = makeEvent(11, 6, 7);
         Set<MultiKey<EventBean>> newEventSet = makeEventSet(testEvent1);
-	    newEventSet.add(new MultiKey<EventBean>(new EventBean[] { testEvent2}));
+        newEventSet.add(new MultiKey<EventBean>(new EventBean[]{testEvent2}));
 
         EventBean testEvent3 = makeEvent(20, 1, 2);
-	    EventBean testEvent4 = makeEvent(21, 3, 4);
+        EventBean testEvent4 = makeEvent(21, 3, 4);
         Set<MultiKey<EventBean>> oldEventSet = makeEventSet(testEvent3);
-	    oldEventSet.add(new MultiKey<EventBean>(new EventBean[] {testEvent4}));
+        oldEventSet.add(new MultiKey<EventBean>(new EventBean[]{testEvent4}));
 
         UniformPair<EventBean[]> result = outputProcessorAll.processJoinResult(newEventSet, oldEventSet, false);
         EventBean[] newEvents = result.getFirst();
@@ -103,26 +99,24 @@ public class TestResultSetProcessorSimple extends TestCase
         assertEquals(10d, newEvents[0].get("resultOne"));
         assertEquals(30, newEvents[0].get("resultTwo"));
 
-	    assertEquals(11d, newEvents[1].get("resultOne"));
-	    assertEquals(42, newEvents[1].get("resultTwo"));
+        assertEquals(11d, newEvents[1].get("resultOne"));
+        assertEquals(42, newEvents[1].get("resultTwo"));
 
         assertEquals(2, oldEvents.length);
         assertEquals(20d, oldEvents[0].get("resultOne"));
         assertEquals(2, oldEvents[0].get("resultTwo"));
 
-	    assertEquals(21d, oldEvents[1].get("resultOne"));
-	    assertEquals(12, oldEvents[1].get("resultTwo"));
+        assertEquals(21d, oldEvents[1].get("resultOne"));
+        assertEquals(12, oldEvents[1].get("resultTwo"));
     }
 
-    private Set<MultiKey<EventBean>> makeEventSet(EventBean theEvent)
-    {
+    private Set<MultiKey<EventBean>> makeEventSet(EventBean theEvent) {
         Set<MultiKey<EventBean>> result = new LinkedHashSet<MultiKey<EventBean>>();
-        result.add(new MultiKey<EventBean>(new EventBean[] { theEvent}));
+        result.add(new MultiKey<EventBean>(new EventBean[]{theEvent}));
         return result;
     }
 
-    private EventBean makeEvent(double doubleBoxed, int intBoxed, int intPrimitive)
-    {
+    private EventBean makeEvent(double doubleBoxed, int intBoxed, int intPrimitive) {
         SupportBean bean = new SupportBean();
         bean.setDoubleBoxed(doubleBoxed);
         bean.setIntBoxed(intBoxed);

@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.client.soda;
 
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-
 import java.io.StringWriter;
-import java.util.List;
 
 /**
  * The "new instance" operator instantiates a host language object.
@@ -32,6 +29,7 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
     /**
      * Ctor.
      * <p>
+     *
      * @param className the class name
      */
     public NewInstanceOperatorExpression(String className) {
@@ -40,6 +38,7 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
 
     /**
      * Returns the class name.
+     *
      * @return class name
      */
     public String getClassName() {
@@ -48,19 +47,18 @@ public class NewInstanceOperatorExpression extends ExpressionBase {
 
     /**
      * Sets the class name.
+     *
      * @param className class name to set
      */
     public void setClassName(String className) {
         this.className = className;
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         writer.write("new ");
         writer.write(className);
         writer.write("(");

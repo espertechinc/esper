@@ -14,15 +14,6 @@ import com.espertech.esper.client.ConfigurationInformation;
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.ContextDescriptor;
-import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
-import com.espertech.esper.epl.expression.core.ExprChainedSpec;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.dot.ExprDotNode;
-import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
-import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
-import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
-import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineImportSingleRowDesc;
@@ -31,11 +22,20 @@ import com.espertech.esper.epl.declexpr.ExprDeclaredHelper;
 import com.espertech.esper.epl.declexpr.ExprDeclaredNodeImpl;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
+import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
+import com.espertech.esper.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
+import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
+import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
+import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.spec.ExpressionDeclDesc;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
+import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.plugin.PlugInAggregationMultiFunctionFactory;
 import com.espertech.esper.type.MinMaxTypeEnum;
@@ -82,8 +82,7 @@ public class ASTLibFunctionHelper {
                 ExprNode lambdaExpr = ASTExprHelper.exprCollectSubNodes(arg.expressionWithNamed(), 0, astExprNodeMap).get(0);
                 goes.addChildNode(lambdaExpr);
                 parameters.add(goes);
-            }
-            else {
+            } else {
                 ExprNode parameter = ASTExprHelper.exprCollectSubNodes(arg.expressionWithNamed(), 0, astExprNodeMap).get(0);
                 parameters.add(parameter);
             }
@@ -96,8 +95,7 @@ public class ASTLibFunctionHelper {
         if (ctx.i != null) {
             parameters = new ArrayList<String>(1);
             parameters.add(ctx.i.getText());
-        }
-        else {
+        } else {
             parameters = ASTUtil.getIdentList(ctx.columnList());
         }
         return parameters;
@@ -124,8 +122,8 @@ public class ASTLibFunctionHelper {
 
         // handle "some.xyz(...)" or "some.other.xyz(...)"
         if (model.chainElements.size() == 1 &&
-            model.optionalClassIdent != null &&
-            ASTTableExprHelper.checkTableNameGetExprForProperty(tableService, model.optionalClassIdent) == null) {
+                model.optionalClassIdent != null &&
+                ASTTableExprHelper.checkTableNameGetExprForProperty(tableService, model.optionalClassIdent) == null) {
 
             ExprChainedSpec chainSpec = getLibFunctionChainSpec(model.chainElements.get(0), astExprNodeMap);
 
@@ -179,18 +177,16 @@ public class ASTLibFunctionHelper {
             ExprPlugInSingleRowNode plugin = new ExprPlugInSingleRowNode(firstFunction, classMethodPair.getFirst(), spec, classMethodPair.getSecond());
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(plugin, ctx, astExprNodeMap);
             return;
-        }
-        catch (EngineImportUndefinedException e) {
+        } catch (EngineImportUndefinedException e) {
             // Not an single-row function
-        }
-        catch (EngineImportException e) {
+        } catch (EngineImportException e) {
             throw new IllegalStateException("Error resolving single-row function: " + e.getMessage(), e);
         }
 
         // special case for min,max
         String firstFunction = model.getChainElements().get(0).getFuncName();
-        if ((firstFunction.toLowerCase().equals("max")) || (firstFunction.toLowerCase().equals("min")) ||
-            (firstFunction.toLowerCase().equals("fmax")) || (firstFunction.toLowerCase().equals("fmin"))) {
+        if ((firstFunction.toLowerCase(Locale.ENGLISH).equals("max")) || (firstFunction.toLowerCase(Locale.ENGLISH).equals("min")) ||
+                (firstFunction.toLowerCase(Locale.ENGLISH).equals("fmax")) || (firstFunction.toLowerCase(Locale.ENGLISH).equals("fmin"))) {
             EsperEPL2GrammarParser.LibFunctionArgsContext firstArgs = model.getChainElements().get(0).getArgs();
             handleMinMax(firstFunction, firstArgs, astExprNodeMap);
             return;
@@ -216,8 +212,7 @@ public class ASTLibFunctionHelper {
             ExprNode exprNode;
             if (chain.isEmpty()) {
                 exprNode = aggregationNode;
-            }
-            else {
+            } else {
                 exprNode = new ExprDotNode(chain, duckType, udfCache);
                 exprNode.addChildNode(aggregationNode);
             }
@@ -232,8 +227,7 @@ public class ASTLibFunctionHelper {
             ExprNode exprNode;
             if (chain.isEmpty()) {
                 exprNode = declaredNode;
-            }
-            else {
+            } else {
                 exprNode = new ExprDotNode(chain, duckType, udfCache);
                 exprNode.addChildNode(declaredNode);
             }
@@ -248,8 +242,7 @@ public class ASTLibFunctionHelper {
             ExprNode exprNode;
             if (chain.isEmpty()) {
                 exprNode = scriptNode;
-            }
-            else {
+            } else {
                 exprNode = new ExprDotNode(chain, duckType, udfCache);
                 exprNode.addChildNode(scriptNode);
             }
@@ -265,8 +258,7 @@ public class ASTLibFunctionHelper {
             ExprNode exprNode;
             if (chain.isEmpty()) {
                 exprNode = tableInfo.getFirst();
-            }
-            else {
+            } else {
                 exprNode = new ExprDotNode(chain, duckType, udfCache);
                 exprNode.addChildNode(tableInfo.getFirst());
             }
@@ -278,8 +270,7 @@ public class ASTLibFunctionHelper {
         ExprDotNode dotNode;
         if (chain.size() == 1) {
             dotNode = new ExprDotNode(chain, false, false);
-        }
-        else {
+        } else {
             dotNode = new ExprDotNode(chain, duckType, udfCache);
         }
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(dotNode, ctx, astExprNodeMap);
@@ -321,13 +312,12 @@ public class ASTLibFunctionHelper {
         // determine/remove the list of chain elements, from the start and uninterrupted, that don't have parameters (no parenthesis 'l')
         List<ASTLibModelChainElement> chainElementsNoArgs = new ArrayList<ASTLibModelChainElement>(chainElements.size());
         Iterator<ASTLibModelChainElement> iterator = chainElements.iterator();
-        for (;iterator.hasNext();) {
+        for (; iterator.hasNext(); ) {
             ASTLibModelChainElement element = iterator.next();
             if (!element.isHasLeftParen()) {    // has no parenthesis, therefore part of class identifier
                 chainElementsNoArgs.add(element);
                 iterator.remove(); //
-            }
-            else { // else stop here
+            } else { // else stop here
                 break;
             }
         }
@@ -360,26 +350,22 @@ public class ASTLibFunctionHelper {
     public static ASTLibModelChainElement fromRoot(EsperEPL2GrammarParser.LibFunctionWithClassContext root) {
         if (root.funcIdentTop() != null) {
             return new ASTLibModelChainElement(root.funcIdentTop().getText(), root.libFunctionArgs(), root.l != null);
-        }
-        else {
+        } else {
             return new ASTLibModelChainElement(root.funcIdentInner().getText(), root.libFunctionArgs(), root.l != null);
         }
     }
 
     // Min/Max nodes can be either an aggregate or a per-row function depending on the number or arguments
-    private static void handleMinMax(String ident, EsperEPL2GrammarParser.LibFunctionArgsContext ctxArgs, Map<Tree, ExprNode> astExprNodeMap)
-    {
+    private static void handleMinMax(String ident, EsperEPL2GrammarParser.LibFunctionArgsContext ctxArgs, Map<Tree, ExprNode> astExprNodeMap) {
         // Determine min or max
         String childNodeText = ident;
         MinMaxTypeEnum minMaxTypeEnum;
         boolean filtered = childNodeText.startsWith("f");
-        if (childNodeText.toLowerCase().equals("min") || childNodeText.toLowerCase().equals("fmin")) {
+        if (childNodeText.toLowerCase(Locale.ENGLISH).equals("min") || childNodeText.toLowerCase(Locale.ENGLISH).equals("fmin")) {
             minMaxTypeEnum = MinMaxTypeEnum.MIN;
-        }
-        else if (childNodeText.toLowerCase().equals("max") || childNodeText.toLowerCase().equals("fmax")) {
+        } else if (childNodeText.toLowerCase(Locale.ENGLISH).equals("max") || childNodeText.toLowerCase(Locale.ENGLISH).equals("fmax")) {
             minMaxTypeEnum = MinMaxTypeEnum.MAX;
-        }
-        else {
+        } else {
             throw ASTWalkException.from("Uncountered unrecognized min or max node '" + ident + "'");
         }
 
@@ -399,8 +385,7 @@ public class ASTLibFunctionHelper {
         if (!isDistinct && numArgsPositional > 1 && !filtered) {
             // use the row function
             minMaxNode = new ExprMinMaxRowNode(minMaxTypeEnum);
-        }
-        else {
+        } else {
             // use the aggregation function
             minMaxNode = new ExprMinMaxAggrNode(isDistinct, minMaxTypeEnum, filtered, false);
         }

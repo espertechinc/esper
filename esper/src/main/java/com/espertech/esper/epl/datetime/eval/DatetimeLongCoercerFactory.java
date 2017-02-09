@@ -20,24 +20,24 @@ import java.util.TimeZone;
 
 public class DatetimeLongCoercerFactory {
 
-    private final static DatetimeLongCoercerLong datetimeLongCoercerLong = new DatetimeLongCoercerLong();
-    private final static DatetimeLongCoercerDate datetimeLongCoercerDate = new DatetimeLongCoercerDate();
-    private final static DatetimeLongCoercerCal datetimeLongCoercerCal = new DatetimeLongCoercerCal();
-    private final static DatetimeLongCoercerZonedDateTime datetimeLongCoercerZDT = new DatetimeLongCoercerZonedDateTime();
+    private final static DatetimeLongCoercerLong DATETIME_LONG_COERCER_LONG = new DatetimeLongCoercerLong();
+    private final static DatetimeLongCoercerDate DATETIME_LONG_COERCER_DATE = new DatetimeLongCoercerDate();
+    private final static DatetimeLongCoercerCal DATETIME_LONG_COERCER_CAL = new DatetimeLongCoercerCal();
+    private final static DatetimeLongCoercerZonedDateTime DATETIME_LONG_COERCER_ZONED_DATE_TIME = new DatetimeLongCoercerZonedDateTime();
 
     public static DatetimeLongCoercer getCoercer(Class clazz, TimeZone timeZone) {
         if (JavaClassHelper.isSubclassOrImplementsInterface(clazz, Date.class)) {
-            return datetimeLongCoercerDate;
+            return DATETIME_LONG_COERCER_DATE;
         }
         if (JavaClassHelper.isSubclassOrImplementsInterface(clazz, Calendar.class)) {
-            return datetimeLongCoercerCal;
+            return DATETIME_LONG_COERCER_CAL;
         }
         if (JavaClassHelper.isSubclassOrImplementsInterface(clazz, LocalDateTime.class)) {
             return new DatetimeLongCoercerLocalDateTime(timeZone);
         }
         if (JavaClassHelper.isSubclassOrImplementsInterface(clazz, ZonedDateTime.class)) {
-            return datetimeLongCoercerZDT;
+            return DATETIME_LONG_COERCER_ZONED_DATE_TIME;
         }
-        return datetimeLongCoercerLong;
+        return DATETIME_LONG_COERCER_LONG;
     }
 }

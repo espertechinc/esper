@@ -10,17 +10,16 @@
  */
 package com.espertech.esper.core.thread;
 
-import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.core.service.EPRuntimeImpl;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.core.service.EPRuntimeImpl;
+import com.espertech.esper.core.service.EPServicesContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Inbound unit for DOM events.
  */
-public class InboundUnitSendDOM implements InboundUnitRunnable
-{
+public class InboundUnitSendDOM implements InboundUnitRunnable {
     private static final Logger log = LoggerFactory.getLogger(InboundUnitSendDOM.class);
 
     private final org.w3c.dom.Node theEvent;
@@ -29,26 +28,22 @@ public class InboundUnitSendDOM implements InboundUnitRunnable
 
     /**
      * Ctor.
+     *
      * @param theEvent document
      * @param services for wrapping event
-     * @param runtime runtime to process
+     * @param runtime  runtime to process
      */
-    public InboundUnitSendDOM(org.w3c.dom.Node theEvent, EPServicesContext services, EPRuntimeImpl runtime)
-    {
+    public InboundUnitSendDOM(org.w3c.dom.Node theEvent, EPServicesContext services, EPRuntimeImpl runtime) {
         this.theEvent = theEvent;
         this.services = services;
         this.runtime = runtime;
     }
 
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             EventBean eventBean = services.getEventAdapterService().adapterForDOM(theEvent);
             runtime.processEvent(eventBean);
-        }
-        catch (RuntimeException e)
-        {
+        } catch (RuntimeException e) {
             log.error("Unexpected error processing DOM event: " + e.getMessage(), e);
         }
     }

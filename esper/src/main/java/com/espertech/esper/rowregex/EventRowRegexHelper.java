@@ -20,8 +20,7 @@ import java.util.*;
 /**
  * Helper for match recognize.
  */
-public class EventRowRegexHelper
-{
+public class EventRowRegexHelper {
     public static EventRowRegexNFAViewService recursiveFindRegexService(Viewable top) {
         if (top instanceof EventRowRegexNFAViewService) {
             return (EventRowRegexNFAViewService) top;
@@ -33,38 +32,33 @@ public class EventRowRegexHelper
     }
 
     protected static final Comparator<RegexNFAStateEntry> END_STATE_COMPARATOR = new Comparator<RegexNFAStateEntry>() {
-            public int compare(RegexNFAStateEntry o1, RegexNFAStateEntry o2) {
-                if (o1.getMatchEndEventSeqNo() > o2.getMatchEndEventSeqNo()) {
-                    return -1;
-                }
-                if (o1.getMatchEndEventSeqNo() < o2.getMatchEndEventSeqNo()) {
-                    return 1;
-                }
-                return 0;
+        public int compare(RegexNFAStateEntry o1, RegexNFAStateEntry o2) {
+            if (o1.getMatchEndEventSeqNo() > o2.getMatchEndEventSeqNo()) {
+                return -1;
             }
-        };
+            if (o1.getMatchEndEventSeqNo() < o2.getMatchEndEventSeqNo()) {
+                return 1;
+            }
+            return 0;
+        }
+    };
 
     /**
      * Inspect variables recursively.
-     * @param parent parent regex expression node
-     * @param isMultiple if the variable in the stack is multiple of single
-     * @param variablesSingle single variables list
+     *
+     * @param parent            parent regex expression node
+     * @param isMultiple        if the variable in the stack is multiple of single
+     * @param variablesSingle   single variables list
      * @param variablesMultiple group variables list
      */
-    protected static void recursiveInspectVariables(RowRegexExprNode parent, boolean isMultiple, Set<String> variablesSingle, Set<String> variablesMultiple)
-    {
-        if (parent instanceof RowRegexExprNodeNested)
-        {
+    protected static void recursiveInspectVariables(RowRegexExprNode parent, boolean isMultiple, Set<String> variablesSingle, Set<String> variablesMultiple) {
+        if (parent instanceof RowRegexExprNodeNested) {
             RowRegexExprNodeNested nested = (RowRegexExprNodeNested) parent;
-            for (RowRegexExprNode child : parent.getChildNodes())
-            {
+            for (RowRegexExprNode child : parent.getChildNodes()) {
                 recursiveInspectVariables(child, nested.getType().isMultipleMatches() || isMultiple, variablesSingle, variablesMultiple);
             }
-        }
-        else if (parent instanceof RowRegexExprNodeAlteration)
-        {
-            for (RowRegexExprNode childAlteration : parent.getChildNodes())
-            {
+        } else if (parent instanceof RowRegexExprNodeAlteration) {
+            for (RowRegexExprNode childAlteration : parent.getChildNodes()) {
                 LinkedHashSet<String> singles = new LinkedHashSet<String>();
                 LinkedHashSet<String> multiples = new LinkedHashSet<String>();
 
@@ -74,39 +68,28 @@ public class EventRowRegexHelper
                 variablesSingle.addAll(singles);
             }
             variablesSingle.removeAll(variablesMultiple);
-        }
-        else if (parent instanceof RowRegexExprNodeAtom)
-        {
+        } else if (parent instanceof RowRegexExprNodeAtom) {
             RowRegexExprNodeAtom atom = (RowRegexExprNodeAtom) parent;
             String name = atom.getTag();
-            if (variablesMultiple.contains(name))
-            {
+            if (variablesMultiple.contains(name)) {
                 return;
             }
-            if (variablesSingle.contains(name))
-            {
+            if (variablesSingle.contains(name)) {
                 variablesSingle.remove(name);
                 variablesMultiple.add(name);
                 return;
             }
-            if (atom.getType().isMultipleMatches())
-            {
+            if (atom.getType().isMultipleMatches()) {
                 variablesMultiple.add(name);
                 return;
             }
-            if (isMultiple)
-            {
+            if (isMultiple) {
                 variablesMultiple.add(name);
-            }
-            else
-            {
+            } else {
                 variablesSingle.add(name);
             }
-        }
-        else
-        {
-            for (RowRegexExprNode child : parent.getChildNodes())
-            {
+        } else {
+            for (RowRegexExprNode child : parent.getChildNodes()) {
                 recursiveInspectVariables(child, isMultiple, variablesSingle, variablesMultiple);
             }
         }
@@ -114,37 +97,35 @@ public class EventRowRegexHelper
 
     /**
      * Build a list of start states from the parent node.
-     * @param parent to build start state for
-     * @param variableDefinitions each variable and its expressions
-     * @param variableStreams variable name and its stream number
+     *
+     * @param parent                      to build start state for
+     * @param variableDefinitions         each variable and its expressions
+     * @param variableStreams             variable name and its stream number
      * @param exprRequiresMultimatchState indicator whether multi-match state required
      * @return strand of regex state nodes
      */
     protected static RegexNFAStrandResult recursiveBuildStartStates(RowRegexExprNode parent,
-                                               Map<String, ExprNode> variableDefinitions,
-                                               Map<String, Pair<Integer, Boolean>> variableStreams,
-                                               boolean[] exprRequiresMultimatchState
-                                               )
-    {
+                                                                    Map<String, ExprNode> variableDefinitions,
+                                                                    Map<String, Pair<Integer, Boolean>> variableStreams,
+                                                                    boolean[] exprRequiresMultimatchState
+    ) {
         Stack<Integer> nodeNumStack = new Stack<Integer>();
 
         RegexNFAStrand strand = recursiveBuildStatesInternal(parent,
-                                               variableDefinitions,
-                                               variableStreams,
-                                               nodeNumStack,
+                variableDefinitions,
+                variableStreams,
+                nodeNumStack,
                 exprRequiresMultimatchState);
 
         // add end state
         RegexNFAStateEnd end = new RegexNFAStateEnd();
-        for (RegexNFAStateBase endStates : strand.getEndStates())
-        {
+        for (RegexNFAStateBase endStates : strand.getEndStates()) {
             endStates.addState(end);
         }
 
         // assign node num as a counter
         int nodeNumberFlat = 0;
-        for (RegexNFAStateBase theBase : strand.getAllStates())
-        {
+        for (RegexNFAStateBase theBase : strand.getAllStates()) {
             theBase.setNodeNumFlat(nodeNumberFlat++);
         }
 
@@ -152,14 +133,12 @@ public class EventRowRegexHelper
     }
 
     private static RegexNFAStrand recursiveBuildStatesInternal(RowRegexExprNode node,
-                                               Map<String, ExprNode> variableDefinitions,
-                                               Map<String, Pair<Integer, Boolean>> variableStreams,
-                                               Stack<Integer> nodeNumStack,
-                                               boolean[] exprRequiresMultimatchState
-                                               )
-    {
-        if (node instanceof RowRegexExprNodeAlteration)
-        {
+                                                               Map<String, ExprNode> variableDefinitions,
+                                                               Map<String, Pair<Integer, Boolean>> variableStreams,
+                                                               Stack<Integer> nodeNumStack,
+                                                               boolean[] exprRequiresMultimatchState
+    ) {
+        if (node instanceof RowRegexExprNodeAlteration) {
             int nodeNum = 0;
 
             List<RegexNFAStateBase> cumulativeStartStates = new ArrayList<RegexNFAStateBase>();
@@ -167,21 +146,19 @@ public class EventRowRegexHelper
             List<RegexNFAStateBase> cumulativeEndStates = new ArrayList<RegexNFAStateBase>();
 
             boolean isPassthrough = false;
-            for (RowRegexExprNode child : node.getChildNodes())
-            {
+            for (RowRegexExprNode child : node.getChildNodes()) {
                 nodeNumStack.push(nodeNum);
                 RegexNFAStrand strand = recursiveBuildStatesInternal(child,
-                                               variableDefinitions,
-                                               variableStreams,
-                                               nodeNumStack,
-                                               exprRequiresMultimatchState);
+                        variableDefinitions,
+                        variableStreams,
+                        nodeNumStack,
+                        exprRequiresMultimatchState);
                 nodeNumStack.pop();
 
                 cumulativeStartStates.addAll(strand.getStartStates());
                 cumulativeStates.addAll(strand.getAllStates());
                 cumulativeEndStates.addAll(strand.getEndStates());
-                if (strand.isPassthrough())
-                {
+                if (strand.isPassthrough()) {
                     isPassthrough = true;
                 }
 
@@ -189,28 +166,24 @@ public class EventRowRegexHelper
             }
 
             return new RegexNFAStrand(cumulativeStartStates, cumulativeEndStates, cumulativeStates, isPassthrough);
-        }
-        else if (node instanceof RowRegexExprNodeConcatenation)
-        {
+        } else if (node instanceof RowRegexExprNodeConcatenation) {
             int nodeNum = 0;
 
             boolean isPassthrough = true;
             List<RegexNFAStateBase> cumulativeStates = new ArrayList<RegexNFAStateBase>();
             RegexNFAStrand[] strands = new RegexNFAStrand[node.getChildNodes().size()];
 
-            for (RowRegexExprNode child : node.getChildNodes())
-            {
+            for (RowRegexExprNode child : node.getChildNodes()) {
                 nodeNumStack.push(nodeNum);
                 strands[nodeNum] = recursiveBuildStatesInternal(child,
-                                               variableDefinitions,
-                                               variableStreams,
-                                               nodeNumStack,
-                                               exprRequiresMultimatchState);
+                        variableDefinitions,
+                        variableStreams,
+                        nodeNumStack,
+                        exprRequiresMultimatchState);
                 nodeNumStack.pop();
 
                 cumulativeStates.addAll(strands[nodeNum].getAllStates());
-                if (!strands[nodeNum].isPassthrough())
-                {
+                if (!strands[nodeNum].isPassthrough()) {
                     isPassthrough = false;
                 }
 
@@ -219,82 +192,65 @@ public class EventRowRegexHelper
 
             // determine start states: all states until the first non-passthrough start state
             List<RegexNFAStateBase> startStates = new ArrayList<RegexNFAStateBase>();
-            for (int i = 0; i < strands.length; i++)
-            {
+            for (int i = 0; i < strands.length; i++) {
                 startStates.addAll(strands[i].getStartStates());
-                if (!strands[i].isPassthrough())
-                {
+                if (!strands[i].isPassthrough()) {
                     break;
                 }
             }
 
             // determine end states: all states from the back until the last non-passthrough end state
             List<RegexNFAStateBase> endStates = new ArrayList<RegexNFAStateBase>();
-            for (int i = strands.length - 1; i >= 0; i--)
-            {
+            for (int i = strands.length - 1; i >= 0; i--) {
                 endStates.addAll(strands[i].getEndStates());
-                if (!strands[i].isPassthrough())
-                {
+                if (!strands[i].isPassthrough()) {
                     break;
                 }
             }
 
             // hook up the end state of each strand with the start states of each next strand
-            for (int i = strands.length - 1; i >= 1; i--)
-            {
+            for (int i = strands.length - 1; i >= 1; i--) {
                 RegexNFAStrand current = strands[i];
-                for (int j = i - 1; j >= 0; j--)
-                {
+                for (int j = i - 1; j >= 0; j--) {
                     RegexNFAStrand prior = strands[j];
 
-                    for (RegexNFAStateBase endState : prior.getEndStates())
-                    {
-                        for (RegexNFAStateBase startState : current.getStartStates())
-                        {
+                    for (RegexNFAStateBase endState : prior.getEndStates()) {
+                        for (RegexNFAStateBase startState : current.getStartStates()) {
                             endState.addState(startState);
                         }
                     }
 
-                    if (!prior.isPassthrough())
-                    {
+                    if (!prior.isPassthrough()) {
                         break;
                     }
                 }
             }
 
             return new RegexNFAStrand(startStates, endStates, cumulativeStates, isPassthrough);
-        }
-        else if (node instanceof RowRegexExprNodeNested)
-        {
+        } else if (node instanceof RowRegexExprNodeNested) {
             RowRegexExprNodeNested nested = (RowRegexExprNodeNested) node;
             nodeNumStack.push(0);
             RegexNFAStrand strand = recursiveBuildStatesInternal(node.getChildNodes().get(0),
-                                           variableDefinitions,
-                                           variableStreams,
-                                           nodeNumStack,
-                                           exprRequiresMultimatchState);
+                    variableDefinitions,
+                    variableStreams,
+                    nodeNumStack,
+                    exprRequiresMultimatchState);
             nodeNumStack.pop();
 
             boolean isPassthrough = strand.isPassthrough() || nested.getType().isOptional();
 
             // if this is a repeating node then pipe back each end state to each begin state
-            if (nested.getType().isMultipleMatches())
-            {
-                for (RegexNFAStateBase endstate : strand.getEndStates())
-                {
-                    for (RegexNFAStateBase startstate : strand.getStartStates())
-                    {
-                        if (!endstate.getNextStates().contains(startstate))
-                        {
+            if (nested.getType().isMultipleMatches()) {
+                for (RegexNFAStateBase endstate : strand.getEndStates()) {
+                    for (RegexNFAStateBase startstate : strand.getStartStates()) {
+                        if (!endstate.getNextStates().contains(startstate)) {
                             endstate.getNextStates().add(startstate);
                         }
                     }
                 }
             }
             return new RegexNFAStrand(strand.getStartStates(), strand.getEndStates(), strand.getAllStates(), isPassthrough);
-        }
-        else
-        {
+        } else {
             RowRegexExprNodeAtom atom = (RowRegexExprNodeAtom) node;
 
             // assign stream number for single-variables for most direct expression eval; multiple-variable gets -1
@@ -304,24 +260,15 @@ public class EventRowRegexHelper
             boolean exprRequiresMultimatch = exprRequiresMultimatchState[streamNum];
 
             RegexNFAStateBase nextState;
-            if ((atom.getType() == RegexNFATypeEnum.ZERO_TO_MANY) || (atom.getType() == RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT))
-            {
+            if ((atom.getType() == RegexNFATypeEnum.ZERO_TO_MANY) || (atom.getType() == RegexNFATypeEnum.ZERO_TO_MANY_RELUCTANT)) {
                 nextState = new RegexNFAStateZeroToMany(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), expressionDef, exprRequiresMultimatch);
-            }
-            else if ((atom.getType() == RegexNFATypeEnum.ONE_TO_MANY) || (atom.getType() == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT))
-            {
+            } else if ((atom.getType() == RegexNFATypeEnum.ONE_TO_MANY) || (atom.getType() == RegexNFATypeEnum.ONE_TO_MANY_RELUCTANT)) {
                 nextState = new RegexNFAStateOneToMany(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), expressionDef, exprRequiresMultimatch);
-            }
-            else if ((atom.getType() == RegexNFATypeEnum.ONE_OPTIONAL) || (atom.getType() == RegexNFATypeEnum.ONE_OPTIONAL_RELUCTANT))
-            {
+            } else if ((atom.getType() == RegexNFATypeEnum.ONE_OPTIONAL) || (atom.getType() == RegexNFATypeEnum.ONE_OPTIONAL_RELUCTANT)) {
                 nextState = new RegexNFAStateOneOptional(toString(nodeNumStack), atom.getTag(), streamNum, multiple, atom.getType().isGreedy(), expressionDef, exprRequiresMultimatch);
-            }
-            else if (expressionDef == null)
-            {
+            } else if (expressionDef == null) {
                 nextState = new RegexNFAStateAnyOne(toString(nodeNumStack), atom.getTag(), streamNum, multiple);
-            }
-            else
-            {
+            } else {
                 nextState = new RegexNFAStateFilter(toString(nodeNumStack), atom.getTag(), streamNum, multiple, expressionDef, exprRequiresMultimatch);
             }
 
@@ -333,8 +280,7 @@ public class EventRowRegexHelper
     private static String toString(Stack<Integer> nodeNumStack) {
         StringBuilder builder = new StringBuilder();
         String delimiter = "";
-        for (Integer atom : nodeNumStack)
-        {
+        for (Integer atom : nodeNumStack) {
             builder.append(delimiter);
             builder.append(Integer.toString(atom));
             delimiter = ".";
@@ -354,8 +300,7 @@ public class EventRowRegexHelper
         for (RowRegexExprNode child : parent.getChildNodes()) {
             if (child instanceof RowRegexExprNodeAtom) {
                 handleAtom((RowRegexExprNodeAtom) child, path, map);
-            }
-            else {
+            } else {
                 recursiveFindPatternAtoms(child, path, map);
             }
         }
@@ -377,8 +322,7 @@ public class EventRowRegexHelper
             int indexWithinConcat;
             if (i == patharr.length - 1) {
                 indexWithinConcat = parent.getChildNodes().indexOf(atom);
-            }
-            else {
+            } else {
                 indexWithinConcat = parent.getChildNodes().indexOf(patharr[i + 1]);
             }
 
@@ -399,8 +343,7 @@ public class EventRowRegexHelper
         Set<String> existingVisibility = map.get(atom.getTag());
         if (existingVisibility == null) {
             map.put(atom.getTag(), identifiers);
-        }
-        else {
+        } else {
             existingVisibility.addAll(identifiers);
         }
     }

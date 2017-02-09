@@ -32,7 +32,8 @@ public class ContextDescriptorCategory implements ContextDescriptor {
 
     /**
      * Ctor.
-     * @param items categories
+     *
+     * @param items  categories
      * @param filter event type and predicate
      */
     public ContextDescriptorCategory(List<ContextDescriptorCategoryItem> items, Filter filter) {
@@ -42,6 +43,7 @@ public class ContextDescriptorCategory implements ContextDescriptor {
 
     /**
      * Returns categories.
+     *
      * @return categories
      */
     public List<ContextDescriptorCategoryItem> getItems() {
@@ -50,6 +52,7 @@ public class ContextDescriptorCategory implements ContextDescriptor {
 
     /**
      * Sets categories
+     *
      * @param items categories to set
      */
     public void setItems(List<ContextDescriptorCategoryItem> items) {
@@ -58,6 +61,7 @@ public class ContextDescriptorCategory implements ContextDescriptor {
 
     /**
      * Returns type name and predicate expressions (filter)
+     *
      * @return filter
      */
     public Filter getFilter() {
@@ -66,6 +70,7 @@ public class ContextDescriptorCategory implements ContextDescriptor {
 
     /**
      * Sets type name and predicate expressions (filter)
+     *
      * @param filter filter
      */
     public void setFilter(Filter filter) {

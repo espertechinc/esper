@@ -22,9 +22,10 @@ public abstract class VirtualDataWindowEventConsumerBase extends VirtualDataWind
 
     /**
      * Ctor.
+     *
      * @param namedWindowName the named window name
-     * @param consumerObject an object that identifies the consumer, the same instance or the add and for the remove event
-     * @param statementName statement name
+     * @param consumerObject  an object that identifies the consumer, the same instance or the add and for the remove event
+     * @param statementName   statement name
      * @param agentInstanceId agent instance id
      */
     public VirtualDataWindowEventConsumerBase(String namedWindowName, Object consumerObject, String statementName, int agentInstanceId) {
@@ -36,6 +37,7 @@ public abstract class VirtualDataWindowEventConsumerBase extends VirtualDataWind
 
     /**
      * Returns the named window name.
+     *
      * @return named window name
      */
     public String getNamedWindowName() {
@@ -45,8 +47,9 @@ public abstract class VirtualDataWindowEventConsumerBase extends VirtualDataWind
     /**
      * Returns an object that serves as a unique identifier for the consumer, with multiple consumer per statements possible.
      * <p>
-     *     Upon remove the removal event contains the same consumer object.
+     * Upon remove the removal event contains the same consumer object.
      * </p>
+     *
      * @return consumer object
      */
     public Object getConsumerObject() {
@@ -55,6 +58,7 @@ public abstract class VirtualDataWindowEventConsumerBase extends VirtualDataWind
 
     /**
      * Returns the statement name.
+     *
      * @return statement name
      */
     public String getStatementName() {
@@ -63,6 +67,7 @@ public abstract class VirtualDataWindowEventConsumerBase extends VirtualDataWind
 
     /**
      * Returns the agent instance id (context partition id).
+     *
      * @return agent instance id
      */
     public int getAgentInstanceId() {

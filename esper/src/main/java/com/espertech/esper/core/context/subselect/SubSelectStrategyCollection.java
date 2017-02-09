@@ -19,24 +19,22 @@ import java.util.Map;
 /**
  * Holds stream information for subqueries.
  */
-public class SubSelectStrategyCollection
-{
+public class SubSelectStrategyCollection {
     private Map<ExprSubselectNode, SubSelectStrategyFactoryDesc> subqueries;
 
     /**
      * Ctor.
      */
-    public SubSelectStrategyCollection()
-    {
+    public SubSelectStrategyCollection() {
     }
 
     /**
      * Add lookup.
-     * @param subselectNode is the subselect expression node
+     *
+     * @param subselectNode   is the subselect expression node
      * @param prototypeHolder strategy prototype for subselect
      */
-    public void add(ExprSubselectNode subselectNode, SubSelectStrategyFactoryDesc prototypeHolder)
-    {
+    public void add(ExprSubselectNode subselectNode, SubSelectStrategyFactoryDesc prototypeHolder) {
         if (subqueries == null) {
             subqueries = new HashMap<ExprSubselectNode, SubSelectStrategyFactoryDesc>();
         }

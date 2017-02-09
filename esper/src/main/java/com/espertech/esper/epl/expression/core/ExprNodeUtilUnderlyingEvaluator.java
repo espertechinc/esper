@@ -21,16 +21,14 @@ public class ExprNodeUtilUnderlyingEvaluator implements ExprEvaluator {
         this.resultType = resultType;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context)
-    {
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         if ((eventsPerStream == null) || (eventsPerStream[streamNum] == null)) {
             return null;
         }
         return eventsPerStream[streamNum].getUnderlying();
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return resultType;
     }
 }

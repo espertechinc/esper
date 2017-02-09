@@ -16,8 +16,7 @@ import com.espertech.esper.util.TypeWidener;
 /**
  * Implementation of a convertor for column results that renders the result as an object array itself.
  */
-public class DeliveryConvertorWidenerWStatement implements DeliveryConvertor
-{
+public class DeliveryConvertorWidenerWStatement implements DeliveryConvertor {
     private final TypeWidener[] wideners;
     private final EPStatement statement;
 
@@ -33,8 +32,7 @@ public class DeliveryConvertorWidenerWStatement implements DeliveryConvertor
         for (int i = 0; i < columns.length; i++) {
             if (wideners[i] == null) {
                 values[offset] = columns[i];
-            }
-            else {
+            } else {
                 values[offset] = wideners[i].widen(columns[i]);
             }
             offset++;

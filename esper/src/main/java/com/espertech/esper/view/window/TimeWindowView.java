@@ -32,14 +32,13 @@ import java.util.Iterator;
  * The view bases the timeWindow on the time obtained from the scheduling service.
  * All incoming events receive a timestamp and are placed in a sorted map by timestamp.
  * The view does not care about old data published by the parent view to this view.
- *
+ * <p>
  * Events leave or expire from the time timeWindow by means of a scheduled callback registered with the
  * scheduling service. Thus child views receive updates containing old data only asynchronously
  * as the system-time-based timeWindow moves on. However child views receive updates containing new data
  * as soon as the new data arrives.
  */
-public class TimeWindowView extends ViewSupport implements CloneableView, DataWindowView, ScheduleAdjustmentCallback, StoppableView, StopCallback
-{
+public class TimeWindowView extends ViewSupport implements CloneableView, DataWindowView, ScheduleAdjustmentCallback, StoppableView, StopCallback {
     private final TimeWindowViewFactory timeWindowViewFactory;
     private final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
     protected final TimeWindow timeWindow;
@@ -50,14 +49,14 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
 
     /**
      * Constructor.
-     * @param timeDeltaComputation is the computation for the number of milliseconds before events gets pushed
-     * out of the timeWindow as oldData in the update method.
+     *
+     * @param timeDeltaComputation  is the computation for the number of milliseconds before events gets pushed
+     *                              out of the timeWindow as oldData in the update method.
      * @param viewUpdatedCollection is a collection the view must update when receiving events
      * @param timeWindowViewFactory for copying the view in a group-by
-     * @param agentInstanceContext context
+     * @param agentInstanceContext  context
      */
-    public TimeWindowView(AgentInstanceViewFactoryChainContext agentInstanceContext, TimeWindowViewFactory timeWindowViewFactory, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ViewUpdatedCollection viewUpdatedCollection)
-    {
+    public TimeWindowView(AgentInstanceViewFactoryChainContext agentInstanceContext, TimeWindowViewFactory timeWindowViewFactory, ExprTimePeriodEvalDeltaConst timeDeltaComputation, ViewUpdatedCollection viewUpdatedCollection) {
         this.agentInstanceContext = agentInstanceContext;
         this.timeWindowViewFactory = timeWindowViewFactory;
         this.timeDeltaComputation = timeDeltaComputation;
@@ -66,11 +65,14 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
         this.timeWindow = new TimeWindow(agentInstanceContext.isRemoveStream());
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewScheduledEval(TimeWindowView.this, TimeWindowView.this.timeWindowViewFactory.getViewName());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewScheduledEval(TimeWindowView.this, TimeWindowView.this.timeWindowViewFactory.getViewName());
+                }
                 TimeWindowView.this.expire();
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewScheduledEval();
+                }
             }
         };
         this.handle = new EPStatementHandleCallback(agentInstanceContext.getEpStatementAgentInstanceHandle(), callback);
@@ -81,82 +83,78 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
         agentInstanceContext.addTerminationCallback(this);
     }
 
-    public void adjust(long delta)
-    {
+    public void adjust(long delta) {
         timeWindow.adjust(delta);
     }
 
-    public View cloneView()
-    {
+    public View cloneView() {
         return timeWindowViewFactory.makeView(agentInstanceContext);
     }
 
     /**
      * Returns the (optional) collection handling random access to window contents for prior or previous events.
+     *
      * @return buffer for events
      */
-    public ViewUpdatedCollection getViewUpdatedCollection()
-    {
+    public ViewUpdatedCollection getViewUpdatedCollection() {
         return viewUpdatedCollection;
     }
 
-    public final EventType getEventType()
-    {
+    public final EventType getEventType() {
         return parent.getEventType();
     }
 
-    public final void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewProcessIRStream(this, timeWindowViewFactory.getViewName(), newData, oldData);}
+    public final void update(EventBean[] newData, EventBean[] oldData) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qViewProcessIRStream(this, timeWindowViewFactory.getViewName(), newData, oldData);
+        }
         long timestamp = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
 
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 timeWindow.remove(oldData[i]);
             }
         }
 
         // we don't care about removed data from a prior view
-        if ((newData != null) && (newData.length > 0))
-        {
+        if ((newData != null) && (newData.length > 0)) {
             // If we have an empty window about to be filled for the first time, schedule a callback
             // for now plus millisecondsBeforeExpiry
-            if (timeWindow.isEmpty())
-            {
+            if (timeWindow.isEmpty()) {
                 long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
                 scheduleCallback(timeDeltaComputation.deltaAdd(current));
             }
 
             // add data points to the timeWindow
-            for (int i = 0; i < newData.length; i++)
-            {
+            for (int i = 0; i < newData.length; i++) {
                 timeWindow.add(timestamp, newData[i]);
             }
 
-            if (viewUpdatedCollection != null)
-            {
+            if (viewUpdatedCollection != null) {
                 viewUpdatedCollection.update(newData, null);
             }
         }
 
         // update child views
-        if (this.hasViews())
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeWindowViewFactory.getViewName(), newData, oldData);}
+        if (this.hasViews()) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().qViewIndicate(this, timeWindowViewFactory.getViewName(), newData, oldData);
+            }
             updateChildren(newData, oldData);
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aViewIndicate();
+            }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewProcessIRStream();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aViewProcessIRStream();
+        }
     }
 
     /**
      * This method removes (expires) objects from the window and schedules a new callback for the
      * time when the next oldest message would expire from the window.
      */
-    protected final void expire()
-    {
+    protected final void expire() {
         long current = agentInstanceContext.getStatementContext().getSchedulingService().getTime();
         long expireBeforeTimestamp = current - timeDeltaComputation.deltaSubtract(current) + 1;
 
@@ -165,18 +163,19 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
         ArrayDeque<EventBean> expired = timeWindow.expireEvents(expireBeforeTimestamp);
 
         // If there are child views, fireStatementStopped update method
-        if (this.hasViews())
-        {
-            if ((expired != null) && (!expired.isEmpty()))
-            {
+        if (this.hasViews()) {
+            if ((expired != null) && (!expired.isEmpty())) {
                 EventBean[] oldEvents = expired.toArray(new EventBean[expired.size()]);
-                if (viewUpdatedCollection != null)
-                {
+                if (viewUpdatedCollection != null) {
                     viewUpdatedCollection.update(null, oldEvents);
                 }
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qViewIndicate(this, timeWindowViewFactory.getViewName(), null, oldEvents);}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qViewIndicate(this, timeWindowViewFactory.getViewName(), null, oldEvents);
+                }
                 updateChildren(null, oldEvents);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aViewIndicate();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aViewIndicate();
+                }
             }
         }
 
@@ -185,8 +184,7 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
 
     protected void scheduleExpiryCallback() {
         // If we still have events in the window, schedule new callback
-        if (timeWindow.isEmpty())
-        {
+        if (timeWindow.isEmpty()) {
             return;
         }
         Long oldestTimestamp = timeWindow.getOldestTimestamp();
@@ -199,27 +197,24 @@ public class TimeWindowView extends ViewSupport implements CloneableView, DataWi
         return timeDeltaComputation;
     }
 
-    private void scheduleCallback(long timeAfterCurrentTime)
-    {
+    private void scheduleCallback(long timeAfterCurrentTime) {
         agentInstanceContext.getStatementContext().getSchedulingService().add(timeAfterCurrentTime, handle, scheduleSlot);
     }
 
-    public final Iterator<EventBean> iterator()
-    {
+    public final Iterator<EventBean> iterator() {
         return timeWindow.iterator();
     }
 
-    public final String toString()
-    {
+    public final String toString() {
         return this.getClass().getName();
     }
 
     /**
      * Returns true if the window is empty, or false if not empty.
+     *
      * @return true if empty
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return timeWindow.isEmpty();
     }
 

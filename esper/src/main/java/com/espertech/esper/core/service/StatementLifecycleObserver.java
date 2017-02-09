@@ -13,10 +13,10 @@ package com.espertech.esper.core.service;
 /**
  * Observer statement management events.
  */
-public interface StatementLifecycleObserver
-{
+public interface StatementLifecycleObserver {
     /**
      * Observer statement state changes.
+     *
      * @param theEvent indicates statement changed
      */
     public void observe(StatementLifecycleEvent theEvent);

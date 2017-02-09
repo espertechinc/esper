@@ -13,7 +13,7 @@ package com.espertech.esper.client.dataflow;
 /**
  * For use with {@link EPDataFlowEventCollector} provides collection context.
  * <p>
- *     Do not retain handles to this instance as its contents may change.
+ * Do not retain handles to this instance as its contents may change.
  * </p>
  */
 public class EPDataFlowEventCollectorContext {
@@ -22,8 +22,9 @@ public class EPDataFlowEventCollectorContext {
 
     /**
      * Ctor.
+     *
      * @param eventBusCollector for sending events to the event bus
-     * @param event to process
+     * @param event             to process
      */
     public EPDataFlowEventCollectorContext(EventBusCollector eventBusCollector, Object event) {
         this.eventBusCollector = eventBusCollector;
@@ -32,6 +33,7 @@ public class EPDataFlowEventCollectorContext {
 
     /**
      * Returns the event.
+     *
      * @return event
      */
     public Object getEvent() {
@@ -40,6 +42,7 @@ public class EPDataFlowEventCollectorContext {
 
     /**
      * Sets the event.
+     *
      * @param event to set
      */
     public void setEvent(Object event) {
@@ -48,6 +51,7 @@ public class EPDataFlowEventCollectorContext {
 
     /**
      * Returns the emitter for the event bus.
+     *
      * @return emitter
      */
     public EventBusCollector getEventBusCollector() {

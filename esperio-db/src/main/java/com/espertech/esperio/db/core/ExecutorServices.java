@@ -13,25 +13,22 @@ package com.espertech.esperio.db.core;
 import com.espertech.esper.client.ConfigurationException;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esperio.db.config.Executor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class ExecutorServices
-{
+public class ExecutorServices {
     private static Logger log = LoggerFactory.getLogger(ExecutorServices.class);
 
     private static final java.util.concurrent.Executor EXEC_SAME_THREAD = new ExecutorSameThread();
 
     private final Map<String, ExecutorService> services;
 
-    public ExecutorServices(EPServiceProviderSPI spi, Map<String, Executor> workQueue)
-    {
+    public ExecutorServices(EPServiceProviderSPI spi, Map<String, Executor> workQueue) {
         this.services = new HashMap<String, ExecutorService>();
 
         for (Map.Entry<String, Executor> entry : workQueue.entrySet()) {
@@ -40,30 +37,26 @@ public class ExecutorServices
             if (queue.getNumThreads() <= 0) {
                 continue;
             }
-            
+
             LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<Runnable>();
             ExecutorService service = new ThreadPoolExecutor(queue.getNumThreads(), queue.getNumThreads(), 1000, TimeUnit.SECONDS, runnableQueue);
             services.put(entry.getKey(), service);
         }
 
-        try
-        {
+        try {
             spi.getContext().bind("EsperIODBAdapter/ExecutorServices", this);
-        }
-        catch (NamingException e)
-        {
+        } catch (NamingException e) {
             log.error("Error binding executor service: " + e.getMessage(), e);
         }
     }
 
-    public java.util.concurrent.Executor getConfiguredExecutor(String workqueueName) throws ConfigurationException
-    {
+    public java.util.concurrent.Executor getConfiguredExecutor(String workqueueName) throws ConfigurationException {
         if (workqueueName == null) {
             return EXEC_SAME_THREAD;
         }
         ExecutorService svc = services.get(workqueueName);
         if (svc == null) {
-            throw new ConfigurationException("Executor by name '"+ workqueueName + "' has not been defined");
+            throw new ConfigurationException("Executor by name '" + workqueueName + "' has not been defined");
         }
         return svc;
     }
@@ -83,10 +76,9 @@ public class ExecutorServices
         return services.get(name);
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         for (Map.Entry<String, ExecutorService> entry : services.entrySet()) {
             entry.getValue().shutdown();
-        }        
+        }
     }
 }

@@ -14,10 +14,10 @@ import com.espertech.esper.example.transaction.TxnEventBase;
 
 import java.util.Iterator;
 
-/** An Iterable source of events.
+/**
+ * An Iterable source of events.
  *
  * @author Hans Gilde
- *
  */
 public abstract class EventSource implements Iterable<TxnEventBase> {
 
@@ -29,6 +29,7 @@ public abstract class EventSource implements Iterable<TxnEventBase> {
     }
 
     protected abstract boolean hasNext();
+
     protected abstract TxnEventBase next();
 
     private class InternalIterator implements Iterator<TxnEventBase> {

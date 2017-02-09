@@ -13,10 +13,9 @@ package com.espertech.esper.epl.variable;
 /**
  * Reads and writes variable values.
  * <p>
- * Works closely with {@link VariableService} in determining the version to read.  
+ * Works closely with {@link VariableService} in determining the version to read.
  */
-public class VariableReader
-{
+public class VariableReader {
     private final VariableMetaData variableMetaData;
     private final VariableVersionThreadLocal versionThreadLocal;
     private volatile VersionedValueList<Object> versionsHigh;
@@ -32,19 +31,19 @@ public class VariableReader
     /**
      * For roll-over (overflow) in version numbers, sets a new collection of versioned-values for the variable
      * to use when requests over the version rollover boundary are made.
+     *
      * @param versionsHigh the list of versions for roll-over
      */
-    public void setVersionsHigh(VersionedValueList<Object> versionsHigh)
-    {
+    public void setVersionsHigh(VersionedValueList<Object> versionsHigh) {
         this.versionsHigh = versionsHigh;
     }
 
     /**
      * Sets a new list of versioned-values to inquire against, for use when version numbers roll-over.
+     *
      * @param versionsLow the list of versions for read
      */
-    public void setVersionsLow(VersionedValueList<Object> versionsLow)
-    {
+    public void setVersionsLow(VersionedValueList<Object> versionsLow) {
         this.versionsLow = versionsLow;
     }
 
@@ -52,26 +51,22 @@ public class VariableReader
      * Returns the value of a variable.
      * <p>
      * Considers the version set via thread-local for the thread's atomic read of variable values.
+     *
      * @return value of variable at the version applicable for the thead
      */
-    public Object getValue()
-    {
+    public Object getValue() {
         VariableVersionThreadEntry entry = versionThreadLocal.getCurrentThread();
-        if (entry.getUncommitted() != null)
-        {
+        if (entry.getUncommitted() != null) {
             // Check existance as null values are allowed
-            if (entry.getUncommitted().containsKey(variableMetaData.getVariableNumber()))
-            {
+            if (entry.getUncommitted().containsKey(variableMetaData.getVariableNumber())) {
                 return entry.getUncommitted().get(variableMetaData.getVariableNumber()).getSecond();
             }
         }
 
         int myVersion = entry.getVersion();
         VersionedValueList<Object> versions = versionsLow;
-        if (myVersion >= VariableServiceImpl.ROLLOVER_READER_BOUNDARY)
-        {
-            if (versionsHigh != null)
-            {
+        if (myVersion >= VariableServiceImpl.ROLLOVER_READER_BOUNDARY) {
+            if (versionsHigh != null) {
                 versions = versionsHigh;
             }
         }

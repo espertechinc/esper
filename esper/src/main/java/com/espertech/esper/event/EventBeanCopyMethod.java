@@ -15,10 +15,10 @@ import com.espertech.esper.client.EventBean;
 /**
  * Implementations copy the event object for controlled modification (shallow copy).
  */
-public interface EventBeanCopyMethod
-{
+public interface EventBeanCopyMethod {
     /**
      * Copy the event bean returning a shallow copy.
+     *
      * @param theEvent to copy
      * @return shallow copy
      */

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.pattern;
 
-public interface EvalFilterStateNodeConsume
-{
+public interface EvalFilterStateNodeConsume {
     public EvalFilterNode getEvalFilterNode();
 }

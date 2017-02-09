@@ -47,15 +47,13 @@ public class EnumEvalMinMaxByScalarLambda extends EnumEvalBase implements EnumEv
             if (minKey == null) {
                 minKey = (Comparable) comparable;
                 result = next;
-            }
-            else {
+            } else {
                 if (max) {
                     if (minKey.compareTo(comparable) < 0) {
                         minKey = (Comparable) comparable;
                         result = next;
                     }
-                }
-                else {
+                } else {
                     if (minKey.compareTo(comparable) > 0) {
                         minKey = (Comparable) comparable;
                         result = next;

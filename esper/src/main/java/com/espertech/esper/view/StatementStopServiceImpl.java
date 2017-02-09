@@ -10,38 +10,33 @@
  */
 package com.espertech.esper.view;
 
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Provides subscription list for statement stop callbacks.
  */
-public class StatementStopServiceImpl implements StatementStopService
-{
+public class StatementStopServiceImpl implements StatementStopService {
     private List<StatementStopCallback> statementStopCallbacks;
 
     /**
      * ctor.
      */
-    public StatementStopServiceImpl()
-    {
+    public StatementStopServiceImpl() {
     }
 
-    public void addSubscriber(StatementStopCallback callback)
-    {
+    public void addSubscriber(StatementStopCallback callback) {
         if (statementStopCallbacks == null) {
             statementStopCallbacks = new LinkedList<StatementStopCallback>();
         }
         statementStopCallbacks.add(callback);
     }
 
-    public void fireStatementStopped()
-    {
+    public void fireStatementStopped() {
         if (statementStopCallbacks == null) {
             return;
         }
-        for (StatementStopCallback statementStopCallback : statementStopCallbacks)
-        {
+        for (StatementStopCallback statementStopCallback : statementStopCallbacks) {
             statementStopCallback.statementStopped();
         }
     }

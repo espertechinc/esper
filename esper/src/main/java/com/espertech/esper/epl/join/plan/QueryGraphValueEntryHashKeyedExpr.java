@@ -13,8 +13,7 @@ package com.espertech.esper.epl.join.plan;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
-public class QueryGraphValueEntryHashKeyedExpr extends QueryGraphValueEntryHashKeyed
-{
+public class QueryGraphValueEntryHashKeyedExpr extends QueryGraphValueEntryHashKeyed {
     private static final long serialVersionUID = 1069112032977675596L;
 
     private final boolean requiresKey;

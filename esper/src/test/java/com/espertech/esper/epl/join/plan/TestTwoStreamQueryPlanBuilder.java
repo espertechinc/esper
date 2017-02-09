@@ -12,29 +12,26 @@ package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.epl.table.mgmt.TableMetadata;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
+import com.espertech.esper.epl.table.mgmt.TableMetadata;
 import com.espertech.esper.supportunit.bean.SupportBean_S0;
 import com.espertech.esper.supportunit.bean.SupportBean_S1;
-import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.type.OuterJoinType;
 import junit.framework.TestCase;
 
-public class TestTwoStreamQueryPlanBuilder extends TestCase
-{
+public class TestTwoStreamQueryPlanBuilder extends TestCase {
     private EventType[] typesPerStream;
 
-    public void setUp()
-    {
-        typesPerStream = new EventType[] {
+    public void setUp() {
+        typesPerStream = new EventType[]{
                 SupportEventAdapterService.getService().addBeanType(SupportBean_S0.class.getName(), SupportBean_S0.class, true, true, true),
                 SupportEventAdapterService.getService().addBeanType(SupportBean_S1.class.getName(), SupportBean_S1.class, true, true, true)
         };
     }
 
-    public void testBuildNoOuter()
-    {
+    public void testBuildNoOuter() {
         QueryGraph graph = makeQueryGraph();
         QueryPlan spec = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, null, new String[2][][], new TableMetadata[2]);
 
@@ -43,8 +40,7 @@ public class TestTwoStreamQueryPlanBuilder extends TestCase
         assertEquals(2, spec.getExecNodeSpecs().length);
     }
 
-    public void testBuildOuter()
-    {
+    public void testBuildOuter() {
         QueryGraph graph = makeQueryGraph();
         QueryPlan spec = TwoStreamQueryPlanBuilder.build(typesPerStream, graph, OuterJoinType.LEFT, new String[2][][], new TableMetadata[2]);
 
@@ -55,8 +51,7 @@ public class TestTwoStreamQueryPlanBuilder extends TestCase
         assertEquals(TableLookupNode.class, spec.getExecNodeSpecs()[1].getClass());
     }
 
-    private QueryGraph makeQueryGraph()
-    {
+    private QueryGraph makeQueryGraph() {
         QueryGraph graph = new QueryGraph(2, null, false);
         graph.addStrictEquals(0, "p01", make(0, "p01"), 1, "p11", make(1, "p11"));
         graph.addStrictEquals(0, "p02", make(0, "p02"), 1, "p12", make(1, "p12"));

@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
@@ -20,8 +19,7 @@ import com.espertech.esper.event.EventAdapterService;
 import java.util.Collections;
 import java.util.Map;
 
-public class SelectExprProcessorEvalTypableMap implements ExprEvaluator
-{
+public class SelectExprProcessorEvalTypableMap implements ExprEvaluator {
     private final EventType mapType;
     private final ExprEvaluator innerEvaluator;
     private final EventAdapterService eventAdapterService;
@@ -32,17 +30,15 @@ public class SelectExprProcessorEvalTypableMap implements ExprEvaluator
         this.eventAdapterService = eventAdapterService;
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        Map<String,Object> values = (Map<String,Object>) innerEvaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        Map<String, Object> values = (Map<String, Object>) innerEvaluator.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
         if (values == null) {
             return eventAdapterService.adapterForTypedMap(Collections.<String, Object>emptyMap(), mapType);
         }
         return eventAdapterService.adapterForTypedMap(values, mapType);
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Map.class;
     }
 

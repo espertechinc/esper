@@ -26,10 +26,12 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
-public class ExprDotEvalDT implements ExprDotEval
-{
+public class ExprDotEvalDT implements ExprDotEval {
     private final EPType returnType;
     private final DTLocalEvaluator evaluator;
 
@@ -38,15 +40,12 @@ public class ExprDotEvalDT implements ExprDotEval
 
         if (intervalOp != null) {
             returnType = EPTypeHelper.singleValue(Boolean.class);
-        }
-        else if (reformatOp != null) {
+        } else if (reformatOp != null) {
             returnType = EPTypeHelper.singleValue(reformatOp.getReturnType());
-        }
-        else {  // only calendar ops
+        } else {  // only calendar ops
             if (inputEventType != null) {
                 returnType = EPTypeHelper.singleValue(inputEventType.getPropertyType(inputEventType.getStartTimestampPropertyName()));
-            }
-            else {
+            } else {
                 returnType = EPTypeHelper.singleValue(inputType);
             }
         }
@@ -68,78 +67,64 @@ public class ExprDotEvalDT implements ExprDotEval
                         return new DTLocalEvaluatorCalReformat(reformatOp);
                     }
                     return new DTLocalEvaluatorCalOpsReformat(calendarOps, reformatOp);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorDateReformat(reformatOp);
                     }
                     return new DTLocalEvaluatorDateOpsReformat(calendarOps, reformatOp, timeZone);
-                }
-                else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
+                } else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorLongReformat(reformatOp);
                     }
                     return new DTLocalEvaluatorLongOpsReformat(calendarOps, reformatOp, timeZone, timeAbacus);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorLocalDateTimeReformat(reformatOp);
                     }
                     return new DTLocalEvaluatorLocalDateTimeOpsReformat(calendarOps, reformatOp);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorZonedDateTimeReformat(reformatOp);
                     }
                     return new DTLocalEvaluatorZonedDateTimeOpsReformat(calendarOps, reformatOp);
                 }
-            }
-            else if (intervalOp != null) {
+            } else if (intervalOp != null) {
                 if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Calendar.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorCalInterval(intervalOp);
                     }
                     return new DTLocalEvaluatorCalOpsInterval(calendarOps, intervalOp, timeZone);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorDateInterval(intervalOp);
                     }
                     return new DTLocalEvaluatorDateOpsInterval(calendarOps, intervalOp, timeZone);
-                }
-                else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
+                } else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorLongInterval(intervalOp);
                     }
                     return new DTLocalEvaluatorLongOpsInterval(calendarOps, intervalOp, timeZone, timeAbacus);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorLDTInterval(intervalOp, timeZone);
                     }
                     return new DTLocalEvaluatorLocalDateTimeOpsInterval(calendarOps, intervalOp, timeZone);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) {
                     if (calendarOps.isEmpty()) {
                         return new DTLocalEvaluatorZDTInterval(intervalOp);
                     }
                     return new DTLocalEvaluatorZonedDateTimeOpsInterval(calendarOps, intervalOp);
                 }
-            }
-            else { // only calendar ops, nothing else
+            } else { // only calendar ops, nothing else
                 if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Calendar.class)) {
                     return new DTLocalEvaluatorCalOpsCal(calendarOps);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, Date.class)) {
                     return new DTLocalEvaluatorCalOpsDate(calendarOps, timeZone);
-                }
-                else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
+                } else if (JavaClassHelper.getBoxedType(inputType) == Long.class) {
                     return new DTLocalEvaluatorCalOpsLong(calendarOps, timeZone, timeAbacus);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, LocalDateTime.class)) {
                     return new DTLocalEvaluatorCalOpsLocalDateTime(calendarOps);
-                }
-                else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) {
+                } else if (JavaClassHelper.isSubclassOrImplementsInterface(inputType, ZonedDateTime.class)) {
                     return new DTLocalEvaluatorCalOpsZonedDateTime(calendarOps);
                 }
             }
@@ -607,7 +592,7 @@ public class ExprDotEvalDT implements ExprDotEval
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Object timestamp = getter.get((EventBean)target);
+            Object timestamp = getter.get((EventBean) target);
             if (timestamp == null) {
                 return null;
             }
@@ -625,7 +610,7 @@ public class ExprDotEvalDT implements ExprDotEval
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Object timestamp = getter.get((EventBean)target);
+            Object timestamp = getter.get((EventBean) target);
             if (timestamp == null) {
                 return null;
             }
@@ -645,11 +630,11 @@ public class ExprDotEvalDT implements ExprDotEval
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Object startTimestamp = getterStartTimestamp.get((EventBean)target);
+            Object startTimestamp = getterStartTimestamp.get((EventBean) target);
             if (startTimestamp == null) {
                 return null;
             }
-            Object endTimestamp = getterEndTimestamp.get((EventBean)target);
+            Object endTimestamp = getterEndTimestamp.get((EventBean) target);
             if (endTimestamp == null) {
                 return null;
             }
@@ -657,7 +642,7 @@ public class ExprDotEvalDT implements ExprDotEval
         }
     }
 
-    private abstract class DTLocalEvaluatorCalOpsCalBase  {
+    private abstract class DTLocalEvaluatorCalOpsCalBase {
 
         protected final List<CalendarOp> calendarOps;
 
@@ -755,7 +740,7 @@ public class ExprDotEvalDT implements ExprDotEval
         }
 
         public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
-            Object timestamp = getter.get((EventBean)target);
+            Object timestamp = getter.get((EventBean) target);
             if (timestamp == null) {
                 return null;
             }

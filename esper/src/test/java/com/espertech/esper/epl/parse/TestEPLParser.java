@@ -22,10 +22,8 @@ import org.antlr.v4.runtime.tree.Tree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestEPLParser extends TestCase
-{
-    public void testDisplayAST() throws Exception
-    {
+public class TestEPLParser extends TestCase {
+    public void testDisplayAST() throws Exception {
         String expression = "select * from A where exp > ANY (select a from B)";
 
         log.debug(".testDisplayAST parsing: " + expression);
@@ -39,8 +37,7 @@ public class TestEPLParser extends TestCase
         walker.walk(listener, (ParseTree) ast.getFirst()); // initiate walk of tree with listener
     }
 
-    public void testInvalidCases() throws Exception
-    {
+    public void testInvalidCases() throws Exception {
         String className = SupportBean.class.getName();
 
         assertIsInvalid(className + "(val=10000).");
@@ -226,8 +223,7 @@ public class TestEPLParser extends TestCase
         assertIsInvalid("on pattern[every B] update ABC as abc set a=");
     }
 
-    public void testValidCases() throws Exception
-    {
+    public void testValidCases() throws Exception {
         String className = SupportBean.class.getName();
         String preFill = "select * from " + className;
 
@@ -319,16 +315,16 @@ public class TestEPLParser extends TestCase
         assertIsValid(preFill + "().win:lenght(3) where a + b + c = 'a'");
 
         assertIsValid("select not a, not (b), not (a > 5) from " +
-                        className + "(a=1).win:lenght(10) as win1," +
-                        className + "(a=2).win:lenght(10) as win2 " +
-                        "where win1.f1 = win2.f2"
-                        );
+                className + "(a=1).win:lenght(10) as win1," +
+                className + "(a=2).win:lenght(10) as win2 " +
+                "where win1.f1 = win2.f2"
+        );
 
         assertIsValid("select intPrimitive from " +
-                        className + "(a=1).win:lenght(10) as win1," +
-                        className + "(a=2).win:lenght(10) as win2 " +
-                        "where win1.f1 = win2.f2"
-                        );
+                className + "(a=1).win:lenght(10) as win1," +
+                className + "(a=2).win:lenght(10) as win2 " +
+                "where win1.f1 = win2.f2"
+        );
 
         // outer joins
         tryJoin("left");
@@ -339,18 +335,18 @@ public class TestEPLParser extends TestCase
 
         // complex property access
         assertIsValid("select array[1], map('a'), map(\"b\"), nested.nested " +
-                      "from a.b(string='test',intPrimitive=20).win:lenght(100) " +
-                      "where array[1].map('a').nested = 5");
+                "from a.b(string='test',intPrimitive=20).win:lenght(100) " +
+                "where array[1].map('a').nested = 5");
         assertIsValid("select array[1] as b " +
-                      "from a.b(string[0]='test').win:lenght(100) as x " +
-                      "left outer join " +
-                      "a.b(string[0]='test').win:lenght(100) as y " +
-                      "on y.array[1].map('a').nested = x.nested2");
+                "from a.b(string[0]='test').win:lenght(100) as x " +
+                "left outer join " +
+                "a.b(string[0]='test').win:lenght(100) as y " +
+                "on y.array[1].map('a').nested = x.nested2");
         assertIsValid("select * " +
-                      "from A " +
-                      "left outer join " +
-                      "B" +
-                      " on a = b and c=d");
+                "from A " +
+                "left outer join " +
+                "B" +
+                " on a = b and c=d");
         assertIsValid("select a and b from b#length(1)");
         assertIsValid("select a or b from b#length(1)");
         assertIsValid("select a = b from b#length(1)");
@@ -709,43 +705,42 @@ public class TestEPLParser extends TestCase
                 "select * from MyField";
         assertIsValid(text);
         assertIsValid("@Name('MyStatementName')\n" +
-                      "@Description('This statement does ABC')\n" +
-                      "@Tag(name='abc', value='cde')\n" +
-                      "select a from B");
-        
+                "@Description('This statement does ABC')\n" +
+                "@Tag(name='abc', value='cde')\n" +
+                "select a from B");
+
         // row pattern recog
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern (A B)\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern (A B)\n" +
+                "define B as (B.price > A.price)" +
+                ")");
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern (A* B+ C D?)\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern (A* B+ C D?)\n" +
+                "define B as (B.price > A.price)" +
+                ")");
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern (A | B)\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern (A | B)\n" +
+                "define B as (B.price > A.price)" +
+                ")");
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern ( (A B) | (C D))\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern ( (A B) | (C D))\n" +
+                "define B as (B.price > A.price)" +
+                ")");
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern ( (A | B) (C | D) )\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern ( (A | B) (C | D) )\n" +
+                "define B as (B.price > A.price)" +
+                ")");
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern ( (A) | (B | (D | E+)) )\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern ( (A) | (B | (D | E+)) )\n" +
+                "define B as (B.price > A.price)" +
+                ")");
         assertIsValid("select * from A match_recognize (measures A.symbol as A\n" +
-                      "pattern ( A (C | D)? E )\n" +
-                      "define B as (B.price > A.price)" +
-                      ")");
+                "pattern ( A (C | D)? E )\n" +
+                "define B as (B.price > A.price)" +
+                ")");
     }
 
-    public void testBitWiseCases() throws Exception
-    {
+    public void testBitWiseCases() throws Exception {
         String className = SupportBean.class.getName();
         String eplSmt = "select (intPrimitive & intBoxed) from " + className;
         assertIsValid(eplSmt + ".win:lenght()");
@@ -755,48 +750,45 @@ public class TestEPLParser extends TestCase
         assertIsValid(eplSmt + "().win:some_view({})");
     }
 
-    public void testIfThenElseCase() throws Exception
-     {
-         String className = SupportBean.class.getName();
-         String eplSmt = "select case when 1 then (a + 1) when 2 then (a*2) end from " + className;
-         assertIsValid(eplSmt + ".win:lenght()");
-         eplSmt = "select case a when 1 then (a + 1) end from " + className;
-         assertIsValid(eplSmt + ".win:lenght()");
-         eplSmt = "select case count(*) when 10 then sum(a) when 20 then max(a*b) end from " +  className;
-         assertIsValid(eplSmt + ".win:lenght()");
-         eplSmt = "select case (a>b) when true then a when false then b end from " +  className;
-         assertIsValid(eplSmt + ".win:lenght()");
-         eplSmt = "select case a when true then a when false then b end from " +  className;
-         assertIsValid(eplSmt + ".win:lenght()");
-         eplSmt = "select case when (a=b) then (a+b) when false then b end as p1 from " +  className;
-         assertIsValid(eplSmt + ".win:lenght()");
-         eplSmt = "select case (a+b) when (a*b) then count(a+b) when false then a ^ b end as p1 from " +  className;
-         assertIsValid(eplSmt + ".win:lenght()");
+    public void testIfThenElseCase() throws Exception {
+        String className = SupportBean.class.getName();
+        String eplSmt = "select case when 1 then (a + 1) when 2 then (a*2) end from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
+        eplSmt = "select case a when 1 then (a + 1) end from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
+        eplSmt = "select case count(*) when 10 then sum(a) when 20 then max(a*b) end from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
+        eplSmt = "select case (a>b) when true then a when false then b end from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
+        eplSmt = "select case a when true then a when false then b end from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
+        eplSmt = "select case when (a=b) then (a+b) when false then b end as p1 from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
+        eplSmt = "select case (a+b) when (a*b) then count(a+b) when false then a ^ b end as p1 from " + className;
+        assertIsValid(eplSmt + ".win:lenght()");
     }
 
-    private void tryJoin(String joinType) throws Exception
-    {
+    private void tryJoin(String joinType) throws Exception {
         String className = SupportBean.class.getName();
         assertIsValid("select intPrimitive from " +
-                        className + "(a=1).win:lenght(10) as win1 " +
-                        joinType + " outer join " +
-                        className + "(a=2).win:lenght(10) as win2 " +
-                        "on win1.f1 = win2.f2"
-                        );
+                className + "(a=1).win:lenght(10) as win1 " +
+                joinType + " outer join " +
+                className + "(a=2).win:lenght(10) as win2 " +
+                "on win1.f1 = win2.f2"
+        );
 
         assertIsValid("select intPrimitive from " +
-                        className + "(a=1).win:lenght(10) as win1 " +
-                        joinType + " outer join " +
-                        className + "(a=2).win:lenght(10) as win2 " +
-                        "on win1.f1 = win2.f2 " +
-                        joinType + " outer join " +
-                        className + "(a=2).win:lenght(10) as win3 " +
-                        "on win1.f1 = win3.f3"
-                        );
+                className + "(a=1).win:lenght(10) as win1 " +
+                joinType + " outer join " +
+                className + "(a=2).win:lenght(10) as win2 " +
+                "on win1.f1 = win2.f2 " +
+                joinType + " outer join " +
+                className + "(a=2).win:lenght(10) as win3 " +
+                "on win1.f1 = win3.f3"
+        );
     }
 
-    private void assertIsValid(String text) throws Exception
-    {
+    private void assertIsValid(String text) throws Exception {
         log.debug(".assertIsValid Trying text=" + text);
         Pair<Tree, CommonTokenStream> ast = parse(text);
         log.debug(".assertIsValid success, tree walking...");
@@ -805,23 +797,18 @@ public class TestEPLParser extends TestCase
         log.debug(".assertIsValid done");
     }
 
-    private void assertIsInvalid(String text) throws Exception
-    {
+    private void assertIsInvalid(String text) throws Exception {
         log.debug(".assertIsInvalid Trying text=" + text);
 
-        try
-        {
+        try {
             parse(text);
             assertFalse(true);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             log.debug(".assertIsInvalid Expected ParseException exception was thrown and ignored, message=" + ex.getMessage());
         }
     }
 
-    private Pair<Tree, CommonTokenStream> parse(String expression) throws Exception
-    {
+    private Pair<Tree, CommonTokenStream> parse(String expression) throws Exception {
         return SupportParserHelper.parseEPL(expression);
     }
 

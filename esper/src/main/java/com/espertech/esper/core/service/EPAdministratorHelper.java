@@ -16,7 +16,6 @@ import com.espertech.esper.client.EPStatementSyntaxException;
 import com.espertech.esper.core.context.mgr.ContextManagementService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
-import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.parse.*;
 import com.espertech.esper.epl.spec.PatternStreamSpecRaw;
@@ -35,26 +34,20 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper class for administrative interface.
  */
-public class EPAdministratorHelper
-{
+public class EPAdministratorHelper {
     private static ParseRuleSelector patternParseRule;
     private static ParseRuleSelector eplParseRule;
 
-    static
-    {
+    static {
         patternParseRule = null;
-        patternParseRule = new ParseRuleSelector()
-        {
-            public Tree invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException
-            {
+        patternParseRule = new ParseRuleSelector() {
+            public Tree invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startPatternExpressionRule();
             }
         };
 
-        eplParseRule = new ParseRuleSelector()
-        {
-            public Tree invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException
-            {
+        eplParseRule = new ParseRuleSelector() {
+            public Tree invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startEPLExpressionRule();
             }
         };
@@ -62,12 +55,13 @@ public class EPAdministratorHelper
 
     /**
      * Compile an EPL statement.
-     * @param eplStatement to compile
+     *
+     * @param eplStatement            to compile
      * @param eplStatementForErrorMsg the statement to use for indicating error messages
-     * @param addPleaseCheck true to add please-check message text
-     * @param statementName the name of statement
-     * @param services engine services
-     * @param defaultStreamSelector stream selector
+     * @param addPleaseCheck          true to add please-check message text
+     * @param statementName           the name of statement
+     * @param services                engine services
+     * @param defaultStreamSelector   stream selector
      * @return compiled statement
      */
     public static StatementSpecRaw compileEPL(String eplStatement, String eplStatementForErrorMsg, boolean addPleaseCheck, String statementName, EPServicesContext services, SelectClauseStreamSelectorEnum defaultStreamSelector) {
@@ -84,10 +78,8 @@ public class EPAdministratorHelper
                                               PatternNodeFactory patternNodeFactory,
                                               ContextManagementService contextManagementService,
                                               ExprDeclaredService exprDeclaredService,
-                                              TableService tableService)
-    {
-        if (log.isDebugEnabled())
-        {
+                                              TableService tableService) {
+        if (log.isDebugEnabled()) {
             log.debug(".createEPLStmt statementName=" + statementName + " eplStatement=" + eplStatement);
         }
 
@@ -96,28 +88,20 @@ public class EPAdministratorHelper
 
         EPLTreeWalkerListener walker = new EPLTreeWalkerListener(parseResult.getTokenStream(), engineImportService, variableService, schedulingService, defaultStreamSelector, engineURI, configSnapshot, patternNodeFactory, contextManagementService, parseResult.getScripts(), exprDeclaredService, tableService);
 
-        try
-        {
+        try {
             ParseHelper.walk(ast, walker, eplStatement, eplStatementForErrorMsg);
-        }
-        catch (ASTWalkException ex)
-        {
+        } catch (ASTWalkException ex) {
             log.error(".createEPL Error validating expression", ex);
             throw new EPStatementException(ex.getMessage(), ex, eplStatementForErrorMsg);
-        }
-        catch (EPStatementSyntaxException ex)
-        {
+        } catch (EPStatementSyntaxException ex) {
             throw ex;
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             String message = "Error in expression";
             log.debug(message, ex);
             throw new EPStatementException(getNullableErrortext(message, ex.getMessage()), ex, eplStatementForErrorMsg);
         }
 
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             ASTUtil.dumpAST(ast);
         }
 
@@ -126,8 +110,7 @@ public class EPAdministratorHelper
         return raw;
     }
 
-    public static StatementSpecRaw compilePattern(String expression, String expressionForErrorMessage, boolean addPleaseCheck, EPServicesContext services, SelectClauseStreamSelectorEnum defaultStreamSelector)
-    {
+    public static StatementSpecRaw compilePattern(String expression, String expressionForErrorMessage, boolean addPleaseCheck, EPServicesContext services, SelectClauseStreamSelectorEnum defaultStreamSelector) {
         // Parse
         ParseResult parseResult = ParseHelper.parse(expression, expressionForErrorMessage, addPleaseCheck, patternParseRule, true);
         Tree ast = parseResult.getTree();
@@ -139,15 +122,12 @@ public class EPAdministratorHelper
         EPLTreeWalkerListener walker = new EPLTreeWalkerListener(parseResult.getTokenStream(), services.getEngineImportService(), services.getVariableService(), services.getSchedulingService(), defaultStreamSelector, services.getEngineURI(), services.getConfigSnapshot(), services.getPatternNodeFactory(), services.getContextManagementService(), parseResult.getScripts(), services.getExprDeclaredService(), services.getTableService());
         try {
             ParseHelper.walk(ast, walker, expression, expressionForErrorMessage);
-        }
-        catch (ASTWalkException ex) {
+        } catch (ASTWalkException ex) {
             log.debug(".createPattern Error validating expression", ex);
             throw new EPStatementException(ex.getMessage(), expression);
-        }
-        catch (EPStatementSyntaxException ex) {
+        } catch (EPStatementSyntaxException ex) {
             throw ex;
-        }
-        catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             String message = "Error in expression";
             log.debug(message, ex);
             throw new EPStatementException(getNullableErrortext(message, ex.getMessage()), expression);
@@ -171,14 +151,10 @@ public class EPAdministratorHelper
         return statementSpec;
     }
 
-    private static String getNullableErrortext(String msg, String cause)
-    {
-        if (cause == null)
-        {
+    private static String getNullableErrortext(String msg, String cause) {
+        if (cause == null) {
             return msg;
-        }
-        else
-        {
+        } else {
             return msg + ": " + cause;
         }
     }

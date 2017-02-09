@@ -20,48 +20,41 @@ import java.util.List;
 /**
  * Getter for nested properties in a DOM tree.
  */
-public class DOMNestedPropertyGetter implements EventPropertyGetter, DOMPropertyGetter
-{
+public class DOMNestedPropertyGetter implements EventPropertyGetter, DOMPropertyGetter {
     private final DOMPropertyGetter[] domGetterChain;
     private final FragmentFactory fragmentFactory;
 
     /**
      * Ctor.
-     * @param getterChain is the chain of getters to retrieve each nested property
+     *
+     * @param getterChain     is the chain of getters to retrieve each nested property
      * @param fragmentFactory for creating fragments
      */
-    public DOMNestedPropertyGetter(List<EventPropertyGetter> getterChain, FragmentFactory fragmentFactory)
-    {
+    public DOMNestedPropertyGetter(List<EventPropertyGetter> getterChain, FragmentFactory fragmentFactory) {
         this.domGetterChain = new DOMPropertyGetter[getterChain.size()];
         this.fragmentFactory = fragmentFactory;
 
         int count = 0;
-        for (EventPropertyGetter getter : getterChain)
-        {
+        for (EventPropertyGetter getter : getterChain) {
             domGetterChain[count++] = (DOMPropertyGetter) getter;
-        }        
+        }
     }
 
-    public Object getValueAsFragment(Node node)
-    {
+    public Object getValueAsFragment(Node node) {
         Node result = getValueAsNode(node);
-        if (result == null)
-        {
+        if (result == null) {
             return null;
         }
         return fragmentFactory.getEvent(result);
     }
 
-    public Node[] getValueAsNodeArray(Node node)
-    {
+    public Node[] getValueAsNodeArray(Node node) {
         Node value = node;
 
-        for (int i = 0; i < domGetterChain.length - 1; i++)
-        {
+        for (int i = 0; i < domGetterChain.length - 1; i++) {
             value = domGetterChain[i].getValueAsNode(value);
 
-            if (value == null)
-            {
+            if (value == null) {
                 return null;
             }
         }
@@ -69,16 +62,13 @@ public class DOMNestedPropertyGetter implements EventPropertyGetter, DOMProperty
         return domGetterChain[domGetterChain.length - 1].getValueAsNodeArray(value);
     }
 
-    public Node getValueAsNode(Node node)
-    {
+    public Node getValueAsNode(Node node) {
         Node value = node;
 
-        for (int i = 0; i < domGetterChain.length; i++)
-        {
+        for (int i = 0; i < domGetterChain.length; i++) {
             value = domGetterChain[i].getValueAsNode(value);
 
-            if (value == null)
-            {
+            if (value == null) {
                 return null;
             }
         }
@@ -86,11 +76,9 @@ public class DOMNestedPropertyGetter implements EventPropertyGetter, DOMProperty
         return value;
     }
 
-    public Object get(EventBean obj) throws PropertyAccessException
-    {
+    public Object get(EventBean obj) throws PropertyAccessException {
         // The underlying is expected to be a map
-        if (!(obj.getUnderlying() instanceof Node))
-        {
+        if (!(obj.getUnderlying() instanceof Node)) {
             throw new PropertyAccessException("Mismatched property getter to event bean type, " +
                     "the underlying data object is not of type Node");
         }
@@ -99,23 +87,19 @@ public class DOMNestedPropertyGetter implements EventPropertyGetter, DOMProperty
         return getValueAsNode(node);
     }
 
-    public boolean isExistsProperty(EventBean obj)
-    {
+    public boolean isExistsProperty(EventBean obj) {
         // The underlying is expected to be a map
-        if (!(obj.getUnderlying() instanceof Node))
-        {
+        if (!(obj.getUnderlying() instanceof Node)) {
             throw new PropertyAccessException("Mismatched property getter to event bean type, " +
                     "the underlying data object is not of type Node");
         }
 
         Node value = (Node) obj.getUnderlying();
 
-        for (int i = 0; i < domGetterChain.length; i++)
-        {
+        for (int i = 0; i < domGetterChain.length; i++) {
             value = domGetterChain[i].getValueAsNode(value);
 
-            if (value == null)
-            {
+            if (value == null) {
                 return false;
             }
         }
@@ -123,23 +107,19 @@ public class DOMNestedPropertyGetter implements EventPropertyGetter, DOMProperty
         return true;
     }
 
-    public Object getFragment(EventBean obj) throws PropertyAccessException
-    {
+    public Object getFragment(EventBean obj) throws PropertyAccessException {
         // The underlying is expected to be a map
-        if (!(obj.getUnderlying() instanceof Node))
-        {
+        if (!(obj.getUnderlying() instanceof Node)) {
             throw new PropertyAccessException("Mismatched property getter to event bean type, " +
                     "the underlying data object is not of type Node");
         }
 
         Node value = (Node) obj.getUnderlying();
 
-        for (int i = 0; i < domGetterChain.length - 1; i++)
-        {
+        for (int i = 0; i < domGetterChain.length - 1; i++) {
             value = domGetterChain[i].getValueAsNode(value);
 
-            if (value == null)
-            {
+            if (value == null) {
                 return false;
             }
         }

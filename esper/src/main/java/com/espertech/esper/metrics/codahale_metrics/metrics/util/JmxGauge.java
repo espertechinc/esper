@@ -41,9 +41,8 @@ public class JmxGauge extends Gauge<Object> {
     /**
      * Creates a new {@link JmxGauge} for the given attribute of the given MBean.
      *
-     * @param objectName    the string value of the MBean's {@link javax.management.ObjectName}
-     * @param attribute     the MBean attribute's name
-     *
+     * @param objectName the string value of the MBean's {@link javax.management.ObjectName}
+     * @param attribute  the MBean attribute's name
      * @throws javax.management.MalformedObjectNameException if {@code objectName} is malformed
      */
     public JmxGauge(String objectName, String attribute) throws MalformedObjectNameException {
@@ -53,8 +52,8 @@ public class JmxGauge extends Gauge<Object> {
     /**
      * Creates a new {@link JmxGauge} for the given attribute of the given MBean.
      *
-     * @param objectName    the MBean's {@link javax.management.ObjectName}
-     * @param attribute     the MBean attribute's name
+     * @param objectName the MBean's {@link javax.management.ObjectName}
+     * @param attribute  the MBean attribute's name
      */
     public JmxGauge(ObjectName objectName, String attribute) {
         this.objectName = objectName;

@@ -24,8 +24,7 @@ public class IntervalStartEndParameterPair {
         ExprOptionalConstant end;
         if (parameters.length == 1) {
             end = start;
-        }
-        else {
+        } else {
             end = parameters[1];
         }
         return new IntervalStartEndParameterPair(start, end);
@@ -36,8 +35,7 @@ public class IntervalStartEndParameterPair {
         ExprOptionalConstant end;
         if (parameters.length == 1) {
             end = ExprOptionalConstant.make(Long.MAX_VALUE);
-        }
-        else {
+        } else {
             end = parameters[1];
         }
         return new IntervalStartEndParameterPair(start, end);

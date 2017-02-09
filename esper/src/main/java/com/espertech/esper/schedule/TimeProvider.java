@@ -15,10 +15,10 @@ package com.espertech.esper.schedule;
  * <p>
  * Internal system time is controlled either by a timer function or by external time events.
  */
-public interface TimeProvider
-{
+public interface TimeProvider {
     /**
      * Returns the current engine time.
+     *
      * @return time that has last been set
      */
     public long getTime();

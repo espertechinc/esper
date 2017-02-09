@@ -13,8 +13,7 @@ package com.espertech.esper.epl.named;
 /**
  * Event indicating named window lifecycle management.
  */
-public class NamedWindowLifecycleEvent
-{
+public class NamedWindowLifecycleEvent {
     private String name;
     private NamedWindowProcessor processor;
     private NamedWindowLifecycleEvent.LifecycleEventType eventType;
@@ -37,13 +36,13 @@ public class NamedWindowLifecycleEvent
 
     /**
      * Ctor.
-     * @param name is the name of the named window
-     * @param processor instance for processing the named window contents
-     * @param eventType the type of event
+     *
+     * @param name       is the name of the named window
+     * @param processor  instance for processing the named window contents
+     * @param eventType  the type of event
      * @param parameters event parameters
      */
-    protected NamedWindowLifecycleEvent(String name, NamedWindowProcessor processor, NamedWindowLifecycleEvent.LifecycleEventType eventType, Object... parameters)
-    {
+    protected NamedWindowLifecycleEvent(String name, NamedWindowProcessor processor, NamedWindowLifecycleEvent.LifecycleEventType eventType, Object... parameters) {
         this.name = name;
         this.processor = processor;
         this.eventType = eventType;
@@ -52,24 +51,25 @@ public class NamedWindowLifecycleEvent
 
     /**
      * Returns the named window name.
+     *
      * @return name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * Return the processor originating the event.
+     *
      * @return processor
      */
-    public NamedWindowProcessor getProcessor()
-    {
+    public NamedWindowProcessor getProcessor() {
         return processor;
     }
 
     /**
      * Returns the event type.
+     *
      * @return type of event
      */
     public NamedWindowLifecycleEvent.LifecycleEventType getEventType() {
@@ -78,6 +78,7 @@ public class NamedWindowLifecycleEvent
 
     /**
      * Returns event parameters.
+     *
      * @return params
      */
     public Object[] getParameters() {

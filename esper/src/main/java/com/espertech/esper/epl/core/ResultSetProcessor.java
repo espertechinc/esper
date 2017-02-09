@@ -28,10 +28,10 @@ import java.util.Set;
  * And second, out of a join of event streams. The processor must apply the select-clause, grou-by-clause and having-clauses
  * as supplied. It must state what the event type of the result rows is.
  */
-public interface ResultSetProcessor extends StopCallback
-{
+public interface ResultSetProcessor extends StopCallback {
     /**
      * Returns the event type of processed results.
+     *
      * @return event type of the resulting events posted by the processor.
      */
     public EventType getResultEventType();
@@ -40,8 +40,9 @@ public interface ResultSetProcessor extends StopCallback
      * For use by views posting their result, process the event rows that are entered and removed (new and old events).
      * Processes according to select-clauses, group-by clauses and having-clauses and returns new events and
      * old events as specified.
-     * @param newData - new events posted by view
-     * @param oldData - old events posted by view
+     *
+     * @param newData      - new events posted by view
+     * @param oldData      - old events posted by view
      * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
      * @return pair of new events and old events
      */
@@ -51,8 +52,9 @@ public interface ResultSetProcessor extends StopCallback
      * For use by joins posting their result, process the event rows that are entered and removed (new and old events).
      * Processes according to select-clauses, group-by clauses and having-clauses and returns new events and
      * old events as specified.
-     * @param newEvents - new events posted by join
-     * @param oldEvents - old events posted by join
+     *
+     * @param newEvents    - new events posted by join
+     * @param oldEvents    - old events posted by join
      * @param isSynthesize - set to true to indicate that synthetic events are required for an iterator result set
      * @return pair of new events and old events
      */
@@ -61,6 +63,7 @@ public interface ResultSetProcessor extends StopCallback
     /**
      * Returns the iterator implementing the group-by and aggregation and order-by logic
      * specific to each case of use of these construct.
+     *
      * @param parent is the parent view iterator
      * @return event iterator
      */
@@ -68,6 +71,7 @@ public interface ResultSetProcessor extends StopCallback
 
     /**
      * Returns the iterator for iterating over a join-result.
+     *
      * @param joinSet is the join result set
      * @return iterator over join results
      */
@@ -80,8 +84,9 @@ public interface ResultSetProcessor extends StopCallback
 
     /**
      * Processes batched events in case of output-rate limiting.
-     * @param joinEventsSet the join results
-     * @param generateSynthetic flag to indicate whether synthetic events must be generated
+     *
+     * @param joinEventsSet        the join results
+     * @param generateSynthetic    flag to indicate whether synthetic events must be generated
      * @param outputLimitLimitType the type of output rate limiting
      * @return results for dispatch
      */
@@ -89,8 +94,9 @@ public interface ResultSetProcessor extends StopCallback
 
     /**
      * Processes batched events in case of output-rate limiting.
-     * @param viewEventsList the view results
-     * @param generateSynthetic flag to indicate whether synthetic events must be generated
+     *
+     * @param viewEventsList       the view results
+     * @param generateSynthetic    flag to indicate whether synthetic events must be generated
      * @param outputLimitLimitType the type of output rate limiting
      * @return results for dispatch
      */

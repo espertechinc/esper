@@ -16,38 +16,37 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import junit.framework.TestCase;
 
-public class TestExprNodeUtility extends TestCase
-{
+public class TestExprNodeUtility extends TestCase {
     private SupportExprNode e1 = new SupportExprNode(1);
     private SupportExprNode e2 = new SupportExprNode(2);
     private SupportExprNode e3 = new SupportExprNode(3);
     private SupportExprNode e4 = new SupportExprNode(4);
     private SupportExprNode e1Dup = new SupportExprNode(1);
     private ExprNode[] empty = new ExprNode[0];
-    private ExprNode[] justE1 = new ExprNode[] {e1};
+    private ExprNode[] justE1 = new ExprNode[]{e1};
 
     public void testDeepEqualsIsSubset() {
         assertTrue(ExprNodeUtility.deepEqualsIsSubset(empty, empty));
         assertTrue(ExprNodeUtility.deepEqualsIsSubset(empty, justE1));
-        assertTrue(ExprNodeUtility.deepEqualsIsSubset(empty, new ExprNode[] {e1, e2}));
+        assertTrue(ExprNodeUtility.deepEqualsIsSubset(empty, new ExprNode[]{e1, e2}));
 
-        assertTrue(ExprNodeUtility.deepEqualsIsSubset(justE1, new ExprNode[] {e1}));
-        assertTrue(ExprNodeUtility.deepEqualsIsSubset(justE1, new ExprNode[] {e1, e1}));
-        assertFalse(ExprNodeUtility.deepEqualsIsSubset(justE1, new ExprNode[] {e2}));
+        assertTrue(ExprNodeUtility.deepEqualsIsSubset(justE1, new ExprNode[]{e1}));
+        assertTrue(ExprNodeUtility.deepEqualsIsSubset(justE1, new ExprNode[]{e1, e1}));
+        assertFalse(ExprNodeUtility.deepEqualsIsSubset(justE1, new ExprNode[]{e2}));
 
-        ExprNode[] e1e2 = new ExprNode[] {e1, e2};
+        ExprNode[] e1e2 = new ExprNode[]{e1, e2};
         assertFalse(ExprNodeUtility.deepEqualsIsSubset(e1e2, justE1));
-        assertFalse(ExprNodeUtility.deepEqualsIsSubset(e1e2, new ExprNode[] {e2}));
-        assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2, new ExprNode[] {e2, e1}));
-        assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2, new ExprNode[] {e2, e1, e2, e1}));
+        assertFalse(ExprNodeUtility.deepEqualsIsSubset(e1e2, new ExprNode[]{e2}));
+        assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2, new ExprNode[]{e2, e1}));
+        assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2, new ExprNode[]{e2, e1, e2, e1}));
 
-        ExprNode[] e1e2e3 = new ExprNode[] {e1, e2, e3};
+        ExprNode[] e1e2e3 = new ExprNode[]{e1, e2, e3};
         assertFalse(ExprNodeUtility.deepEqualsIsSubset(e1e2e3, justE1));
-        assertFalse(ExprNodeUtility.deepEqualsIsSubset(e1e2e3, new ExprNode[] {e2, e3}));
-        assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2e3, new ExprNode[] {e2, e3, e1}));
+        assertFalse(ExprNodeUtility.deepEqualsIsSubset(e1e2e3, new ExprNode[]{e2, e3}));
+        assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2e3, new ExprNode[]{e2, e3, e1}));
         assertTrue(ExprNodeUtility.deepEqualsIsSubset(e1e2e3, e1e2e3));
     }
-    
+
     public void testDeepEqualsIgnoreOrder() {
 
         // compare on set being empty
@@ -88,7 +87,7 @@ public class TestExprNodeUtility extends TestCase
             return;
         }
         PermutationEnumeration permuter = new PermutationEnumeration(setTwo.length);
-        for (;permuter.hasMoreElements();) {
+        for (; permuter.hasMoreElements(); ) {
             int[] permutation = permuter.nextElement();
             ExprNode[] copy = new ExprNode[setTwo.length];
             for (int i = 0; i < permutation.length; i++) {

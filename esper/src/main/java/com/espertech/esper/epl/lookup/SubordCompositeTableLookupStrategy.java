@@ -22,8 +22,7 @@ import java.util.Collection;
 /**
  * Index lookup strategy for subqueries.
  */
-public class SubordCompositeTableLookupStrategy implements SubordTableLookupStrategy
-{
+public class SubordCompositeTableLookupStrategy implements SubordTableLookupStrategy {
     private final CompositeIndexQuery innerIndexQuery;
     private final PropertyCompositeEventTable index;
     private final LookupStrategyDesc strategyDesc;
@@ -34,8 +33,7 @@ public class SubordCompositeTableLookupStrategy implements SubordTableLookupStra
         this.strategyDesc = strategyDesc;
     }
 
-    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context)
-    {
+    public Collection<EventBean> lookup(EventBean[] eventsPerStream, ExprEvaluatorContext context) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexSubordLookup(this, index, null);
             ArrayList<Object> keys = new ArrayList<Object>(2); // can collect nulls

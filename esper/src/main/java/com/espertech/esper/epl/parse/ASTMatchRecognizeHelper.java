@@ -17,6 +17,7 @@ import com.espertech.esper.rowregex.RowRegexExprRepeatDesc;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.Tree;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -24,33 +25,30 @@ import java.util.Map;
  */
 public class ASTMatchRecognizeHelper {
 
-    private final static String message = "Match-recognize AFTER clause must be either AFTER MATCH SKIP TO LAST ROW or AFTER MATCH SKIP TO NEXT ROW or AFTER MATCH SKIP TO CURRENT ROW";
+    private final static String MESSAGE = "Match-recognize AFTER clause must be either AFTER MATCH SKIP TO LAST ROW or AFTER MATCH SKIP TO NEXT ROW or AFTER MATCH SKIP TO CURRENT ROW";
 
     public static MatchRecognizeSkipEnum parseSkip(CommonTokenStream tokenStream, EsperEPL2GrammarParser.MatchRecogMatchesAfterSkipContext ctx) {
 
-        if ((!ctx.i1.getText().toUpperCase().equals("MATCH")) ||
-            (!ctx.i2.getText().toUpperCase().equals("SKIP")) ||
-            (!ctx.i5.getText().toUpperCase().equals("ROW"))
+        if ((!ctx.i1.getText().toUpperCase(Locale.ENGLISH).equals("MATCH")) ||
+            (!ctx.i2.getText().toUpperCase(Locale.ENGLISH).equals("SKIP")) ||
+            (!ctx.i5.getText().toUpperCase(Locale.ENGLISH).equals("ROW"))
             ) {
-            throw ASTWalkException.from(message, tokenStream, ctx);
+            throw ASTWalkException.from(MESSAGE, tokenStream, ctx);
         }
 
-        if ((!ctx.i3.getText().toUpperCase().equals("TO")) &&
-            (!ctx.i3.getText().toUpperCase().equals("PAST"))
-            ) {
-            throw ASTWalkException.from(message, tokenStream, ctx);
+        if ((!ctx.i3.getText().toUpperCase(Locale.ENGLISH).equals("TO")) &&
+            (!ctx.i3.getText().toUpperCase(Locale.ENGLISH).equals("PAST"))) {
+            throw ASTWalkException.from(MESSAGE, tokenStream, ctx);
         }
 
-        if (ctx.i4.getText().toUpperCase().equals("LAST")) {
+        if (ctx.i4.getText().toUpperCase(Locale.ENGLISH).equals("LAST")) {
             return MatchRecognizeSkipEnum.PAST_LAST_ROW;
-        }
-        else if (ctx.i4.getText().toUpperCase().equals("NEXT")) {
+        } else if (ctx.i4.getText().toUpperCase(Locale.ENGLISH).equals("NEXT")) {
             return MatchRecognizeSkipEnum.TO_NEXT_ROW;
-        }
-        else if (ctx.i4.getText().toUpperCase().equals("CURRENT")) {
+        } else if (ctx.i4.getText().toUpperCase(Locale.ENGLISH).equals("CURRENT")) {
             return MatchRecognizeSkipEnum.TO_CURRENT_ROW;
         }
-        throw ASTWalkException.from(message);
+        throw ASTWalkException.from(MESSAGE);
     }
 
     public static RowRegexExprRepeatDesc walkOptionalRepeat(EsperEPL2GrammarParser.MatchRecogPatternRepeatContext ctx, Map<Tree, ExprNode> astExprNodeMap) {

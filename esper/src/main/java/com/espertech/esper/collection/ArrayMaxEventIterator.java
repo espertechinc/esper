@@ -18,43 +18,37 @@ import java.util.NoSuchElementException;
 /**
  * Iterator for iterating over an array of events up to a given max number of events.
  */
-public class ArrayMaxEventIterator implements Iterator<EventBean>
-{
+public class ArrayMaxEventIterator implements Iterator<EventBean> {
     private final EventBean[] events;
     private final int maxNumEvents;
     private int position;
 
     /**
      * Ctor.
-     * @param events to iterate
+     *
+     * @param events       to iterate
      * @param maxNumEvents max to iterate
      */
-    public ArrayMaxEventIterator(EventBean[] events, int maxNumEvents)
-    {
+    public ArrayMaxEventIterator(EventBean[] events, int maxNumEvents) {
         this.events = events;
         this.maxNumEvents = maxNumEvents;
     }
 
-    public boolean hasNext()
-    {
-        if ((events == null) || (position >= events.length) || (position >= maxNumEvents))
-        {
+    public boolean hasNext() {
+        if ((events == null) || (position >= events.length) || (position >= maxNumEvents)) {
             return false;
         }
         return true;
     }
 
-    public EventBean next()
-    {
-        if ((events == null) || (position >= events.length) || (position >= maxNumEvents))
-        {
+    public EventBean next() {
+        if ((events == null) || (position >= events.length) || (position >= maxNumEvents)) {
             throw new NoSuchElementException();
         }
         return events[position++];
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

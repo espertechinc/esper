@@ -18,12 +18,10 @@ import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
-public class TestExprCastNode extends TestCase
-{
+public class TestExprCastNode extends TestCase {
     private ExprCastNode[] castNodes;
 
-    public void setUp()
-    {
+    public void setUp() {
         castNodes = new ExprCastNode[2];
 
         castNodes[0] = new ExprCastNode("long");
@@ -33,10 +31,8 @@ public class TestExprCastNode extends TestCase
         castNodes[1].addChildNode(new SupportExprNode(0x10, byte.class));
     }
 
-    public void testGetType() throws Exception
-    {
-        for (int i = 0; i < castNodes.length; i++)
-        {
+    public void testGetType() throws Exception {
+        for (int i = 0; i < castNodes.length; i++) {
             castNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
@@ -44,26 +40,20 @@ public class TestExprCastNode extends TestCase
         assertEquals(Integer.class, castNodes[1].getTargetType());
     }
 
-    public void testValidate() throws Exception
-    {
+    public void testValidate() throws Exception {
         ExprCastNode castNode = new ExprCastNode("int");
 
         // Test too few nodes under this node
-        try
-        {
+        try {
             castNode.validate(SupportExprValidationContextFactory.makeEmpty());
             fail();
-        }
-        catch (ExprValidationException ex)
-        {
+        } catch (ExprValidationException ex) {
             // Expected
         }
     }
 
-    public void testEvaluate() throws Exception
-    {
-        for (int i = 0; i < castNodes.length; i++)
-        {
+    public void testEvaluate() throws Exception {
+        for (int i = 0; i < castNodes.length; i++) {
             castNodes[i].validate(SupportExprValidationContextFactory.makeEmpty());
         }
 
@@ -71,15 +61,13 @@ public class TestExprCastNode extends TestCase
         assertEquals(16, castNodes[1].getExprEvaluator().evaluate(null, false, null));
     }
 
-    public void testEquals() throws Exception
-    {
+    public void testEquals() throws Exception {
         assertFalse(castNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false)));
         assertFalse(castNodes[0].equalsNode(castNodes[1]));
         assertFalse(castNodes[0].equalsNode(new ExprCastNode("java.lang.Integer")));
     }
 
-    public void testToExpressionString() throws Exception
-    {
+    public void testToExpressionString() throws Exception {
         castNodes[0].validate(SupportExprValidationContextFactory.makeEmpty());
         assertEquals("cast(10,long)", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(castNodes[0]));
     }

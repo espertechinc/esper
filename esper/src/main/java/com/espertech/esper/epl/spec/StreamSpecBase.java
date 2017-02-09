@@ -21,8 +21,7 @@ import java.io.Serializable;
  * Implementation classes for views and patterns add additional information defining the
  * stream of events.
  */
-public abstract class StreamSpecBase implements MetaDefItem, Serializable
-{
+public abstract class StreamSpecBase implements MetaDefItem, Serializable {
     private static final long serialVersionUID = 0L;
 
     private String optionalStreamName;
@@ -31,12 +30,12 @@ public abstract class StreamSpecBase implements MetaDefItem, Serializable
 
     /**
      * Ctor.
+     *
      * @param optionalStreamName - stream name, or null if none supplied
-     * @param viewSpecs - specifies what view to use to derive data
-     * @param streamSpecOptions - indicates additional options such as unidirectional stream or retain-union or retain-intersection
+     * @param viewSpecs          - specifies what view to use to derive data
+     * @param streamSpecOptions  - indicates additional options such as unidirectional stream or retain-union or retain-intersection
      */
-    public StreamSpecBase(String optionalStreamName, ViewSpec[] viewSpecs, StreamSpecOptions streamSpecOptions)
-    {
+    public StreamSpecBase(String optionalStreamName, ViewSpec[] viewSpecs, StreamSpecOptions streamSpecOptions) {
         this.optionalStreamName = optionalStreamName;
         this.viewSpecs = viewSpecs;
         this.streamSpecOptions = streamSpecOptions;
@@ -45,35 +44,34 @@ public abstract class StreamSpecBase implements MetaDefItem, Serializable
     /**
      * Default ctor.
      */
-    public StreamSpecBase()
-    {
+    public StreamSpecBase() {
         viewSpecs = ViewSpec.EMPTY_VIEWSPEC_ARRAY;
     }
 
     /**
      * Returns the name assigned.
+     *
      * @return stream name or null if not assigned
      */
-    public String getOptionalStreamName()
-    {
+    public String getOptionalStreamName() {
         return optionalStreamName;
     }
 
     /**
      * Returns view definitions to use to construct views to derive data on stream.
+     *
      * @return view defs
      */
-    public ViewSpec[] getViewSpecs()
-    {
+    public ViewSpec[] getViewSpecs() {
         return viewSpecs;
     }
 
     /**
      * Returns the options for the stream such as unidirectional, retain-union etc.
+     *
      * @return stream options
      */
-    public StreamSpecOptions getOptions()
-    {
+    public StreamSpecOptions getOptions() {
         return streamSpecOptions;
     }
 }

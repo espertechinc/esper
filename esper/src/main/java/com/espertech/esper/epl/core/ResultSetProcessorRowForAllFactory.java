@@ -21,8 +21,7 @@ import com.espertech.esper.epl.spec.OutputLimitSpec;
  * Result set processor prototype for the case: aggregation functions used in the select clause, and no group-by,
  * and all properties in the select clause are under an aggregation function.
  */
-public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFactory
-{
+public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFactory {
     private final boolean isSelectRStream;
     private final boolean isUnidirectional;
     private final boolean isHistoricalOnly;
@@ -37,8 +36,7 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
                                               boolean isUnidirectional,
                                               boolean isHistoricalOnly,
                                               OutputLimitSpec outputLimitSpec,
-                                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory)
-    {
+                                              ResultSetProcessorHelperFactory resultSetProcessorHelperFactory) {
         this.selectExprProcessor = selectExprProcessor;
         this.optionalHavingNode = optionalHavingNode;
         this.isSelectRStream = isSelectRStream;
@@ -52,8 +50,7 @@ public class ResultSetProcessorRowForAllFactory implements ResultSetProcessorFac
         return new ResultSetProcessorRowForAll(this, selectExprProcessor, orderByProcessor, aggregationService, agentInstanceContext);
     }
 
-    public EventType getResultEventType()
-    {
+    public EventType getResultEventType() {
         return selectExprProcessor.getResultEventType();
     }
 

@@ -11,36 +11,31 @@
 package com.espertech.esper.collection;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
-import com.espertech.esper.supportunit.bean.SupportBean_S0;
 import com.espertech.esper.supportunit.bean.SupportBean;
+import com.espertech.esper.supportunit.bean.SupportBean_S0;
+import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
+import junit.framework.TestCase;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-public class TestTransformEventIterator extends TestCase
-{
+public class TestTransformEventIterator extends TestCase {
     private TransformEventIterator iterator;
 
-    public void testEmpty()
-    {
+    public void testEmpty() {
         iterator = makeIterator(new int[0]);
         assertFalse(iterator.hasNext());
     }
 
-    public void testOne()
-    {
-        iterator = makeIterator(new int[] { 10 });
+    public void testOne() {
+        iterator = makeIterator(new int[]{10});
         assertTrue(iterator.hasNext());
         assertEquals(10, iterator.next().get("id"));
         assertFalse(iterator.hasNext());
     }
 
-    public void testTwo()
-    {
-        iterator = makeIterator(new int[] { 10, 20 });
+    public void testTwo() {
+        iterator = makeIterator(new int[]{10, 20});
         assertTrue(iterator.hasNext());
         assertEquals(10, iterator.next().get("id"));
         assertTrue(iterator.hasNext());
@@ -48,11 +43,9 @@ public class TestTransformEventIterator extends TestCase
         assertFalse(iterator.hasNext());
     }
 
-    private TransformEventIterator makeIterator(int[] values)
-    {
+    private TransformEventIterator makeIterator(int[] values) {
         List<EventBean> events = new LinkedList<EventBean>();
-        for (int i = 0; i < values.length; i++)
-        {
+        for (int i = 0; i < values.length; i++) {
             SupportBean bean = new SupportBean();
             bean.setIntPrimitive(values[i]);
             EventBean theEvent = SupportEventBeanFactory.createObject(bean);
@@ -61,16 +54,13 @@ public class TestTransformEventIterator extends TestCase
         return new TransformEventIterator(events.iterator(), new MyTransform());
     }
 
-    public class MyTransform implements TransformEventMethod
-    {
-        public EventBean transform(EventBean theEvent)
-        {
+    public class MyTransform implements TransformEventMethod {
+        public EventBean transform(EventBean theEvent) {
             Integer value = (Integer) theEvent.get("intPrimitive");
             return SupportEventBeanFactory.createObject(new SupportBean_S0(value));
         }
 
-        public EventBean[] transform(EventBean[] events)
-        {
+        public EventBean[] transform(EventBean[] events) {
             return new EventBean[0];
         }
     }

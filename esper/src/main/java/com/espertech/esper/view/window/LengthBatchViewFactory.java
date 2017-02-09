@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Factory for {@link com.espertech.esper.view.window.TimeBatchView}.
  */
-public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory
-{
+public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindowViewWithPrevious, DataWindowBatchingViewFactory {
     /**
      * The length window size.
      */
@@ -33,13 +32,11 @@ public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindow
 
     private EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         sizeEvaluator = ViewFactorySupport.validateSizeSingleParam(getViewName(), viewFactoryContext, expressionParameters);
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         this.eventType = parentEventType;
     }
 
@@ -47,20 +44,17 @@ public class LengthBatchViewFactory implements DataWindowViewFactory, DataWindow
         return new RelativeAccessByEventNIndexGetterImpl();
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         int size = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceViewFactoryContext.getAgentInstanceContext());
         ViewUpdatedCollection viewUpdatedCollection = agentInstanceViewFactoryContext.getStatementContext().getViewServicePreviousFactory().getOptPreviousExprRelativeAccess(agentInstanceViewFactoryContext);
         if (agentInstanceViewFactoryContext.isRemoveStream()) {
             return new LengthBatchViewRStream(agentInstanceViewFactoryContext, this, size);
-        }
-        else {
+        } else {
             return new LengthBatchView(agentInstanceViewFactoryContext, this, size, viewUpdatedCollection);
         }
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 

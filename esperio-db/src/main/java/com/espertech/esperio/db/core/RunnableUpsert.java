@@ -19,21 +19,18 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class RunnableUpsert implements Runnable
-{
+public class RunnableUpsert implements Runnable {
     private static Logger log = LoggerFactory.getLogger(RunnableUpsert.class);
 
     private final RunnableUpsertContext context;
     private final EventBean theEvent;
 
-    public RunnableUpsert(RunnableUpsertContext context, EventBean theEvent)
-    {
+    public RunnableUpsert(RunnableUpsertContext context, EventBean theEvent) {
         this.context = context;
         this.theEvent = theEvent;
     }
 
-    public void run()
-    {
+    public void run() {
         if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled() && (ExecutionPathDebugLog.isTimerDebugEnabled))) {
             log.debug("Executing upsert work unit for event " + theEvent);
         }
@@ -41,12 +38,11 @@ public class RunnableUpsert implements Runnable
         int retryMax = context.getRetry() == null ? 1 : context.getRetry();
         int retryCount = 0;
 
-        while(true) {
+        while (true) {
             try {
                 tryUpsert();
                 break;
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error("Error in upsert named '" + context.getName() + "' :" + t.getMessage(), t);
                 retryCount++;
                 if (retryCount >= retryMax) {
@@ -58,20 +54,17 @@ public class RunnableUpsert implements Runnable
                     log.warn("Retry upsert named '" + context.getName() + "', retry interval msec " + interval + " retry count " + retryCount + " max " + retryMax);
                     try {
                         Thread.sleep(interval);
-                    }
-                    catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         break;
                     }
-                }
-                else {
-                    log.warn("Retry upsert named '" + context.getName() + "', retry count " + retryCount + " max " + retryMax);                    
+                } else {
+                    log.warn("Retry upsert named '" + context.getName() + "', retry count " + retryCount + " max " + retryMax);
                 }
             }
         }
     }
 
-    private void tryUpsert() throws DatabaseConfigException, SQLException
-    {
+    private void tryUpsert() throws DatabaseConfigException, SQLException {
         Connection connection = context.getConnectionFactory().getConnection();
         try {
             Object[] keys = new Object[context.getKeyGetters().length];
@@ -89,8 +82,7 @@ public class RunnableUpsert implements Runnable
             if (!updated) {
                 context.getTable().insertValue(connection, keys, values);
             }
-        }
-        finally {
+        } finally {
             connection.close();
         }
     }

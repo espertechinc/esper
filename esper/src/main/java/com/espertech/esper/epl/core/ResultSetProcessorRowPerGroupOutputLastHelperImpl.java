@@ -29,7 +29,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
     public void processView(EventBean[] newData, EventBean[] oldData, boolean isGenerateSynthetic) {
         if (newData != null) {
             for (EventBean aNewData : newData) {
-                EventBean[] eventsPerStream = new EventBean[] {aNewData};
+                EventBean[] eventsPerStream = new EventBean[]{aNewData};
                 Object mk = processor.generateGroupKey(eventsPerStream, true);
 
                 // if this is a newly encountered group, generate the remove stream event
@@ -46,7 +46,7 @@ public class ResultSetProcessorRowPerGroupOutputLastHelperImpl implements Result
         }
         if (oldData != null) {
             for (EventBean anOldData : oldData) {
-                EventBean[] eventsPerStream = new EventBean[] {anOldData};
+                EventBean[] eventsPerStream = new EventBean[]{anOldData};
                 Object mk = processor.generateGroupKey(eventsPerStream, true);
 
                 if (groupReps.put(mk, eventsPerStream) == null) {

@@ -15,24 +15,20 @@ import java.io.StringWriter;
 /**
  * Count of (distinct) rows, equivalent to "count(*)"
  */
-public class CountStarProjectionExpression extends ExpressionBase
-{
+public class CountStarProjectionExpression extends ExpressionBase {
     private static final long serialVersionUID = -784442964133996045L;
 
     /**
      * Ctor - for use to create an expression tree, without inner expression.
      */
-    public CountStarProjectionExpression()
-    {
+    public CountStarProjectionExpression() {
     }
 
-    public ExpressionPrecedenceEnum getPrecedence()
-    {
+    public ExpressionPrecedenceEnum getPrecedence() {
         return ExpressionPrecedenceEnum.UNARY;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer) {
         ExpressionBase.renderAggregation(writer, "count", false, this.getChildren());
     }
 }

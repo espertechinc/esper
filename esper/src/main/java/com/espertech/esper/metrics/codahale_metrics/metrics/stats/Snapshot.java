@@ -47,7 +47,7 @@ public class Snapshot {
     /**
      * Create a new {@link Snapshot} with the given values.
      *
-     * @param values    an unordered set of values in the sample
+     * @param values an unordered set of values in the sample
      */
     public Snapshot(Collection<Long> values) {
         final Object[] copy = values.toArray();
@@ -61,7 +61,7 @@ public class Snapshot {
     /**
      * Create a new {@link Snapshot} with the given values.
      *
-     * @param values    an unordered set of values in the sample
+     * @param values an unordered set of values in the sample
      */
     public Snapshot(double[] values) {
         this.values = new double[values.length];
@@ -72,7 +72,7 @@ public class Snapshot {
     /**
      * Returns the value at the given quantile.
      *
-     * @param quantile    a given quantile, in {@code [0..1]}
+     * @param quantile a given quantile, in {@code [0..1]}
      * @return the value in the distribution at {@code quantile}
      */
     public double getValue(double quantile) {

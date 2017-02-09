@@ -18,6 +18,7 @@ import java.util.List;
 public interface ContextPartitionSelectorNested extends ContextPartitionSelector {
     /**
      * Selectors for each level of the nested context.
+     *
      * @return selectors
      */
     public List<ContextPartitionSelector[]> getSelectors();

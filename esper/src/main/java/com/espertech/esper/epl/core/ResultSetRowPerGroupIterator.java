@@ -23,8 +23,7 @@ import java.util.Set;
 /**
  * Iterator for the group-by case with a row per group.
  */
-public class ResultSetRowPerGroupIterator implements Iterator<EventBean>
-{
+public class ResultSetRowPerGroupIterator implements Iterator<EventBean> {
     private final Iterator<EventBean> sourceIterator;
     private final ResultSetProcessorRowPerGroup resultSetProcessor;
     private final AggregationService aggregationService;
@@ -35,13 +34,13 @@ public class ResultSetRowPerGroupIterator implements Iterator<EventBean>
 
     /**
      * Ctor.
-     * @param sourceIterator is the parent view iterator
-     * @param resultSetProcessor for providing results
-     * @param aggregationService for pointing to the right aggregation row
+     *
+     * @param sourceIterator       is the parent view iterator
+     * @param resultSetProcessor   for providing results
+     * @param aggregationService   for pointing to the right aggregation row
      * @param exprEvaluatorContext context for expression evalauation
      */
-    public ResultSetRowPerGroupIterator(Iterator<EventBean> sourceIterator, ResultSetProcessorRowPerGroup resultSetProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public ResultSetRowPerGroupIterator(Iterator<EventBean> sourceIterator, ResultSetProcessorRowPerGroup resultSetProcessor, AggregationService aggregationService, ExprEvaluatorContext exprEvaluatorContext) {
         this.sourceIterator = sourceIterator;
         this.resultSetProcessor = resultSetProcessor;
         this.aggregationService = aggregationService;
@@ -50,31 +49,25 @@ public class ResultSetRowPerGroupIterator implements Iterator<EventBean>
         this.exprEvaluatorContext = exprEvaluatorContext;
     }
 
-    public boolean hasNext()
-    {
-        if (nextResult != null)
-        {
+    public boolean hasNext() {
+        if (nextResult != null) {
             return true;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             return true;
         }
         return false;
     }
 
-    public EventBean next()
-    {
-        if (nextResult != null)
-        {
+    public EventBean next() {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
         }
         findNext();
-        if (nextResult != null)
-        {
+        if (nextResult != null) {
             EventBean result = nextResult;
             nextResult = null;
             return result;
@@ -82,28 +75,27 @@ public class ResultSetRowPerGroupIterator implements Iterator<EventBean>
         throw new NoSuchElementException();
     }
 
-    private void findNext()
-    {
-        while (sourceIterator.hasNext())
-        {
+    private void findNext() {
+        while (sourceIterator.hasNext()) {
             EventBean candidate = sourceIterator.next();
             eventsPerStream[0] = candidate;
 
             Object groupKey = resultSetProcessor.generateGroupKey(eventsPerStream, true);
             aggregationService.setCurrentAccess(groupKey, exprEvaluatorContext.getAgentInstanceId(), null);
 
-            if (resultSetProcessor.getOptionalHavingNode() != null)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qHavingClauseNonJoin(candidate);}
+            if (resultSetProcessor.getOptionalHavingNode() != null) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qHavingClauseNonJoin(candidate);
+                }
                 Boolean pass = (Boolean) resultSetProcessor.getOptionalHavingNode().evaluate(eventsPerStream, true, exprEvaluatorContext);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aHavingClauseJoin(pass);}
-                if (!pass)
-                {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aHavingClauseJoin(pass);
+                }
+                if (!pass) {
                     continue;
                 }
             }
-            if (priorSeenGroups.contains(groupKey))
-            {
+            if (priorSeenGroups.contains(groupKey)) {
                 continue;
             }
             priorSeenGroups.add(groupKey);
@@ -114,8 +106,7 @@ public class ResultSetRowPerGroupIterator implements Iterator<EventBean>
         }
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

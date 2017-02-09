@@ -21,8 +21,7 @@ import java.util.Iterator;
 /**
  * Represents the aggregation accessor that provides the result for the "maxBy" aggregation function.
  */
-public class AggregationAccessorSortedTable implements AggregationAccessor
-{
+public class AggregationAccessorSortedTable implements AggregationAccessor {
     private final boolean max;
     private final Class componentType;
     private final TableMetadata tableMetadata;
@@ -43,13 +42,12 @@ public class AggregationAccessorSortedTable implements AggregationAccessor
         Iterator<EventBean> it;
         if (max) {
             it = sorted.getReverseIterator();
-        }
-        else {
+        } else {
             it = sorted.iterator();
         }
 
         int count = 0;
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             EventBean bean = it.next();
             Object und = tableMetadata.getEventToPublic().convertToUnd(bean, eventsPerStream, isNewData, exprEvaluatorContext);
             Array.set(array, count++, und);

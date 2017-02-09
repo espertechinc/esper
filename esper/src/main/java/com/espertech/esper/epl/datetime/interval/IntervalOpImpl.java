@@ -45,7 +45,7 @@ public class IntervalOpImpl implements IntervalOp {
     private final IntervalOpEval intervalOpEval;
 
     public IntervalOpImpl(DatetimeMethodEnum method, String methodNameUse, StreamTypeService streamTypeService, List<ExprNode> expressions, TimeZone timeZone, TimeAbacus timeAbacus)
-        throws ExprValidationException {
+            throws ExprValidationException {
 
         ExprEvaluator evaluatorEndTimestamp = null;
         Class timestampType;
@@ -67,12 +67,10 @@ public class IntervalOpImpl implements IntervalOp {
                 parameterPropertyEnd = type.getEndTimestampPropertyName();
                 EventPropertyGetter getterEndTimestamp = type.getGetter(type.getEndTimestampPropertyName());
                 evaluatorEndTimestamp = new ExprEvaluatorStreamLongProp(parameterStreamNum, getterEndTimestamp);
-            }
-            else {
+            } else {
                 parameterPropertyEnd = parameterPropertyStart;
             }
-        }
-        else {
+        } else {
             evaluatorTimestamp = expressions.get(0).getExprEvaluator();
             timestampType = evaluatorTimestamp.getType();
 
@@ -105,13 +103,11 @@ public class IntervalOpImpl implements IntervalOp {
                             parameterPropertyEnd = type.getEndTimestampPropertyName();
                             EventPropertyGetter getterEndTimestamp = type.getGetter(type.getEndTimestampPropertyName());
                             evaluatorEndTimestamp = new ExprEvaluatorStreamLongPropFragment(parameterStreamNum, getterFragment, getterEndTimestamp);
-                        }
-                        else {
+                        } else {
                             parameterPropertyEnd = parameterPropertyStart;
                         }
                     }
-                }
-                else {
+                } else {
                     throw new ExprValidationException("For date-time method '" + methodNameUse + "' the first parameter expression returns '" + evaluatorTimestamp.getType() + "', however requires a Date, Calendar, Long-type return value or event (with timestamp)");
                 }
             }
@@ -123,40 +119,29 @@ public class IntervalOpImpl implements IntervalOp {
         if (evaluatorEndTimestamp == null) {
             if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, Calendar.class)) {
                 intervalOpEval = new IntervalOpEvalCal(intervalComputer);
-            }
-            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, Date.class)) {
+            } else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, Date.class)) {
                 intervalOpEval = new IntervalOpEvalDate(intervalComputer);
-            }
-            else if (JavaClassHelper.getBoxedType(timestampType) == Long.class) {
+            } else if (JavaClassHelper.getBoxedType(timestampType) == Long.class) {
                 intervalOpEval = new IntervalOpEvalLong(intervalComputer);
-            }
-            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, LocalDateTime.class)) {
+            } else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, LocalDateTime.class)) {
                 intervalOpEval = new IntervalOpEvalLocalDateTime(intervalComputer, timeZone);
-            }
-            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, ZonedDateTime.class)) {
+            } else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, ZonedDateTime.class)) {
                 intervalOpEval = new IntervalOpEvalZonedDateTime(intervalComputer);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Invalid interval first parameter type '" + timestampType + "'");
             }
-        }
-        else {
+        } else {
             if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, Calendar.class)) {
                 intervalOpEval = new IntervalOpEvalCalWithEnd(intervalComputer, evaluatorEndTimestamp);
-            }
-            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, Date.class)) {
+            } else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, Date.class)) {
                 intervalOpEval = new IntervalOpEvalDateWithEnd(intervalComputer, evaluatorEndTimestamp);
-            }
-            else if (JavaClassHelper.getBoxedType(timestampType) == Long.class) {
+            } else if (JavaClassHelper.getBoxedType(timestampType) == Long.class) {
                 intervalOpEval = new IntervalOpEvalLongWithEnd(intervalComputer, evaluatorEndTimestamp);
-            }
-            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, LocalDateTime.class)) {
+            } else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, LocalDateTime.class)) {
                 intervalOpEval = new IntervalOpEvalLocalDateTimeWithEnd(intervalComputer, evaluatorEndTimestamp, timeZone);
-            }
-            else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, ZonedDateTime.class)) {
+            } else if (JavaClassHelper.isSubclassOrImplementsInterface(timestampType, ZonedDateTime.class)) {
                 intervalOpEval = new IntervalOpEvalZonedDateTimeWithEnd(intervalComputer, evaluatorEndTimestamp);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Invalid interval first parameter type '" + timestampType + "'");
             }
         }
@@ -165,11 +150,11 @@ public class IntervalOpImpl implements IntervalOp {
     /**
      * Obtain information used by filter analyzer to handle this dot-method invocation as part of query planning/indexing.
      *
-     * @param typesPerStream event types
-     * @param currentMethod current method
+     * @param typesPerStream    event types
+     * @param currentMethod     current method
      * @param currentParameters current params
-     * @param inputDesc descriptor of what the input to this interval method is
-     * */
+     * @param inputDesc         descriptor of what the input to this interval method is
+     */
     public ExprDotNodeFilterAnalyzerDTIntervalDesc getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
 
         // with intervals is not currently query planned
@@ -187,14 +172,12 @@ public class IntervalOpImpl implements IntervalOp {
             EventType targetType = typesPerStream[targetStreamNum];
             targetPropertyStart = targetType.getStartTimestampPropertyName();
             targetPropertyEnd = targetType.getEndTimestampPropertyName() != null ? targetType.getEndTimestampPropertyName() : targetPropertyStart;
-        }
-        else if (inputDesc instanceof ExprDotNodeFilterAnalyzerInputProp) {
+        } else if (inputDesc instanceof ExprDotNodeFilterAnalyzerInputProp) {
             ExprDotNodeFilterAnalyzerInputProp targetStream = (ExprDotNodeFilterAnalyzerInputProp) inputDesc;
             targetStreamNum = targetStream.getStreamNum();
             targetPropertyStart = targetStream.getPropertyName();
             targetPropertyEnd = targetStream.getPropertyName();
-        }
-        else {
+        } else {
             return null;
         }
 

@@ -19,8 +19,7 @@ import java.io.StringWriter;
  * For example:
  * <pre>select streamOne.* from StreamOne as streamOne, StreamTwo as streamTwo</pre>
  */
-public class SelectClauseStreamWildcard implements SelectClauseElement
-{
+public class SelectClauseStreamWildcard implements SelectClauseElement {
     private String streamName;
     private String optionalColumnName;
     private static final long serialVersionUID = -1827870385836445548L;
@@ -33,36 +32,37 @@ public class SelectClauseStreamWildcard implements SelectClauseElement
 
     /**
      * Ctor.
-     * @param streamName is the name assigned to a stream
+     *
+     * @param streamName         is the name assigned to a stream
      * @param optionalColumnName is the name to assign to the column carrying the streams generated events, or
-     * null if the event should not appear in a column
+     *                           null if the event should not appear in a column
      */
-    public SelectClauseStreamWildcard(String streamName, String optionalColumnName)
-    {
+    public SelectClauseStreamWildcard(String streamName, String optionalColumnName) {
         this.streamName = streamName;
         this.optionalColumnName = optionalColumnName;
     }
 
     /**
      * Returns the stream name (e.g. select streamName.* as colName from MyStream as streamName)
+     *
      * @return name
      */
-    public String getStreamName()
-    {
+    public String getStreamName() {
         return streamName;
     }
 
     /**
      * Returns the optional column name (e.g. select streamName.* as colName from MyStream as streamName)
+     *
      * @return name of column, or null if none defined
      */
-    public String getOptionalColumnName()
-    {
+    public String getOptionalColumnName() {
         return optionalColumnName;
     }
 
     /**
      * Sets the stream name.
+     *
      * @param streamName stream name
      */
     public void setStreamName(String streamName) {
@@ -71,6 +71,7 @@ public class SelectClauseStreamWildcard implements SelectClauseElement
 
     /**
      * Sets the column name.
+     *
      * @param optionalColumnName column name
      */
     public void setOptionalColumnName(String optionalColumnName) {
@@ -79,14 +80,13 @@ public class SelectClauseStreamWildcard implements SelectClauseElement
 
     /**
      * Renders the element in textual representation.
+     *
      * @param writer to output to
      */
-    public void toEPLElement(StringWriter writer)
-    {
+    public void toEPLElement(StringWriter writer) {
         writer.write(streamName);
         writer.write(".*");
-        if (optionalColumnName != null)
-        {
+        if (optionalColumnName != null) {
             writer.write(" as ");
             writer.write(optionalColumnName);
         }

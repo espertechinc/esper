@@ -14,9 +14,10 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.rettype.EPType;
 
-public interface ExprDotEval
-{
+public interface ExprDotEval {
     public Object evaluate(Object target, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext);
+
     public EPType getTypeInfo();
+
     public void visit(ExprDotEvalVisitor visitor);
 }

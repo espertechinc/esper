@@ -12,13 +12,13 @@ package com.espertech.esper.epl.enummethod.eval;
 
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalEnumMethodBase;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParam;
 import com.espertech.esper.epl.enummethod.dot.ExprDotEvalParamLambda;
-import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeUtility;
+import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventType;
 import com.espertech.esper.util.JavaClassHelper;
@@ -31,15 +31,14 @@ public class ExprDotEvalAggregate extends ExprDotEvalEnumMethodBase {
         EventType evalEventType;
         if (inputEventType == null) {
             evalEventType = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(1), collectionComponentType, eventAdapterService);
-        }
-        else {
+        } else {
             evalEventType = inputEventType;
         }
 
         Class initializationType = bodiesAndParameters.get(0).getBodyEvaluator().getType();
         EventType typeResult = ExprDotNodeUtility.makeTransientOAType(enumMethodUsedName, goesToNames.get(0), initializationType, eventAdapterService);
 
-        return new EventType[] {typeResult, evalEventType};
+        return new EventType[]{typeResult, evalEventType};
     }
 
     public EnumEval getEnumEval(EngineImportService engineImportService, EventAdapterService eventAdapterService, StreamTypeService streamTypeService, int statementId, String enumMethodUsedName, List<ExprDotEvalParam> bodiesAndParameters, EventType inputEventType, Class collectionComponentType, int numStreamsIncoming, boolean disablePropertyExpressionEventCollCache) {
@@ -53,8 +52,7 @@ public class ExprDotEvalAggregate extends ExprDotEvalEnumMethodBase {
             return new EnumEvalAggregateEvents(initValueEval,
                     resultAndAdd.getBodyEvaluator(), resultAndAdd.getStreamCountIncoming(),
                     (ObjectArrayEventType) resultAndAdd.getGoesToTypes()[0]);
-        }
-        else {
+        } else {
             return new EnumEvalAggregateScalar(initValueEval,
                     resultAndAdd.getBodyEvaluator(), resultAndAdd.getStreamCountIncoming(),
                     (ObjectArrayEventType) resultAndAdd.getGoesToTypes()[0],

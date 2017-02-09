@@ -19,8 +19,7 @@ import com.espertech.esper.util.NullableObject;
 /**
  * Merge-event for event revisions.
  */
-public class RevisionEventBeanMerge implements EventBean
-{
+public class RevisionEventBeanMerge implements EventBean {
     private final RevisionEventType revisionEventType;
     private final EventBean underlyingFullOrDelta;
 
@@ -31,147 +30,140 @@ public class RevisionEventBeanMerge implements EventBean
 
     /**
      * Ctor.
+     *
      * @param revisionEventType type
-     * @param underlyingFull event wrapped
+     * @param underlyingFull    event wrapped
      */
-    public RevisionEventBeanMerge(RevisionEventType revisionEventType, EventBean underlyingFull)
-    {
+    public RevisionEventBeanMerge(RevisionEventType revisionEventType, EventBean underlyingFull) {
         this.revisionEventType = revisionEventType;
         this.underlyingFullOrDelta = underlyingFull;
     }
 
     /**
      * Sets merged values.
+     *
      * @param overlay merged values
      */
-    public void setOverlay(NullableObject<Object>[] overlay)
-    {
+    public void setOverlay(NullableObject<Object>[] overlay) {
         this.overlay = overlay;
     }
 
     /**
      * Returns flag indicated latest or not.
+     *
      * @return latest flag
      */
-    public boolean isLatest()
-    {
+    public boolean isLatest() {
         return latest;
     }
 
     /**
      * Sets flag indicating latest or not.
+     *
      * @param latest flag
      */
-    public void setLatest(boolean latest)
-    {
+    public void setLatest(boolean latest) {
         this.latest = latest;
     }
 
     /**
      * Returns the key.
+     *
      * @return key
      */
-    public Object getKey()
-    {
+    public Object getKey() {
         return key;
     }
 
     /**
      * Sets the key.
+     *
      * @param key to set
      */
-    public void setKey(Object key)
-    {
+    public void setKey(Object key) {
         this.key = key;
     }
 
     /**
      * Returns overlay values.
+     *
      * @return overlay
      */
-    public Object[] getOverlay()
-    {
+    public Object[] getOverlay() {
         return overlay;
     }
 
     /**
      * Returns last base event.
+     *
      * @return base event
      */
-    public EventBean getLastBaseEvent()
-    {
+    public EventBean getLastBaseEvent() {
         return lastBaseEvent;
     }
 
     /**
      * Sets last base event.
+     *
      * @param lastBaseEvent to set
      */
-    public void setLastBaseEvent(EventBean lastBaseEvent)
-    {
+    public void setLastBaseEvent(EventBean lastBaseEvent) {
         this.lastBaseEvent = lastBaseEvent;
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return revisionEventType;
     }
 
-    public Object get(String property) throws PropertyAccessException
-    {
+    public Object get(String property) throws PropertyAccessException {
         EventPropertyGetter getter = revisionEventType.getGetter(property);
-        if (getter == null)
-        {
+        if (getter == null) {
             return null;
         }
         return getter.get(this);
     }
 
-    public Object getUnderlying()
-    {
+    public Object getUnderlying() {
         return RevisionEventBeanMerge.class;
     }
 
     /**
      * Returns wrapped event
+     *
      * @return event
      */
-    public EventBean getUnderlyingFullOrDelta()
-    {
+    public EventBean getUnderlyingFullOrDelta() {
         return underlyingFullOrDelta;
     }
 
     /**
      * Returns base event value.
+     *
      * @param parameters supplies getter
      * @return value
      */
-    public Object getBaseEventValue(RevisionGetterParameters parameters)
-    {
+    public Object getBaseEventValue(RevisionGetterParameters parameters) {
         return parameters.getBaseGetter().get(lastBaseEvent);
     }
 
     /**
      * Returns a versioned value.
+     *
      * @param parameters getter and indexes
      * @return value
      */
-    public Object getVersionedValue(RevisionGetterParameters parameters)
-    {
+    public Object getVersionedValue(RevisionGetterParameters parameters) {
         int propertyNumber = parameters.getPropertyNumber();
 
-        if (overlay != null)
-        {
+        if (overlay != null) {
             NullableObject<Object> value = overlay[propertyNumber];
-            if (value != null)
-            {
+            if (value != null) {
                 return value.getObject();
             }
         }
 
         EventPropertyGetter getter = parameters.getBaseGetter();
-        if (getter == null)
-        {
+        if (getter == null) {
             return null;  // The property was added by a delta event and only exists on a delta
         }
         if (lastBaseEvent != null) {
@@ -180,11 +172,9 @@ public class RevisionEventBeanMerge implements EventBean
         return null;
     }
 
-    public Object getFragment(String propertyExpression)
-    {
+    public Object getFragment(String propertyExpression) {
         EventPropertyGetter getter = revisionEventType.getGetter(propertyExpression);
-        if (getter == null)
-        {
+        if (getter == null) {
             return null;
         }
         return getter.getFragment(this);

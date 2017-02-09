@@ -14,20 +14,19 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.join.rep.Node;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Interface for indicating a result in the form of a single row of multiple events, which could
  * represent either a full result over all streams or a partial result over a subset of streams.
  */
-public interface ResultAssembler
-{
+public interface ResultAssembler {
     /**
      * Publish a result row.
-     * @param row is the result to publish
-     * @param fromStreamNum is the originitor that publishes the row
-     * @param myEvent is optional and is the event that led to the row result
-     * @param myNode is optional and is the result node of the event that led to the row result
+     *
+     * @param row             is the result to publish
+     * @param fromStreamNum   is the originitor that publishes the row
+     * @param myEvent         is optional and is the event that led to the row result
+     * @param myNode          is optional and is the result node of the event that led to the row result
      * @param resultFinalRows is the final result rows
      * @param resultRootEvent root event
      */

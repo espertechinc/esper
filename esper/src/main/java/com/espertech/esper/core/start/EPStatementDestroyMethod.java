@@ -13,8 +13,7 @@ package com.espertech.esper.core.start;
 /**
  * Method to call to destroy an EPStatement.
  */
-public interface EPStatementDestroyMethod
-{
+public interface EPStatementDestroyMethod {
     /**
      * Destroys a statement.
      */

@@ -13,11 +13,9 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
-import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 
-public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter
-{
+public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter {
     private final String propertyName;
 
     public AvroEventBeanGetterSimpleDynamic(String propertyName) {
@@ -28,8 +26,7 @@ public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter
         return record.get(propertyName);
     }
 
-    public Object get(EventBean theEvent)
-    {
+    public Object get(EventBean theEvent) {
         return getAvroFieldValue((GenericData.Record) theEvent.getUnderlying());
     }
 

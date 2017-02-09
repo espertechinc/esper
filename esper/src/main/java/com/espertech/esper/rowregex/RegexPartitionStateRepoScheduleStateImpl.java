@@ -35,16 +35,13 @@ public class RegexPartitionStateRepoScheduleStateImpl implements RegexPartitionS
             return true;
         }
 
-        if (value instanceof RegexNFAStateEntry)
-        {
+        if (value instanceof RegexNFAStateEntry) {
             RegexNFAStateEntry valueEntry = (RegexNFAStateEntry) value;
             List<RegexNFAStateEntry> list = new ArrayList<RegexNFAStateEntry>();
             list.add(valueEntry);
             list.add(state);
             schedule.put(matchBeginTime, list);
-        }
-        else
-        {
+        } else {
             List<RegexNFAStateEntry> list = (List<RegexNFAStateEntry>) value;
             list.add(state);
         }
@@ -67,8 +64,7 @@ public class RegexPartitionStateRepoScheduleStateImpl implements RegexPartitionS
         }
         if (found instanceof RegexNFAStateEntry) {
             foundStates.add((RegexNFAStateEntry) found);
-        }
-        else {
+        } else {
             foundStates.addAll((List<RegexNFAStateEntry>) found);
         }
     }
@@ -95,7 +91,7 @@ public class RegexPartitionStateRepoScheduleStateImpl implements RegexPartitionS
         List<RegexNFAStateEntry> entries = (List<RegexNFAStateEntry>) entry;
         Iterator<RegexNFAStateEntry> it = entries.iterator();
         boolean removed = false;
-        for (;it.hasNext();) {
+        for (; it.hasNext(); ) {
             RegexNFAStateEntry endState = it.next();
             if (terminationStateCompare.compareTerminationStateToEndState(state, endState)) {
                 it.remove();

@@ -10,17 +10,14 @@
  */
 package com.espertech.esperio.db.config;
 
-public class Executor
-{
+public class Executor {
     private int numThreads;
 
-    public Executor(int numThreads)
-    {
+    public Executor(int numThreads) {
         this.numThreads = numThreads;
     }
 
-    public Executor()
-    {
+    public Executor() {
     }
 
     public int getNumThreads() {

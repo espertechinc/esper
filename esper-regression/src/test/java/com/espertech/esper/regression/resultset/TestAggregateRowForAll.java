@@ -239,8 +239,8 @@ public class TestAggregateRowForAll extends TestCase
         sendEvent("A", 20);
         assertTrue(listener.getAndClearIsInvoked());
         assertEquals(2, listener.getLastNewData().length);
-        assertEquals(15.0, listener.getLastNewData()[0].get("aprice"));//A
-        assertEquals(null, listener.getLastNewData()[1].get("aprice"));//B
+        assertEquals(15.0, listener.getLastNewData()[0].get("aprice")); //A
+        assertEquals(null, listener.getLastNewData()[1].get("aprice")); //B
     }
 
     private Object sendEvent(String symbol, double price) {

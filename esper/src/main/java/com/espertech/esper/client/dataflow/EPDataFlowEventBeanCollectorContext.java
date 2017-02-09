@@ -16,7 +16,7 @@ import com.espertech.esper.dataflow.interfaces.EPDataFlowEmitter;
 /**
  * For use with {@link EPDataFlowEventBeanCollector} provides collection context.
  * <p>
- *     Do not retain handles to this instance as its contents may change.
+ * Do not retain handles to this instance as its contents may change.
  * </p>
  */
 public class EPDataFlowEventBeanCollectorContext {
@@ -26,9 +26,10 @@ public class EPDataFlowEventBeanCollectorContext {
 
     /**
      * Ctor.
-     * @param emitter to emit into the data flow
+     *
+     * @param emitter         to emit into the data flow
      * @param submitEventBean indicator whether to submit EventBean or underlying events
-     * @param event to process
+     * @param event           to process
      */
     public EPDataFlowEventBeanCollectorContext(EPDataFlowEmitter emitter, boolean submitEventBean, EventBean event) {
         this.emitter = emitter;
@@ -38,6 +39,7 @@ public class EPDataFlowEventBeanCollectorContext {
 
     /**
      * Returns the event to process.
+     *
      * @return event
      */
     public EventBean getEvent() {
@@ -46,6 +48,7 @@ public class EPDataFlowEventBeanCollectorContext {
 
     /**
      * Sets the event to process.
+     *
      * @param event to process
      */
     public void setEvent(EventBean event) {
@@ -54,6 +57,7 @@ public class EPDataFlowEventBeanCollectorContext {
 
     /**
      * Returns the emitter.
+     *
      * @return emitter
      */
     public EPDataFlowEmitter getEmitter() {
@@ -62,6 +66,7 @@ public class EPDataFlowEventBeanCollectorContext {
 
     /**
      * Returns true to submit EventBean instances, false to submit underlying event.
+     *
      * @return indicator whether wrapper required or not
      */
     public boolean isSubmitEventBean() {

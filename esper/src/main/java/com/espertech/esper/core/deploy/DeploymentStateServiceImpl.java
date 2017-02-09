@@ -13,58 +13,51 @@ package com.espertech.esper.core.deploy;
 import com.espertech.esper.client.deploy.DeploymentInformation;
 import com.espertech.esper.util.UuidGenerator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation for storing deployment state.
  */
-public class DeploymentStateServiceImpl implements DeploymentStateService
-{
+public class DeploymentStateServiceImpl implements DeploymentStateService {
     private final Map<String, DeploymentInformation> deployments;
 
-    public DeploymentStateServiceImpl()
-    {
+    public DeploymentStateServiceImpl() {
         deployments = new ConcurrentHashMap<String, DeploymentInformation>();
     }
 
-    public String nextDeploymentId()
-    {
+    public String nextDeploymentId() {
         return UuidGenerator.generate();
     }
 
-    public synchronized DeploymentInformation[] getAllDeployments()
-    {
+    public synchronized DeploymentInformation[] getAllDeployments() {
         Collection<DeploymentInformation> dep = deployments.values();
         return dep.toArray(new DeploymentInformation[dep.size()]);
     }
 
-    public synchronized void addUpdateDeployment(DeploymentInformation descriptor)
-    {
+    public synchronized void addUpdateDeployment(DeploymentInformation descriptor) {
         deployments.put(descriptor.getDeploymentId(), descriptor);
     }
 
-    public synchronized void remove(String deploymentId)
-    {
+    public synchronized void remove(String deploymentId) {
         deployments.remove(deploymentId);
     }
 
-    public synchronized String[] getDeployments()
-    {
+    public synchronized String[] getDeployments() {
         Set<String> keys = deployments.keySet();
         return keys.toArray(new String[keys.size()]);
     }
 
-    public synchronized DeploymentInformation getDeployment(String deploymentId)
-    {
+    public synchronized DeploymentInformation getDeployment(String deploymentId) {
         if (deploymentId == null) {
             return null;
         }
         return deployments.get(deploymentId);
     }
 
-    public synchronized void destroy()
-    {
+    public synchronized void destroy() {
         deployments.clear();
     }
 }

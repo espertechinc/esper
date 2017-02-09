@@ -17,6 +17,8 @@ import java.util.List;
 public interface StatementAgentInstancePostLoadIndexVisitor {
 
     public void visit(EventTable[][] repositories);
+
     public void visit(List<EventTable> tables);
+
     public void visit(EventTable index);
 }

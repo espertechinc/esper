@@ -13,30 +13,26 @@ package com.espertech.esper.epl.metric;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import junit.framework.TestCase;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class TestMetricScheduleService extends TestCase
-{
+public class TestMetricScheduleService extends TestCase {
     private MetricScheduleService svc;
     private SupportMetricExecution execs[];
     private List<MetricExec> executions;
 
-    public void setUp()
-    {
+    public void setUp() {
         svc = new MetricScheduleService();
 
         execs = new SupportMetricExecution[100];
-        for (int i = 0; i < execs.length; i++)
-        {
+        for (int i = 0; i < execs.length; i++) {
             execs[i] = new SupportMetricExecution();
         }
 
         executions = new ArrayList<MetricExec>();
     }
 
-    public void testFlow()
-    {
+    public void testFlow() {
         svc.setTime(1000);
         assertNull(svc.getNearestTime());
 
@@ -66,7 +62,7 @@ public class TestMetricScheduleService extends TestCase
         svc.setTime(2999);
         svc.evaluate(executions);
         assertTrue(executions.isEmpty());
-        
+
         svc.setTime(3000);
         svc.evaluate(executions);
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{execs[0], execs[2]}, executions.iterator());

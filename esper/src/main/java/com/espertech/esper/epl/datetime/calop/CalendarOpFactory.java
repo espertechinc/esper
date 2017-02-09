@@ -21,7 +21,7 @@ import java.util.List;
 public class CalendarOpFactory implements OpFactory {
 
     public CalendarOp getOp(DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters, ExprEvaluator[] evaluators)
-        throws ExprValidationException {
+            throws ExprValidationException {
         if (method == DatetimeMethodEnum.WITHTIME) {
             return new CalendarOpWithTime(evaluators[0], evaluators[1], evaluators[2], evaluators[3]);
         }
@@ -32,19 +32,18 @@ public class CalendarOpFactory implements OpFactory {
             return new CalendarOpPlusMinus(evaluators[0], method == DatetimeMethodEnum.MINUS ? -1 : 1);
         }
         if (method == DatetimeMethodEnum.WITHMAX ||
-            method == DatetimeMethodEnum.WITHMIN ||
-            method == DatetimeMethodEnum.ROUNDCEILING ||
-            method == DatetimeMethodEnum.ROUNDFLOOR ||
-            method == DatetimeMethodEnum.ROUNDHALF ||
-            method == DatetimeMethodEnum.SET) {
+                method == DatetimeMethodEnum.WITHMIN ||
+                method == DatetimeMethodEnum.ROUNDCEILING ||
+                method == DatetimeMethodEnum.ROUNDFLOOR ||
+                method == DatetimeMethodEnum.ROUNDHALF ||
+                method == DatetimeMethodEnum.SET) {
             CalendarFieldEnum fieldNum = CalendarOpUtil.getEnum(methodNameUsed, parameters.get(0));
             if (method == DatetimeMethodEnum.WITHMIN) {
                 return new CalendarOpWithMin(fieldNum);
             }
             if (method == DatetimeMethodEnum.ROUNDCEILING || method == DatetimeMethodEnum.ROUNDFLOOR || method == DatetimeMethodEnum.ROUNDHALF) {
                 return new CalendarOpRound(fieldNum, method);
-            }
-            else if (method == DatetimeMethodEnum.SET) {
+            } else if (method == DatetimeMethodEnum.SET) {
                 return new CalendarOpSet(fieldNum, evaluators[1]);
             }
             return new CalendarOpWithMax(fieldNum);

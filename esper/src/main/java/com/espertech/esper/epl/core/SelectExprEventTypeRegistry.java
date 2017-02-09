@@ -17,8 +17,7 @@ import com.espertech.esper.event.EventTypeSPI;
 /**
  * Registry for event types creates as part of the select expression analysis.
  */
-public class SelectExprEventTypeRegistry
-{
+public class SelectExprEventTypeRegistry {
     private final String statementName;
     private final StatementEventTypeRef statementEventTypeRef;
 
@@ -29,12 +28,11 @@ public class SelectExprEventTypeRegistry
 
     /**
      * Adds an event type.
+     *
      * @param eventType to add
      */
-    public void add(EventType eventType)
-    {
-        if (!(eventType instanceof EventTypeSPI))
-        {
+    public void add(EventType eventType) {
+        if (!(eventType instanceof EventTypeSPI)) {
             return;
         }
         statementEventTypeRef.addReferences(statementName, new String[]{((EventTypeSPI) eventType).getMetadata().getPrimaryName()});

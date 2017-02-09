@@ -20,15 +20,13 @@ import com.espertech.esper.core.service.InternalEventRouter;
 import com.espertech.esper.core.service.StatementResultService;
 import com.espertech.esper.epl.core.ResultSetProcessor;
 import com.espertech.esper.epl.lookup.SubordWMatchExprLookupStrategy;
-import com.espertech.esper.epl.table.mgmt.TableService;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.event.EventBeanReader;
 
 /**
  * View for the on-select statement that handles selecting events from a named window.
  */
-public class NamedWindowOnSelectViewFactory extends NamedWindowOnExprBaseViewFactory
-{
+public class NamedWindowOnSelectViewFactory extends NamedWindowOnExprBaseViewFactory {
     private final InternalEventRouter internalEventRouter;
     private final boolean addToFront;
     private final EPStatementHandle statementHandle;

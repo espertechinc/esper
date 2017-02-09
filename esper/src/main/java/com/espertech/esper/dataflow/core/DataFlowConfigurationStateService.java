@@ -15,8 +15,12 @@ import com.espertech.esper.client.dataflow.EPDataFlowSavedConfiguration;
 public interface DataFlowConfigurationStateService {
 
     public boolean exists(String savedConfigName);
+
     public void add(EPDataFlowSavedConfiguration epDataFlowSavedConfiguration);
+
     public String[] getSavedConfigNames();
+
     public EPDataFlowSavedConfiguration getSavedConfig(String savedConfigName);
+
     public Object removePrototype(String savedConfigName);
 }

@@ -16,6 +16,8 @@ import net.sf.cglib.reflect.FastMethod;
 
 public interface SubmitHandler extends EPDataFlowEmitter {
     public void submitInternal(Object object);
+
     public void handleSignal(EPDataFlowSignal signal);
+
     public FastMethod getFastMethod();
 }

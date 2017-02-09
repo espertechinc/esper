@@ -12,19 +12,18 @@ package com.espertech.esper.core.service;
 
 import com.espertech.esper.client.EventBean;
 
-import java.util.Collection;
-import java.util.Deque;
-
 /**
  * On the level of expression declaration:
  * a) for non-enum evaluation and for enum-evaluation a separate cache
  * b) The cache is keyed by the prototype-node and verified by a events-per-stream (EventBean[]) that is maintained or rewritten.
-
+ * <p>
  * NOTE: ExpressionResultCacheEntry should not be held onto since the instance returned can be reused.
  */
 public interface ExpressionResultCacheForDeclaredExprLastValue {
 
     boolean cacheEnabled();
+
     ExpressionResultCacheEntry<EventBean[], Object> getDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream);
+
     void saveDeclaredExpressionLastValue(Object node, EventBean[] eventsPerStream, Object result);
 }

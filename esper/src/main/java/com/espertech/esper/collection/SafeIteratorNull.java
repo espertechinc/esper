@@ -15,33 +15,27 @@ import com.espertech.esper.client.SafeIterator;
 
 import java.util.NoSuchElementException;
 
-public class SafeIteratorNull<E> implements SafeIterator<E>
-{
+public class SafeIteratorNull<E> implements SafeIterator<E> {
     public static final SafeIterator<EventBean> NULL_EVENT_ITER = new SafeIteratorNull<EventBean>();
 
     /**
      * Ctor.
      */
-    public SafeIteratorNull()
-    {
+    public SafeIteratorNull() {
     }
 
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         return false;
     }
 
-    public E next()
-    {
+    public E next() {
         throw new NoSuchElementException();
     }
 
-    public void close()
-    {
+    public void close() {
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException("Remove operation not supported");
     }
 }

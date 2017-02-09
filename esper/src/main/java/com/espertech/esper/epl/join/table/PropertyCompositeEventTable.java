@@ -16,24 +16,25 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.Map;
 
-public abstract class PropertyCompositeEventTable implements EventTable
-{
+public abstract class PropertyCompositeEventTable implements EventTable {
     private final Class[] optKeyCoercedTypes;
     private final Class[] optRangeCoercedTypes;
     private final EventTableOrganization organization;
 
     public abstract Map<Object, Object> getIndex();
+
     public abstract CompositeIndexQueryResultPostProcessor getPostProcessor();
 
-    public PropertyCompositeEventTable(Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization)
-    {
+    public PropertyCompositeEventTable(Class[] optKeyCoercedTypes, Class[] optRangeCoercedTypes, EventTableOrganization organization) {
         this.optKeyCoercedTypes = optKeyCoercedTypes;
         this.optRangeCoercedTypes = optRangeCoercedTypes;
         this.organization = organization;
     }
 
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
+        }
         if (newData != null) {
             for (EventBean theEvent : newData) {
                 add(theEvent);
@@ -44,17 +45,19 @@ public abstract class PropertyCompositeEventTable implements EventTable
                 remove(theEvent);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexAddRemove();
+        }
     }
 
     /**
      * Add an array of events. Same event instance is not added twice. Event properties should be immutable.
      * Allow null passed instead of an empty array.
+     *
      * @param events to add
      * @throws IllegalArgumentException if the event was already existed in the index
      */
-    public void add(EventBean[] events)
-    {
+    public void add(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -74,11 +77,11 @@ public abstract class PropertyCompositeEventTable implements EventTable
 
     /**
      * Remove events.
+     *
      * @param events to be removed, can be null instead of an empty array.
      * @throws IllegalArgumentException when the event could not be removed as its not in the index
      */
-    public void remove(EventBean[] events)
-    {
+    public void remove(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -100,8 +103,7 @@ public abstract class PropertyCompositeEventTable implements EventTable
         return toQueryPlan();
     }
 
-    public String toQueryPlan()
-    {
+    public String toQueryPlan() {
         return this.getClass().getName();
     }
 

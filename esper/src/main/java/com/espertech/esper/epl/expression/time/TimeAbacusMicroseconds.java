@@ -47,6 +47,6 @@ public class TimeAbacusMicroseconds implements TimeAbacus {
     }
 
     public Date toDate(long ts) {
-        return new Date(ts/1000);
+        return new Date(ts / 1000);
     }
 }

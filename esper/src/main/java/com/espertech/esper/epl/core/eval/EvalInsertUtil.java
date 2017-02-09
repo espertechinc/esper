@@ -17,9 +17,9 @@ public class EvalInsertUtil {
 
     public static ExprValidationException makeEventTypeCastException(EventType sourceType, EventType targetType) {
         return new ExprValidationException("Expression-returned event type '" + sourceType.getName() +
-                    "' with underlying type '" + sourceType.getUnderlyingType().getName() +
-                    "' cannot be converted to target event type '" + targetType.getName() +
-                    "' with underlying type '" + targetType.getUnderlyingType().getName() + "'");
+                "' with underlying type '" + sourceType.getUnderlyingType().getName() +
+                "' cannot be converted to target event type '" + targetType.getName() +
+                "' with underlying type '" + targetType.getUnderlyingType().getName() + "'");
     }
 
     public static ExprValidationException makeEventTypeCastException(Class sourceType, EventType targetType) {

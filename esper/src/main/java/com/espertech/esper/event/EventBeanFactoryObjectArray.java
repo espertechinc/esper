@@ -14,8 +14,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventBeanFactory;
 import com.espertech.esper.client.EventType;
 
-import java.util.Map;
-
 public class EventBeanFactoryObjectArray implements EventBeanFactory {
     private final EventType type;
     private final EventAdapterService eventAdapterService;

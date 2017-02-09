@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.db;
 
 import com.espertech.esper.client.ConfigurationDBRef;
-import com.espertech.esper.client.util.ClassForNameProviderDefault;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.support.SupportEngineImportServiceFactory;
 import com.espertech.esper.core.support.SupportStatementContextFactory;
@@ -28,12 +27,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class TestDatabaseServiceImpl extends TestCase
-{
+public class TestDatabaseServiceImpl extends TestCase {
     private DatabaseConfigServiceImpl databaseServiceImpl;
 
-    public void setUp()
-    {
+    public void setUp() {
         Map<String, ConfigurationDBRef> configs = new HashMap<String, ConfigurationDBRef>();
 
         ConfigurationDBRef config = new ConfigurationDBRef();
@@ -54,8 +51,7 @@ public class TestDatabaseServiceImpl extends TestCase
         databaseServiceImpl = new DatabaseConfigServiceImpl(configs, schedulingService, new ScheduleBucket(1), SupportEngineImportServiceFactory.make());
     }
 
-    public void testGetConnection() throws Exception
-    {
+    public void testGetConnection() throws Exception {
         DatabaseConnectionFactory factory = databaseServiceImpl.getConnectionFactory("name1");
         assertTrue(factory instanceof DatabaseDMConnFactory);
 
@@ -63,8 +59,7 @@ public class TestDatabaseServiceImpl extends TestCase
         assertTrue(factory instanceof DatabaseDSConnFactory);
     }
 
-    public void testGetCache() throws Exception
-    {
+    public void testGetCache() throws Exception {
         StatementContext statementContext = SupportStatementContextFactory.makeContext();
 
         DataCacheFactory dataCacheFactory = new DataCacheFactory();
@@ -78,15 +73,11 @@ public class TestDatabaseServiceImpl extends TestCase
         assertEquals(3d, exp.getPurgeIntervalSec());
     }
 
-    public void testInvalid()
-    {
-        try
-        {
+    public void testInvalid() {
+        try {
             databaseServiceImpl.getConnectionFactory("xxx");
             fail();
-        }
-        catch (DatabaseConfigException ex)
-        {
+        } catch (DatabaseConfigException ex) {
             log.debug(ex.getMessage());
             // expected
         }

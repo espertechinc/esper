@@ -22,16 +22,20 @@ import java.util.Map;
 
 public interface ContextManagementService {
     public void addContextSpec(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, CreateContextDesc contextDesc, boolean isRecoveringResilient, EventType statementResultEventType) throws ExprValidationException;
+
     public int getContextCount();
 
     public ContextDescriptor getContextDescriptor(String contextName);
 
     public void addStatement(String contextName, ContextControllerStatementBase statement, boolean isRecoveringResilient) throws ExprValidationException;
+
     public void stoppedStatement(String contextName, String statementName, int statementId, String epl, ExceptionHandlingService exceptionHandlingService);
+
     public void destroyedStatement(String contextName, String statementName, int statementId);
 
     public void destroyedContext(String contextName);
 
     public Map<String, ContextManagerEntry> getContexts();
+
     public ContextManager getContextManager(String contextName);
 }

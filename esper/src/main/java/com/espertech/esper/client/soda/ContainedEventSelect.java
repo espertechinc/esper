@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * Represents a contained-event selection.
  */
-public class ContainedEventSelect implements Serializable
-{
+public class ContainedEventSelect implements Serializable {
     private static final long serialVersionUID = 0L;
 
     private SelectClause selectClause;
@@ -35,6 +34,7 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Ctor.
+     *
      * @param splitExpression the property expression or other expression for splitting the event
      */
     public ContainedEventSelect(Expression splitExpression) {
@@ -43,60 +43,61 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Returns the property alias.
+     *
      * @return alias
      */
-    public String getOptionalAsName()
-    {
+    public String getOptionalAsName() {
         return optionalAsName;
     }
 
     /**
      * Sets the property alias
+     *
      * @param optionalAsName alias
      */
-    public void setOptionalAsName(String optionalAsName)
-    {
+    public void setOptionalAsName(String optionalAsName) {
         this.optionalAsName = optionalAsName;
     }
 
     /**
      * Returns the select clause.
+     *
      * @return select clause
      */
-    public SelectClause getSelectClause()
-    {
+    public SelectClause getSelectClause() {
         return selectClause;
     }
 
     /**
      * Sets the select clause.
+     *
      * @param selectClause select clause
      */
-    public void setSelectClause(SelectClause selectClause)
-    {
+    public void setSelectClause(SelectClause selectClause) {
         this.selectClause = selectClause;
     }
 
     /**
      * Returns the where clause.
+     *
      * @return where clause
      */
-    public Expression getWhereClause()
-    {
+    public Expression getWhereClause() {
         return whereClause;
     }
 
     /**
      * Sets the where clause.
+     *
      * @param whereClause where clause
      */
-    public void setWhereClause(Expression whereClause)
-    {
+    public void setWhereClause(Expression whereClause) {
         this.whereClause = whereClause;
     }
 
     /**
      * Returns the event type name assigned to events that result by applying the split (contained event) expression.
+     *
      * @return type name, or null if none assigned
      */
     public String getOptionalSplitExpressionTypeName() {
@@ -105,6 +106,7 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Sets the event type name assigned to events that result by applying the split (contained event) expression.
+     *
      * @param optionalSplitExpressionTypeName type name, or null if none assigned
      */
     public void setOptionalSplitExpressionTypeName(String optionalSplitExpressionTypeName) {
@@ -113,6 +115,7 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Returns the expression that returns the contained events.
+     *
      * @return contained event expression
      */
     public Expression getSplitExpression() {
@@ -121,6 +124,7 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Sets the expression that returns the contained events.
+     *
      * @param splitExpression contained event expression
      */
     public void setSplitExpression(Expression splitExpression) {
@@ -129,13 +133,12 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Returns the EPL.
-     * @param writer to write to
+     *
+     * @param writer    to write to
      * @param formatter for newline-whitespace formatting
      */
-    public void toEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
-        if (selectClause != null)
-        {
+    public void toEPL(StringWriter writer, EPStatementFormatter formatter) {
+        if (selectClause != null) {
             selectClause.toEPL(writer, formatter, false, false);
             writer.write(" from ");
         }
@@ -145,13 +148,11 @@ public class ContainedEventSelect implements Serializable
             writer.write(optionalSplitExpressionTypeName);
             writer.write(")");
         }
-        if (optionalAsName != null)
-        {
+        if (optionalAsName != null) {
             writer.write(" as ");
             writer.write(optionalAsName);
         }
-        if (whereClause != null)
-        {
+        if (whereClause != null) {
             writer.write(" where ");
             whereClause.toEPL(writer, ExpressionPrecedenceEnum.MINIMUM);
         }
@@ -159,13 +160,13 @@ public class ContainedEventSelect implements Serializable
 
     /**
      * Render contained-event select
-     * @param writer to render to
+     *
+     * @param writer    to render to
      * @param formatter to use
-     * @param items to render
+     * @param items     to render
      */
     public static void toEPL(StringWriter writer, EPStatementFormatter formatter, List<ContainedEventSelect> items) {
-        for (ContainedEventSelect propertySelect : items)
-        {
+        for (ContainedEventSelect propertySelect : items) {
             writer.write('[');
             propertySelect.toEPL(writer, formatter);
             writer.write(']');

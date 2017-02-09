@@ -24,8 +24,7 @@ import java.util.List;
 /**
  * Factory for {@link UnivariateStatisticsView} instances.
  */
-public class UnivariateStatisticsViewFactory implements ViewFactory
-{
+public class UnivariateStatisticsViewFactory implements ViewFactory {
     protected final static String NAME = "Univariate statistics";
 
     private List<ExprNode> viewParameters;
@@ -39,20 +38,17 @@ public class UnivariateStatisticsViewFactory implements ViewFactory
 
     protected EventType eventType;
 
-    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException
-    {
+    public void setViewParameters(ViewFactoryContext viewFactoryContext, List<ExprNode> expressionParameters) throws ViewParameterException {
         this.viewParameters = expressionParameters;
         this.streamNumber = viewFactoryContext.getStreamNum();
     }
 
-    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException
-    {
+    public void attach(EventType parentEventType, StatementContext statementContext, ViewFactory optionalParentFactory, List<ViewFactory> parentViewFactories) throws ViewParameterException {
         ExprNode[] validated = ViewFactorySupport.validate(getViewName(), parentEventType, statementContext, viewParameters, true);
         if (validated.length < 1) {
             throw new ViewParameterException(getViewParamMessage());
         }
-        if (!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType()))
-        {
+        if (!JavaClassHelper.isNumeric(validated[0].getExprEvaluator().getType())) {
             throw new ViewParameterException(getViewParamMessage());
         }
         fieldExpression = validated[0];
@@ -61,18 +57,15 @@ public class UnivariateStatisticsViewFactory implements ViewFactory
         eventType = UnivariateStatisticsView.createEventType(statementContext, additionalProps, streamNumber);
     }
 
-    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext)
-    {
+    public View makeView(AgentInstanceViewFactoryChainContext agentInstanceViewFactoryContext) {
         return new UnivariateStatisticsView(this, agentInstanceViewFactoryContext);
     }
 
-    public EventType getEventType()
-    {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext)
-    {
+    public boolean canReuse(View view, AgentInstanceContext agentInstanceContext) {
         if (!(view instanceof UnivariateStatisticsView)) {
             return false;
         }
@@ -81,8 +74,7 @@ public class UnivariateStatisticsViewFactory implements ViewFactory
         }
 
         UnivariateStatisticsView other = (UnivariateStatisticsView) view;
-        if (!ExprNodeUtility.deepEquals(other.getFieldExpression(), fieldExpression))
-        {
+        if (!ExprNodeUtility.deepEquals(other.getFieldExpression(), fieldExpression)) {
             return false;
         }
 

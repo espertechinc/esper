@@ -15,8 +15,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory
-{
+public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEvalDeltaConst, ExprTimePeriodEvalDeltaConstFactory {
     private final Calendar cal;
     private final ExprTimePeriodImpl.TimePeriodAdder[] adders;
     private final int[] added;
@@ -64,7 +63,7 @@ public class ExprTimePeriodEvalDeltaConstGivenCalAdd implements ExprTimePeriodEv
     public ExprTimePeriodEvalDeltaResult deltaAddWReference(long fromTime, long reference) {
         // find the next-nearest reference higher then the current time, compute delta, return reference one lower
         if (reference > fromTime) {
-            while(reference > fromTime) {
+            while (reference > fromTime) {
                 reference = reference - deltaSubtract(reference);
             }
         }

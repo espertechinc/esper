@@ -10,34 +10,27 @@
  */
 package com.espertech.esper.util;
 
+import com.espertech.esper.client.EPException;
 import junit.framework.TestCase;
 
 import java.net.URL;
 
-import com.espertech.esper.client.EPException;
-
-public class TestResourceLoader extends TestCase
-{
+public class TestResourceLoader extends TestCase {
     private final static String TEST_RESOURCE = "regression/esper.test.readconfig.cfg.xml";
 
-    public void testResolveResourceAsURL()
-    {
+    public void testResolveResourceAsURL() {
         URL url = ResourceLoader.getClasspathResourceAsURL("somefile", TEST_RESOURCE, Thread.currentThread().getContextClassLoader());
         assertNotNull(url);
 
-        try
-        {
+        try {
             ResourceLoader.getClasspathResourceAsURL("somefile", "xxx", Thread.currentThread().getContextClassLoader());
             fail();
-        }
-        catch (EPException ex)
-        {
+        } catch (EPException ex) {
             // expected
         }
     }
 
-    public void testClasspathOrURL()
-    {
+    public void testClasspathOrURL() {
         URL url = this.getClass().getClassLoader().getResource(TEST_RESOURCE);
         URL urlAfterResolve = ResourceLoader.resolveClassPathOrURLResource("a", url.toString(), Thread.currentThread().getContextClassLoader());
         assertEquals(url, urlAfterResolve);
@@ -45,13 +38,10 @@ public class TestResourceLoader extends TestCase
         URL url3 = ResourceLoader.resolveClassPathOrURLResource("a", "file:///xxx/a.b", Thread.currentThread().getContextClassLoader());
         assertEquals("file:/xxx/a.b", url3.toString());
 
-        try
-        {
+        try {
             ResourceLoader.resolveClassPathOrURLResource("a", "b", Thread.currentThread().getContextClassLoader());
             fail();
-        }
-        catch (EPException ex)
-        {
+        } catch (EPException ex) {
             // expected
         }
     }

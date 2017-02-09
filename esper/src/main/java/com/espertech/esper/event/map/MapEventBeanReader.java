@@ -20,35 +20,30 @@ import java.util.Map;
 /**
  * Reader method for reading all properties of a Map event.
  */
-public class MapEventBeanReader implements EventBeanReader
-{
+public class MapEventBeanReader implements EventBeanReader {
     private MapEventPropertyGetter[] getterArray;
 
     /**
      * Ctor.
+     *
      * @param type map to read
      */
-    public MapEventBeanReader(MapEventType type)
-    {
+    public MapEventBeanReader(MapEventType type) {
         String[] properties = type.getPropertyNames();
         List<MapEventPropertyGetter> getters = new ArrayList<MapEventPropertyGetter>();
-        for (String property : properties)
-        {
+        for (String property : properties) {
             MapEventPropertyGetter getter = (MapEventPropertyGetter) type.getGetter(property);
-            if (getter != null)
-            {
+            if (getter != null) {
                 getters.add(getter);
             }
         }
         getterArray = getters.toArray(new MapEventPropertyGetter[getters.size()]);
     }
 
-    public Object[] read(EventBean theEvent)
-    {
+    public Object[] read(EventBean theEvent) {
         Map<String, Object> underlying = (Map<String, Object>) theEvent.getUnderlying();
         Object[] values = new Object[getterArray.length];
-        for (int i = 0; i < getterArray.length; i++)
-        {
+        for (int i = 0; i < getterArray.length; i++) {
             values[i] = getterArray[i].getMap(underlying);
         }
         return values;

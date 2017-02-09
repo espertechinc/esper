@@ -13,34 +13,31 @@ package com.espertech.esper.client.soda;
 import java.io.StringWriter;
 
 /**
- * Not-expression for negating a pattern sub-expression for use in pattern expressions. 
+ * Not-expression for negating a pattern sub-expression for use in pattern expressions.
  */
-public class PatternNotExpr extends PatternExprBase
-{
+public class PatternNotExpr extends PatternExprBase {
     private static final long serialVersionUID = -7739688374458616308L;
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
      */
-    public PatternNotExpr()
-    {
+    public PatternNotExpr() {
     }
 
     /**
      * Ctor.
+     *
      * @param inner is the pattern expression to negate
      */
-    public PatternNotExpr(PatternExpr inner)
-    {
-        this.getChildren().add(inner);    
+    public PatternNotExpr(PatternExpr inner) {
+        this.getChildren().add(inner);
     }
 
     public PatternExprPrecedenceEnum getPrecedence() {
         return PatternExprPrecedenceEnum.EVERY_NOT;
     }
 
-    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter)
-    {
+    public void toPrecedenceFreeEPL(StringWriter writer, EPStatementFormatter formatter) {
         writer.write("not ");
         this.getChildren().get(0).toEPL(writer, getPrecedence(), formatter);
     }

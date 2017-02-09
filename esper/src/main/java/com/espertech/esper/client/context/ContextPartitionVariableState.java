@@ -20,9 +20,10 @@ public class ContextPartitionVariableState {
 
     /**
      * Ctor.
+     *
      * @param agentInstanceId agent instance id
-     * @param identifier context partition identification
-     * @param state variable state
+     * @param identifier      context partition identification
+     * @param state           variable state
      */
     public ContextPartitionVariableState(int agentInstanceId, ContextPartitionIdentifier identifier, Object state) {
         this.agentInstanceId = agentInstanceId;
@@ -32,6 +33,7 @@ public class ContextPartitionVariableState {
 
     /**
      * Returns the agent instance id
+     *
      * @return id
      */
     public int getAgentInstanceId() {
@@ -40,6 +42,7 @@ public class ContextPartitionVariableState {
 
     /**
      * Returns context partition identifier
+     *
      * @return context partition info
      */
     public ContextPartitionIdentifier getIdentifier() {
@@ -48,6 +51,7 @@ public class ContextPartitionVariableState {
 
     /**
      * Returns the variable state
+     *
      * @return state
      */
     public Object getState() {

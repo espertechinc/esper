@@ -20,15 +20,14 @@ import java.util.TimeZone;
 
 public class TestExprTimePeriodEvalDeltaConstCalAdd extends TestCase {
 
-    public void testComputeDelta() throws ExprValidationException
-    {
+    public void testComputeDelta() throws ExprValidationException {
         ExprTimePeriod timePeriod = new ExprTimePeriodImpl(TimeZone.getDefault(), false, true, false, false, false, false, false, false, false, TimeAbacusMilliseconds.INSTANCE);
         timePeriod.addChildNode(new ExprConstantNodeImpl(1));
         timePeriod.validate(null);
 
         ExprTimePeriodEvalDeltaConstGivenCalAdd addMonth = (ExprTimePeriodEvalDeltaConstGivenCalAdd) timePeriod.constEvaluator(null);
-        assertEquals(28*24*60*60*1000L, addMonth.deltaAdd(parse("2002-02-15T09:00:00.000")));
-        assertEquals(28*24*60*60*1000L, addMonth.deltaSubtract(parse("2002-03-15T09:00:00.000")));
+        assertEquals(28 * 24 * 60 * 60 * 1000L, addMonth.deltaAdd(parse("2002-02-15T09:00:00.000")));
+        assertEquals(28 * 24 * 60 * 60 * 1000L, addMonth.deltaSubtract(parse("2002-03-15T09:00:00.000")));
 
         ExprTimePeriodEvalDeltaResult result = addMonth.deltaAddWReference(
                 parse("2002-02-15T09:00:00.000"), parse("2002-02-15T09:00:00.000"));

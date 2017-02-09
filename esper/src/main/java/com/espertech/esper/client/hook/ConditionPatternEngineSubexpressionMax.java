@@ -16,14 +16,14 @@ import java.util.Map;
  * Indicates that on the engine level the followed-by pattern operator, regardless whether parameterized with a max number of sub-expressions or not,
  * has reached the configured engine-wide limit at runtime.
  */
-public class ConditionPatternEngineSubexpressionMax implements BaseCondition
-{
+public class ConditionPatternEngineSubexpressionMax implements BaseCondition {
     private final long max;
     private final Map<String, Long> counts;
 
     /**
      * Ctor.
-     * @param max limit reached
+     *
+     * @param max    limit reached
      * @param counts the number of subexpression counts per statement
      */
     public ConditionPatternEngineSubexpressionMax(long max, Map<String, Long> counts) {
@@ -33,6 +33,7 @@ public class ConditionPatternEngineSubexpressionMax implements BaseCondition
 
     /**
      * Returns the limit reached.
+     *
      * @return limit
      */
     public long getMax() {
@@ -41,6 +42,7 @@ public class ConditionPatternEngineSubexpressionMax implements BaseCondition
 
     /**
      * Returns the per-statement count.
+     *
      * @return count
      */
     public Map<String, Long> getCounts() {

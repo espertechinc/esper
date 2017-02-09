@@ -41,6 +41,7 @@ public class DateTime {
 
     /**
      * Returns a calendar from a given string using the default SimpleDateFormat for parsing.
+     *
      * @param datestring to parse
      * @return calendar
      */
@@ -50,8 +51,9 @@ public class DateTime {
 
     /**
      * Returns a calendar from a given string using the provided format.
+     *
      * @param datestring to parse
-     * @param format to use for parsing
+     * @param format     to use for parsing
      * @return calendar
      */
     public static Calendar toCalendar(String datestring, String format) {
@@ -63,6 +65,7 @@ public class DateTime {
 
     /**
      * Returns a date from a given string using the default SimpleDateFormat for parsing.
+     *
      * @param datestring to parse
      * @return date object
      */
@@ -72,8 +75,9 @@ public class DateTime {
 
     /**
      * Returns a date from a given string using the provided format.
+     *
      * @param datestring to parse
-     * @param format to use for parsing
+     * @param format     to use for parsing
      * @return date object
      */
     public static Date toDate(String datestring, String format) {
@@ -82,6 +86,7 @@ public class DateTime {
 
     /**
      * Returns a long-millisecond value from a given string using the default SimpleDateFormat for parsing.
+     *
      * @param datestring to parse
      * @return long msec
      */
@@ -95,8 +100,9 @@ public class DateTime {
 
     /**
      * Returns a long-millisecond value from a given string using the provided format.
+     *
      * @param datestring to parse
-     * @param format to use for parsing
+     * @param format     to use for parsing
      * @return long msec
      */
     public static Long toMillisec(String datestring, String format) {
@@ -109,6 +115,7 @@ public class DateTime {
 
     /**
      * Print the provided date object using the default date format {@link #DEFAULT_XMLLIKE_DATE_FORMAT}
+     *
      * @param date should be long, Date or Calendar
      * @return date string
      */
@@ -118,6 +125,7 @@ public class DateTime {
 
     /**
      * Print the provided date object using the default date format {@link #DEFAULT_XMLLIKE_DATE_FORMAT}
+     *
      * @param date should be long, Date or Calendar
      * @return date string
      */
@@ -140,6 +148,7 @@ public class DateTime {
 
     /**
      * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT}.
+     *
      * @param dateTime date-time string
      * @return milliseconds
      */
@@ -149,6 +158,7 @@ public class DateTime {
 
     /**
      * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT}.
+     *
      * @param dateTime date-time string
      * @return LocalDateTime
      */
@@ -158,6 +168,7 @@ public class DateTime {
 
     /**
      * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT} assume System default time zone
+     *
      * @param dateTime date-time string
      * @return ZonedDateTime
      */
@@ -167,6 +178,7 @@ public class DateTime {
 
     /**
      * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT_WITH_ZONE}.
+     *
      * @param dateTimeWithZone date-time string
      * @return milliseconds
      */
@@ -176,6 +188,7 @@ public class DateTime {
 
     /**
      * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT}.
+     *
      * @param dateTime date-time string
      * @return date
      */
@@ -185,6 +198,7 @@ public class DateTime {
 
     /**
      * Parse the date-time string using {@link #DEFAULT_XMLLIKE_DATE_FORMAT}.
+     *
      * @param dateTime date-time string
      * @return calendar
      */
@@ -202,8 +216,7 @@ public class DateTime {
         SimpleDateFormat sdf;
         try {
             sdf = new SimpleDateFormat(format);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.warn("Error in date format '" + str + "': " + ex.getMessage(), ex);
             return null;
         }

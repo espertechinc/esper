@@ -15,7 +15,6 @@ import com.espertech.esper.client.EventBean;
 /**
  * Factory for output processing views.
  */
-public interface OutputProcessViewCallback
-{
+public interface OutputProcessViewCallback {
     public void outputViaCallback(EventBean[] events);
 }

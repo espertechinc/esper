@@ -48,8 +48,7 @@ import java.util.*;
  * Processor for select-clause expressions that handles a list of selection items represented by
  * expression nodes. Computes results based on matching events.
  */
-public class SelectExprProcessorHelper
-{
+public class SelectExprProcessorHelper {
     private static final Logger log = LoggerFactory.getLogger(SelectExprProcessorHelper.class);
 
     private final Collection<Integer> assignedTypeNumberStack;
@@ -88,8 +87,7 @@ public class SelectExprProcessorHelper
                                      ConfigurationInformation configuration,
                                      NamedWindowMgmtService namedWindowMgmtService,
                                      TableService tableService,
-                                     GroupByRollupInfo groupByRollupInfo) throws ExprValidationException
-    {
+                                     GroupByRollupInfo groupByRollupInfo) throws ExprValidationException {
         this.assignedTypeNumberStack = assignedTypeNumberStack;
         this.selectionList = selectionList;
         this.selectedStreams = selectedStreams;
@@ -115,16 +113,13 @@ public class SelectExprProcessorHelper
         // Get the named and un-named stream selectors (i.e. select s0.* from S0 as s0), if any
         List<SelectClauseStreamCompiledSpec> namedStreams = new ArrayList<SelectClauseStreamCompiledSpec>();
         List<SelectExprStreamDesc> unnamedStreams = new ArrayList<SelectExprStreamDesc>();
-        for (SelectExprStreamDesc spec : selectedStreams)
-        {
+        for (SelectExprStreamDesc spec : selectedStreams) {
+            // handle special "transpose(...)" function
             if ((spec.getStreamSelected() != null && spec.getStreamSelected().getOptionalName() == null)
-                  ||
-                (spec.getExpressionSelectedAsStream() != null)) // handle special "transpose(...)" function
-            {
+                    ||
+                    (spec.getExpressionSelectedAsStream() != null)) {
                 unnamedStreams.add(spec);
-            }
-            else
-            {
+            } else {
                 namedStreams.add(spec.getStreamSelected());
                 if (spec.getStreamSelected().isProperty()) {
                     throw new ExprValidationException("The property wildcard syntax must be used without column name");
@@ -134,51 +129,40 @@ public class SelectExprProcessorHelper
 
         // Error if there are more then one un-named streams (i.e. select s0.*, s1.* from S0 as s0, S1 as s1)
         // Thus there is only 1 unnamed stream selector maximum.
-        if (unnamedStreams.size() > 1)
-        {
+        if (unnamedStreams.size() > 1) {
             throw new ExprValidationException("A column name must be supplied for all but one stream if multiple streams are selected via the stream.* notation");
         }
 
-        if (selectedStreams.isEmpty() && selectionList.isEmpty() && !isUsingWildcard)
-        {
+        if (selectedStreams.isEmpty() && selectionList.isEmpty() && !isUsingWildcard) {
             throw new IllegalArgumentException("Empty selection list not supported");
         }
 
-        for (SelectClauseExprCompiledSpec entry : selectionList)
-        {
-            if (entry.getAssignedName() == null)
-            {
+        for (SelectClauseExprCompiledSpec entry : selectionList) {
+            if (entry.getAssignedName() == null) {
                 throw new IllegalArgumentException("Expected name for each expression has not been supplied");
             }
         }
 
         // Verify insert into clause
-        if (insertIntoDesc != null)
-        {
+        if (insertIntoDesc != null) {
             verifyInsertInto(insertIntoDesc, selectionList);
         }
 
         // Build a subordinate wildcard processor for joins
         SelectExprProcessor joinWildcardProcessor = null;
-        if(typeService.getStreamNames().length > 1 && isUsingWildcard)
-        {
+        if (typeService.getStreamNames().length > 1 && isUsingWildcard) {
             joinWildcardProcessor = SelectExprJoinWildcardProcessorFactory.create(assignedTypeNumberStack, statementId, statementName, typeService.getStreamNames(), typeService.getEventTypes(), eventAdapterService, null, selectExprEventTypeRegistry, engineImportService, annotations, configuration, tableService, typeService.getEngineURIQualifier());
         }
 
         // Resolve underlying event type in the case of wildcard select
         EventType eventType = null;
         boolean singleStreamWrapper = false;
-        if(isUsingWildcard)
-        {
-            if(joinWildcardProcessor != null)
-            {
+        if (isUsingWildcard) {
+            if (joinWildcardProcessor != null) {
                 eventType = joinWildcardProcessor.getResultEventType();
-            }
-            else
-            {
+            } else {
                 eventType = typeService.getEventTypes()[0];
-                if(eventType instanceof WrapperEventType)
-                {
+                if (eventType instanceof WrapperEventType) {
                     singleStreamWrapper = true;
                 }
             }
@@ -189,8 +173,7 @@ public class SelectExprProcessorHelper
         if (insertIntoDesc != null) {
             if (optionalInsertIntoOverrideType != null) {
                 insertIntoTargetType = optionalInsertIntoOverrideType;
-            }
-            else {
+            } else {
                 insertIntoTargetType = eventAdapterService.getExistsTypeByName(insertIntoDesc.getEventTypeName());
                 TableMetadata tableMetadata = tableService.getTableMetadata(insertIntoDesc.getEventTypeName());
                 if (tableMetadata != null) {
@@ -207,8 +190,7 @@ public class SelectExprProcessorHelper
         ExprEvaluator[] exprEvaluators = new ExprEvaluator[selectionList.size()];
         ExprNode[] exprNodes = new ExprNode[selectionList.size()];
         Object[] expressionReturnTypes = new Object[selectionList.size()];
-        for (int i = 0; i < selectionList.size(); i++)
-        {
+        for (int i = 0; i < selectionList.size(); i++) {
             SelectClauseExprCompiledSpec spec = selectionList.get(i);
             ExprNode expr = spec.getSelectExpression();
             ExprEvaluator evaluator = expr.getExprEvaluator();
@@ -268,49 +250,40 @@ public class SelectExprProcessorHelper
         // Get column names
         String[] columnNames;
         String[] columnNamesAsProvided;
-        if ((insertIntoDesc != null) && (!insertIntoDesc.getColumnNames().isEmpty()))
-        {
+        if ((insertIntoDesc != null) && (!insertIntoDesc.getColumnNames().isEmpty())) {
             columnNames = insertIntoDesc.getColumnNames().toArray(new String[insertIntoDesc.getColumnNames().size()]);
             columnNamesAsProvided = columnNames;
-        }
-        else  if (!selectedStreams.isEmpty()) { // handle stream selection column names
+        } else if (!selectedStreams.isEmpty()) { // handle stream selection column names
             int numStreamColumnsJoin = 0;
-            if (isUsingWildcard && typeService.getEventTypes().length > 1)
-            {
+            if (isUsingWildcard && typeService.getEventTypes().length > 1) {
                 numStreamColumnsJoin = typeService.getEventTypes().length;
             }
             columnNames = new String[selectionList.size() + namedStreams.size() + numStreamColumnsJoin];
             columnNamesAsProvided = new String[columnNames.length];
             int count = 0;
-            for (SelectClauseExprCompiledSpec aSelectionList : selectionList)
-            {
+            for (SelectClauseExprCompiledSpec aSelectionList : selectionList) {
                 columnNames[count] = aSelectionList.getAssignedName();
                 columnNamesAsProvided[count] = aSelectionList.getProvidedName();
                 count++;
             }
-            for (SelectClauseStreamCompiledSpec aSelectionList : namedStreams)
-            {
+            for (SelectClauseStreamCompiledSpec aSelectionList : namedStreams) {
                 columnNames[count] = aSelectionList.getOptionalName();
                 columnNamesAsProvided[count] = aSelectionList.getOptionalName();
                 count++;
             }
             // for wildcard joins, add the streams themselves
-            if (isUsingWildcard && typeService.getEventTypes().length > 1)
-            {
-                for (String streamName : typeService.getStreamNames())
-                {
+            if (isUsingWildcard && typeService.getEventTypes().length > 1) {
+                for (String streamName : typeService.getStreamNames()) {
                     columnNames[count] = streamName;
                     columnNamesAsProvided[count] = streamName;
                     count++;
                 }
             }
-        }
-        else    // handle regular column names
-        {
+        } else {
+            // handle regular column names
             columnNames = new String[selectionList.size()];
             columnNamesAsProvided = new String[selectionList.size()];
-            for (int i = 0; i < selectionList.size(); i++)
-            {
+            for (int i = 0; i < selectionList.size(); i++) {
                 columnNames[i] = selectionList.get(i).getAssignedName();
                 columnNamesAsProvided[i] = selectionList.get(i).getProvidedName();
             }
@@ -319,10 +292,8 @@ public class SelectExprProcessorHelper
         // Find if there is any fragment event types:
         // This is a special case for fragments: select a, b from pattern [a=A -> b=B]
         // We'd like to maintain 'A' and 'B' EventType in the Map type, and 'a' and 'b' EventBeans in the event bean
-        for (int i = 0; i < selectionList.size(); i++)
-        {
-            if (!(exprNodes[i] instanceof ExprIdentNode))
-            {
+        for (int i = 0; i < selectionList.size(); i++) {
+            if (!(exprNodes[i] instanceof ExprIdentNode)) {
                 continue;
             }
 
@@ -331,52 +302,43 @@ public class SelectExprProcessorHelper
             final int streamNum = identNode.getStreamId();
 
             EventType eventTypeStream = typeService.getEventTypes()[streamNum];
-            if (eventTypeStream instanceof NativeEventType)
-            {
+            if (eventTypeStream instanceof NativeEventType) {
                 continue;   // we do not transpose the native type for performance reasons
             }
 
             FragmentEventType fragmentType = eventTypeStream.getFragmentType(propertyName);
-            if ((fragmentType == null) || (fragmentType.isNative()))
-            {
+            if ((fragmentType == null) || (fragmentType.isNative())) {
                 continue;   // we also ignore native Java classes as fragments for performance reasons
             }
 
             // may need to unwrap the fragment if the target type has this underlying type
             FragmentEventType targetFragment = null;
-            if (insertIntoTargetType != null)
-            {
+            if (insertIntoTargetType != null) {
                 targetFragment = insertIntoTargetType.getFragmentType(columnNames[i]);
             }
             if ((insertIntoTargetType != null) &&
                     (fragmentType.getFragmentType().getUnderlyingType() == expressionReturnTypes[i]) &&
-                    ((targetFragment == null) || (targetFragment != null && targetFragment.isNative())) )
-            {
+                    ((targetFragment == null) || (targetFragment != null && targetFragment.isNative()))) {
                 EventPropertyGetter getter = eventTypeStream.getGetter(propertyName);
                 Class returnType = eventTypeStream.getPropertyType(propertyName);
                 exprEvaluators[i] = new SelectExprProcessorEvalByGetter(streamNum, getter, returnType);
-            }
-            // same for arrays: may need to unwrap the fragment if the target type has this underlying type
-            else if ((insertIntoTargetType != null) && expressionReturnTypes[i] instanceof Class &&
+            } else if ((insertIntoTargetType != null) && expressionReturnTypes[i] instanceof Class &&
                     (fragmentType.getFragmentType().getUnderlyingType() == ((Class) expressionReturnTypes[i]).getComponentType()) &&
-                    ((targetFragment == null) || (targetFragment != null && targetFragment.isNative())) )
-            {
+                    ((targetFragment == null) || (targetFragment != null && targetFragment.isNative()))) {
+                // same for arrays: may need to unwrap the fragment if the target type has this underlying type
                 EventPropertyGetter getter = eventTypeStream.getGetter(propertyName);
                 Class returnType = JavaClassHelper.getArrayType(eventTypeStream.getPropertyType(propertyName));
                 exprEvaluators[i] = new SelectExprProcessorEvalByGetter(streamNum, getter, returnType);
-            }
-            else
-            {
-                EventPropertyGetter getter =  eventTypeStream.getGetter(propertyName);
+            } else {
+                EventPropertyGetter getter = eventTypeStream.getGetter(propertyName);
                 FragmentEventType fragType = eventTypeStream.getFragmentType(propertyName);
                 Class undType = fragType.getFragmentType().getUnderlyingType();
                 Class returnType = fragType.isIndexed() ? JavaClassHelper.getArrayType(undType) : undType;
                 exprEvaluators[i] = new SelectExprProcessorEvalByGetterFragment(streamNum, getter, returnType);
                 if (!fragmentType.isIndexed()) {
                     expressionReturnTypes[i] = fragmentType.getFragmentType();
-                }
-                else {
-                    expressionReturnTypes[i] = new EventType[] {fragmentType.getFragmentType()};
+                } else {
+                    expressionReturnTypes[i] = new EventType[]{fragmentType.getFragmentType()};
                 }
             }
         }
@@ -384,8 +346,7 @@ public class SelectExprProcessorHelper
         // Find if there is any stream expression (ExprStreamNode) :
         // This is a special case for stream selection: select a, b from A as a, B as b
         // We'd like to maintain 'A' and 'B' EventType in the Map type, and 'a' and 'b' EventBeans in the event bean
-        for (int i = 0; i < selectionList.size(); i++)
-        {
+        for (int i = 0; i < selectionList.size(); i++) {
             Pair<ExprEvaluator, Object> pair = handleUnderlyingStreamInsert(exprEvaluators[i], namedWindowMgmtService, eventAdapterService);
             if (pair != null) {
                 exprEvaluators[i] = pair.getFirst();
@@ -396,29 +357,24 @@ public class SelectExprProcessorHelper
         // Build event type that reflects all selected properties
         Map<String, Object> selPropertyTypes = new LinkedHashMap<String, Object>();
         int count = 0;
-        for (int i = 0; i < exprEvaluators.length; i++)
-        {
+        for (int i = 0; i < exprEvaluators.length; i++) {
             Object expressionReturnType = expressionReturnTypes[count];
             selPropertyTypes.put(columnNames[count], expressionReturnType);
             count++;
         }
         if (!selectedStreams.isEmpty()) {
-            for (SelectClauseStreamCompiledSpec element : namedStreams)
-            {
+            for (SelectClauseStreamCompiledSpec element : namedStreams) {
                 EventType eventTypeStream;
                 if (element.getTableMetadata() != null) {
                     eventTypeStream = element.getTableMetadata().getPublicEventType();
-                }
-                else {
+                } else {
                     eventTypeStream = typeService.getEventTypes()[element.getStreamNumber()];
                 }
                 selPropertyTypes.put(columnNames[count], eventTypeStream);
                 count++;
             }
-            if (isUsingWildcard && typeService.getEventTypes().length > 1)
-            {
-                for (int i = 0; i < typeService.getEventTypes().length; i++)
-                {
+            if (isUsingWildcard && typeService.getEventTypes().length > 1) {
+                for (int i = 0; i < typeService.getEventTypes().length; i++) {
                     EventType eventTypeStream = typeService.getEventTypes()[i];
                     selPropertyTypes.put(columnNames[count], eventTypeStream);
                     count++;
@@ -437,31 +393,25 @@ public class SelectExprProcessorHelper
         if (!selectedStreams.isEmpty()) {
             // Resolve underlying event type in the case of wildcard or non-named stream select.
             // Determine if the we are considering a tagged event or a stream name.
-            if((isUsingWildcard) || (!unnamedStreams.isEmpty()))
-            {
-                if (!unnamedStreams.isEmpty())
-                {
+            if (isUsingWildcard || (!unnamedStreams.isEmpty())) {
+                if (!unnamedStreams.isEmpty()) {
                     if (unnamedStreams.get(0).getStreamSelected() != null) {
                         SelectClauseStreamCompiledSpec streamSpec = unnamedStreams.get(0).getStreamSelected();
 
                         // the tag.* syntax for :  select tag.* from pattern [tag = A]
                         underlyingStreamNumber = streamSpec.getStreamNumber();
-                        if (streamSpec.isFragmentEvent())
-                        {
+                        if (streamSpec.isFragmentEvent()) {
                             EventType compositeMap = typeService.getEventTypes()[underlyingStreamNumber];
                             FragmentEventType fragment = compositeMap.getFragmentType(streamSpec.getStreamName());
                             underlyingEventType = fragment.getFragmentType();
                             underlyingIsFragmentEvent = true;
-                        }
-                        // the property.* syntax for :  select property.* from A
-                        else if (streamSpec.isProperty())
-                        {
+                        } else if (streamSpec.isProperty()) {
+                            // the property.* syntax for :  select property.* from A
                             String propertyName = streamSpec.getStreamName();
                             Class propertyType = streamSpec.getPropertyType();
                             int streamNumber = streamSpec.getStreamNumber();
 
-                            if (JavaClassHelper.isJavaBuiltinDataType(streamSpec.getPropertyType()))
-                            {
+                            if (JavaClassHelper.isJavaBuiltinDataType(streamSpec.getPropertyType())) {
                                 throw new ExprValidationException("The property wildcard syntax cannot be used on built-in types as returned by property '" + propertyName + "'");
                             }
 
@@ -469,19 +419,15 @@ public class SelectExprProcessorHelper
                             underlyingEventType = eventAdapterService.addBeanType(propertyType.getName(), propertyType, false, false, false);
                             selectExprEventTypeRegistry.add(underlyingEventType);
                             underlyingPropertyEventGetter = typeService.getEventTypes()[streamNumber].getGetter(propertyName);
-                            if (underlyingPropertyEventGetter == null)
-                            {
+                            if (underlyingPropertyEventGetter == null) {
                                 throw new ExprValidationException("Unexpected error resolving property getter for property " + propertyName);
                             }
-                        }
-                        // the stream.* syntax for:  select a.* from A as a
-                        else
-                        {
+                        } else {
+                            // the stream.* syntax for:  select a.* from A as a
                             underlyingEventType = typeService.getEventTypes()[underlyingStreamNumber];
                         }
-                    }
-                    // handle case where the unnamed stream is a "transpose" function, for non-insert-into
-                    else {
+                    } else {
+                        // handle case where the unnamed stream is a "transpose" function, for non-insert-into
                         if (insertIntoDesc == null || insertIntoTargetType == null) {
                             ExprNode expression = unnamedStreams.get(0).getExpressionSelectedAsStream().getSelectExpression();
                             Class returnType = expression.getExprEvaluator().getType();
@@ -493,21 +439,15 @@ public class SelectExprProcessorHelper
                             underlyingExprEvaluator = expression.getExprEvaluator();
                         }
                     }
-                }
-                else
-                {
+                } else {
                     // no un-named stream selectors, but a wildcard was specified
-                    if (typeService.getEventTypes().length == 1)
-                    {
+                    if (typeService.getEventTypes().length == 1) {
                         // not a join, we are using the selected event
                         underlyingEventType = typeService.getEventTypes()[0];
-                        if(underlyingEventType instanceof WrapperEventType)
-                        {
+                        if (underlyingEventType instanceof WrapperEventType) {
                             singleStreamWrapper = true;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // For joins, all results are placed in a map with properties for each stream
                         underlyingEventType = null;
                     }
@@ -517,12 +457,10 @@ public class SelectExprProcessorHelper
 
         SelectExprContext selectExprContext = new SelectExprContext(exprEvaluators, columnNames, eventAdapterService);
 
-        if (insertIntoDesc == null)
-        {
+        if (insertIntoDesc == null) {
             if (!selectedStreams.isEmpty()) {
                 EventType resultEventType;
-                if (underlyingEventType != null)
-                {
+                if (underlyingEventType != null) {
                     TableMetadata tableMetadata = tableService.getTableMetadataFromEventType(underlyingEventType);
                     if (tableMetadata != null) {
                         underlyingEventType = tableMetadata.getPublicEventType();
@@ -530,16 +468,13 @@ public class SelectExprProcessorHelper
                     resultEventType = eventAdapterService.createAnonymousWrapperType(statementId + "_wrapout_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), underlyingEventType, selPropertyTypes);
                     return new EvalSelectStreamWUnderlying(selectExprContext, resultEventType, namedStreams, isUsingWildcard,
                             unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprEvaluator, tableMetadata);
-                }
-                else
-                {
+                } else {
                     resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_mapout_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
                     return new EvalSelectStreamNoUnderlyingMap(selectExprContext, resultEventType, namedStreams, isUsingWildcard);
                 }
             }
 
-            if (isUsingWildcard)
-            {
+            if (isUsingWildcard) {
                 EventType resultEventType = eventAdapterService.createAnonymousWrapperType(statementId + "_wrapoutwild_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), eventType, selPropertyTypes);
                 if (singleStreamWrapper) {
                     return new EvalSelectWildcardSSWrapper(selectExprContext, resultEventType);
@@ -553,22 +488,18 @@ public class SelectExprProcessorHelper
             EventType resultEventType;
             if (representation == EventUnderlyingType.OBJECTARRAY) {
                 resultEventType = eventAdapterService.createAnonymousObjectArrayType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes);
-            }
-            else if (representation == EventUnderlyingType.AVRO) {
+            } else if (representation == EventUnderlyingType.AVRO) {
                 resultEventType = eventAdapterService.createAnonymousAvroType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, annotations, statementName, typeService.getEngineURIQualifier());
-            }
-            else {
+            } else {
                 resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_result_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
             }
 
             if (selectExprContext.getExpressionNodes().length == 0) {
                 return new EvalSelectNoWildcardEmptyProps(selectExprContext, resultEventType);
-            }
-            else {
+            } else {
                 if (representation == EventUnderlyingType.OBJECTARRAY) {
                     return new EvalSelectNoWildcardObjectArray(selectExprContext, resultEventType);
-                }
-                else if (representation == EventUnderlyingType.AVRO) {
+                } else if (representation == EventUnderlyingType.AVRO) {
                     return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprContext, resultEventType, tableService, statementName, typeService.getEngineURIQualifier());
                 }
                 return new EvalSelectNoWildcardMap(selectExprContext, resultEventType);
@@ -579,8 +510,7 @@ public class SelectExprProcessorHelper
         boolean singleColumnWrapOrBeanCoercion = false;       // Additional single-column coercion for non-wrapped type done by SelectExprInsertEventBeanFactory
         boolean isRevisionEvent = false;
 
-        try
-        {
+        try {
             if (!selectedStreams.isEmpty()) {
                 EventType resultEventType;
 
@@ -595,17 +525,13 @@ public class SelectExprProcessorHelper
                     Class returnType = expression.getExprEvaluator().getType();
                     if (insertIntoTargetType instanceof ObjectArrayEventType && returnType == Object[].class) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceObjectArray(insertIntoTargetType, expression.getExprEvaluator(), eventAdapterService);
-                    }
-                    else if (insertIntoTargetType instanceof MapEventType && JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
+                    } else if (insertIntoTargetType instanceof MapEventType && JavaClassHelper.isImplementsInterface(returnType, Map.class)) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceMap(insertIntoTargetType, expression.getExprEvaluator(), eventAdapterService);
-                    }
-                    else if (insertIntoTargetType instanceof BeanEventType && JavaClassHelper.isSubclassOrImplementsInterface(returnType, insertIntoTargetType.getUnderlyingType())) {
+                    } else if (insertIntoTargetType instanceof BeanEventType && JavaClassHelper.isSubclassOrImplementsInterface(returnType, insertIntoTargetType.getUnderlyingType())) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceNative(insertIntoTargetType, expression.getExprEvaluator(), eventAdapterService);
-                    }
-                    else if (insertIntoTargetType instanceof AvroSchemaEventType && returnType.getName().equals(AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME)) {
+                    } else if (insertIntoTargetType instanceof AvroSchemaEventType && returnType.getName().equals(AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME)) {
                         return new SelectExprInsertEventBeanFactory.SelectExprInsertNativeExpressionCoerceAvro(insertIntoTargetType, expression.getExprEvaluator(), eventAdapterService);
-                    }
-                    else if (insertIntoTargetType instanceof WrapperEventType) {
+                    } else if (insertIntoTargetType instanceof WrapperEventType) {
                         // for native event types as they got renamed, they become wrappers
                         // check if the proposed wrapper is compatible with the existing wrapper
                         WrapperEventType existing = (WrapperEventType) insertIntoTargetType;
@@ -623,8 +549,8 @@ public class SelectExprProcessorHelper
                     throw EvalInsertUtil.makeEventTypeCastException(returnType, insertIntoTargetType);
                 }
 
-                if (underlyingEventType != null)    // a single stream was selected via "stream.*" and there is no column name
-                {
+                if (underlyingEventType != null) {
+                    // a single stream was selected via "stream.*" and there is no column name
                     // recast as a Map-type
                     if (underlyingEventType instanceof MapEventType && insertIntoTargetType instanceof MapEventType) {
                         return EvalSelectStreamWUndRecastMapFactory.make(typeService.getEventTypes(), selectExprContext, selectedStreams.get(0).getStreamSelected().getStreamNumber(), insertIntoTargetType, exprNodes, engineImportService, statementName, typeService.getEngineURIQualifier());
@@ -653,9 +579,8 @@ public class SelectExprProcessorHelper
                     resultEventType = eventAdapterService.addWrapperType(insertIntoDesc.getEventTypeName(), underlyingEventType, selPropertyTypes, false, true);
                     return new EvalSelectStreamWUnderlying(selectExprContext, resultEventType, namedStreams, isUsingWildcard,
                             unnamedStreams, singleStreamWrapper, underlyingIsFragmentEvent, underlyingStreamNumber, underlyingPropertyEventGetter, underlyingExprEvaluator, tableMetadata);
-                }
-                else    // there are one or more streams selected with column name such as "stream.* as columnOne"
-                {
+                } else {
+                    // there are one or more streams selected with column name such as "stream.* as columnOne"
                     if (insertIntoTargetType instanceof BeanEventType) {
                         String name = selectedStreams.get(0).getStreamSelected().getStreamName();
                         String alias = selectedStreams.get(0).getStreamSelected().getOptionalName();
@@ -668,24 +593,19 @@ public class SelectExprProcessorHelper
                         Set<String> propertiesToUnwrap = getEventBeanToObjectProps(selPropertyTypes, resultEventType);
                         if (propertiesToUnwrap.isEmpty()) {
                             return new EvalSelectStreamNoUnderlyingMap(selectExprContext, resultEventType, namedStreams, isUsingWildcard);
-                        }
-                        else {
+                        } else {
                             return new EvalSelectStreamNoUndWEventBeanToObj(selectExprContext, resultEventType, namedStreams, isUsingWildcard, propertiesToUnwrap);
                         }
-                    }
-                    else if (insertIntoTargetType instanceof ObjectArrayEventType){
+                    } else if (insertIntoTargetType instanceof ObjectArrayEventType) {
                         Set<String> propertiesToUnwrap = getEventBeanToObjectProps(selPropertyTypes, insertIntoTargetType);
                         if (propertiesToUnwrap.isEmpty()) {
                             return new EvalSelectStreamNoUnderlyingObjectArray(selectExprContext, insertIntoTargetType, namedStreams, isUsingWildcard);
-                        }
-                        else {
+                        } else {
                             return new EvalSelectStreamNoUndWEventBeanToObjObjArray(selectExprContext, insertIntoTargetType, namedStreams, isUsingWildcard, propertiesToUnwrap);
                         }
-                    }
-                    else if (insertIntoTargetType instanceof AvroSchemaEventType){
+                    } else if (insertIntoTargetType instanceof AvroSchemaEventType) {
                         throw new ExprValidationException("Avro event type does not allow contained beans");
-                    }
-                    else {
+                    } else {
                         throw new IllegalStateException("Unrecognized event type " + insertIntoTargetType);
                     }
                 }
@@ -693,16 +613,12 @@ public class SelectExprProcessorHelper
 
             ValueAddEventProcessor vaeProcessor = valueAddEventService.getValueAddProcessor(insertIntoDesc.getEventTypeName());
             EventType resultEventType;
-            if (isUsingWildcard)
-            {
-                if (vaeProcessor != null)
-                {
+            if (isUsingWildcard) {
+                if (vaeProcessor != null) {
                     resultEventType = vaeProcessor.getValueAddEventType();
                     isRevisionEvent = true;
                     vaeProcessor.validateEventType(eventType);
-                }
-                else
-                {
+                } else {
                     if (insertIntoTargetType != null) {
 
                         // handle insert-into with fast coercion (no additional properties selected)
@@ -742,8 +658,7 @@ public class SelectExprProcessorHelper
                     if (selPropertyTypes.isEmpty() && eventType instanceof BeanEventType) {
                         BeanEventType beanEventType = (BeanEventType) eventType;
                         resultEventType = eventAdapterService.addBeanTypeByName(insertIntoDesc.getEventTypeName(), beanEventType.getUnderlyingType(), false);
-                    }
-                    else {
+                    } else {
                         resultEventType = eventAdapterService.addWrapperType(insertIntoDesc.getEventTypeName(), eventType, selPropertyTypes, false, true);
                     }
                 }
@@ -751,8 +666,7 @@ public class SelectExprProcessorHelper
                 if (singleStreamWrapper) {
                     if (!isRevisionEvent) {
                         return new EvalInsertWildcardSSWrapper(selectExprContext, resultEventType);
-                    }
-                    else {
+                    } else {
                         return new EvalInsertWildcardSSWrapperRevision(selectExprContext, resultEventType, vaeProcessor);
                     }
                 }
@@ -760,26 +674,21 @@ public class SelectExprProcessorHelper
                     if (!isRevisionEvent) {
                         if (resultEventType instanceof WrapperEventType) {
                             return new EvalInsertWildcardWrapper(selectExprContext, resultEventType);
-                        }
-                        else {
+                        } else {
                             return new EvalInsertWildcardBean(selectExprContext, resultEventType);
                         }
-                    }
-                    else {
+                    } else {
                         if (exprEvaluators.length == 0) {
                             return new EvalInsertWildcardRevision(selectExprContext, resultEventType, vaeProcessor);
-                        }
-                        else {
+                        } else {
                             EventType wrappingEventType = eventAdapterService.addWrapperType(insertIntoDesc.getEventTypeName() + "_wrapped", eventType, selPropertyTypes, false, true);
                             return new EvalInsertWildcardRevisionWrapper(selectExprContext, resultEventType, vaeProcessor, wrappingEventType);
                         }
                     }
-                }
-                else {
+                } else {
                     if (!isRevisionEvent) {
                         return new EvalInsertWildcardJoin(selectExprContext, resultEventType, joinWildcardProcessor);
-                    }
-                    else {
+                    } else {
                         return new EvalInsertWildcardJoinRevision(selectExprContext, resultEventType, joinWildcardProcessor, vaeProcessor);
                     }
                 }
@@ -787,28 +696,22 @@ public class SelectExprProcessorHelper
 
             // not using wildcard
             resultEventType = null;
-            if ((columnNames.length == 1) && (insertIntoDesc.getColumnNames().size() == 0))
-            {
-                if (insertIntoTargetType != null)
-                {
+            if ((columnNames.length == 1) && (insertIntoDesc.getColumnNames().size() == 0)) {
+                if (insertIntoTargetType != null) {
                     // check if the existing type and new type are compatible
                     Object columnOneType = expressionReturnTypes[0];
-                    if (insertIntoTargetType instanceof WrapperEventType)
-                    {
+                    if (insertIntoTargetType instanceof WrapperEventType) {
                         WrapperEventType wrapperType = (WrapperEventType) insertIntoTargetType;
                         // Map and Object both supported
-                        if (wrapperType.getUnderlyingEventType().getUnderlyingType() == columnOneType)
-                        {
+                        if (wrapperType.getUnderlyingEventType().getUnderlyingType() == columnOneType) {
                             singleColumnWrapOrBeanCoercion = true;
                             resultEventType = insertIntoTargetType;
                         }
                     }
-                    if ((insertIntoTargetType instanceof BeanEventType) && (columnOneType instanceof Class))
-                    {
+                    if ((insertIntoTargetType instanceof BeanEventType) && (columnOneType instanceof Class)) {
                         BeanEventType beanType = (BeanEventType) insertIntoTargetType;
                         // Map and Object both supported
-                        if (JavaClassHelper.isSubclassOrImplementsInterface((Class) columnOneType, beanType.getUnderlyingType()))
-                        {
+                        if (JavaClassHelper.isSubclassOrImplementsInterface((Class) columnOneType, beanType.getUnderlyingType())) {
                             singleColumnWrapOrBeanCoercion = true;
                             resultEventType = insertIntoTargetType;
                         }
@@ -821,73 +724,57 @@ public class SelectExprProcessorHelper
                         WrapperEventType wrapper = (WrapperEventType) resultEventType;
                         if (wrapper.getUnderlyingEventType() instanceof MapEventType) {
                             return new EvalInsertNoWildcardSingleColCoercionMapWrap(selectExprContext, resultEventType);
-                        }
-                        else if (wrapper.getUnderlyingEventType() instanceof ObjectArrayEventType) {
+                        } else if (wrapper.getUnderlyingEventType() instanceof ObjectArrayEventType) {
                             return new EvalInsertNoWildcardSingleColCoercionObjectArrayWrap(selectExprContext, resultEventType);
-                        }
-                        else if (wrapper.getUnderlyingEventType() instanceof AvroSchemaEventType) {
+                        } else if (wrapper.getUnderlyingEventType() instanceof AvroSchemaEventType) {
                             return new EvalInsertNoWildcardSingleColCoercionAvroWrap(selectExprContext, resultEventType);
-                        }
-                        else if (wrapper.getUnderlyingEventType() instanceof VariantEventType) {
+                        } else if (wrapper.getUnderlyingEventType() instanceof VariantEventType) {
                             VariantEventType variantEventType = (VariantEventType) wrapper.getUnderlyingEventType();
                             vaeProcessor = valueAddEventService.getValueAddProcessor(variantEventType.getName());
                             return new EvalInsertNoWildcardSingleColCoercionBeanWrapVariant(selectExprContext, resultEventType, vaeProcessor);
-                        }
-                        else {
+                        } else {
                             return new EvalInsertNoWildcardSingleColCoercionBeanWrap(selectExprContext, resultEventType);
                         }
-                    }
-                    else {
+                    } else {
                         if (resultEventType instanceof BeanEventType) {
                             return new EvalInsertNoWildcardSingleColCoercionBean(selectExprContext, resultEventType);
                         }
                     }
-                }
-                else {
+                } else {
                     if (resultEventType instanceof BeanEventType) {
                         return new EvalInsertNoWildcardSingleColCoercionRevisionBean(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType);
-                    }
-                    else {
+                    } else {
                         TriFunction<EventAdapterService, Object, EventType, EventBean> func;
                         if (resultEventType instanceof MapEventType) {
                             func = (eventAdapterService, und, type) -> eventAdapterService.adapterForTypedMap((Map) und, type);
-                        }
-                        else if (resultEventType instanceof ObjectArrayEventType) {
+                        } else if (resultEventType instanceof ObjectArrayEventType) {
                             func = (eventAdapterService, und, type) -> eventAdapterService.adapterForTypedObjectArray((Object[]) und, type);
-                        }
-                        else if (resultEventType instanceof AvroSchemaEventType) {
+                        } else if (resultEventType instanceof AvroSchemaEventType) {
                             func = EventAdapterService::adapterForTypedAvro;
-                        }
-                        else {
+                        } else {
                             func = (eventAdapterService, und, type) -> eventAdapterService.adapterForBean(und);
                         }
                         return new EvalInsertNoWildcardSingleColCoercionRevisionFunc(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType, func);
                     }
                 }
             }
-            if (resultEventType == null)
-            {
-                if (vaeProcessor != null)
-                {
+            if (resultEventType == null) {
+                if (vaeProcessor != null) {
                     // Use an anonymous type if the target is not a variant stream
                     if (valueAddEventService.getValueAddProcessor(insertIntoDesc.getEventTypeName()) == null) {
                         resultEventType = eventAdapterService.createAnonymousMapType(statementId + "_vae_" + CollectionUtil.toString(assignedTypeNumberStack, "_"), selPropertyTypes, true);
-                    }
-                    else {
+                    } else {
                         String statementName = "stmt_" + statementId + "_insert";
                         resultEventType = eventAdapterService.addNestableMapType(statementName, selPropertyTypes, null, false, false, false, false, true);
                     }
-                }
-                else
-                {
+                } else {
                     EventType existingType = insertIntoTargetType;
                     if (existingType == null) {
                         // The type may however be an auto-import or fully-qualified class name
                         Class clazz = null;
                         try {
                             clazz = this.engineImportService.resolveClass(insertIntoDesc.getEventTypeName(), false);
-                        }
-                        catch (EngineImportException e) {
+                        } catch (EngineImportException e) {
                             log.debug("Target stream name '" + insertIntoDesc.getEventTypeName() + "' is not resolved as a class name");
                         }
                         if (clazz != null) {
@@ -901,37 +788,29 @@ public class SelectExprProcessorHelper
                     }
                     if (selectExprInsertEventBean != null) {
                         return selectExprInsertEventBean;
-                    }
-                    else
-                    {
+                    } else {
                         // use the provided override-type if there is one
                         if (optionalInsertIntoOverrideType != null) {
                             resultEventType = insertIntoTargetType;
-                        }
-                        else if (existingType instanceof AvroSchemaEventType) {
+                        } else if (existingType instanceof AvroSchemaEventType) {
                             eventAdapterService.getEventAdapterAvroHandler().avroCompat(existingType, selPropertyTypes);
                             resultEventType = existingType;
-                        }
-                        else {
+                        } else {
                             EventUnderlyingType out = EventRepresentationUtil.getRepresentation(annotations, configuration, CreateSchemaDesc.AssignedType.NONE);
                             if (out == EventUnderlyingType.MAP) {
                                 resultEventType = eventAdapterService.addNestableMapType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true);
-                            }
-                            else if (out == EventUnderlyingType.OBJECTARRAY) {
+                            } else if (out == EventUnderlyingType.OBJECTARRAY) {
                                 resultEventType = eventAdapterService.addNestableObjectArrayType(insertIntoDesc.getEventTypeName(), selPropertyTypes, null, false, false, false, false, true, false, null);
-                            }
-                            else if (out == EventUnderlyingType.AVRO) {
+                            } else if (out == EventUnderlyingType.AVRO) {
                                 resultEventType = eventAdapterService.addAvroType(insertIntoDesc.getEventTypeName(), selPropertyTypes, false, false, false, false, true, annotations, null, statementName, typeService.getEngineURIQualifier());
-                            }
-                            else {
+                            } else {
                                 throw new IllegalStateException("Unrecognized code " + out);
                             }
                         }
                     }
                 }
             }
-            if (vaeProcessor != null)
-            {
+            if (vaeProcessor != null) {
                 vaeProcessor.validateEventType(resultEventType);
                 vaeInnerEventType = resultEventType;
                 resultEventType = vaeProcessor.getValueAddEventType();
@@ -941,23 +820,17 @@ public class SelectExprProcessorHelper
             if (!isRevisionEvent) {
                 if (resultEventType instanceof MapEventType) {
                     return new EvalInsertNoWildcardMap(selectExprContext, resultEventType);
-                }
-                else if (resultEventType instanceof ObjectArrayEventType) {
+                } else if (resultEventType instanceof ObjectArrayEventType) {
                     return makeObjectArrayConsiderReorder(selectExprContext, (ObjectArrayEventType) resultEventType, statementName, typeService.getEngineURIQualifier());
-                }
-                else if (resultEventType instanceof AvroSchemaEventType) {
+                } else if (resultEventType instanceof AvroSchemaEventType) {
                     return eventAdapterService.getEventAdapterAvroHandler().getOutputFactory().makeSelectNoWildcard(selectExprContext, resultEventType, tableService, statementName, typeService.getEngineURIQualifier());
-                }
-                else {
+                } else {
                     throw new IllegalStateException("Unrecognized output type " + resultEventType);
                 }
-            }
-            else {
+            } else {
                 return new EvalInsertNoWildcardRevision(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType);
             }
-        }
-        catch (EventAdapterException ex)
-        {
+        } catch (EventAdapterException ex) {
             log.debug("Exception provided by event adapter: " + ex.getMessage(), ex);
             throw new ExprValidationException(ex.getMessage(), ex);
         }
@@ -985,8 +858,7 @@ public class SelectExprProcessorHelper
     }
 
     private SelectExprProcessor makeObjectArrayConsiderReorder(SelectExprContext selectExprContext, ObjectArrayEventType resultEventType, String statementName, String engineURI)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         TypeWidener[] wideners = new TypeWidener[selectExprContext.getColumnNames().length];
         int[] remapped = new int[selectExprContext.getColumnNames().length];
         boolean needRemap = false;
@@ -1037,12 +909,10 @@ public class SelectExprProcessorHelper
         if (tableMetadata != null) {
             eventTypeStream = tableMetadata.getPublicEventType();
             evaluator = new SelectExprProcessorEvalStreamInsertTable(streamNum, undNode, tableMetadata, returnType);
-        }
-        else if (namedWindowAsType == null) {
+        } else if (namedWindowAsType == null) {
             eventTypeStream = typeService.getEventTypes()[streamNum];
             evaluator = new SelectExprProcessorEvalStreamInsertUnd(undNode, streamNum, returnType);
-        }
-        else {
+        } else {
             eventTypeStream = namedWindowAsType;
             evaluator = new SelectExprProcessorEvalStreamInsertNamedWindow(streamNum, namedWindowAsType, returnType, eventAdapterService);
         }
@@ -1089,8 +959,7 @@ public class SelectExprProcessorHelper
 
             if (fragmentEventType.isIndexed()) {
                 targets[i] = EPTypeHelper.collectionOfEvents(fragmentEventType.getFragmentType());
-            }
-            else {
+            } else {
                 targets[i] = EPTypeHelper.singleEvent(fragmentEventType.getFragmentType());
             }
         }
@@ -1099,8 +968,7 @@ public class SelectExprProcessorHelper
     }
 
     private TypeAndFunctionPair handleTypableExpression(ExprEvaluator exprEvaluator, int expressionNum)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!(exprEvaluator instanceof ExprEvaluatorTypableReturn)) {
             return null;
         }
@@ -1118,8 +986,7 @@ public class SelectExprProcessorHelper
     }
 
     private TypeAndFunctionPair handleInsertIntoEnumeration(String insertIntoColName, EPType insertIntoTarget, ExprEvaluator exprEvaluator, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!(exprEvaluator instanceof ExprEvaluatorEnumeration) || insertIntoTarget == null
                 || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
             return null;
@@ -1132,7 +999,7 @@ public class SelectExprProcessorHelper
         if (eventTypeColl == null && eventTypeSingle == null) {
             return null;    // enumeration is untyped events (select-clause provided to subquery or 'new' operator)
         }
-        if (((EventTypeSPI)sourceType).getMetadata().getTypeClass() == EventTypeMetadata.TypeClass.ANONYMOUS) {
+        if (((EventTypeSPI) sourceType).getMetadata().getTypeClass() == EventTypeMetadata.TypeClass.ANONYMOUS) {
             return null;    // we don't allow anonymous types here, thus excluding subquery multi-column selection
         }
 
@@ -1151,11 +1018,12 @@ public class SelectExprProcessorHelper
                         }
                         return events.toArray(new EventBean[events.size()]);
                     }
+
                     public Class getType() {
                         return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
                     }
                 };
-                return new TypeAndFunctionPair(new EventType[] {targetType}, evaluatorFragment);
+                return new TypeAndFunctionPair(new EventType[]{targetType}, evaluatorFragment);
             }
             ExprEvaluator evaluatorFragment = new ExprEvaluator() {
                 public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -1163,13 +1031,14 @@ public class SelectExprProcessorHelper
                     if (event == null) {
                         return null;
                     }
-                    return new EventBean[] {event};
+                    return new EventBean[]{event};
                 }
+
                 public Class getType() {
                     return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
                 }
             };
-            return new TypeAndFunctionPair(new EventType[] {targetType}, evaluatorFragment);
+            return new TypeAndFunctionPair(new EventType[]{targetType}, evaluatorFragment);
         }
 
         // handle single-bean target
@@ -1179,6 +1048,7 @@ public class SelectExprProcessorHelper
                 public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                     return enumeration.evaluateGetEventBean(eventsPerStream, isNewData, exprEvaluatorContext);
                 }
+
                 public Class getType() {
                     return targetType.getUnderlyingType();
                 }
@@ -1195,6 +1065,7 @@ public class SelectExprProcessorHelper
                 }
                 return EventBeanUtility.getNonemptyFirstEvent(events);
             }
+
             public Class getType() {
                 return targetType.getUnderlyingType();
             }
@@ -1212,8 +1083,7 @@ public class SelectExprProcessorHelper
     }
 
     private TypeAndFunctionPair handleInsertIntoTypableExpression(EPType insertIntoTarget, ExprEvaluator exprEvaluator, EngineImportService engineImportService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!(exprEvaluator instanceof ExprEvaluatorTypableReturn)
                 || insertIntoTarget == null
                 || (!EPTypeHelper.isCarryEvent(insertIntoTarget))) {
@@ -1262,8 +1132,7 @@ public class SelectExprProcessorHelper
         EventBeanManufacturer manufacturer;
         try {
             manufacturer = eventAdapterService.getManufacturer(targetType, writtenArray, engineImportService, false);
-        }
-        catch (EventBeanManufactureException e) {
+        } catch (EventBeanManufactureException e) {
             throw new ExprValidationException("Failed to obtain eventbean factory: " + e.getMessage(), e);
         }
 
@@ -1271,8 +1140,7 @@ public class SelectExprProcessorHelper
         final EventBeanManufacturer factory = manufacturer;
         if (insertIntoTarget instanceof EventMultiValuedEPType && typable.isMultirow()) {
             ExprEvaluator evaluatorFragment = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                {
+                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                     Object[][] rows = typable.evaluateTypableMulti(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (rows == null) {
                         return null;
@@ -1289,18 +1157,16 @@ public class SelectExprProcessorHelper
                     }
                     return events;
                 }
-                public Class getType()
-                {
+
+                public Class getType() {
                     return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
                 }
             };
 
-            return new TypeAndFunctionPair(new EventType[] {targetType}, evaluatorFragment);
-        }
-        else if (insertIntoTarget instanceof EventMultiValuedEPType && !typable.isMultirow()) {
+            return new TypeAndFunctionPair(new EventType[]{targetType}, evaluatorFragment);
+        } else if (insertIntoTarget instanceof EventMultiValuedEPType && !typable.isMultirow()) {
             ExprEvaluator evaluatorFragment = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                {
+                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                     Object[] row = typable.evaluateTypableSingle(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (row == null) {
                         return null;
@@ -1308,19 +1174,17 @@ public class SelectExprProcessorHelper
                     if (hasWideners) {
                         applyWideners(row, wideners);
                     }
-                    return new EventBean[] {factory.make(row)};
+                    return new EventBean[]{factory.make(row)};
                 }
-                public Class getType()
-                {
+
+                public Class getType() {
                     return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
                 }
             };
-            return new TypeAndFunctionPair(new EventType[] {targetType}, evaluatorFragment);
-        }
-        else if (insertIntoTarget instanceof EventEPType && !typable.isMultirow()) {
+            return new TypeAndFunctionPair(new EventType[]{targetType}, evaluatorFragment);
+        } else if (insertIntoTarget instanceof EventEPType && !typable.isMultirow()) {
             ExprEvaluator evaluatorFragment = new ExprEvaluator() {
-                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-                {
+                public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                     Object[] row = typable.evaluateTypableSingle(eventsPerStream, isNewData, exprEvaluatorContext);
                     if (row == null) {
                         return null;
@@ -1330,8 +1194,8 @@ public class SelectExprProcessorHelper
                     }
                     return factory.make(row);
                 }
-                public Class getType()
-                {
+
+                public Class getType() {
                     return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
                 }
             };
@@ -1340,8 +1204,7 @@ public class SelectExprProcessorHelper
 
         // we are discarding all but the first row
         ExprEvaluator evaluatorFragment = new ExprEvaluator() {
-            public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-            {
+            public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                 Object[][] rows = typable.evaluateTypableMulti(eventsPerStream, isNewData, exprEvaluatorContext);
                 if (rows == null) {
                     return null;
@@ -1354,8 +1217,8 @@ public class SelectExprProcessorHelper
                 }
                 return factory.make(rows[0]);
             }
-            public Class getType()
-            {
+
+            public Class getType() {
                 return JavaClassHelper.getArrayType(targetType.getUnderlyingType());
             }
         };
@@ -1377,8 +1240,7 @@ public class SelectExprProcessorHelper
     }
 
     private TypeAndFunctionPair handleAtEventbeanEnumeration(boolean isEventBeans, ExprEvaluator evaluator)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         if (!(evaluator instanceof ExprEvaluatorEnumeration) || !isEventBeans) {
             return null;
         }
@@ -1392,7 +1254,8 @@ public class SelectExprProcessorHelper
                     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
                         return enumEval.evaluateGetEventBean(eventsPerStream, isNewData, exprEvaluatorContext);
                     }
-                    public Class getType(){
+
+                    public Class getType() {
                         return eventTypeSingle.getUnderlyingType();
                     }
                 };
@@ -1406,7 +1269,8 @@ public class SelectExprProcessorHelper
                     }
                     return tableMetadata.getEventToPublic().convert(event, eventsPerStream, isNewData, exprEvaluatorContext);
                 }
-                public Class getType(){
+
+                public Class getType() {
                     return tableMetadata.getPublicEventType().getUnderlyingType();
                 }
             };
@@ -1427,7 +1291,8 @@ public class SelectExprProcessorHelper
                         }
                         return result;
                     }
-                    public Class getType(){
+
+                    public Class getType() {
                         return JavaClassHelper.getArrayType(eventTypeColl.getUnderlyingType());
                     }
                 };
@@ -1455,7 +1320,8 @@ public class SelectExprProcessorHelper
                     }
                     return events;
                 }
-                public Class getType(){
+
+                public Class getType() {
                     return JavaClassHelper.getArrayType(tableMetadata.getPublicEventType().getUnderlyingType());
                 }
             };
@@ -1489,23 +1355,19 @@ public class SelectExprProcessorHelper
 
     private static void verifyInsertInto(InsertIntoDesc insertIntoDesc,
                                          List<SelectClauseExprCompiledSpec> selectionList)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         // Verify all column names are unique
         Set<String> names = new HashSet<String>();
-        for (String element : insertIntoDesc.getColumnNames())
-        {
-            if (names.contains(element))
-            {
+        for (String element : insertIntoDesc.getColumnNames()) {
+            if (names.contains(element)) {
                 throw new ExprValidationException("Property name '" + element + "' appears more then once in insert-into clause");
             }
             names.add(element);
         }
 
         // Verify number of columns matches the select clause
-        if ( (!insertIntoDesc.getColumnNames().isEmpty()) &&
-                (insertIntoDesc.getColumnNames().size() != selectionList.size()) )
-        {
+        if ((!insertIntoDesc.getColumnNames().isEmpty()) &&
+                (insertIntoDesc.getColumnNames().size() != selectionList.size())) {
             throw new ExprValidationException("Number of supplied values in the select or values clause does not match insert-into clause");
         }
     }

@@ -10,17 +10,17 @@
  */
 package com.espertech.esper.core.service;
 
-import com.espertech.esper.client.*;
+import com.espertech.esper.client.EPAdministratorIsolated;
+import com.espertech.esper.client.EPRuntimeIsolated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * Implementation of the isolated service provider.
  */
-public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedSPI
-{
+public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedSPI {
     private static final Logger log = LoggerFactory.getLogger(EPServiceProviderIsolatedImpl.class);
 
     private final String name;
@@ -31,16 +31,16 @@ public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedS
 
     /**
      * Ctor.
-     * @param name name of isolated service
+     *
+     * @param name             name of isolated service
      * @param isolatedServices filter and scheduling service isolated
-     * @param unisolatedSvc engine services
-     * @param providers names and isolated service providers
+     * @param unisolatedSvc    engine services
+     * @param providers        names and isolated service providers
      */
     public EPServiceProviderIsolatedImpl(String name,
                                          EPIsolationUnitServices isolatedServices,
                                          EPServicesContext unisolatedSvc,
-                                         Map<String, EPServiceProviderIsolatedImpl> providers)
-    {
+                                         Map<String, EPServiceProviderIsolatedImpl> providers) {
         this.name = name;
         this.providers = providers;
         this.isolatedServices = isolatedServices;
@@ -49,28 +49,23 @@ public class EPServiceProviderIsolatedImpl implements EPServiceProviderIsolatedS
         admin = new EPAdministratorIsolatedImpl(name, isolatedServices, unisolatedSvc, runtime);
     }
 
-    public EPIsolationUnitServices getIsolatedServices()
-    {
+    public EPIsolationUnitServices getIsolatedServices() {
         return isolatedServices;
     }
 
-    public EPRuntimeIsolated getEPRuntime()
-    {
+    public EPRuntimeIsolated getEPRuntime() {
         return runtime;
     }
 
-    public EPAdministratorIsolated getEPAdministrator()
-    {
+    public EPAdministratorIsolated getEPAdministrator() {
         return admin;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         providers.remove(name);
 
         admin.removeAllStatements();

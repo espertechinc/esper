@@ -16,8 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class represents an 'or' operator in the evaluation tree representing any event expressions.
  */
-public class EvalOrNode extends EvalNodeBase
-{
+public class EvalOrNode extends EvalNodeBase {
     protected final EvalOrFactoryNode factoryNode;
     private final EvalNode[] childNodes;
 
@@ -36,8 +35,7 @@ public class EvalOrNode extends EvalNodeBase
     }
 
     public EvalStateNode newState(Evaluator parentNode,
-                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId)
-    {
+                                  EvalStateNodeNumber stateNodeNumber, long stateNodeId) {
         return new EvalOrStateNode(parentNode, this);
     }
 

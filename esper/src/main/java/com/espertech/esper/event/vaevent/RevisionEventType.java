@@ -25,8 +25,7 @@ import java.util.Set;
 /**
  * Event type of revision events.
  */
-public class RevisionEventType implements EventTypeSPI
-{
+public class RevisionEventType implements EventTypeSPI {
     private final EventTypeMetadata metadata;
     private final int eventTypeId;
     private String[] propertyNames;
@@ -37,13 +36,13 @@ public class RevisionEventType implements EventTypeSPI
 
     /**
      * Ctor.
-     * @param propertyDesc describes each properties type
+     *
+     * @param propertyDesc        describes each properties type
      * @param eventAdapterService for nested property handling
-     * @param metadata - event type metadata
-     * @param eventTypeId type id
+     * @param metadata            - event type metadata
+     * @param eventTypeId         type id
      */
-    public RevisionEventType(EventTypeMetadata metadata, int eventTypeId, Map<String, RevisionPropertyTypeDesc> propertyDesc, EventAdapterService eventAdapterService)
-    {
+    public RevisionEventType(EventTypeMetadata metadata, int eventTypeId, Map<String, RevisionPropertyTypeDesc> propertyDesc, EventAdapterService eventAdapterService) {
         this.metadata = metadata;
         this.eventTypeId = eventTypeId;
         this.propertyDesc = propertyDesc;
@@ -54,8 +53,7 @@ public class RevisionEventType implements EventTypeSPI
         propertyDescriptors = new EventPropertyDescriptor[propertyDesc.size()];
         propertyDescriptorMap = new HashMap<String, EventPropertyDescriptor>();
         int count = 0;
-        for (Map.Entry<String, RevisionPropertyTypeDesc> desc : propertyDesc.entrySet())
-        {
+        for (Map.Entry<String, RevisionPropertyTypeDesc> desc : propertyDesc.entrySet()) {
             Class type = (Class) desc.getValue().getPropertyType();
             EventPropertyDescriptor descriptor = new EventPropertyDescriptor(desc.getKey(), type, null, false, false, false, false, JavaClassHelper.isFragmentableType(type));
             propertyDescriptors[count] = descriptor;
@@ -76,48 +74,39 @@ public class RevisionEventType implements EventTypeSPI
         return null;
     }
 
-    public EventPropertyGetter getGetter(String propertyName)
-    {
+    public EventPropertyGetter getGetter(String propertyName) {
         RevisionPropertyTypeDesc desc = propertyDesc.get(propertyName);
-        if (desc != null)
-        {
+        if (desc != null) {
             return desc.getRevisionGetter();
         }
 
         // dynamic property names note allowed
-        if (propertyName.indexOf('?') != -1)
-        {
+        if (propertyName.indexOf('?') != -1) {
             return null;
         }
 
         // see if this is a nested property
         int index = ASTUtil.unescapedIndexOfDot(propertyName);
-        if (index == -1)
-        {
+        if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
-            if (prop instanceof SimpleProperty)
-            {
+            if (prop instanceof SimpleProperty) {
                 // there is no such property since it wasn't found earlier
                 return null;
             }
             String atomic = null;
-            if (prop instanceof IndexedProperty)
-            {
+            if (prop instanceof IndexedProperty) {
                 IndexedProperty indexedprop = (IndexedProperty) prop;
                 atomic = indexedprop.getPropertyNameAtomic();
             }
-            if (prop instanceof MappedProperty)
-            {
+            if (prop instanceof MappedProperty) {
                 MappedProperty indexedprop = (MappedProperty) prop;
                 atomic = indexedprop.getPropertyNameAtomic();
             }
             desc = propertyDesc.get(atomic);
-            if (desc == null)
-            {
+            if (desc == null) {
                 return null;
             }
-            if (!(desc.getPropertyType() instanceof Class))
-            {
+            if (!(desc.getPropertyType() instanceof Class)) {
                 return null;
             }
             Class nestedClass = (Class) desc.getPropertyType();
@@ -134,59 +123,48 @@ public class RevisionEventType implements EventTypeSPI
         String propertyNested = propertyName.substring(index + 1, propertyName.length());
 
         desc = propertyDesc.get(propertyMap);
-        if (desc == null)
-        {
+        if (desc == null) {
             return null;  // prefix not a known property
         }
 
         // only nested classes supported for revision event types since deep property information not currently exposed by EventType
-        if (desc.getPropertyType() instanceof Class)
-        {
+        if (desc.getPropertyType() instanceof Class) {
             // ask the nested class to resolve the property
             Class simpleClass = (Class) desc.getPropertyType();
             EventType nestedEventType = eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
             final EventPropertyGetter nestedGetter = nestedEventType.getGetter(propertyNested);
-            if (nestedGetter == null)
-            {
+            if (nestedGetter == null) {
                 return null;
             }
 
             // construct getter for nested property
             return new RevisionNestedPropertyGetter(desc.getRevisionGetter(), nestedGetter, eventAdapterService);
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public String getName()
-    {
+    public String getName() {
         return metadata.getPublicName();
     }
 
-    public Class getPropertyType(String propertyName)
-    {
+    public Class getPropertyType(String propertyName) {
         RevisionPropertyTypeDesc desc = propertyDesc.get(propertyName);
-        if (desc != null)
-        {
-            if (desc.getPropertyType() instanceof Class)
-            {
+        if (desc != null) {
+            if (desc.getPropertyType() instanceof Class) {
                 return (Class) desc.getPropertyType();
             }
             return null;
         }
 
         // dynamic property names note allowed
-        if (propertyName.indexOf('?') != -1)
-        {
+        if (propertyName.indexOf('?') != -1) {
             return null;
         }
 
         // see if this is a nested property
         int index = ASTUtil.unescapedIndexOfDot(propertyName);
-        if (index == -1)
-        {
+        if (index == -1) {
             return null;
         }
 
@@ -199,95 +177,74 @@ public class RevisionEventType implements EventTypeSPI
         String propertyNested = propertyName.substring(index + 1, propertyName.length());
 
         desc = propertyDesc.get(propertyMap);
-        if (desc == null)
-        {
+        if (desc == null) {
             return null;  // prefix not a known property
-        }
-
-        else if (desc.getPropertyType() instanceof Class)
-        {
+        } else if (desc.getPropertyType() instanceof Class) {
             Class simpleClass = (Class) desc.getPropertyType();
             EventType nestedEventType = eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
             return nestedEventType.getPropertyType(propertyNested);
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public Class getUnderlyingType()
-    {
+    public Class getUnderlyingType() {
         return RevisionEventType.class;
     }
 
-    public String[] getPropertyNames()
-    {
+    public String[] getPropertyNames() {
         return propertyNames;
     }
 
-    public boolean isProperty(String property)
-    {
+    public boolean isProperty(String property) {
         return getPropertyType(property) != null;
     }
 
-    public EventType[] getSuperTypes()
-    {
+    public EventType[] getSuperTypes() {
         return null;
     }
 
-    public Iterator<EventType> getDeepSuperTypes()
-    {
+    public Iterator<EventType> getDeepSuperTypes() {
         return null;
     }
 
-    public EventTypeMetadata getMetadata()
-    {
+    public EventTypeMetadata getMetadata() {
         return metadata;
     }
 
-    public EventPropertyDescriptor[] getPropertyDescriptors()
-    {
+    public EventPropertyDescriptor[] getPropertyDescriptors() {
         return propertyDescriptors;
     }
 
-    public FragmentEventType getFragmentType(String property)
-    {
+    public FragmentEventType getFragmentType(String property) {
         return null;
     }
 
-    public EventPropertyDescriptor getPropertyDescriptor(String propertyName)
-    {
+    public EventPropertyDescriptor getPropertyDescriptor(String propertyName) {
         return propertyDescriptorMap.get(propertyName);
     }
 
-    public EventPropertyWriter getWriter(String propertyName)
-    {
+    public EventPropertyWriter getWriter(String propertyName) {
         return null;
     }
 
-    public EventPropertyDescriptor[] getWriteableProperties()
-    {
+    public EventPropertyDescriptor[] getWriteableProperties() {
         return new EventPropertyDescriptor[0];
     }
 
-    public EventBeanCopyMethod getCopyMethod(String[] properties)
-    {
+    public EventBeanCopyMethod getCopyMethod(String[] properties) {
         return null;
     }
 
-    public EventPropertyDescriptor getWritableProperty(String propertyName)
-    {
+    public EventPropertyDescriptor getWritableProperty(String propertyName) {
         return null;
     }
 
-    public EventBeanWriter getWriter(String[] properties)
-    {
+    public EventBeanWriter getWriter(String[] properties) {
         return null;
     }
 
-    public EventBeanReader getReader()
-    {
+    public EventBeanReader getReader() {
         return null;
     }
 

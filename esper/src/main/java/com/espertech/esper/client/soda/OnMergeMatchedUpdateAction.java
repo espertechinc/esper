@@ -17,8 +17,7 @@ import java.util.List;
 /**
  * For use with on-merge clauses, updates rows in a named window if matching rows are found.
  */
-public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction
-{
+public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction {
     private static final long serialVersionUID = 0L;
 
     private List<Assignment> assignments = Collections.emptyList();
@@ -32,6 +31,7 @@ public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction
 
     /**
      * Ctor.
+     *
      * @param assignments assignments of values to columns
      * @param whereClause optional condition or null
      */
@@ -42,6 +42,7 @@ public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction
 
     /**
      * Returns the action condition, or null if undefined.
+     *
      * @return condition
      */
     public Expression getWhereClause() {
@@ -50,6 +51,7 @@ public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction
 
     /**
      * Sets the action condition, or null if undefined.
+     *
      * @param whereClause to set, or null to remove the condition
      */
     public void setWhereClause(Expression whereClause) {
@@ -58,6 +60,7 @@ public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction
 
     /**
      * Returns the assignments to execute against any rows found in a named window
+     *
      * @return assignments
      */
     public List<Assignment> getAssignments() {
@@ -66,6 +69,7 @@ public class OnMergeMatchedUpdateAction implements OnMergeMatchedAction
 
     /**
      * Sets the assignments to execute against any rows found in a named window
+     *
      * @param assignments to set
      */
     public void setAssignments(List<Assignment> assignments) {

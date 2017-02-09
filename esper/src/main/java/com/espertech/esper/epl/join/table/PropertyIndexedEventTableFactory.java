@@ -20,12 +20,11 @@ import java.util.Arrays;
 /**
  * Index factory that organizes events by the event property values into hash buckets. Based on a HashMap
  * with {@link com.espertech.esper.collection.MultiKeyUntyped} keys that store the property values.
- *
+ * <p>
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public class PropertyIndexedEventTableFactory implements EventTableFactory
-{
+public class PropertyIndexedEventTableFactory implements EventTableFactory {
     protected final int streamNum;
     protected final String[] propertyNames;
     protected final boolean unique;
@@ -38,14 +37,14 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
 
     /**
      * Ctor.
-     * @param streamNum - the stream number that is indexed
-     * @param eventType - types of events indexed
-     * @param propertyNames - property names to use for indexing
-     * @param unique unique flag
+     *
+     * @param streamNum         - the stream number that is indexed
+     * @param eventType         - types of events indexed
+     * @param propertyNames     - property names to use for indexing
+     * @param unique            unique flag
      * @param optionalIndexName index name
      */
-    public PropertyIndexedEventTableFactory(int streamNum, EventType eventType, String[] propertyNames, boolean unique, String optionalIndexName)
-    {
+    public PropertyIndexedEventTableFactory(int streamNum, EventType eventType, String[] propertyNames, boolean unique, String optionalIndexName) {
         this.streamNum = streamNum;
         this.propertyNames = propertyNames;
         this.unique = unique;
@@ -53,8 +52,7 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
 
         // Init getters
         propertyGetters = new EventPropertyGetter[propertyNames.length];
-        for (int i = 0; i < propertyNames.length; i++)
-        {
+        for (int i = 0; i < propertyNames.length; i++) {
             propertyGetters[i] = eventType.getGetter(propertyNames[i]);
         }
     }
@@ -62,24 +60,21 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
         if (unique) {
-            return new EventTable[] {new PropertyIndexedEventTableUnique(propertyGetters, organization)};
-        }
-        else {
-            return new EventTable[] {new PropertyIndexedEventTableUnadorned(propertyGetters, organization)};
+            return new EventTable[]{new PropertyIndexedEventTableUnique(propertyGetters, organization)};
+        } else {
+            return new EventTable[]{new PropertyIndexedEventTableUnadorned(propertyGetters, organization)};
         }
     }
 
     public Class getEventTableClass() {
         if (unique) {
             return PropertyIndexedEventTableUnique.class;
-        }
-        else {
+        } else {
             return PropertyIndexedEventTableUnadorned.class;
         }
     }
 
-    public String toQueryPlan()
-    {
+    public String toQueryPlan() {
         return this.getClass().getSimpleName() +
                 (unique ? " unique" : " non-unique") +
                 " streamNum=" + streamNum +

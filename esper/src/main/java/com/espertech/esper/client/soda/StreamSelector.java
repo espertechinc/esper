@@ -13,8 +13,7 @@ package com.espertech.esper.client.soda;
 /**
  * Enumeration for representing selection of the remove stream or the insert stream, or both.
  */
-public enum StreamSelector
-{
+public enum StreamSelector {
     /**
      * Indicates selection of the remove stream only.
      */
@@ -38,6 +37,7 @@ public enum StreamSelector
 
     /**
      * Returns syntactic text
+     *
      * @return epl text
      */
     public String getEpl() {

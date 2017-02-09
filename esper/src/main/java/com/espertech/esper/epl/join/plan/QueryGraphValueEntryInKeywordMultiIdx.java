@@ -15,8 +15,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 
 import java.io.Serializable;
 
-public class QueryGraphValueEntryInKeywordMultiIdx implements QueryGraphValueEntry, Serializable
-{
+public class QueryGraphValueEntryInKeywordMultiIdx implements QueryGraphValueEntry, Serializable {
     private static final long serialVersionUID = 3018879286841740917L;
     private final ExprNode keyExpr;
 

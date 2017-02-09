@@ -27,8 +27,7 @@ import java.util.*;
 /**
  * Represents an array in a filter expressiun tree.
  */
-public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration
-{
+public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEvaluatorEnumeration {
     private Class arrayReturnType;
     private boolean mustCoerce;
     private int length;
@@ -43,31 +42,26 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
     /**
      * Ctor.
      */
-    public ExprArrayNode()
-    {
+    public ExprArrayNode() {
     }
 
-    public ExprEvaluator getExprEvaluator()
-    {
+    public ExprEvaluator getExprEvaluator() {
         return this;
     }
 
-    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException
-    {
+    public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
         length = this.getChildNodes().length;
         evaluators = ExprNodeUtility.getEvaluators(this.getChildNodes());
 
         // Can be an empty array with no content
-        if (this.getChildNodes().length == 0)
-        {
+        if (this.getChildNodes().length == 0) {
             arrayReturnType = Object.class;
             constantResult = new Object[0];
             return null;
         }
 
         List<Class> comparedTypes = new LinkedList<Class>();
-        for (int i = 0; i < length; i++)
-        {
+        for (int i = 0; i < length; i++) {
             comparedTypes.add(evaluators[i].getType());
         }
 
@@ -76,39 +70,30 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
             arrayReturnType = JavaClassHelper.getCommonCoercionType(comparedTypes.toArray(new Class[comparedTypes.size()]));
 
             // Determine if we need to coerce numbers when one type doesn't match any other type
-            if (JavaClassHelper.isNumeric(arrayReturnType))
-            {
+            if (JavaClassHelper.isNumeric(arrayReturnType)) {
                 mustCoerce = false;
-                for (Class comparedType : comparedTypes)
-                {
-                    if (comparedType != arrayReturnType)
-                    {
+                for (Class comparedType : comparedTypes) {
+                    if (comparedType != arrayReturnType) {
                         mustCoerce = true;
                     }
                 }
-                if (mustCoerce)
-                {
+                if (mustCoerce) {
                     coercer = SimpleNumberCoercerFactory.getCoercer(null, arrayReturnType);
                 }
             }
-        }
-        catch (CoercionException ex)
-        {
+        } catch (CoercionException ex) {
             // expected, such as mixing String and int values, or Java classes (not boxed) and primitives
             // use Object[] in such cases
         }
-        if (arrayReturnType == null)
-        {
+        if (arrayReturnType == null) {
             arrayReturnType = Object.class;
         }
 
         // Determine if we are dealing with constants only
         Object[] results = new Object[length];
         int index = 0;
-        for (ExprNode child : this.getChildNodes())
-        {
-            if (!child.isConstantResult())
-            {
+        for (ExprNode child : this.getChildNodes()) {
+            if (!child.isConstantResult()) {
                 results = null;  // not using a constant result
                 break;
             }
@@ -117,22 +102,16 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
         }
 
         // Copy constants into array and coerce, if required
-        if (results != null)
-        {
+        if (results != null) {
             constantResult = Array.newInstance(arrayReturnType, length);
-            for (int i = 0; i < length; i++)
-            {
-                if (mustCoerce)
-                {
+            for (int i = 0; i < length; i++) {
+                if (mustCoerce) {
                     Number boxed = (Number) results[i];
-                    if (boxed != null)
-                    {
+                    if (boxed != null) {
                         Object coercedResult = coercer.coerceBoxed(boxed);
                         Array.set(constantResult, i, coercedResult);
                     }
-                }
-                else
-                {
+                } else {
                     Array.set(constantResult, i, results[i]);
                 }
             }
@@ -140,62 +119,59 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
         return null;
     }
 
-    public boolean isConstantResult()
-    {
+    public boolean isConstantResult() {
         return constantResult != null;
     }
 
-    public Class getType()
-    {
+    public Class getType() {
         return Array.newInstance(arrayReturnType, 0).getClass();
     }
 
-    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qExprArray(this);}
-        if (constantResult != null)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprArray(constantResult);}
+    public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qExprArray(this);
+        }
+        if (constantResult != null) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprArray(constantResult);
+            }
             return constantResult;
         }
 
         Object array = Array.newInstance(arrayReturnType, length);
 
-        if (length == 0)
-        {
-            if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprArray(array);}
+        if (length == 0) {
+            if (InstrumentationHelper.ENABLED) {
+                InstrumentationHelper.get().aExprArray(array);
+            }
             return array;
         }
 
         int index = 0;
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Object result = child.evaluate(eventsPerStream, isNewData, exprEvaluatorContext);
-            if (result != null)
-            {
-                if (mustCoerce)
-                {
+            if (result != null) {
+                if (mustCoerce) {
                     Number boxed = (Number) result;
                     Object coercedResult = coercer.coerceBoxed(boxed);
                     Array.set(array, index, coercedResult);
-                }
-                else
-                {
+                } else {
                     Array.set(array, index, result);
                 }
             }
             index++;
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aExprArray(array);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aExprArray(array);
+        }
         return array;
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
         String delimiter = "";
         writer.append("{");
-        for (ExprNode expr : this.getChildNodes())
-        {
+        for (ExprNode expr : this.getChildNodes()) {
             writer.append(delimiter);
             expr.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
             delimiter = ",";
@@ -212,8 +188,7 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
     }
 
     public Collection evaluateGetROCollectionScalar(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        if (constantResult != null)
-        {
+        if (constantResult != null) {
             if (constantResultList != null) {
                 return constantResultList;
             }
@@ -225,27 +200,21 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
             return list;
         }
 
-        if (length == 0)
-        {
+        if (length == 0) {
             return Collections.emptyList();
         }
 
         List resultList = new ArrayList();
 
         int index = 0;
-        for (ExprEvaluator child : evaluators)
-        {
+        for (ExprEvaluator child : evaluators) {
             Object result = child.evaluate(eventsPerStream, isNewData, context);
-            if (result != null)
-            {
-                if (mustCoerce)
-                {
+            if (result != null) {
+                if (mustCoerce) {
                     Number boxed = (Number) result;
                     Object coercedResult = coercer.coerceBoxed(boxed);
                     resultList.add(coercedResult);
-                }
-                else
-                {
+                } else {
                     resultList.add(result);
                 }
             }
@@ -271,10 +240,8 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
         return null;
     }
 
-    public boolean equalsNode(ExprNode node)
-    {
-        if (!(node instanceof ExprArrayNode))
-        {
+    public boolean equalsNode(ExprNode node) {
+        if (!(node instanceof ExprArrayNode)) {
             return false;
         }
         return true;

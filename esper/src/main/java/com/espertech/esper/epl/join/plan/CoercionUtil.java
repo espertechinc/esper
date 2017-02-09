@@ -30,8 +30,7 @@ public class CoercionUtil {
 
         Class[] coercionTypes = new Class[rangeEntries.size()];
         boolean mustCoerce = false;
-        for (int i = 0; i < rangeEntries.size(); i++)
-        {
+        for (int i = 0; i < rangeEntries.size(); i++) {
             QueryGraphValueEntryRange entry = rangeEntries.get(i);
 
             String indexed = indexedProp[i];
@@ -41,16 +40,14 @@ public class CoercionUtil {
             if (entry.getType().isRange()) {
                 QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) entry;
                 coercionType = getCoercionTypeRangeIn(valuePropType, rangeIn.getExprStart(), rangeIn.getExprEnd());
-            }
-            else {
+            } else {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) entry;
                 coercionType = getCoercionType(valuePropType, relOp.getExpression().getExprEvaluator().getType());
             }
 
             if (coercionType == null) {
                 coercionTypes[i] = valuePropType;
-            }
-            else {
+            } else {
                 mustCoerce = true;
                 coercionTypes[i] = coercionType;
             }
@@ -62,19 +59,19 @@ public class CoercionUtil {
     /**
      * Returns null if no coercion is required, or an array of classes for use in coercing the
      * lookup keys and index keys into a common type.
+     *
      * @param typesPerStream is the event types for each stream
-     * @param lookupStream is the stream looked up from
-     * @param indexedStream is the indexed stream
-     * @param keyProps is the properties to use to look up
-     * @param indexProps is the properties to index on
+     * @param lookupStream   is the stream looked up from
+     * @param indexedStream  is the indexed stream
+     * @param keyProps       is the properties to use to look up
+     * @param indexProps     is the properties to index on
      * @return coercion types, or null if none required
      */
     public static CoercionDesc getCoercionTypesHash(EventType[] typesPerStream,
                                                     int lookupStream,
                                                     int indexedStream,
                                                     List<QueryGraphValueEntryHashKeyed> keyProps,
-                                                    String[] indexProps)
-    {
+                                                    String[] indexProps) {
         if (indexProps.length == 0 && keyProps.size() == 0) {
             return new CoercionDesc(false, NULL_ARRAY);
         }
@@ -84,22 +81,19 @@ public class CoercionUtil {
 
         Class[] coercionTypes = new Class[indexProps.length];
         boolean mustCoerce = false;
-        for (int i = 0; i < keyProps.size(); i++)
-        {
+        for (int i = 0; i < keyProps.size(); i++) {
             Class keyPropType;
             if (keyProps.get(i) instanceof QueryGraphValueEntryHashKeyedExpr) {
                 QueryGraphValueEntryHashKeyedExpr hashExpr = (QueryGraphValueEntryHashKeyedExpr) keyProps.get(i);
                 keyPropType = hashExpr.getKeyExpr().getExprEvaluator().getType();
-            }
-            else {
+            } else {
                 QueryGraphValueEntryHashKeyedProp hashKeyProp = (QueryGraphValueEntryHashKeyedProp) keyProps.get(i);
                 keyPropType = JavaClassHelper.getBoxedType(typesPerStream[lookupStream].getPropertyType(hashKeyProp.getKeyProperty()));
             }
 
             Class indexedPropType = JavaClassHelper.getBoxedType(typesPerStream[indexedStream].getPropertyType(indexProps[i]));
             Class coercionType = indexedPropType;
-            if (keyPropType != indexedPropType)
-            {
+            if (keyPropType != indexedPropType) {
                 coercionType = JavaClassHelper.getCompareToCoercionType(keyPropType, indexedPropType);
                 mustCoerce = true;
             }
@@ -113,8 +107,7 @@ public class CoercionUtil {
         if (desc.getType().isRange()) {
             QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) desc;
             return getCoercionTypeRangeIn(indexedType.getPropertyType(indexedProp), rangeIn.getExprStart(), rangeIn.getExprEnd());
-        }
-        else {
+        } else {
             QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) desc;
             return getCoercionType(indexedType.getPropertyType(indexedProp), relOp.getExpression().getExprEvaluator().getType());
         }
@@ -128,8 +121,7 @@ public class CoercionUtil {
         Class[] coercionTypes = new Class[rangeProps.size()];
         boolean mustCoerce = false;
         int count = 0;
-        for (Map.Entry<String, SubordPropRangeKey> entry : rangeProps.entrySet())
-        {
+        for (Map.Entry<String, SubordPropRangeKey> entry : rangeProps.entrySet()) {
             SubordPropRangeKey subQRange = entry.getValue();
             QueryGraphValueEntryRange rangeDesc = entry.getValue().getRangeInfo();
 
@@ -139,16 +131,14 @@ public class CoercionUtil {
             if (rangeDesc.getType().isRange()) {
                 QueryGraphValueEntryRangeIn rangeIn = (QueryGraphValueEntryRangeIn) rangeDesc;
                 coercionType = getCoercionTypeRangeIn(valuePropType, rangeIn.getExprStart(), rangeIn.getExprEnd());
-            }
-            else {
+            } else {
                 QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) rangeDesc;
                 coercionType = getCoercionType(valuePropType, relOp.getExpression().getExprEvaluator().getType());
             }
 
             if (coercionType == null) {
                 coercionTypes[count++] = valuePropType;
-            }
-            else {
+            } else {
                 mustCoerce = true;
                 coercionTypes[count++] = coercionType;
             }
@@ -159,8 +149,7 @@ public class CoercionUtil {
     private static Class getCoercionType(Class valuePropType, Class keyPropTypeExpr) {
         Class coercionType = null;
         Class keyPropType = JavaClassHelper.getBoxedType(keyPropTypeExpr);
-        if (valuePropType != keyPropType)
-        {
+        if (valuePropType != keyPropType) {
             coercionType = JavaClassHelper.getCompareToCoercionType(valuePropType, keyPropType);
         }
         return coercionType;
@@ -176,13 +165,11 @@ public class CoercionUtil {
 
         Class[] coercionTypes = new Class[indexProps.length];
         boolean mustCoerce = false;
-        for (int i = 0; i < hashKeys.size(); i++)
-        {
+        for (int i = 0; i < hashKeys.size(); i++) {
             Class keyPropType = JavaClassHelper.getBoxedType(hashKeys.get(i).getHashKey().getKeyExpr().getExprEvaluator().getType());
             Class indexedPropType = JavaClassHelper.getBoxedType(viewableEventType.getPropertyType(indexProps[i]));
             Class coercionType = indexedPropType;
-            if (keyPropType != indexedPropType)
-            {
+            if (keyPropType != indexedPropType) {
                 coercionType = JavaClassHelper.getCompareToCoercionType(keyPropType, indexedPropType);
                 mustCoerce = true;
             }
@@ -196,12 +183,10 @@ public class CoercionUtil {
         Class startPropType = JavaClassHelper.getBoxedType(exprStart.getExprEvaluator().getType());
         Class endPropType = JavaClassHelper.getBoxedType(exprEnd.getExprEvaluator().getType());
 
-        if (valuePropType != startPropType)
-        {
+        if (valuePropType != startPropType) {
             coercionType = JavaClassHelper.getCompareToCoercionType(valuePropType, startPropType);
         }
-        if (valuePropType != endPropType)
-        {
+        if (valuePropType != endPropType) {
             coercionType = JavaClassHelper.getCompareToCoercionType(coercionType, endPropType);
         }
         return coercionType;

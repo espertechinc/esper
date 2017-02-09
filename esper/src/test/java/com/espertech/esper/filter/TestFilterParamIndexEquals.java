@@ -21,16 +21,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TestFilterParamIndexEquals extends TestCase
-{
+public class TestFilterParamIndexEquals extends TestCase {
     private SupportEventEvaluator testEvaluator;
     private SupportBean testBean;
     private EventBean testEventBean;
     private EventType testEventType;
     private List<FilterHandle> matchesList;
 
-    public void setUp()
-    {
+    public void setUp() {
         testEvaluator = new SupportEventEvaluator();
         testBean = new SupportBean();
         testEventBean = SupportEventBeanFactory.createObject(testBean);
@@ -38,8 +36,7 @@ public class TestFilterParamIndexEquals extends TestCase
         matchesList = new LinkedList<FilterHandle>();
     }
 
-    public void testLong()
-    {
+    public void testLong() {
         FilterParamIndexEquals index = makeOne("shortBoxed", testEventType);
 
         index.put(Short.valueOf((short) 1), testEvaluator);
@@ -57,8 +54,7 @@ public class TestFilterParamIndexEquals extends TestCase
         assertEquals(null, index.get((short) 1));
     }
 
-    public void testBoolean()
-    {
+    public void testBoolean() {
         FilterParamIndexEquals index = makeOne("boolPrimitive", testEventType);
 
         index.put(false, testEvaluator);
@@ -67,8 +63,7 @@ public class TestFilterParamIndexEquals extends TestCase
         verifyBooleanPrimitive(index, true, 0);
     }
 
-    public void testString()
-    {
+    public void testString() {
         FilterParamIndexEquals index = makeOne("theString", testEventType);
 
         index.put("hello", testEvaluator);
@@ -80,8 +75,7 @@ public class TestFilterParamIndexEquals extends TestCase
         verifyString(index, "test", 1);
     }
 
-    public void testFloatPrimitive()
-    {
+    public void testFloatPrimitive() {
         FilterParamIndexEquals index = makeOne("floatPrimitive", testEventType);
 
         index.put(1.5f, testEvaluator);
@@ -91,29 +85,25 @@ public class TestFilterParamIndexEquals extends TestCase
         verifyFloatPrimitive(index, 0, 0);
     }
 
-    private void verifyShortBoxed(FilterParamIndexBase index, Short testValue, int numExpected)
-    {
+    private void verifyShortBoxed(FilterParamIndexBase index, Short testValue, int numExpected) {
         testBean.setShortBoxed(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyBooleanPrimitive(FilterParamIndexBase index, boolean testValue, int numExpected)
-    {
+    private void verifyBooleanPrimitive(FilterParamIndexBase index, boolean testValue, int numExpected) {
         testBean.setBoolPrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyString(FilterParamIndexBase index, String testValue, int numExpected)
-    {
+    private void verifyString(FilterParamIndexBase index, String testValue, int numExpected) {
         testBean.setTheString(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());
     }
 
-    private void verifyFloatPrimitive(FilterParamIndexBase index, float testValue, int numExpected)
-    {
+    private void verifyFloatPrimitive(FilterParamIndexBase index, float testValue, int numExpected) {
         testBean.setFloatPrimitive(testValue);
         index.matchEvent(testEventBean, matchesList);
         assertEquals(numExpected, testEvaluator.getAndResetCountInvoked());

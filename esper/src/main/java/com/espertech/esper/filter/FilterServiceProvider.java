@@ -15,20 +15,18 @@ import com.espertech.esper.client.ConfigurationEngineDefaults;
 /**
  * Static factory for implementations of the {@link FilterService} interface.
  */
-public final class FilterServiceProvider
-{
+public final class FilterServiceProvider {
     /**
      * Creates an implementation of the FilterEvaluationService interface.
+     *
      * @param filterServiceProfile config
-     * @param allowIsolation whether isolation is supported
+     * @param allowIsolation       whether isolation is supported
      * @return implementation
      */
-    public static FilterServiceSPI newService(ConfigurationEngineDefaults.FilterServiceProfile filterServiceProfile, boolean allowIsolation)
-    {
+    public static FilterServiceSPI newService(ConfigurationEngineDefaults.FilterServiceProfile filterServiceProfile, boolean allowIsolation) {
         if (filterServiceProfile == ConfigurationEngineDefaults.FilterServiceProfile.READMOSTLY) {
             return new FilterServiceLockCoarse(allowIsolation);
-        }
-        else {
+        } else {
             return new FilterServiceLockFine(allowIsolation);
         }
     }

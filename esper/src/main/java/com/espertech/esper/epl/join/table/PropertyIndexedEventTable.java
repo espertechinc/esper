@@ -22,12 +22,11 @@ import java.util.Set;
 /**
  * Index that organizes events by the event property values into hash buckets. Based on a HashMap
  * with {@link com.espertech.esper.collection.MultiKeyUntyped} keys that store the property values.
- *
+ * <p>
  * Takes a list of property names as parameter. Doesn't care which event type the events have as long as the properties
  * exist. If the same event is added twice, the class throws an exception on add.
  */
-public abstract class PropertyIndexedEventTable implements EventTable
-{
+public abstract class PropertyIndexedEventTable implements EventTable {
     protected final EventPropertyGetter[] propertyGetters;
     protected final EventTableOrganization organization;
 
@@ -40,16 +39,18 @@ public abstract class PropertyIndexedEventTable implements EventTable
 
     /**
      * Determine multikey for index access.
+     *
      * @param theEvent to get properties from for key
      * @return multi key
      */
-    protected MultiKeyUntyped getMultiKey(EventBean theEvent)
-    {
+    protected MultiKeyUntyped getMultiKey(EventBean theEvent) {
         return EventBeanUtility.getMultiKey(theEvent, propertyGetters);
     }
 
     public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
+        }
         if (newData != null) {
             for (EventBean theEvent : newData) {
                 add(theEvent);
@@ -60,17 +61,19 @@ public abstract class PropertyIndexedEventTable implements EventTable
                 remove(theEvent);
             }
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aIndexAddRemove();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aIndexAddRemove();
+        }
     }
 
     /**
      * Add an array of events. Same event instance is not added twice. Event properties should be immutable.
      * Allow null passed instead of an empty array.
+     *
      * @param events to add
      * @throws IllegalArgumentException if the event was already existed in the index
      */
-    public void add(EventBean[] events)
-    {
+    public void add(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -90,11 +93,11 @@ public abstract class PropertyIndexedEventTable implements EventTable
 
     /**
      * Remove events.
+     *
      * @param events to be removed, can be null instead of an empty array.
      * @throws IllegalArgumentException when the event could not be removed as its not in the index
      */
-    public void remove(EventBean[] events)
-    {
+    public void remove(EventBean[] events) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -112,8 +115,7 @@ public abstract class PropertyIndexedEventTable implements EventTable
         }
     }
 
-    public String toQueryPlan()
-    {
+    public String toQueryPlan() {
         return this.getClass().getSimpleName() +
                 " streamNum=" + organization.getStreamNum() +
                 " propertyGetters=" + Arrays.toString(propertyGetters);

@@ -16,10 +16,10 @@ import java.io.StringWriter;
 /**
  * Marker interface for an on-merge clause action item.
  */
-public interface OnMergeMatchedAction extends Serializable
-{
+public interface OnMergeMatchedAction extends Serializable {
     /**
      * Render to EPL.
+     *
      * @param writer to render to
      */
     public void toEPL(StringWriter writer);

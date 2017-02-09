@@ -16,8 +16,7 @@ import com.espertech.esper.type.MinMaxTypeEnum;
 /**
  * Min/max aggregator for all values.
  */
-public class AggregatorMinMaxFilter extends AggregatorMinMax
-{
+public class AggregatorMinMaxFilter extends AggregatorMinMax {
     public AggregatorMinMaxFilter(MinMaxTypeEnum minMaxTypeEnum) {
         super(minMaxTypeEnum);
     }

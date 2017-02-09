@@ -25,6 +25,7 @@ public class ContextPartitionIdentifierCategory extends ContextPartitionIdentifi
 
     /**
      * Ctor.
+     *
      * @param label of category
      */
     public ContextPartitionIdentifierCategory(String label) {
@@ -33,6 +34,7 @@ public class ContextPartitionIdentifierCategory extends ContextPartitionIdentifi
 
     /**
      * Returns the category label.
+     *
      * @return label
      */
     public String getLabel() {
@@ -41,6 +43,7 @@ public class ContextPartitionIdentifierCategory extends ContextPartitionIdentifi
 
     /**
      * Sets the category label.
+     *
      * @param label to set
      */
     public void setLabel(String label) {

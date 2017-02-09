@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.epl.agg.aggregator;
 
-import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.collection.SortedRefCountedSet;
+import com.espertech.esper.type.MinMaxTypeEnum;
 
 /**
  * Min/max aggregator for all values.
  */
-public class AggregatorMinMax implements AggregationMethod
-{
+public class AggregatorMinMax implements AggregationMethod {
     protected final MinMaxTypeEnum minMaxTypeEnum;
 
     protected SortedRefCountedSet<Object> refSet;
@@ -27,43 +26,33 @@ public class AggregatorMinMax implements AggregationMethod
      *
      * @param minMaxTypeEnum - enum indicating to return minimum or maximum values
      */
-    public AggregatorMinMax(MinMaxTypeEnum minMaxTypeEnum)
-    {
+    public AggregatorMinMax(MinMaxTypeEnum minMaxTypeEnum) {
         this.minMaxTypeEnum = minMaxTypeEnum;
         this.refSet = new SortedRefCountedSet<Object>();
     }
 
-    public void clear()
-    {
+    public void clear() {
         refSet.clear();
     }
 
-    public void enter(Object object)
-    {
-        if (object == null)
-        {
+    public void enter(Object object) {
+        if (object == null) {
             return;
         }
         refSet.add(object);
     }
 
-    public void leave(Object object)
-    {
-        if (object == null)
-        {
+    public void leave(Object object) {
+        if (object == null) {
             return;
         }
         refSet.remove(object);
     }
 
-    public Object getValue()
-    {
-        if (minMaxTypeEnum == MinMaxTypeEnum.MAX)
-        {
+    public Object getValue() {
+        if (minMaxTypeEnum == MinMaxTypeEnum.MAX) {
             return refSet.maxValue();
-        }
-        else
-        {
+        } else {
             return refSet.minValue();
         }
     }

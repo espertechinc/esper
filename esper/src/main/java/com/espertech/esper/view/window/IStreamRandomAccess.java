@@ -21,39 +21,32 @@ import java.util.Iterator;
  * For use with length and time window views that must provide random access into data window contents
  * provided for the "previous" expression if used.
  */
-public class IStreamRandomAccess implements RandomAccessByIndex, ViewUpdatedCollection
-{
+public class IStreamRandomAccess implements RandomAccessByIndex, ViewUpdatedCollection {
     private final ArrayList<EventBean> arrayList;
     private final RandomAccessByIndexObserver updateObserver;
 
     /**
      * Ctor.
+     *
      * @param updateObserver is invoked when updates are received
      */
-    public IStreamRandomAccess(RandomAccessByIndexObserver updateObserver)
-    {
+    public IStreamRandomAccess(RandomAccessByIndexObserver updateObserver) {
         this.updateObserver = updateObserver;
         this.arrayList = new ArrayList<EventBean>();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData)
-    {
-        if (updateObserver !=null)
-        {
+    public void update(EventBean[] newData, EventBean[] oldData) {
+        if (updateObserver != null) {
             updateObserver.updated(this);
         }
-        if (newData != null)
-        {
-            for (int i = 0; i < newData.length; i++)
-            {
+        if (newData != null) {
+            for (int i = 0; i < newData.length; i++) {
                 arrayList.add(0, newData[i]);
             }
         }
 
-        if (oldData != null)
-        {
-            for (int i = 0; i < oldData.length; i++)
-            {
+        if (oldData != null) {
+            for (int i = 0; i < oldData.length; i++) {
                 arrayList.remove(arrayList.size() - 1);
             }
         }
@@ -61,12 +54,11 @@ public class IStreamRandomAccess implements RandomAccessByIndex, ViewUpdatedColl
 
     /**
      * Remove event.
+     *
      * @param oldData event to remove
      */
-    public void remove(EventBean oldData)
-    {
-        if (updateObserver !=null)
-        {
+    public void remove(EventBean oldData) {
+        if (updateObserver != null) {
             updateObserver.updated(this);
         }
         arrayList.remove(arrayList.size() - 1);
@@ -74,58 +66,50 @@ public class IStreamRandomAccess implements RandomAccessByIndex, ViewUpdatedColl
 
     /**
      * Apply event
+     *
      * @param newData to apply
      */
-    public void update(EventBean newData)
-    {
-        if (updateObserver !=null)
-        {
+    public void update(EventBean newData) {
+        if (updateObserver != null) {
             updateObserver.updated(this);
         }
         arrayList.add(0, newData);
     }
 
-    public EventBean getNewData(int index)
-    {
+    public EventBean getNewData(int index) {
         // New events are added to the start of the list
-        if (index < arrayList.size() )
-        {
+        if (index < arrayList.size()) {
             return arrayList.get(index);
         }
         return null;
     }
 
-    public EventBean getOldData(int index)
-    {
+    public EventBean getOldData(int index) {
         return null;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         // No action required
     }
 
     /**
      * Returns true for empty.
+     *
      * @return indicator
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return arrayList.isEmpty();
     }
 
-    public EventBean getNewDataTail(int index)
-    {
+    public EventBean getNewDataTail(int index) {
         // New events are added to the start of the list
-        if (index < arrayList.size() && index >= 0)
-        {
+        if (index < arrayList.size() && index >= 0) {
             return arrayList.get(arrayList.size() - index - 1);
         }
         return null;
     }
 
-    public Iterator<EventBean> getWindowIterator()
-    {
+    public Iterator<EventBean> getWindowIterator() {
         return arrayList.iterator();
     }
 
@@ -133,8 +117,7 @@ public class IStreamRandomAccess implements RandomAccessByIndex, ViewUpdatedColl
         return arrayList;
     }
 
-    public int getWindowCount()
-    {
+    public int getWindowCount() {
         return arrayList.size();
     }
 

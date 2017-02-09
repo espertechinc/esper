@@ -23,8 +23,7 @@ import java.util.List;
  * Strategy for looking up, in some sort of table or index, or a set of events, potentially based on the
  * events properties, and returning a set of matched events.
  */
-public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStrategyFactory
-{
+public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStrategyFactory {
     private final String statementName;
     private final int statementId;
     private final Annotation[] annotations;
@@ -54,7 +53,7 @@ public class SubordTableLookupStrategyFactoryVDW implements SubordTableLookupStr
     }
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
-        Pair<IndexMultiKey,EventTable> tableVW = vdw.getSubordinateQueryDesc(false, hashAndRanges.getHashedProps(), hashAndRanges.getBtreeProps());
+        Pair<IndexMultiKey, EventTable> tableVW = vdw.getSubordinateQueryDesc(false, hashAndRanges.getHashedProps(), hashAndRanges.getBtreeProps());
         return vdw.getSubordinateLookupStrategy(statementName,
                 statementId, annotations,
                 outerStreams, hashKeys, hashKeyCoercionTypes, rangeKeys, rangeKeyCoercionTypes, nwOnTrigger,

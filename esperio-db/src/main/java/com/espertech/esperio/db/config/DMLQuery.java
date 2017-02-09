@@ -10,8 +10,8 @@
  */
 package com.espertech.esperio.db.config;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DMLQuery {
 
@@ -84,13 +84,11 @@ public class DMLQuery {
         this.executorName = executorName;
     }
 
-    public Double getRetryIntervalSec()
-    {
+    public Double getRetryIntervalSec() {
         return retryIntervalSec;
     }
 
-    public void setRetryIntervalSec(Double retryIntervalSec)
-    {
+    public void setRetryIntervalSec(Double retryIntervalSec) {
         this.retryIntervalSec = retryIntervalSec;
     }
 }

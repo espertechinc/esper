@@ -22,12 +22,11 @@ public class EPDataFlowEmitter1Stream1TargetPassAlong extends EPDataFlowEmitter1
     }
 
     public void submitInternal(Object object) {
-        Object[] parameters = new Object[] {object};
+        Object[] parameters = new Object[]{object};
         try {
             exceptionHandler.handleAudit(targetObject, parameters);
             fastMethod.invoke(targetObject, parameters);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             exceptionHandler.handleException(targetObject, fastMethod, e, parameters);
         }
     }

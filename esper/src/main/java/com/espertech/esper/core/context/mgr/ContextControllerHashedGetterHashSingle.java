@@ -26,14 +26,13 @@ public class ContextControllerHashedGetterHashSingle implements EventPropertyGet
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        EventBean[] events = new EventBean[] {eventBean};
+        EventBean[] events = new EventBean[]{eventBean};
         Object code = eval.evaluate(events, true, null);
 
         int value;
         if (code == null) {
             value = 0;
-        }
-        else {
+        } else {
             value = code.hashCode() % granularity;
         }
 

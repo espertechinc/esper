@@ -18,8 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor
-{
+public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor {
     private final boolean isVisitAggregateNodes;
     private List<ExprNodePropOrStreamDesc> refs;
 
@@ -27,15 +26,14 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor
         this.isVisitAggregateNodes = isVisitAggregateNodes;
     }
 
-    public boolean isVisit(ExprNode exprNode)
-    {
+    public boolean isVisit(ExprNode exprNode) {
         if (exprNode instanceof ExprLambdaGoesNode) {
             return false;
         }
         if (isVisitAggregateNodes) {
             return true;
         }
-        return (!(exprNode instanceof ExprAggregateNode));
+        return !(exprNode instanceof ExprAggregateNode);
     }
 
     public List<ExprNodePropOrStreamDesc> getRefs() {
@@ -45,8 +43,7 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor
         return refs;
     }
 
-    public void visit(ExprNode exprNode)
-    {
+    public void visit(ExprNode exprNode) {
         if (exprNode instanceof ExprIdentNode) {
             ExprIdentNode identNode = (ExprIdentNode) exprNode;
 
@@ -54,8 +51,7 @@ public class ExprNodeIdentifierAndStreamRefVisitor implements ExprNodeVisitor
             String propertyName = identNode.getResolvedPropertyName();
             checkAllocatedRefs();
             refs.add(new ExprNodePropOrStreamPropDesc(streamId, propertyName));
-        }
-        else if (exprNode instanceof ExprStreamRefNode) {
+        } else if (exprNode instanceof ExprStreamRefNode) {
             ExprStreamRefNode streamRefNode = (ExprStreamRefNode) exprNode;
             Integer stream = streamRefNode.getStreamReferencedIfAny();
             checkAllocatedRefs();

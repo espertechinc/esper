@@ -18,14 +18,14 @@ import java.io.Serializable;
 /**
  * Specification for measure definition item within match_recognize.
  */
-public class MatchRecognizeMeasureItem implements MetaDefItem, Serializable
-{
+public class MatchRecognizeMeasureItem implements MetaDefItem, Serializable {
     private ExprNode expr;
     private String name;
     private static final long serialVersionUID = 1609117378292500082L;
 
     /**
      * Ctor.
+     *
      * @param expr expression
      * @param name as name
      */
@@ -36,6 +36,7 @@ public class MatchRecognizeMeasureItem implements MetaDefItem, Serializable
 
     /**
      * Returns the expression.
+     *
      * @return expression
      */
     public ExprNode getExpr() {
@@ -44,6 +45,7 @@ public class MatchRecognizeMeasureItem implements MetaDefItem, Serializable
 
     /**
      * Returns the as-name.
+     *
      * @return name
      */
     public String getName() {
@@ -52,10 +54,10 @@ public class MatchRecognizeMeasureItem implements MetaDefItem, Serializable
 
     /**
      * Sets the validated expression.
+     *
      * @param validated expression
      */
-    public void setExpr(ExprNode validated)
-    {
+    public void setExpr(ExprNode validated) {
         this.expr = validated;
     }
 }

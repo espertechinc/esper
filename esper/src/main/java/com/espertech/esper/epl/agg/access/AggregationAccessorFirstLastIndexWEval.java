@@ -20,8 +20,7 @@ import java.util.Collections;
 /**
  * Represents the aggregation accessor that provides the result for the "first" and "last" aggregation function with index.
  */
-public class AggregationAccessorFirstLastIndexWEval implements AggregationAccessor
-{
+public class AggregationAccessorFirstLastIndexWEval implements AggregationAccessor {
     private final int streamNum;
     private final ExprEvaluator childNode;
     private final EventBean[] eventsPerStream;
@@ -31,14 +30,14 @@ public class AggregationAccessorFirstLastIndexWEval implements AggregationAccess
 
     /**
      * Ctor.
+     *
      * @param streamNum stream id
      * @param childNode expression
      * @param indexNode index expression
-     * @param constant constant index
-     * @param isFirst true if returning first, false for returning last
+     * @param constant  constant index
+     * @param isFirst   true if returning first, false for returning last
      */
-    public AggregationAccessorFirstLastIndexWEval(int streamNum, ExprEvaluator childNode, ExprEvaluator indexNode, int constant, boolean isFirst)
-    {
+    public AggregationAccessorFirstLastIndexWEval(int streamNum, ExprEvaluator childNode, ExprEvaluator indexNode, int constant, boolean isFirst) {
         this.streamNum = streamNum;
         this.childNode = childNode;
         this.indexNode = indexNode;
@@ -89,8 +88,7 @@ public class AggregationAccessorFirstLastIndexWEval implements AggregationAccess
         }
         if (isFirst) {
             bean = ((AggregationStateLinear) state).getFirstNthValue(index);
-        }
-        else {
+        } else {
             bean = ((AggregationStateLinear) state).getLastNthValue(index);
         }
         return bean;

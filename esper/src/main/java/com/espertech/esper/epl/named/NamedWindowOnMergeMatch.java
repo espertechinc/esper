@@ -19,8 +19,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.List;
 
-public class NamedWindowOnMergeMatch
-{
+public class NamedWindowOnMergeMatch {
     private ExprEvaluator optionalCond;
     private List<NamedWindowOnMergeAction> actions;
 
@@ -39,7 +38,9 @@ public class NamedWindowOnMergeMatch
     }
 
     public void apply(EventBean matchingEvent, EventBean[] eventsPerStream, OneEventCollection newData, OneEventCollection oldData, ExprEvaluatorContext context) {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qInfraMergeWhenThenActions(actions.size());}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().qInfraMergeWhenThenActions(actions.size());
+        }
 
         int count = -1;
         for (NamedWindowOnMergeAction action : actions) {
@@ -60,6 +61,8 @@ public class NamedWindowOnMergeMatch
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aInfraMergeWhenThenActions();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.get().aInfraMergeWhenThenActions();
+        }
     }
 }

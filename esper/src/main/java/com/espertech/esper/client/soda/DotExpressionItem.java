@@ -20,8 +20,7 @@ import java.util.List;
  * Each item represent an individual chain item and may either be a method name with method parameters,
  * or a (nested) property name typically with an empty list of parameters or for mapped properties a non-empty list of parameters.
  */
-public class DotExpressionItem implements Serializable
-{
+public class DotExpressionItem implements Serializable {
     private static final long serialVersionUID = 4189610785425631920L;
 
     private String name;
@@ -36,9 +35,10 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Ctor.
-     * @param name the property (or nested property) or method name
+     *
+     * @param name       the property (or nested property) or method name
      * @param parameters are optional and should only be provided if this chain item is a method;
-     * Parameters are expressions for parameters to the method (use only for methods and not for properties unless mapped property).
+     *                   Parameters are expressions for parameters to the method (use only for methods and not for properties unless mapped property).
      * @param isProperty true if this is a nested property name
      */
     public DotExpressionItem(String name, List<Expression> parameters, boolean isProperty) {
@@ -49,6 +49,7 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Returns method name or nested property name.
+     *
      * @return method name or nested property name
      */
     public String getName() {
@@ -57,6 +58,7 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Sets the method name or nested property name.
+     *
      * @param name method name or nested property name to set
      */
     public void setName(String name) {
@@ -65,6 +67,7 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Returns method parameters or parameters for mapped properties or empty list if this item represents a simple nested property.
+     *
      * @return parameter expressions
      */
     public List<Expression> getParameters() {
@@ -73,6 +76,7 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Sets method parameters or parameters for mapped properties or empty list if this item represents a simple nested property.
+     *
      * @param parameters expressions to set
      */
     public void setParameters(List<Expression> parameters) {
@@ -81,6 +85,7 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Returns true if this dot-item is a property name.
+     *
      * @return true for property, false for method
      */
     public boolean isProperty() {
@@ -89,6 +94,7 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Set to true if this dot-item is a property name.
+     *
      * @param property true for property, false for method
      */
     public void setProperty(boolean property) {
@@ -97,14 +103,14 @@ public class DotExpressionItem implements Serializable
 
     /**
      * Render to EPL.
-     * @param chain chain to render
-     * @param writer writer to output to
+     *
+     * @param chain     chain to render
+     * @param writer    writer to output to
      * @param prefixDot indicator whether to prefix with "."
      */
     protected static void render(List<DotExpressionItem> chain, StringWriter writer, boolean prefixDot) {
         String delimiterOuter = prefixDot ? "." : "";
-        for (DotExpressionItem item : chain)
-        {
+        for (DotExpressionItem item : chain) {
             writer.write(delimiterOuter);
             writer.write(item.name);
 

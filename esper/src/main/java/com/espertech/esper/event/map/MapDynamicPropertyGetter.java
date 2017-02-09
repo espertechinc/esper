@@ -23,30 +23,25 @@ public class MapDynamicPropertyGetter implements MapEventPropertyGetter {
         this.propertyName = propertyName;
     }
 
-    public Object getMap(Map<String, Object> map) throws PropertyAccessException
-    {
+    public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         return map.get(propertyName);
     }
 
-    public boolean isMapExistsProperty(Map<String, Object> map)
-    {
+    public boolean isMapExistsProperty(Map<String, Object> map) {
         return map.containsKey(propertyName);
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         Map map = (Map) eventBean.getUnderlying();
         return map.get(propertyName);
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         Map map = (Map) eventBean.getUnderlying();
         return map.containsKey(propertyName);
     }
 
-    public Object getFragment(EventBean eventBean)
-    {
+    public Object getFragment(EventBean eventBean) {
         return null;
     }
 

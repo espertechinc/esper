@@ -12,18 +12,15 @@ package com.espertech.esper.supportunit.bean;
 
 import java.io.Serializable;
 
-public class SupportOverrideOneA extends SupportOverrideOne implements Serializable
-{
+public class SupportOverrideOneA extends SupportOverrideOne implements Serializable {
     private String valOneA;
 
-    public SupportOverrideOneA(String valOneA, String valOne, String valBase)
-    {
+    public SupportOverrideOneA(String valOneA, String valOne, String valBase) {
         super(valOne, valBase);
         this.valOneA = valOneA;
     }
 
-    public String getVal()
-    {
+    public String getVal() {
         return valOneA;
     }
 }

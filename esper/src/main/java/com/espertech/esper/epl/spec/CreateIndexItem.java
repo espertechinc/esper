@@ -13,13 +13,11 @@ package com.espertech.esper.epl.spec;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Specification for creating a named window index column.
  */
-public class CreateIndexItem implements MetaDefItem, Serializable
-{
+public class CreateIndexItem implements MetaDefItem, Serializable {
     private static final long serialVersionUID = -3552356958442063252L;
 
     private final String name;

@@ -45,6 +45,7 @@ public enum RowRegexExprNodePrecedenceEnum {
 
     /**
      * Level.
+     *
      * @return level
      */
     public int getLevel() {

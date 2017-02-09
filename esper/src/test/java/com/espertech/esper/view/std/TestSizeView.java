@@ -12,22 +12,20 @@ package com.espertech.esper.view.std;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.bean.SupportBean_A;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import com.espertech.esper.supportunit.view.SupportBeanClassView;
-import com.espertech.esper.core.support.SupportStatementContextFactory;
 import com.espertech.esper.supportunit.view.SupportStreamImpl;
 import com.espertech.esper.view.ViewFieldEnum;
 import junit.framework.TestCase;
 
-public class TestSizeView extends TestCase
-{
+public class TestSizeView extends TestCase {
     private SizeView myView;
     private SupportBeanClassView childView;
 
-    public void setUp()
-    {
+    public void setUp() {
         // Set up length window view and a test child view
         EventType type = SizeView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         myView = new SizeView(SupportStatementContextFactory.makeAgentInstanceContext(), type, null);
@@ -37,8 +35,7 @@ public class TestSizeView extends TestCase
     }
 
     // Check values against Microsoft Excel computed values
-    public void testViewPush()
-    {
+    public void testViewPush() {
         // Set up a feed for the view under test - it will have a depth of 5 trades
         SupportStreamImpl stream = new SupportStreamImpl(SupportBean_A.class, 5);
         stream.addView(myView);
@@ -78,8 +75,7 @@ public class TestSizeView extends TestCase
         checkIterator(5);
     }
 
-    public void testUpdate()
-    {
+    public void testUpdate() {
         // View should not post events if data didn't change
         myView.update(makeBeans("f", 1), null);
 
@@ -94,8 +90,7 @@ public class TestSizeView extends TestCase
         assertNull(childView.getLastOldData());
     }
 
-    public void testSchema()
-    {
+    public void testSchema() {
         EventType type = SizeView.createEventType(SupportStatementContextFactory.makeContext(), null, 1);
         SizeView view = new SizeView(SupportStatementContextFactory.makeAgentInstanceContext(), type, null);
 
@@ -103,46 +98,39 @@ public class TestSizeView extends TestCase
         assertEquals(long.class, eventType.getPropertyType(ViewFieldEnum.SIZE_VIEW__SIZE.getName()));
     }
 
-    public void testCopyView() throws Exception
-    {
+    public void testCopyView() throws Exception {
         assertTrue(myView.cloneView() instanceof SizeView);
     }
 
-    private void checkNewData(long expectedSize)
-    {
+    private void checkNewData(long expectedSize) {
         EventBean[] newData = childView.getLastNewData();
         checkData(newData, expectedSize);
         childView.setLastNewData(null);
     }
 
-    private void checkOldData(long expectedSize)
-    {
+    private void checkOldData(long expectedSize) {
         EventBean[] oldData = childView.getLastOldData();
         checkData(oldData, expectedSize);
         childView.setLastOldData(null);
     }
 
-    private void checkData(EventBean[] data, long expectedSize)
-    {
+    private void checkData(EventBean[] data, long expectedSize) {
         // The view posts in its update data always just one object containing the size
         assertEquals(1, data.length);
         Long actualSize = (Long) data[0].get(ViewFieldEnum.SIZE_VIEW__SIZE.getName());
         assertEquals((long) expectedSize, (long) actualSize);
     }
 
-    private void checkIterator(long expectedSize)
-    {
+    private void checkIterator(long expectedSize) {
         assertTrue(myView.iterator().hasNext());
         EventBean eventBean = myView.iterator().next();
         Long actualSize = (Long) eventBean.get(ViewFieldEnum.SIZE_VIEW__SIZE.getName());
         assertEquals((Long) expectedSize, (Long) actualSize);
     }
 
-    private EventBean[] makeBeans(String id, int numTrades)
-    {
+    private EventBean[] makeBeans(String id, int numTrades) {
         EventBean[] trades = new EventBean[numTrades];
-        for (int i = 0; i < numTrades; i++)
-        {
+        for (int i = 0; i < numTrades; i++) {
             SupportBean_A bean = new SupportBean_A(id + i);
             trades[i] = SupportEventBeanFactory.createObject(bean);
         }

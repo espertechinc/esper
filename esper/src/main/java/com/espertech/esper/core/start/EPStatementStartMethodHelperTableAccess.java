@@ -22,8 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EPStatementStartMethodHelperTableAccess
-{
+public class EPStatementStartMethodHelperTableAccess {
     public static Map<ExprTableAccessNode, ExprTableAccessEvalStrategy> attachTableAccess(EPServicesContext services, AgentInstanceContext agentInstanceContext, ExprTableAccessNode[] tableNodes) {
         if (tableNodes == null || tableNodes.length == 0) {
             return Collections.emptyMap();

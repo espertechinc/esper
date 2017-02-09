@@ -10,16 +10,14 @@
  */
 package com.espertech.esper.example.qos_sla.monitor;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.example.qos_sla.eventbean.OperationMeasurement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LatencySpikeListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
+public class LatencySpikeListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
         OperationMeasurement theEvent = (OperationMeasurement) newEvents[0].get("alert");
 
         log.info("Alert, for operation '" + theEvent.getOperationName() +

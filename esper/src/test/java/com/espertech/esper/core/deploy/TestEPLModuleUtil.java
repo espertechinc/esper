@@ -14,23 +14,22 @@ import junit.framework.TestCase;
 
 import java.util.List;
 
-public class TestEPLModuleUtil extends TestCase
-{
+public class TestEPLModuleUtil extends TestCase {
     public void testParse() throws Exception {
 
-        Object[][] testdata = new Object[][] {
+        Object[][] testdata = new Object[][]{
                 {"/* Comment One */ select * from A;\n" +
-                 "/* Comment Two */  select   *  from  B ;\n",
-                 new EPLModuleParseItem[] {
-                    new EPLModuleParseItem("/* Comment One */ select * from A", 1, 0, 33),
-                    new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 2, 34, 73)},
+                        "/* Comment Two */  select   *  from  B ;\n",
+                        new EPLModuleParseItem[]{
+                                new EPLModuleParseItem("/* Comment One */ select * from A", 1, 0, 33),
+                                new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 2, 34, 73)},
                 },
-                
+
                 {"select /* Comment One\n\r; */ *, ';', \";\" from A order by x;; ;\n\n \n;\n" +
-                 "/* Comment Two */  select   *  from  B ;\n",
-                new EPLModuleParseItem[] {
-                   new EPLModuleParseItem("select /* Comment One\n\r; */ *, ';', \";\" from A order by x", 1, 0, 57),
-                   new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 6, 63, 102)},
+                        "/* Comment Two */  select   *  from  B ;\n",
+                        new EPLModuleParseItem[]{
+                                new EPLModuleParseItem("select /* Comment One\n\r; */ *, ';', \";\" from A order by x", 1, 0, 57),
+                                new EPLModuleParseItem("/* Comment Two */  select   *  from  B", 6, 63, 102)},
                 }
         };
 

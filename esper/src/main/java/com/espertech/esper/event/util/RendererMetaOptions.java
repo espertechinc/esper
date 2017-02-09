@@ -16,8 +16,7 @@ import com.espertech.esper.client.util.EventPropertyRendererContext;
 /**
  * Options for use by {@link RendererMeta} with rendering metadata.
  */
-public class RendererMetaOptions
-{
+public class RendererMetaOptions {
     private final boolean preventLooping;
     private final boolean xmlOutput;
     private final EventPropertyRenderer renderer;
@@ -25,10 +24,11 @@ public class RendererMetaOptions
 
     /**
      * Ctor.
-     * @param preventLooping true to prevent looping
-     * @param xmlOutput true for XML output
+     *
+     * @param preventLooping  true to prevent looping
+     * @param xmlOutput       true for XML output
      * @param rendererContext context
-     * @param renderer renderer
+     * @param renderer        renderer
      */
     public RendererMetaOptions(boolean preventLooping, boolean xmlOutput, EventPropertyRenderer renderer, EventPropertyRendererContext rendererContext) {
         this.preventLooping = preventLooping;
@@ -39,19 +39,19 @@ public class RendererMetaOptions
 
     /**
      * Returns true to prevent looping.
+     *
      * @return prevent looping indicator
      */
-    public boolean isPreventLooping()
-    {
+    public boolean isPreventLooping() {
         return preventLooping;
     }
 
     /**
      * Returns true for XML output.
+     *
      * @return XML output flag
      */
-    public boolean isXmlOutput()
-    {
+    public boolean isXmlOutput() {
         return xmlOutput;
     }
 

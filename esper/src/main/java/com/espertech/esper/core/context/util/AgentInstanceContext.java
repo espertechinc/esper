@@ -12,9 +12,9 @@ package com.espertech.esper.core.context.util;
 
 import com.espertech.esper.core.context.mgr.AgentInstanceFilterProxy;
 import com.espertech.esper.core.service.*;
-import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.AgentInstanceScriptContext;
+import com.espertech.esper.epl.table.mgmt.TableExprEvaluatorContext;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.util.StopCallback;
@@ -83,8 +83,7 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     public Collection<StopCallback> getTerminationCallbackRO() {
         if (terminationCallbacks == null) {
             return Collections.emptyList();
-        }
-        else if (terminationCallbacks instanceof Collection) {
+        } else if (terminationCallbacks instanceof Collection) {
             return (Collection<StopCallback>) terminationCallbacks;
         }
         return Collections.singletonList((StopCallback) terminationCallbacks);
@@ -93,11 +92,9 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     public void addTerminationCallback(StopCallback callback) {
         if (terminationCallbacks == null) {
             terminationCallbacks = callback;
-        }
-        else if (terminationCallbacks instanceof Collection) {
+        } else if (terminationCallbacks instanceof Collection) {
             ((Collection<StopCallback>) terminationCallbacks).add(callback);
-        }
-        else {
+        } else {
             StopCallback cb = (StopCallback) terminationCallbacks;
             HashSet<StopCallback> q = new HashSet<StopCallback>(2);
             q.add(cb);
@@ -109,11 +106,9 @@ public class AgentInstanceContext implements ExprEvaluatorContext {
     public void removeTerminationCallback(StopCallback callback) {
         if (terminationCallbacks == null) {
             return;
-        }
-        else if (terminationCallbacks instanceof Collection) {
+        } else if (terminationCallbacks instanceof Collection) {
             ((Collection<StopCallback>) terminationCallbacks).remove(callback);
-        }
-        else if (terminationCallbacks == callback) {
+        } else if (terminationCallbacks == callback) {
             terminationCallbacks = null;
         }
     }

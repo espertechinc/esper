@@ -15,17 +15,16 @@ import com.espertech.esper.collection.MixedEventBeanAndCollectionIteratorBase;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class AggregationStateSortedIterator extends MixedEventBeanAndCollectionIteratorBase
-{
+public class AggregationStateSortedIterator extends MixedEventBeanAndCollectionIteratorBase {
     private final SortedMap<Object, Object> window;
 
     /**
      * Ctor.
-     * @param window - sorted map with events
+     *
+     * @param window  - sorted map with events
      * @param reverse for reverse iterator
      */
-    public AggregationStateSortedIterator(TreeMap<Object, Object> window, boolean reverse)
-    {
+    public AggregationStateSortedIterator(TreeMap<Object, Object> window, boolean reverse) {
         super(reverse ? window.descendingKeySet().iterator() : window.keySet().iterator());
         this.window = window;
         init();

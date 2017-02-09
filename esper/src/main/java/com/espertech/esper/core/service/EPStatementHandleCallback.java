@@ -23,36 +23,34 @@ import com.espertech.esper.schedule.ScheduleHandleCallback;
  * Links the statement handle identifying a statement and containing the statement resource lock,
  * with the actual callback to invoke for a statement together.
  */
-public class EPStatementHandleCallback implements FilterHandle, ScheduleHandle
-{
+public class EPStatementHandleCallback implements FilterHandle, ScheduleHandle {
     private EPStatementAgentInstanceHandle agentInstanceHandle;
     private FilterHandleCallback filterCallback;
     private ScheduleHandleCallback scheduleCallback;
 
     /**
      * Ctor.
+     *
      * @param agentInstanceHandle is a statement handle
-     * @param callback is a filter callback
+     * @param callback            is a filter callback
      */
-    public EPStatementHandleCallback(EPStatementAgentInstanceHandle agentInstanceHandle, FilterHandleCallback callback)
-    {
+    public EPStatementHandleCallback(EPStatementAgentInstanceHandle agentInstanceHandle, FilterHandleCallback callback) {
         this.agentInstanceHandle = agentInstanceHandle;
         this.filterCallback = callback;
     }
 
     /**
      * Ctor.
+     *
      * @param agentInstanceHandle is a statement handle
-     * @param callback is a schedule callback
+     * @param callback            is a schedule callback
      */
-    public EPStatementHandleCallback(EPStatementAgentInstanceHandle agentInstanceHandle, ScheduleHandleCallback callback)
-    {
+    public EPStatementHandleCallback(EPStatementAgentInstanceHandle agentInstanceHandle, ScheduleHandleCallback callback) {
         this.agentInstanceHandle = agentInstanceHandle;
         this.scheduleCallback = callback;
     }
 
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return agentInstanceHandle.getStatementId();
     }
 
@@ -62,28 +60,28 @@ public class EPStatementHandleCallback implements FilterHandle, ScheduleHandle
 
     /**
      * Returns the statement handle.
+     *
      * @return handle containing a statement resource lock
      */
-    public EPStatementAgentInstanceHandle getAgentInstanceHandle()
-    {
+    public EPStatementAgentInstanceHandle getAgentInstanceHandle() {
         return agentInstanceHandle;
     }
 
     /**
      * Returns the statement filter callback, or null if this is a schedule callback handle.
+     *
      * @return filter callback
      */
-    public FilterHandleCallback getFilterCallback()
-    {
+    public FilterHandleCallback getFilterCallback() {
         return filterCallback;
     }
 
     /**
      * Returns the statement schedule callback, or null if this is a filter callback handle.
+     *
      * @return schedule callback
      */
-    public ScheduleHandleCallback getScheduleCallback()
-    {
+    public ScheduleHandleCallback getScheduleCallback() {
         return scheduleCallback;
     }
 

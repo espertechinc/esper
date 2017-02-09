@@ -18,8 +18,7 @@ import java.sql.ResultSet;
  * <p>
  * Applications should not retain instances of this class as the engine may change and reuse values here.
  */
-public class SQLColumnValueContext
-{
+public class SQLColumnValueContext {
     private String columnName;
     private int columnNumber;
     private Object columnValue;
@@ -28,66 +27,66 @@ public class SQLColumnValueContext
     /**
      * Ctor.
      */
-    public SQLColumnValueContext()
-    {
+    public SQLColumnValueContext() {
     }
 
     /**
      * Returns column name.
+     *
      * @return name
      */
-    public String getColumnName()
-    {
+    public String getColumnName() {
         return columnName;
     }
 
     /**
      * Returns column name
+     *
      * @param columnName the name of the column
      */
-    public void setColumnName(String columnName)
-    {
+    public void setColumnName(String columnName) {
         this.columnName = columnName;
     }
 
     /**
      * Returns column number.
+     *
      * @return column number
      */
-    public int getColumnNumber()
-    {
+    public int getColumnNumber() {
         return columnNumber;
     }
 
     /**
      * Set column number
+     *
      * @param columnNumber to set
      */
-    public void setColumnNumber(int columnNumber)
-    {
+    public void setColumnNumber(int columnNumber) {
         this.columnNumber = columnNumber;
     }
 
     /**
      * Returns column value
+     *
      * @return value
      */
-    public Object getColumnValue()
-    {
+    public Object getColumnValue() {
         return columnValue;
     }
 
     /**
      * Set column value
+     *
      * @param columnValue to set
      */
-    public void setColumnValue(Object columnValue)
-    {
+    public void setColumnValue(Object columnValue) {
         this.columnValue = columnValue;
     }
 
     /**
      * Sets the result set.
+     *
      * @param resultSet to set
      */
     public void setResultSet(ResultSet resultSet) {
@@ -96,6 +95,7 @@ public class SQLColumnValueContext
 
     /**
      * Returns the result set.
+     *
      * @return result set
      */
     public ResultSet getResultSet() {

@@ -13,35 +13,34 @@ package com.espertech.esper.client;
 /**
  * Thrown to indicate a configuration problem.
  */
-final public class ConfigurationException extends EPException
-{
+final public class ConfigurationException extends EPException {
     private static final long serialVersionUID = -4664999702525699192L;
 
     /**
      * Ctor.
+     *
      * @param message - error message
      */
-    public ConfigurationException(final String message)
-    {
+    public ConfigurationException(final String message) {
         super(message);
     }
 
     /**
      * Ctor for an inner exception and message.
+     *
      * @param message - error message
-     * @param cause - inner exception
+     * @param cause   - inner exception
      */
-    public ConfigurationException(final String message, final Throwable cause)
-    {
+    public ConfigurationException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     /**
      * Ctor - just an inner exception.
+     *
      * @param cause - inner exception
      */
-    public ConfigurationException(final Throwable cause)
-    {
+    public ConfigurationException(final Throwable cause) {
         super(cause);
     }
 }

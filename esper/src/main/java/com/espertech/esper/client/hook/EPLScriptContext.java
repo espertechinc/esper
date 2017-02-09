@@ -16,13 +16,15 @@ package com.espertech.esper.client.hook;
 public interface EPLScriptContext {
     /**
      * Set a script attributed.
+     *
      * @param attribute name to use
-     * @param value value to set
+     * @param value     value to set
      */
     public void setScriptAttribute(String attribute, Object value);
 
     /**
      * Return a script attribute value.
+     *
      * @param attribute name to retrieve value for
      * @return attribute value or null if undefined
      */

@@ -13,26 +13,21 @@ package com.espertech.esper.epl.agg.aggregator;
 /**
  * Aggregator for the very last value.
  */
-public class AggregatorLastEver implements AggregationMethod
-{
+public class AggregatorLastEver implements AggregationMethod {
     protected Object lastValue;
 
-    public void clear()
-    {
+    public void clear() {
         lastValue = null;
     }
 
-    public void enter(Object object)
-    {
+    public void enter(Object object) {
         lastValue = object;
     }
 
-    public void leave(Object object)
-    {
+    public void leave(Object object) {
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return lastValue;
     }
 

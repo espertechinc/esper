@@ -26,7 +26,7 @@ public class MatchRecognizeStatePoolStmtHandler {
     }
 
     public void decreaseCount(int num) {
-        count-=num;
+        count -= num;
         if (count < 0) {
             count = 0;
         }

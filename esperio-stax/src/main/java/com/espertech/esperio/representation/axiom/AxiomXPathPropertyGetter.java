@@ -10,15 +10,15 @@
  */
 package com.espertech.esperio.representation.axiom;
 
-import com.espertech.esper.util.SimpleTypeParser;
-import com.espertech.esper.util.SimpleTypeParserFactory;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.util.SimpleTypeParser;
+import com.espertech.esper.util.SimpleTypeParserFactory;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.jaxen.JaxenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jaxen.JaxenException;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
@@ -28,8 +28,7 @@ import javax.xml.xpath.XPathConstants;
  * <p>
  * See {@link AxiomEventRepresentation} for more details.
  */
-public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter
-{
+public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter {
     private static final Logger log = LoggerFactory.getLogger(AxiomXPathPropertyGetter.class);
     private final AXIOMXPath expression;
     private final String property;
@@ -39,58 +38,45 @@ public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter
 
     /**
      * Ctor.
-     * @param propertyName    is the name of the event property for which this getter gets values
-     * @param resultType      is the resulting type
-     * @param xPath           the Axiom xpath expression
+     *
+     * @param propertyName       is the name of the event property for which this getter gets values
+     * @param resultType         is the resulting type
+     * @param xPath              the Axiom xpath expression
      * @param optionalCastToType null if no cast, or the type to cast to
      */
-    public AxiomXPathPropertyGetter(String propertyName, AXIOMXPath xPath, QName resultType, Class optionalCastToType)
-    {
+    public AxiomXPathPropertyGetter(String propertyName, AXIOMXPath xPath, QName resultType, Class optionalCastToType) {
         this.expression = xPath;
         this.property = propertyName;
         this.resultType = resultType;
-        if (optionalCastToType != null)
-        {
+        if (optionalCastToType != null) {
             simpleTypeParser = SimpleTypeParserFactory.getParser(optionalCastToType);
-        }
-        else
-        {
+        } else {
             simpleTypeParser = null;
         }
         this.optionalCastToType = optionalCastToType;
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException
-    {
+    public Object get(EventBean eventBean) throws PropertyAccessException {
         Object und = eventBean.getUnderlying();
-        if (und == null)
-        {
+        if (und == null) {
             throw new PropertyAccessException(
                     "Unexpected null underlying event encountered, expecting org.w3c.dom.Node instance as underlying");
         }
-        if (!(und instanceof OMNode))
-        {
+        if (!(und instanceof OMNode)) {
             throw new PropertyAccessException(
                     "Unexpected underlying event of type '"
                             + und.getClass()
                             + "' encountered, expecting org.w3c.dom.Node as underlying");
         }
-        try
-        {
+        try {
             // if there is no parser, return xpath expression type
-            if (optionalCastToType == null)
-            {
-                if (resultType.equals(XPathConstants.BOOLEAN))
-                {
+            if (optionalCastToType == null) {
+                if (resultType.equals(XPathConstants.BOOLEAN)) {
                     return expression.booleanValueOf(und);
-                }
-                else if (resultType.equals(XPathConstants.NUMBER))
-                {
+                } else if (resultType.equals(XPathConstants.NUMBER)) {
                     Number n = expression.numberValueOf(und);
                     return n.doubleValue();
-                }
-                else
-                {
+                } else {
                     String result = expression.stringValueOf(und);
                     return result;
                 }
@@ -98,52 +84,40 @@ public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter
 
             // obtain result as string and parse
             String result = expression.stringValueOf(und);
-            if (result == null)
-            {
+            if (result == null) {
                 return null;
             }
 
-            try
-            {
+            try {
                 return simpleTypeParser.parse(result.toString());
-            }
-            catch (RuntimeException ex)
-            {
+            } catch (RuntimeException ex) {
                 log.warn("Error parsing XPath property named '" + property + "' expression result '" + result + " as type " + optionalCastToType.getName());
                 return null;
             }
-        }
-        catch (JaxenException e)
-        {
-            throw new PropertyAccessException("Error getting property '"+ property + "' : " + e.getMessage(), e);
+        } catch (JaxenException e) {
+            throw new PropertyAccessException("Error getting property '" + property + "' : " + e.getMessage(), e);
         }
     }
 
-    public Class getResultClass()
-    {
-        if (resultType.equals(XPathConstants.BOOLEAN))
-        {
+    public Class getResultClass() {
+        if (resultType.equals(XPathConstants.BOOLEAN)) {
             return Boolean.class;
         }
-        if (resultType.equals(XPathConstants.NUMBER))
-        {
+        if (resultType.equals(XPathConstants.NUMBER)) {
             return Double.class;
         }
-        if (resultType.equals(XPathConstants.STRING))
-        {
+        if (resultType.equals(XPathConstants.STRING)) {
             return String.class;
         }
 
         return String.class;
     }
 
-    public boolean isExistsProperty(EventBean eventBean)
-    {
+    public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property always exists as the property is not dynamic
     }
 
-    public Object getFragment(EventBean eventBean) throws PropertyAccessException
-    {
-        return null; 
+    public Object getFragment(EventBean eventBean) throws PropertyAccessException {
+        return null;
     }
 }

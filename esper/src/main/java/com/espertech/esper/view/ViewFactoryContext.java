@@ -21,8 +21,7 @@ import com.espertech.esper.schedule.SchedulingService;
  * Context calss for specific views within a statement. Each view in a statement gets it's own context
  * containing the statement context.
  */
-public class ViewFactoryContext
-{
+public class ViewFactoryContext {
     private StatementContext statementContext;
     private final int streamNum;
     private final String namespaceName;
@@ -33,13 +32,14 @@ public class ViewFactoryContext
 
     /**
      * Ctor.
+     *
      * @param statementContext is the statement-level services
-     * @param streamNum is the stream number from zero to N
-     * @param namespaceName is the view namespace
-     * @param viewName is the view name
-     * @param isSubquery subquery indicator
-     * @param subqueryNumber for subqueries
-     * @param isGrouped for grouped view
+     * @param streamNum        is the stream number from zero to N
+     * @param namespaceName    is the view namespace
+     * @param viewName         is the view name
+     * @param isSubquery       subquery indicator
+     * @param subqueryNumber   for subqueries
+     * @param isGrouped        for grouped view
      */
     public ViewFactoryContext(StatementContext statementContext, int streamNum, String namespaceName, String viewName, boolean isSubquery, int subqueryNumber, boolean isGrouped) {
         this.statementContext = statementContext;
@@ -53,91 +53,91 @@ public class ViewFactoryContext
 
     /**
      * Returns service to use for schedule evaluation.
+     *
      * @return schedule evaluation service implemetation
      */
-    public final SchedulingService getSchedulingService()
-    {
+    public final SchedulingService getSchedulingService() {
         return statementContext.getSchedulingService();
     }
 
     /**
      * Returns service for generating events and handling event types.
+     *
      * @return event adapter service
      */
-    public EventAdapterService getEventAdapterService()
-    {
+    public EventAdapterService getEventAdapterService() {
         return statementContext.getEventAdapterService();
     }
 
     /**
      * Returns the schedule bucket for ordering schedule callbacks within this pattern.
+     *
      * @return schedule bucket
      */
-    public ScheduleBucket getScheduleBucket()
-    {
+    public ScheduleBucket getScheduleBucket() {
         return statementContext.getScheduleBucket();
     }
 
     /**
      * Returns the statement's resource locks.
+     *
      * @return statement resource lock/handle
      */
-    public EPStatementHandle getEpStatementHandle()
-    {
+    public EPStatementHandle getEpStatementHandle() {
         return statementContext.getEpStatementHandle();
     }
 
     /**
      * Returns extension svc.
+     *
      * @return svc
      */
-    public StatementExtensionSvcContext getStatementExtensionServicesContext()
-    {
+    public StatementExtensionSvcContext getStatementExtensionServicesContext() {
         return statementContext.getStatementExtensionServicesContext();
     }
 
     /**
      * Returns the statement id.
+     *
      * @return statement id
      */
-    public int getStatementId()
-    {
+    public int getStatementId() {
         return statementContext.getStatementId();
     }
 
     /**
      * Returns the stream number.
+     *
      * @return stream number
      */
-    public int getStreamNum()
-    {
+    public int getStreamNum() {
         return streamNum;
     }
 
     /**
      * Returns the view namespace name.
+     *
      * @return namespace name
      */
-    public String getNamespaceName()
-    {
+    public String getNamespaceName() {
         return namespaceName;
     }
 
     /**
      * Returns the view name.
+     *
      * @return view name
      */
-    public String getViewName()
-    {
+    public String getViewName() {
         return viewName;
     }
 
     /**
      * Returns the statement context.
+     *
      * @return statement context
      */
-    public StatementContext getStatementContext()
-    {
+    public StatementContext getStatementContext() {
         return statementContext;
     }
 
@@ -153,9 +153,8 @@ public class ViewFactoryContext
         return isGrouped;
     }
 
-    public String toString()
-    {
-        return  statementContext.toString() +
+    public String toString() {
+        return statementContext.toString() +
                 " streamNum=" + streamNum +
                 " namespaceName=" + namespaceName +
                 " viewName=" + viewName;

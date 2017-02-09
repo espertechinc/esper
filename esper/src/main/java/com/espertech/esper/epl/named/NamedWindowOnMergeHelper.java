@@ -33,8 +33,7 @@ import java.util.List;
 /**
  * Factory for handles for updates/inserts/deletes/select
  */
-public class NamedWindowOnMergeHelper
-{
+public class NamedWindowOnMergeHelper {
     private List<NamedWindowOnMergeMatch> matched;
     private List<NamedWindowOnMergeMatch> unmatched;
 
@@ -45,8 +44,7 @@ public class NamedWindowOnMergeHelper
                                     InternalEventRouter internalEventRouter,
                                     String namedWindowName,
                                     EventTypeSPI namedWindowType)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         matched = new ArrayList<NamedWindowOnMergeMatch>();
         unmatched = new ArrayList<NamedWindowOnMergeMatch>();
 
@@ -58,34 +56,29 @@ public class NamedWindowOnMergeHelper
                     if (item instanceof OnTriggerMergeActionInsert) {
                         OnTriggerMergeActionInsert insertDesc = (OnTriggerMergeActionInsert) item;
                         actions.add(setupInsert(namedWindowName, internalEventRouter, namedWindowType, count, insertDesc, triggeringEventType, triggeringStreamName, statementContext));
-                    }
-                    else if (item instanceof OnTriggerMergeActionUpdate) {
+                    } else if (item instanceof OnTriggerMergeActionUpdate) {
                         OnTriggerMergeActionUpdate updateDesc = (OnTriggerMergeActionUpdate) item;
                         EventBeanUpdateHelper updateHelper = EventBeanUpdateHelperFactory.make(namedWindowName, namedWindowType, updateDesc.getAssignments(), onTriggerDesc.getOptionalAsName(), triggeringEventType, true, statementContext.getStatementName(), statementContext.getEngineURI(), statementContext.getEventAdapterService());
                         ExprEvaluator filterEval = updateDesc.getOptionalWhereClause() == null ? null : updateDesc.getOptionalWhereClause().getExprEvaluator();
                         actions.add(new NamedWindowOnMergeActionUpd(filterEval, updateHelper));
-                    }
-                    else if (item instanceof OnTriggerMergeActionDelete) {
+                    } else if (item instanceof OnTriggerMergeActionDelete) {
                         OnTriggerMergeActionDelete deleteDesc = (OnTriggerMergeActionDelete) item;
                         ExprEvaluator filterEval = deleteDesc.getOptionalWhereClause() == null ? null : deleteDesc.getOptionalWhereClause().getExprEvaluator();
                         actions.add(new NamedWindowOnMergeActionDel(filterEval));
-                    }
-                    else {
+                    } else {
                         throw new IllegalArgumentException("Invalid type of merge item '" + item.getClass() + "'");
                     }
                     count++;
-                }
-                catch (ExprValidationException ex) {
+                } catch (ExprValidationException ex) {
                     boolean isNot = item instanceof OnTriggerMergeActionInsert;
-                    String message = "Validation failed in when-" + (isNot?"not-":"") + "matched (clause " + count + "): " + ex.getMessage();
+                    String message = "Validation failed in when-" + (isNot ? "not-" : "") + "matched (clause " + count + "): " + ex.getMessage();
                     throw new ExprValidationException(message, ex);
                 }
             }
 
             if (matchedItem.isMatchedUnmatched()) {
                 matched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
-            }
-            else {
+            } else {
                 unmatched.add(new NamedWindowOnMergeMatch(matchedItem.getOptionalMatchCond(), actions));
             }
         }
@@ -106,8 +99,8 @@ public class NamedWindowOnMergeHelper
 
         // Set up event types for select-clause evaluation: The first type does not contain anything as its the named window row which is not present for insert
         EventType dummyTypeNoProperties = new MapEventType(EventTypeMetadata.createAnonymous("merge_named_window_insert", EventTypeMetadata.ApplicationType.MAP), "merge_named_window_insert", 0, null, Collections.<String, Object>emptyMap(), null, null, null);
-        EventType[] eventTypes = new EventType[] {dummyTypeNoProperties, triggeringEventType};
-        String[] streamNames = new String[] {UuidGenerator.generate(), triggeringStreamName};
+        EventType[] eventTypes = new EventType[]{dummyTypeNoProperties, triggeringEventType};
+        String[] streamNames = new String[]{UuidGenerator.generate(), triggeringStreamName};
         StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventTypes, streamNames, new boolean[1], statementContext.getEngineURI(), false);
 
         // Get select expr processor
@@ -133,10 +126,8 @@ public class NamedWindowOnMergeHelper
 
     public static List<SelectClauseElementCompiled> compileSelectNoWildcard(String triggeringStreamName, List<SelectClauseElementCompiled> selectClause) {
         List<SelectClauseElementCompiled> selectNoWildcard = new ArrayList<SelectClauseElementCompiled>();
-        for (SelectClauseElementCompiled element : selectClause)
-        {
-            if (!(element instanceof SelectClauseElementWildcard))
-            {
+        for (SelectClauseElementCompiled element : selectClause) {
+            if (!(element instanceof SelectClauseElementWildcard)) {
                 selectNoWildcard.add(element);
                 continue;
             }

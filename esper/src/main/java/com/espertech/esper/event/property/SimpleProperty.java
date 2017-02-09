@@ -32,78 +32,61 @@ import java.util.Map;
 /**
  * Represents a simple property of a given name.
  */
-public class SimpleProperty extends PropertyBase implements PropertySimple
-{
+public class SimpleProperty extends PropertyBase implements PropertySimple {
     /**
      * Ctor.
+     *
      * @param propertyName is the property name
      */
-    public SimpleProperty(String propertyName)
-    {
+    public SimpleProperty(String propertyName) {
         super(propertyName);
     }
 
-    public String[] toPropertyArray()
-    {
-        return new String[] {this.getPropertyNameAtomic()};
-    }    
+    public String[] toPropertyArray() {
+        return new String[]{this.getPropertyNameAtomic()};
+    }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         InternalEventPropDescriptor propertyDesc = eventType.getSimpleProperty(propertyNameAtomic);
-        if (propertyDesc == null)
-        {
+        if (propertyDesc == null) {
             return null;
         }
-        if (!propertyDesc.getPropertyType().equals(EventPropertyType.SIMPLE))
-        {
+        if (!propertyDesc.getPropertyType().equals(EventPropertyType.SIMPLE)) {
             return null;
         }
         return eventType.getGetter(propertyNameAtomic);
     }
 
-    public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService) {
         InternalEventPropDescriptor propertyDesc = eventType.getSimpleProperty(propertyNameAtomic);
-        if (propertyDesc == null)
-        {
+        if (propertyDesc == null) {
             return null;
         }
         return propertyDesc.getReturnType();
     }
 
-    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, EventAdapterService eventAdapterService)
-    {
+    public GenericPropertyDesc getPropertyTypeGeneric(BeanEventType eventType, EventAdapterService eventAdapterService) {
         InternalEventPropDescriptor propertyDesc = eventType.getSimpleProperty(propertyNameAtomic);
-        if (propertyDesc == null)
-        {
+        if (propertyDesc == null) {
             return null;
         }
         return propertyDesc.getReturnTypeGeneric();
     }
 
-    public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService)
-    {
+    public Class getPropertyTypeMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
         // The simple, none-dynamic property needs a definition of the map contents else no property
-        if (optionalMapPropTypes == null)
-        {
+        if (optionalMapPropTypes == null) {
             return null;
         }
         Object def = optionalMapPropTypes.get(propertyNameAtomic);
-        if (def == null)
-        {
+        if (def == null) {
             return null;
         }
-        if (def instanceof Class)
-        {
+        if (def instanceof Class) {
             return (Class) def;
-        }
-        else if (def instanceof Map)
-        {
+        } else if (def instanceof Map) {
             return Map.class;
-        }
-        else if (def instanceof String)
-        {
+        } else if (def instanceof String) {
             String propertyName = def.toString();
             boolean isArray = EventTypeUtility.isPropertyArray(propertyName);
             if (isArray) {
@@ -111,82 +94,62 @@ public class SimpleProperty extends PropertyBase implements PropertySimple
             }
 
             EventType eventType = eventAdapterService.getExistsTypeByName(propertyName);
-            if (eventType instanceof MapEventType)
-            {
-                if (isArray)
-                {
+            if (eventType instanceof MapEventType) {
+                if (isArray) {
                     return Map[].class;
-                }
-                else
-                {
+                } else {
                     return Map.class;
                 }
             }
-            if (eventType instanceof ObjectArrayEventType)
-            {
-                if (isArray)
-                {
+            if (eventType instanceof ObjectArrayEventType) {
+                if (isArray) {
                     return Object[][].class;
-                }
-                else
-                {
+                } else {
                     return Object[].class;
                 }
             }
         }
         String message = "Nestable map type configuration encountered an unexpected value type of '"
-            + def.getClass() + " for property '" + propertyNameAtomic + "', expected Map or Class";
+                + def.getClass() + " for property '" + propertyNameAtomic + "', expected Map or Class";
         throw new PropertyAccessException(message);
     }
 
-    public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService)
-    {
+    public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
         // The simple, none-dynamic property needs a definition of the map contents else no property
-        if (optionalMapPropTypes == null)
-        {
+        if (optionalMapPropTypes == null) {
             return null;
         }
         Object def = optionalMapPropTypes.get(propertyNameAtomic);
-        if (def == null)
-        {
+        if (def == null) {
             return null;
         }
         return new MapPropertyGetterDefaultNoFragment(propertyNameAtomic, eventAdapterService);
     }
 
-    public void toPropertyEPL(StringWriter writer)
-    {
+    public void toPropertyEPL(StringWriter writer) {
         writer.append(propertyNameAtomic);
     }
 
-    public EventPropertyGetter getGetterDOM()
-    {
+    public EventPropertyGetter getGetterDOM() {
         return new DOMAttributeAndElementGetter(propertyNameAtomic);
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression)
-    {
-        for (SchemaItemAttribute attribute : complexProperty.getAttributes())
-        {
-            if (attribute.getName().equals(propertyNameAtomic))
-            {
+    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression) {
+        for (SchemaItemAttribute attribute : complexProperty.getAttributes()) {
+            if (attribute.getName().equals(propertyNameAtomic)) {
                 return new DOMSimpleAttributeGetter(propertyNameAtomic);
             }
         }
 
-        for (SchemaElementSimple simple : complexProperty.getSimpleElements())
-        {
-            if (simple.getName().equals(propertyNameAtomic))
-            {
+        for (SchemaElementSimple simple : complexProperty.getSimpleElements()) {
+            if (simple.getName().equals(propertyNameAtomic)) {
                 return new DOMComplexElementGetter(propertyNameAtomic, null, simple.isArray());
             }
         }
 
-        for (SchemaElementComplex complex : complexProperty.getChildren())
-        {
+        for (SchemaElementComplex complex : complexProperty.getChildren()) {
             FragmentFactoryDOMGetter complexFragmentFactory = new FragmentFactoryDOMGetter(eventAdapterService, xmlEventType, propertyExpression);
-            if (complex.getName().equals(propertyNameAtomic))
-            {
+            if (complex.getName().equals(propertyNameAtomic)) {
                 return new DOMComplexElementGetter(propertyNameAtomic, complexFragmentFactory, complex.isArray());
             }
         }
@@ -194,20 +157,17 @@ public class SimpleProperty extends PropertyBase implements PropertySimple
         return null;
     }
 
-    public SchemaItem getPropertyTypeSchema(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService)
-    {
+    public SchemaItem getPropertyTypeSchema(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService) {
         return SchemaUtil.findPropertyMapping(complexProperty, propertyNameAtomic);
     }
 
-    public boolean isDynamic()
-    {
+    public boolean isDynamic() {
         return false;
     }
 
     public ObjectArrayEventPropertyGetter getGetterObjectArray(Map<String, Integer> indexPerProperty, Map<String, Object> nestableTypes, EventAdapterService eventAdapterService) {
         // The simple, none-dynamic property needs a definition of the map contents else no property
-        if (nestableTypes == null)
-        {
+        if (nestableTypes == null) {
             return null;
         }
         Integer propertyIndex = indexPerProperty.get(propertyNameAtomic);

@@ -14,16 +14,17 @@ package com.espertech.esper.schedule;
  * Marker interface for use with {@link SchedulingService}. Implementations serve as a schedule trigger values when
  * the schedule is reached to trigger or return the handle.
  */
-public interface ScheduleHandle
-{
+public interface ScheduleHandle {
     /**
      * Returns the statement id.
+     *
      * @return statement id
      */
     public int getStatementId();
 
     /**
      * Returns the agent instance id.
+     *
      * @return agent instance id
      */
     public int getAgentInstanceId();

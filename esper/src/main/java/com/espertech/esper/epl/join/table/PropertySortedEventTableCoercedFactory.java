@@ -12,19 +12,18 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
 
-public class PropertySortedEventTableCoercedFactory extends PropertySortedEventTableFactory
-{
+public class PropertySortedEventTableCoercedFactory extends PropertySortedEventTableFactory {
     protected Class coercionType;
 
-   /**
+    /**
      * Ctor.
-     * @param streamNum - the stream number that is indexed
-     * @param eventType - types of events indexed
+     *
+     * @param streamNum    - the stream number that is indexed
+     * @param eventType    - types of events indexed
      * @param propertyName - property names to use for indexing
      * @param coercionType - property types
      */
-    public PropertySortedEventTableCoercedFactory(int streamNum, EventType eventType, String propertyName, Class coercionType)
-    {
+    public PropertySortedEventTableCoercedFactory(int streamNum, EventType eventType, String propertyName, Class coercionType) {
         super(streamNum, eventType, propertyName);
         this.coercionType = coercionType;
     }
@@ -32,11 +31,10 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
     @Override
     public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
         EventTableOrganization organization = getOrganization();
-        return new EventTable[] {new PropertySortedEventTableCoerced(propertyGetter, organization, coercionType)};
+        return new EventTable[]{new PropertySortedEventTableCoerced(propertyGetter, organization, coercionType)};
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "PropertySortedEventTableCoerced" +
                 " streamNum=" + streamNum +
                 " propertyName=" + propertyName +
@@ -44,6 +42,6 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
     }
 
     protected EventTableOrganization getOrganization() {
-        return new EventTableOrganization(null, false, true, streamNum, new String[] {propertyName}, EventTableOrganizationType.BTREE);
+        return new EventTableOrganization(null, false, true, streamNum, new String[]{propertyName}, EventTableOrganizationType.BTREE);
     }
 }

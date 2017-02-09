@@ -23,8 +23,7 @@ import java.lang.reflect.Method;
 /**
  * A result delivery strategy that uses an "update" method that accepts a pair of object array array.
  */
-public class ResultDeliveryStrategyObjectArrWStmt extends ResultDeliveryStrategyObjectArr
-{
+public class ResultDeliveryStrategyObjectArrWStmt extends ResultDeliveryStrategyObjectArr {
     private static Logger log = LoggerFactory.getLogger(ResultDeliveryStrategyObjectArrWStmt.class);
 
     public ResultDeliveryStrategyObjectArrWStmt(EPStatement statement, Object subscriber, Method method, EngineImportService engineImportService) {
@@ -32,25 +31,22 @@ public class ResultDeliveryStrategyObjectArrWStmt extends ResultDeliveryStrategy
     }
 
     @Override
-    public void execute(UniformPair<EventBean[]> result)
-    {
+    public void execute(UniformPair<EventBean[]> result) {
         Object[][] newData;
         Object[][] oldData;
 
         if (result == null) {
             newData = null;
             oldData = null;
-        }
-        else {
+        } else {
             newData = convert(result.getFirst());
             oldData = convert(result.getSecond());
         }
 
-        Object[] parameters = new Object[] {statement, newData, oldData};
+        Object[] parameters = new Object[]{statement, newData, oldData};
         try {
             fastMethod.invoke(subscriber, parameters);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             ResultDeliveryStrategyImpl.handle(statement.getName(), log, e, parameters, subscriber, fastMethod);
         }
     }

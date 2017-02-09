@@ -24,8 +24,7 @@ public class StatementAgentInstanceFactoryCreateTable implements StatementAgentI
         this.tableMetadata = tableMetadata;
     }
 
-    public StatementAgentInstanceFactoryCreateTableResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient)
-    {
+    public StatementAgentInstanceFactoryCreateTableResult newContext(final AgentInstanceContext agentInstanceContext, boolean isRecoveringResilient) {
         TableStateInstance tableState = tableMetadata.getTableStateFactory().makeTableState(agentInstanceContext);
         AggregationServiceTable aggregationReportingService = new AggregationServiceTable(tableState);
         TableStateViewablePublic finalView = new TableStateViewablePublic(tableMetadata, tableState);

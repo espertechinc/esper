@@ -13,8 +13,7 @@ package com.espertech.esper.client;
 /**
  * Enum indicating what kind of references are used to store the cache map's keys and values.
  */
-public enum ConfigurationCacheReferenceType
-{
+public enum ConfigurationCacheReferenceType {
     /**
      * Constant indicating that hard references should be used.
      * <p>
@@ -39,10 +38,10 @@ public enum ConfigurationCacheReferenceType
     /**
      * The default policy is set to WEAK to reduce the chance that out-of-memory errors occur
      * as caches fill, and stay backwards compatible with prior Esper releases.
+     *
      * @return default reference type
      */
-    public static ConfigurationCacheReferenceType getDefault()
-    {
+    public static ConfigurationCacheReferenceType getDefault() {
         return WEAK;
     }
 }

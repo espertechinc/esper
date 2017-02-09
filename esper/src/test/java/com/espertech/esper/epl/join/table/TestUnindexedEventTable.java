@@ -14,14 +14,12 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
-public class TestUnindexedEventTable extends TestCase
-{
-    public void testFlow()
-    {
+public class TestUnindexedEventTable extends TestCase {
+    public void testFlow() {
         UnindexedEventTable rep = new UnindexedEventTableImpl(1);
 
-        EventBean[] addOne = SupportEventBeanFactory.makeEvents(new String[] {"a", "b"});
+        EventBean[] addOne = SupportEventBeanFactory.makeEvents(new String[]{"a", "b"});
         rep.add(addOne);
-        rep.remove(new EventBean[] {addOne[0]});
+        rep.remove(new EventBean[]{addOne[0]});
     }
 }

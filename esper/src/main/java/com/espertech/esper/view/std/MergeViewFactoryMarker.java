@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.view.std;
 
-public interface MergeViewFactoryMarker
-{
+public interface MergeViewFactoryMarker {
 }

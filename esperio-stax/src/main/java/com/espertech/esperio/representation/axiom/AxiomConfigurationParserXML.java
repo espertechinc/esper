@@ -26,59 +26,49 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathConstants;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Locale;
 
 /**
  * DOM-based parser for configuration XML for the Axiom event type representation.
  */
-public class AxiomConfigurationParserXML
-{
+public class AxiomConfigurationParserXML {
     /**
      * Parses the configuration XML.
+     *
      * @param theString xml to parse
      * @return parsed configuration
      * @throws EPException if the parse operation failed
      */
-    protected static ConfigurationEventTypeAxiom parse(String theString) throws EPException
-    {
+    protected static ConfigurationEventTypeAxiom parse(String theString) throws EPException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 
         Document document;
 
-        try
-        {
+        try {
             builder = factory.newDocumentBuilder();
             document = builder.parse(new InputSource(new StringReader(theString)));
-        }
-        catch (ParserConfigurationException ex)
-        {
+        } catch (ParserConfigurationException ex) {
             throw new EPException("Could not get a DOM parser configuration", ex);
-        }
-        catch (SAXException ex)
-        {
+        } catch (SAXException ex) {
             throw new EPException("Could not parse configuration", ex);
-        }
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             throw new EPException("Could not read configuration", ex);
         }
 
         return parse(document);
     }
 
-    private static ConfigurationEventTypeAxiom parse(Document doc) throws EPException
-    {
+    private static ConfigurationEventTypeAxiom parse(Document doc) throws EPException {
         Element root = doc.getDocumentElement();
         String nodeName = root.getNodeName();
-        if (!nodeName.equals("xml-axiom"))
-        {
+        if (!nodeName.equals("xml-axiom")) {
             throw new ConfigurationException("Expected root element 'xml-axiom' not found in document, found '" + nodeName + "' instead");
         }
         return handleAxiom(root);
     }
 
-    private static ConfigurationEventTypeAxiom handleAxiom(Element xmldomElement)
-    {
+    private static ConfigurationEventTypeAxiom handleAxiom(Element xmldomElement) {
         String rootElementName = xmldomElement.getAttributes().getNamedItem("root-element-name").getTextContent();
         String rootElementNamespace = getOptionalAttribute(xmldomElement, "root-element-namespace");
         String defaultNamespace = getOptionalAttribute(xmldomElement, "default-namespace");
@@ -88,49 +78,37 @@ public class AxiomConfigurationParserXML
         xmlAxiomConfig.setRootElementName(rootElementName);
         xmlAxiomConfig.setRootElementNamespace(rootElementNamespace);
         xmlAxiomConfig.setDefaultNamespace(defaultNamespace);
-        if (resolvePropertiesAbsoluteStr != null)
-        {
+        if (resolvePropertiesAbsoluteStr != null) {
             xmlAxiomConfig.setResolvePropertiesAbsolute(Boolean.parseBoolean(resolvePropertiesAbsoluteStr));
         }
 
         DOMElementIterator propertyNodeIterator = new DOMElementIterator(xmldomElement.getChildNodes());
-        while (propertyNodeIterator.hasNext())
-        {
+        while (propertyNodeIterator.hasNext()) {
             Element propertyElement = propertyNodeIterator.next();
-            if (propertyElement.getNodeName().equals("namespace-prefix"))
-            {
+            if (propertyElement.getNodeName().equals("namespace-prefix")) {
                 String prefix = propertyElement.getAttributes().getNamedItem("prefix").getTextContent();
                 String namespace = propertyElement.getAttributes().getNamedItem("namespace").getTextContent();
                 xmlAxiomConfig.addNamespacePrefix(prefix, namespace);
             }
-            if (propertyElement.getNodeName().equals("xpath-property"))
-            {
+            if (propertyElement.getNodeName().equals("xpath-property")) {
                 String propertyName = propertyElement.getAttributes().getNamedItem("property-name").getTextContent();
                 String xPath = propertyElement.getAttributes().getNamedItem("xpath").getTextContent();
 
                 String propertyType = propertyElement.getAttributes().getNamedItem("type").getTextContent();
                 QName xpathConstantType;
-                if (propertyType.toUpperCase().equals("NUMBER"))
-                {
+                if (propertyType.toUpperCase(Locale.ENGLISH).equals("NUMBER")) {
                     xpathConstantType = XPathConstants.NUMBER;
-                }
-                else if (propertyType.toUpperCase().equals("STRING"))
-                {
+                } else if (propertyType.toUpperCase(Locale.ENGLISH).equals("STRING")) {
                     xpathConstantType = XPathConstants.STRING;
-                }
-                else if (propertyType.toUpperCase().equals("BOOLEAN"))
-                {
+                } else if (propertyType.toUpperCase(Locale.ENGLISH).equals("BOOLEAN")) {
                     xpathConstantType = XPathConstants.BOOLEAN;
-                }
-                else
-                {
+                } else {
                     throw new IllegalArgumentException("Invalid xpath property type for property '" +
-                        propertyName + "' and type '" + propertyType + '\'');
+                            propertyName + "' and type '" + propertyType + '\'');
                 }
 
                 String castToClass = null;
-                if (propertyElement.getAttributes().getNamedItem("cast") != null)
-                {
+                if (propertyElement.getAttributes().getNamedItem("cast") != null) {
                     castToClass = propertyElement.getAttributes().getNamedItem("cast").getTextContent();
                 }
 
@@ -141,11 +119,9 @@ public class AxiomConfigurationParserXML
         return xmlAxiomConfig;
     }
 
-    private static String getOptionalAttribute(Node node, String key)
-    {
+    private static String getOptionalAttribute(Node node, String key) {
         Node valueNode = node.getAttributes().getNamedItem(key);
-        if (valueNode != null)
-        {
+        if (valueNode != null) {
             return valueNode.getTextContent();
         }
         return null;

@@ -58,12 +58,15 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
 
     private void startContextCallback() {
         ScheduleHandleCallback scheduleCallback = new ScheduleHandleCallback() {
-            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext)
-            {
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionCrontab.this.statementContext.getContextDescriptor());}
+            public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().qContextScheduledEval(ContextControllerConditionCrontab.this.statementContext.getContextDescriptor());
+                }
                 scheduleHandle = null;  // terminates automatically unless scheduled again
                 callback.rangeNotification(Collections.<String, Object>emptyMap(), ContextControllerConditionCrontab.this, null, null, filterAddendum);
-                if (InstrumentationHelper.ENABLED) { InstrumentationHelper.get().aContextScheduledEval();}
+                if (InstrumentationHelper.ENABLED) {
+                    InstrumentationHelper.get().aContextScheduledEval();
+                }
             }
         };
         EPStatementAgentInstanceHandle agentHandle = new EPStatementAgentInstanceHandle(statementContext.getEpStatementHandle(), statementContext.getDefaultAgentInstanceLock(), -1, new StatementAgentInstanceFilterVersion(), statementContext.getFilterFaultHandlerFactory());
@@ -75,7 +78,7 @@ public class ContextControllerConditionCrontab implements ContextControllerCondi
     }
 
     private void endContextCallback() {
-        if (scheduleHandle!= null) {
+        if (scheduleHandle != null) {
             statementContext.getSchedulingService().remove(scheduleHandle, scheduleSlot);
         }
         scheduleHandle = null;

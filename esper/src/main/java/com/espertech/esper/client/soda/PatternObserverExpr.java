@@ -10,22 +10,20 @@
  */
 package com.espertech.esper.client.soda;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * Pattern observer expression observes occurances such as timer-at (crontab) and timer-interval. 
+ * Pattern observer expression observes occurances such as timer-at (crontab) and timer-interval.
  */
-public class PatternObserverExpr extends EPBaseNamedObject implements PatternExpr
-{
+public class PatternObserverExpr extends EPBaseNamedObject implements PatternExpr {
     private static final long serialVersionUID = 0L;
 
     private String treeObjectName;
 
-    public void setChildren(List<PatternExpr> children)
-    {
+    public void setChildren(List<PatternExpr> children) {
         // this expression has no child expressions
     }
 
@@ -35,40 +33,37 @@ public class PatternObserverExpr extends EPBaseNamedObject implements PatternExp
     public PatternObserverExpr() {
     }
 
-    public String getTreeObjectName()
-    {
+    public String getTreeObjectName() {
         return treeObjectName;
     }
 
-    public void setTreeObjectName(String treeObjectName)
-    {
+    public void setTreeObjectName(String treeObjectName) {
         this.treeObjectName = treeObjectName;
     }
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
-     * @param namespace is the guard object namespace
-     * @param name is the guard object name
+     *
+     * @param namespace  is the guard object namespace
+     * @param name       is the guard object name
      * @param parameters is guard object parameters
      */
-    public PatternObserverExpr(String namespace, String name, Expression[] parameters)
-    {
+    public PatternObserverExpr(String namespace, String name, Expression[] parameters) {
         super(namespace, name, Arrays.asList(parameters));
     }
 
     /**
      * Ctor - for use to create a pattern expression tree, without pattern child expression.
-     * @param namespace is the guard object namespace
-     * @param name is the guard object name
+     *
+     * @param namespace  is the guard object namespace
+     * @param name       is the guard object name
      * @param parameters is guard object parameters
      */
-    public PatternObserverExpr(String namespace, String name, List<Expression> parameters)
-    {
+    public PatternObserverExpr(String namespace, String name, List<Expression> parameters) {
         super(namespace, name, parameters);
     }
 
-    public List<PatternExpr> getChildren()
-    {
+    public List<PatternExpr> getChildren() {
         return new ArrayList<PatternExpr>();
     }
 
@@ -81,8 +76,7 @@ public class PatternObserverExpr extends EPBaseNamedObject implements PatternExp
             writer.write("(");
             toPrecedenceFreeEPL(writer);
             writer.write(")");
-        }
-        else {
+        } else {
             toPrecedenceFreeEPL(writer);
         }
     }
@@ -90,6 +84,7 @@ public class PatternObserverExpr extends EPBaseNamedObject implements PatternExp
     /**
      * Renders the expressions and all it's child expression, in full tree depth, as a string in
      * language syntax.
+     *
      * @param writer is the output to use
      */
     public void toPrecedenceFreeEPL(StringWriter writer) {

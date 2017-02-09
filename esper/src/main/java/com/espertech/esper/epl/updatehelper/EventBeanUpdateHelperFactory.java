@@ -23,10 +23,12 @@ import com.espertech.esper.util.TypeWidener;
 import com.espertech.esper.util.TypeWidenerCustomizer;
 import com.espertech.esper.util.TypeWidenerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public class EventBeanUpdateHelperFactory
-{
+public class EventBeanUpdateHelperFactory {
     public static EventBeanUpdateHelper make(String updatedWindowOrTableName,
                                              EventTypeSPI eventTypeSPI,
                                              List<OnTriggerSetAssignment> assignments,
@@ -36,14 +38,12 @@ public class EventBeanUpdateHelperFactory
                                              String statementName,
                                              String engineURI,
                                              EventAdapterService eventAdapterService)
-            throws ExprValidationException
-    {
+            throws ExprValidationException {
         List<EventBeanUpdateItem> updateItems = new ArrayList<EventBeanUpdateItem>();
         List<String> properties = new ArrayList<String>();
 
         TypeWidenerCustomizer typeWidenerCustomizer = eventAdapterService.getTypeWidenerCustomizer(eventTypeSPI);
-        for (int i = 0; i < assignments.size(); i++)
-        {
+        for (int i = 0; i < assignments.size(); i++) {
             OnTriggerSetAssignment assignment = assignments.get(i);
             EventBeanUpdateItem updateItem;
 
@@ -78,15 +78,14 @@ public class EventBeanUpdateHelperFactory
                     FragmentEventType fragmentLHS = eventTypeSPI.getFragmentType(possibleAssignment.getFirst());
                     if (fragmentRHS != null && fragmentLHS != null && !EventTypeUtility.isTypeOrSubTypeOf(fragmentRHS.getFragmentType(), fragmentLHS.getFragmentType())) {
                         throw new ExprValidationException("Invalid assignment to property '" +
-                            possibleAssignment.getFirst() + "' event type '" + fragmentLHS.getFragmentType().getName() +
-                            "' from event type '" + fragmentRHS.getFragmentType().getName() + "'");
+                                possibleAssignment.getFirst() + "' event type '" + fragmentLHS.getFragmentType().getName() +
+                                "' from event type '" + fragmentRHS.getFragmentType().getName() + "'");
                     }
                 }
 
                 updateItem = new EventBeanUpdateItem(evaluator, propertyName, writers, notNullableField, widener);
-            }
-            // handle non-assignment, i.e. UDF or other expression
-            else {
+            } else {
+                // handle non-assignment, i.e. UDF or other expression
                 ExprEvaluator evaluator = assignment.getExpression().getExprEvaluator();
                 updateItem = new EventBeanUpdateItem(evaluator, null, null, false, null);
             }
@@ -105,8 +104,7 @@ public class EventBeanUpdateHelperFactory
             if (copyMethod == null) {
                 throw new ExprValidationException("Event type does not support event bean copy");
             }
-        }
-        else {
+        } else {
             // for in-place update, determine assignment expressions to use "initial" to access prior-change values
             // the copy-method is optional
             copyMethod = null;
@@ -127,8 +125,7 @@ public class EventBeanUpdateHelperFactory
         for (OnTriggerSetAssignment assignment : assignments) {
             if (assignment.getExpression() instanceof ExprEqualsNode) {
                 assignment.getExpression().getChildNodes()[1].accept(visitor);
-            }
-            else {
+            } else {
                 assignment.getExpression().accept(visitor);
             }
             for (ExprIdentNode node : visitor.getExprProperties()) {

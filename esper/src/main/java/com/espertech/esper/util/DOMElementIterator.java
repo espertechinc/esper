@@ -10,40 +10,36 @@
  */
 package com.espertech.esper.util;
 
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import java.util.NoSuchElementException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Iterator over DOM nodes that positions between elements.
  */
-public class DOMElementIterator implements Iterator<Element>
-{
+public class DOMElementIterator implements Iterator<Element> {
     private int index;
     private NodeList nodeList;
 
     /**
      * Ctor.
+     *
      * @param nodeList is a list of DOM nodes.
      */
-    public DOMElementIterator(NodeList nodeList)
-    {
+    public DOMElementIterator(NodeList nodeList) {
         this.nodeList = nodeList;
     }
 
-    public boolean hasNext()
-    {
+    public boolean hasNext() {
         positionNext();
         return index < nodeList.getLength();
     }
 
-    public Element next()
-    {
-        if (index >= nodeList.getLength())
-        {
+    public Element next() {
+        if (index >= nodeList.getLength()) {
             throw new NoSuchElementException();
         }
         Element result = (Element) nodeList.item(index);
@@ -51,18 +47,14 @@ public class DOMElementIterator implements Iterator<Element>
         return result;
     }
 
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 
-    private void positionNext()
-    {
-        while (index < nodeList.getLength())
-        {
+    private void positionNext() {
+        while (index < nodeList.getLength()) {
             Node node = nodeList.item(index);
-            if (node instanceof Element)
-            {
+            if (node instanceof Element) {
                 break;
             }
             index++;
