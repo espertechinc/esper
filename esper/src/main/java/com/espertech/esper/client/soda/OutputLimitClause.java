@@ -286,15 +286,6 @@ public class OutputLimitClause implements Serializable {
     }
 
     /**
-     * Sets output frequency.
-     *
-     * @param frequency is the frequency of output
-     */
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
-    }
-
-    /**
      * Returns the unit the frequency is in.
      *
      * @return unit for the frequency.
