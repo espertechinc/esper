@@ -22,6 +22,8 @@
 /examples/cycledetect/lib
 /examples/**/target
 /intellij
+/esper-java7/src/main/java
+/esper-java7/target
 
 /esperio-kafka/lib/*.jar
 /install.cmd
