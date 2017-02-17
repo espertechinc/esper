@@ -533,7 +533,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitUpdateExpr(EsperEPL2GrammarParser.UpdateExprContext ctx) {
         EsperEPL2GrammarParser.UpdateDetailsContext updctx = ctx.updateDetails();
         String eventTypeName = ASTUtil.unescapeClassIdent(updctx.classIdentifier());
-        FilterStreamSpecRaw streamSpec = new FilterStreamSpecRaw(new FilterSpecRaw(eventTypeName, Collections.emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, eventTypeName, new StreamSpecOptions());
+        FilterStreamSpecRaw streamSpec = new FilterStreamSpecRaw(new FilterSpecRaw(eventTypeName, Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, eventTypeName, new StreamSpecOptions());
         statementSpec.getStreamSpecs().add(streamSpec);
         String optionalStreamName = updctx.i != null ? updctx.i.getText() : null;
         List<OnTriggerSetAssignment> assignments = ASTExprHelper.getOnTriggerSetAssignments(updctx.onSetAssignmentList(), astExprNodeMap);
@@ -744,7 +744,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             StatementSpecRaw existingSpec = statementSpec;
             existingSpec.setCreateSchemaDesc(null);
             value = existingSpec;
-            existingSpec.setAnnotations(Collections.emptyList());  // clearing property-level annotations
+            existingSpec.setAnnotations(Collections.<AnnotationDesc>emptyList());  // clearing property-level annotations
 
             statementSpec = newSpec;
         }
@@ -952,7 +952,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
                     // add expression
                     if (statementSpec.getSqlParameters() == null) {
-                        statementSpec.setSqlParameters(new HashMap<>());
+                        statementSpec.setSqlParameters(new HashMap<Integer, List<ExprNode>>());
                     }
                     List<ExprNode> listExp = statementSpec.getSqlParameters().get(statementSpec.getStreamSpecs().size());
                     if (listExp == null) {
@@ -1086,7 +1086,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitCreateSchemaExpr(EsperEPL2GrammarParser.CreateSchemaExprContext ctx) {
         CreateSchemaDesc createSchema = ASTCreateSchemaHelper.walkCreateSchema(ctx);
         if (ctx.parent.getRuleIndex() == EsperEPL2GrammarParser.RULE_eplExpression) {
-            statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(Object.class.getName(), Collections.emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions()));
+            statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(Object.class.getName(), Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions()));
         }
         statementSpec.setCreateSchemaDesc(createSchema);
     }
@@ -1178,7 +1178,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         statementSpec.setCreateWindowDesc(desc);
 
         // this is good for indicating what is being selected from
-        FilterSpecRaw rawFilterSpec = new FilterSpecRaw(eventName, new LinkedList<>(), null);
+        FilterSpecRaw rawFilterSpec = new FilterSpecRaw(eventName, new LinkedList<ExprNode>(), null);
         FilterStreamSpecRaw streamSpec = new FilterStreamSpecRaw(rawFilterSpec, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, streamSpecOptions);
         statementSpec.getStreamSpecs().add(streamSpec);
     }
@@ -1386,14 +1386,14 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             if (first.lp != null) {
                 String ident = ASTUtil.escapeDot(first.eventPropertyIdent().getText());
                 String key = StringValue.parseString(first.s.getText());
-                List<ExprNode> params = Collections.singletonList(new ExprConstantNodeImpl(key));
+                List<ExprNode> params = Collections.<ExprNode>singletonList(new ExprConstantNodeImpl(key));
                 ExprNodeScript scriptNode = ExprDeclaredHelper.getExistsScript(getDefaultDialect(), ident, params, scriptExpressions, exprDeclaredService);
                 if (scriptNode != null) {
                     exprNode = scriptNode;
                 }
             }
 
-            ExprDeclaredNodeImpl found = ExprDeclaredHelper.getExistsDeclaredExpr(propertyName, Collections.emptyList(), expressionDeclarations.getExpressions(), exprDeclaredService, contextDescriptor);
+            ExprDeclaredNodeImpl found = ExprDeclaredHelper.getExistsDeclaredExpr(propertyName, Collections.<ExprNode>emptyList(), expressionDeclarations.getExpressions(), exprDeclaredService, contextDescriptor);
             if (found != null) {
                 exprNode = found;
             }
@@ -1501,7 +1501,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         if (ctx.onMergeExpr() != null) {
             String windowName = ctx.onMergeExpr().n.getText();
             String asName = ctx.onMergeExpr().i != null ? ctx.onMergeExpr().i.getText() : null;
-            OnTriggerMergeDesc desc = new OnTriggerMergeDesc(windowName, asName, mergeMatcheds == null ? Collections.emptyList() : mergeMatcheds);
+            OnTriggerMergeDesc desc = new OnTriggerMergeDesc(windowName, asName, mergeMatcheds == null ? Collections.<OnTriggerMergeMatched>emptyList() : mergeMatcheds);
             statementSpec.setOnTriggerDesc(desc);
         } else if (ctx.onSetExpr() == null) {
             UniformPair<String> windowName = getOnExprWindowName(ctx);
@@ -1950,7 +1950,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     private void handleFAFNamedWindowStream(EsperEPL2GrammarParser.ClassIdentifierContext node, Token i) {
         String windowName = ASTUtil.unescapeClassIdent(node);
         String alias = i != null ? i.getText() : null;
-        statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(windowName, Collections.emptyList(), null), ViewSpec.toArray(viewSpecs), alias, new StreamSpecOptions()));
+        statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(windowName, Collections.<ExprNode>emptyList(), null), ViewSpec.toArray(viewSpecs), alias, new StreamSpecOptions()));
     }
 
     public void exitFafInsert(EsperEPL2GrammarParser.FafInsertContext ctx) {

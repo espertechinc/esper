@@ -142,7 +142,7 @@ public class IntervalComputerFactory {
         return parameters;
     }
 
-    private static ExprOptionalConstant getExprOrConstant(ExprNode exprNode, TimeAbacus timeAbacus) {
+    private static ExprOptionalConstant getExprOrConstant(ExprNode exprNode, final TimeAbacus timeAbacus) {
         if (exprNode instanceof ExprTimePeriod) {
             final ExprTimePeriod timePeriod = (ExprTimePeriod) exprNode;
             if (!timePeriod.isHasMonth() && !timePeriod.isHasYear()) {

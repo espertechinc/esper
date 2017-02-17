@@ -746,13 +746,29 @@ public class SelectExprProcessorHelper {
                     } else {
                         TriFunction<EventAdapterService, Object, EventType, EventBean> func;
                         if (resultEventType instanceof MapEventType) {
-                            func = (eventAdapterService, und, type) -> eventAdapterService.adapterForTypedMap((Map) und, type);
+                            func = new TriFunction<EventAdapterService, Object, EventType, EventBean>() {
+                                public EventBean apply(EventAdapterService eventAdapterService, Object und, EventType type) {
+                                    return eventAdapterService.adapterForTypedMap((Map) und, type);
+                                }
+                            };
                         } else if (resultEventType instanceof ObjectArrayEventType) {
-                            func = (eventAdapterService, und, type) -> eventAdapterService.adapterForTypedObjectArray((Object[]) und, type);
+                            func = new TriFunction<EventAdapterService, Object, EventType, EventBean>() {
+                                public EventBean apply(EventAdapterService eventAdapterService, Object und, EventType type) {
+                                    return eventAdapterService.adapterForTypedObjectArray((Object[]) und, type);
+                                }
+                            };
                         } else if (resultEventType instanceof AvroSchemaEventType) {
-                            func = EventAdapterService::adapterForTypedAvro;
+                            func = new TriFunction<EventAdapterService, Object, EventType, EventBean>() {
+                                public EventBean apply(EventAdapterService eventAdapterService, Object und, EventType type) {
+                                    return eventAdapterService.adapterForTypedAvro(und, type);
+                                }
+                            };
                         } else {
-                            func = (eventAdapterService, und, type) -> eventAdapterService.adapterForBean(und);
+                            func = new TriFunction<EventAdapterService, Object, EventType, EventBean>() {
+                                public EventBean apply(EventAdapterService eventAdapterService, Object und, EventType type) {
+                                    return eventAdapterService.adapterForTypedBean(und, type);
+                                }
+                            };
                         }
                         return new EvalInsertNoWildcardSingleColCoercionRevisionFunc(selectExprContext, resultEventType, vaeProcessor, vaeInnerEventType, func);
                     }

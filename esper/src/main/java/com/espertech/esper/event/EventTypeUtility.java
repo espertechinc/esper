@@ -81,7 +81,7 @@ public class EventTypeUtility {
         List<EventType> superTypesListDepthFirst = new ArrayList<>(deepSuperTypes);
         Collections.reverse(superTypesListDepthFirst);
 
-        return new Pair<>(superTypes, new LinkedHashSet<>(superTypesListDepthFirst));
+        return new Pair<EventType[], Set<EventType>>(superTypes, new LinkedHashSet<>(superTypesListDepthFirst));
     }
 
     public static EventPropertyDescriptor getNestablePropertyDescriptor(EventType target, String propertyName) {
