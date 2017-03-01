@@ -107,8 +107,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         options.getDeploymentLockStrategy().acquire(eventProcessingRWLock);
         try {
             return deployInternalLockTaken(module, options, deploymentId, addedDate);
-        }
-        finally {
+        } finally {
             options.getDeploymentLockStrategy().release(eventProcessingRWLock);
         }
     }
@@ -537,8 +536,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         undeploymentOptions.getDeploymentLockStrategy().acquire(eventProcessingRWLock);
         try {
             return undeployInternalLockTaken(deploymentId, undeploymentOptions);
-        }
-        finally {
+        } finally {
             undeploymentOptions.getDeploymentLockStrategy().release(eventProcessingRWLock);
         }
     }
