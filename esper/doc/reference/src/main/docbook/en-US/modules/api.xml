@@ -761,14 +761,22 @@ finally {
 			
 			<para>
 				Your application can concurrently send events into the engine while performing statement or module management. Therefore it is safe to stop and start statements or 
-				undeploy and deploy modules while sending in events from other threads concurrently. 
+				un-deploy and deploy modules while sending in events from other threads concurrently. 
 			</para>
 			
 			<para>
 				Your application can use the API described below to obtain a lock and perform statement or module management as an atomic unit. 
-				For example, if your application would like to undeploy and re-deploy all statements or modules as a single administrative unit, while at the same time sending events into the engine from different threads,
+				For example, if your application would like to un-deploy and re-deploy all statements or modules as a single administrative unit, while at the same time sending events into the engine from different threads,
 				it can obtain a lock to ensure that no events are concurrently processed while the statement or module management operations take place.
 			</para>
+			
+			<note>
+				<para>
+					Deploying or un-deploying a single module is already an atomic operation by default and does not require taking an explicit lock.
+					Please see <xref linkend="devlifecycle-admin"/> for the deployment API.
+					If your application would like to deploy multiple modules and/or statements as a unit, please obtain a lock as discussed below.
+				</para>
+			</note>
 
 			<para>
 				The below code sample obtains the engine exclusive write lock to perform multiple management operations as a unit, excluding concurrent processing of events.
@@ -779,9 +787,12 @@ finally {
 // Any events concurrently being processed by other threads must complete before the code completes obtaining the lock. 
 // Any events sent in by other threads will await the release of the lock.
 try {
-  // perform operations such as : 
+  // Perform operations such as : 
   //   - start statements, destroy statements, stop statements
-  //   - undeploy modules, deploy modules (deployment admin API)
+  //   - un-deploy multiple modules, deploy multiple modules (deployment admin API)
+  // There is no need to obtain this lock when deploying or un-deploying a single module.
+  // The lock is reentrant and can be safely taken multiple times by the same thread.
+  // Make sure you use "try" and "finally" just like we have it here.
 }
 finally {
   // Complete atomic management unit. 
@@ -789,6 +800,11 @@ finally {
   epService.getEngineInstanceWideLock().writeLock().unlock();
 }]]></programlisting>
 
+			<note>
+				<para>
+					There should always be a <literal>finally</literal> block in your code to ensure the lock is released in all cases.
+				</para>
+			</note>
 	    </sect2>
 
 	    <sect2 xml:id="api-admin-runtime-config">		

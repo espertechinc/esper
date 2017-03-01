@@ -21,6 +21,7 @@ import com.espertech.esper.core.service.StatementIsolationService;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.filter.FilterService;
 import com.espertech.esper.util.DependencyGraph;
+import com.espertech.esper.util.ManagedReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
     private static Logger log = LoggerFactory.getLogger(EPDeploymentAdminImpl.class);
 
     private final EPAdministratorSPI epService;
+    private final ManagedReadWriteLock eventProcessingRWLock;
     private final DeploymentStateService deploymentStateService;
     private final StatementEventTypeRef statementEventTypeRef;
     private final EventAdapterService eventAdapterService;
@@ -45,8 +47,9 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
     private final TimeZone timeZone;
     private final ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy;
 
-    public EPDeploymentAdminImpl(EPAdministratorSPI epService, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, FilterService filterService, TimeZone timeZone, ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy) {
+    public EPDeploymentAdminImpl(EPAdministratorSPI epService, ManagedReadWriteLock eventProcessingRWLock, DeploymentStateService deploymentStateService, StatementEventTypeRef statementEventTypeRef, EventAdapterService eventAdapterService, StatementIsolationService statementIsolationService, FilterService filterService, TimeZone timeZone, ConfigurationEngineDefaults.ExceptionHandling.UndeployRethrowPolicy undeployRethrowPolicy) {
         this.epService = epService;
+        this.eventProcessingRWLock = eventProcessingRWLock;
         this.deploymentStateService = deploymentStateService;
         this.statementEventTypeRef = statementEventTypeRef;
         this.eventAdapterService = eventAdapterService;
@@ -84,22 +87,33 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         return EPLModuleUtil.readResource(resource, eventAdapterService.getEngineImportService());
     }
 
-    public synchronized DeploymentResult deploy(Module module, DeploymentOptions options, String assignedDeploymentId) throws DeploymentActionException {
+    public synchronized DeploymentResult deploy(Module module, DeploymentOptions options, String assignedDeploymentId) throws DeploymentActionException, DeploymentLockException, InterruptedException {
         if (deploymentStateService.getDeployment(assignedDeploymentId) != null) {
             throw new IllegalArgumentException("Assigned deployment id '" + assignedDeploymentId + "' is already in use");
         }
         return deployInternal(module, options, assignedDeploymentId, Calendar.getInstance(timeZone));
     }
 
-    public synchronized DeploymentResult deploy(Module module, DeploymentOptions options) throws DeploymentActionException {
+    public synchronized DeploymentResult deploy(Module module, DeploymentOptions options) throws DeploymentActionException, DeploymentLockException, InterruptedException {
         String deploymentId = deploymentStateService.nextDeploymentId();
         return deployInternal(module, options, deploymentId, Calendar.getInstance(timeZone));
     }
 
-    private DeploymentResult deployInternal(Module module, DeploymentOptions options, String deploymentId, Calendar addedDate) throws DeploymentActionException {
+    private DeploymentResult deployInternal(Module module, DeploymentOptions options, String deploymentId, Calendar addedDate) throws DeploymentActionException, DeploymentLockException, InterruptedException {
         if (options == null) {
             options = new DeploymentOptions();
         }
+
+        options.getDeploymentLockStrategy().acquire(eventProcessingRWLock);
+        try {
+            return deployInternalLockTaken(module, options, deploymentId, addedDate);
+        }
+        finally {
+            options.getDeploymentLockStrategy().release(eventProcessingRWLock);
+        }
+    }
+
+    private DeploymentResult deployInternalLockTaken(Module module, DeploymentOptions options, String deploymentId, Calendar addedDate) throws DeploymentActionException {
 
         if (log.isDebugEnabled()) {
             log.debug("Deploying module " + module);
@@ -264,11 +278,11 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         return undeployRemoveInternal(deploymentId, undeploymentOptions == null ? new UndeploymentOptions() : undeploymentOptions);
     }
 
-    public synchronized UndeploymentResult undeploy(String deploymentId) throws DeploymentStateException, DeploymentNotFoundException {
+    public synchronized UndeploymentResult undeploy(String deploymentId) throws DeploymentStateException, DeploymentNotFoundException, DeploymentLockException, InterruptedException {
         return undeployInternal(deploymentId, new UndeploymentOptions());
     }
 
-    public synchronized UndeploymentResult undeploy(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentException {
+    public synchronized UndeploymentResult undeploy(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentException, InterruptedException {
         return undeployInternal(deploymentId, undeploymentOptions == null ? new UndeploymentOptions() : undeploymentOptions);
     }
 
@@ -442,21 +456,21 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         return false;
     }
 
-    public synchronized DeploymentResult readDeploy(InputStream stream, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException {
+    public synchronized DeploymentResult readDeploy(InputStream stream, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException, DeploymentLockException, InterruptedException {
         Module module = EPLModuleUtil.readInternal(stream, moduleURI);
         return deployQuick(module, moduleURI, moduleArchive, userObject);
     }
 
-    public synchronized DeploymentResult readDeploy(String resource, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException {
+    public synchronized DeploymentResult readDeploy(String resource, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException, DeploymentLockException, InterruptedException {
         Module module = read(resource);
         return deployQuick(module, moduleURI, moduleArchive, userObject);
     }
 
-    public synchronized DeploymentResult parseDeploy(String eplModuleText) throws IOException, ParseException, DeploymentException {
+    public synchronized DeploymentResult parseDeploy(String eplModuleText) throws IOException, ParseException, DeploymentException, InterruptedException {
         return parseDeploy(eplModuleText, null, null, null);
     }
 
-    public synchronized DeploymentResult parseDeploy(String buffer, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException {
+    public synchronized DeploymentResult parseDeploy(String buffer, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException, DeploymentLockException, InterruptedException {
         Module module = EPLModuleUtil.parseInternal(buffer, moduleURI);
         return deployQuick(module, moduleURI, moduleArchive, userObject);
     }
@@ -480,7 +494,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         deploymentStateService.addUpdateDeployment(desc);
     }
 
-    public synchronized DeploymentResult deploy(String deploymentId, DeploymentOptions options) throws DeploymentNotFoundException, DeploymentStateException, DeploymentOrderException, DeploymentActionException {
+    public synchronized DeploymentResult deploy(String deploymentId, DeploymentOptions options) throws DeploymentNotFoundException, DeploymentStateException, DeploymentOrderException, DeploymentActionException, DeploymentLockException, InterruptedException {
         DeploymentInformation info = deploymentStateService.getDeployment(deploymentId);
         if (info == null) {
             throw new DeploymentNotFoundException("Deployment by id '" + deploymentId + "' could not be found");
@@ -519,7 +533,17 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         return result;
     }
 
-    private UndeploymentResult undeployInternal(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentStateException, DeploymentNotFoundException {
+    private UndeploymentResult undeployInternal(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentStateException, DeploymentNotFoundException, DeploymentLockException, InterruptedException {
+        undeploymentOptions.getDeploymentLockStrategy().acquire(eventProcessingRWLock);
+        try {
+            return undeployInternalLockTaken(deploymentId, undeploymentOptions);
+        }
+        finally {
+            undeploymentOptions.getDeploymentLockStrategy().release(eventProcessingRWLock);
+        }
+    }
+
+    private UndeploymentResult undeployInternalLockTaken(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentStateException, DeploymentNotFoundException {
         DeploymentInformation info = deploymentStateService.getDeployment(deploymentId);
         if (info == null) {
             throw new DeploymentNotFoundException("Deployment by id '" + deploymentId + "' could not be found");
@@ -577,7 +601,7 @@ public class EPDeploymentAdminImpl implements EPDeploymentAdminSPI {
         return new UndeploymentResult(info.getDeploymentId(), revertedStatements);
     }
 
-    private DeploymentResult deployQuick(Module module, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException {
+    private DeploymentResult deployQuick(Module module, String moduleURI, String moduleArchive, Object userObject) throws IOException, ParseException, DeploymentOrderException, DeploymentActionException, DeploymentLockException, InterruptedException {
         module.setUri(moduleURI);
         module.setArchiveName(moduleArchive);
         module.setUserObject(userObject);

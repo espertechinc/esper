@@ -27,6 +27,7 @@ public class DeploymentOptions implements Serializable {
     private boolean validateOnly = false;
     private StatementNameResolver statementNameResolver;
     private StatementUserObjectResolver statementUserObjectResolver;
+    private DeploymentLockStrategy deploymentLockStrategy = DeploymentLockStrategyDefault.INSTANCE;
 
     /**
      * Returns true (the default) to indicate that the deploy operation first performs a compile step for
@@ -184,5 +185,21 @@ public class DeploymentOptions implements Serializable {
      */
     public void setStatementUserObjectResolver(StatementUserObjectResolver statementUserObjectResolver) {
         this.statementUserObjectResolver = statementUserObjectResolver;
+    }
+
+    /**
+     * Return the deployment lock strategy, the default is {@link DeploymentLockStrategyDefault}
+     * @return lock strategy
+     */
+    public DeploymentLockStrategy getDeploymentLockStrategy() {
+        return deploymentLockStrategy;
+    }
+
+    /**
+     * Sets the deployment lock strategy, the default is {@link DeploymentLockStrategyDefault}
+     * @param deploymentLockStrategy lock strategy
+     */
+    public void setDeploymentLockStrategy(DeploymentLockStrategy deploymentLockStrategy) {
+        this.deploymentLockStrategy = deploymentLockStrategy;
     }
 }

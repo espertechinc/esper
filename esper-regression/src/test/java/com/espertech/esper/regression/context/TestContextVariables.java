@@ -87,7 +87,7 @@ public class TestContextVariables extends TestCase {
         }
     }
 
-    public void testOverlapping() throws ParseException, DeploymentException, IOException {
+    public void testOverlapping() throws ParseException, DeploymentException, IOException, InterruptedException {
         String[] fields = "mycontextvar".split(",");
         epService.getEPAdministrator().createEPL("create context MyCtx as " +
                 "initiated by SupportBean_S0 s0 terminated by SupportBean_S1(p10 = s0.p00)");

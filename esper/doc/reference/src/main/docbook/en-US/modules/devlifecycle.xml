@@ -190,7 +190,7 @@ INFO  [audit] Statement All-Order-Events property price value 100.0]]></programl
 		</para>
 		
 		<para>
-			 For undeploying, deploying or re-deploying single or multiple statements or modules as an atomic management unit please see <xref linkend="api-admin-atomic"/>.
+			 For un-deploying, deploying or re-deploying single or multiple statements or modules as an atomic management unit please see <xref linkend="api-admin-atomic"/>.
 		</para>
 
         <para>
@@ -224,7 +224,7 @@ INFO  [audit] Statement All-Order-Events property price value 100.0]]></programl
 		<indexterm><primary>deployment</primary><secondary>EPL module</secondary></indexterm>
 		
 		<para>
-			An EPL module file is a plain text file in which EPL statements appear separated by the semicolon (;) character. It bundles EPL statements with optional deployment instructions. A service provider instance keeps track of the known and/or deployed EPL modules and makes it easy to add, remove, deploy and undeploy EPL modules.
+			An EPL module file is a plain text file in which EPL statements appear separated by the semicolon (;) character. It bundles EPL statements with optional deployment instructions. A service provider instance keeps track of the known and/or deployed EPL modules and makes it easy to add, remove, deploy and un-deploy EPL modules.
 		</para>
 
 		<para>
@@ -316,17 +316,23 @@ select id, count(*) from MyOffOnStream#time(1 hour) group by id;]]></programlist
 		</para>
 
 		<para>
-		  A module may be in two states: undeployed or deployed. When calling <literal>add</literal> to add a module, it starts life in the undeployed state. When calling <literal>deploy</literal> to deploy a module, it starts life in the deployed state. 
+		  A module may be in two states: un-deployed or deployed. When calling <literal>add</literal> to add a module, it starts life in the un-deployed state. When calling <literal>deploy</literal> to deploy a module, it starts life in the deployed state. 
 		  A module may be transitioned by providing the deployment id and by calling the <literal>deploy</literal> or <literal>undeploy</literal> methods.
 		</para>
 
 		<para>
-		  Your code can remove a module in undeployed state using the <literal>remove</literal> method or the <literal>undeployRemove</literal> method. If the module is in deployed state, use <literal>undeployRemove</literal> to undeploy and remove the module.
+		  Your code can remove a module in un-deployed state using the <literal>remove</literal> method or the <literal>undeployRemove</literal> method. If the module is in deployed state, use <literal>undeployRemove</literal> to un-deploy and remove the module.
 		</para>
 
 		<para>
 		  The <literal>DeploymentOptions</literal> instance that can be passed to the <literal>deploy</literal> method when validating or deploying modules controls validation, fail-fast, rollback and the isolated service provider, if any, for the deployment.
-		  Also use <literal>DeploymentOptions</literal> to set a user object per statement or to set a statement name per statement.
+		  Also use <literal>DeploymentOptions</literal> to set a user object per statement and to set a statement name per statement.
+		</para>
+		
+		<para>
+			Deployment and un-deployment operations are, by default, atomic operations: Events that come in during deployment or un-deployment are processed after deployment or un-deployment completed.
+			Using <literal>DeploymentOptions</literal> you may provide a strategy for obtaining and releasing the engine-wide lock. 
+			Please also see <xref linkend="api-admin-atomic"/> for more information.
 		</para>
 
 		<para>
@@ -365,14 +371,14 @@ DeploymentOrder order = deployAdmin.getDeploymentOrder(mymodules, new Deployment
 	  </sect2>
 
 		<sect2 xml:id="devlifecycle-admin-devlifecycle-undeploy">
-        <title>Deploying and Undeploying</title>
+        <title>Deploying and Un-deploying</title>
 			<para>
-				The deployment interface returns a deployment id for each module made known by adding a module or by deploying a module. To undeploy the module your application must provide the deployment id. Your application can assign its own deployment id or obtain the module name
+				The deployment interface returns a deployment id for each module made known by adding a module or by deploying a module. To un-deploy the module your application must provide the deployment id. Your application can assign its own deployment id or obtain the module name
 				from the <literal>Module</literal> and use that as the deployment id.
 			</para>
 			
 			<para>
-				The <literal>undeploy</literal> operation removes all named windows, tables, variables, event types or any other information associated to the statements within the module to be undeployed.
+				The <literal>undeploy</literal> operation removes all named windows, tables, variables, event types or any other information associated to the statements within the module to be un-deployed.
 			</para>
 			
 			<para>
@@ -383,11 +389,11 @@ DeploymentOrder order = deployAdmin.getDeploymentOrder(mymodules, new Deployment
 }]]></programlisting>
 			
 			<para>
-				Undeploying a module destroys all started statements associated to the module.
+				Un-deploying a module destroys all started statements associated to the module.
 			</para>
 
 			<para>
-				To undeploy and at the same time remove the module from the list of known modules use the <literal>undeployRemove</literal> method and pass the deployment id:
+				To un-deploy and at the same time remove the module from the list of known modules use the <literal>undeployRemove</literal> method and pass the deployment id:
 			</para>
 			<programlisting><![CDATA[deployAdmin.undeployRemove(deployResult.getDeploymentId());]]></programlisting>
 	  </sect2>
@@ -411,18 +417,18 @@ DeploymentInformation infoModule = deployAdmin.getDeploymen(deploymentId);]]></p
         <title>State Transitioning a Module</title>
 			
 			<para>
-				The following sample code adds a module, transitions the module to deployed, then undeploys and removes the module entirely;
+				The following sample code adds a module, transitions the module to deployed, then un-deploys and removes the module entirely;
 			</para>
 			<programlisting><![CDATA[// This sample uses the parse method to obtain a module
 Module module = deployAdmin.parse("create schema MySchema (col1 int)";
 
-// Make the module know; It now shows up in undeployed state
+// Make the module know; It now shows up in un-deployed state
 String moduleDeploymentId = deployAdmin.add(module);
 
 // Start all statements, passing a null options object for default options
 deployAdmin.deploy(moduleDeploymentId, null);
 
-// Undeploy module, destroying all statements
+// Un-deploy module, destroying all statements
 deployAdmin.undeploy(moduleDeploymentId);
 
 // Remove module; It will no longer be known
@@ -463,7 +469,7 @@ epService.getEPAdministrator().getDeploymentAdmin()
 		</para>
 
 		<para>
-			We provide a sample servlet context listener in this section that uses the deployment API to deploy and undeploy modules as part of the servlet lifecycle. 
+			We provide a sample servlet context listener in this section that uses the deployment API to deploy and un-deploy modules as part of the servlet lifecycle. 
 		</para>
 		
 		<para>
@@ -499,7 +505,7 @@ epService.getEPAdministrator().getDeploymentAdmin()
 		<sect2 xml:id="devlifecycle-j2ee-servletcontextlistener">
 			<title>Servlet Context Listener</title>
 			<para>
-				When deploying a J2EE archive that contains EPL modules files we provide sample code to read and deploy EPL modules files packaged with the enterprise or web application archive when the servlet initializes. The sample undeploys EPL modules when the servlet context gets destroyed.
+				When deploying a J2EE archive that contains EPL modules files we provide sample code to read and deploy EPL modules files packaged with the enterprise or web application archive when the servlet initializes. The sample un-deploys EPL modules when the servlet context gets destroyed.
 			</para>
 			
 			<para>
@@ -517,7 +523,7 @@ epService.getEPAdministrator().getDeploymentAdmin()
 </web-app>]]></programlisting>			
 
 			<para>
-				A servet listener that deploys EPL module files packaged into the archive on context initialization and that undeploys when the application server destroys the context is shown here:
+				A servet listener that deploys EPL module files packaged into the archive on context initialization and that un-deploys when the application server destroys the context is shown here:
 			</para>
 			<programlisting><![CDATA[public class SampleServletListener implements ServletContextListener {
 

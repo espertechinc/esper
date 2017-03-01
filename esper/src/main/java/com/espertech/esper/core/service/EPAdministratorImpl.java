@@ -45,7 +45,7 @@ public class EPAdministratorImpl implements EPAdministratorSPI {
         this.configurationOperations = adminContext.getConfigurationOperations();
         this.defaultStreamSelector = adminContext.getDefaultStreamSelector();
 
-        this.deploymentAdminService = new EPDeploymentAdminImpl(this, adminContext.getServices().getDeploymentStateService(), adminContext.getServices().getStatementEventTypeRefService(), adminContext.getServices().getEventAdapterService(), adminContext.getServices().getStatementIsolationService(), adminContext.getServices().getFilterService(),
+        this.deploymentAdminService = new EPDeploymentAdminImpl(this, services.getEventProcessingRWLock(), adminContext.getServices().getDeploymentStateService(), adminContext.getServices().getStatementEventTypeRefService(), adminContext.getServices().getEventAdapterService(), adminContext.getServices().getStatementIsolationService(), adminContext.getServices().getFilterService(),
                 services.getConfigSnapshot().getEngineDefaults().getExpression().getTimeZone(), services.getConfigSnapshot().getEngineDefaults().getExceptionHandling().getUndeployRethrowPolicy());
     }
 

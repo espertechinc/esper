@@ -19,6 +19,7 @@ public class UndeploymentOptions implements Serializable {
 
     private static final long serialVersionUID = 1003208614180737243L;
     private boolean destroyStatements = true;
+    private DeploymentLockStrategy deploymentLockStrategy = DeploymentLockStrategyDefault.INSTANCE;
 
     /**
      * Returns indicator whether undeploy will destroy any associated statements (true by default).
@@ -36,5 +37,21 @@ public class UndeploymentOptions implements Serializable {
      */
     public void setDestroyStatements(boolean destroyStatements) {
         this.destroyStatements = destroyStatements;
+    }
+
+    /**
+     * Return the deployment lock strategy, the default is {@link DeploymentLockStrategyDefault}
+     * @return lock strategy
+     */
+    public DeploymentLockStrategy getDeploymentLockStrategy() {
+        return deploymentLockStrategy;
+    }
+
+    /**
+     * Sets the deployment lock strategy, the default is {@link DeploymentLockStrategyDefault}
+     * @param deploymentLockStrategy lock strategy
+     */
+    public void setDeploymentLockStrategy(DeploymentLockStrategy deploymentLockStrategy) {
+        this.deploymentLockStrategy = deploymentLockStrategy;
     }
 }

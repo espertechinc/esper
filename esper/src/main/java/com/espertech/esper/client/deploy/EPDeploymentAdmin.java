@@ -102,8 +102,10 @@ public interface EPDeploymentAdmin {
      * @param options operation options or null for default options
      * @return result object with statement detail, or null for pass on validate-only
      * @throws DeploymentActionException when the deployment fails, contains a list of deployment failures
+     * @throws DeploymentLockException   to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
-    public DeploymentResult deploy(Module module, DeploymentOptions options) throws DeploymentException;
+    public DeploymentResult deploy(Module module, DeploymentOptions options) throws DeploymentException, InterruptedException;
 
     /**
      * Deploy a single module using the deployment id provided as a parameter.
@@ -120,8 +122,10 @@ public interface EPDeploymentAdmin {
      * @param assignedDeploymentId the deployment id to assign
      * @return result object with statement detail, or null for pass on validate-only
      * @throws DeploymentActionException when the deployment fails, contains a list of deployment failures
+     * @throws DeploymentLockException   to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
-    public DeploymentResult deploy(Module module, DeploymentOptions options, String assignedDeploymentId) throws DeploymentActionException;
+    public DeploymentResult deploy(Module module, DeploymentOptions options, String assignedDeploymentId) throws DeploymentActionException, DeploymentLockException, InterruptedException;
 
     /**
      * Undeploy a single module, if its in deployed state, and removes it from the known modules.
@@ -194,9 +198,11 @@ public interface EPDeploymentAdmin {
      * @throws ParseException            when parsing of the module failed
      * @throws DeploymentOrderException  when any module dependencies are not satisfied
      * @throws DeploymentActionException when the deployment fails, contains a list of deployment failures
+     * @throws DeploymentLockException   to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
     public DeploymentResult readDeploy(String resource, String moduleURI, String moduleArchive, Object userObject)
-            throws IOException, ParseException, DeploymentException;
+            throws IOException, ParseException, DeploymentException, InterruptedException;
 
     /**
      * Shortcut method to read and deploy a single module from an input stream.
@@ -214,9 +220,11 @@ public interface EPDeploymentAdmin {
      * @throws ParseException            when parsing of the module failed
      * @throws DeploymentOrderException  when any module dependencies are not satisfied
      * @throws DeploymentActionException when the deployment fails, contains a list of deployment failures
+     * @throws DeploymentLockException   to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
     public DeploymentResult readDeploy(InputStream stream, String moduleURI, String moduleArchive, Object userObject)
-            throws IOException, ParseException, DeploymentException;
+            throws IOException, ParseException, DeploymentException, InterruptedException;
 
     /**
      * Shortcut method to parse and deploy a single module from a string text buffer.
@@ -232,9 +240,11 @@ public interface EPDeploymentAdmin {
      * @throws ParseException            when parsing of the module failed
      * @throws DeploymentOrderException  when any module dependencies are not satisfied
      * @throws DeploymentActionException when the deployment fails, contains a list of deployment failures
+     * @throws DeploymentLockException   to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
     public DeploymentResult parseDeploy(String eplModuleText, String moduleURI, String moduleArchive, Object userObject)
-            throws IOException, ParseException, DeploymentException;
+            throws IOException, ParseException, DeploymentException, InterruptedException;
 
     /**
      * Shortcut method to parse and deploy a single module from a string text buffer, without providing a module URI name or
@@ -248,9 +258,11 @@ public interface EPDeploymentAdmin {
      * @throws ParseException            when parsing of the module failed
      * @throws DeploymentOrderException  when any module dependencies are not satisfied
      * @throws DeploymentActionException when the deployment fails, contains a list of deployment failures
+     * @throws DeploymentLockException   to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
     public DeploymentResult parseDeploy(String eplModuleText)
-            throws IOException, ParseException, DeploymentException;
+            throws IOException, ParseException, DeploymentException, InterruptedException;
 
     /**
      * Adds a module in undeployed state, generating a deployment id and returning the generated deployment id of the module.
@@ -289,8 +301,10 @@ public interface EPDeploymentAdmin {
      * @throws DeploymentOrderException    when deployment dependencies are not satisfied
      * @throws DeploymentActionException   when the deployment (or validation when setting validate-only) failed
      * @throws DeploymentNotFoundException if no such deployment id is known
+     * @throws DeploymentLockException     to indicate a problem obtaining the necessary lock
+     * @throws InterruptedException when lock-taking was interrupted
      */
-    public DeploymentResult deploy(String deploymentId, DeploymentOptions options) throws DeploymentException;
+    public DeploymentResult deploy(String deploymentId, DeploymentOptions options) throws DeploymentException, InterruptedException;
 
     /**
      * Undeploy a previously deployed module.
@@ -299,8 +313,9 @@ public interface EPDeploymentAdmin {
      * @return undeployment result
      * @throws DeploymentStateException    when attempting to undeploy a module that does not exist is already undeployed
      * @throws DeploymentNotFoundException when the deployment id could not be resolved
+     * @throws InterruptedException when lock-taking was interrupted
      */
-    public UndeploymentResult undeploy(String deploymentId) throws DeploymentException;
+    public UndeploymentResult undeploy(String deploymentId) throws DeploymentException, InterruptedException;
 
     /**
      * Undeploy a previously deployed module.
@@ -310,6 +325,7 @@ public interface EPDeploymentAdmin {
      * @return undeployment result
      * @throws DeploymentStateException    when attempting to undeploy a module that does not exist is already undeployed
      * @throws DeploymentNotFoundException when the deployment id could not be resolved
+     * @throws InterruptedException when lock-taking was interrupted
      */
-    public UndeploymentResult undeploy(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentException;
+    public UndeploymentResult undeploy(String deploymentId, UndeploymentOptions undeploymentOptions) throws DeploymentException, InterruptedException;
 }
