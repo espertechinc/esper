@@ -28,6 +28,7 @@ import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAc
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.funcs.*;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.ops.*;
@@ -847,7 +848,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         }
         ExprSubstitutionNode substitutionNode = (ExprSubstitutionNode) astExprNodeMap.remove(ctx.substitution());
         List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
-        ExprDotNode exprNode = new ExprDotNode(chainSpec, engineImportService.isDuckType(), engineImportService.isUdfCache());
+        ExprDotNode exprNode = new ExprDotNodeImpl(chainSpec, engineImportService.isDuckType(), engineImportService.isUdfCache());
         exprNode.addChildNode(substitutionNode);
         astExprNodeMap.put(ctx, exprNode);
     }
@@ -1243,7 +1244,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             ExprNode newNode = new ExprNewInstanceNode(classIdent);
             if (ctx.chainedFunction() != null) {
                 List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(ctx.chainedFunction().libFunctionNoClass(), astExprNodeMap);
-                ExprDotNode dotNode = new ExprDotNode(chainSpec, engineImportService.isDuckType(), engineImportService.isUdfCache());
+                ExprDotNode dotNode = new ExprDotNodeImpl(chainSpec, engineImportService.isDuckType(), engineImportService.isUdfCache());
                 dotNode.addChildNode(newNode);
                 exprNode = dotNode;
             } else {
@@ -1267,7 +1268,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                 if (pair.getSecond().isEmpty()) {
                     exprNode = tableNode;
                 } else {
-                    exprNode = new ExprDotNode(pair.getSecond(), engineImportService.isDuckType(), engineImportService.isUdfCache());
+                    exprNode = new ExprDotNodeImpl(pair.getSecond(), engineImportService.isDuckType(), engineImportService.isUdfCache());
                     exprNode.addChildNode(tableNode);
                 }
             }
@@ -1939,7 +1940,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
     private void handleChainedFunction(ParserRuleContext parentCtx, EsperEPL2GrammarParser.ChainedFunctionContext chainedCtx, ExprNode childExpression) {
         List<ExprChainedSpec> chainSpec = ASTLibFunctionHelper.getLibFuncChain(chainedCtx.libFunctionNoClass(), astExprNodeMap);
-        ExprDotNode dotNode = new ExprDotNode(chainSpec, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(),
+        ExprDotNode dotNode = new ExprDotNodeImpl(chainSpec, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(),
                 configurationInformation.getEngineDefaults().getExpression().isUdfCache());
         if (childExpression != null) {
             dotNode.addChildNode(childExpression);

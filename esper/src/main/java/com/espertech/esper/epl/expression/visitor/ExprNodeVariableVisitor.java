@@ -12,6 +12,8 @@ package com.espertech.esper.epl.expression.visitor;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprVariableNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.variable.VariableService;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,8 +22,12 @@ import java.util.Set;
  * Visitor for expression node trees that determines if the expressions within contain a variable.
  */
 public class ExprNodeVariableVisitor implements ExprNodeVisitor {
-    private boolean hasVariables;
+    private final VariableService variableService;
     private Set<String> variableNames;
+
+    public ExprNodeVariableVisitor(VariableService variableService) {
+        this.variableService = variableService;
+    }
 
     public boolean isVisit(ExprNode exprNode) {
         return true;
@@ -33,20 +39,21 @@ public class ExprNodeVariableVisitor implements ExprNodeVisitor {
      * @return true for variable present in expression
      */
     public boolean isHasVariables() {
-        return hasVariables;
+        return variableNames != null && !variableNames.isEmpty();
     }
 
     public void visit(ExprNode exprNode) {
-        if (!(exprNode instanceof ExprVariableNode)) {
-            return;
+        if (exprNode instanceof ExprDotNode) {
+            ExprDotNode exprDotNode = (ExprDotNode) exprNode;
+            String variableName = exprDotNode.isVariableOpGetName(variableService);
+            if (variableName != null) {
+                addVariableName(variableName);
+            }
         }
-        hasVariables = true;
-
-        ExprVariableNode variableNode = (ExprVariableNode) exprNode;
-        if (variableNames == null) {
-            variableNames = new HashSet<String>();
+        if (exprNode instanceof ExprVariableNode) {
+            ExprVariableNode variableNode = (ExprVariableNode) exprNode;
+            addVariableName(variableNode.getVariableName());
         }
-        variableNames.add(variableNode.getVariableName());
     }
 
     /**
@@ -56,5 +63,12 @@ public class ExprNodeVariableVisitor implements ExprNodeVisitor {
      */
     public Set<String> getVariableNames() {
         return variableNames;
+    }
+
+    private void addVariableName(String name) {
+        if (variableNames == null) {
+            variableNames = new HashSet<String>();
+        }
+        variableNames.add(name);
     }
 }

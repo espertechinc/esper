@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.table.*;
 import com.espertech.esper.epl.spec.StatementSpecRaw;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
@@ -64,7 +65,7 @@ public class ASTTableExprHelper {
         List<ExprChainedSpec> chainedSpecs = new ArrayList<ExprChainedSpec>(1);
         chainedSpecs.add(new ExprChainedSpec(subproperty.substring(index + 1), Collections.<ExprNode>emptyList(), true));
         ExprTableAccessNodeSubprop tableNode = new ExprTableAccessNodeSubprop(tableName, subproperty.substring(0, index));
-        ExprDotNode dotNode = new ExprDotNode(chainedSpecs, false, false);
+        ExprDotNode dotNode = new ExprDotNodeImpl(chainedSpecs, false, false);
         dotNode.addChildNode(tableNode);
         return new Pair<ExprTableAccessNode, ExprDotNode>(tableNode, dotNode);
     }

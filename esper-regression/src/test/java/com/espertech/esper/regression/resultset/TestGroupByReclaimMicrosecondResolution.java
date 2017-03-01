@@ -38,7 +38,7 @@ public class TestGroupByReclaimMicrosecondResolution extends TestCase {
             epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
         }
 
-        // TODO runAssertionEventTime(epServices.get(TimeUnit.MILLISECONDS), 5000);
+        runAssertionEventTime(epServices.get(TimeUnit.MILLISECONDS), 5000);
         runAssertionEventTime(epServices.get(TimeUnit.MICROSECONDS), 5000000);
     }
 

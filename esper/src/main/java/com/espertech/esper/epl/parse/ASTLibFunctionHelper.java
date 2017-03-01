@@ -26,6 +26,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
@@ -129,7 +130,7 @@ public class ASTLibFunctionHelper {
 
             ExprDeclaredNodeImpl declaredNode = ExprDeclaredHelper.getExistsDeclaredExpr(model.optionalClassIdent, Collections.<ExprNode>emptyList(), expressionDeclarations.getExpressions(), exprDeclaredService, contextDescriptor);
             if (declaredNode != null) {
-                ExprNode exprNode = new ExprDotNode(Collections.singletonList(chainSpec), duckType, udfCache);
+                ExprNode exprNode = new ExprDotNodeImpl(Collections.singletonList(chainSpec), duckType, udfCache);
                 exprNode.addChildNode(declaredNode);
                 ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
                 return;
@@ -138,8 +139,8 @@ public class ASTLibFunctionHelper {
             List<ExprChainedSpec> chain = new ArrayList<ExprChainedSpec>(2);
             chain.add(new ExprChainedSpec(model.getOptionalClassIdent(), Collections.<ExprNode>emptyList(), true));
             chain.add(chainSpec);
-            ExprDotNode dotNode = new ExprDotNode(chain, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(), configurationInformation.getEngineDefaults().getExpression().isUdfCache());
-            if (dotNode.isVariableOp(variableService)) {
+            ExprDotNode dotNode = new ExprDotNodeImpl(chain, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(), configurationInformation.getEngineDefaults().getExpression().isUdfCache());
+            if (dotNode.isVariableOpGetName(variableService) != null) {
                 statementSpec.setHasVariables(true);
             }
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(dotNode, ctx, astExprNodeMap);
@@ -158,7 +159,7 @@ public class ASTLibFunctionHelper {
             List<ExprNode> childExpressions = ASTLibFunctionHelper.getExprNodesLibFunc(firstArgs, astExprNodeMap);
             singleRowExtNode.addChildNodes(childExpressions);
             addChainRemainderFromOffset(model.getChainElements(), 1, spec, astExprNodeMap);
-            ExprDotNode dotNode = new ExprDotNode(spec, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(), configurationInformation.getEngineDefaults().getExpression().isUdfCache());
+            ExprDotNode dotNode = new ExprDotNodeImpl(spec, configurationInformation.getEngineDefaults().getExpression().isDuckTyping(), configurationInformation.getEngineDefaults().getExpression().isUdfCache());
             dotNode.addChildNode(singleRowExtNode);
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(dotNode, ctx, astExprNodeMap);
             return;
@@ -213,7 +214,7 @@ public class ASTLibFunctionHelper {
             if (chain.isEmpty()) {
                 exprNode = aggregationNode;
             } else {
-                exprNode = new ExprDotNode(chain, duckType, udfCache);
+                exprNode = new ExprDotNodeImpl(chain, duckType, udfCache);
                 exprNode.addChildNode(aggregationNode);
             }
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
@@ -228,7 +229,7 @@ public class ASTLibFunctionHelper {
             if (chain.isEmpty()) {
                 exprNode = declaredNode;
             } else {
-                exprNode = new ExprDotNode(chain, duckType, udfCache);
+                exprNode = new ExprDotNodeImpl(chain, duckType, udfCache);
                 exprNode.addChildNode(declaredNode);
             }
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
@@ -243,7 +244,7 @@ public class ASTLibFunctionHelper {
             if (chain.isEmpty()) {
                 exprNode = scriptNode;
             } else {
-                exprNode = new ExprDotNode(chain, duckType, udfCache);
+                exprNode = new ExprDotNodeImpl(chain, duckType, udfCache);
                 exprNode.addChildNode(scriptNode);
             }
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
@@ -259,7 +260,7 @@ public class ASTLibFunctionHelper {
             if (chain.isEmpty()) {
                 exprNode = tableInfo.getFirst();
             } else {
-                exprNode = new ExprDotNode(chain, duckType, udfCache);
+                exprNode = new ExprDotNodeImpl(chain, duckType, udfCache);
                 exprNode.addChildNode(tableInfo.getFirst());
             }
             ASTExprHelper.exprCollectAddSubNodesAddParentNode(exprNode, ctx, astExprNodeMap);
@@ -269,9 +270,9 @@ public class ASTLibFunctionHelper {
         // Could be a mapped property with an expression-parameter "mapped(expr)" or array property with an expression-parameter "array(expr)".
         ExprDotNode dotNode;
         if (chain.size() == 1) {
-            dotNode = new ExprDotNode(chain, false, false);
+            dotNode = new ExprDotNodeImpl(chain, false, false);
         } else {
-            dotNode = new ExprDotNode(chain, duckType, udfCache);
+            dotNode = new ExprDotNodeImpl(chain, duckType, udfCache);
         }
         ASTExprHelper.exprCollectAddSubNodesAddParentNode(dotNode, ctx, astExprNodeMap);
     }

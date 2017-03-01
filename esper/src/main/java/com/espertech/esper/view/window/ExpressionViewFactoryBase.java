@@ -66,7 +66,7 @@ public abstract class ExpressionViewFactoryBase implements DataWindowViewFactory
         }
 
         // determine variables used, if any
-        ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor();
+        ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor(statementContext.getVariableService());
         expiryExpression.accept(visitor);
         variableNames = visitor.getVariableNames();
 

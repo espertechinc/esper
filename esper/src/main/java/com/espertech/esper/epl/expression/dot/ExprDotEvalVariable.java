@@ -31,6 +31,10 @@ public class ExprDotEvalVariable implements ExprEvaluator {
         this.chainEval = chainEval;
     }
 
+    public String getVariableName() {
+        return variableReader.getVariableMetaData().getVariableName();
+    }
+
     public Class getType() {
         if (chainEval.length == 0) {
             return variableReader.getVariableMetaData().getType();

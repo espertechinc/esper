@@ -28,7 +28,7 @@ import com.espertech.esper.epl.enummethod.dot.ExprDeclaredOrLambdaNode;
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeUtil;
-import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.epl.expression.methodagg.ExprPlugInAggNode;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
@@ -447,7 +447,7 @@ public class ExprNodeUtility {
             List<ExprChainedSpec> chain = new ArrayList<ExprChainedSpec>();
             chain.add(new ExprChainedSpec(parse.getClassName(), Collections.<ExprNode>emptyList(), false));
             chain.add(new ExprChainedSpec(parse.getMethodName(), parameters, false));
-            ExprNode result = new ExprDotNode(chain, validationContext.getEngineImportService().isDuckType(), validationContext.getEngineImportService().isUdfCache());
+            ExprNode result = new ExprDotNodeImpl(chain, validationContext.getEngineImportService().isDuckType(), validationContext.getEngineImportService().isUdfCache());
 
             // Validate
             try {

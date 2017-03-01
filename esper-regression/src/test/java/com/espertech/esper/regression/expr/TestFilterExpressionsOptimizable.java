@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class TestFilterExpressionsOptimizable extends TestCase
 {
@@ -82,7 +86,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
            "Implicit conversion from datatype 'long' to 'int' for property 'intPrimitive' is not allowed (strict filter type coercion)");
     }
 
-    public void testOptimizablePerf() {
+    public void testOptimizablePerf() throws Exception {
 
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("libSplit", MyLib.class.getName(), "libSplit", ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED);
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("libE1True", MyLib.class.getName(), "libE1True", ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED);
@@ -113,6 +117,29 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         // with context
         runAssertionMethodInvocationContext();
+
+        // with variable and separate thread
+        runAssertionVariableAndSeparateThread();
+    }
+
+    private void runAssertionVariableAndSeparateThread() throws Exception {
+
+        epService.getEPAdministrator().getConfiguration().addVariable("myCheckServiceProvider", MyCheckServiceProvider.class, null);
+        epService.getEPRuntime().setVariableValue("myCheckServiceProvider", new MyCheckServiceProvider());
+
+        EPStatement epStatement = epService.getEPAdministrator().createEPL("select * from SupportBean(myCheckServiceProvider.check())");
+        epStatement.addListener(listener);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(new Runnable() {
+            public void run() {
+                epService.getEPRuntime().sendEvent(new SupportBean());
+                assertTrue(listener.getIsInvokedAndReset());
+                latch.countDown();
+            }
+        });
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
     }
 
     public void testOptimizableInspectFilter() {
@@ -1088,6 +1115,12 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         public long[] getLongs() {
             return longs;
+        }
+    }
+
+    public static class MyCheckServiceProvider {
+        public boolean check() {
+            return true;
         }
     }
 }

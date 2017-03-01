@@ -45,7 +45,7 @@ public class OutputConditionExpressionFactory implements OutputConditionFactory 
         this.isStartConditionOnCreation = isStartConditionOnCreation;
 
         // determine if using variables
-        ExprNodeVariableVisitor variableVisitor = new ExprNodeVariableVisitor();
+        ExprNodeVariableVisitor variableVisitor = new ExprNodeVariableVisitor(statementContext.getVariableService());
         whenExpressionNode.accept(variableVisitor);
         variableNames = variableVisitor.getVariableNames();
 

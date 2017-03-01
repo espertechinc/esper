@@ -32,6 +32,7 @@ import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMi
 import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNode;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.dot.ExprDotNodeImpl;
 import com.espertech.esper.epl.expression.funcs.*;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.ops.*;
@@ -1770,7 +1771,7 @@ public class StatementSpecMapper {
             StaticMethodExpression method = (StaticMethodExpression) expr;
             List<ExprChainedSpec> chained = mapChains(method.getChain(), mapContext);
             chained.add(0, new ExprChainedSpec(method.getClassName(), Collections.<ExprNode>emptyList(), false));
-            return new ExprDotNode(chained,
+            return new ExprDotNodeImpl(chained,
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isDuckTyping(),
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isUdfCache());
         } else if (expr instanceof MinProjectionExpression) {
@@ -1952,10 +1953,10 @@ public class StatementSpecMapper {
                     return script;
                 }
             }
-            ExprDotNode dotNode = new ExprDotNode(chain,
+            ExprDotNode dotNode = new ExprDotNodeImpl(chain,
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isDuckTyping(),
                     mapContext.getConfiguration().getEngineDefaults().getExpression().isUdfCache());
-            if (dotNode.isVariableOp(mapContext.getVariableService())) {
+            if (dotNode.isVariableOpGetName(mapContext.getVariableService()) != null) {
                 mapContext.setHasVariables(true);
             }
             return dotNode;

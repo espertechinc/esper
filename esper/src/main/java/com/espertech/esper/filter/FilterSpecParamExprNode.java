@@ -75,7 +75,7 @@ public final class FilterSpecParamExprNode extends FilterSpecParam {
         this.hasFilterStreamSubquery = hasSubquery;
         this.hasTableAccess = hasTableAccess;
 
-        ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor();
+        ExprNodeVariableVisitor visitor = new ExprNodeVariableVisitor(variableService);
         exprNode.accept(visitor);
         this.hasVariable = visitor.isHasVariables();
     }
