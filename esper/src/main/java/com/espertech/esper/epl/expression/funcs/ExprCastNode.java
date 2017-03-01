@@ -236,7 +236,7 @@ public class ExprCastNode extends ExprNodeBase {
             isConstant = casterParserComputer.isConstantForConstInput();
             if (isConstant) {
                 Object in = valueEvaluator.evaluate(null, true, validationContext.getExprEvaluatorContext());
-                theConstant = casterParserComputer.compute(in, null, true, validationContext.getExprEvaluatorContext());
+                theConstant = in == null ? null : casterParserComputer.compute(in, null, true, validationContext.getExprEvaluatorContext());
             }
         }
 
