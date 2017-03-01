@@ -1012,7 +1012,7 @@ public EventType getEventType() {
         
         <table frame="topbot">
 			<title>Aggregation Function Extension API's</title>
-			<tgroup cols="4">
+			<tgroup cols="3">
 				<colspec colwidth="1*"/>
 				<colspec colwidth="1.5*"/>
 				<colspec colwidth="1.5*"/>
