@@ -10,12 +10,14 @@
  */
 package com.espertech.esper.epl.expression.core;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
@@ -1452,7 +1454,7 @@ public class ExprNodeUtility {
         return writer.toString();
     }
 
-    public static ScheduleSpec toCrontabSchedule(ExprNodeOrigin origin, List<ExprNode> scheduleSpecExpressionList, StatementContext context, boolean allowBindingConsumption)
+    public static ExprEvaluator[] crontabScheduleValidate(ExprNodeOrigin origin, List<ExprNode> scheduleSpecExpressionList, StatementContext context, boolean allowBindingConsumption)
             throws ExprValidationException {
 
         // Validate the expressions
@@ -1464,13 +1466,17 @@ public class ExprNodeUtility {
             ExprNode node = ExprNodeUtility.getValidatedSubtree(origin, parameters, validationContext);
             expressions[count++] = node.getExprEvaluator();
         }
+        return expressions;
+    }
+
+    public static ScheduleSpec crontabScheduleBuild(ExprEvaluator[] scheduleSpecEvaluators, ExprEvaluatorContext context) {
 
         // Build a schedule
         try {
-            Object[] scheduleSpecParameterList = evaluateExpressions(expressions, evaluatorContextStmt);
+            Object[] scheduleSpecParameterList = evaluateExpressions(scheduleSpecEvaluators, context);
             return ScheduleSpecUtil.computeValues(scheduleSpecParameterList);
         } catch (ScheduleParameterException e) {
-            throw new ExprValidationException("Invalid schedule specification: " + e.getMessage(), e);
+            throw new EPException("Invalid schedule specification: " + e.getMessage(), e);
         }
     }
 

@@ -12,10 +12,7 @@ package com.espertech.esper.epl.view;
 
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.schedule.ScheduleSpec;
 
 import java.util.List;
@@ -24,22 +21,19 @@ import java.util.List;
  * Output condition handling crontab-at schedule output.
  */
 public class OutputConditionCrontabFactory implements OutputConditionFactory {
-    private final ScheduleSpec scheduleSpec;
+    private final ExprEvaluator[] scheduleSpecEvaluators;
     protected final boolean isStartConditionOnCreation;
 
     public OutputConditionCrontabFactory(List<ExprNode> scheduleSpecExpressionList,
                                          StatementContext statementContext,
                                          boolean isStartConditionOnCreation)
             throws ExprValidationException {
-        scheduleSpec = ExprNodeUtility.toCrontabSchedule(ExprNodeOrigin.OUTPUTLIMIT, scheduleSpecExpressionList, statementContext, false);
+        this.scheduleSpecEvaluators = ExprNodeUtility.crontabScheduleValidate(ExprNodeOrigin.OUTPUTLIMIT, scheduleSpecExpressionList, statementContext, false);
         this.isStartConditionOnCreation = isStartConditionOnCreation;
     }
 
     public OutputCondition make(AgentInstanceContext agentInstanceContext, OutputCallback outputCallback) {
-        return new OutputConditionCrontab(outputCallback, agentInstanceContext, this, isStartConditionOnCreation);
-    }
-
-    public ScheduleSpec getScheduleSpec() {
-        return scheduleSpec;
+        ScheduleSpec scheduleSpec = ExprNodeUtility.crontabScheduleBuild(scheduleSpecEvaluators, agentInstanceContext);
+        return new OutputConditionCrontab(outputCallback, agentInstanceContext, isStartConditionOnCreation, scheduleSpec);
     }
 }

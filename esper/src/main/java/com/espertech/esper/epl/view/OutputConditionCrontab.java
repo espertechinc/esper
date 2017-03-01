@@ -17,6 +17,7 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.schedule.ScheduleComputeHelper;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
+import com.espertech.esper.schedule.ScheduleSpec;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
@@ -30,16 +31,16 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
     private static final boolean FORCE_UPDATE = true;
 
     private final AgentInstanceContext context;
-    private final OutputConditionCrontabFactory factory;
+    private final ScheduleSpec scheduleSpec;
 
     private final long scheduleSlot;
     private Long currentReferencePoint;
     private boolean isCallbackScheduled;
 
-    public OutputConditionCrontab(OutputCallback outputCallback, AgentInstanceContext context, OutputConditionCrontabFactory factory, boolean isStartConditionOnCreation) {
+    public OutputConditionCrontab(OutputCallback outputCallback, AgentInstanceContext context, boolean isStartConditionOnCreation, ScheduleSpec scheduleSpec) {
         super(outputCallback);
         this.context = context;
-        this.factory = factory;
+        this.scheduleSpec = scheduleSpec;
         scheduleSlot = context.getStatementContext().getScheduleBucket().allocateSlot();
         if (isStartConditionOnCreation) {
             updateOutputCondition(0, 0);
@@ -65,7 +66,7 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
 
     public final String toString() {
         return this.getClass().getName() +
-                " spec=" + factory.getScheduleSpec();
+                " spec=" + scheduleSpec;
     }
 
     private void scheduleCallback() {
@@ -76,7 +77,7 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
             log.debug(".scheduleCallback Scheduled new callback for " +
                     " now=" + current +
                     " currentReferencePoint=" + currentReferencePoint +
-                    " spec=" + factory.getScheduleSpec());
+                    " spec=" + scheduleSpec);
         }
 
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
@@ -95,7 +96,7 @@ public final class OutputConditionCrontab extends OutputConditionBase implements
         EPStatementHandleCallback handle = new EPStatementHandleCallback(context.getEpStatementAgentInstanceHandle(), callback);
         SchedulingService schedulingService = context.getStatementContext().getSchedulingService();
         EngineImportService engineImportService = context.getStatementContext().getEngineImportService();
-        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(factory.getScheduleSpec(), schedulingService.getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
+        long nextScheduledTime = ScheduleComputeHelper.computeDeltaNextOccurance(scheduleSpec, schedulingService.getTime(), engineImportService.getTimeZone(), engineImportService.getTimeAbacus());
         schedulingService.add(nextScheduledTime, handle, scheduleSlot);
     }
 

@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
@@ -160,7 +161,8 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
     private ContextDetailMatchPair validateRewriteContextCondition(EPServicesContext servicesContext, StatementContext statementContext, ContextDetailCondition endpoint, Set<String> eventTypesReferenced, MatchEventSpec priorMatches, Set<String> priorAllTags) throws ExprValidationException {
         if (endpoint instanceof ContextDetailConditionCrontab) {
             ContextDetailConditionCrontab crontab = (ContextDetailConditionCrontab) endpoint;
-            ScheduleSpec schedule = ExprNodeUtility.toCrontabSchedule(ExprNodeOrigin.CONTEXTCONDITION, crontab.getCrontab(), statementContext, false);
+            ExprEvaluator[] scheduleSpecEvaluators = ExprNodeUtility.crontabScheduleValidate(ExprNodeOrigin.CONTEXTCONDITION, crontab.getCrontab(), statementContext, false);
+            ScheduleSpec schedule = ExprNodeUtility.crontabScheduleBuild(scheduleSpecEvaluators, new ExprEvaluatorContextStatement(statementContext, false));
             crontab.setSchedule(schedule);
             return new ContextDetailMatchPair(crontab, new MatchEventSpec(), new LinkedHashSet<String>());
         }
