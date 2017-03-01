@@ -371,7 +371,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
                 }
             };
             EventType wildcardType = validationContext.getStreamTypeService().getEventTypes().length != 1 ? null : validationContext.getStreamTypeService().getEventTypes()[0];
-            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(), methodSpec.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getTableService());
+            ExprNodeUtilMethodDesc methodDesc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(enumconstant.getClass().getName(), enumconstant.getClass(), methodSpec.getName(), methodSpec.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), wildcardType != null, wildcardType, handler, methodSpec.getName(), validationContext.getTableService(), streamTypeService.getEngineURIQualifier());
 
             // method resolved, hook up
             modifiedChain.remove(0);    // we identified this piece
@@ -398,7 +398,7 @@ public class ExprDotNode extends ExprNodeBase implements ExprNodeInnerNodeProvid
             streamZeroType = validationContext.getStreamTypeService().getEventTypes()[0];
         }
 
-        ExprNodeUtilMethodDesc method = ExprNodeUtility.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getTableService());
+        ExprNodeUtilMethodDesc method = ExprNodeUtility.resolveMethodAllowWildcardAndStream(firstItem.getName(), null, secondItem.getName(), secondItem.getParameters(), validationContext.getEngineImportService(), validationContext.getEventAdapterService(), validationContext.getStatementId(), allowWildcard, streamZeroType, new ExprNodeUtilResolveExceptionHandlerDefault(firstItem.getName() + "." + secondItem.getName(), false), secondItem.getName(), validationContext.getTableService(), streamTypeService.getEngineURIQualifier());
 
         boolean isConstantParameters = method.isAllConstants() && isUDFCache;
         isReturnsConstantResult = isConstantParameters && modifiedChain.isEmpty();

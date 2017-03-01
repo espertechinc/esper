@@ -144,7 +144,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
         ExprNodeUtilMethodDesc desc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(
                 methodProviderClass.getName(), isStaticMethod ? null : methodProviderClass,
                 methodStreamSpec.getMethodName(), validatedInputParameters, engineImportService, eventAdapterService, statementContext.getStatementId(),
-                false, null, handler, methodStreamSpec.getMethodName(), tableService);
+                false, null, handler, methodStreamSpec.getMethodName(), tableService, statementContext.getEngineURI());
         validatedExprNodes = desc.getChildEvals();
 
         // Construct polling strategy as a method invocation

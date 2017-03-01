@@ -15,15 +15,18 @@ import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 
 public class ExprNodeUtilExprEvalMethodContext implements ExprEvaluator {
 
-    private final String functionName;
+    private final EPLMethodInvocationContext defaultContextForFilters;
 
-    public ExprNodeUtilExprEvalMethodContext(String functionName) {
-        this.functionName = functionName;
+    public ExprNodeUtilExprEvalMethodContext(String engineURI, String functionName) {
+        this.defaultContextForFilters = new EPLMethodInvocationContext(null, -1, engineURI, functionName, null);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
+        if (context == null) {
+            return defaultContextForFilters;
+        }
         return new EPLMethodInvocationContext(context.getStatementName(),
-                context.getAgentInstanceId(), context.getEngineURI(), functionName, context.getStatementUserObject());
+                context.getAgentInstanceId(), defaultContextForFilters.getEngineURI(), defaultContextForFilters.getFunctionName(), context.getStatementUserObject());
     }
 
     public Class getType() {

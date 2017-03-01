@@ -187,7 +187,8 @@ public abstract class ContextControllerHashFactoryBase extends ContextController
                         item.getFilterSpecCompiled().getFilterForEventType(),
                         factoryContext.getAgentInstanceContextCreate().getStatementContext().getEventAdapterService(),
                         factoryContext.getAgentInstanceContextCreate().getStatementId(),
-                        factoryContext.getServicesContext().getTableService());
+                        factoryContext.getServicesContext().getTableService(),
+                        factoryContext.getServicesContext().getEngineURI());
             } else {
                 throw new IllegalArgumentException("Unrecognized hash code function '" + hashFuncName + "'");
             }

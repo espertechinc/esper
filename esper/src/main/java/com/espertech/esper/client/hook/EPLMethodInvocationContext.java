@@ -38,16 +38,16 @@ public class EPLMethodInvocationContext {
     }
 
     /**
-     * Returns the statement name.
+     * Returns the statement name, or null if the invocation context is not associated to a specific statement and is shareable between statements
      *
-     * @return statement name
+     * @return statement name or null
      */
     public String getStatementName() {
         return statementName;
     }
 
     /**
-     * Returns the context partition id, or -1 if no contexts
+     * Returns the context partition id, or -1 if no contexts or if the invocation context is not associated to a specific statement and is shareable between statements
      *
      * @return context partition id
      */
@@ -74,9 +74,9 @@ public class EPLMethodInvocationContext {
     }
 
     /**
-     * Returns the statement user object or null if not assigned
+     * Returns the statement user object or null if not assigned or if the invocation context is not associated to a specific statement and is shareable between statements
      *
-     * @return statement user object
+     * @return statement user object or null
      */
     public Object getStatementUserObject() {
         return statementUserObject;

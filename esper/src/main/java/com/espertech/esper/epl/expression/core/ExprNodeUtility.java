@@ -17,7 +17,6 @@ import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.util.TimePeriod;
 import com.espertech.esper.collection.Pair;
-import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.ContextPropertyRegistry;
 import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
@@ -650,7 +649,8 @@ public class ExprNodeUtility {
                                                                              final EventType wildcardType,
                                                                              ExprNodeUtilResolveExceptionHandler exceptionHandler,
                                                                              String functionName,
-                                                                             TableService tableService) throws ExprValidationException {
+                                                                             TableService tableService,
+                                                                             String engineURI) throws ExprValidationException {
         Class[] paramTypes = new Class[parameters.size()];
         ExprEvaluator[] childEvals = new ExprEvaluator[parameters.size()];
         int count = 0;
@@ -755,7 +755,7 @@ public class ExprNodeUtility {
         // add an evaluator if the method expects a context object
         if (!method.isVarArgs() && method.getParameterTypes().length > 0 &&
                 method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
-            childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(functionName));
+            childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(engineURI, functionName));
         }
 
         // handle varargs
@@ -765,7 +765,7 @@ public class ExprNodeUtility {
             if (numMethodParams > 1 && method.getParameterTypes()[numMethodParams - 2] == EPLMethodInvocationContext.class) {
                 ExprEvaluator[] rewritten = new ExprEvaluator[childEvals.length + 1];
                 System.arraycopy(childEvals, 0, rewritten, 0, numMethodParams - 2);
-                rewritten[numMethodParams - 2] = new ExprNodeUtilExprEvalMethodContext(functionName);
+                rewritten[numMethodParams - 2] = new ExprNodeUtilExprEvalMethodContext(engineURI, functionName);
                 System.arraycopy(childEvals, numMethodParams - 2, rewritten, numMethodParams - 1, childEvals.length - (numMethodParams - 2));
                 childEvals = rewritten;
             }

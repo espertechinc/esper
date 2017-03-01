@@ -11,6 +11,7 @@
 package com.espertech.esper.regression.expr;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.core.service.EPStatementSPI;
@@ -34,12 +35,22 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
+    private static EPLMethodInvocationContext methodInvocationContextFilterOptimized;
 
     public void setUp()
     {
         listener = new SupportUpdateListener();
 
         Configuration config = SupportConfigFactory.getConfiguration();
+
+        ConfigurationPlugInSingleRowFunction func = new ConfigurationPlugInSingleRowFunction();
+        func.setFunctionClassName(this.getClass().getName());
+        func.setFunctionMethodName("myCustomOkFunction");
+        func.setFilterOptimizable(ConfigurationPlugInSingleRowFunction.FilterOptimizable.ENABLED);
+        func.setRethrowExceptions(true);
+        func.setName("myCustomOkFunction");
+        config.getPlugInSingleRowFunctions().add(func);
+
         config.addEventType("SupportEvent", SupportTradeEvent.class);
         config.addEventType(SupportBean.class);
         config.addEventType(SupportBean_IntAlphabetic.class);
@@ -99,6 +110,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         // typeof(e)
         runAssertionTypeOf();
+
+        // with context
+        runAssertionMethodInvocationContext();
     }
 
     public void testOptimizableInspectFilter() {
@@ -850,6 +864,18 @@ public class TestFilterExpressionsOptimizable extends TestCase
         }
     }
 
+    private void runAssertionMethodInvocationContext() {
+        methodInvocationContextFilterOptimized = null;
+        epService.getEPAdministrator().createEPL("select * from SupportBean e where myCustomOkFunction(e) = \"OK\"");
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        assertEquals("default", methodInvocationContextFilterOptimized.getEngineURI());
+        assertEquals("myCustomOkFunction", methodInvocationContextFilterOptimized.getFunctionName());
+        assertNull(methodInvocationContextFilterOptimized.getStatementUserObject());
+        assertNull(methodInvocationContextFilterOptimized.getStatementName());
+        assertEquals(-1, methodInvocationContextFilterOptimized.getContextPartitionId());
+        methodInvocationContextFilterOptimized = null;
+    }
+
     private void runAssertionTypeOf() {
         epService.getEPAdministrator().getConfiguration().addEventType(SupportOverrideBase.class);
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportOverrideBase(typeof(e) = 'SupportOverrideBase') as e");
@@ -948,6 +974,11 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
     public FilterItem getBoolExprFilterItem() {
         return new FilterItem(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION, FilterOperator.BOOLEAN_EXPRESSION);
+    }
+
+    public static String myCustomOkFunction(Object e, EPLMethodInvocationContext ctx) {
+        methodInvocationContextFilterOptimized = ctx;
+        return "OK";
     }
 
     public static boolean myCustomBigDecimalEquals(final BigDecimal first, final BigDecimal second) {
