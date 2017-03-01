@@ -253,7 +253,7 @@ public class TestContextNested extends TestCase {
 
         assertFilters(epService, isolationAllowed, "SupportBean(intPrimitive<0),SupportBean(intPrimitive>0)", spiCtx);
         epService.getEPRuntime().sendEvent(new SupportBean("E1", -1));
-        assertFilters(epService, isolationAllowed, "SupportBean(theString=E1,intPrimitive<0)", spiStmt);
+        assertFilters(epService, isolationAllowed, "SupportBean(theStringisE1,intPrimitive<0)", spiStmt);
         epService.getEPAdministrator().destroyAllStatements();
 
         // category over partition over category
@@ -268,7 +268,7 @@ public class TestContextNested extends TestCase {
         bean = new SupportBean("E1", -1);
         bean.setLongPrimitive(1);
         epService.getEPRuntime().sendEvent(bean);
-        assertFilters(epService, isolationAllowed, "SupportBean(longPrimitive<0,theString=E1,intPrimitive<0),SupportBean(longPrimitive>0,theString=E1,intPrimitive<0)", spiStmt);
+        assertFilters(epService, isolationAllowed, "SupportBean(longPrimitive<0,theStringisE1,intPrimitive<0),SupportBean(longPrimitive>0,theStringisE1,intPrimitive<0)", spiStmt);
         assertFilters(epService, isolationAllowed, "SupportBean(intPrimitive<0),SupportBean(intPrimitive>0)", spiCtx);
         epService.getEPAdministrator().destroyAllStatements();
 
@@ -284,8 +284,8 @@ public class TestContextNested extends TestCase {
         bean = new SupportBean("E1", 2);
         bean.setLongPrimitive(3);
         epService.getEPRuntime().sendEvent(bean);
-        assertFilters(epService, isolationAllowed, "SupportBean(longPrimitive=3,intPrimitive=2,theString=E1)", spiStmt);
-        assertFilters(epService, isolationAllowed, "SupportBean(),SupportBean(theString=E1),SupportBean(theString=E1,intPrimitive=2)", spiCtx);
+        assertFilters(epService, isolationAllowed, "SupportBean(longPrimitiveis3,intPrimitiveis2,theStringisE1)", spiStmt);
+        assertFilters(epService, isolationAllowed, "SupportBean(),SupportBean(theStringisE1),SupportBean(theStringisE1,intPrimitiveis2)", spiCtx);
         epService.getEPAdministrator().destroyAllStatements();
 
         // category over hash

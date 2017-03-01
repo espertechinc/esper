@@ -34,7 +34,7 @@ public class ScheduleSpecUtil {
      */
     public static ScheduleSpec computeValues(Object[] args) throws ScheduleParameterException {
         if (args.length <= 4 || args.length >= 8) {
-            throw new ScheduleParameterException("Invalid number of crontab parameters, expecting between 5 and 7 parameters, received " + args.length);
+            throw new ScheduleParameterException(getExpressionCountException(args.length));
         }
         EnumMap<ScheduleUnit, SortedSet<Integer>> unitMap = new EnumMap<ScheduleUnit, SortedSet<Integer>>(ScheduleUnit.class);
         Object minutes = args[0];
@@ -98,6 +98,10 @@ public class ScheduleSpecUtil {
         CronParameter optionalDayOfMonthOp = getOptionalSpecialOp(daysOfMonth);
         CronParameter optionalDayOfWeekOp = getOptionalSpecialOp(daysOfWeek);
         return new ScheduleSpec(unitMap, timezone, optionalDayOfMonthOp, optionalDayOfWeekOp);
+    }
+
+    public static String getExpressionCountException(int length) {
+        return "Invalid number of crontab parameters, expecting between 5 and 7 parameters, received " + length;
     }
 
     private static CronParameter getOptionalSpecialOp(Object unitParameter) {

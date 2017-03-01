@@ -1466,6 +1466,11 @@ public class ExprNodeUtility {
             ExprNode node = ExprNodeUtility.getValidatedSubtree(origin, parameters, validationContext);
             expressions[count++] = node.getExprEvaluator();
         }
+
+        if (expressions.length <= 4 || expressions.length >= 8) {
+            throw new ExprValidationException("Invalid schedule specification: " + ScheduleSpecUtil.getExpressionCountException(expressions.length));
+        }
+
         return expressions;
     }
 

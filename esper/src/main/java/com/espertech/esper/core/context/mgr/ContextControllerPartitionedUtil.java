@@ -249,10 +249,7 @@ public class ContextControllerPartitionedUtil {
     }
 
     private static FilterValueSetParam getFilterMayEqualOrNull(FilterSpecLookupable lookupable, Object keyValue) {
-        if (keyValue == null) {
-            return new FilterValueSetParamImpl(lookupable, FilterOperator.IS, null);
-        }
-        return new FilterValueSetParamImpl(lookupable, FilterOperator.EQUAL, keyValue);
+        return new FilterValueSetParamImpl(lookupable, FilterOperator.IS, keyValue);
     }
 
     private static String getTypeValidationMessage(String contextName, String typeNameEx) {
