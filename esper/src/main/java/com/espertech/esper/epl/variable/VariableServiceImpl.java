@@ -356,7 +356,7 @@ public class VariableServiceImpl implements VariableService {
                 }
             }
 
-            if ((coercedValue != null) && (variableType != coercedValue.getClass())) {
+            if ((coercedValue != null) && (!JavaClassHelper.isSubclassOrImplementsInterface(coercedValue.getClass(), variableType))) {
                 // if the declared type is not numeric or the init value is not numeric, fail
                 if ((!JavaClassHelper.isNumeric(variableType)) || (!(coercedValue instanceof Number))) {
                     throw getVariableTypeException(variableName, variableType, coercedValue.getClass());

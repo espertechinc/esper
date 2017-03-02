@@ -217,6 +217,9 @@ public class TestVariables extends TestCase
 
         epService.getEPAdministrator().createEPL("create variable SupportEnum var_enumtwo = SupportEnum.ENUM_VALUE_2");
         epService.getEPAdministrator().createEPL("on SupportBean set var_enumtwo = enumValue");
+
+        epService.getEPAdministrator().getConfiguration().addVariable("supportEnum", SupportEnum.class.getName(), SupportEnum.ENUM_VALUE_1);
+        epService.getEPAdministrator().getConfiguration().addVariable("enumWithOverride", MyEnumWithOverride.class.getName(), MyEnumWithOverride.LONG);
     }
 
     private void runAssertionArrayVar(String varName) {
@@ -1108,5 +1111,24 @@ public class TestVariables extends TestCase
         public String doSomething() {
             return "hello";
         }
+    }
+
+    public enum MyEnumWithOverride {
+
+        LONG {
+
+            @Override
+            public int getValue() {
+                return 1;
+            }
+        },
+        SHORT {
+            @Override
+            public int getValue() {
+                return -1;
+            }
+        };
+
+        public abstract int getValue();
     }
 }
