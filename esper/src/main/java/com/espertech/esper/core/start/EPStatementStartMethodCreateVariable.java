@@ -73,16 +73,6 @@ public class EPStatementStartMethodCreateVariable extends EPStatementStartMethod
         }
 
         EPStatementDestroyCallbackList destroyMethod = new EPStatementDestroyCallbackList();
-        destroyMethod.addCallback(new DestroyCallback() {
-            public void destroy() {
-                try {
-                    services.getStatementVariableRefService().removeReferencesStatement(statementContext.getStatementName());
-                } catch (RuntimeException ex) {
-                    log.error("Error removing variable '" + createDesc.getVariableName() + "': " + ex.getMessage());
-                }
-            }
-        });
-
         EPStatementStopMethod stopMethod = new EPStatementStopMethod() {
             public void stop() {
             }

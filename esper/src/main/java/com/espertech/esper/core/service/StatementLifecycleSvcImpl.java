@@ -1441,6 +1441,11 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
                 stopMethod.stop();
             }
 
+            // call any destroy method that is registered for the statement: this destroy context partitions but not metadata
+            if (desc.getDestroyMethod() != null) {
+                desc.getDestroyMethod().destroy();
+            }
+
             // remove referenced non-property getters (after stop to allow lookup of these during stop)
             services.getFilterNonPropertyRegisteryService().removeReferencesStatement(desc.getEpStatement().getName());
 
@@ -1449,10 +1454,6 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
 
             // destroy named window consumers
             services.getNamedWindowConsumerMgmtService().destroy(desc.getStatementContext().getStatementName());
-
-            if (desc.getDestroyMethod() != null) {
-                desc.getDestroyMethod().destroy();
-            }
 
             long timeLastStateChange = services.getSchedulingService().getTime();
             statement.setCurrentState(EPStatementState.DESTROYED, timeLastStateChange);
