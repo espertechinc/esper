@@ -21,6 +21,7 @@ public enum ExprNodeOrigin {
     CONTEXTDISTINCT("context distinct-clause"),
     CONTEXTCONDITION("context condition"),
     VARIABLEASSIGN("variable-assignment"),
+    DATAFLOW("dataflow operator"),
     DATAFLOWBEACON("beacon dataflow operator"),
     DATAFLOWFILTER("filter dataflow operator"),
     UPDATEASSIGN("update assignment"),

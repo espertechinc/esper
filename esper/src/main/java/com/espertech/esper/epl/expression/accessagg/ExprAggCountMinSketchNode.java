@@ -20,7 +20,6 @@ import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.approx.CountMinSketchAggType;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.approx.CountMinSketchSpecHashes;
-import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.*;
@@ -119,7 +118,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
             if (context.getExprEvaluatorContext().getStatementType() != StatementType.CREATE_TABLE) {
                 throw new ExprValidationException(getMessagePrefix() + "can only be used in create-table statements");
             }
-            CountMinSketchSpec specification = validateSpecification(context.getExprEvaluatorContext(), context.getEngineImportService());
+            CountMinSketchSpec specification = validateSpecification(context);
             AggregationStateFactoryCountMinSketch stateFactory = context.getEngineImportService().getAggregationFactoryFactory().makeCountMinSketch(context.getStatementExtensionSvcContext(), this, specification);
             return new ExprAggCountMinSketchNodeFactoryState(stateFactory);
         }
@@ -156,7 +155,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return new ExprAggCountMinSketchNodeFactoryUse(this, addOrFrequencyEvaluator);
     }
 
-    private CountMinSketchSpec validateSpecification(ExprEvaluatorContext exprEvaluatorContext, final EngineImportService engineImportService) throws ExprValidationException {
+    private CountMinSketchSpec validateSpecification(ExprValidationContext exprValidationContext) throws ExprValidationException {
         // default specification
         final CountMinSketchSpec spec = new CountMinSketchSpec(new CountMinSketchSpecHashes(DEFAULT_EPS_OF_TOTAL_COUNT, DEFAULT_CONFIDENCE, DEFAULT_SEED), null, DEFAULT_AGENT);
 
@@ -170,7 +169,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
             throw getDeclaredWrongParameterExpr();
         }
         ExprConstantNode constantNode = (ExprConstantNode) this.getChildNodes()[0];
-        Object value = constantNode.getConstantValue(exprEvaluatorContext);
+        Object value = constantNode.getConstantValue(exprValidationContext.getExprEvaluatorContext());
         if (!(value instanceof Map)) {
             throw getDeclaredWrongParameterExpr();
         }
@@ -210,7 +209,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
                     if (value != null) {
                         CountMinSketchAgent transform;
                         try {
-                            Class transformClass = engineImportService.resolveClass((String) value, false);
+                            Class transformClass = exprValidationContext.getEngineImportService().resolveClass((String) value, false);
                             transform = (CountMinSketchAgent) JavaClassHelper.instantiate(CountMinSketchAgent.class, transformClass);
                         } catch (Exception e) {
                             throw new ExprValidationException("Failed to instantiate agent provider: " + e.getMessage(), e);
@@ -222,7 +221,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         };
 
         // populate from json, validates incorrect names, coerces types, instantiates transform
-        PopulateUtil.populateSpecCheckParameters(descriptors, (Map<String, Object>) value, spec, engineImportService);
+        PopulateUtil.populateSpecCheckParameters(descriptors, (Map<String, Object>) value, spec, ExprNodeOrigin.AGGPARAM, exprValidationContext);
 
         return spec;
     }

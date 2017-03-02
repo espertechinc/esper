@@ -27,7 +27,7 @@ import com.espertech.esper.dataflow.util.*;
 import com.espertech.esper.epl.annotation.AnnotationUtil;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.*;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeUtility;
@@ -219,8 +219,11 @@ public class DataFlowServiceImpl implements DataFlowService {
         // determine build order of operators
         Set<Integer> operatorBuildOrder = analyzeBuildOrder(operatorDependencies);
 
+        // assure variables
+        servicesContext.getVariableService().setLocalVersion();
+
         // instantiate operators
-        Map<Integer, Object> operators = instantiateOperators(operatorMetadata, desc, options, servicesContext.getEngineImportService());
+        Map<Integer, Object> operators = instantiateOperators(operatorMetadata, desc, options, statementContext);
 
         // Build graph that references port numbers (port number is simply the method offset number or to-be-generated slot in the list)
         EPRuntimeEventSender runtimeEventSender = (EPRuntimeEventSender) epService.getEPRuntime();
@@ -280,20 +283,21 @@ public class DataFlowServiceImpl implements DataFlowService {
         return types;
     }
 
-    private Map<Integer, Object> instantiateOperators(Map<Integer, OperatorMetadataDescriptor> operatorClasses, CreateDataFlowDesc desc, EPDataFlowInstantiationOptions options, EngineImportService engineImportService)
+    private Map<Integer, Object> instantiateOperators(Map<Integer, OperatorMetadataDescriptor> operatorClasses, CreateDataFlowDesc desc, EPDataFlowInstantiationOptions options, StatementContext statementContext)
             throws ExprValidationException {
+
         Map<Integer, Object> operators = new HashMap<Integer, Object>();
+        ExprValidationContext exprValidationContext = ExprNodeUtility.getExprValidationContextStatementOnly(statementContext);
 
         for (Map.Entry<Integer, OperatorMetadataDescriptor> operatorEntry : operatorClasses.entrySet()) {
-
-            Object operator = instantiateOperator(desc.getGraphName(), operatorEntry.getKey(), operatorEntry.getValue(), desc.getOperators().get(operatorEntry.getKey()), options, engineImportService);
+            Object operator = instantiateOperator(desc.getGraphName(), operatorEntry.getKey(), operatorEntry.getValue(), desc.getOperators().get(operatorEntry.getKey()), options, exprValidationContext);
             operators.put(operatorEntry.getKey(), operator);
         }
 
         return operators;
     }
 
-    private Object instantiateOperator(String dataFlowName, int operatorNum, OperatorMetadataDescriptor desc, GraphOperatorSpec graphOperator, EPDataFlowInstantiationOptions options, EngineImportService engineImportService)
+    private Object instantiateOperator(String dataFlowName, int operatorNum, OperatorMetadataDescriptor desc, GraphOperatorSpec graphOperator, EPDataFlowInstantiationOptions options, ExprValidationContext exprValidationContext)
             throws ExprValidationException {
 
         Object operatorObject = desc.getOptionalOperatorObject();
@@ -311,7 +315,7 @@ public class DataFlowServiceImpl implements DataFlowService {
 
         // inject properties
         Map<String, Object> configs = graphOperator.getDetail() == null ? Collections.<String, Object>emptyMap() : graphOperator.getDetail().getConfigs();
-        injectObjectProperties(dataFlowName, graphOperator.getOperatorName(), operatorNum, configs, operatorObject, options.getParameterProvider(), options.getParametersURIs(), engineImportService);
+        injectObjectProperties(dataFlowName, graphOperator.getOperatorName(), operatorNum, configs, operatorObject, options.getParameterProvider(), options.getParametersURIs(), exprValidationContext);
 
         if (operatorObject instanceof DataFlowOperatorFactory) {
             try {
@@ -324,7 +328,7 @@ public class DataFlowServiceImpl implements DataFlowService {
         return operatorObject;
     }
 
-    private void injectObjectProperties(String dataFlowName, String operatorName, int operatorNum, Map<String, Object> configs, Object instance, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs, EngineImportService engineImportService)
+    private void injectObjectProperties(String dataFlowName, String operatorName, int operatorNum, Map<String, Object> configs, Object instance, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs, ExprValidationContext exprValidationContext)
             throws ExprValidationException {
 
         // determine if there is a property holder which holds all properties
@@ -347,7 +351,7 @@ public class DataFlowServiceImpl implements DataFlowService {
         }
 
         // populate either the instance itself or the property-holder
-        PopulateUtil.populateObject(operatorName, operatorNum, dataFlowName, configs, propertyInstance, engineImportService, optionalParameterProvider, optionalParameterURIs);
+        PopulateUtil.populateObject(operatorName, operatorNum, dataFlowName, configs, propertyInstance, ExprNodeOrigin.DATAFLOW, exprValidationContext, optionalParameterProvider, optionalParameterURIs);
 
         // set holder
         if (!propertyHolderFields.isEmpty()) {

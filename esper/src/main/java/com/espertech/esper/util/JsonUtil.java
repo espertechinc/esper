@@ -10,7 +10,8 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.epl.core.EngineImportService;
+import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.epl.parse.ASTJsonHelper;
@@ -23,7 +24,7 @@ import org.antlr.v4.runtime.tree.Tree;
 import java.util.Map;
 
 public class JsonUtil {
-    public static Object parsePopulate(String json, Class topClass, EngineImportService engineImportService) throws ExprValidationException {
+    public static Object parsePopulate(String json, Class topClass, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext) throws ExprValidationException {
         ParseRuleSelector startRuleSelector = new ParseRuleSelector() {
             public Tree invokeParseRule(EsperEPL2GrammarParser parser) throws RecognitionException {
                 return parser.startJsonValueRule();
@@ -37,6 +38,6 @@ public class JsonUtil {
             throw new ExprValidationException("Failed to map value to object of type " + topClass.getName() + ", expected Json Map/Object format, received " + (parsed != null ? parsed.getClass().getSimpleName() : "null"));
         }
         Map<String, Object> objectProperties = (Map<String, Object>) parsed;
-        return PopulateUtil.instantiatePopulateObject(objectProperties, topClass, engineImportService);
+        return PopulateUtil.instantiatePopulateObject(objectProperties, topClass, exprNodeOrigin, exprValidationContext);
     }
 }

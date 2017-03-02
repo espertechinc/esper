@@ -36,11 +36,11 @@ public class PopulateUtil {
 
     private static Logger log = LoggerFactory.getLogger(PopulateUtil.class);
 
-    public static Object instantiatePopulateObject(Map<String, Object> objectProperties, Class topClass, EngineImportService engineImportService) throws ExprValidationException {
+    public static Object instantiatePopulateObject(Map<String, Object> objectProperties, Class topClass, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext) throws ExprValidationException {
 
         Class applicableClass = topClass;
         if (topClass.isInterface()) {
-            applicableClass = findInterfaceImplementation(objectProperties, topClass, engineImportService);
+            applicableClass = findInterfaceImplementation(objectProperties, topClass, exprValidationContext.getEngineImportService());
         }
 
         Object top;
@@ -54,12 +54,12 @@ public class PopulateUtil {
             throw new ExprValidationException("Illegal access to construct class " + applicableClass.getName() + ": " + e.getMessage(), e);
         }
 
-        populateObject(topClass.getSimpleName(), 0, topClass.getSimpleName(), objectProperties, top, engineImportService, null, null);
+        populateObject(topClass.getSimpleName(), 0, topClass.getSimpleName(), objectProperties, top, exprNodeOrigin, exprValidationContext, null, null);
 
         return top;
     }
 
-    public static void populateObject(String operatorName, int operatorNum, String dataFlowName, Map<String, Object> objectProperties, Object top, EngineImportService engineImportService, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs)
+    public static void populateObject(String operatorName, int operatorNum, String dataFlowName, Map<String, Object> objectProperties, Object top, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext, EPDataFlowOperatorParameterProvider optionalParameterProvider, Map<String, Object> optionalParameterURIs)
             throws ExprValidationException {
         Class applicableClass = top.getClass();
         Set<WriteablePropertyDescriptor> writables = PropertyHelper.getWritableProperties(applicableClass);
@@ -105,7 +105,7 @@ public class PopulateUtil {
             // use the writeable property descriptor (appropriate setter method) from writing the property
             WriteablePropertyDescriptor descriptor = findDescriptor(applicableClass, propertyName, writables);
             if (descriptor != null) {
-                Object coerceProperty = coerceProperty(propertyName, applicableClass, property.getValue(), descriptor.getType(), engineImportService, false, true);
+                Object coerceProperty = coerceProperty(propertyName, applicableClass, property.getValue(), descriptor.getType(), exprNodeOrigin, exprValidationContext, false, true);
 
                 try {
                     descriptor.getWriteMethod().invoke(top, new Object[]{coerceProperty});
@@ -123,7 +123,7 @@ public class PopulateUtil {
             for (Field annotatedField : annotatedFields) {
                 DataFlowOpParameter anno = (DataFlowOpParameter) JavaClassHelper.getAnnotations(DataFlowOpParameter.class, annotatedField.getDeclaredAnnotations()).get(0);
                 if (anno.name().equals(propertyName) || annotatedField.getName().equals(propertyName)) {
-                    Object coerceProperty = coerceProperty(propertyName, applicableClass, property.getValue(), annotatedField.getType(), engineImportService, true, true);
+                    Object coerceProperty = coerceProperty(propertyName, applicableClass, property.getValue(), annotatedField.getType(), exprNodeOrigin, exprValidationContext, true, true);
                     try {
                         annotatedField.setAccessible(true);
                         annotatedField.set(top, coerceProperty);
@@ -239,7 +239,7 @@ public class PopulateUtil {
         return clazz;
     }
 
-    public static void populateSpecCheckParameters(PopulateFieldWValueDescriptor[] descriptors, Map<String, Object> jsonRaw, Object spec, EngineImportService engineImportService)
+    public static void populateSpecCheckParameters(PopulateFieldWValueDescriptor[] descriptors, Map<String, Object> jsonRaw, Object spec, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext)
             throws ExprValidationException {
         // lowercase keys
         Map<String, Object> lowerCaseJsonRaw = new LinkedHashMap<String, Object>();
@@ -251,7 +251,7 @@ public class PopulateUtil {
         // apply values
         for (PopulateFieldWValueDescriptor desc : descriptors) {
             Object value = jsonRaw.remove(desc.getPropertyName().toLowerCase(Locale.ENGLISH));
-            Object coerced = coerceProperty(desc.getPropertyName(), desc.getContainerType(), value, desc.getFieldType(), engineImportService, desc.isForceNumeric(), false);
+            Object coerced = coerceProperty(desc.getPropertyName(), desc.getContainerType(), value, desc.getFieldType(), exprNodeOrigin, exprValidationContext, desc.isForceNumeric(), false);
             desc.getSetter().set(coerced);
         }
 
@@ -261,7 +261,7 @@ public class PopulateUtil {
         }
     }
 
-    public static Object coerceProperty(String propertyName, Class containingType, Object value, Class type, EngineImportService engineImportService, boolean forceNumeric, boolean includeClassNameInEx) throws ExprValidationException {
+    public static Object coerceProperty(String propertyName, Class containingType, Object value, Class type, ExprNodeOrigin exprNodeOrigin, ExprValidationContext exprValidationContext, boolean forceNumeric, boolean includeClassNameInEx) throws ExprValidationException {
         if (value instanceof ExprNode && type != ExprNode.class) {
             if (value instanceof ExprIdentNode) {
                 ExprIdentNode identNode = (ExprIdentNode) value;
@@ -280,7 +280,9 @@ public class PopulateUtil {
                 }
             } else {
                 ExprNode exprNode = (ExprNode) value;
-                ExprEvaluator evaluator = exprNode.getExprEvaluator();
+                ExprNode validated = ExprNodeUtility.getValidatedSubtree(exprNodeOrigin, exprNode, exprValidationContext);
+                exprValidationContext.getVariableService().setLocalVersion();
+                ExprEvaluator evaluator = validated.getExprEvaluator();
                 if (evaluator == null) {
                     throw new ExprValidationException("Failed to evaluate expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "'");
                 }
@@ -311,7 +313,7 @@ public class PopulateUtil {
             Object[] items = ((Collection) value).toArray();
             Object coercedArray = Array.newInstance(type.getComponentType(), items.length);
             for (int i = 0; i < items.length; i++) {
-                Object coercedValue = coerceProperty(propertyName + " (array element)", type, items[i], type.getComponentType(), engineImportService, false, includeClassNameInEx);
+                Object coercedValue = coerceProperty(propertyName + " (array element)", type, items[i], type.getComponentType(), exprNodeOrigin, exprValidationContext, false, includeClassNameInEx);
                 Array.set(coercedArray, i, coercedValue);
             }
             return coercedArray;
@@ -321,7 +323,7 @@ public class PopulateUtil {
             throw new ExprValidationException(getExceptionText(propertyName, containingType, includeClassNameInEx, detail));
         }
         Map<String, Object> props = (Map<String, Object>) value;
-        return instantiatePopulateObject(props, type, engineImportService);
+        return instantiatePopulateObject(props, type, exprNodeOrigin, exprValidationContext);
     }
 
     private static String getExceptionText(String propertyName, Class containingType, boolean includeClassNameInEx, String detailText) {

@@ -10,28 +10,25 @@
  */
 package com.espertech.esper.util;
 
-import com.espertech.esper.client.ConfigurationEngineDefaults;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
-import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
-import com.espertech.esper.epl.core.EngineImportService;
-import com.espertech.esper.epl.core.EngineImportServiceImpl;
+import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
+import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
 import java.util.Collection;
-import java.util.TimeZone;
 
 public class TestJsonUtil extends TestCase {
 
-    private EngineImportService engineImportService;
+    private ExprValidationContext exprValidationContext;
 
     protected void setUp() {
-        engineImportService = new EngineImportServiceImpl(false, false, false, false, null, TimeZone.getDefault(), TimeAbacusMilliseconds.INSTANCE, ConfigurationEngineDefaults.ThreadingProfile.NORMAL, null, AggregationFactoryFactoryDefault.INSTANCE);
+        exprValidationContext = SupportExprValidationContextFactory.makeEmpty();
     }
 
     protected void tearDown() {
-        engineImportService = null;
+        exprValidationContext = null;
     }
 
     public void testUnmarshal() throws Exception {
@@ -39,7 +36,7 @@ public class TestJsonUtil extends TestCase {
         Container result;
 
         json = "{'name':'c0', 'def': {'defString':'a', 'defBoolPrimitive':true, 'defintprimitive':10, 'defintboxed':20}}";
-        result = (Container) JsonUtil.parsePopulate(json, Container.class, engineImportService);
+        result = (Container) JsonUtil.parsePopulate(json, Container.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         assertEquals("c0", result.getName());
         assertEquals((Integer) 20, result.getDef().getDefIntBoxed());
         assertEquals("a", result.getDef().getDefString());
@@ -47,34 +44,34 @@ public class TestJsonUtil extends TestCase {
         assertEquals(true, result.getDef().isDefBoolPrimitive());
 
         json = "{\"name\":\"c1\",\"abc\":{'class':'TestJsonUtil$BImpl', \"bIdOne\":\"bidentone\",\"bIdTwo\":\"bidenttwo\"}}";
-        result = (Container) JsonUtil.parsePopulate(json, Container.class, engineImportService);
+        result = (Container) JsonUtil.parsePopulate(json, Container.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         assertEquals("c1", result.getName());
         BImpl bimpl = (BImpl) result.getAbc();
         assertEquals("bidentone", bimpl.getbIdOne());
         assertEquals("bidenttwo", bimpl.getbIdTwo());
 
         json = "{\"name\":\"c2\",\"abc\":{'class':'com.espertech.esper.util.TestJsonUtil$AImpl'}}";
-        result = (Container) JsonUtil.parsePopulate(json, Container.class, engineImportService);
+        result = (Container) JsonUtil.parsePopulate(json, Container.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         assertEquals("c2", result.getName());
         assertTrue(result.getAbc() instanceof AImpl);
 
         json = "{'booleanArray': [true, false, true], 'integerArray': [1], 'objectArray': [1, 'abc']}";
-        DEF defOne = (DEF) JsonUtil.parsePopulate(json, DEF.class, engineImportService);
+        DEF defOne = (DEF) JsonUtil.parsePopulate(json, DEF.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         EPAssertionUtil.assertEqualsExactOrder(new boolean[]{true, false, true}, defOne.getBooleanArray());
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{1}, defOne.getIntegerArray());
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, "abc"}, defOne.getObjectArray());
 
         json = "{defString:'a'}";
-        DEF defTwo = (DEF) JsonUtil.parsePopulate(json, DEF.class, engineImportService);
+        DEF defTwo = (DEF) JsonUtil.parsePopulate(json, DEF.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         assertNull(defTwo.getObjectArray());
 
         json = "{'objectArray':[]}";
-        DEF defThree = (DEF) JsonUtil.parsePopulate(json, DEF.class, engineImportService);
+        DEF defThree = (DEF) JsonUtil.parsePopulate(json, DEF.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         assertEquals(0, defThree.getObjectArray().length);
 
         // note: notation for "field: value" does not require quotes around the field name
         json = "{objectArray:[ [1,2] ]}";
-        defThree = (DEF) JsonUtil.parsePopulate(json, DEF.class, engineImportService);
+        defThree = (DEF) JsonUtil.parsePopulate(json, DEF.class, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
         assertEquals(1, defThree.getObjectArray().length);
         EPAssertionUtil.assertEqualsExactOrder(new Object[]{1, 2}, (Collection) defThree.getObjectArray()[0]);
     }
@@ -125,7 +122,7 @@ public class TestJsonUtil extends TestCase {
 
     private void tryInvalid(Class container, String json, String expected) {
         try {
-            JsonUtil.parsePopulate(json, container, engineImportService);
+            JsonUtil.parsePopulate(json, container, ExprNodeOrigin.SCRIPTPARAMS, exprValidationContext);
             fail();
         } catch (ExprValidationException ex) {
             assertEquals(expected, ex.getMessage());

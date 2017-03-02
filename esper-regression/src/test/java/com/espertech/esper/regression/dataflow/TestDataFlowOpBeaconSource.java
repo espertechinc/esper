@@ -54,6 +54,25 @@ public class TestDataFlowOpBeaconSource extends TestCase {
         assertEquals("abc", resultNoDefCtor.getMyfield());
     }
 
+    public void testVariable() throws Exception {
+        epService.getEPAdministrator().createEPL("create Schema SomeEvent()");
+        epService.getEPAdministrator().createEPL("create variable int var_iterations=3");
+        EPStatement stmtGraph = epService.getEPAdministrator().createEPL("create dataflow MyDataFlowOne " +
+                "BeaconSource -> BeaconStream<SomeEvent> {" +
+                "  iterations : var_iterations" +
+                "}" +
+                "DefaultSupportCaptureOp(BeaconStream) {}");
+
+        DefaultSupportCaptureOp<Object> future = new DefaultSupportCaptureOp<Object>(3);
+        EPDataFlowInstantiationOptions options = new EPDataFlowInstantiationOptions()
+                .operatorProvider(new DefaultSupportGraphOpProvider(future));
+        EPDataFlowInstance df = epService.getEPRuntime().getDataFlowRuntime().instantiate("MyDataFlowOne", options);
+        df.start();
+        Object[] output = future.get(2, TimeUnit.SECONDS);
+        assertEquals(3, output.length);
+        stmtGraph.destroy();
+    }
+
     private Object runAssertionBeans(String typeName) throws Exception {
         EPStatement stmtGraph = epService.getEPAdministrator().createEPL("create dataflow MyDataFlowOne " +
                 "" +

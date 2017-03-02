@@ -800,6 +800,10 @@ public class ExprNodeUtility {
         return ExprNodeUtility.getValidatedSubtree(origin, expression, validationContext);
     }
 
+    public static ExprValidationContext getExprValidationContextStatementOnly(StatementContext statementContext) {
+        return new ExprValidationContext(new StreamTypeServiceImpl(statementContext.getEngineURI(), false), statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, false, false, null, false);
+    }
+
     public static Set<String> getPropertyNamesIfAllProps(ExprNode[] expressions) {
         for (ExprNode expression : expressions) {
             if (!(expression instanceof ExprIdentNode)) {
