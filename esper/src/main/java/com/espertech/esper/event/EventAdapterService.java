@@ -11,6 +11,7 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.hook.EventBeanService;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.EPRuntimeEventSender;
 import com.espertech.esper.core.thread.ThreadingService;
@@ -32,7 +33,7 @@ import java.util.Set;
 /**
  * Interface for a service to resolve event names to event type.
  */
-public interface EventAdapterService {
+public interface EventAdapterService extends EventBeanService {
     public final static String ANONYMOUS_TYPE_NAME_PREFIX = "anonymous_";
 
     /**

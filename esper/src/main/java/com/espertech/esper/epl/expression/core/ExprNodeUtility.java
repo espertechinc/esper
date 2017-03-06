@@ -755,7 +755,7 @@ public class ExprNodeUtility {
         // add an evaluator if the method expects a context object
         if (!method.isVarArgs() && method.getParameterTypes().length > 0 &&
                 method.getParameterTypes()[method.getParameterTypes().length - 1] == EPLMethodInvocationContext.class) {
-            childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(engineURI, functionName));
+            childEvals = (ExprEvaluator[]) CollectionUtil.arrayExpandAddSingle(childEvals, new ExprNodeUtilExprEvalMethodContext(engineURI, functionName, eventAdapterService));
         }
 
         // handle varargs
@@ -765,7 +765,7 @@ public class ExprNodeUtility {
             if (numMethodParams > 1 && method.getParameterTypes()[numMethodParams - 2] == EPLMethodInvocationContext.class) {
                 ExprEvaluator[] rewritten = new ExprEvaluator[childEvals.length + 1];
                 System.arraycopy(childEvals, 0, rewritten, 0, numMethodParams - 2);
-                rewritten[numMethodParams - 2] = new ExprNodeUtilExprEvalMethodContext(engineURI, functionName);
+                rewritten[numMethodParams - 2] = new ExprNodeUtilExprEvalMethodContext(engineURI, functionName, eventAdapterService);
                 System.arraycopy(childEvals, numMethodParams - 2, rewritten, numMethodParams - 1, childEvals.length - (numMethodParams - 2));
                 childEvals = rewritten;
             }

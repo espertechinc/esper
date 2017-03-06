@@ -125,6 +125,9 @@ public class PropertyEvaluatorFactory {
                     } else {
                         throw new ExprValidationException("Event type '" + streamEventType.getName() + "' cannot be written to");
                     }
+                } else if (returnType.isArray() &&
+                        returnType.getComponentType() == EventBean.class) {
+                    containedEventEval = new ContainedEventEvalEventBeanArray(evaluator);
                 } else {
                     EventBeanFactory eventBeanFactory = EventAdapterServiceHelper.getFactoryForType(streamEventType, eventAdapterService);
                     // check expression result type against eventtype expected underlying type

@@ -19,6 +19,7 @@ public class EPLMethodInvocationContext {
     private final String engineURI;
     private final String functionName;
     private final Object statementUserObject;
+    private final EventBeanService eventBeanService;
 
     /**
      * Ctor.
@@ -29,12 +30,13 @@ public class EPLMethodInvocationContext {
      * @param functionName        the name of the plug-in single row function, or the method name if not a plug-in single row function
      * @param statementUserObject the statement user object or null if not assigned
      */
-    public EPLMethodInvocationContext(String statementName, int contextPartitionId, String engineURI, String functionName, Object statementUserObject) {
+    public EPLMethodInvocationContext(String statementName, int contextPartitionId, String engineURI, String functionName, Object statementUserObject, EventBeanService eventBeanService) {
         this.statementName = statementName;
         this.contextPartitionId = contextPartitionId;
         this.engineURI = engineURI;
         this.functionName = functionName;
         this.statementUserObject = statementUserObject;
+        this.eventBeanService = eventBeanService;
     }
 
     /**
@@ -80,5 +82,9 @@ public class EPLMethodInvocationContext {
      */
     public Object getStatementUserObject() {
         return statementUserObject;
+    }
+
+    public EventBeanService getEventBeanService() {
+        return eventBeanService;
     }
 }

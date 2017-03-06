@@ -6929,11 +6929,11 @@ select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]]]></progr
   [splitWord(word)@type(CharacterEvent)]]]></programlisting>
 		</sect2>		
 		
-		<sect2 xml:id="epl-containedeventselect-array" revision="1">
-			<title>Arrays returned by a Contained Expression</title>
+		<sect2 xml:id="epl-containedeventselect-arrayofprimitive" revision="1">
+			<title>Contained Expression Returning an Array of Property Values</title>
 
 			<para>
-				Your <emphasis>contained_expression</emphasis> may return an array such as an array of integer or string values.
+				Your <emphasis>contained_expression</emphasis> may return an array of property values such as an array of integer or string values.
 				In this case you must specify a <literal>@type(name)</literal> annotation and provide an event type name that declares a single column with a type that matches the array component type.
 			</para>
 
@@ -6948,6 +6948,39 @@ select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]]]></progr
 			<programlisting><![CDATA[on MyEvent[ids@type(IdContainer)] as my_ids 
 delete from MyWindow my_window 
 where my_ids.id = my_window.id]]></programlisting>
+		</sect2>		
+
+		<sect2 xml:id="epl-containedeventselect-arrayofevent" revision="1">
+			<title>Contained Expression Returning an Array of EventBean</title>
+
+			<para>
+				Your <emphasis>contained_expression</emphasis> may return an array of <literal>EventBean</literal> instances.
+				This is handy when the expression itself must decide the type of each event to return.
+			</para>
+
+			<para>
+				For example:
+			</para>
+
+			<programlisting><![CDATA[create schema BaseEvent();]]></programlisting>
+			<programlisting><![CDATA[create schema AEvent(pa string) inherits BaseEvent;]]></programlisting>
+			<programlisting><![CDATA[create schema BEvent(pb string) inherits BaseEvent;]]></programlisting>
+			<programlisting><![CDATA[create schema ValueEvent(value string);]]></programlisting>
+			<programlisting><![CDATA[select * from ValueEvent[mySplitFunction(value) @type(BaseEvent)]]]></programlisting>
+
+			<para>
+				Then declare <literal>mySplitFunction</literal> returning an array of events, such as:
+			</para>
+			<programlisting><![CDATA[public static EventBean[] mySplitFunction(String value, EPLMethodInvocationContext context) {
+  EventBean[] events = new EventBean[1];
+  if (value.startsWith("A")) {
+    events[0] =  context.getEventBeanService().adapterForMap(Collections.singletonMap("pa", value), "AEvent");
+  }
+  else {
+    events[0] =  context.getEventBeanService().adapterForMap(Collections.singletonMap("pb", value), "BEvent");
+  }
+  return events;
+}]]></programlisting>
 		</sect2>		
 
 		<sect2 xml:id="epl-containedeventselect-beginend" revision="1">

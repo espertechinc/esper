@@ -11,10 +11,8 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.avro.core.AvroEventType;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EPStatementException;
+import com.espertech.esper.client.*;
+import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
@@ -32,22 +30,42 @@ import java.util.*;
 
 import static org.apache.avro.SchemaBuilder.record;
 
-public class TestContainedEventSplitExpr extends TestCase
-{
+public class TestContainedEventSplitExpr extends TestCase {
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
 
-    public void setUp()
-    {
+    public void setUp() {
         epService = EPServiceProviderManager.getDefaultProvider(SupportConfigFactory.getConfiguration());
         epService.initialize();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.startTest(epService, this.getClass(), getName());
+        }
         listener = new SupportUpdateListener();
     }
 
     protected void tearDown() throws Exception {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.endTest();
+        }
         listener = null;
+    }
+
+    public void testSplitExprReturnsEventBean() throws Exception {
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("mySplitReturnEventBeanArray", this.getClass().getName(), "mySplitReturnEventBeanArray");
+
+        String epl = "create schema BaseEvent();\n" +
+                "create schema AEvent(p0 string) inherits BaseEvent;\n" +
+                "create schema BEvent(p1 string) inherits BaseEvent;\n" +
+                "create schema SplitEvent(value string);\n" +
+                "@name('s0') select * from SplitEvent[mySplitReturnEventBeanArray(value) @type(BaseEvent)] ";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+        epService.getEPAdministrator().getStatement("s0").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(Collections.singletonMap("value", "AE1,BE2,AE3"), "SplitEvent");
+        EventBean[] events = listener.getAndResetLastNewData();
+        assertSplitEx(events[0], "AEvent", "p0", "E1");
+        assertSplitEx(events[1], "BEvent", "p1", "E2");
+        assertSplitEx(events[2], "AEvent", "p0", "E3");
     }
 
     public void testSingleRowSplitAndType() {
@@ -60,14 +78,11 @@ public class TestContainedEventSplitExpr extends TestCase
         String[] methods;
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             methods = "splitSentenceMethodReturnObjectArray,splitSentenceBeanMethodReturnObjectArray,splitWordMethodReturnObjectArray".split(",");
-        }
-        else if (eventRepresentationEnum.isMapEvent()) {
+        } else if (eventRepresentationEnum.isMapEvent()) {
             methods = "splitSentenceMethodReturnMap,splitSentenceBeanMethodReturnMap,splitWordMethodReturnMap".split(",");
-        }
-        else if (eventRepresentationEnum.isAvroEvent()) {
+        } else if (eventRepresentationEnum.isAvroEvent()) {
             methods = "splitSentenceMethodReturnAvro,splitSentenceBeanMethodReturnAvro,splitWordMethodReturnAvro".split(",");
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }
         String[] funcs = "splitSentence,splitSentenceBean,splitWord".split(",");
@@ -122,8 +137,7 @@ public class TestContainedEventSplitExpr extends TestCase
                         "  words;" +
                         "]" +
                         "select * from SentenceEvent[splitSentenceJS(sentence)@type(WordEvent)]";
-            }
-            else {
+            } else {
                 stmtText = "expression Collection js:splitSentenceJS(sentence) [" +
                         "  var CollectionsClazz = Java.type('java.util.Collections');" +
                         "  var words = new java.util.ArrayList();" +
@@ -173,12 +187,11 @@ public class TestContainedEventSplitExpr extends TestCase
             stmt.addListener(listener);
             assertEquals("WordEvent", stmt.getEventType().getName());
 
-            Object[][] rows = new Object[][] {{"this"}, {"is"}, {"collection"}};
+            Object[][] rows = new Object[][]{{"this"}, {"is"}, {"collection"}};
             epService.getEPRuntime().sendEvent(new ObjectArrayEvent(rows));
             EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
             stmt.destroy();
-        }
-        else if (eventRepresentationEnum.isMapEvent()) {
+        } else if (eventRepresentationEnum.isMapEvent()) {
             epService.getEPAdministrator().getConfiguration().addEventType(CollectionEvent.class);
             stmtText = eventRepresentationEnum.getAnnotationText() + " select * from CollectionEvent[someCollection@type(WordEvent)]";
             stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -193,8 +206,7 @@ public class TestContainedEventSplitExpr extends TestCase
             epService.getEPRuntime().sendEvent(new CollectionEvent(coll));
             EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"collection"}});
             stmt.destroy();
-        }
-        else if (eventRepresentationEnum.isAvroEvent()) {
+        } else if (eventRepresentationEnum.isAvroEvent()) {
             epService.getEPAdministrator().getConfiguration().addEventType(AvroArrayEvent.class);
             stmtText = eventRepresentationEnum.getAnnotationText() + " select * from AvroArrayEvent[someAvroArray@type(WordEvent)]";
             stmt = epService.getEPAdministrator().createEPL(stmtText);
@@ -204,65 +216,81 @@ public class TestContainedEventSplitExpr extends TestCase
             GenericData.Record[] rows = new GenericData.Record[3];
             String[] words = "this,is,avro".split(",");
             for (int i = 0; i < words.length; i++) {
-                rows[i] = new GenericData.Record(((AvroEventType)stmt.getEventType()).getSchemaAvro());
+                rows[i] = new GenericData.Record(((AvroEventType) stmt.getEventType()).getSchemaAvro());
                 rows[i].put("word", words[i]);
             }
             epService.getEPRuntime().sendEvent(new AvroArrayEvent(rows));
             EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), fields, new Object[][]{{"this"}, {"is"}, {"avro"}});
             stmt.destroy();
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unrecognized enum " + eventRepresentationEnum);
         }
 
         // invalid: event type not found
         tryInvalid("select * from SentenceEvent[splitSentence(sentence)@type(XYZ)]",
-                   "Event type by name 'XYZ' could not be found [select * from SentenceEvent[splitSentence(sentence)@type(XYZ)]]");
+                "Event type by name 'XYZ' could not be found [select * from SentenceEvent[splitSentence(sentence)@type(XYZ)]]");
 
         // invalid lib-function annotation
         tryInvalid("select * from SentenceEvent[splitSentence(sentence)@dummy(WordEvent)]",
-                   "Invalid annotation for property selection, expected 'type' but found 'dummy' in text '[splitSentence(sentence)@dummy(WordEvent)]' [select * from SentenceEvent[splitSentence(sentence)@dummy(WordEvent)]]");
-        
+                "Invalid annotation for property selection, expected 'type' but found 'dummy' in text '[splitSentence(sentence)@dummy(WordEvent)]' [select * from SentenceEvent[splitSentence(sentence)@dummy(WordEvent)]]");
+
         // invalid type assignment to event type
         if (eventRepresentationEnum.isObjectArrayEvent()) {
             tryInvalid("select * from SentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
-                       "Event type 'WordEvent' underlying type [Ljava.lang.Object; cannot be assigned a value of type");
-        }
-        else if (eventRepresentationEnum.isMapEvent()){
+                    "Event type 'WordEvent' underlying type [Ljava.lang.Object; cannot be assigned a value of type");
+        } else if (eventRepresentationEnum.isMapEvent()) {
             tryInvalid("select * from SentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
-                       "Event type 'WordEvent' underlying type java.util.Map cannot be assigned a value of type");
-        }
-        else if (eventRepresentationEnum.isAvroEvent()){
+                    "Event type 'WordEvent' underlying type java.util.Map cannot be assigned a value of type");
+        } else if (eventRepresentationEnum.isAvroEvent()) {
             tryInvalid("select * from SentenceEvent[invalidSentence(sentence)@type(WordEvent)]",
                     "Event type 'WordEvent' underlying type " + AvroConstantsNoDep.GENERIC_RECORD_CLASSNAME + " cannot be assigned a value of type");
-        }
-        else {
+        } else {
             fail();
         }
 
         // invalid subquery
         tryInvalid("select * from SentenceEvent[splitSentence((select * from SupportBean#keepall))@type(WordEvent)]",
-                   "Invalid contained-event expression 'splitSentence(subselect_0)': Aggregation, sub-select, previous or prior functions are not supported in this context [select * from SentenceEvent[splitSentence((select * from SupportBean#keepall))@type(WordEvent)]]");
+                "Invalid contained-event expression 'splitSentence(subselect_0)': Aggregation, sub-select, previous or prior functions are not supported in this context [select * from SentenceEvent[splitSentence((select * from SupportBean#keepall))@type(WordEvent)]]");
 
         epService.initialize();
     }
 
     private void sendSentenceEvent(EventRepresentationChoice eventRepresentationEnum, String sentence) {
         if (eventRepresentationEnum.isObjectArrayEvent()) {
-            epService.getEPRuntime().sendEvent(new Object[] {sentence}, "SentenceEvent");
-        }
-        else if (eventRepresentationEnum.isMapEvent()) {
+            epService.getEPRuntime().sendEvent(new Object[]{sentence}, "SentenceEvent");
+        } else if (eventRepresentationEnum.isMapEvent()) {
             epService.getEPRuntime().sendEvent(Collections.singletonMap("sentence", sentence), "SentenceEvent");
-        }
-        else if (eventRepresentationEnum.isAvroEvent()) {
+        } else if (eventRepresentationEnum.isAvroEvent()) {
             Schema schema = record("sentence").fields().requiredString("sentence").endRecord();
             GenericData.Record record = new GenericData.Record(schema);
             record.put("sentence", sentence);
             epService.getEPRuntime().sendEventAvro(record, "SentenceEvent");
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unrecognized enum " + eventRepresentationEnum);
         }
+    }
+
+    private void assertSplitEx(EventBean event, String typeName, String propertyName, String propertyValue) {
+        assertEquals(typeName, event.getEventType().getName());
+        assertEquals(propertyValue, event.get(propertyName));
+    }
+
+    public static EventBean[] mySplitReturnEventBeanArray(String value, EPLMethodInvocationContext context) {
+        String[] split = value.split(",");
+        EventBean[] events = new EventBean[split.length];
+        for (int i = 0; i < split.length; i++) {
+            String pvalue = split[i].substring(1);
+            if (split[i].startsWith("A")) {
+                events[i] =  context.getEventBeanService().adapterForMap(Collections.singletonMap("p0", pvalue), "AEvent");
+            }
+            else if (split[i].startsWith("B")) {
+                events[i] =  context.getEventBeanService().adapterForMap(Collections.singletonMap("p1", pvalue), "BEvent");
+            }
+            else {
+                throw new UnsupportedOperationException("Unrecognized type");
+            }
+        }
+        return events;
     }
 
     public static Map[] splitSentenceMethodReturnMap(String sentence) {
@@ -289,7 +317,7 @@ public class TestContainedEventSplitExpr extends TestCase
         String[] words = sentence.split(" ");
         Object[][] events = new Object[words.length][];
         for (int i = 0; i < words.length; i++) {
-            events[i] = new Object[] {words[i]};
+            events[i] = new Object[]{words[i]};
         }
         return events;
     }
@@ -310,7 +338,7 @@ public class TestContainedEventSplitExpr extends TestCase
         int count = word.length();
         Object[][] events = new Object[count][];
         for (int i = 0; i < word.length(); i++) {
-            events[i] = new Object[] {Character.toString(word.charAt(i))};
+            events[i] = new Object[]{Character.toString(word.charAt(i))};
         }
         return events;
     }
@@ -341,8 +369,7 @@ public class TestContainedEventSplitExpr extends TestCase
         try {
             epService.getEPAdministrator().createEPL(epl);
             fail();
-        }
-        catch (EPStatementException ex) {
+        } catch (EPStatementException ex) {
             assertFalse(expected.isEmpty());
             assertTrue("Received message: " + ex.getMessage(), ex.getMessage().startsWith(expected));
         }

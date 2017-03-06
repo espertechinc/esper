@@ -1057,7 +1057,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
             if (ex.getMessage() == null) {
                 throw new EPStatementException("Unexpected exception compiling statement, please consult the log file and report the exception", eplStatement);
             } else {
-                throw new EPStatementException(ex.getMessage(), eplStatement);
+                throw new EPStatementException(ex.getMessage(), ex, eplStatement);
             }
         } catch (RuntimeException ex) {
             String text = "Unexpected error compiling statement";
