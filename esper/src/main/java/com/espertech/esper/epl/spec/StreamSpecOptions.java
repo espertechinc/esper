@@ -28,7 +28,7 @@ public class StreamSpecOptions implements MetaDefItem, Serializable {
     private final boolean isRetainUnion;
     private final boolean isRetainIntersection;
 
-    public final static StreamSpecOptions DEFAULT = StreamSpecOptions.DEFAULT;
+    public final static StreamSpecOptions DEFAULT = new StreamSpecOptions();
 
     /**
      * Ctor, sets all options off.
