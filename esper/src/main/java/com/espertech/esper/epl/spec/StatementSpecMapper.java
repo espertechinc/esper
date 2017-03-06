@@ -168,7 +168,7 @@ public class StatementSpecMapper {
         // from clause is required for create-window
         if (sodaStatement.getCreateWindow() != null && raw.getStreamSpecs().size() == 0) {
             FilterSpecRaw spec = new FilterSpecRaw("java.lang.Object", Collections.<ExprNode>emptyList(), null);
-            raw.getStreamSpecs().add(new FilterStreamSpecRaw(spec, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions()));
+            raw.getStreamSpecs().add(new FilterStreamSpecRaw(spec, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT));
         }
         return raw;
     }
@@ -1354,7 +1354,7 @@ public class StatementSpecMapper {
         if (fromClause != null && !fromClause.getStreams().isEmpty() && fromClause.getStreams().get(0) instanceof FilterStream) {
             asEventTypeName = ((FilterStream) fromClause.getStreams().get(0)).getFilter().getEventTypeName();
         }
-        raw.setCreateWindowDesc(new CreateWindowDesc(createWindow.getWindowName(), mapViews(createWindow.getViews(), mapContext), new StreamSpecOptions(), createWindow.isInsert(), insertFromWhereExpr, columns, asEventTypeName));
+        raw.setCreateWindowDesc(new CreateWindowDesc(createWindow.getWindowName(), mapViews(createWindow.getViews(), mapContext), StreamSpecOptions.DEFAULT, createWindow.isInsert(), insertFromWhereExpr, columns, asEventTypeName));
     }
 
     private static void mapCreateIndex(CreateIndexClause clause, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -1387,7 +1387,7 @@ public class StatementSpecMapper {
         UpdateDesc desc = new UpdateDesc(updateClause.getOptionalAsClauseStreamName(), assignments, whereClause);
         raw.setUpdateDesc(desc);
         FilterSpecRaw filterSpecRaw = new FilterSpecRaw(updateClause.getEventType(), Collections.EMPTY_LIST, null);
-        raw.getStreamSpecs().add(new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions()));
+        raw.getStreamSpecs().add(new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT));
     }
 
     private static void mapCreateVariable(CreateVariableClause createVariable, StatementSpecRaw raw, StatementSpecMapContext mapContext) {

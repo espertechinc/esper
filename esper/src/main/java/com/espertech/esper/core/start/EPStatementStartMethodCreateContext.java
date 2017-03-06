@@ -77,7 +77,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             ContextDetailPartitioned segmented = (ContextDetailPartitioned) contextDetail;
             for (ContextDetailPartitionItem partition : segmented.getItems()) {
                 validateNotTable(servicesContext, partition.getFilterSpecRaw().getEventTypeName());
-                FilterStreamSpecRaw raw = new FilterStreamSpecRaw(partition.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
+                FilterStreamSpecRaw raw = new FilterStreamSpecRaw(partition.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
                 StreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 if (!(compiled instanceof FilterStreamSpecCompiled)) {
                     throw new ExprValidationException("Partition criteria may not include named windows");
@@ -90,7 +90,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             // compile filter
             ContextDetailCategory category = (ContextDetailCategory) contextDetail;
             validateNotTable(servicesContext, category.getFilterSpecRaw().getEventTypeName());
-            FilterStreamSpecRaw raw = new FilterStreamSpecRaw(category.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
+            FilterStreamSpecRaw raw = new FilterStreamSpecRaw(category.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
             FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
             category.setFilterSpecCompiled(result.getFilterSpec());
             servicesContext.getStatementEventTypeRefService().addReferences(statementContext.getStatementName(), CollectionUtil.toArray(eventTypesReferenced));
@@ -99,14 +99,14 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
             for (ContextDetailCategoryItem item : category.getItems()) {
                 validateNotTable(servicesContext, category.getFilterSpecRaw().getEventTypeName());
                 FilterSpecRaw filterSpecRaw = new FilterSpecRaw(category.getFilterSpecRaw().getEventTypeName(), Collections.singletonList(item.getExpression()), null);
-                FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
+                FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filterSpecRaw, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
                 FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 item.setCompiledFilter(compiled.getFilterSpec(), agentInstanceContext);
             }
         } else if (contextDetail instanceof ContextDetailHash) {
             ContextDetailHash hashed = (ContextDetailHash) contextDetail;
             for (ContextDetailHashItem hashItem : hashed.getItems()) {
-                FilterStreamSpecRaw raw = new FilterStreamSpecRaw(hashItem.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
+                FilterStreamSpecRaw raw = new FilterStreamSpecRaw(hashItem.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
                 validateNotTable(servicesContext, hashItem.getFilterSpecRaw().getEventTypeName());
                 FilterStreamSpecCompiled result = (FilterStreamSpecCompiled) raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, null);
                 hashItem.setFilterSpecCompiled(result.getFilterSpec());
@@ -191,7 +191,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
 
             // compile as filter if there are no prior match to consider
             if (priorMatches == null || (priorMatches.getArrayEventTypes().isEmpty() && priorMatches.getTaggedEventTypes().isEmpty())) {
-                FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filter.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions());
+                FilterStreamSpecRaw rawExpr = new FilterStreamSpecRaw(filter.getFilterSpecRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT);
                 FilterStreamSpecCompiled compiled = (FilterStreamSpecCompiled) rawExpr.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), false, true, false, filter.getOptionalFilterAsName());
                 filter.setFilterSpecCompiled(compiled.getFilterSpec());
                 MatchEventSpec matchEventSpec = new MatchEventSpec();
@@ -218,7 +218,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
 
     private Pair<MatchEventSpec, Set<String>> validatePatternContextConditionPattern(StatementContext statementContext, ContextDetailConditionPattern pattern, Set<String> eventTypesReferenced, MatchEventSpec priorMatches, Set<String> priorAllTags)
             throws ExprValidationException {
-        PatternStreamSpecRaw raw = new PatternStreamSpecRaw(pattern.getPatternRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions(), false, false);
+        PatternStreamSpecRaw raw = new PatternStreamSpecRaw(pattern.getPatternRaw(), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT, false, false);
         PatternStreamSpecCompiled compiled = raw.compile(statementContext, eventTypesReferenced, false, Collections.<Integer>emptyList(), priorMatches, priorAllTags, false, true, false);
         pattern.setPatternCompiled(compiled);
         return new Pair<MatchEventSpec, Set<String>>(new MatchEventSpec(compiled.getTaggedEventTypes(), compiled.getArrayEventTypes()), compiled.getAllTags());

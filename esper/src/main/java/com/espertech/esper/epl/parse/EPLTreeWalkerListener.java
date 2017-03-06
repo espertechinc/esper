@@ -534,7 +534,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitUpdateExpr(EsperEPL2GrammarParser.UpdateExprContext ctx) {
         EsperEPL2GrammarParser.UpdateDetailsContext updctx = ctx.updateDetails();
         String eventTypeName = ASTUtil.unescapeClassIdent(updctx.classIdentifier());
-        FilterStreamSpecRaw streamSpec = new FilterStreamSpecRaw(new FilterSpecRaw(eventTypeName, Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, eventTypeName, new StreamSpecOptions());
+        FilterStreamSpecRaw streamSpec = new FilterStreamSpecRaw(new FilterSpecRaw(eventTypeName, Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, eventTypeName, StreamSpecOptions.DEFAULT);
         statementSpec.getStreamSpecs().add(streamSpec);
         String optionalStreamName = updctx.i != null ? updctx.i.getText() : null;
         List<OnTriggerSetAssignment> assignments = ASTExprHelper.getOnTriggerSetAssignments(updctx.onSetAssignmentList(), astExprNodeMap);
@@ -612,7 +612,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         // get stream to use (pattern or filter)
         StreamSpecRaw streamSpec;
         if (ctx.eventFilterExpression() != null) {
-            streamSpec = new FilterStreamSpecRaw(filterSpec, ViewSpec.EMPTY_VIEWSPEC_ARRAY, streamAsName, new StreamSpecOptions());
+            streamSpec = new FilterStreamSpecRaw(filterSpec, ViewSpec.EMPTY_VIEWSPEC_ARRAY, streamAsName, StreamSpecOptions.DEFAULT);
         } else if (ctx.patternInclusionExpression() != null) {
             if ((astPatternNodeMap.size() > 1) || ((astPatternNodeMap.isEmpty()))) {
                 throw ASTWalkException.from("Unexpected AST tree contains zero or more then 1 child elements for root");
@@ -620,7 +620,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
             // Get expression node sub-tree from the AST nodes placed so far
             EvalFactoryNode evalNode = astPatternNodeMap.values().iterator().next();
             PatternLevelAnnotationFlags flags = getPatternFlags(ctx.patternInclusionExpression().annotationEnum());
-            streamSpec = new PatternStreamSpecRaw(evalNode, ViewSpec.toArray(viewSpecs), streamAsName, new StreamSpecOptions(), flags.isSuppressSameEventMatches(), flags.isDiscardPartialsOnMatch());
+            streamSpec = new PatternStreamSpecRaw(evalNode, ViewSpec.toArray(viewSpecs), streamAsName, StreamSpecOptions.DEFAULT, flags.isSuppressSameEventMatches(), flags.isDiscardPartialsOnMatch());
             astPatternNodeMap.clear();
         } else {
             throw new IllegalStateException("Invalid AST type node, cannot map to stream specification");
@@ -1063,7 +1063,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         // Get expression node sub-tree from the AST nodes placed so far
         EvalFactoryNode evalNode = astPatternNodeMap.values().iterator().next();
 
-        PatternStreamSpecRaw streamSpec = new PatternStreamSpecRaw(evalNode, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions(), false, false);
+        PatternStreamSpecRaw streamSpec = new PatternStreamSpecRaw(evalNode, ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT, false, false);
         statementSpec.getStreamSpecs().add(streamSpec);
         statementSpec.setSubstitutionParameters(substitutionParamNodes);
 
@@ -1087,7 +1087,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitCreateSchemaExpr(EsperEPL2GrammarParser.CreateSchemaExprContext ctx) {
         CreateSchemaDesc createSchema = ASTCreateSchemaHelper.walkCreateSchema(ctx);
         if (ctx.parent.getRuleIndex() == EsperEPL2GrammarParser.RULE_eplExpression) {
-            statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(Object.class.getName(), Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, new StreamSpecOptions()));
+            statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(Object.class.getName(), Collections.<ExprNode>emptyList(), null), ViewSpec.EMPTY_VIEWSPEC_ARRAY, null, StreamSpecOptions.DEFAULT));
         }
         statementSpec.setCreateSchemaDesc(createSchema);
     }
@@ -1951,7 +1951,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     private void handleFAFNamedWindowStream(EsperEPL2GrammarParser.ClassIdentifierContext node, Token i) {
         String windowName = ASTUtil.unescapeClassIdent(node);
         String alias = i != null ? i.getText() : null;
-        statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(windowName, Collections.<ExprNode>emptyList(), null), ViewSpec.toArray(viewSpecs), alias, new StreamSpecOptions()));
+        statementSpec.getStreamSpecs().add(new FilterStreamSpecRaw(new FilterSpecRaw(windowName, Collections.<ExprNode>emptyList(), null), ViewSpec.toArray(viewSpecs), alias, StreamSpecOptions.DEFAULT));
     }
 
     public void exitFafInsert(EsperEPL2GrammarParser.FafInsertContext ctx) {

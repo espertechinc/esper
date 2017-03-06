@@ -1206,7 +1206,7 @@ public class StatementLifecycleSvcImpl implements StatementLifecycleSvc {
             // build spec for subselect
             StatementSpecRaw raw = new StatementSpecRaw(SelectClauseStreamSelectorEnum.ISTREAM_ONLY);
             FilterSpecRaw filter = new FilterSpecRaw(proposedWindow, Collections.<ExprNode>emptyList(), null);
-            raw.getStreamSpecs().add(new FilterStreamSpecRaw(filter, ViewSpec.EMPTY_VIEWSPEC_ARRAY, proposedWindow, new StreamSpecOptions()));
+            raw.getStreamSpecs().add(new FilterStreamSpecRaw(filter, ViewSpec.EMPTY_VIEWSPEC_ARRAY, proposedWindow, StreamSpecOptions.DEFAULT));
 
             ExprChainedSpec firstChain = dotNode.getChainSpec().remove(0);
             if (!firstChain.getParameters().isEmpty()) {

@@ -101,7 +101,7 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
 
         String namedWindowName = statementSpec.getInsertIntoDesc().getEventTypeName();
         NamedWindowConsumerStreamSpec namedWindowStream = new NamedWindowConsumerStreamSpec(namedWindowName, null, new ViewSpec[0], Collections.<ExprNode>emptyList(),
-                new StreamSpecOptions(), null);
+                StreamSpecOptions.DEFAULT, null);
         statementSpec.setStreamSpecs(new StreamSpecCompiled[]{namedWindowStream});
         return statementSpec;
     }

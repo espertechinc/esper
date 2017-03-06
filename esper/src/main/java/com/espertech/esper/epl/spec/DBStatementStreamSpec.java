@@ -36,7 +36,7 @@ public class DBStatementStreamSpec extends StreamSpecBase implements StreamSpecR
      * @param metadataSQL        is the sample SQL to retrieve statement metadata, if any was supplied
      */
     public DBStatementStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String databaseName, String sqlWithSubsParams, String metadataSQL) {
-        super(optionalStreamName, viewSpecs, new StreamSpecOptions());
+        super(optionalStreamName, viewSpecs, StreamSpecOptions.DEFAULT);
 
         this.databaseName = databaseName;
         this.sqlWithSubsParams = sqlWithSubsParams;

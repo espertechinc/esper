@@ -41,7 +41,7 @@ public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, S
      * @param expressions        the parameter expressions
      */
     public MethodStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String ident, String className, String methodName, List<ExprNode> expressions) {
-        super(optionalStreamName, viewSpecs, new StreamSpecOptions());
+        super(optionalStreamName, viewSpecs, StreamSpecOptions.DEFAULT);
         this.ident = ident;
         this.className = className;
         this.methodName = methodName;

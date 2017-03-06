@@ -145,7 +145,7 @@ public class Select implements OutputProcessViewCallback, DataFlowOpLifecycle {
             EventType eventType = inputPort.getValue().getTypeDesc().getEventType();
             String streamAlias = filter.getOptionalStreamName();
             FilterSpecCompiled filterSpecCompiled = new FilterSpecCompiled(eventType, streamAlias, new List[]{Collections.<FilterSpecParam>emptyList()}, null);
-            FilterStreamSpecCompiled filterStreamSpecCompiled = new FilterStreamSpecCompiled(filterSpecCompiled, select.getStreamSpecs().get(0).getViewSpecs(), streamAlias, new StreamSpecOptions());
+            FilterStreamSpecCompiled filterStreamSpecCompiled = new FilterStreamSpecCompiled(filterSpecCompiled, select.getStreamSpecs().get(0).getViewSpecs(), streamAlias, StreamSpecOptions.DEFAULT);
             streamSpecCompileds.add(filterStreamSpecCompiled);
         }
 
