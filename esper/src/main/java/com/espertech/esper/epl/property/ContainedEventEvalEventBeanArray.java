@@ -11,15 +11,8 @@
 package com.espertech.esper.epl.property;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventBeanFactory;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 public class ContainedEventEvalEventBeanArray implements ContainedEventEval {
 
