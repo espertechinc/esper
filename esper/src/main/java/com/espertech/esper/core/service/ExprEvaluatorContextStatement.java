@@ -51,8 +51,8 @@ public class ExprEvaluatorContextStatement implements ExprEvaluatorContext {
         return contextProperties;
     }
 
-    public AgentInstanceScriptContext getAgentInstanceScriptContext() {
-        return statementContext.getDefaultAgentInstanceScriptContext();
+    public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
+        return statementContext.getAllocateAgentInstanceScriptContext();
     }
 
     public String getStatementName() {

@@ -38,7 +38,7 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase {
         for (int i = 0; i < names.length; i++) {
             paramsList.put(names[i], parameters[i].evaluate(eventsPerStream, isNewData, context));
         }
-        paramsList.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAgentInstanceScriptContext());
+        paramsList.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAllocateAgentInstanceScriptContext());
 
         try {
             Object result = MVELInvoker.executeExpression(executable, paramsList);

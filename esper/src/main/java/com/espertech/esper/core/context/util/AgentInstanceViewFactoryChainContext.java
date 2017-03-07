@@ -55,8 +55,8 @@ public class AgentInstanceViewFactoryChainContext implements ExprEvaluatorContex
         return agentInstanceContext;
     }
 
-    public AgentInstanceScriptContext getAgentInstanceScriptContext() {
-        return agentInstanceContext.getAgentInstanceScriptContext();
+    public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
+        return agentInstanceContext.getAllocateAgentInstanceScriptContext();
     }
 
     public boolean isRemoveStream() {

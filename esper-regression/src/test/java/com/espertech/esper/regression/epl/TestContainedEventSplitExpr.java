@@ -13,9 +13,11 @@ package com.espertech.esper.regression.epl;
 import com.espertech.esper.avro.core.AvroEventType;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
+import com.espertech.esper.client.hook.EPLScriptContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
+import com.espertech.esper.epl.script.AgentInstanceScriptContext;
 import com.espertech.esper.event.avro.AvroConstantsNoDep;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.regression.script.SupportScriptUtil;
@@ -50,22 +52,70 @@ public class TestContainedEventSplitExpr extends TestCase {
         listener = null;
     }
 
+    public void testScriptContextValue() throws Exception {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+
+        String script = "@name('mystmt') create expression Object js:myGetScriptContext() [\n" +
+                "myGetScriptContext();" +
+                "function myGetScriptContext() {" +
+                "  return epl;\n" +
+                "}]";
+        epService.getEPAdministrator().createEPL(script);
+
+        epService.getEPAdministrator().createEPL("select myGetScriptContext() as c0 from SupportBean").addListener(listener);
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        EPLScriptContext context = (EPLScriptContext) listener.assertOneGetNewAndReset().get("c0");
+        assertNotNull(context.getEventBeanService());
+    }
+
     public void testSplitExprReturnsEventBean() throws Exception {
-        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("mySplitReturnEventBeanArray", this.getClass().getName(), "mySplitReturnEventBeanArray");
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction("mySplitUDFReturnEventBeanArray", this.getClass().getName(), "mySplitUDFReturnEventBeanArray");
+
+        String script = "create expression EventBean[] js:mySplitScriptReturnEventBeanArray(value) [\n" +
+                "mySplitScriptReturnEventBeanArray(value);" +
+                "function mySplitScriptReturnEventBeanArray(value) {" +
+                "  var split = value.split(',');\n" +
+                "  var EventBeanArray = Java.type(\"com.espertech.esper.client.EventBean[]\");\n" +
+                "  var events = new EventBeanArray(split.length);  " +
+                "  for (var i = 0; i < split.length; i++) {\n" +
+                "    var pvalue = split[i].substring(1);\n" +
+                "    if (split[i].startsWith(\"A\")) {\n" +
+                "      events[i] =  epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"p0\", pvalue), \"AEvent\");\n" +
+                "    }\n" +
+                "    else if (split[i].startsWith(\"B\")) {\n" +
+                "      events[i] =  epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"p1\", pvalue), \"BEvent\");\n" +
+                "    }\n" +
+                "    else {\n" +
+                "      throw new UnsupportedOperationException(\"Unrecognized type\");\n" +
+                "    }\n" +
+                "  }\n" +
+                "  return events;\n" +
+                "}]";
+        epService.getEPAdministrator().createEPL(script);
 
         String epl = "create schema BaseEvent();\n" +
                 "create schema AEvent(p0 string) inherits BaseEvent;\n" +
                 "create schema BEvent(p1 string) inherits BaseEvent;\n" +
-                "create schema SplitEvent(value string);\n" +
-                "@name('s0') select * from SplitEvent[mySplitReturnEventBeanArray(value) @type(BaseEvent)] ";
+                "create schema SplitEvent(value string);\n";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
-        epService.getEPAdministrator().getStatement("s0").addListener(listener);
+
+        runAssertionSplitExprReturnsEventBean("mySplitUDFReturnEventBeanArray");
+        runAssertionSplitExprReturnsEventBean("mySplitScriptReturnEventBeanArray");
+    }
+
+    private void runAssertionSplitExprReturnsEventBean(String functionOrScript) {
+
+        String epl = "@name('s0') select * from SplitEvent[" + functionOrScript + "(value) @type(BaseEvent)]";
+        EPStatement statement = epService.getEPAdministrator().createEPL(epl);
+        statement.addListener(listener);
 
         epService.getEPRuntime().sendEvent(Collections.singletonMap("value", "AE1,BE2,AE3"), "SplitEvent");
         EventBean[] events = listener.getAndResetLastNewData();
         assertSplitEx(events[0], "AEvent", "p0", "E1");
         assertSplitEx(events[1], "BEvent", "p1", "E2");
         assertSplitEx(events[2], "AEvent", "p0", "E3");
+
+        statement.destroy();
     }
 
     public void testSingleRowSplitAndType() {
@@ -275,7 +325,7 @@ public class TestContainedEventSplitExpr extends TestCase {
         assertEquals(propertyValue, event.get(propertyName));
     }
 
-    public static EventBean[] mySplitReturnEventBeanArray(String value, EPLMethodInvocationContext context) {
+    public static EventBean[] mySplitUDFReturnEventBeanArray(String value, EPLMethodInvocationContext context) {
         String[] split = value.split(",");
         EventBean[] events = new EventBean[split.length];
         for (int i = 0; i < split.length; i++) {

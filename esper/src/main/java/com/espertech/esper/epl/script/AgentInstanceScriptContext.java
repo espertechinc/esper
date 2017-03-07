@@ -11,6 +11,8 @@
 package com.espertech.esper.epl.script;
 
 import com.espertech.esper.client.hook.EPLScriptContext;
+import com.espertech.esper.client.hook.EventBeanService;
+import com.espertech.esper.event.EventAdapterService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,16 +22,35 @@ import java.util.Map;
  */
 public class AgentInstanceScriptContext implements EPLScriptContext {
 
-    private final Map<String, Object> scriptProperties = new HashMap<String, Object>();
+    private Map<String, Object> scriptProperties;
 
-    public AgentInstanceScriptContext() {
+    private final EventBeanService eventBeanService;
+
+    private AgentInstanceScriptContext(EventBeanService eventBeanService) {
+        this.eventBeanService = eventBeanService;
+    }
+    
+    public EventBeanService getEventBeanService() {
+        return eventBeanService;
     }
 
     public void setScriptAttribute(String attribute, Object value) {
+        allocateScriptProperties();
         scriptProperties.put(attribute, value);
     }
 
     public Object getScriptAttribute(String attribute) {
+        allocateScriptProperties();
         return scriptProperties.get(attribute);
+    }
+
+    private void allocateScriptProperties() {
+        if (scriptProperties == null) {
+            scriptProperties = new HashMap<>();
+        }
+    }
+
+    public static AgentInstanceScriptContext from(EventAdapterService eventAdapterService) {
+        return new AgentInstanceScriptContext(eventAdapterService);
     }
 }

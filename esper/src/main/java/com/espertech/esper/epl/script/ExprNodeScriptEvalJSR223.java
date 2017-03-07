@@ -34,7 +34,7 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase {
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
         Bindings bindings = executable.getEngine().createBindings();
-        bindings.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAgentInstanceScriptContext());
+        bindings.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAllocateAgentInstanceScriptContext());
         for (int i = 0; i < names.length; i++) {
             bindings.put(names[i], parameters[i].evaluate(eventsPerStream, isNewData, context));
         }

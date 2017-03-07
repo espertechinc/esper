@@ -45,9 +45,9 @@ public interface ExprEvaluatorContext {
 
     public EventBean getContextProperties();
 
-    public AgentInstanceScriptContext getAgentInstanceScriptContext();
-
     public StatementAgentInstanceLock getAgentInstanceLock();
 
     public TableExprEvaluatorContext getTableExprEvaluatorContext();
+
+    AgentInstanceScriptContext getAllocateAgentInstanceScriptContext();
 }

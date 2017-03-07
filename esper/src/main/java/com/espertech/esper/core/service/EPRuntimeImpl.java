@@ -117,7 +117,7 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
                 return null;
             }
 
-            public AgentInstanceScriptContext getAgentInstanceScriptContext() {
+            public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
                 return null;
             }
 

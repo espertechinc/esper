@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.script;
 
+import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.EPLScriptContext;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
@@ -187,6 +188,10 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         Class returnType = JavaClassHelper.getClassForSimpleName(returnTypeName, validationContext.getEngineImportService().getClassForNameProvider());
         if (returnType != null) {
             return returnType;
+        }
+
+        if (returnTypeName.equals("EventBean")) {
+            return EventBean.class;
         }
 
         try {

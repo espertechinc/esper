@@ -14,6 +14,9 @@ package com.espertech.esper.client.hook;
  * Available when using JSR-223 scripts or MVEL, for access of script attributes.
  */
 public interface EPLScriptContext {
+
+    public EventBeanService getEventBeanService();
+
     /**
      * Set a script attributed.
      *

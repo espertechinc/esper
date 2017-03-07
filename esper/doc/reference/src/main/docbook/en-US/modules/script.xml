@@ -128,16 +128,19 @@ select printColors(colorEvent) from ColorEvent as colorEvent]]></programlisting>
 
 		<para>
 		  The engine provides a built-in script object under the variable name <literal>epl</literal> to all scripts. Your scripts may use this script object to share and retain state by setting and reading script attributes.
-		</para>
-		
-		<para>
-		  The <literal>epl</literal> script object implements the interface <literal>com.espertech.esper.client.hook.EPLScriptContext</literal>. The <literal>EPLScriptContext</literal> interface has two methods: The <literal>void setScriptAttribute(String attribute, Object value)</literal> method to set an attribute value and the <literal>Object getScriptAttribute(String attribute)</literal> method to read an attribute value.
-		</para>
-		
-		<para>
-		  The engine maintains a separate script object per context partition, or per statement if not declaring a context. Therefore script attributes are not shared between statements.
+		  The engine maintains a separate script object per context partition or per statement if not declaring a context. Therefore script attributes are not shared between statements,
+		  however multiple scripts executed by the same context partition receive the same script object.
 		</para>
 
+		<para>
+		  The <literal>epl</literal> script object implements the interface <literal>com.espertech.esper.client.hook.EPLScriptContext</literal>.
+		  Please see the JavaDoc for services provided by <literal>EPLScriptContext</literal>.
+		</para>
+		
+		<para>
+		  For script state management, the <literal>EPLScriptContext</literal> interface has two methods: The <literal>void setScriptAttribute(String attribute, Object value)</literal> method to set an attribute value and the <literal>Object getScriptAttribute(String attribute)</literal> method to read an attribute value.
+		</para>
+		
 		<para>
 		  The next example demonstrates the use of the <literal>epl</literal> script object. It outputs a flag value <literal>true</literal> when an RFID event matched because the location is <literal>A</literal>, 
 		  and outputs a flag value <literal>false</literal> when an RFID event matched because the location is <literal>B</literal>. The example works the same for either MVEL or JavaScript dialects: You may simple replace the <literal>js</literal> dialect with <literal>mvel</literal>.

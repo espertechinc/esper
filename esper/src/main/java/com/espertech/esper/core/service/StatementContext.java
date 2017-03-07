@@ -580,4 +580,11 @@ public final class StatementContext {
     public TimeAbacus getTimeAbacus() {
         return stmtEngineServices.getEngineImportService().getTimeAbacus();
     }
+
+    public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
+        if (defaultAgentInstanceScriptContext == null) {
+            defaultAgentInstanceScriptContext = AgentInstanceScriptContext.from(getEventAdapterService());
+        }
+        return defaultAgentInstanceScriptContext;
+    }
 }

@@ -52,7 +52,7 @@ public class ExprEvaluatorContextTimeOnly implements ExprEvaluatorContext {
         return null;
     }
 
-    public AgentInstanceScriptContext getAgentInstanceScriptContext() {
+    public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
         return null;
     }
 

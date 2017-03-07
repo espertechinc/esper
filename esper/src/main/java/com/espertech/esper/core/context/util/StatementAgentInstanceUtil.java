@@ -181,7 +181,7 @@ public class StatementAgentInstanceUtil {
         // create agent instance context
         AgentInstanceScriptContext agentInstanceScriptContext = null;
         if (statementContext.getDefaultAgentInstanceScriptContext() != null) {
-            agentInstanceScriptContext = new AgentInstanceScriptContext();
+            agentInstanceScriptContext = AgentInstanceScriptContext.from(statementContext.getEventAdapterService());
         }
         AgentInstanceContext agentInstanceContext = new AgentInstanceContext(statementContext, agentInstanceHandle, agentInstanceId, agentInstanceFilterProxy, agentInstanceProperties, agentInstanceScriptContext);
         StatementAgentInstanceLock statementAgentInstanceLock = agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock();

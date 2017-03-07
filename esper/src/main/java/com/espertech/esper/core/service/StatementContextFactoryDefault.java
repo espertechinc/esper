@@ -214,7 +214,7 @@ public class StatementContextFactoryDefault implements StatementContextFactory {
 
         AgentInstanceScriptContext defaultAgentInstanceScriptContext = null;
         if (statementSpecRaw.getScriptExpressions() != null && !statementSpecRaw.getScriptExpressions().isEmpty()) {
-            defaultAgentInstanceScriptContext = new AgentInstanceScriptContext();
+            defaultAgentInstanceScriptContext = AgentInstanceScriptContext.from(engineServices.getEventAdapterService());
         }
 
         // allow a special context controller factory for testing

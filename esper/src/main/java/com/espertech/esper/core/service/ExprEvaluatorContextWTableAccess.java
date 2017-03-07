@@ -58,8 +58,8 @@ public class ExprEvaluatorContextWTableAccess implements ExprEvaluatorContext {
         return context.getContextProperties();
     }
 
-    public AgentInstanceScriptContext getAgentInstanceScriptContext() {
-        return context.getAgentInstanceScriptContext();
+    public AgentInstanceScriptContext getAllocateAgentInstanceScriptContext() {
+        return context.getAllocateAgentInstanceScriptContext();
     }
 
     public StatementAgentInstanceLock getAgentInstanceLock() {
