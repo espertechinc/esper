@@ -32,13 +32,7 @@ public class ExprDotStaticMethodWrapFactory {
         }
 
         if (method.getReturnType().isArray() && method.getReturnType().getComponentType() == EventBean.class) {
-            if (optionalEventTypeName == null) {
-                throw new ExprValidationException("Method '" + method.getName() + "' returns EventBean-array but does not provide the event type name");
-            }
-            EventType eventType = eventAdapterService.getExistsTypeByName(optionalEventTypeName);
-            if (eventType == null) {
-                throw new ExprValidationException("Method '" + method.getName() + "' returns event type '" + optionalEventTypeName + "' and the event type cannot be found");
-            }
+            EventType eventType = requireEventType(method, eventAdapterService, optionalEventTypeName);
             return new ExprDotStaticMethodWrapEventBeanArr(eventType);
         }
 
@@ -53,6 +47,12 @@ public class ExprDotStaticMethodWrapFactory {
 
         if (JavaClassHelper.isImplementsInterface(method.getReturnType(), Collection.class)) {
             Class genericType = JavaClassHelper.getGenericReturnType(method, true);
+
+            if (genericType == EventBean.class) {
+                EventType eventType = requireEventType(method, eventAdapterService, optionalEventTypeName);
+                return new ExprDotStaticMethodWrapEventBeanColl(eventType);
+            }
+
             if (genericType == null || JavaClassHelper.isJavaBuiltinDataType(genericType)) {
                 return new ExprDotStaticMethodWrapCollection(method.getName(), genericType);
             }
@@ -69,6 +69,17 @@ public class ExprDotStaticMethodWrapFactory {
         return null;
     }
 
+    private static EventType requireEventType(Method method, EventAdapterService eventAdapterService, String optionalEventTypeName)
+            throws ExprValidationException {
+        if (optionalEventTypeName == null) {
+            throw new ExprValidationException("Method '" + method.getName() + "' returns EventBean-array but does not provide the event type name");
+        }
+        EventType eventType = eventAdapterService.getExistsTypeByName(optionalEventTypeName);
+        if (eventType == null) {
+            throw new ExprValidationException("Method '" + method.getName() + "' returns event type '" + optionalEventTypeName + "' and the event type cannot be found");
+        }
+        return eventType;
+    }
 }
 
 

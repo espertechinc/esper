@@ -24,6 +24,7 @@ import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -73,19 +74,35 @@ public class TestSingleRowFunctionPlugIn extends TestCase
     }
 
     public void testReturnTypeIsEvents() {
+        runAssertionReturnTypeIsEvents("myItemProducerEventBeanArray");
+        runAssertionReturnTypeIsEvents("myItemProducerEventBeanCollection");
+        runAssertionReturnTypeIsEventsInvalid();
+    }
+
+    private void runAssertionReturnTypeIsEvents(String methodName) {
         ConfigurationPlugInSingleRowFunction entry = new ConfigurationPlugInSingleRowFunction();
-        entry.setName("myItemProducer");
+        entry.setName(methodName);
         entry.setFunctionClassName(this.getClass().getName());
-        entry.setFunctionMethodName("myItemProducer");
+        entry.setFunctionMethodName(methodName);
         entry.setEventTypeName("MyItem");
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
 
         epService.getEPAdministrator().createEPL("create schema MyItem(id string)");
-        epService.getEPAdministrator().createEPL("select myItemProducer(theString).where(v => v.id in ('id1', 'id3')) as c0 from SupportBean").addListener(listener);
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select " + methodName + "(theString).where(v => v.id in ('id1', 'id3')) as c0 from SupportBean");
+        stmt.addListener(listener);
 
         epService.getEPRuntime().sendEvent(new SupportBean("id0,id1,id2,id3,id4", 0));
         Collection<Map> coll = (Collection<Map>) listener.assertOneGetNewAndReset().get("c0");
         EPAssertionUtil.assertPropsPerRow(coll.toArray(new Map[coll.size()]), "id".split(","), new Object[][] {{"id1"}, {"id3"}});
+
+        stmt.destroy();
+    }
+
+    private void runAssertionReturnTypeIsEventsInvalid() {
+
+        ConfigurationPlugInSingleRowFunction entry = new ConfigurationPlugInSingleRowFunction();
+        entry.setFunctionClassName(this.getClass().getName());
+        entry.setFunctionMethodName("myItemProducerEventBeanArray");
 
         // test invalid: no event type name
         entry.setName("myItemProducerInvalidNoType");
@@ -93,16 +110,15 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
         epService.getEPAdministrator().createEPL("select myItemProducerInvalidNoType(theString) as c0 from SupportBean");
         SupportMessageAssertUtil.tryInvalid(epService, "select myItemProducerInvalidNoType(theString).where(v => v.id='id1') as c0 from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'myItemProducerInvalidNoType(theStri...(68 chars)': Method 'myItemProducer' returns EventBean-array but does not provide the event type name");
+                "Error starting statement: Failed to validate select-clause expression 'myItemProducerInvalidNoType(theStri...(68 chars)': Method 'myItemProducerEventBeanArray' returns EventBean-array but does not provide the event type name [");
 
         // test invalid: event type name invalid
         entry.setName("myItemProducerInvalidWrongType");
         entry.setEventTypeName("dummy");
         epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
         SupportMessageAssertUtil.tryInvalid(epService, "select myItemProducerInvalidWrongType(theString).where(v => v.id='id1') as c0 from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'myItemProducerInvalidWrongType(theS...(74 chars)': Method 'myItemProducer' returns event type 'dummy' and the event type cannot be found");
+                "Error starting statement: Failed to validate select-clause expression 'myItemProducerInvalidWrongType(theS...(74 chars)': Method 'myItemProducerEventBeanArray' returns event type 'dummy' and the event type cannot be found [select myItemProducerInvalidWrongType(theString).where(v => v.id='id1') as c0 from SupportBean]");
     }
-
 
     public void testVarargs() {
         runVarargAssertion(
@@ -461,12 +477,16 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         EPAssertionUtil.assertEqualsExactOrder(values, data.toArray());
     }
 
-    public static EventBean[] myItemProducer(String string, EPLMethodInvocationContext context) {
+    public static EventBean[] myItemProducerEventBeanArray(String string, EPLMethodInvocationContext context) {
         String[] split = string.split(",");
         EventBean[] events = new EventBean[split.length];
         for (int i = 0; i < split.length; i++) {
             events[i] = context.getEventBeanService().adapterForMap(Collections.singletonMap("id", split[i]), "MyItem");
         }
         return events;
+    }
+
+    public static Collection<EventBean> myItemProducerEventBeanCollection(String string, EPLMethodInvocationContext context) {
+        return Arrays.asList(myItemProducerEventBeanArray(string, context));
     }
 }

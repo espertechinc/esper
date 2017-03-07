@@ -628,7 +628,7 @@ public static String doSearch(Collection<EventBean> events) {...}]]></programlis
 			<title>Single-Row Functions Returning Events</title>
 
 			<para>
-			  A single-row function may return events. Please declare your single-row function method to return <literal>EventBean[]</literal> and configure the event type name.
+			  A single-row function may return events. Please declare your single-row function method to return <literal>Collection&lt;EventBean&gt;</literal> or <literal>EventBean[]</literal> and configure the event type name.
 			</para>
 			
 			<para>
