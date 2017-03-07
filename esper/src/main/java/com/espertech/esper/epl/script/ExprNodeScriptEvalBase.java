@@ -24,6 +24,7 @@ import com.espertech.esper.util.SimpleNumberCoercerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvaluatorEnumeration {
@@ -35,14 +36,16 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvalu
     protected final String[] names;
     protected final ExprEvaluator[] parameters;
     protected final Class returnType;
+    protected final EventType eventTypeCollection;
     protected final SimpleNumberCoercer coercer;
 
-    public ExprNodeScriptEvalBase(String scriptName, String statementName, String[] names, ExprEvaluator[] parameters, Class returnType) {
+    public ExprNodeScriptEvalBase(String scriptName, String statementName, String[] names, ExprEvaluator[] parameters, Class returnType, EventType eventTypeCollection) {
         this.scriptName = scriptName;
         this.statementName = statementName;
         this.names = names;
         this.parameters = parameters;
         this.returnType = returnType;
+        this.eventTypeCollection = eventTypeCollection;
 
         if (JavaClassHelper.isNumeric(returnType)) {
             coercer = SimpleNumberCoercerFactory.getCoercer(Number.class, JavaClassHelper.getBoxedType(returnType));
@@ -56,11 +59,18 @@ public abstract class ExprNodeScriptEvalBase implements ExprEvaluator, ExprEvalu
     }
 
     public EventType getEventTypeCollection(EventAdapterService eventAdapterService, int statementId) throws ExprValidationException {
-        return null;
+        return eventTypeCollection;
     }
 
     public Collection<EventBean> evaluateGetROCollectionEvents(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        return null;
+        Object result = evaluate(eventsPerStream, isNewData, context);
+        if (result == null) {
+            return null;
+        }
+        if (result.getClass().isArray()) {
+            return Arrays.asList((EventBean[]) result);
+        }
+        return (Collection) result;
     }
 
     public Class getComponentTypeCollection() throws ExprValidationException {

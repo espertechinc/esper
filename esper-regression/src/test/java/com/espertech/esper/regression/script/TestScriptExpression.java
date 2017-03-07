@@ -19,9 +19,12 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 public class TestScriptExpression extends TestCase {
 
@@ -42,6 +45,11 @@ public class TestScriptExpression extends TestCase {
     public void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
+    }
+
+    public void testScriptReturningEvents() {
+        runAssertionScriptReturningEvents(false);
+        runAssertionScriptReturningEvents(true);
     }
 
     public void testDocSamples() {
@@ -732,6 +740,31 @@ public class TestScriptExpression extends TestCase {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "val0,val1".split(","), new Object[]{value, value});
 
         stmt.destroy();
+    }
+
+    private void runAssertionScriptReturningEvents(boolean soda) {
+        String script = "create expression EventBean[] @type(ItemEvent) js:myScriptReturnsEvents() [\n" +
+                "myScriptReturnsEvents();" +
+                "function myScriptReturnsEvents() {" +
+                "  var EventBeanArray = Java.type(\"com.espertech.esper.client.EventBean[]\");\n" +
+                "  var events = new EventBeanArray(3);\n" +
+                "  events[0] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id1\"), \"ItemEvent\");\n" +
+                "  events[1] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id2\"), \"ItemEvent\");\n" +
+                "  events[2] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id3\"), \"ItemEvent\");\n" +
+                "  return events;\n" +
+                "}]";
+        EPStatement stmtScript = SupportModelHelper.createByCompileOrParse(epService, soda, script);
+
+        epService.getEPAdministrator().createEPL("create schema ItemEvent(id string)");
+        EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select myScriptReturnsEvents().where(v => v.id in ('id1', 'id3')) as c0 from SupportBean");
+        stmtSelect.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        Collection<Map> coll = (Collection<Map>) listener.assertOneGetNewAndReset().get("c0");
+        EPAssertionUtil.assertPropsPerRow(coll.toArray(new Map[coll.size()]), "id".split(","), new Object[][] {{"id1"}, {"id3"}});
+
+        stmtSelect.destroy();
+        stmtScript.destroy();
     }
 
     public static class ColorEvent {

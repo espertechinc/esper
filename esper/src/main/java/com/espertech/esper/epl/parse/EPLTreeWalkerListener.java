@@ -657,15 +657,7 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
 
         String optionalAsName = ctx.n == null ? null : ctx.n.getText();
 
-        String splitterEventTypeName = null;
-        if (ctx.propertyExpressionAnnotation() != null) {
-            String annoName = ctx.propertyExpressionAnnotation().n.getText();
-            if (!annoName.toLowerCase(Locale.ENGLISH).equals("type")) {
-                throw ASTWalkException.from("Invalid annotation for property selection, expected 'type' but found '" + annoName + "'", tokenStream, ctx);
-            }
-            splitterEventTypeName = ctx.propertyExpressionAnnotation().v.getText();
-        }
-
+        String splitterEventTypeName = ASTTypeExpressionAnnoHelper.expectMayTypeAnno(ctx.typeExpressionAnnotation(), tokenStream);
         PropertyEvalAtom atom = new PropertyEvalAtom(splitterExpression, splitterEventTypeName, optionalAsName, optionalSelectClause, optionalWhereClause);
         propertyEvalSpec.add(atom);
     }
@@ -2677,12 +2669,6 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     public void exitLibFunctionWithClass(EsperEPL2GrammarParser.LibFunctionWithClassContext ctx) {
     }
 
-    public void enterPropertyExpressionAnnotation(EsperEPL2GrammarParser.PropertyExpressionAnnotationContext ctx) {
-    }
-
-    public void exitPropertyExpressionAnnotation(EsperEPL2GrammarParser.PropertyExpressionAnnotationContext ctx) {
-    }
-
     public void enterStringconstant(EsperEPL2GrammarParser.StringconstantContext ctx) {
     }
 
@@ -3299,5 +3285,17 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void enterOnSelectInsertFromClause(EsperEPL2GrammarParser.OnSelectInsertFromClauseContext ctx) {
+    }
+
+    public void enterExpressionTypeAnno(EsperEPL2GrammarParser.ExpressionTypeAnnoContext ctx) {
+    }
+
+    public void exitExpressionTypeAnno(EsperEPL2GrammarParser.ExpressionTypeAnnoContext ctx) {
+    }
+
+    public void enterTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx) {
+    }
+
+    public void exitTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx) {
     }
 }

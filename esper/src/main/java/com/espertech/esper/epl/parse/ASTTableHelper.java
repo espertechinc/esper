@@ -66,11 +66,11 @@ public class ASTTableHelper {
                 annots.add(ASTAnnotationHelper.walk(anctx, engineImportService));
             }
         }
-        if (ctx.propertyExpressionAnnotation() != null) {
+        if (ctx.typeExpressionAnnotation() != null) {
             if (annots.isEmpty()) {
                 annots = new ArrayList<AnnotationDesc>();
             }
-            for (EsperEPL2GrammarParser.PropertyExpressionAnnotationContext anno : ctx.propertyExpressionAnnotation()) {
+            for (EsperEPL2GrammarParser.TypeExpressionAnnotationContext anno : ctx.typeExpressionAnnotation()) {
                 annots.add(new AnnotationDesc(anno.n.getText(), anno.v.getText()));
             }
         }

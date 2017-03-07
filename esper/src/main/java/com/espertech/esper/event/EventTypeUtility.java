@@ -39,6 +39,17 @@ public class EventTypeUtility {
 
     private static final Logger log = LoggerFactory.getLogger(EventTypeUtility.class);
 
+    public static EventType requireEventType(String aspectCamel, String aspectName, EventAdapterService eventAdapterService, String optionalEventTypeName) throws ExprValidationException {
+        if (optionalEventTypeName == null) {
+            throw new ExprValidationException(aspectCamel + " '" + aspectName + "' returns EventBean-array but does not provide the event type name");
+        }
+        EventType eventType = eventAdapterService.getExistsTypeByName(optionalEventTypeName);
+        if (eventType == null) {
+            throw new ExprValidationException(aspectCamel + " '" + aspectName + "' returns event type '" + optionalEventTypeName + "' and the event type cannot be found");
+        }
+        return eventType;
+    }
+
     public static Pair<EventType[], Set<EventType>> getSuperTypesDepthFirst(ConfigurationEventTypeWithSupertype optionalConfig, EventUnderlyingType representation, Map<String, ? extends EventType> nameToTypeMap) {
         return getSuperTypesDepthFirst(optionalConfig == null ? null : optionalConfig.getSuperTypes(), representation, nameToTypeMap);
     }

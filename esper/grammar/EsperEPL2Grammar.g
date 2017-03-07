@@ -255,7 +255,7 @@ startJsonValueRule : jsonvalue EOF;
 //----------------------------------------------------------------------------
 // Expression Declaration
 //----------------------------------------------------------------------------
-expressionDecl : EXPRESSIONDECL classIdentifier? (array=LBRACK RBRACK)? expressionDialect? name=IDENT (LPAREN columnList? RPAREN)? (alias=IDENT FOR)? expressionDef;
+expressionDecl : EXPRESSIONDECL classIdentifier? (array=LBRACK RBRACK)? typeExpressionAnnotation? expressionDialect? name=IDENT (LPAREN columnList? RPAREN)? (alias=IDENT FOR)? expressionDef;
 
 expressionDialect : d=IDENT COLON;
 	
@@ -264,6 +264,8 @@ expressionDef :	LCURLY expressionLambdaDecl? expression RCURLY
 		;
 
 expressionLambdaDecl : (i=IDENT | (LPAREN columnList RPAREN)) (GOES | FOLLOWED_BY);
+
+expressionTypeAnno : ATCHAR n=IDENT (LPAREN v=IDENT RPAREN);
 
 //----------------------------------------------------------------------------
 // Annotations
@@ -412,7 +414,7 @@ createTableExpr : CREATE TABLE n=IDENT AS? LPAREN createTableColumnList RPAREN;
 
 createTableColumnList : createTableColumn (COMMA createTableColumn)*;
 
-createTableColumn : n=IDENT (createTableColumnPlain | builtinFunc | libFunction) p=IDENT? k=IDENT? (propertyExpressionAnnotation | annotationEnum)*;
+createTableColumn : n=IDENT (createTableColumnPlain | builtinFunc | libFunction) p=IDENT? k=IDENT? (typeExpressionAnnotation | annotationEnum)*;
 
 createTableColumnPlain : classIdentifier (b=LBRACK p=IDENT? RBRACK)?;
 
@@ -933,12 +935,10 @@ eventFilterExpression
     
 propertyExpression : propertyExpressionAtomic (propertyExpressionAtomic)*;
 
-propertyExpressionAtomic : LBRACK propertyExpressionSelect? expression propertyExpressionAnnotation? (AS n=IDENT)? (WHERE where=expression)? RBRACK;
+propertyExpressionAtomic : LBRACK propertyExpressionSelect? expression typeExpressionAnnotation? (AS n=IDENT)? (WHERE where=expression)? RBRACK;
        	
 propertyExpressionSelect : SELECT propertySelectionList FROM;
 		
-propertyExpressionAnnotation : ATCHAR n=IDENT (LPAREN v=IDENT RPAREN);
-	
 propertySelectionList : propertySelectionListElement (COMMA propertySelectionListElement)*;
 
 propertySelectionListElement : s=STAR
@@ -947,6 +947,8 @@ propertySelectionListElement : s=STAR
 	
 propertyStreamSelector : s=IDENT DOT STAR (AS i=IDENT)?;
 
+typeExpressionAnnotation : ATCHAR n=IDENT (LPAREN v=IDENT RPAREN);
+	
 patternFilterExpression
 @init  { paraphrases.push("filter specification"); }
 @after { paraphrases.pop(); }

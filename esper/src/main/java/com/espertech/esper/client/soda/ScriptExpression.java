@@ -23,6 +23,7 @@ public class ScriptExpression implements Serializable {
     private List<String> parameterNames;
     private String expressionText;
     private String optionalReturnType;
+    private String optionalEventTypeName;
     private String optionalDialect;
 
     /**
@@ -40,12 +41,26 @@ public class ScriptExpression implements Serializable {
      * @param optionalReturnType return type
      * @param optionalDialect    dialect
      */
-    public ScriptExpression(String name, List<String> parameterNames, String expressionText, String optionalReturnType, String optionalDialect) {
+    public ScriptExpression(String name, List<String> parameterNames, String expressionText, String optionalReturnType, String optionalDialect, String optionalEventTypeName) {
         this.name = name;
         this.parameterNames = parameterNames;
         this.expressionText = expressionText;
         this.optionalReturnType = optionalReturnType;
         this.optionalDialect = optionalDialect;
+        this.optionalEventTypeName = optionalEventTypeName;
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param name               script name
+     * @param parameterNames     parameter list
+     * @param expressionText     script text
+     * @param optionalReturnType return type
+     * @param optionalDialect    dialect
+     */
+    public ScriptExpression(String name, List<String> parameterNames, String expressionText, String optionalReturnType, String optionalDialect) {
+        this(name, parameterNames, expressionText, optionalReturnType, optionalDialect, null);
     }
 
     /**
@@ -138,6 +153,14 @@ public class ScriptExpression implements Serializable {
         this.parameterNames = parameterNames;
     }
 
+    public String getOptionalEventTypeName() {
+        return optionalEventTypeName;
+    }
+
+    public void setOptionalEventTypeName(String optionalEventTypeName) {
+        this.optionalEventTypeName = optionalEventTypeName;
+    }
+
     /**
      * Print.
      *
@@ -169,6 +192,11 @@ public class ScriptExpression implements Serializable {
         if (optionalReturnType != null) {
             writer.append(optionalReturnType);
             writer.append(" ");
+        }
+        if (optionalEventTypeName != null) {
+            writer.append("@type(");
+            writer.append(optionalEventTypeName);
+            writer.append(") ");
         }
         if (optionalDialect != null && optionalDialect.trim().length() != 0) {
             writer.append(optionalDialect);

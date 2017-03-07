@@ -12,6 +12,7 @@ package com.espertech.esper.epl.script;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.script.mvel.MVELInvoker;
@@ -28,8 +29,8 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase {
 
     private final Object executable;
 
-    public ExprNodeScriptEvalMVEL(String scriptName, String statementName, String[] names, ExprEvaluator[] parameters, Class returnType, Object executable) {
-        super(scriptName, statementName, names, parameters, returnType);
+    public ExprNodeScriptEvalMVEL(String scriptName, String statementName, String[] names, ExprEvaluator[] parameters, Class returnType, EventType eventTypeCollection, Object executable) {
+        super(scriptName, statementName, names, parameters, returnType, eventTypeCollection);
         this.executable = executable;
     }
 

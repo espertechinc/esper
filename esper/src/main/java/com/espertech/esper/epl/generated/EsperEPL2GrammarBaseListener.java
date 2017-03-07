@@ -124,6 +124,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExpressionTypeAnno(EsperEPL2GrammarParser.ExpressionTypeAnnoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExpressionTypeAnno(EsperEPL2GrammarParser.ExpressionTypeAnnoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAnnotationEnum(EsperEPL2GrammarParser.AnnotationEnumContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2620,18 +2632,6 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPropertyExpressionAnnotation(EsperEPL2GrammarParser.PropertyExpressionAnnotationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPropertyExpressionAnnotation(EsperEPL2GrammarParser.PropertyExpressionAnnotationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterPropertySelectionList(EsperEPL2GrammarParser.PropertySelectionListContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2663,6 +2663,18 @@ public class EsperEPL2GrammarBaseListener implements EsperEPL2GrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPropertyStreamSelector(EsperEPL2GrammarParser.PropertyStreamSelectorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

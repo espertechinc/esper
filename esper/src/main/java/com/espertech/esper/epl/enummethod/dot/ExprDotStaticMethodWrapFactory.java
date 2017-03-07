@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.util.JavaClassHelper;
 
@@ -69,16 +70,8 @@ public class ExprDotStaticMethodWrapFactory {
         return null;
     }
 
-    private static EventType requireEventType(Method method, EventAdapterService eventAdapterService, String optionalEventTypeName)
-            throws ExprValidationException {
-        if (optionalEventTypeName == null) {
-            throw new ExprValidationException("Method '" + method.getName() + "' returns EventBean-array but does not provide the event type name");
-        }
-        EventType eventType = eventAdapterService.getExistsTypeByName(optionalEventTypeName);
-        if (eventType == null) {
-            throw new ExprValidationException("Method '" + method.getName() + "' returns event type '" + optionalEventTypeName + "' and the event type cannot be found");
-        }
-        return eventType;
+    private static EventType requireEventType(Method method, EventAdapterService eventAdapterService, String optionalEventTypeName) throws ExprValidationException {
+        return EventTypeUtility.requireEventType("Method", method.getName(), eventAdapterService, optionalEventTypeName);
     }
 }
 

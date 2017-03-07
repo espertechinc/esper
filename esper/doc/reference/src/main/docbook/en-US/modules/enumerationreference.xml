@@ -791,7 +791,7 @@ from LocationReport]]></programlisting>
 			</listitem>
 			<listitem>
 				<para>
-					A plug-in single-row function, a user-defined function or an enum type.
+					A plug-in single-row function, a user-defined function, a script or an enum type.
 				</para>
 			</listitem>
 			<listitem>

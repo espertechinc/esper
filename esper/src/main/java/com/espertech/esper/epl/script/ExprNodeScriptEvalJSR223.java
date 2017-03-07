@@ -12,6 +12,7 @@ package com.espertech.esper.epl.script;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import org.slf4j.Logger;
@@ -27,8 +28,8 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase {
 
     private final CompiledScript executable;
 
-    public ExprNodeScriptEvalJSR223(String scriptName, String statementName, String[] names, ExprEvaluator[] parameters, Class returnType, CompiledScript executable) {
-        super(scriptName, statementName, names, parameters, returnType);
+    public ExprNodeScriptEvalJSR223(String scriptName, String statementName, String[] names, ExprEvaluator[] parameters, Class returnType, EventType eventTypeCollection, CompiledScript executable) {
+        super(scriptName, statementName, names, parameters, returnType, eventTypeCollection);
         this.executable = executable;
     }
 

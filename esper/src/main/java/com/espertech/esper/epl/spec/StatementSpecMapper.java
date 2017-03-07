@@ -2767,7 +2767,7 @@ public class StatementSpecMapper {
         if (returnType != null && script.isOptionalReturnTypeIsArray()) {
             returnType = returnType + "[]";
         }
-        return new ScriptExpression(script.getName(), script.getParameterNames(), script.getExpression(), returnType, script.getOptionalDialect());
+        return new ScriptExpression(script.getName(), script.getParameterNames(), script.getExpression(), returnType, script.getOptionalDialect(), script.getOptionalEventTypeName());
     }
 
     private static AnnotationPart unmapAnnotation(AnnotationDesc desc) {
@@ -2843,7 +2843,7 @@ public class StatementSpecMapper {
     private static ExpressionScriptProvided mapScriptExpression(ScriptExpression decl, StatementSpecMapContext mapContext) {
         String returnType = decl.getOptionalReturnType() != null ? decl.getOptionalReturnType().replace("[]", "") : null;
         boolean isArray = decl.getOptionalReturnType() != null ? decl.getOptionalReturnType().contains("[]") : false;
-        return new ExpressionScriptProvided(decl.getName(), decl.getExpressionText(), decl.getParameterNames(), returnType, isArray, decl.getOptionalDialect());
+        return new ExpressionScriptProvided(decl.getName(), decl.getExpressionText(), decl.getParameterNames(), returnType, isArray, decl.getOptionalEventTypeName(), decl.getOptionalDialect());
     }
 
     private static AnnotationDesc mapAnnotation(AnnotationPart part) {

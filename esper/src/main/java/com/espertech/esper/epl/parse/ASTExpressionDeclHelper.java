@@ -53,8 +53,9 @@ public class ASTExpressionDeclHelper {
             String optionalReturnType = ctx.classIdentifier() == null ? null : ASTUtil.unescapeClassIdent(ctx.classIdentifier());
             boolean optionalReturnTypeArray = ctx.array != null;
             String optionalDialect = ctx.expressionDialect() == null ? null : ctx.expressionDialect().d.getText();
+            String optionalEventTypeName = ASTTypeExpressionAnnoHelper.expectMayTypeAnno(ctx.typeExpressionAnnotation(), tokenStream);
             ExpressionScriptProvided script = new ExpressionScriptProvided(name, expressionText, parameters,
-                    optionalReturnType, optionalReturnTypeArray, optionalDialect);
+                    optionalReturnType, optionalReturnTypeArray, optionalEventTypeName, optionalDialect);
             return new Pair<ExpressionDeclItem, ExpressionScriptProvided>(null, script);
         }
 

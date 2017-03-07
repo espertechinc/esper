@@ -53,7 +53,7 @@
 		<para>
 		The syntax for scripts is:
 		</para>
-		<synopsis>expression [<emphasis>return_type</emphasis>] [<emphasis>dialect_identifier</emphasis>:] script_name [ (<emphasis>parameters</emphasis>) ] [ script_body ]</synopsis>
+		<synopsis>expression [<emphasis>return_type</emphasis>] [@type(<emphasis>eventtype_name</emphasis>)] [<emphasis>dialect_identifier</emphasis>:] script_name [ (<emphasis>parameters</emphasis>) ] [ script_body ]</synopsis>
 		
 		<para>
 		  Use the <literal>expression</literal> keyword to declare a script.
@@ -61,6 +61,11 @@
 		
 		<para>
 			The <emphasis>return_type</emphasis> is optional. If the script declaration provides a return type the engine can perform strong type checking: Any expressions that invoke the script and use the return value are aware of the return type. If no return type is provided the engine assumes the script returns <literal>java.lang.Object</literal>.
+		</para>
+		
+		<para>
+			If the return type of the script is <literal>EventBean[]</literal> please provide the <literal>@type(name)</literal> annotation after the return type to name the event type of events returned by the script. 
+			The annotation is otherwise optional and not validated.
 		</para>
 	
 		<para>
@@ -121,6 +126,23 @@ select printColors(colors) from ColorEvent;]]></programlisting>
   print(java.util.Arrays.toString(colorEvent.getColors()));
 ]
 select printColors(colorEvent) from ColorEvent as colorEvent]]></programlisting>		
+
+		<para>
+			The next example creates a globally-visible script that returns <literal>ItemEvent</literal> events, 
+			assuming that the <literal>ItemEvent</literal> event type is an event type defined by <literal>create schema ItemEvent(id string)</literal>:
+		</para>
+		<programlisting><![CDATA[create expression EventBean[] @type(ItemEvent) js:myScriptReturnsEvents() [
+myScriptReturnsEvents();
+function myScriptReturnsEvents() {
+  var EventBeanArray = Java.type(\"com.espertech.esper.client.EventBean[]\");
+  var events = new EventBeanArray(1);
+  events[0] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id1\"), \"ItemEvent\");
+  return events;
+}
+
+// sample EPL:
+// select myScriptReturnsEvents().where(v => v.id in ('id1', 'id3')) from MyEvent]]]></programlisting>		
+
 	</sect1>
 
 	<sect1 xml:id="script-variablevisibility">

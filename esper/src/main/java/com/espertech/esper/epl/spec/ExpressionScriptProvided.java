@@ -20,17 +20,19 @@ public class ExpressionScriptProvided implements Serializable {
     private final String expression;
     private final List<String> parameterNames;
     private final String optionalReturnTypeName;
+    private final String optionalEventTypeName;
     private final boolean optionalReturnTypeIsArray;
     private final String optionalDialect;
 
     private transient ExpressionScriptCompiled compiled;
 
-    public ExpressionScriptProvided(String name, String expression, List<String> parameterNames, String optionalReturnTypeName, boolean optionalReturnTypeIsArray, String optionalDialect) {
+    public ExpressionScriptProvided(String name, String expression, List<String> parameterNames, String optionalReturnTypeName, boolean optionalReturnTypeIsArray, String optionalEventTypeName, String optionalDialect) {
         this.name = name;
         this.expression = expression;
         this.parameterNames = parameterNames;
         this.optionalReturnTypeName = optionalReturnTypeName;
         this.optionalReturnTypeIsArray = optionalReturnTypeIsArray;
+        this.optionalEventTypeName = optionalEventTypeName;
         this.optionalDialect = optionalDialect;
 
         if (expression == null) {
@@ -68,5 +70,9 @@ public class ExpressionScriptProvided implements Serializable {
 
     public void setCompiled(ExpressionScriptCompiled compiled) {
         this.compiled = compiled;
+    }
+
+    public String getOptionalEventTypeName() {
+        return optionalEventTypeName;
     }
 }

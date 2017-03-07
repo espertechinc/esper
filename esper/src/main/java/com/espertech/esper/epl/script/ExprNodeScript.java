@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.script;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.hook.EPLScriptContext;
 import com.espertech.esper.epl.core.EngineImportException;
 import com.espertech.esper.epl.core.EngineImportService;
@@ -21,6 +22,7 @@ import com.espertech.esper.epl.script.mvel.ExpressionScriptCompiledMVEL;
 import com.espertech.esper.epl.script.mvel.MVELHelper;
 import com.espertech.esper.epl.spec.ExpressionScriptCompiled;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
+import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.util.JavaClassHelper;
 
 import javax.script.CompiledScript;
@@ -140,8 +142,13 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
             returnType = Object.class;
         }
 
+        EventType eventTypeCollection = null;
+        if (returnType.isArray() && returnType.getComponentType() == EventBean.class) {
+            eventTypeCollection = EventTypeUtility.requireEventType("Script", script.getName(), validationContext.getEventAdapterService(), script.getOptionalEventTypeName());
+        }
+
         // Prepare evaluator - this sets the evaluator
-        prepareEvaluator(validationContext.getStatementName(), inputParamNames, evaluators, returnType);
+        prepareEvaluator(validationContext.getStatementName(), inputParamNames, evaluators, returnType, eventTypeCollection);
         return null;
     }
 
@@ -165,13 +172,13 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         script.setCompiled(compiled);
     }
 
-    private void prepareEvaluator(String statementName, String[] inputParamNames, ExprEvaluator[] evaluators, Class returnType) {
+    private void prepareEvaluator(String statementName, String[] inputParamNames, ExprEvaluator[] evaluators, Class returnType, EventType eventTypeCollection) {
         if (script.getCompiled() instanceof ExpressionScriptCompiledMVEL) {
             ExpressionScriptCompiledMVEL mvel = (ExpressionScriptCompiledMVEL) script.getCompiled();
-            evaluator = new ExprNodeScriptEvalMVEL(script.getName(), statementName, inputParamNames, evaluators, returnType, mvel.getCompiled());
+            evaluator = new ExprNodeScriptEvalMVEL(script.getName(), statementName, inputParamNames, evaluators, returnType, eventTypeCollection, mvel.getCompiled());
         } else {
             ExpressionScriptCompiledJSR223 jsr223 = (ExpressionScriptCompiledJSR223) script.getCompiled();
-            evaluator = new ExprNodeScriptEvalJSR223(script.getName(), statementName, inputParamNames, evaluators, returnType, jsr223.getCompiled());
+            evaluator = new ExprNodeScriptEvalJSR223(script.getName(), statementName, inputParamNames, evaluators, returnType, eventTypeCollection, jsr223.getCompiled());
         }
     }
 

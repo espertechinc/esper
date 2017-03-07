@@ -100,6 +100,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitExpressionLambdaDecl(EsperEPL2GrammarParser.ExpressionLambdaDeclContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#expressionTypeAnno}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionTypeAnno(EsperEPL2GrammarParser.ExpressionTypeAnnoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#expressionTypeAnno}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionTypeAnno(EsperEPL2GrammarParser.ExpressionTypeAnnoContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#annotationEnum}.
 	 * @param ctx the parse tree
 	 */
@@ -2222,16 +2232,6 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 */
 	void exitPropertyExpressionSelect(EsperEPL2GrammarParser.PropertyExpressionSelectContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#propertyExpressionAnnotation}.
-	 * @param ctx the parse tree
-	 */
-	void enterPropertyExpressionAnnotation(EsperEPL2GrammarParser.PropertyExpressionAnnotationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#propertyExpressionAnnotation}.
-	 * @param ctx the parse tree
-	 */
-	void exitPropertyExpressionAnnotation(EsperEPL2GrammarParser.PropertyExpressionAnnotationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#propertySelectionList}.
 	 * @param ctx the parse tree
 	 */
@@ -2261,6 +2261,16 @@ public interface EsperEPL2GrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPropertyStreamSelector(EsperEPL2GrammarParser.PropertyStreamSelectorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#typeExpressionAnnotation}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link EsperEPL2GrammarParser#typeExpressionAnnotation}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeExpressionAnnotation(EsperEPL2GrammarParser.TypeExpressionAnnotationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link EsperEPL2GrammarParser#patternFilterExpression}.
 	 * @param ctx the parse tree
