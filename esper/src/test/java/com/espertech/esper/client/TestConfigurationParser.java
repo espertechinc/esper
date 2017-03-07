@@ -359,6 +359,7 @@ public class TestConfigurationParser extends TestCase {
         assertEquals(ConfigurationPlugInSingleRowFunction.ValueCache.ENABLED, pluginSingleRow.getValueCache());
         assertEquals(ConfigurationPlugInSingleRowFunction.FilterOptimizable.DISABLED, pluginSingleRow.getFilterOptimizable());
         assertTrue(pluginSingleRow.isRethrowExceptions());
+        assertEquals("XYZEventTypeName", pluginSingleRow.getEventTypeName());
 
         // assert plug-in guard objects loaded
         assertEquals(4, config.getPlugInPatternObjects().size());

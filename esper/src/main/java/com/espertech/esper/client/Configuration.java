@@ -244,6 +244,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         plugInAggregationMultiFunctions.add(config);
     }
 
+    public void addPlugInSingleRowFunction(ConfigurationPlugInSingleRowFunction singleRowFunction) {
+        plugInSingleRowFunctions.add(singleRowFunction);
+    }
+
     public void addPlugInSingleRowFunction(String functionName, String className, String methodName) throws ConfigurationException {
         addPlugInSingleRowFunction(functionName, className, methodName, ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED);
     }
@@ -301,7 +305,7 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         entry.setValueCache(valueCache);
         entry.setFilterOptimizable(filterOptimizable);
         entry.setRethrowExceptions(rethrowExceptions);
-        plugInSingleRowFunctions.add(entry);
+        addPlugInSingleRowFunction(entry);
     }
 
     /**

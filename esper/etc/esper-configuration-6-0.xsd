@@ -383,6 +383,7 @@
 			<xs:attribute name="value-cache" type="esper:valueCacheEnum" use="optional"/>
 			<xs:attribute name="filter-optimizable" type="esper:filterOptimizableEnum" use="optional"/>
 			<xs:attribute name="rethrow-exceptions" type="xs:boolean" use="optional"/>
+			<xs:attribute name="event-type-name" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:simpleType name="valueCacheEnum">

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.expression.core;
 
+import com.espertech.esper.client.EventType;
 import net.sf.cglib.reflect.FastMethod;
 
 import java.lang.reflect.Method;
@@ -20,13 +21,15 @@ public class ExprNodeUtilMethodDesc {
     private final ExprEvaluator[] childEvals;
     private final Method reflectionMethod;
     private final FastMethod fastMethod;
+    private final EventType optionalEventType;
 
-    public ExprNodeUtilMethodDesc(boolean allConstants, Class[] paramTypes, ExprEvaluator[] childEvals, Method reflectionMethod, FastMethod fastMethod) {
+    public ExprNodeUtilMethodDesc(boolean allConstants, Class[] paramTypes, ExprEvaluator[] childEvals, Method reflectionMethod, FastMethod fastMethod, EventType optionalEventType) {
         this.allConstants = allConstants;
         this.paramTypes = paramTypes;
         this.childEvals = childEvals;
         this.reflectionMethod = reflectionMethod;
         this.fastMethod = fastMethod;
+        this.optionalEventType = optionalEventType;
     }
 
     public boolean isAllConstants() {
@@ -47,5 +50,9 @@ public class ExprNodeUtilMethodDesc {
 
     public FastMethod getFastMethod() {
         return fastMethod;
+    }
+
+    public EventType getOptionalEventType() {
+        return optionalEventType;
     }
 }

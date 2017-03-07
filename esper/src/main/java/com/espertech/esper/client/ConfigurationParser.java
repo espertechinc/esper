@@ -574,7 +574,8 @@ class ConfigurationParser {
         if (rethrowExceptionsStr != null) {
             rethrowExceptions = Boolean.parseBoolean(rethrowExceptionsStr);
         }
-        configuration.addPlugInSingleRowFunction(name, functionClassName, functionMethodName, valueCache, filterOptimizable, rethrowExceptions);
+        String eventTypeName = getOptionalAttribute(element, "event-type-name");
+        configuration.addPlugInSingleRowFunction(new ConfigurationPlugInSingleRowFunction(name, functionClassName, functionMethodName, valueCache, filterOptimizable, rethrowExceptions, eventTypeName));
     }
 
     private static void handlePlugInPatternGuard(Configuration configuration, Element element) {

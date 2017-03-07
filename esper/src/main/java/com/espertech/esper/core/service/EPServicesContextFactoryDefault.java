@@ -553,7 +553,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             }
 
             for (ConfigurationPlugInSingleRowFunction config : configSnapshot.getPlugInSingleRowFunctions()) {
-                engineImportService.addSingleRow(config.getName(), config.getFunctionClassName(), config.getFunctionMethodName(), config.getValueCache(), config.getFilterOptimizable(), config.isRethrowExceptions());
+                engineImportService.addSingleRow(config.getName(), config.getFunctionClassName(), config.getFunctionMethodName(), config.getValueCache(), config.getFilterOptimizable(), config.isRethrowExceptions(), config.getEventTypeName());
             }
         } catch (EngineImportException ex) {
             throw new ConfigurationException("Error configuring engine: " + ex.getMessage(), ex);

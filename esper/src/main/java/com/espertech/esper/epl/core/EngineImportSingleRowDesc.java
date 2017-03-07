@@ -24,13 +24,15 @@ public class EngineImportSingleRowDesc implements Serializable {
     private final ConfigurationPlugInSingleRowFunction.ValueCache valueCache;
     private final ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable;
     private final boolean rethrowExceptions;
+    private final String optionalEventTypeName;
 
-    public EngineImportSingleRowDesc(String className, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions) {
+    public EngineImportSingleRowDesc(String className, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions, String optionalEventTypeName) {
         this.className = className;
         this.methodName = methodName;
         this.valueCache = valueCache;
         this.filterOptimizable = filterOptimizable;
         this.rethrowExceptions = rethrowExceptions;
+        this.optionalEventTypeName = optionalEventTypeName;
     }
 
     public String getClassName() {
@@ -51,5 +53,9 @@ public class EngineImportSingleRowDesc implements Serializable {
 
     public boolean isRethrowExceptions() {
         return rethrowExceptions;
+    }
+
+    public String getOptionalEventTypeName() {
+        return optionalEventTypeName;
     }
 }

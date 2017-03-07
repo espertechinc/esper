@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.epl.enummethod.dot;
 
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.util.JavaClassHelper;
@@ -21,10 +24,22 @@ import java.util.List;
 
 public class ExprDotStaticMethodWrapFactory {
 
-    public static ExprDotStaticMethodWrap make(Method method, EventAdapterService eventAdapterService, List<ExprChainedSpec> modifiedChain) {
+    public static ExprDotStaticMethodWrap make(Method method, EventAdapterService eventAdapterService, List<ExprChainedSpec> modifiedChain, String optionalEventTypeName)
+            throws ExprValidationException {
 
         if (modifiedChain.isEmpty() || (!EnumMethodEnum.isEnumerationMethod(modifiedChain.get(0).getName()))) {
             return null;
+        }
+
+        if (method.getReturnType().isArray() && method.getReturnType().getComponentType() == EventBean.class) {
+            if (optionalEventTypeName == null) {
+                throw new ExprValidationException("Method '" + method.getName() + "' returns EventBean-array but does not provide the event type name");
+            }
+            EventType eventType = eventAdapterService.getExistsTypeByName(optionalEventTypeName);
+            if (eventType == null) {
+                throw new ExprValidationException("Method '" + method.getName() + "' returns event type '" + optionalEventTypeName + "' and the event type cannot be found");
+            }
+            return new ExprDotStaticMethodWrapEventBeanArr(eventType);
         }
 
         if (method.getReturnType().isArray()) {

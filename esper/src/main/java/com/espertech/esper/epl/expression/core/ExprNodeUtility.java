@@ -773,7 +773,7 @@ public class ExprNodeUtility {
             childEvals = makeVarargArrayEval(method, childEvals);
         }
 
-        return new ExprNodeUtilMethodDesc(allConstants, paramTypes, childEvals, method, staticMethod);
+        return new ExprNodeUtilMethodDesc(allConstants, paramTypes, childEvals, method, staticMethod, null);
     }
 
     public static void validatePlainExpression(ExprNodeOrigin origin, String expressionTextualName, ExprNode expression) throws ExprValidationException {

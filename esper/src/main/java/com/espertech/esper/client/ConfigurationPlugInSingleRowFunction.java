@@ -24,6 +24,17 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable {
     private ValueCache valueCache = ValueCache.DISABLED;
     private FilterOptimizable filterOptimizable = FilterOptimizable.ENABLED;
     private boolean rethrowExceptions = false;
+    private String eventTypeName;
+
+    public ConfigurationPlugInSingleRowFunction(String name, String functionClassName, String functionMethodName, ValueCache valueCache, FilterOptimizable filterOptimizable, boolean rethrowExceptions, String eventTypeName) {
+        this.name = name;
+        this.functionClassName = functionClassName;
+        this.functionMethodName = functionMethodName;
+        this.valueCache = valueCache;
+        this.filterOptimizable = filterOptimizable;
+        this.rethrowExceptions = rethrowExceptions;
+        this.eventTypeName = eventTypeName;
+    }
 
     /**
      * Ctor.
@@ -141,6 +152,14 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable {
      */
     public void setRethrowExceptions(boolean rethrowExceptions) {
         this.rethrowExceptions = rethrowExceptions;
+    }
+
+    public String getEventTypeName() {
+        return eventTypeName;
+    }
+
+    public void setEventTypeName(String eventTypeName) {
+        this.eventTypeName = eventTypeName;
     }
 
     /**

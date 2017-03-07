@@ -25,6 +25,8 @@ import junit.framework.TestCase;
 
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class TestSingleRowFunctionPlugIn extends TestCase
 {
@@ -69,6 +71,38 @@ public class TestSingleRowFunctionPlugIn extends TestCase
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
     }
+
+    public void testReturnTypeIsEvents() {
+        ConfigurationPlugInSingleRowFunction entry = new ConfigurationPlugInSingleRowFunction();
+        entry.setName("myItemProducer");
+        entry.setFunctionClassName(this.getClass().getName());
+        entry.setFunctionMethodName("myItemProducer");
+        entry.setEventTypeName("MyItem");
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
+
+        epService.getEPAdministrator().createEPL("create schema MyItem(id string)");
+        epService.getEPAdministrator().createEPL("select myItemProducer(theString).where(v => v.id in ('id1', 'id3')) as c0 from SupportBean").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("id0,id1,id2,id3,id4", 0));
+        Collection<Map> coll = (Collection<Map>) listener.assertOneGetNewAndReset().get("c0");
+        EPAssertionUtil.assertPropsPerRow(coll.toArray(new Map[coll.size()]), "id".split(","), new Object[][] {{"id1"}, {"id3"}});
+
+        // test invalid: no event type name
+        entry.setName("myItemProducerInvalidNoType");
+        entry.setEventTypeName(null);
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
+        epService.getEPAdministrator().createEPL("select myItemProducerInvalidNoType(theString) as c0 from SupportBean");
+        SupportMessageAssertUtil.tryInvalid(epService, "select myItemProducerInvalidNoType(theString).where(v => v.id='id1') as c0 from SupportBean",
+                "Error starting statement: Failed to validate select-clause expression 'myItemProducerInvalidNoType(theStri...(68 chars)': Method 'myItemProducer' returns EventBean-array but does not provide the event type name");
+
+        // test invalid: event type name invalid
+        entry.setName("myItemProducerInvalidWrongType");
+        entry.setEventTypeName("dummy");
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
+        SupportMessageAssertUtil.tryInvalid(epService, "select myItemProducerInvalidWrongType(theString).where(v => v.id='id1') as c0 from SupportBean",
+                "Error starting statement: Failed to validate select-clause expression 'myItemProducerInvalidWrongType(theS...(74 chars)': Method 'myItemProducer' returns event type 'dummy' and the event type cannot be found");
+    }
+
 
     public void testVarargs() {
         runVarargAssertion(
@@ -425,5 +459,14 @@ public class TestSingleRowFunctionPlugIn extends TestCase
     private void assertEqualsColl(EventBean event, String property, String ... values) {
         Collection data = (Collection) event.get(property);
         EPAssertionUtil.assertEqualsExactOrder(values, data.toArray());
+    }
+
+    public static EventBean[] myItemProducer(String string, EPLMethodInvocationContext context) {
+        String[] split = string.split(",");
+        EventBean[] events = new EventBean[split.length];
+        for (int i = 0; i < split.length; i++) {
+            events[i] = context.getEventBeanService().adapterForMap(Collections.singletonMap("id", split[i]), "MyItem");
+        }
+        return events;
     }
 }

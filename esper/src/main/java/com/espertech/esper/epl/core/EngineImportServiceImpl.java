@@ -129,13 +129,13 @@ public class EngineImportServiceImpl implements EngineImportService {
         aggregationFunctions.put(functionName.toLowerCase(Locale.ENGLISH), aggregationDesc);
     }
 
-    public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions) throws EngineImportException {
+    public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions, String optionalEventTypeName) throws EngineImportException {
         validateFunctionName("single-row", functionName);
 
         if (!isClassName(singleRowFuncClass)) {
             throw new EngineImportException("Invalid class name for aggregation '" + singleRowFuncClass + "'");
         }
-        singleRowFunctions.put(functionName.toLowerCase(Locale.ENGLISH), new EngineImportSingleRowDesc(singleRowFuncClass, methodName, valueCache, filterOptimizable, rethrowExceptions));
+        singleRowFunctions.put(functionName.toLowerCase(Locale.ENGLISH), new EngineImportSingleRowDesc(singleRowFuncClass, methodName, valueCache, filterOptimizable, rethrowExceptions, optionalEventTypeName));
     }
 
     public AggregationFunctionFactory resolveAggregationFactory(String name) throws EngineImportUndefinedException, EngineImportException {

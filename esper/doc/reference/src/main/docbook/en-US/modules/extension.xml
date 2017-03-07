@@ -624,6 +624,45 @@ public static String doSearch(Collection<EventBean> events) {...}]]></programlis
 			</para>
 		</sect2>
 
+		<sect2 xml:id="custom-single-returningevents" revision="1">
+			<title>Single-Row Functions Returning Events</title>
+
+			<para>
+			  A single-row function may return events. Please declare your single-row function method to return <literal>EventBean[]</literal> and configure the event type name.
+			</para>
+			
+			<para>
+			  For example, assuming there is an <literal>MyItem</literal> event type such as created via <literal>create schema MyItem(id string)</literal>:
+			</para>
+			<programlisting><![CDATA[public static EventBean[] myItemProducer(String string, EPLMethodInvocationContext context) {
+  String[] split = string.split(",");
+  EventBean[] events = new EventBean[split.length];
+  for (int i = 0; i < split.length; i++) {
+    events[i] = context.getEventBeanService().adapterForMap(Collections.singletonMap("id", split[i]), "MyItem");
+  }
+  return events;
+}]]></programlisting>
+
+			<para>
+			  The sample EPL queries items filtering those items that have a given value for the <literal>id</literal> field:
+			</para>
+			<programlisting><![CDATA[select myItemProducer(ordertext).where(v => v.id in ('id1', 'id3')) as c0 from Order]]></programlisting>			
+
+			<para>
+			  This sample code register the <literal>myItemProducer</literal> function as a single-row function with an event type name:
+			</para>
+			<programlisting><![CDATA[ConfigurationPlugInSingleRowFunction entry = new ConfigurationPlugInSingleRowFunction();
+entry.setName("myItemProducer");
+entry.setFunctionClassName(...);
+entry.setFunctionMethodName(...);
+entry.setEventTypeName("MyItem");
+epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);]]></programlisting>			
+			
+			<para>
+				If your single row function returns <literal>EventBean[]</literal> and is used with enumeration methods the configuration must provide an event type name.
+			</para>
+		</sect2>
+
 		<sect2 xml:id="custom-single-receivectx" revision="1">
 			<title>Receiving a Context Object</title>
 

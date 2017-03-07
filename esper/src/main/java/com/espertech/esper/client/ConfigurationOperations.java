@@ -654,4 +654,6 @@ public interface ConfigurationOperations {
     public Map<String, Object> getTransientConfiguration();
 
     void addEventTypeAvro(String eventTypeName, ConfigurationEventTypeAvro avro);
+
+    void addPlugInSingleRowFunction(ConfigurationPlugInSingleRowFunction singleRowFunction);
 }
