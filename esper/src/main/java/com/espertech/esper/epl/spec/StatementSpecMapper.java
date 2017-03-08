@@ -1164,6 +1164,7 @@ public class StatementSpecMapper {
                     Expression expr = unmapExpressionDeep(exprNode, unmapContext);
                     methodStream.addParameter(expr);
                 }
+                methodStream.setOptionalEventTypeName(method.getEventTypeName());
                 targetStream = methodStream;
             } else {
                 throw new IllegalArgumentException("Stream modelled by " + stream.getClass() + " cannot be unmapped");
@@ -2471,7 +2472,7 @@ public class StatementSpecMapper {
                 }
 
                 spec = new MethodStreamSpec(methodStream.getStreamName(), views, "method",
-                        methodStream.getClassName(), methodStream.getMethodName(), expressions);
+                        methodStream.getClassName(), methodStream.getMethodName(), expressions, methodStream.getOptionalEventTypeName());
             } else {
                 throw new IllegalArgumentException("Could not map from stream " + stream + " to an internal representation");
             }

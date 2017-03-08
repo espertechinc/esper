@@ -146,6 +146,9 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         if (returnType.isArray() && returnType.getComponentType() == EventBean.class) {
             eventTypeCollection = EventTypeUtility.requireEventType("Script", script.getName(), validationContext.getEventAdapterService(), script.getOptionalEventTypeName());
         }
+        else if (script.getOptionalEventTypeName() != null) {
+            throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
+        }
 
         // Prepare evaluator - this sets the evaluator
         prepareEvaluator(validationContext.getStatementName(), inputParamNames, evaluators, returnType, eventTypeCollection);

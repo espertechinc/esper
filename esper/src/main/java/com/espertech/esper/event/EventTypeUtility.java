@@ -1158,6 +1158,10 @@ public class EventTypeUtility {
         }
     }
 
+    public static String disallowedAtTypeMessage() {
+        return "The @type annotation is only allowed when the invocation target returns EventBean instances";
+    }
+
     public static class TimestampPropertyDesc {
         private final String start;
         private final String end;

@@ -589,7 +589,7 @@ databaseJoinExpression
 methodJoinExpression
 @init  { paraphrases.push("method invocation join"); }
 @after { paraphrases.pop(); }
-    		: i=IDENT COLON classIdentifier (LPAREN expressionList? RPAREN)?;
+    		: i=IDENT COLON classIdentifier (LPAREN expressionList? RPAREN)? typeExpressionAnnotation?;
 
 viewExpressions 
 @init  { paraphrases.push("view specifications"); }

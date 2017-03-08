@@ -33,6 +33,23 @@ public class SupportStaticMethodLib
         return methodInvocationContexts;
     }
 
+    public static EventBean[] eventBeanArrayForString(String value, EPLMethodInvocationContext context) {
+        String[] split = value.split(",");
+        EventBean[] events = new EventBean[split.length];
+        for (int i = 0; i < split.length; i++) {
+            events[i] = context.getEventBeanService().adapterForMap(Collections.singletonMap("p0", split[i]), "MyItemEvent");
+        }
+        return events;
+    }
+
+    public static Collection<EventBean> eventBeanCollectionForString(String value, EPLMethodInvocationContext context) {
+        return Arrays.asList(eventBeanArrayForString(value, context));
+    }
+
+    public static Iterator<EventBean> eventBeanIteratorForString(String value, EPLMethodInvocationContext context) {
+        return eventBeanCollectionForString(value, context).iterator();
+    }
+
     public static boolean compareEvents(SupportMarketDataBean beanOne, SupportBean beanTwo)
     {
         return beanOne.getSymbol().equals(beanTwo.getTheString());

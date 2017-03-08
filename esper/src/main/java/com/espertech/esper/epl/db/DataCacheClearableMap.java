@@ -30,13 +30,13 @@ public class DataCacheClearableMap implements DataCache {
         this.cache = new HashMap<Object, EventTable[]>();
     }
 
-    public EventTable[] getCached(Object[] lookupKeys) {
-        Object key = DataCacheUtil.getLookupKey(lookupKeys);
+    public EventTable[] getCached(Object[] methodParams, int numLookupKeys) {
+        Object key = DataCacheUtil.getLookupKey(methodParams, numLookupKeys);
         return cache.get(key);
     }
 
-    public void put(Object[] lookupKeys, EventTable[] rows) {
-        Object key = DataCacheUtil.getLookupKey(lookupKeys);
+    public void put(Object[] methodParams, int numLookupKeys, EventTable[] rows) {
+        Object key = DataCacheUtil.getLookupKey(methodParams, numLookupKeys);
         cache.put(key, rows);
     }
 

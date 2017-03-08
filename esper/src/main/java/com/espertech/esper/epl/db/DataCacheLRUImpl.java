@@ -46,24 +46,23 @@ public class DataCacheLRUImpl implements DataCache {
      * Retrieves an entry from the cache.
      * The retrieved entry becomes the MRU (most recently used) entry.
      *
-     * @param lookupKeys the key whose associated value is to be returned.
+     * @param methodParams the key whose associated value is to be returned.
      * @return the value associated to this key, or null if no value with this key exists in the cache.
      */
-    public EventTable[] getCached(Object[] lookupKeys) {
-        Object key = DataCacheUtil.getLookupKey(lookupKeys);
+    public EventTable[] getCached(Object[] methodParams, int numInputParameters) {
+        Object key = DataCacheUtil.getLookupKey(methodParams, numInputParameters);
         return cache.get(key);
     }
 
     /**
      * Adds an entry to this cache.
      * If the cache is full, the LRU (least recently used) entry is dropped.
-     *
-     * @param keys  the keys with which the specified value is to be associated.
-     * @param value a value to be associated with the specified key.
+     *  @param methodParams  the keys with which the specified value is to be associated.
+     * @param rows a value to be associated with the specified key.
      */
-    public synchronized void put(Object[] keys, EventTable[] value) {
-        Object key = DataCacheUtil.getLookupKey(keys);
-        cache.put(key, value);
+    public synchronized void put(Object[] methodParams, int numLookupKeys, EventTable[] rows) {
+        Object key = DataCacheUtil.getLookupKey(methodParams, numLookupKeys);
+        cache.put(key, rows);
     }
 
     /**

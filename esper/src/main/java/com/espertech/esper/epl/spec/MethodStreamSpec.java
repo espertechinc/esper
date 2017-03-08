@@ -28,6 +28,7 @@ public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, S
     private String className;
     private String methodName;
     private List<ExprNode> expressions;
+    private String eventTypeName;
     private static final long serialVersionUID = -5290682188045211532L;
 
     /**
@@ -40,12 +41,13 @@ public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, S
      * @param methodName         the method name
      * @param expressions        the parameter expressions
      */
-    public MethodStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String ident, String className, String methodName, List<ExprNode> expressions) {
+    public MethodStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String ident, String className, String methodName, List<ExprNode> expressions, String eventTypeName) {
         super(optionalStreamName, viewSpecs, StreamSpecOptions.DEFAULT);
         this.ident = ident;
         this.className = className;
         this.methodName = methodName;
         this.expressions = expressions;
+        this.eventTypeName = eventTypeName;
     }
 
     /**
@@ -73,6 +75,10 @@ public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, S
      */
     public String getMethodName() {
         return methodName;
+    }
+
+    public String getEventTypeName() {
+        return eventTypeName;
     }
 
     /**

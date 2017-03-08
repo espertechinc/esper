@@ -987,7 +987,9 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
                 statementSpec.setHasVariables(true);
             }
 
-            streamSpec = new MethodStreamSpec(streamName, ViewSpec.toArray(viewSpecs), prefixIdent, classNamePart, methodNamePart, exprNodes);
+            String eventTypeName = ASTTypeExpressionAnnoHelper.expectMayTypeAnno(ctx.methodJoinExpression().typeExpressionAnnotation(), tokenStream);
+
+            streamSpec = new MethodStreamSpec(streamName, ViewSpec.toArray(viewSpecs), prefixIdent, classNamePart, methodNamePart, exprNodes, eventTypeName);
         } else {
             throw ASTWalkException.from("Unexpected AST child node to stream expression", tokenStream, ctx);
         }

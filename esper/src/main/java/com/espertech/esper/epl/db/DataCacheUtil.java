@@ -13,15 +13,20 @@ package com.espertech.esper.epl.db;
 import com.espertech.esper.collection.MultiKeyUntyped;
 
 public class DataCacheUtil {
-    public static Object getLookupKey(Object[] lookupKeys) {
-        Object key;
-        if (lookupKeys.length == 0) {
-            key = Object.class;
-        } else if (lookupKeys.length > 1) {
-            key = new MultiKeyUntyped(lookupKeys);
-        } else {
-            key = lookupKeys[0];
+    public static Object getLookupKey(Object[] methodParams, int numInputParameters) {
+        if (numInputParameters == 0) {
+            return Object.class;
         }
-        return key;
+        else if (numInputParameters == 1) {
+            return methodParams[0];
+        }
+        else {
+            if (methodParams.length == numInputParameters) {
+                return new MultiKeyUntyped(methodParams);
+            }
+            Object[] lookupKeys = new Object[numInputParameters];
+            System.arraycopy(methodParams, 0, lookupKeys, 0, numInputParameters);
+            return new MultiKeyUntyped(lookupKeys);
+        }
     }
 }

@@ -16,12 +16,11 @@ import com.espertech.esper.epl.join.table.EventTable;
  * Null implementation for a data cache that doesn't ever hit.
  */
 public class DataCacheNullImpl implements DataCache {
-    public EventTable[] getCached(Object[] lookupKeys) {
+    public EventTable[] getCached(Object[] methodParams, int numLookupKeys) {
         return null;
     }
 
-    public void put(Object[] lookupKeys, EventTable[] rows) {
-
+    public void put(Object[] methodParams, int numLookupKeys, EventTable[] rows) {
     }
 
     public boolean isActive() {

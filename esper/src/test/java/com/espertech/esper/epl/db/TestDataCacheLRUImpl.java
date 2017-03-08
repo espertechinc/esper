@@ -26,29 +26,29 @@ public class TestDataCacheLRUImpl extends TestCase {
     }
 
     public void testGet() {
-        assertNull(cache.getCached(make("a")));
+        assertNull(cache.getCached(make("a"), 1));
         assertTrue(cache.isActive());
 
-        cache.put(make("a"), new EventTable[]{lists[0]});     // a
-        assertSame(lists[0], cache.getCached(make("a"))[0]);
+        cache.put(make("a"), 1, new EventTable[]{lists[0]});     // a
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]);
 
-        cache.put(make("b"), new EventTable[]{lists[1]});     // b, a
-        assertSame(lists[1], cache.getCached(make("b"))[0]); // b, a
+        cache.put(make("b"), 1, new EventTable[]{lists[1]});     // b, a
+        assertSame(lists[1], cache.getCached(make("b"), 1)[0]); // b, a
 
-        assertSame(lists[0], cache.getCached(make("a"))[0]); // a, b
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]); // a, b
 
-        cache.put(make("c"), new EventTable[]{lists[2]});     // c, a, b
-        cache.put(make("d"), new EventTable[]{lists[3]});     // d, c, a  (b gone)
+        cache.put(make("c"), 1, new EventTable[]{lists[2]});     // c, a, b
+        cache.put(make("d"), 1, new EventTable[]{lists[3]});     // d, c, a  (b gone)
 
-        assertNull(cache.getCached(make("b")));
+        assertNull(cache.getCached(make("b"), 1));
 
-        assertEquals(lists[2], cache.getCached(make("c"))[0]); // c, d, a
-        assertEquals(lists[0], cache.getCached(make("a"))[0]); // a, c, d
+        assertEquals(lists[2], cache.getCached(make("c"), 1)[0]); // c, d, a
+        assertEquals(lists[0], cache.getCached(make("a"), 1)[0]); // a, c, d
 
-        cache.put(make("e"), new EventTable[]{lists[4]}); // e, a, c (d and b gone)
+        cache.put(make("e"), 1, new EventTable[]{lists[4]}); // e, a, c (d and b gone)
 
-        assertNull(cache.getCached(make("d")));
-        assertNull(cache.getCached(make("b")));
+        assertNull(cache.getCached(make("d"), 1));
+        assertNull(cache.getCached(make("b"), 1));
     }
 
     private Object[] make(String key) {

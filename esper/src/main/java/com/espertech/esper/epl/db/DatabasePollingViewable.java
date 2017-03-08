@@ -158,17 +158,17 @@ public class DatabasePollingViewable implements HistoricalEventViewable {
 
             // try the threadlocal iteration cache, if set
             if (localDataCache != null) {
-                EventTable[] tables = localDataCache.getCached(lookupValues);
+                EventTable[] tables = localDataCache.getCached(lookupValues, lookupValues.length);
                 result = tables;
             }
 
             // try the connection cache
             if (result == null) {
-                EventTable[] multi = dataCache.getCached(lookupValues);
+                EventTable[] multi = dataCache.getCached(lookupValues, lookupValues.length);
                 if (multi != null) {
                     result = multi;
                     if (localDataCache != null) {
-                        localDataCache.put(lookupValues, multi);
+                        localDataCache.put(lookupValues, lookupValues.length, multi);
                     }
                 }
             }
@@ -195,10 +195,10 @@ public class DatabasePollingViewable implements HistoricalEventViewable {
                     resultPerInputRow[row] = indexTable;
 
                     // save in cache
-                    dataCache.put(lookupValues, indexTable);
+                    dataCache.put(lookupValues, lookupValues.length, indexTable);
 
                     if (localDataCache != null) {
-                        localDataCache.put(lookupValues, indexTable);
+                        localDataCache.put(lookupValues, lookupValues.length, indexTable);
                     }
                 } catch (EPException ex) {
                     if (strategyStarted) {

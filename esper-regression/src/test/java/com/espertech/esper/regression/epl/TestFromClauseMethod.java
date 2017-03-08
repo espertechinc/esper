@@ -21,6 +21,8 @@ import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportMethodInvocationJoinInvalid;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
+import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
@@ -43,6 +45,18 @@ public class TestFromClauseMethod extends TestCase
     protected void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
+    }
+
+    public void testEventBeanArray() {
+        epService.getEPAdministrator().createEPL("create schema MyItemEvent(p0 string)");
+
+        runAssertionEventBeanArray("eventBeanArrayForString", false);
+        runAssertionEventBeanArray("eventBeanArrayForString", true);
+        runAssertionEventBeanArray("eventBeanCollectionForString", false);
+        runAssertionEventBeanArray("eventBeanIteratorForString", false);
+
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".fetchResult12(0) @type(ItemEvent)",
+                "Error starting statement: The @type annotation is only allowed when the invocation target returns EventBean instances");
     }
 
     public void testOverloaded() {
@@ -604,6 +618,15 @@ public class TestFromClauseMethod extends TestCase
 
         tryInvalid(epService, "select * from SupportBean, method:" + SupportStaticMethodLib.class.getName() + ".invalidOverloadForJoin(null)",
                 "Error starting statement: Method by name 'invalidOverloadForJoin' is overloaded in class '" + SupportStaticMethodLib.class.getName() + "' and overloaded methods do not return the same type");
+    }
+
+    private void runAssertionEventBeanArray(String methodName, boolean soda) {
+        String epl = "select p0 from SupportBean, method:" + SupportStaticMethodLib.class.getName() + "." + methodName + "(theString) @type(MyItemEvent)";
+        EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, epl);
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("a,b", 0));
+        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "p0".split(","), new Object[][] {{"a"}, {"b"}});
     }
 
     private void sendBeanEvent(String theString)

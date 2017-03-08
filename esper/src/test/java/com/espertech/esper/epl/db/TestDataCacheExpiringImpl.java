@@ -36,8 +36,8 @@ public class TestDataCacheExpiringImpl extends TestCase {
 
         // test single entry in cache
         scheduler.setTime(5000);
-        cache.put(make("a"), new EventTable[]{lists[0]}); // a at 5 sec
-        assertSame(lists[0], cache.getCached(make("a"))[0]);
+        cache.put(make("a"), 1, new EventTable[]{lists[0]}); // a at 5 sec
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]);
 
         scheduler.setTime(26000);
         SupportSchedulingServiceImpl.evaluateSchedule(scheduler);
@@ -45,81 +45,81 @@ public class TestDataCacheExpiringImpl extends TestCase {
 
         // test 4 entries in cache
         scheduler.setTime(30000);
-        cache.put(make("b"), new EventTable[]{lists[1]});  // b at 30 sec
+        cache.put(make("b"), 1, new EventTable[]{lists[1]});  // b at 30 sec
 
         scheduler.setTime(35000);
-        cache.put(make("c"), new EventTable[]{lists[2]});  // c at 35 sec
+        cache.put(make("c"), 1, new EventTable[]{lists[2]});  // c at 35 sec
 
         scheduler.setTime(40000);
-        cache.put(make("d"), new EventTable[]{lists[3]});  // d at 40 sec
+        cache.put(make("d"), 1, new EventTable[]{lists[3]});  // d at 40 sec
 
         scheduler.setTime(45000);
-        cache.put(make("e"), new EventTable[]{lists[4]});  // d at 40 sec
+        cache.put(make("e"), 1, new EventTable[]{lists[4]});  // d at 40 sec
 
         scheduler.setTime(50000);
         SupportSchedulingServiceImpl.evaluateSchedule(scheduler);
         assertEquals(2, cache.getSize());   // only d and e
 
-        assertSame(lists[3], cache.getCached(make("d"))[0]);
-        assertSame(lists[4], cache.getCached(make("e"))[0]);
+        assertSame(lists[3], cache.getCached(make("d"), 1)[0]);
+        assertSame(lists[4], cache.getCached(make("e"), 1)[0]);
     }
 
     public void testGet() {
         scheduler = new SupportSchedulingServiceImpl();
         cache = new DataCacheExpiringImpl(10, 1000, ConfigurationCacheReferenceType.HARD, scheduler, 1, null, TimeAbacusMilliseconds.INSTANCE);   // age 10 sec, purge 1000 seconds
 
-        assertNull(cache.getCached(make("a")));
+        assertNull(cache.getCached(make("a"), 1));
 
         scheduler.setTime(5000);
-        cache.put(make("a"), new EventTable[]{lists[0]}); // a at 5 sec
-        assertSame(lists[0], cache.getCached(make("a"))[0]);
+        cache.put(make("a"), 1, new EventTable[]{lists[0]}); // a at 5 sec
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]);
 
         scheduler.setTime(10000);
-        cache.put(make("b"), new EventTable[]{lists[1]}); // b at 10 sec
-        assertSame(lists[0], cache.getCached(make("a"))[0]);
-        assertSame(lists[1], cache.getCached(make("b"))[0]);
+        cache.put(make("b"), 1, new EventTable[]{lists[1]}); // b at 10 sec
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]);
+        assertSame(lists[1], cache.getCached(make("b"), 1)[0]);
 
         scheduler.setTime(11000);
-        cache.put(make("c"), new EventTable[]{lists[2]}); // c at 11 sec
-        cache.put(make("d"), new EventTable[]{lists[3]}); // d at 11 sec
+        cache.put(make("c"), 1, new EventTable[]{lists[2]}); // c at 11 sec
+        cache.put(make("d"), 1, new EventTable[]{lists[3]}); // d at 11 sec
 
         scheduler.setTime(14999);
-        assertSame(lists[0], cache.getCached(make("a"))[0]);
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]);
 
         scheduler.setTime(15000);
-        assertSame(lists[0], cache.getCached(make("a"))[0]);
+        assertSame(lists[0], cache.getCached(make("a"), 1)[0]);
 
         scheduler.setTime(15001);
-        assertNull(cache.getCached(make("a")));
+        assertNull(cache.getCached(make("a"), 1));
 
         scheduler.setTime(15001);
-        assertNull(cache.getCached(make("a")));
+        assertNull(cache.getCached(make("a"), 1));
 
         scheduler.setTime(15001);
-        assertNull(cache.getCached(make("a")));
-        assertSame(lists[1], cache.getCached(make("b"))[0]);
-        assertSame(lists[2], cache.getCached(make("c"))[0]);
-        assertSame(lists[3], cache.getCached(make("d"))[0]);
+        assertNull(cache.getCached(make("a"), 1));
+        assertSame(lists[1], cache.getCached(make("b"), 1)[0]);
+        assertSame(lists[2], cache.getCached(make("c"), 1)[0]);
+        assertSame(lists[3], cache.getCached(make("d"), 1)[0]);
 
         scheduler.setTime(20000);
-        assertSame(lists[1], cache.getCached(make("b"))[0]);
+        assertSame(lists[1], cache.getCached(make("b"), 1)[0]);
 
         scheduler.setTime(20001);
-        assertNull(cache.getCached(make("b")));
+        assertNull(cache.getCached(make("b"), 1));
 
         scheduler.setTime(21001);
-        assertNull(cache.getCached(make("a")));
-        assertNull(cache.getCached(make("b")));
-        assertNull(cache.getCached(make("c")));
-        assertNull(cache.getCached(make("d")));
+        assertNull(cache.getCached(make("a"), 1));
+        assertNull(cache.getCached(make("b"), 1));
+        assertNull(cache.getCached(make("c"), 1));
+        assertNull(cache.getCached(make("d"), 1));
 
         scheduler.setTime(22000);
-        cache.put(make("b"), new EventTable[]{lists[1]}); // b at 22 sec
-        cache.put(make("d"), new EventTable[]{lists[3]}); // d at 22 sec
+        cache.put(make("b"), 1, new EventTable[]{lists[1]}); // b at 22 sec
+        cache.put(make("d"), 1, new EventTable[]{lists[3]}); // d at 22 sec
 
         scheduler.setTime(32000);
-        assertSame(lists[1], cache.getCached(make("b"))[0]);
-        assertSame(lists[3], cache.getCached(make("d"))[0]);
+        assertSame(lists[1], cache.getCached(make("b"), 1)[0]);
+        assertSame(lists[3], cache.getCached(make("d"), 1)[0]);
     }
 
     private Object[] make(String key) {

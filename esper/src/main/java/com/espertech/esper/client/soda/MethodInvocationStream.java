@@ -21,6 +21,7 @@ public class MethodInvocationStream extends Stream {
     private String className;
     private String methodName;
     private List<Expression> parameterExpressions;
+    private String optionalEventTypeName;
     private static final long serialVersionUID = -4629123886680505829L;
 
     /**
@@ -120,6 +121,14 @@ public class MethodInvocationStream extends Stream {
         this.parameterExpressions = parameterExpressions;
     }
 
+    public String getOptionalEventTypeName() {
+        return optionalEventTypeName;
+    }
+
+    public void setOptionalEventTypeName(String optionalEventTypeName) {
+        this.optionalEventTypeName = optionalEventTypeName;
+    }
+
     /**
      * Adds a parameters to the method invocation.
      *
@@ -145,6 +154,12 @@ public class MethodInvocationStream extends Stream {
             delimiter = ",";
         }
         writer.write(")");
+
+        if (optionalEventTypeName != null) {
+            writer.append(" @type(");
+            writer.append(optionalEventTypeName);
+            writer.append(")");
+        }
     }
 
     public void toEPLStreamType(StringWriter writer) {

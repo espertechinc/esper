@@ -153,7 +153,9 @@ public class MethodPollingViewable implements HistoricalEventViewable {
         VariableReader variableReader = metadata.getVariableReader();
         String variableName = metadata.getVariableName();
         FastMethod methodFastClass = desc.getFastMethod();
-        if (metadata.getOptionalMapType() != null) {
+        if (metadata.getEventTypeEventBeanArray() != null) {
+            pollExecStrategy = new MethodPollingExecStrategyEventBeans(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+        } else if (metadata.getOptionalMapType() != null) {
             if (desc.getFastMethod().getReturnType().isArray()) {
                 pollExecStrategy = new MethodPollingExecStrategyMapArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
             } else if (metadata.isCollection()) {
@@ -194,26 +196,26 @@ public class MethodPollingViewable implements HistoricalEventViewable {
 
         // Get input parameters for each row
         for (int row = 0; row < lookupEventsPerStream.length; row++) {
-            Object[] lookupValues = new Object[inputParameters.size()];
+            Object[] methodParams = new Object[validatedExprNodes.length];
 
             // Build lookup keys
-            for (int valueNum = 0; valueNum < inputParameters.size(); valueNum++) {
+            for (int valueNum = 0; valueNum < validatedExprNodes.length; valueNum++) {
                 Object parameterValue = validatedExprNodes[valueNum].evaluate(lookupEventsPerStream[row], true, exprEvaluatorContext);
-                lookupValues[valueNum] = parameterValue;
+                methodParams[valueNum] = parameterValue;
             }
 
             EventTable[] result = null;
 
             // try the threadlocal iteration cache, if set
             if (localDataCache != null) {
-                result = localDataCache.getCached(lookupValues);
+                result = localDataCache.getCached(methodParams, inputParameters.size());
             }
 
             // try the connection cache
             if (result == null) {
-                result = dataCache.getCached(lookupValues);
+                result = dataCache.getCached(methodParams, inputParameters.size());
                 if ((result != null) && (localDataCache != null)) {
-                    localDataCache.put(lookupValues, result);
+                    localDataCache.put(methodParams, inputParameters.size(), result);
                 }
             }
 
@@ -229,7 +231,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
                     }
 
                     // Poll using the polling execution strategy and lookup values
-                    List<EventBean> pollResult = pollExecStrategy.poll(lookupValues, exprEvaluatorContext);
+                    List<EventBean> pollResult = pollExecStrategy.poll(methodParams, exprEvaluatorContext);
 
                     // index the result, if required, using an indexing strategy
                     EventTable[] indexTable = indexingStrategy.index(pollResult, dataCache.isActive(), statementContext);
@@ -238,10 +240,10 @@ public class MethodPollingViewable implements HistoricalEventViewable {
                     resultPerInputRow[row] = indexTable;
 
                     // save in cache
-                    dataCache.put(lookupValues, indexTable);
+                    dataCache.put(methodParams, inputParameters.size(), indexTable);
 
                     if (localDataCache != null) {
-                        localDataCache.put(lookupValues, indexTable);
+                        localDataCache.put(methodParams, inputParameters.size(), indexTable);
                     }
                 } catch (EPException ex) {
                     if (strategyStarted) {

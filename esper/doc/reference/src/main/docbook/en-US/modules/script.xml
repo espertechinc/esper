@@ -64,8 +64,8 @@
 		</para>
 		
 		<para>
-			If the return type of the script is <literal>EventBean[]</literal> please provide the <literal>@type(name)</literal> annotation after the return type to name the event type of events returned by the script. 
-			The annotation is otherwise optional and not validated.
+			If the return type of the script is <literal>EventBean[]</literal> you must provide the <literal>@type(name)</literal> annotation after the return type to name the event type of events returned by the script. 
+			The <literal>@type</literal> is allowed only when the return type is <literal>EventBean</literal> instances.
 		</para>
 	
 		<para>

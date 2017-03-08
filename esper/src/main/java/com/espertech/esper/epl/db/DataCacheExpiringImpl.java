@@ -78,8 +78,8 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback 
         this.epStatementAgentInstanceHandle = epStatementAgentInstanceHandle;
     }
 
-    public EventTable[] getCached(Object[] lookupKeys) {
-        Object key = DataCacheUtil.getLookupKey(lookupKeys);
+    public EventTable[] getCached(Object[] methodParams, int numLookupKeys) {
+        Object key = DataCacheUtil.getLookupKey(methodParams, numLookupKeys);
         Item item = cache.get(key);
         if (item == null) {
             return null;
@@ -95,8 +95,8 @@ public class DataCacheExpiringImpl implements DataCache, ScheduleHandleCallback 
         return item.getData();
     }
 
-    public void put(Object[] lookupKeys, EventTable[] rows) {
-        Object key = DataCacheUtil.getLookupKey(lookupKeys);
+    public void put(Object[] methodParams, int numLookupKeys, EventTable[] rows) {
+        Object key = DataCacheUtil.getLookupKey(methodParams, numLookupKeys);
         long now = schedulingService.getTime();
         Item item = new Item(rows, now);
         cache.put(key, item);

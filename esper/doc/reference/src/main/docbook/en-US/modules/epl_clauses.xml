@@ -5211,7 +5211,7 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 			<para>
 				The syntax for a method invocation in the <literal>from</literal> clause of an EPL statement is:
 			</para>
-			<synopsis>method:<emphasis>class_or_variable_name</emphasis>.<emphasis>method_name</emphasis>[(<emphasis>parameter_expressions</emphasis>)]</synopsis>
+			<synopsis>method:<emphasis>class_or_variable_name</emphasis>.<emphasis>method_name</emphasis>[(<emphasis>parameter_expressions</emphasis>)] [@type(<emphasis>eventtype_name</emphasis>)]</synopsis>
 	
 			<para>
 				The <literal>method</literal> keyword denotes a method invocation. It is followed by a class or variable name and a method name separated by a dot (.) character. 
@@ -5219,7 +5219,12 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 				parentheses after the method name. Any expression is allowed as a parameter, and individual parameter expressions are separated by a comma. 
 				Expressions may also use event properties of the joined stream. 
 			</para>
-	
+			
+			<para>
+				In case the return type of the method is <literal>EventBean</literal> instances, you must provide the <literal>@type</literal> annotation to name the event type of events returned. 
+				Otherwise <literal>@type</literal> is not allowed.
+			</para>
+
 			<para>
 				In the sample join statement shown next, the method <literal>lookupAsset</literal> provided by class (or variable) <literal>MyLookupLib</literal> returns one or more rows based on the asset id (a property of the <literal>AssetMoveEvent</literal>) that is passed to the method:
 			</para>
@@ -5343,6 +5348,9 @@ where asset.assetid = desc.assetid]]></programlisting>
 							An array of <literal>Object[]</literal> instances.
 						</listitem>
 						<listitem>
+							An array of <literal>EventBean[]</literal> instances (requires <literal>@type</literal>).
+						</listitem>
+						<listitem>
 							A <literal>Collection</literal> of Java objects.
 						</listitem>
 						<listitem>
@@ -5352,6 +5360,9 @@ where asset.assetid = desc.assetid]]></programlisting>
 							A <literal>Collection</literal> of <literal>Object[]</literal> instances.
 						</listitem>
 						<listitem>
+							An <literal>Collection</literal> of <literal>EventBean[]</literal> instances (requires <literal>@type</literal>).
+						</listitem>
+						<listitem>
 							An <literal>Iterator</literal> of Java objects.
 						</listitem>
 						<listitem>
@@ -5359,6 +5370,9 @@ where asset.assetid = desc.assetid]]></programlisting>
 						</listitem>
 						<listitem>
 							An <literal>Iterator</literal> of <literal>Object[]</literal> instances.
+						</listitem>
+						<listitem>
+							An <literal>Iterator</literal> of <literal>EventBean[]</literal> instances (requires <literal>@type</literal>).
 						</listitem>
 					</itemizedlist>
 				</listitem>
@@ -5568,6 +5582,23 @@ where asset.assetid = desc.assetid]]></programlisting>
 			<para>
 				Alternatively the example above could return a <literal>Collection</literal> wherein the method declares as <literal>public static Collection&lt;Object[]&gt; getAssetHistory() {...}</literal> or an <literal>Iterator</literal> wherein the method declares as <literal>public static Iterator&lt;Object[]&gt; getAssetHistory() {...}</literal>.
 			</para>
+		</sect2>
+
+		<sect2 xml:id="joining_method_eventbeanarray" revision="1">
+			<title>Using an <literal>EventBean</literal> Return Type</title>
+			<para>
+				When the return type is <literal>EventBean[]</literal>, <literal>Collection&lt;EventBean&gt;</literal> or <literal>Iterator&lt;EventBean&gt;</literal>, you must specify the event type name using <literal>@type</literal>.
+			</para>
+
+			<para>
+				For example assuming the event type <literal>ItemEvent</literal> is declared as <literal>create schema ItemEvent(p0 string)</literal>:
+			</para>
+			<programlisting><![CDATA[select * from MyEvent, method:MyLib.myFunc() @type(ItemEvent)]]></programlisting>
+			<programlisting><![CDATA[public static EventBean[] myFunc(EPLMethodInvocationContext context) {
+  EventBean[1] events = new EventBean[1];
+  events[0] = context.getEventBeanService().adapterForMap(Collections.singletonMap("p0", "hello"), "ItemEvent");
+  return events;
+}]]></programlisting>
 		</sect2>
 	</sect1>
 	

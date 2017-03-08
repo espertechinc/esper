@@ -26,6 +26,7 @@ import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.schedule.ScheduleBucket;
 import com.espertech.esper.schedule.SchedulingService;
 import com.espertech.esper.util.JavaClassHelper;
@@ -126,7 +127,7 @@ public class MethodPollingViewableFactory {
         if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass))) {
             throw new ExprValidationException("Invalid return type for static method '" + methodReflection.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
         }
-        if (methodReflection.getReturnType().isArray()) {
+        if (methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() != EventBean.class) {
             beanClass = methodReflection.getReturnType().getComponentType();
         }
 
@@ -180,12 +181,24 @@ public class MethodPollingViewableFactory {
 
         // Determine event type from class and method name
         EventType eventType;
-        if (mapType != null) {
+        EventType eventTypeEventBeanArray = null;
+        // If the method returns EventBean[], require the event type
+        if ((methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() == EventBean.class) ||
+                (isCollection && collectionClass == EventBean.class) ||
+                (isIterator && iteratorClass == EventBean.class)) {
+            eventType = EventTypeUtility.requireEventType("Method", methodReflection.getName(), eventAdapterService, methodStreamSpec.getEventTypeName());
+            eventTypeEventBeanArray = eventType;
+        } else if (mapType != null) {
             eventType = eventAdapterService.addNestableMapType(mapTypeName, mapType, null, false, true, true, false, false);
         } else if (oaType != null) {
             eventType = eventAdapterService.addNestableObjectArrayType(oaTypeName, oaType, null, false, true, true, false, false, false, null);
         } else {
             eventType = eventAdapterService.addBeanType(beanClass.getName(), beanClass, false, true, true);
+        }
+
+        // the @type is only allowed in conjunction with EventBean return types
+        if (methodStreamSpec.getEventTypeName() != null && eventTypeEventBeanArray == null) {
+            throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
         }
 
         ConfigurationMethodRef configCache = engineImportService.getConfigurationMethodRef(declaringClass.getName());
@@ -195,7 +208,7 @@ public class MethodPollingViewableFactory {
         ConfigurationDataCache dataCacheDesc = (configCache != null) ? configCache.getDataCacheDesc() : null;
         DataCache dataCache = dataCacheFactory.getDataCache(dataCacheDesc, statementContext, epStatementAgentInstanceHandle, schedulingService, scheduleBucket, streamNumber);
 
-        MethodPollingViewableMeta meta = new MethodPollingViewableMeta(declaringClass, mapType, oaType, invocationTarget, strategy, isCollection, isIterator, variableReader, variableName);
+        MethodPollingViewableMeta meta = new MethodPollingViewableMeta(declaringClass, mapType, oaType, invocationTarget, strategy, isCollection, isIterator, variableReader, variableName, eventTypeEventBeanArray);
 
         return new MethodPollingViewable(variableMetaData == null, methodReflection.getDeclaringClass(), methodStreamSpec, methodStreamSpec.getExpressions(), dataCache, eventType, exprEvaluatorContext, meta);
     }

@@ -19,6 +19,7 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
 
@@ -48,8 +49,13 @@ public class TestScriptExpression extends TestCase {
     }
 
     public void testScriptReturningEvents() {
+        epService.getEPAdministrator().createEPL("create schema ItemEvent(id string)");
+
         runAssertionScriptReturningEvents(false);
         runAssertionScriptReturningEvents(true);
+
+        SupportMessageAssertUtil.tryInvalid(epService, "expression double @type(ItemEvent) fib(num) [] select fib(1) from SupportBean",
+                "Error starting statement: Failed to validate select-clause expression 'fib(1)': The @type annotation is only allowed when the invocation target returns EventBean instances");
     }
 
     public void testDocSamples() {
@@ -755,7 +761,6 @@ public class TestScriptExpression extends TestCase {
                 "}]";
         EPStatement stmtScript = SupportModelHelper.createByCompileOrParse(epService, soda, script);
 
-        epService.getEPAdministrator().createEPL("create schema ItemEvent(id string)");
         EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select myScriptReturnsEvents().where(v => v.id in ('id1', 'id3')) as c0 from SupportBean");
         stmtSelect.addListener(listener);
 

@@ -10,6 +10,7 @@
  */
 package com.espertech.esper.epl.core;
 
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.variable.VariableReader;
 
 import java.util.LinkedHashMap;
@@ -25,8 +26,9 @@ public class MethodPollingViewableMeta {
     private final boolean isIterator;
     private final VariableReader variableReader;
     private final String variableName;
+    private final EventType eventTypeEventBeanArray;
 
-    public MethodPollingViewableMeta(Class declaringClass, Map<String, Object> optionalMapType, LinkedHashMap<String, Object> optionalOaType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, boolean isCollection, boolean isIterator, VariableReader variableReader, String variableName) {
+    public MethodPollingViewableMeta(Class declaringClass, Map<String, Object> optionalMapType, LinkedHashMap<String, Object> optionalOaType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, boolean isCollection, boolean isIterator, VariableReader variableReader, String variableName, EventType eventTypeEventBeanArray) {
         this.declaringClass = declaringClass;
         this.optionalMapType = optionalMapType;
         this.optionalOaType = optionalOaType;
@@ -36,6 +38,7 @@ public class MethodPollingViewableMeta {
         this.isIterator = isIterator;
         this.variableReader = variableReader;
         this.variableName = variableName;
+        this.eventTypeEventBeanArray = eventTypeEventBeanArray;
     }
 
     public Class getDeclaringClass() {
@@ -72,5 +75,9 @@ public class MethodPollingViewableMeta {
 
     public String getVariableName() {
         return variableName;
+    }
+
+    public EventType getEventTypeEventBeanArray() {
+        return eventTypeEventBeanArray;
     }
 }
