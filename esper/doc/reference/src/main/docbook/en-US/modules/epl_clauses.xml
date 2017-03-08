@@ -5758,7 +5758,7 @@ create schema WebSecurityEvent (userName string) copyfrom SecurityEvent, WebPage
 			  <para>
 				  To elaborate on the <literal>inherits</literal> keyword, consider the following two schema definitions:
 			  </para>
-			  <programlisting><![CDATA[create schema Foo as (string prop1)]]></programlisting>
+			  <programlisting><![CDATA[create schema Foo as (prop1 string)]]></programlisting>
 			  <programlisting><![CDATA[create schema Bar() inherits Foo]]></programlisting>
 
 			  <para>
@@ -5774,14 +5774,14 @@ create schema WebSecurityEvent (userName string) copyfrom SecurityEvent, WebPage
 			  <para>
 				  To define an event type <literal>Bar</literal> that has the same properties as <literal>Foo</literal>:
 			  </para>
-			  <programlisting><![CDATA[create schema Foo as (string prop1)]]></programlisting>
+			  <programlisting><![CDATA[create schema Foo as (prop1 string)]]></programlisting>
 			  <programlisting><![CDATA[create schema Bar() copyfrom Foo]]></programlisting>
 			  
 			  <para>
 				  To define an event type <literal>Bar</literal> that has the same properties as <literal>Foo</literal> and that adds its own property <literal>prop2</literal>:
 			  </para>
-			  <programlisting><![CDATA[create schema Foo as (string prop1)]]></programlisting>
-			  <programlisting><![CDATA[create schema Bar(string prop2) copyfrom Foo]]></programlisting>
+			  <programlisting><![CDATA[create schema Foo as (prop1 string)]]></programlisting>
+			  <programlisting><![CDATA[create schema Bar(prop2 string) copyfrom Foo]]></programlisting>
 
 			  <para>
 			    If neither the <literal>map</literal> or <literal>objectarray</literal> or <literal>avro</literal> keywords are provided, and if the create-schema statement provides the <literal>@EventRepresentation(objectarray)</literal> annotation the engine expects object array events. If the statement provides the <literal>@EventRepresentation(avro)</literal> annotation the engine expects Avro objects as events. If the statement provides the <literal>@EventRepresentation(map)</literal> annotation the engine expects Map objects as events. If neither annotation is provided, the engine uses the configured default event representation as discussed in <xref linkend="config-engine-eventmeta-representation"/>.
@@ -5790,20 +5790,20 @@ create schema WebSecurityEvent (userName string) copyfrom SecurityEvent, WebPage
 			  <para>
 			    The following two EPL statements both instructs the engine to represent Foo events as object arrays. When sending Foo events into the engine use the <literal>sendEvent(Object[] data, String typeName)</literal> footprint.
 			  </para>
-			  <programlisting><![CDATA[create objectarray schema Foo as (string prop1)]]></programlisting>
-			  <programlisting><![CDATA[@EventRepresentation(objectarray) create schema Foo as (string prop1)]]></programlisting>
+			  <programlisting><![CDATA[create objectarray schema Foo as (prop1 string)]]></programlisting>
+			  <programlisting><![CDATA[@EventRepresentation(objectarray) create schema Foo as (prop1 string)]]></programlisting>
 
 			  <para>
 			    The next two EPL statements both instructs the engine to represent Foo events as Maps. When sending Foo events into the engine use the <literal>sendEvent(Map data, String typeName)</literal> footprint.
 			  </para>
-			  <programlisting><![CDATA[create map schema Foo as (string prop1)]]></programlisting>
-			  <programlisting><![CDATA[@EventRepresentation(map) create schema Foo as (string prop1)]]></programlisting>
+			  <programlisting><![CDATA[create map schema Foo as (prop1 string)]]></programlisting>
+			  <programlisting><![CDATA[@EventRepresentation(map) create schema Foo as (prop1 string)]]></programlisting>
 
 			  <para>
 			    The following two EPL statements both instructs the engine to represent Foo events as Avro <literal>GenericData.Record</literal>. When sending Foo events into the engine use the <literal>sendEventAvro(Object genericDataDotRecord, String typeName)</literal> footprint.
 			  </para>
-			  <programlisting><![CDATA[create avro schema Foo as (string prop1)]]></programlisting>
-			  <programlisting><![CDATA[@EventRepresentation(avro) create schema Foo as (string prop1)]]></programlisting>
+			  <programlisting><![CDATA[create avro schema Foo as (prop1 string)]]></programlisting>
+			  <programlisting><![CDATA[@EventRepresentation(avro) create schema Foo as (prop1 string)]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="epl_createschema_class" revision="1">
