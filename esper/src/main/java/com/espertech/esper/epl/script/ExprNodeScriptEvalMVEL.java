@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase {
+public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase implements ExprNodeScriptEvaluator {
 
     private static final Logger log = LoggerFactory.getLogger(ExprNodeScriptEvalMVEL.class);
 
@@ -35,12 +35,28 @@ public class ExprNodeScriptEvalMVEL extends ExprNodeScriptEvalBase {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Map<String, Object> paramsList = new HashMap<String, Object>();
+        Map<String, Object> paramsList = getParamsList(context);
         for (int i = 0; i < names.length; i++) {
             paramsList.put(names[i], parameters[i].evaluate(eventsPerStream, isNewData, context));
         }
-        paramsList.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAllocateAgentInstanceScriptContext());
+        return evaluateInternal(paramsList);
+    }
 
+    public Object evaluate(Object[] lookupValues, ExprEvaluatorContext context) {
+        Map<String, Object> paramsList = getParamsList(context);
+        for (int i = 0; i < names.length; i++) {
+            paramsList.put(names[i], lookupValues[i]);
+        }
+        return evaluateInternal(paramsList);
+    }
+
+    private Map<String, Object> getParamsList(ExprEvaluatorContext context) {
+        Map<String, Object> paramsList = new HashMap<String, Object>();
+        paramsList.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAllocateAgentInstanceScriptContext());
+        return paramsList;
+    }
+
+    private Object evaluateInternal(Map<String, Object> paramsList) {
         try {
             Object result = MVELInvoker.executeExpression(executable, paramsList);
 

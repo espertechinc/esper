@@ -22,7 +22,7 @@ import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 
-public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase {
+public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase implements ExprNodeScriptEvaluator {
 
     private static final Logger log = LoggerFactory.getLogger(ExprNodeScriptEvalJSR223.class);
 
@@ -34,12 +34,28 @@ public class ExprNodeScriptEvalJSR223 extends ExprNodeScriptEvalBase {
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext context) {
-        Bindings bindings = executable.getEngine().createBindings();
-        bindings.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAllocateAgentInstanceScriptContext());
+        Bindings bindings = getBindings(context);
         for (int i = 0; i < names.length; i++) {
             bindings.put(names[i], parameters[i].evaluate(eventsPerStream, isNewData, context));
         }
+        return evaluateInternal(bindings);
+    }
 
+    public Object evaluate(Object[] lookupValues, ExprEvaluatorContext context) {
+        Bindings bindings = getBindings(context);
+        for (int i = 0; i < names.length; i++) {
+            bindings.put(names[i], lookupValues[i]);
+        }
+        return evaluateInternal(bindings);
+    }
+
+    private Bindings getBindings(ExprEvaluatorContext context) {
+        Bindings bindings = executable.getEngine().createBindings();
+        bindings.put(ExprNodeScript.CONTEXT_BINDING_NAME, context.getAllocateAgentInstanceScriptContext());
+        return bindings;
+    }
+
+    private Object evaluateInternal(Bindings bindings) {
         try {
             Object result = executable.eval(bindings);
 

@@ -282,7 +282,7 @@ public class TestContainedEventSplitExpr extends TestCase {
 
         // invalid lib-function annotation
         tryInvalid("select * from SentenceEvent[splitSentence(sentence)@dummy(WordEvent)]",
-                "Invalid annotation for property selection, expected 'type' but found 'dummy' in text '[splitSentence(sentence)@dummy(WordEvent)]' [select * from SentenceEvent[splitSentence(sentence)@dummy(WordEvent)]]");
+                "Invalid annotation for property selection, expected 'type' but found 'dummy' in text '@dummy(WordEvent)'");
 
         // invalid type assignment to event type
         if (eventRepresentationEnum.isObjectArrayEvent()) {

@@ -44,10 +44,7 @@ import java.util.*;
  * results as POJO events.
  */
 public class MethodPollingViewable implements HistoricalEventViewable {
-    private final boolean isStaticMethod;
-    private final Class methodProviderClass;
     private final MethodStreamSpec methodStreamSpec;
-    private final List<ExprNode> inputParameters;
     private final DataCache dataCache;
     private final EventType eventType;
     private final ThreadLocal<DataCache> dataCacheThreadLocal = new ThreadLocal<DataCache>();
@@ -77,18 +74,12 @@ public class MethodPollingViewable implements HistoricalEventViewable {
     };
 
     public MethodPollingViewable(
-            boolean isStaticMethod,
-            Class methodProviderClass,
             MethodStreamSpec methodStreamSpec,
-            List<ExprNode> inputParameters,
             DataCache dataCache,
             EventType eventType,
             ExprEvaluatorContext exprEvaluatorContext,
             MethodPollingViewableMeta metadata) {
-        this.isStaticMethod = isStaticMethod;
-        this.methodProviderClass = methodProviderClass;
         this.methodStreamSpec = methodStreamSpec;
-        this.inputParameters = inputParameters;
         this.dataCache = dataCache;
         this.eventType = eventType;
         this.exprEvaluatorContext = exprEvaluatorContext;
@@ -118,7 +109,7 @@ public class MethodPollingViewable implements HistoricalEventViewable {
         ExprValidationContext validationContext = new ExprValidationContext(streamTypeService, engineImportService, statementContext.getStatementExtensionServicesContext(), null, timeProvider, variableService, tableService, exprEvaluatorContext, eventAdapterService, statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), null, false, false, true, false, null, false);
         ExprNodeIdentifierVisitor visitor = new ExprNodeIdentifierVisitor(true);
         final List<ExprNode> validatedInputParameters = new ArrayList<ExprNode>();
-        for (ExprNode exprNode : inputParameters) {
+        for (ExprNode exprNode : methodStreamSpec.getExpressions()) {
             ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.METHODINVJOIN, exprNode, validationContext);
             validatedInputParameters.add(validated);
             validated.accept(visitor);
@@ -130,61 +121,68 @@ public class MethodPollingViewable implements HistoricalEventViewable {
             requiredStreams.add(identifier.getFirst());
         }
 
-        // resolve actual method to use
-        ExprNodeUtilResolveExceptionHandler handler = new ExprNodeUtilResolveExceptionHandler() {
-            public ExprValidationException handle(Exception e) {
-                if (inputParameters.size() == 0) {
-                    return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting no parameters in method: " + e.getMessage());
+        // class-based evaluation
+        if (metadata.getMethodProviderClass() != null) {
+            // resolve actual method to use
+            ExprNodeUtilResolveExceptionHandler handler = new ExprNodeUtilResolveExceptionHandler() {
+                public ExprValidationException handle(Exception e) {
+                    if (methodStreamSpec.getExpressions().size() == 0) {
+                        return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting no parameters in method: " + e.getMessage());
+                    }
+                    Class[] resultTypes = ExprNodeUtility.getExprResultTypes(validatedInputParameters);
+                    return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting a method where parameters are typed '" +
+                            JavaClassHelper.getParameterAsString(resultTypes) + "': " + e.getMessage());
                 }
-                Class[] resultTypes = ExprNodeUtility.getExprResultTypes(validatedInputParameters);
-                return new ExprValidationException("Method footprint does not match the number or type of expression parameters, expecting a method where parameters are typed '" +
-                        JavaClassHelper.getParameterAsString(resultTypes) + "': " + e.getMessage());
-            }
-        };
-        ExprNodeUtilMethodDesc desc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(
-                methodProviderClass.getName(), isStaticMethod ? null : methodProviderClass,
-                methodStreamSpec.getMethodName(), validatedInputParameters, engineImportService, eventAdapterService, statementContext.getStatementId(),
-                false, null, handler, methodStreamSpec.getMethodName(), tableService, statementContext.getEngineURI());
-        validatedExprNodes = desc.getChildEvals();
+            };
+            ExprNodeUtilMethodDesc desc = ExprNodeUtility.resolveMethodAllowWildcardAndStream(
+                    metadata.getMethodProviderClass().getName(), metadata.isStaticMethod() ? null : metadata.getMethodProviderClass(),
+                    methodStreamSpec.getMethodName(), validatedInputParameters, engineImportService, eventAdapterService, statementContext.getStatementId(),
+                    false, null, handler, methodStreamSpec.getMethodName(), tableService, statementContext.getEngineURI());
+            validatedExprNodes = desc.getChildEvals();
 
-        // Construct polling strategy as a method invocation
-        Object invocationTarget = metadata.getInvocationTarget();
-        MethodPollingExecStrategyEnum strategy = metadata.getStrategy();
-        VariableReader variableReader = metadata.getVariableReader();
-        String variableName = metadata.getVariableName();
-        FastMethod methodFastClass = desc.getFastMethod();
-        if (metadata.getEventTypeEventBeanArray() != null) {
-            pollExecStrategy = new MethodPollingExecStrategyEventBeans(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-        } else if (metadata.getOptionalMapType() != null) {
-            if (desc.getFastMethod().getReturnType().isArray()) {
-                pollExecStrategy = new MethodPollingExecStrategyMapArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else if (metadata.isCollection()) {
-                pollExecStrategy = new MethodPollingExecStrategyMapCollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else if (metadata.isIterator()) {
-                pollExecStrategy = new MethodPollingExecStrategyMapIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+            // Construct polling strategy as a method invocation
+            Object invocationTarget = metadata.getInvocationTarget();
+            MethodPollingExecStrategyEnum strategy = metadata.getStrategy();
+            VariableReader variableReader = metadata.getVariableReader();
+            String variableName = metadata.getVariableName();
+            FastMethod methodFastClass = desc.getFastMethod();
+            if (metadata.getEventTypeEventBeanArray() != null) {
+                pollExecStrategy = new MethodPollingExecStrategyEventBeans(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+            } else if (metadata.getOptionalMapType() != null) {
+                if (desc.getFastMethod().getReturnType().isArray()) {
+                    pollExecStrategy = new MethodPollingExecStrategyMapArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else if (metadata.isCollection()) {
+                    pollExecStrategy = new MethodPollingExecStrategyMapCollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else if (metadata.isIterator()) {
+                    pollExecStrategy = new MethodPollingExecStrategyMapIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else {
+                    pollExecStrategy = new MethodPollingExecStrategyMapPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                }
+            } else if (metadata.getOptionalOaType() != null) {
+                if (desc.getFastMethod().getReturnType() == Object[][].class) {
+                    pollExecStrategy = new MethodPollingExecStrategyOAArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else if (metadata.isCollection()) {
+                    pollExecStrategy = new MethodPollingExecStrategyOACollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else if (metadata.isIterator()) {
+                    pollExecStrategy = new MethodPollingExecStrategyOAIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else {
+                    pollExecStrategy = new MethodPollingExecStrategyOAPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                }
             } else {
-                pollExecStrategy = new MethodPollingExecStrategyMapPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
-        } else if (metadata.getOptionalOaType() != null) {
-            if (desc.getFastMethod().getReturnType() == Object[][].class) {
-                pollExecStrategy = new MethodPollingExecStrategyOAArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else if (metadata.isCollection()) {
-                pollExecStrategy = new MethodPollingExecStrategyOACollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else if (metadata.isIterator()) {
-                pollExecStrategy = new MethodPollingExecStrategyOAIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else {
-                pollExecStrategy = new MethodPollingExecStrategyOAPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                if (desc.getFastMethod().getReturnType().isArray()) {
+                    pollExecStrategy = new MethodPollingExecStrategyPOJOArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else if (metadata.isCollection()) {
+                    pollExecStrategy = new MethodPollingExecStrategyPOJOCollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else if (metadata.isIterator()) {
+                    pollExecStrategy = new MethodPollingExecStrategyPOJOIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                } else {
+                    pollExecStrategy = new MethodPollingExecStrategyPOJOPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
+                }
             }
         } else {
-            if (desc.getFastMethod().getReturnType().isArray()) {
-                pollExecStrategy = new MethodPollingExecStrategyPOJOArray(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else if (metadata.isCollection()) {
-                pollExecStrategy = new MethodPollingExecStrategyPOJOCollection(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else if (metadata.isIterator()) {
-                pollExecStrategy = new MethodPollingExecStrategyPOJOIterator(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            } else {
-                pollExecStrategy = new MethodPollingExecStrategyPOJOPlain(eventAdapterService, methodFastClass, eventType, invocationTarget, strategy, variableReader, variableName, variableService);
-            }
+            // script-based evaluation
+            pollExecStrategy = new MethodPollingExecStrategyScript(metadata.getScriptExpression(), metadata.getEventTypeEventBeanArray());
+            validatedExprNodes = ExprNodeUtility.getEvaluators(validatedInputParameters);
         }
     }
 
@@ -208,14 +206,14 @@ public class MethodPollingViewable implements HistoricalEventViewable {
 
             // try the threadlocal iteration cache, if set
             if (localDataCache != null) {
-                result = localDataCache.getCached(methodParams, inputParameters.size());
+                result = localDataCache.getCached(methodParams, methodStreamSpec.getExpressions().size());
             }
 
             // try the connection cache
             if (result == null) {
-                result = dataCache.getCached(methodParams, inputParameters.size());
+                result = dataCache.getCached(methodParams, methodStreamSpec.getExpressions().size());
                 if ((result != null) && (localDataCache != null)) {
-                    localDataCache.put(methodParams, inputParameters.size(), result);
+                    localDataCache.put(methodParams, methodStreamSpec.getExpressions().size(), result);
                 }
             }
 
@@ -240,10 +238,10 @@ public class MethodPollingViewable implements HistoricalEventViewable {
                     resultPerInputRow[row] = indexTable;
 
                     // save in cache
-                    dataCache.put(methodParams, inputParameters.size(), indexTable);
+                    dataCache.put(methodParams, methodStreamSpec.getExpressions().size(), indexTable);
 
                     if (localDataCache != null) {
-                        localDataCache.put(methodParams, inputParameters.size(), indexTable);
+                        localDataCache.put(methodParams, methodStreamSpec.getExpressions().size(), indexTable);
                     }
                 } catch (EPException ex) {
                     if (strategyStarted) {

@@ -56,6 +56,7 @@ public class SupportMessageAssertUtil {
         if (message.length() > 10) {
             // Comment-in for logging: log.error("Exception: " + ex.getMessage(), ex);
             if (!ex.getMessage().startsWith(message)) {
+                ex.printStackTrace();
                 Assert.fail("\nExpected:" + message + "\nReceived:" + ex.getMessage());
             }
         }

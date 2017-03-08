@@ -243,6 +243,10 @@ public class EngineImportServiceImpl implements EngineImportService {
         return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC);
     }
 
+    public Method resolveMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException {
+        return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_STATIC_AND_PUBLIC);
+    }
+
     public Method resolveNonStaticMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException {
         return resolveMethodInternalCheckOverloads(clazz, methodName, MethodModifiers.REQUIRE_NONSTATIC_AND_PUBLIC);
     }

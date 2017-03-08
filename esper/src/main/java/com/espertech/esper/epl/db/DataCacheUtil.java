@@ -16,11 +16,9 @@ public class DataCacheUtil {
     public static Object getLookupKey(Object[] methodParams, int numInputParameters) {
         if (numInputParameters == 0) {
             return Object.class;
-        }
-        else if (numInputParameters == 1) {
+        } else if (numInputParameters == 1) {
             return methodParams[0];
-        }
-        else {
+        } else {
             if (methodParams.length == numInputParameters) {
                 return new MultiKeyUntyped(methodParams);
             }

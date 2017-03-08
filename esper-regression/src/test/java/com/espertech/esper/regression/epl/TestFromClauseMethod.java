@@ -11,6 +11,7 @@
 package com.espertech.esper.regression.epl;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.client.hook.EPLMethodInvocationContext;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
@@ -24,6 +25,10 @@ import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.supportregression.util.SupportModelHelper;
 import junit.framework.TestCase;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.espertech.esper.supportregression.util.SupportMessageAssertUtil.tryInvalid;
 
@@ -45,6 +50,31 @@ public class TestFromClauseMethod extends TestCase
     protected void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
+    }
+
+    public void testUDFAndScriptReturningEvents() {
+        epService.getEPAdministrator().createEPL("create schema ItemEvent(id string)");
+
+        ConfigurationPlugInSingleRowFunction entry = new ConfigurationPlugInSingleRowFunction();
+        entry.setName("myItemProducerUDF");
+        entry.setFunctionClassName(this.getClass().getName());
+        entry.setFunctionMethodName("myItemProducerUDF");
+        entry.setEventTypeName("ItemEvent");
+        epService.getEPAdministrator().getConfiguration().addPlugInSingleRowFunction(entry);
+
+        String script = "create expression EventBean[] @type(ItemEvent) js:myItemProducerScript() [\n" +
+                "myItemProducerScript();" +
+                "function myItemProducerScript() {" +
+                "  var EventBeanArray = Java.type(\"com.espertech.esper.client.EventBean[]\");\n" +
+                "  var events = new EventBeanArray(2);\n" +
+                "  events[0] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id1\"), \"ItemEvent\");\n" +
+                "  events[1] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id3\"), \"ItemEvent\");\n" +
+                "  return events;\n" +
+                "}]";
+        epService.getEPAdministrator().createEPL(script);
+
+        runAssertionUDFAndScriptReturningEvents("myItemProducerUDF");
+        runAssertionUDFAndScriptReturningEvents("myItemProducerScript");
     }
 
     public void testEventBeanArray() {
@@ -586,7 +616,7 @@ public class TestFromClauseMethod extends TestCase
                    "Error starting statement: Could not load class by name 'Dummy', please check imports [select * from SupportBean, method:Dummy.abc where 1=2]");
 
         tryInvalid(epService, "select * from SupportBean, method:Math where 1=2",
-                   "No method name specified for method-based join [select * from SupportBean, method:Math where 1=2]");
+                   "Error starting statement: A function named 'Math' is not defined");
 
         tryInvalid(epService, "select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2",
                    "Error starting statement: Method data joins do not allow views onto the data, view 'length' is not valid in this context [select * from SupportBean, method:Dummy.dummy()#length(100) where 1=2]");
@@ -620,6 +650,14 @@ public class TestFromClauseMethod extends TestCase
                 "Error starting statement: Method by name 'invalidOverloadForJoin' is overloaded in class '" + SupportStaticMethodLib.class.getName() + "' and overloaded methods do not return the same type");
     }
 
+    private void runAssertionUDFAndScriptReturningEvents(String methodName) {
+        EPStatement stmtSelect = epService.getEPAdministrator().createEPL("select id from SupportBean, method:" + methodName);
+        stmtSelect.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        EPAssertionUtil.assertPropsPerRow(listener.getAndResetLastNewData(), "id".split(","), new Object[][] {{"id1"}, {"id3"}});
+    }
+
     private void runAssertionEventBeanArray(String methodName, boolean soda) {
         String epl = "select p0 from SupportBean, method:" + SupportStaticMethodLib.class.getName() + "." + methodName + "(theString) @type(MyItemEvent)";
         EPStatement stmt = SupportModelHelper.createByCompileOrParse(epService, soda, epl);
@@ -650,5 +688,14 @@ public class TestFromClauseMethod extends TestCase
         bean.setIntPrimitive(intPrimitive);
         bean.setIntBoxed(intBoxed);
         epService.getEPRuntime().sendEvent(bean);
+    }
+
+    public static EventBean[] myItemProducerUDF(EPLMethodInvocationContext context) {
+        EventBean[] events = new EventBean[2];
+        int count = 0;
+        for (String id : "id1,id3".split(",")) {
+            events[count++] = context.getEventBeanService().adapterForMap(Collections.singletonMap("id", id), "ItemEvent");
+        }
+        return events;
     }
 }

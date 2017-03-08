@@ -969,17 +969,17 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
         } else if (ctx.methodJoinExpression() != null) {
             EsperEPL2GrammarParser.MethodJoinExpressionContext mthctx = ctx.methodJoinExpression();
             String prefixIdent = mthctx.i.getText();
-            String className = ASTUtil.unescapeClassIdent(mthctx.classIdentifier());
+            String fullName = ASTUtil.unescapeClassIdent(mthctx.classIdentifier());
 
-            int indexDot = className.lastIndexOf('.');
+            int indexDot = fullName.lastIndexOf('.');
             String classNamePart;
             String methodNamePart;
             if (indexDot == -1) {
-                classNamePart = className;
-                methodNamePart = null;
+                classNamePart = null;
+                methodNamePart = fullName;
             } else {
-                classNamePart = className.substring(0, indexDot);
-                methodNamePart = className.substring(indexDot + 1);
+                classNamePart = fullName.substring(0, indexDot);
+                methodNamePart = fullName.substring(indexDot + 1);
             }
             List<ExprNode> exprNodes = ASTExprHelper.exprCollectSubNodes(mthctx, 0, astExprNodeMap);
 

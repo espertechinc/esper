@@ -107,7 +107,8 @@ public class StatementContextFactoryDefault implements StatementContextFactory {
                 services.getTimeSource(),
                 services.getEngineImportService(),
                 services.getAggregationFactoryFactory(),
-                services.getSchedulingService()
+                services.getSchedulingService(),
+                services.getExprDeclaredService()
         );
     }
 

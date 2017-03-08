@@ -38,7 +38,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
     private final ExpressionScriptProvided script;
     private final List<ExprNode> parameters;
 
-    private transient ExprEvaluator evaluator;
+    private transient ExprNodeScriptEvaluator evaluator;
 
     public ExprNodeScript(String defaultDialect, ExpressionScriptProvided script, List<ExprNode> parameters) {
         this.defaultDialect = defaultDialect;
@@ -50,12 +50,16 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         return parameters;
     }
 
-    public ExprEvaluator getExprEvaluator() {
+    public ExprNodeScriptEvaluator getExprEvaluator() {
         return evaluator;
     }
 
     public List<ExprNode> getParameters() {
         return parameters;
+    }
+
+    public String getEventTypeNameAnnotation() {
+        return script.getOptionalEventTypeName();
     }
 
     public void toPrecedenceFreeEPL(StringWriter writer) {
@@ -143,11 +147,12 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         }
 
         EventType eventTypeCollection = null;
-        if (returnType.isArray() && returnType.getComponentType() == EventBean.class) {
-            eventTypeCollection = EventTypeUtility.requireEventType("Script", script.getName(), validationContext.getEventAdapterService(), script.getOptionalEventTypeName());
-        }
-        else if (script.getOptionalEventTypeName() != null) {
-            throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
+        if (script.getOptionalEventTypeName() != null) {
+            if (returnType.isArray() && returnType.getComponentType() == EventBean.class) {
+                eventTypeCollection = EventTypeUtility.requireEventType("Script", script.getName(), validationContext.getEventAdapterService(), script.getOptionalEventTypeName());
+            } else {
+                throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
+            }
         }
 
         // Prepare evaluator - this sets the evaluator

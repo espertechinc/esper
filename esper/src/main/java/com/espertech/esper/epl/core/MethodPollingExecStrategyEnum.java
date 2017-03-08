@@ -13,5 +13,6 @@ package com.espertech.esper.epl.core;
 public enum MethodPollingExecStrategyEnum {
     TARGET_CONST,
     TARGET_VAR,
-    TARGET_VAR_CONTEXT
+    TARGET_VAR_CONTEXT,
+    TARGET_SCRIPT
 }

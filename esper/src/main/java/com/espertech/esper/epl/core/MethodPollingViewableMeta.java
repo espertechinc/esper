@@ -11,13 +11,15 @@
 package com.espertech.esper.epl.core;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.script.ExprNodeScript;
 import com.espertech.esper.epl.variable.VariableReader;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MethodPollingViewableMeta {
-    private final Class declaringClass;
+    private final Class methodProviderClass;
+    private final boolean isStaticMethod;
     private final Map<String, Object> optionalMapType;
     private final LinkedHashMap<String, Object> optionalOaType;
     private final Object invocationTarget;
@@ -27,9 +29,11 @@ public class MethodPollingViewableMeta {
     private final VariableReader variableReader;
     private final String variableName;
     private final EventType eventTypeEventBeanArray;
+    private final ExprNodeScript scriptExpression;
 
-    public MethodPollingViewableMeta(Class declaringClass, Map<String, Object> optionalMapType, LinkedHashMap<String, Object> optionalOaType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, boolean isCollection, boolean isIterator, VariableReader variableReader, String variableName, EventType eventTypeEventBeanArray) {
-        this.declaringClass = declaringClass;
+    public MethodPollingViewableMeta(Class methodProviderClass, boolean isStaticMethod, Map<String, Object> optionalMapType, LinkedHashMap<String, Object> optionalOaType, Object invocationTarget, MethodPollingExecStrategyEnum strategy, boolean isCollection, boolean isIterator, VariableReader variableReader, String variableName, EventType eventTypeEventBeanArray, ExprNodeScript scriptExpression) {
+        this.methodProviderClass = methodProviderClass;
+        this.isStaticMethod = isStaticMethod;
         this.optionalMapType = optionalMapType;
         this.optionalOaType = optionalOaType;
         this.invocationTarget = invocationTarget;
@@ -39,10 +43,7 @@ public class MethodPollingViewableMeta {
         this.variableReader = variableReader;
         this.variableName = variableName;
         this.eventTypeEventBeanArray = eventTypeEventBeanArray;
-    }
-
-    public Class getDeclaringClass() {
-        return declaringClass;
+        this.scriptExpression = scriptExpression;
     }
 
     public Map<String, Object> getOptionalMapType() {
@@ -79,5 +80,17 @@ public class MethodPollingViewableMeta {
 
     public EventType getEventTypeEventBeanArray() {
         return eventTypeEventBeanArray;
+    }
+
+    public ExprNodeScript getScriptExpression() {
+        return scriptExpression;
+    }
+
+    public Class getMethodProviderClass() {
+        return methodProviderClass;
+    }
+
+    public boolean isStaticMethod() {
+        return isStaticMethod;
     }
 }

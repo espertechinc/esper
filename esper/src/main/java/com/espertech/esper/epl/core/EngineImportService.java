@@ -113,14 +113,16 @@ public interface EngineImportService {
      */
     public Method resolveMethodOverloadChecked(String className, String methodName, Class[] paramTypes, boolean[] allowEventBeanType, boolean[] allowEventBeanCollType) throws EngineImportException;
 
-    /**
-     * Resolves a constructor matching list of parameter types.
-     *
-     * @param clazz      is the class to use
-     * @param paramTypes is parameter types match expression sub-nodes
-     * @return method this resolves to
-     * @throws EngineImportException if the ctor cannot be resolved
-     */
+    public Method resolveMethodOverloadChecked(Class clazz, String methodName) throws EngineImportException;
+
+        /**
+         * Resolves a constructor matching list of parameter types.
+         *
+         * @param clazz      is the class to use
+         * @param paramTypes is parameter types match expression sub-nodes
+         * @return method this resolves to
+         * @throws EngineImportException if the ctor cannot be resolved
+         */
     public Constructor resolveCtor(Class clazz, Class[] paramTypes) throws EngineImportException;
 
     /**

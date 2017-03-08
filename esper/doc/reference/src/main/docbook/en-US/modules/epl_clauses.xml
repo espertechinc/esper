@@ -1551,7 +1551,7 @@ from MyEvent#length(2) as s0</programlisting>
 		</para>
 
 		<para>
-			Esper supports joins against relational databases for access to historical or reference data as explained in <xref linkend="histdata_overview"/>. Esper can also join results returned by an arbitrary method invocation, as discussed in <xref linkend="joining_method"/>.
+			Esper supports joins against relational databases for access to historical or reference data as explained in <xref linkend="histdata_overview"/>. Esper can also join results returned by an arbitrary invocation, as discussed in <xref linkend="joining_method"/>.
 		</para>
 
 		<para>
@@ -4536,7 +4536,7 @@ where t.symbol = n.symbol]]></programlisting>
 where t.symbol = n.symbol group by symbol]]></programlisting>
 
 			<para>
-				Named windows as well as reference and historical data such as stored in your relational database, and data returned by a method invocation, can also be included in joins as discussed in <xref linkend="histdata_overview"/> and <xref linkend="joining_method"/>.
+				Named windows as well as reference and historical data such as stored in your relational database, and data returned by a method/script/UDF invocation, can also be included in joins as discussed in <xref linkend="histdata_overview"/> and <xref linkend="joining_method"/>.
 			</para>
 			
 			<para>
@@ -4599,7 +4599,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 			<indexterm><primary>EPL</primary><secondary>inner join</secondary></indexterm>
 	
 			<para>
-				Esper supports left outer joins, right outer joins, full outer joins and inner joins in any combination between an unlimited number of event streams. Outer and inner joins can also join reference and historical data as explained in <xref linkend="histdata_overview"/>, as well as join data returned by a method invocation as outlined in <xref linkend="joining_method"/>.
+				Esper supports left outer joins, right outer joins, full outer joins and inner joins in any combination between an unlimited number of event streams. Outer and inner joins can also join reference and historical data as explained in <xref linkend="histdata_overview"/>, as well as join data returned by a method, script or UDF invocation as outlined in <xref linkend="joining_method"/>.
 			</para>
 	
 			<para>
@@ -4861,7 +4861,7 @@ and ob1.price between t.buy and t.sell and ob2.price between t.buy and t.sell]]>
 		</para>
 
 		<para>
-			Joins or outer joins in which only SQL statements or method invocations are listed in the <literal>from</literal> clause and no other event streams are termed <emphasis>passive</emphasis> joins. A passive join does not produce an insert or remove stream and therefore does not invoke statement listeners with results. A passive join can be iterated on (polled) using a statement's <literal>safeIterator</literal> and <literal>iterator</literal> methods.
+			Joins or outer joins in which only SQL statements or method, script and UDF invocations are listed in the <literal>from</literal> clause and no other event streams are termed <emphasis>passive</emphasis> joins. A passive join does not produce an insert or remove stream and therefore does not invoke statement listeners with results. A passive join can be iterated on (polled) using a statement's <literal>safeIterator</literal> and <literal>iterator</literal> methods.
 		</para>
 
 		<para>
@@ -5172,26 +5172,26 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 	</sect1>
 	
 	<sect1 xml:id="joining_method" revision="1">
-		<title>Accessing Non-Relational Data via Method Invocation</title>
+		<title>Accessing Non-Relational Data via Method, Script or UDF Invocation</title>
 		
-		<indexterm><primary>join</primary><secondary>non-relational data via method invocation</secondary></indexterm>
-		<indexterm><primary>EPL</primary><secondary>joining non-relational data via method invocation</secondary></indexterm>
+		<indexterm><primary>join</primary><secondary>non-relational data via method, script or UDF invocation</secondary></indexterm>
+		<indexterm><primary>EPL</primary><secondary>joining non-relational data via method, script or UDF invocation</secondary></indexterm>
 
 		<para>
 			Your application may need to join data that originates from a web service, a distributed cache, an object-oriented database or simply data held in memory by your application. 
-			One way to join in external data is by means of method invocation (or procedure call or function) in the <literal>from</literal> clause of a statement. 
+			One way to join in external data is by means of method, script or user-defined function invocation (or procedure call or function) in the <literal>from</literal> clause of a statement. 
 		</para>
 			
 		<para>
-			The results of such a method invocation in the <literal>from</literal> clause plays the same role as a relational database table in an inner and outer join in SQL. The role is thus dissimilar to the role of a user-defined function, which may occur in any expression such as in the <literal>select</literal> clause or the <literal>where</literal> clause. Both are backed by one or more static methods provided by your class library.
+			The results of such a method, script or UDF invocation in the <literal>from</literal> clause plays the same role as a relational database table in an inner and outer join in SQL.
 		</para>
 
 		<para>
-			Esper can join and outer join an unlimited number and all types of event streams to the data returned by your method invocation. In addition, Esper can be configured to cache the data returned by your method invocations.
+			Esper can join and outer join an unlimited number and all types of event streams to the data returned by your invocation. In addition, Esper can be configured to cache the data returned by your method, script or UDF invocations.
 		</para>
 		
 		<para>
-			Joins or outer joins in which only SQL statements or method invocations are listed in the <literal>from</literal> clause and no other event streams are termed <emphasis>passive</emphasis> joins. A passive join does not produce an insert or remove stream and therefore does not invoke statement listeners with results. A passive join can be iterated on (polled) using a statement's <literal>safeIterator</literal> and <literal>iterator</literal> methods.
+			Joins or outer joins in which only SQL statements or method, script or UDF invocations are listed in the <literal>from</literal> clause and no other event streams are termed <emphasis>passive</emphasis> joins. A passive join does not produce an insert or remove stream and therefore does not invoke statement listeners with results. A passive join can be iterated on (polled) using a statement's <literal>safeIterator</literal> and <literal>iterator</literal> methods.
 		</para>
 
 		<para>
@@ -5201,22 +5201,23 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					Sub-views on a method invocations are not allowed; That is, one cannot create a time or length window on a method invocation. However one can use the <literal>insert into</literal> syntax to make join results available to a further statement.
+					Sub-views on invocations are not allowed; That is, one cannot create a time or length window on an invocation. However one can use the <literal>insert into</literal> syntax to make join results available to a further statement.
 				</para>
 			</listitem>
 		</itemizedlist>
 
 		<sect2 xml:id="joining_method_syntax" revision="1">
-			<title>Joining Method Invocation Results</title>
+			<title>Joining Method, Script or UDF Invocation Results</title>
 			<para>
-				The syntax for a method invocation in the <literal>from</literal> clause of an EPL statement is:
+				The syntax for a method, script or UDF invocation in the <literal>from</literal> clause of an EPL statement is:
 			</para>
-			<synopsis>method:<emphasis>class_or_variable_name</emphasis>.<emphasis>method_name</emphasis>[(<emphasis>parameter_expressions</emphasis>)] [@type(<emphasis>eventtype_name</emphasis>)]</synopsis>
+			<synopsis>method: [<emphasis>class_or_variable_name</emphasis>.]<emphasis>method_script_udf_name</emphasis>[(<emphasis>parameter_expressions</emphasis>)] [@type(<emphasis>eventtype_name</emphasis>)]</synopsis>
 	
 			<para>
-				The <literal>method</literal> keyword denotes a method invocation. It is followed by a class or variable name and a method name separated by a dot (.) character. 
-				If you have parameters to your method invocation, these are placed in 
-				parentheses after the method name. Any expression is allowed as a parameter, and individual parameter expressions are separated by a comma. 
+				The <literal>method</literal> keyword denotes a method, script or UDF invocation. It is followed by an optional class or variable name.
+				The <emphasis>method_script_udf_name</emphasis> is the name of the method, script or user-defined function.
+				If you have parameters to your method, script or UDF invocation, these are placed in 
+				parentheses after the method or script name. Any expression is allowed as a parameter, and individual parameter expressions are separated by a comma. 
 				Expressions may also use event properties of the joined stream. 
 			</para>
 			
@@ -5231,35 +5232,35 @@ select * from sql:MyDB ['select * from MyEventTable]]]></programlisting>
 			<programlisting><![CDATA[select * from AssetMoveEvent, method:MyLookupLib.lookupAsset(assetId)]]></programlisting>
 	
 			<para>
-				The following statement demonstrates the use of the <literal>where</literal> clause to join events to the rows returned by a method invocation, which in this example does not take parameters:
+				The following statement demonstrates the use of the <literal>where</literal> clause to join events to the rows returned by an invocation, which in this example does not take parameters:
 			</para>
 			<programlisting><![CDATA[select assetId, assetDesc from AssetMoveEvent as asset, 
        method:MyLookupLib.getAssetDescriptions() as desc 
 where asset.assetid = desc.assetid]]></programlisting>
 	
 			<para>
-				Your method invocation may return zero, one or many rows for each method invocation. If you have caching enabled through configuration, then Esper can avoid the method invocation and instead use cached results. Similar to SQL joins, Esper also indexes cached result rows such that join operations based on the <literal>where</literal> clause or outer-join <literal>on</literal> clause can be very efficient, especially if your method invocation returns a large number of rows.
+				Your method, scipt or UDF invocation may return zero, one or many rows for each invocation. If you have caching enabled through configuration, then Esper can avoid the invocation and instead use cached results. Similar to SQL joins, Esper also indexes cached result rows such that join operations based on the <literal>where</literal> clause or outer-join <literal>on</literal> clause can be very efficient, especially if your invocation returns a large number of rows.
 			</para>
 
 			<para>
-				If the time taken by method invocations is critical to your application, you may configure local caches as <xref linkend="config-method-invocations"/> describes.
+				If the time taken by method, script or UDF invocations is critical to your application, you may configure local caches as <xref linkend="config-method-invocations"/> describes.
 			</para>
 
 			<para>
-				Esper analyzes the expression in the EPL <literal>where</literal> clause and outer-join <literal>on</literal> clause, if present, and builds the appropriate indexes from that information at runtime, to ensure fast matching of event stream events to method invocation results, even if your method invocation returns a large number of rows. Your applications must ensure to configure a cache for your method invocation using Esper configuration, as such indexes are held with regular data in a cache. If you application does not enable caching of method invocation results, the engine does not build indexes on cached data.
+				Esper analyzes the expression in the EPL <literal>where</literal> clause and outer-join <literal>on</literal> clause, if present, and builds the appropriate indexes from that information at runtime, to ensure fast matching of event stream events to invocation results, even if your invocation returns a large number of rows. Your applications must ensure to configure a cache for your invocation using Esper configuration, as such indexes are held with regular data in a cache. If you application does not enable caching of invocation results, the engine does not build indexes on cached data.
 			</para>
 			
 		</sect2>
 
 		<sect2 xml:id="joining_method_polling" revision="1">
-			<title>Polling Method Invocation Results via Iterator</title>
+			<title>Polling Invocation Results via Iterator</title>
 			
 			<para>
-				Usually your method invocation will take part in a join and thus be triggered by an event or pattern occurrence. Instead, your application may need to poll a method invocation and thus use Esper query execution and caching facilities and obtain event data and metadata.
+				Usually your invocation will take part in a join and thus be triggered by an event or pattern occurrence. Instead, your application may need to poll an invocation and thus use Esper query execution and caching facilities and obtain event data and metadata.
 			</para>
 						
 			<para>
-				Your EPL statement can specify a method invocation in the <literal>from</literal> clause without a join. Such a stand-alone method invocation does not post new events, and may only be queried via the <literal>iterator</literal> poll API. Your EPL statement may still use variables.
+				Your EPL statement can specify an invocation in the <literal>from</literal> clause without a join. Such a stand-alone invocation does not post new events, and may only be queried via the <literal>iterator</literal> poll API. Your EPL statement may still use variables.
 			</para>
 
 			<para>
@@ -5285,7 +5286,7 @@ where asset.assetid = desc.assetid]]></programlisting>
 			</para>
 			
 			<para>
-				If your method invocation returns either no row or only one row, then the return type of the method can be a Java class, <literal>java.util.Map</literal> or <literal>Object[]</literal> (object-array). If your method invocation can return more then one row, then the return type of the method must be an array of Java class, array of <literal>Map</literal>, <literal>Object[][]</literal> (object-array 2-dimensional) or
+				If your invocation returns either no row or only one row, then the return type of the method can be a Java class, <literal>java.util.Map</literal> or <literal>Object[]</literal> (object-array). If your invocation can return more then one row, then the return type of the method must be an array of Java class, array of <literal>Map</literal>, <literal>Object[][]</literal> (object-array 2-dimensional) or
 				<literal>Collection</literal> or <literal>Iterator</literal> (or subtypes thereof).
 			</para>
 			
@@ -5428,7 +5429,7 @@ where asset.assetid = desc.assetid]]></programlisting>
 			<title>Using a <literal>Map</literal> Return Type</title>
 			
 			<para>
-				Your application may return <literal>java.util.Map</literal> or an array of <literal>Map</literal> from method invocations. If doing so, your application must provide metadata about each row: it must declare the property name and property type of each <literal>Map</literal> entry of a row. This information allows the engine to perform type checking of expressions used within the statement.
+				Your application may return <literal>java.util.Map</literal> or an array of <literal>Map</literal> from invocations. If doing so, your application must provide metadata about each row: it must declare the property name and property type of each <literal>Map</literal> entry of a row. This information allows the engine to perform type checking of expressions used within the statement.
 			</para>
 			
 			<para>
@@ -5508,7 +5509,7 @@ where asset.assetid = desc.assetid]]></programlisting>
 			<title>Using a Object Array Return Type</title>
 			
 			<para>
-				Your application may return <literal>Object[]</literal> (object-array) or an array of <literal>Object[]</literal> (object-array 2-dimensional) from method invocations. If doing so, your application must provide metadata about each row: it must declare the property name and property type of each array entry of a row in the exact same order as provided by value rows. This information allows the engine to perform type checking of expressions used within the statement.
+				Your application may return <literal>Object[]</literal> (object-array) or an array of <literal>Object[]</literal> (object-array 2-dimensional) from invocations. If doing so, your application must provide metadata about each row: it must declare the property name and property type of each array entry of a row in the exact same order as provided by value rows. This information allows the engine to perform type checking of expressions used within the statement.
 			</para>
 			
 			<para>
@@ -5599,6 +5600,44 @@ where asset.assetid = desc.assetid]]></programlisting>
   events[0] = context.getEventBeanService().adapterForMap(Collections.singletonMap("p0", "hello"), "ItemEvent");
   return events;
 }]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="joining_method_script" revision="1">
+			<title>Providing the Script</title>
+			
+			<para>
+				Your script must declare the return type as <literal>EventBean[]</literal>. In the <literal>@type</literal> annotation you must provide an event type name.
+			</para>
+
+			<para>
+				For example assuming the event type <literal>ItemEvent</literal> is declared as <literal>create schema ItemEvent(id string)</literal>:
+			</para>
+			<programlisting><![CDATA[select id from MyEvent, method:myItemProducerScript()]]></programlisting>
+
+			<para>
+				The example JavaScript script is:
+			</para>
+			<programlisting><![CDATA[create expression EventBean[] @type(ItemEvent) js:myItemProducerScript() [
+myItemProducerScript()
+function myItemProducerScript() {
+  var EventBeanArray = Java.type(\"com.espertech.esper.client.EventBean[]\");
+  var events = new EventBeanArray(1);
+  events[0] = epl.getEventBeanService().adapterForMap(java.util.Collections.singletonMap(\"id\", \"id1\"), \"ItemEvent\");
+  return events;
+}]]]></programlisting>
+		</sect2>
+
+		<sect2 xml:id="joining_method_udf" revision="1">
+			<title>Providing the UDF</title>
+			
+			<para>
+				Your script must declare the return type of the UDF as <literal>EventBean[]</literal>. In the <literal>@type</literal> annotation you must provide an event type name.
+			</para>
+
+			<para>
+				For example assuming you have registered a user-defined function <literal>myUserDefinedFunction</literal>:
+			</para>
+			<programlisting><![CDATA[select id from MyEvent, method:myUserDefinedFunction() @type(ItemEvent)]]></programlisting>
 		</sect2>
 	</sect1>
 	

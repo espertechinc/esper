@@ -19,6 +19,7 @@ import com.espertech.esper.core.context.util.ContextDescriptor;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryService;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
+import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
@@ -555,6 +556,10 @@ public final class StatementContext {
 
     public EngineSettingsService getEngineSettingsService() {
         return stmtEngineServices.getEngineSettingsService();
+    }
+
+    public ExprDeclaredService getExprDeclaredService() {
+        return stmtEngineServices.getExprDeclaredService();
     }
 
     public int getPriority() {

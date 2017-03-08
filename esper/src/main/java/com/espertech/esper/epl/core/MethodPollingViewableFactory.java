@@ -14,13 +14,19 @@ import com.espertech.esper.client.ConfigurationDataCache;
 import com.espertech.esper.client.ConfigurationMethodRef;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.db.DataCache;
 import com.espertech.esper.epl.db.DataCacheFactory;
+import com.espertech.esper.epl.declexpr.ExprDeclaredHelper;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.script.ExprNodeScript;
+import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.spec.MethodStreamSpec;
 import com.espertech.esper.epl.variable.VariableMetaData;
 import com.espertech.esper.epl.variable.VariableReader;
@@ -34,10 +40,7 @@ import com.espertech.esper.view.HistoricalEventViewable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Factory for method-invocation data provider streams.
@@ -75,17 +78,30 @@ public class MethodPollingViewableFactory {
                                                                DataCacheFactory dataCacheFactory,
                                                                StatementContext statementContext)
             throws ExprValidationException {
+
         VariableMetaData variableMetaData = variableService.getVariableMetaData(methodStreamSpec.getClassName());
         MethodPollingExecStrategyEnum strategy;
-        VariableReader variableReader;
-        String variableName;
+        VariableReader variableReader = null;
+        String variableName = null;
+        Method methodReflection = null;
+        Object invocationTarget = null;
+        String eventTypeNameProvidedUDFOrScript = null;
 
-        // Try to resolve one of the possibly-overloaded methods (the first, any), checking that all methods by the same name return the same-type value
-        Method methodReflection;
-        Class declaringClass;
-        Object invocationTarget;
+        // see if this is a script in the from-clause
+        ExprNodeScript scriptExpression = null;
+        if (methodStreamSpec.getClassName() == null && methodStreamSpec.getMethodName() != null) {
+            List<ExpressionScriptProvided> scriptsByName = statementContext.getExprDeclaredService().getScriptsByName(methodStreamSpec.getMethodName());
+            if (scriptsByName != null) {
+                scriptExpression = ExprDeclaredHelper.getExistsScript(statementContext.getConfigSnapshot().getEngineDefaults().getScripts().getDefaultDialect(), methodStreamSpec.getMethodName(), methodStreamSpec.getExpressions(), scriptsByName, statementContext.getExprDeclaredService());
+            }
+        }
+
         try {
-            if (variableMetaData != null) {
+            if (scriptExpression != null) {
+                eventTypeNameProvidedUDFOrScript = scriptExpression.getEventTypeNameAnnotation();
+                strategy = MethodPollingExecStrategyEnum.TARGET_SCRIPT;
+                ExprNodeUtility.validateSimpleGetSubtree(ExprNodeOrigin.METHODINVJOIN, scriptExpression, statementContext, null, false);
+            } else if (variableMetaData != null) {
                 variableName = variableMetaData.getVariableName();
                 if (variableMetaData.getContextPartitionName() != null) {
                     if (contextName == null || !contextName.equals(variableMetaData.getContextPartitionName())) {
@@ -108,6 +124,19 @@ public class MethodPollingViewableFactory {
                     }
                 }
                 methodReflection = engineImportService.resolveNonStaticMethodOverloadChecked(variableMetaData.getType(), methodStreamSpec.getMethodName());
+            } else if (methodStreamSpec.getClassName() == null) { // must be either UDF or script
+                Pair<Class, EngineImportSingleRowDesc> udf = null;
+                try {
+                    udf = engineImportService.resolveSingleRow(methodStreamSpec.getMethodName());
+                } catch (EngineImportException ex) {
+                    throw new ExprValidationException("Failed to find user-defined function '" + methodStreamSpec.getMethodName() + "': " + ex.getMessage(), ex);
+                }
+                methodReflection = engineImportService.resolveMethodOverloadChecked(udf.getFirst(), methodStreamSpec.getMethodName());
+                invocationTarget = null;
+                variableReader = null;
+                variableName = null;
+                strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
+                eventTypeNameProvidedUDFOrScript = udf.getSecond().getOptionalEventTypeName();
             } else {
                 methodReflection = engineImportService.resolveMethodOverloadChecked(methodStreamSpec.getClassName(), methodStreamSpec.getMethodName());
                 invocationTarget = null;
@@ -115,102 +144,118 @@ public class MethodPollingViewableFactory {
                 variableName = null;
                 strategy = MethodPollingExecStrategyEnum.TARGET_CONST;
             }
-            declaringClass = methodReflection.getDeclaringClass();
         } catch (ExprValidationException e) {
             throw e;
         } catch (Exception e) {
             throw new ExprValidationException(e.getMessage(), e);
         }
 
-        // Determine object type returned by method
-        Class beanClass = methodReflection.getReturnType();
-        if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass))) {
-            throw new ExprValidationException("Invalid return type for static method '" + methodReflection.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
-        }
-        if (methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() != EventBean.class) {
-            beanClass = methodReflection.getReturnType().getComponentType();
-        }
-
-        boolean isCollection = JavaClassHelper.isImplementsInterface(beanClass, Collection.class);
-        Class collectionClass = null;
-        if (isCollection) {
-            collectionClass = JavaClassHelper.getGenericReturnType(methodReflection, true);
-            beanClass = collectionClass;
-        }
-
-        boolean isIterator = JavaClassHelper.isImplementsInterface(beanClass, Iterator.class);
-        Class iteratorClass = null;
-        if (isIterator) {
-            iteratorClass = JavaClassHelper.getGenericReturnType(methodReflection, true);
-            beanClass = iteratorClass;
-        }
-
-        // If the method returns a Map, look up the map type
-        Map<String, Object> mapType = null;
-        String mapTypeName = null;
-        if ((JavaClassHelper.isImplementsInterface(methodReflection.getReturnType(), Map.class)) ||
-                (methodReflection.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodReflection.getReturnType().getComponentType(), Map.class)) ||
-                (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
-                (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class))) {
-            MethodMetadataDesc metadata;
-            if (variableMetaData != null) {
-                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, Map.class);
-            } else {
-                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, Map.class);
-            }
-            mapTypeName = metadata.getTypeName();
-            mapType = (Map<String, Object>) metadata.getTypeMetadata();
-        }
-
-        // If the method returns an Object[] or Object[][], look up the type information
+        Class methodProviderClass = null;
+        Class beanClass;
         LinkedHashMap<String, Object> oaType = null;
-        String oaTypeName = null;
-        if (methodReflection.getReturnType() == Object[].class ||
-                methodReflection.getReturnType() == Object[][].class ||
-                (isCollection && collectionClass == Object[].class) ||
-                (isIterator && iteratorClass == Object[].class)) {
-            MethodMetadataDesc metadata;
-            if (variableMetaData != null) {
-                metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, LinkedHashMap.class);
-            } else {
-                metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, LinkedHashMap.class);
-            }
-            oaTypeName = metadata.getTypeName();
-            oaType = (LinkedHashMap<String, Object>) metadata.getTypeMetadata();
-        }
-
-        // Determine event type from class and method name
+        Map<String, Object> mapType = null;
+        boolean isCollection = false;
+        boolean isIterator = false;
         EventType eventType;
-        EventType eventTypeEventBeanArray = null;
-        // If the method returns EventBean[], require the event type
-        if ((methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() == EventBean.class) ||
-                (isCollection && collectionClass == EventBean.class) ||
-                (isIterator && iteratorClass == EventBean.class)) {
-            eventType = EventTypeUtility.requireEventType("Method", methodReflection.getName(), eventAdapterService, methodStreamSpec.getEventTypeName());
-            eventTypeEventBeanArray = eventType;
-        } else if (mapType != null) {
-            eventType = eventAdapterService.addNestableMapType(mapTypeName, mapType, null, false, true, true, false, false);
-        } else if (oaType != null) {
-            eventType = eventAdapterService.addNestableObjectArrayType(oaTypeName, oaType, null, false, true, true, false, false, false, null);
+        EventType eventTypeWhenMethodReturnsEventBeans = null;
+        boolean isStaticMethod = false;
+
+        if (methodReflection != null) {
+            methodProviderClass = methodReflection.getDeclaringClass();
+            isStaticMethod = variableMetaData == null;
+
+            // Determine object type returned by method
+            beanClass = methodReflection.getReturnType();
+            if ((beanClass == void.class) || (beanClass == Void.class) || (JavaClassHelper.isJavaBuiltinDataType(beanClass))) {
+                throw new ExprValidationException("Invalid return type for static method '" + methodReflection.getName() + "' of class '" + methodStreamSpec.getClassName() + "', expecting a Java class");
+            }
+            if (methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() != EventBean.class) {
+                beanClass = methodReflection.getReturnType().getComponentType();
+            }
+
+            isCollection = JavaClassHelper.isImplementsInterface(beanClass, Collection.class);
+            Class collectionClass = null;
+            if (isCollection) {
+                collectionClass = JavaClassHelper.getGenericReturnType(methodReflection, true);
+                beanClass = collectionClass;
+            }
+
+            isIterator = JavaClassHelper.isImplementsInterface(beanClass, Iterator.class);
+            Class iteratorClass = null;
+            if (isIterator) {
+                iteratorClass = JavaClassHelper.getGenericReturnType(methodReflection, true);
+                beanClass = iteratorClass;
+            }
+
+            // If the method returns a Map, look up the map type
+            String mapTypeName = null;
+            if ((JavaClassHelper.isImplementsInterface(methodReflection.getReturnType(), Map.class)) ||
+                    (methodReflection.getReturnType().isArray() && JavaClassHelper.isImplementsInterface(methodReflection.getReturnType().getComponentType(), Map.class)) ||
+                    (isCollection && JavaClassHelper.isImplementsInterface(collectionClass, Map.class)) ||
+                    (isIterator && JavaClassHelper.isImplementsInterface(iteratorClass, Map.class))) {
+                MethodMetadataDesc metadata;
+                if (variableMetaData != null) {
+                    metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, Map.class);
+                } else {
+                    metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, Map.class);
+                }
+                mapTypeName = metadata.getTypeName();
+                mapType = (Map<String, Object>) metadata.getTypeMetadata();
+            }
+
+            // If the method returns an Object[] or Object[][], look up the type information
+            String oaTypeName = null;
+            if (methodReflection.getReturnType() == Object[].class ||
+                    methodReflection.getReturnType() == Object[][].class ||
+                    (isCollection && collectionClass == Object[].class) ||
+                    (isIterator && iteratorClass == Object[].class)) {
+                MethodMetadataDesc metadata;
+                if (variableMetaData != null) {
+                    metadata = getCheckMetadataVariable(methodStreamSpec.getMethodName(), variableMetaData, variableReader, engineImportService, LinkedHashMap.class);
+                } else {
+                    metadata = getCheckMetadataNonVariable(methodStreamSpec.getMethodName(), methodStreamSpec.getClassName(), engineImportService, LinkedHashMap.class);
+                }
+                oaTypeName = metadata.getTypeName();
+                oaType = (LinkedHashMap<String, Object>) metadata.getTypeMetadata();
+            }
+
+            // Determine event type from class and method name
+            // If the method returns EventBean[], require the event type
+            if ((methodReflection.getReturnType().isArray() && methodReflection.getReturnType().getComponentType() == EventBean.class) ||
+                    (isCollection && collectionClass == EventBean.class) ||
+                    (isIterator && iteratorClass == EventBean.class)) {
+                String typeName = methodStreamSpec.getEventTypeName() == null ? eventTypeNameProvidedUDFOrScript : methodStreamSpec.getEventTypeName();
+                eventType = EventTypeUtility.requireEventType("Method", methodReflection.getName(), eventAdapterService, typeName);
+                eventTypeWhenMethodReturnsEventBeans = eventType;
+            } else if (mapType != null) {
+                eventType = eventAdapterService.addNestableMapType(mapTypeName, mapType, null, false, true, true, false, false);
+            } else if (oaType != null) {
+                eventType = eventAdapterService.addNestableObjectArrayType(oaTypeName, oaType, null, false, true, true, false, false, false, null);
+            } else {
+                eventType = eventAdapterService.addBeanType(beanClass.getName(), beanClass, false, true, true);
+            }
+
+            // the @type is only allowed in conjunction with EventBean return types
+            if (methodStreamSpec.getEventTypeName() != null && eventTypeWhenMethodReturnsEventBeans == null) {
+                throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
+            }
         } else {
-            eventType = eventAdapterService.addBeanType(beanClass.getName(), beanClass, false, true, true);
+            String eventTypeName = methodStreamSpec.getEventTypeName() == null ? scriptExpression.getEventTypeNameAnnotation() : methodStreamSpec.getEventTypeName();
+            eventType = EventTypeUtility.requireEventType("Script", scriptExpression.getScript().getName(), eventAdapterService, eventTypeName);
         }
 
-        // the @type is only allowed in conjunction with EventBean return types
-        if (methodStreamSpec.getEventTypeName() != null && eventTypeEventBeanArray == null) {
-            throw new ExprValidationException(EventTypeUtility.disallowedAtTypeMessage());
-        }
-
-        ConfigurationMethodRef configCache = engineImportService.getConfigurationMethodRef(declaringClass.getName());
+        // get configuration for cache
+        String configName = methodProviderClass != null ? methodProviderClass.getName() : methodStreamSpec.getMethodName();
+        ConfigurationMethodRef configCache = engineImportService.getConfigurationMethodRef(configName);
         if (configCache == null) {
-            configCache = engineImportService.getConfigurationMethodRef(declaringClass.getSimpleName());
+            configCache = engineImportService.getConfigurationMethodRef(configName);
         }
         ConfigurationDataCache dataCacheDesc = (configCache != null) ? configCache.getDataCacheDesc() : null;
         DataCache dataCache = dataCacheFactory.getDataCache(dataCacheDesc, statementContext, epStatementAgentInstanceHandle, schedulingService, scheduleBucket, streamNumber);
 
-        MethodPollingViewableMeta meta = new MethodPollingViewableMeta(declaringClass, mapType, oaType, invocationTarget, strategy, isCollection, isIterator, variableReader, variableName, eventTypeEventBeanArray);
-
-        return new MethodPollingViewable(variableMetaData == null, methodReflection.getDeclaringClass(), methodStreamSpec, methodStreamSpec.getExpressions(), dataCache, eventType, exprEvaluatorContext, meta);
+        // metadata
+        MethodPollingViewableMeta meta = new MethodPollingViewableMeta(methodProviderClass, isStaticMethod, mapType, oaType, invocationTarget, strategy, isCollection, isIterator, variableReader, variableName, eventTypeWhenMethodReturnsEventBeans, scriptExpression);
+        return new MethodPollingViewable(methodStreamSpec, dataCache, eventType, exprEvaluatorContext, meta);
     }
 
     private static MethodMetadataDesc getCheckMetadataVariable(String methodName, VariableMetaData variableMetaData, VariableReader variableReader, EngineImportService engineImportService, Class metadataClass)
