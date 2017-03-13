@@ -11,6 +11,7 @@
 package com.espertech.esper.regression.db;
 
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
+import junit.framework.TestCase;
 import org.junit.Assert;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.EventBean;
@@ -27,7 +28,7 @@ import java.math.BigDecimal;
  *   - integer and other number type maps to BigDecmial (getObject)
  *   - Oracle driver does not support obtaining metadata from prepared statement
  */
-public class TestManualDatabaseJoinOracle
+public class TestManualDatabaseJoinOracle extends TestCase
 {
     // Oracle access
     private final static String DBUSER = "USER";
@@ -40,6 +41,10 @@ public class TestManualDatabaseJoinOracle
 
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
+
+    public void testDummy() {
+        // otherwise this test fails with no-runnable-method
+    }
 
     public void manualHasMetaSQLStringParam()
     {
