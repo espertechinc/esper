@@ -21,7 +21,7 @@ import java.util.List;
  * Output condition handling crontab-at schedule output.
  */
 public class OutputConditionCrontabFactory implements OutputConditionFactory {
-    private final ExprEvaluator[] scheduleSpecEvaluators;
+    protected final ExprEvaluator[] scheduleSpecEvaluators;
     protected final boolean isStartConditionOnCreation;
 
     public OutputConditionCrontabFactory(List<ExprNode> scheduleSpecExpressionList,

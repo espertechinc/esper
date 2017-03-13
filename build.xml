@@ -37,6 +37,12 @@
         **/junit-4.11.jar, **/junit.license,
         **/mysql-connector-java-*.jar,**/OTFeed*.jar"/>
 
+	<target name="zipjar">
+		<zip zipfile="esper_jars.zip">
+			<zipfileset dir="." includes="**/*.jar" excludes="**/esper-*.jar"/>
+		</zip>
+	</target>
+
 	<target name="info" description="The master build is done my Maven">
 		<echo message="Please use Maven 2 to build Esper and related components. Maven build instructions are available on the website." />
 	</target>
