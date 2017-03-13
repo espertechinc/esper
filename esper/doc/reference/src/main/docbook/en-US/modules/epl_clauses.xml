@@ -4083,7 +4083,7 @@ select * from A(a_val in
 		<orderedlist spacing="compact">
 			<listitem>
 				<para>
-					Subqueries can only consist of a <literal>select</literal> clause, a <literal>from</literal> clause, a <literal>where</literal> clause and a <literal>group by</literal> clause. The <literal>having</literal> clause, as well as joins, outer-joins and output rate limiting are not permitted within subqueries.
+					Subqueries can only consist of a <literal>select</literal> clause, a <literal>from</literal> clause, a <literal>where</literal> clause, a <literal>group by</literal> clause and a <literal>having</literal> clause. Joins, outer-joins and output rate limiting are not permitted within subqueries.
 				</para>
 			</listitem>
 			<listitem>
@@ -4107,6 +4107,12 @@ select * from A(a_val in
 				<para>
 					With the exception of subqueries against named windows and tables and subqueries that are both uncorrelated and fully-aggregated, 
 					the subquery stream definition must define a data window to limit subquery results, for the purpose of identifying the events held for subquery execution.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					The <literal>having</literal>-clause, if present, requires that properties of the selected stream are aggregated and does not allow un-aggregated properties of the selected stream.
+					You may use the <literal>first</literal> aggregation function to obtain properties of the selected stream instead.
 				</para>
 			</listitem>
 		</orderedlist>

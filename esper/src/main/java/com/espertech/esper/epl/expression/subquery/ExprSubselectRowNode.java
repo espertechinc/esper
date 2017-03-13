@@ -27,14 +27,14 @@ import java.util.*;
 public class ExprSubselectRowNode extends ExprSubselectNode {
     private static final long serialVersionUID = -7865711714805807559L;
 
-    public static final ExprSubselectRowEvalStrategy UNFILTERED_UNSELECTED = new ExprSubselectRowEvalStrategyUnfilteredUnselected();
-    public static final ExprSubselectRowEvalStrategy UNFILTERED_SELECTED = new ExprSubselectRowEvalStrategyUnfilteredSelected();
-    public static final ExprSubselectRowEvalStrategy FILTERED_UNSELECTED = new ExprSubselectRowEvalStrategyFilteredUnselected();
-    public static final ExprSubselectRowEvalStrategy FILTERED_SELECTED = new ExprSubselectRowEvalStrategyFilteredSelected();
-    public static final ExprSubselectRowEvalStrategy UNFILTERED_SELECTED_GROUPED = new ExprSubselectRowEvalStrategyUnfilteredSelectedGroupedAgg();
+    public static final SubselectEvalStrategyRow UNFILTERED_SELECTED = new SubselectEvalStrategyRowUnfilteredSelected();
+    public static final SubselectEvalStrategyRow FILTERED_UNSELECTED = new SubselectEvalStrategyRowFilteredUnselected();
+    public static final SubselectEvalStrategyRow FILTERED_SELECTED = new SubselectEvalStrategyRowFilteredSelected();
+    public static final SubselectEvalStrategyRow HAVING_SELECTED = new SubselectEvalStrategyRowHavingSelected();
+    public static final SubselectEvalStrategyRow UNFILTERED_SELECTED_GROUPED = new SubselectEvalStrategyRowUnfilteredSelectedGroupedNoHaving();
 
     protected transient SubselectMultirowType subselectMultirowType;
-    private transient ExprSubselectRowEvalStrategy evalStrategy;
+    private transient SubselectEvalStrategyRow evalStrategy;
 
     /**
      * Ctor.
@@ -57,26 +57,35 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
         // Strategy for subselect depends on presence of filter + presence of select clause expressions
+        // the filter expression is handled elsewhere if there is any aggregation
         if (filterExpr == null) {
             if (selectClause == null) {
                 TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(rawEventType);
                 if (tableMetadata != null) {
-                    evalStrategy = new ExprSubselectRowEvalStrategyUnfilteredUnselectedTable(tableMetadata);
+                    evalStrategy = new SubselectEvalStrategyRowUnfilteredUnselectedTable(tableMetadata);
                 } else {
-                    evalStrategy = UNFILTERED_UNSELECTED;
+                    evalStrategy = SubselectEvalStrategyRowUnfilteredUnselected.INSTANCE;
                 }
             } else {
                 if (getStatementSpecCompiled().getGroupByExpressions() != null && getStatementSpecCompiled().getGroupByExpressions().getGroupByNodes().length > 0) {
-                    evalStrategy = UNFILTERED_SELECTED_GROUPED;
+                    if (havingExpr != null) {
+                        evalStrategy = new SubselectEvalStrategyRowUnfilteredSelectedGroupedWHaving(havingExpr);
+                    } else {
+                        evalStrategy = UNFILTERED_SELECTED_GROUPED;
+                    }
                 } else {
-                    evalStrategy = UNFILTERED_SELECTED;
+                    if (havingExpr != null) {
+                        evalStrategy = HAVING_SELECTED;
+                    } else {
+                        evalStrategy = UNFILTERED_SELECTED;
+                    }
                 }
             }
-        } else { // the filter expression is handled elsewhere if there is any aggregation
+        } else {
             if (selectClause == null) {
                 TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(rawEventType);
                 if (tableMetadata != null) {
-                    evalStrategy = new ExprSubselectRowEvalStrategyFilteredUnselectedTable(tableMetadata);
+                    evalStrategy = new SubselectEvalStrategyRowFilteredUnselectedTable(tableMetadata);
                 } else {
                     evalStrategy = FILTERED_UNSELECTED;
                 }
@@ -149,7 +158,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         if (selectClause == null) {
             return null;
         }
-        if (this.getSubselectAggregationType() != SubqueryAggregationType.FULLY_AGGREGATED) {
+        if (this.getSubselectAggregationType() != SubqueryAggregationType.FULLY_AGGREGATED_NOPROPS) {
             return null;
         }
         return getAssignAnonymousType(eventAdapterService, statementId);
@@ -175,7 +184,7 @@ public class ExprSubselectRowNode extends ExprSubselectNode {
         }
 
         // fully-aggregated always returns zero or one row
-        if (this.getSubselectAggregationType() == SubqueryAggregationType.FULLY_AGGREGATED) {
+        if (this.getSubselectAggregationType() == SubqueryAggregationType.FULLY_AGGREGATED_NOPROPS) {
             return null;
         }
 

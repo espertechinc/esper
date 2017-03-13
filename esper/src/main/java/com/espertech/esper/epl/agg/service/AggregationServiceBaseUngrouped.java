@@ -52,4 +52,8 @@ public abstract class AggregationServiceBaseUngrouped implements AggregationServ
 
     public void stop() {
     }
+
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
 }

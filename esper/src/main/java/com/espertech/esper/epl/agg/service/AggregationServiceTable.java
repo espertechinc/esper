@@ -90,4 +90,8 @@ public class AggregationServiceTable implements AggregationService {
 
     public void stop() {
     }
+
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
 }

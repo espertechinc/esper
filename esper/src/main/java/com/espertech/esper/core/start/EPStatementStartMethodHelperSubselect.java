@@ -551,10 +551,11 @@ public class EPStatementStartMethodHelperSubselect {
         boolean isStreamWildcard = false;
         ExprEvaluator[] groupByEvaluators = null;
         boolean hasNonAggregatedProperties;
-        List<ExprAggregateNode> aggExprNodes = new ArrayList<ExprAggregateNode>(2);
 
         ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
         ExprValidationContext validationContext = new ExprValidationContext(subselectTypeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), viewResourceDelegateSubselect, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
+        List<ExprAggregateNode> aggExprNodesSelect = new ArrayList<>(2);
+
         for (int i = 0; i < selectClauseSpec.getSelectExprList().length; i++) {
             SelectClauseElementCompiled element = selectClauseSpec.getSelectExprList()[i];
 
@@ -572,10 +573,10 @@ public class EPStatementStartMethodHelperSubselect {
                 }
 
                 // handle aggregation
-                ExprAggregateNodeUtil.getAggregatesBottomUp(selectExpression, aggExprNodes);
+                ExprAggregateNodeUtil.getAggregatesBottomUp(selectExpression, aggExprNodesSelect);
 
-                if (aggExprNodes.size() > 0) {
-                    // This stream (stream 0) properties must either all be under aggregation, or all not be.
+                // This stream (stream 0) properties must either all be under aggregation, or all not be.
+                if (aggExprNodesSelect.size() > 0) {
                     List<Pair<Integer, String>> propertiesNotAggregated = ExprNodeUtility.getExpressionProperties(selectExpression, false);
                     for (Pair<Integer, String> pair : propertiesNotAggregated) {
                         if (pair.getFirst() == 0) {
@@ -590,6 +591,37 @@ public class EPStatementStartMethodHelperSubselect {
             }
         }   // end of for loop
 
+        // validate having-clause and collect aggregations
+        List<ExprAggregateNode> aggExpressionNodesHaving = Collections.emptyList();
+        if (statementSpec.getHavingExprRootNode() != null) {
+            ExprNode validatedHavingClause = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.HAVING, statementSpec.getHavingExprRootNode(), validationContext);
+            if (JavaClassHelper.getBoxedType(validatedHavingClause.getExprEvaluator().getType()) != Boolean.class) {
+                throw new ExprValidationException("Subselect having-clause expression must return a boolean value");
+            }
+            aggExpressionNodesHaving = new ArrayList<>();
+            ExprAggregateNodeUtil.getAggregatesBottomUp(validatedHavingClause, aggExpressionNodesHaving);
+            validateAggregationPropsAndLocalGroup(aggExpressionNodesHaving);
+
+            // if the having-clause does not have aggregations, it becomes part of the filter
+            if (aggExpressionNodesHaving.isEmpty()) {
+                ExprNode filter = statementSpec.getFilterRootNode();
+                if (filter == null) {
+                    statementSpec.setFilterExprRootNode(statementSpec.getHavingExprRootNode());
+                } else {
+                    statementSpec.setFilterExprRootNode(ExprNodeUtility.connectExpressionsByLogicalAnd(Arrays.asList(statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode())));
+                }
+                statementSpec.setHavingExprRootNode(null);
+            } else {
+                subselect.setHavingExpr(validatedHavingClause.getExprEvaluator());
+                ExprNodePropOrStreamSet nonAggregatedPropsHaving = ExprNodeUtility.getNonAggregatedProps(validationContext.getStreamTypeService().getEventTypes(), Collections.singletonList(validatedHavingClause), contextPropertyRegistry);
+                for (ExprNodePropOrStreamPropDesc prop : nonAggregatedPropsHaving.getProperties()) {
+                    if (prop.getStreamNum() == 0) {
+                        throw new ExprValidationException("Subselect having-clause requires that all properties are under aggregation, consider using the 'first' aggregation function instead");
+                    }
+                }
+            }
+        }
+
         // Figure out all non-aggregated event properties in the select clause (props not under a sum/avg/max aggregation node)
         ExprNodePropOrStreamSet nonAggregatedPropsSelect = ExprNodeUtility.getNonAggregatedProps(validationContext.getStreamTypeService().getEventTypes(), selectExpressions, contextPropertyRegistry);
         hasNonAggregatedProperties = !nonAggregatedPropsSelect.isEmpty();
@@ -603,7 +635,7 @@ public class EPStatementStartMethodHelperSubselect {
                 throw new ExprValidationException("Subquery multi-column select is not allowed in this context.");
             }
             if (statementSpec.getGroupByExpressions() == null && selectExpressions.size() > 1 &&
-                    aggExprNodes.size() > 0 && hasNonAggregatedProperties) {
+                    aggExprNodesSelect.size() > 0 && hasNonAggregatedProperties) {
                 throw new ExprValidationException("Subquery with multi-column select requires that either all or none of the selected columns are under aggregation, unless a group-by clause is also specified");
             }
             subselect.setSelectClause(selectExpressions.toArray(new ExprNode[selectExpressions.size()]));
@@ -612,7 +644,7 @@ public class EPStatementStartMethodHelperSubselect {
 
         // Handle aggregation
         ExprNodePropOrStreamSet propertiesGroupBy = null;
-        if (aggExprNodes.size() > 0) {
+        if (aggExprNodesSelect.size() > 0 || aggExpressionNodesHaving.size() > 0) {
             if (statementSpec.getGroupByExpressions() != null && statementSpec.getGroupByExpressions().getGroupByRollupLevels() != null) {
                 throw new ExprValidationException("Group-by expressions in a subselect may not have rollups");
             }
@@ -650,18 +682,7 @@ public class EPStatementStartMethodHelperSubselect {
             }
 
             // Other stream properties, if there is aggregation, cannot be under aggregation.
-            for (ExprAggregateNode aggNode : aggExprNodes) {
-                List<Pair<Integer, String>> propertiesNodesAggregated = ExprNodeUtility.getExpressionProperties(aggNode, true);
-                for (Pair<Integer, String> pair : propertiesNodesAggregated) {
-                    if (pair.getFirst() != 0) {
-                        throw new ExprValidationException("Subselect aggregation functions cannot aggregate across correlated properties");
-                    }
-                }
-
-                if (aggNode.getOptionalLocalGroupBy() != null) {
-                    throw new ExprValidationException("Subselect aggregations functions cannot specify a group-by");
-                }
-            }
+            validateAggregationPropsAndLocalGroup(aggExprNodesSelect);
 
             // determine whether select-clause has grouped-by expressions
             List<ExprAggregateNodeGroupKey> groupKeyExpressions = null;
@@ -696,9 +717,7 @@ public class EPStatementStartMethodHelperSubselect {
                 }   // end of for loop
             }
 
-            List<ExprAggregateNode> havingAgg = Collections.emptyList();
-            List<ExprAggregateNode> orderByAgg = Collections.emptyList();
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodes, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, havingAgg, orderByAgg, groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService());
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService());
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {
@@ -712,11 +731,11 @@ public class EPStatementStartMethodHelperSubselect {
             List<ExprAggregateNode> aggExprNodesFilter = new LinkedList<ExprAggregateNode>();
             ExprAggregateNodeUtil.getAggregatesBottomUp(statementSpec.getFilterRootNode(), aggExprNodesFilter);
             if (aggExprNodesFilter.size() > 0) {
-                throw new ExprValidationException("Aggregation functions are not supported within subquery filters, consider using insert-into instead");
+                throw new ExprValidationException("Aggregation functions are not supported within subquery filters, consider using a having-clause or insert-into instead");
             }
         }
 
-        // Validate filter expression, if there is one
+        // validate filter expression, if there is one
         ExprNode filterExpr = statementSpec.getFilterRootNode();
 
         // add the table filter for tables
@@ -754,7 +773,7 @@ public class EPStatementStartMethodHelperSubselect {
         if (aggregationServiceFactoryDesc == null) {
             subselect.setSubselectAggregationType(ExprSubselectNode.SubqueryAggregationType.NONE);
         } else {
-            subselect.setSubselectAggregationType(hasNonAggregatedProperties ? ExprSubselectNode.SubqueryAggregationType.AGGREGATED : ExprSubselectNode.SubqueryAggregationType.FULLY_AGGREGATED);
+            subselect.setSubselectAggregationType(hasNonAggregatedProperties ? ExprSubselectNode.SubqueryAggregationType.FULLY_AGGREGATED_WPROPS : ExprSubselectNode.SubqueryAggregationType.FULLY_AGGREGATED_NOPROPS);
         }
 
         // Set the filter.
@@ -886,6 +905,21 @@ public class EPStatementStartMethodHelperSubselect {
             String reason = nonAggregatedPropsSelect.notContainsAll(propertiesGroupBy);
             if (reason != null) {
                 throw new ExprValidationException(MSG_SUBQUERY_REQUIRES_WINDOW);
+            }
+        }
+    }
+
+    private static void validateAggregationPropsAndLocalGroup(List<ExprAggregateNode> aggregateNodes) throws ExprValidationException {
+        for (ExprAggregateNode aggNode : aggregateNodes) {
+            List<Pair<Integer, String>> propertiesNodesAggregated = ExprNodeUtility.getExpressionProperties(aggNode, true);
+            for (Pair<Integer, String> pair : propertiesNodesAggregated) {
+                if (pair.getFirst() != 0) {
+                    throw new ExprValidationException("Subselect aggregation functions cannot aggregate across correlated properties");
+                }
+            }
+
+            if (aggNode.getOptionalLocalGroupBy() != null) {
+                throw new ExprValidationException("Subselect aggregations functions cannot specify a group-by");
             }
         }
     }

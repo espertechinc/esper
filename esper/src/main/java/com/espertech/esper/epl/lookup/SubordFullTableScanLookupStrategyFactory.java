@@ -18,6 +18,10 @@ import com.espertech.esper.epl.virtualdw.VirtualDWView;
  * Factory for lookup on an unindexed table returning the full table as matching events.
  */
 public class SubordFullTableScanLookupStrategyFactory implements SubordTableLookupStrategyFactory {
+
+    public SubordFullTableScanLookupStrategyFactory() {
+    }
+
     public SubordFullTableScanLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         return new SubordFullTableScanLookupStrategy((UnindexedEventTable) eventTable[0]);
     }

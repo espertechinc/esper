@@ -49,6 +49,10 @@ public class AIRegistryAggregationMap implements AIRegistryAggregation {
         services.get(agentInstanceId).setCurrentAccess(groupKey, agentInstanceId, null);
     }
 
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return services.get(agentInstanceId);
+    }
+
     public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         services.get(exprEvaluatorContext.getAgentInstanceId()).clearResults(exprEvaluatorContext);
     }

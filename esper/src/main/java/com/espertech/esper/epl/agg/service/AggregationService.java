@@ -62,4 +62,6 @@ public interface AggregationService extends AggregationResultFuture, StopCallbac
     public void acceptGroupDetail(AggregationServiceVisitorWGroupDetail visitor);
 
     public boolean isGrouped();
+
+    AggregationService getContextPartitionAggregationService(int agentInstanceId);
 }

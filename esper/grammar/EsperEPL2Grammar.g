@@ -813,7 +813,7 @@ existsSubSelectExpression : EXISTS subQueryExpr;
 subQueryExpr 
 @init  { paraphrases.push("subquery"); }
 @after { paraphrases.pop(); }
-		: LPAREN  SELECT DISTINCT? selectionList FROM subSelectFilterExpr (WHERE whereClause)? (GROUP BY groupByListExpr)? RPAREN;
+		: LPAREN  SELECT DISTINCT? selectionList FROM subSelectFilterExpr (WHERE whereClause)? (GROUP BY groupByListExpr)? (HAVING havingClause)? RPAREN;
 	
 subSelectFilterExpr
 @init  { paraphrases.push("subquery filter specification"); }

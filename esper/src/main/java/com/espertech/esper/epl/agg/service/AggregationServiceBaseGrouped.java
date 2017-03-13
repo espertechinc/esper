@@ -44,4 +44,8 @@ public abstract class AggregationServiceBaseGrouped implements AggregationServic
 
     public void stop() {
     }
+
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
 }

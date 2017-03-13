@@ -57,6 +57,9 @@
             		<zipfileset prefix="test" dir="esper/src/test/java" includes="**"/>
             		<zipfileset prefix="grammar" dir="esper/grammar" includes="**"/>
             		<zipfileset prefix="pom" dir="esper" includes="pom.xml"/>
+            		<zipfileset prefix="regression-test" dir="esper-regression/src/test/java" includes="**"/>
+            		<zipfileset prefix="avro-src" dir="esper-avro/src/main/java" includes="**"/>
+            		<zipfileset prefix="avro-test" dir="esper-avro/src/test/java" includes="**"/>
         	</zip>
 		<zip zipfile="${dist.dir}/${fullnameio}-src.zip">
             		<zipfileset prefix="amqp" dir="esperio-amqp/src/main/java" includes="**"/>

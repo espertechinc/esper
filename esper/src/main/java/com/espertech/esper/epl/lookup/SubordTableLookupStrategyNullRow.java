@@ -21,14 +21,17 @@ import java.util.Set;
  * but leaves that row as an undefined value.
  */
 public class SubordTableLookupStrategyNullRow implements SubordTableLookupStrategy {
-    private static Set<EventBean> singleNullRowEventSet = new HashSet<EventBean>();
+    private final static Set<EventBean> SINGLE_NULL_ROW_EVENT_SET = new HashSet<EventBean>();
 
     static {
-        singleNullRowEventSet.add(null);
+        SINGLE_NULL_ROW_EVENT_SET.add(null);
+    }
+
+    public SubordTableLookupStrategyNullRow() {
     }
 
     public Set<EventBean> lookup(EventBean[] events, ExprEvaluatorContext context) {
-        return singleNullRowEventSet;
+        return SINGLE_NULL_ROW_EVENT_SET;
     }
 
     public String toQueryPlan() {

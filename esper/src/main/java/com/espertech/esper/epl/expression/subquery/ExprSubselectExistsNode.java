@@ -30,6 +30,8 @@ public class ExprSubselectExistsNode extends ExprSubselectNode {
     private static final Logger log = LoggerFactory.getLogger(ExprSubselectExistsNode.class);
     private static final long serialVersionUID = 7082390247880356269L;
 
+    private transient SubselectEvalStrategyNR subselectEvalStrategyNR;
+
     /**
      * Ctor.
      *
@@ -44,35 +46,11 @@ public class ExprSubselectExistsNode extends ExprSubselectNode {
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
+        subselectEvalStrategyNR = SubselectEvalStrategyNRFactory.createStrategyExists(this);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
-        if (matchingEvents == null) {
-            return false;
-        }
-        if (matchingEvents.size() == 0) {
-            return false;
-        }
-
-        if (filterExpr == null) {
-            return true;
-        }
-
-        // Evaluate filter
-        EventBean[] events = new EventBean[eventsPerStream.length + 1];
-        System.arraycopy(eventsPerStream, 0, events, 1, eventsPerStream.length);
-
-        for (EventBean subselectEvent : matchingEvents) {
-            // Prepare filter expression event list
-            events[0] = subselectEvent;
-
-            Boolean pass = (Boolean) filterExpr.evaluate(events, true, exprEvaluatorContext);
-            if ((pass != null) && pass) {
-                return true;
-            }
-        }
-
-        return false;
+        return subselectEvalStrategyNR.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext, subselectAggregationService);
     }
 
     public LinkedHashMap<String, Object> typableGetRowProperties() {

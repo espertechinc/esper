@@ -19,8 +19,8 @@ import java.util.Collection;
 
 public class SubselectAggregationPreprocessorUnfilteredUngrouped extends SubselectAggregationPreprocessorBase {
 
-    public SubselectAggregationPreprocessorUnfilteredUngrouped(AggregationService aggregationService, ExprEvaluator filterExpr, ExprEvaluator[] groupKeys) {
-        super(aggregationService, filterExpr, groupKeys);
+    public SubselectAggregationPreprocessorUnfilteredUngrouped(AggregationService aggregationService, ExprEvaluator filterEval, ExprEvaluator[] groupKeys) {
+        super(aggregationService, filterEval, groupKeys);
     }
 
     public void evaluate(EventBean[] eventsPerStream, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {

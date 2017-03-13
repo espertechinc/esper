@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
  */
 public class ExprSubselectInNode extends ExprSubselectNode {
     private final boolean isNotIn;
-    private transient SubselectEvalStrategy subselectEvalStrategy;
+    private transient SubselectEvalStrategyNR subselectEvalStrategyNR;
     private static final long serialVersionUID = -7233906204211162498L;
 
     public ExprSubselectInNode(StatementSpecRaw statementSpec, boolean isNotIn) {
@@ -48,11 +48,11 @@ public class ExprSubselectInNode extends ExprSubselectNode {
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
-        subselectEvalStrategy = SubselectEvalStrategyFactory.createStrategy(this, isNotIn, false, false, null);
+        subselectEvalStrategyNR = SubselectEvalStrategyNRFactory.createStrategyAnyAllIn(this, isNotIn, false, false, null);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
-        return subselectEvalStrategy.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
+        return subselectEvalStrategyNR.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext, getSubselectAggregationService());
     }
 
     public LinkedHashMap<String, Object> typableGetRowProperties() {

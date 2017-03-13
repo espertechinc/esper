@@ -45,6 +45,11 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
     protected transient ExprEvaluator filterExpr;
 
     /**
+     * The validated having expression.
+     */
+    protected transient ExprEvaluator havingExpr;
+
+    /**
      * The event type generated for wildcard selects.
      */
     protected transient EventType rawEventType;
@@ -216,6 +221,10 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         this.filterExpr = filterExpr;
     }
 
+    public void setHavingExpr(ExprEvaluator havingExpr) {
+        this.havingExpr = havingExpr;
+    }
+
     public void toPrecedenceFreeEPL(StringWriter writer) {
         if ((selectAsNames != null) && (selectAsNames[0] != null)) {
             writer.append(selectAsNames[0]);
@@ -267,6 +276,10 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
      */
     public ExprEvaluator getFilterExpr() {
         return filterExpr;
+    }
+
+    public ExprEvaluator getHavingExpr() {
+        return havingExpr;
     }
 
     /**
@@ -333,7 +346,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
 
     public static enum SubqueryAggregationType {
         NONE,
-        FULLY_AGGREGATED,
-        AGGREGATED
+        FULLY_AGGREGATED_NOPROPS,
+        FULLY_AGGREGATED_WPROPS
     }
 }

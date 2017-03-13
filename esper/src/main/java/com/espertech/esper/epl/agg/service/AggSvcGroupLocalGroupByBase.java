@@ -318,6 +318,10 @@ public abstract class AggSvcGroupLocalGroupByBase implements AggregationService 
     public void stop() {
     }
 
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
+
     private int getNumGroups() {
         int size = aggregatorsTopLevel != null ? 1 : 0;
         for (int i = 0; i < localGroupByPlan.getAllLevels().length; i++) {

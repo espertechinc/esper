@@ -56,6 +56,10 @@ public class AIRegistryAggregationMultiPerm implements AIRegistryAggregation {
         services.getArray()[agentInstanceId].setCurrentAccess(groupKey, agentInstanceId, null);
     }
 
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return services.getArray()[agentInstanceId];
+    }
+
     public void clearResults(ExprEvaluatorContext exprEvaluatorContext) {
         services.getArray()[exprEvaluatorContext.getAgentInstanceId()].clearResults(exprEvaluatorContext);
     }

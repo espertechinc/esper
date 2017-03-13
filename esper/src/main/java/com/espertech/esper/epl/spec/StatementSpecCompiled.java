@@ -46,7 +46,7 @@ public class StatementSpecCompiled {
     private StreamSpecCompiled[] streamSpecs;
     private final OuterJoinDesc[] outerJoinDescList;
     private ExprNode filterExprRootNode;
-    private final ExprNode havingExprRootNode;
+    private ExprNode havingExprRootNode;
     private final OutputLimitSpec outputLimitSpec;
     private final OrderByItem[] orderByList;
     private final ExprSubselectNode[] subSelectExpressions;
@@ -251,6 +251,10 @@ public class StatementSpecCompiled {
      */
     public ExprNode getHavingExprRootNode() {
         return havingExprRootNode;
+    }
+
+    public void setHavingExprRootNode(ExprNode havingExprRootNode) {
+        this.havingExprRootNode = havingExprRootNode;
     }
 
     /**

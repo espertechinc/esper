@@ -33,7 +33,7 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
     private final boolean isAll;
     private final RelationalOpEnum relationalOp;
 
-    private transient SubselectEvalStrategy evalStrategy;
+    private transient SubselectEvalStrategyNR evalStrategy;
     private static final long serialVersionUID = -3884694910286266280L;
 
     /**
@@ -83,11 +83,11 @@ public class ExprSubselectAllSomeAnyNode extends ExprSubselectNode {
     }
 
     public void validateSubquery(ExprValidationContext validationContext) throws ExprValidationException {
-        evalStrategy = SubselectEvalStrategyFactory.createStrategy(this, isNot, isAll, !isAll, relationalOp);
+        evalStrategy = SubselectEvalStrategyNRFactory.createStrategyAnyAllIn(this, isNot, isAll, !isAll, relationalOp);
     }
 
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
-        return evalStrategy.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext);
+        return evalStrategy.evaluate(eventsPerStream, isNewData, matchingEvents, exprEvaluatorContext, getSubselectAggregationService());
     }
 
     public LinkedHashMap<String, Object> typableGetRowProperties() {

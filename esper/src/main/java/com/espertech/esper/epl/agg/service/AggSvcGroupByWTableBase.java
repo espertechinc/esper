@@ -234,4 +234,8 @@ public abstract class AggSvcGroupByWTableBase implements AggregationService {
 
     public void stop() {
     }
+
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
 }

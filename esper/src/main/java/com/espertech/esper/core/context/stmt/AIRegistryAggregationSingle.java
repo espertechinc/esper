@@ -90,6 +90,10 @@ public class AIRegistryAggregationSingle implements AIRegistryAggregation, Aggre
         return service.getGroupKeys(exprEvaluatorContext);
     }
 
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return service;
+    }
+
     public void stop() {
     }
 }

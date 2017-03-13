@@ -21,12 +21,12 @@ import java.util.Collection;
 public abstract class SubselectAggregationPreprocessorBase {
 
     protected final AggregationService aggregationService;
-    protected final ExprEvaluator filterExpr;
+    protected final ExprEvaluator filterEval;
     protected final ExprEvaluator[] groupKeys;
 
-    public SubselectAggregationPreprocessorBase(AggregationService aggregationService, ExprEvaluator filterExpr, ExprEvaluator[] groupKeys) {
+    public SubselectAggregationPreprocessorBase(AggregationService aggregationService, ExprEvaluator filterEval, ExprEvaluator[] groupKeys) {
         this.aggregationService = aggregationService;
-        this.filterExpr = filterExpr;
+        this.filterEval = filterEval;
         this.groupKeys = groupKeys;
     }
 

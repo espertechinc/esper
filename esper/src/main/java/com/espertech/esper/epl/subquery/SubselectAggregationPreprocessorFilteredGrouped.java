@@ -19,8 +19,8 @@ import java.util.Collection;
 
 public class SubselectAggregationPreprocessorFilteredGrouped extends SubselectAggregationPreprocessorBase {
 
-    public SubselectAggregationPreprocessorFilteredGrouped(AggregationService aggregationService, ExprEvaluator filterExpr, ExprEvaluator[] groupKeys) {
-        super(aggregationService, filterExpr, groupKeys);
+    public SubselectAggregationPreprocessorFilteredGrouped(AggregationService aggregationService, ExprEvaluator filterEval, ExprEvaluator[] groupKeys) {
+        super(aggregationService, filterEval, groupKeys);
     }
 
     public void evaluate(EventBean[] eventsPerStream, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext) {
@@ -34,7 +34,7 @@ public class SubselectAggregationPreprocessorFilteredGrouped extends SubselectAg
 
         for (EventBean subselectEvent : matchingEvents) {
             events[0] = subselectEvent;
-            Boolean pass = (Boolean) filterExpr.evaluate(events, true, exprEvaluatorContext);
+            Boolean pass = (Boolean) filterEval.evaluate(events, true, exprEvaluatorContext);
             if ((pass != null) && pass) {
                 Object groupKey = generateGroupKey(events, true, exprEvaluatorContext);
                 aggregationService.applyEnter(events, groupKey, exprEvaluatorContext);

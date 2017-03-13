@@ -49,6 +49,12 @@ public class TestSubselectFiltered extends TestCase
         listener = null;
     }
 
+    public void testHavingClauseNoAggregation() {
+        runAssertionHavingNoAggNoFilterNoWhere();
+        runAssertionHavingNoAggWWhere();
+        runAssertionHavingNoAggWFilterWWhere();
+    }
+
     public void test3StreamKeyRangeCoercion() {
         epService.getEPAdministrator().getConfiguration().addEventType("SupportBean", SupportBean.class);
         epService.getEPAdministrator().getConfiguration().addEventType("ST0", SupportBean_ST0.class);
@@ -813,6 +819,45 @@ public class TestSubselectFiltered extends TestCase
         assertEquals("ab", theEvent.get("s2p20Prev"));
     }
 
+    private void runAssertionHavingNoAggWFilterWWhere() {
+        String epl = "select (select intPrimitive from SupportBean(intPrimitive < 20) #keepall where intPrimitive > 15 having theString = 'ID1') as c0 from S0";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        sendS0AndAssert(null);
+        sendSBAndS0Assert("ID2", 10, null);
+        sendSBAndS0Assert("ID1", 11, null);
+        sendSBAndS0Assert("ID1", 20, null);
+        sendSBAndS0Assert("ID1", 19, 19);
+
+        stmt.destroy();
+    }
+
+    private void runAssertionHavingNoAggWWhere() {
+        String epl = "select (select intPrimitive from SupportBean#keepall where intPrimitive > 15 having theString = 'ID1') as c0 from S0";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        sendS0AndAssert(null);
+        sendSBAndS0Assert("ID2", 10, null);
+        sendSBAndS0Assert("ID1", 11, null);
+        sendSBAndS0Assert("ID1", 20, 20);
+
+        stmt.destroy();
+    }
+
+    private void runAssertionHavingNoAggNoFilterNoWhere() {
+        String epl = "select (select intPrimitive from SupportBean#keepall having theString = 'ID1') as c0 from S0";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        sendS0AndAssert(null);
+        sendSBAndS0Assert("ID2", 10, null);
+        sendSBAndS0Assert("ID1", 11, 11);
+
+        stmt.destroy();
+    }
+
     private void sendBean(String theString, int intPrimitive, int intBoxed, long longBoxed, double doubleBoxed)
     {
         SupportBean bean = new SupportBean();
@@ -822,5 +867,15 @@ public class TestSubselectFiltered extends TestCase
         bean.setLongBoxed(longBoxed);
         bean.setDoubleBoxed(doubleBoxed);
         epService.getEPRuntime().sendEvent(bean);
+    }
+
+    private void sendSBAndS0Assert(String theString, int intPrimitive, Integer expected) {
+        epService.getEPRuntime().sendEvent(new SupportBean(theString, intPrimitive));
+        sendS0AndAssert(expected);
+    }
+
+    private void sendS0AndAssert(Integer expected) {
+        epService.getEPRuntime().sendEvent(new SupportBean_S0(0));
+        assertEquals(expected, listener.assertOneGetNewAndReset().get("c0"));
     }
 }

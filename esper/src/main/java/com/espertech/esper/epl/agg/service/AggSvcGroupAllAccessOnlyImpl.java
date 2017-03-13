@@ -123,4 +123,8 @@ public class AggSvcGroupAllAccessOnlyImpl implements AggregationService, Aggrega
 
     public void stop() {
     }
+
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
 }

@@ -182,7 +182,7 @@ public class TestSubselectUnfiltered extends TestCase {
                    "Invalid nested subquery, subquery-within-subquery is not supported [select (select (select id from S1#lastevent) id from S1#lastevent) as idS1 from S0]");
 
         tryInvalid("select (select id from S1#lastevent where (sum(id) = 5)) as idS1 from S0",
-                   "Error starting statement: Failed to plan subquery number 1 querying S1: Aggregation functions are not supported within subquery filters, consider using insert-into instead [select (select id from S1#lastevent where (sum(id) = 5)) as idS1 from S0]");
+                   "Error starting statement: Failed to plan subquery number 1 querying S1: Aggregation functions are not supported within subquery filters, consider using a having-clause or insert-into instead [select (select id from S1#lastevent where (sum(id) = 5)) as idS1 from S0]");
 
         tryInvalid("select * from S0(id=5 and (select id from S1))",
                    "Failed to validate subquery number 1 querying S1: Subqueries require one or more views to limit the stream, consider declaring a length or time window [select * from S0(id=5 and (select id from S1))]");

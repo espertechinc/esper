@@ -247,4 +247,8 @@ public class AggSvcGroupAllMixedAccessWTableImpl implements AggregationService {
 
     public void stop() {
     }
+
+    public AggregationService getContextPartitionAggregationService(int agentInstanceId) {
+        return this;
+    }
 }
