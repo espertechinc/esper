@@ -746,38 +746,38 @@ public class TestAggregateWithRollupOutputRate extends TestCase
         epService.getEPRuntime().sendEvent(makeEvent("E1", 2, 20L));
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 30L));
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
                 new Object[][]{{"E1", 1, 40L}, {"E1", 2, 20L}, {"E1", null, 60L}, {null, null, 60L}},
                 new Object[][]{{"E1", 1, null}, {"E1", 2, null}, {"E1", null, null}, {null, null, null}});
 
         epService.getEPRuntime().sendEvent(makeEvent("E2", 1, 40L));
         epService.getEPRuntime().sendEvent(makeEvent("E1", 2, 50L));
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(2000));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
                 new Object[][]{{"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 110L}, {"E2", null, 40L}, {null, null, 150L}},
                 new Object[][]{{"E1", 1, 40L}, {"E1", 2, 20L}, {"E2", 1, null}, {"E1", null, 60L}, {"E2", null, null}, {null, null, 60L}});
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 60L));
         epService.getEPRuntime().sendEvent(new CurrentTimeEvent(3000));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
                 new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 170L}, {"E2", null, 40L}, {null, null, 210L}},
                 new Object[][]{{"E1", 1, 40L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 110L}, {"E2", null, 40L}, {null, null, 150L}});
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 70L));    // removes the first 3 events
         epService.getEPRuntime().sendEvent(new CurrentTimeSpanEvent(4000));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
                 new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", 1, 40L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}},
                 new Object[][]{{"E1", 1, 100L}, {"E1", 2, 70L}, {"E2", 1, 40L}, {"E1", null, 170L}, {"E2", null, 40L}, {null, null, 210L}});
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 80L));    // removes the second 2 events
         epService.getEPRuntime().sendEvent(new CurrentTimeSpanEvent(5000));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
                 new Object[][]{{"E1", 1, 210L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 210L}, {"E2", null, null}, {null, null, 210L}},
                 new Object[][]{{"E1", 1, 130L}, {"E1", 2, 50L}, {"E2", 1, 40L}, {"E1", null, 180L}, {"E2", null, 40L}, {null, null, 220L}});
 
         epService.getEPRuntime().sendEvent(makeEvent("E1", 1, 90L));    // removes the third 1 event
         epService.getEPRuntime().sendEvent(new CurrentTimeSpanEvent(6000));
-        EPAssertionUtil.assertPropsPerRow(listener.getAndResetDataListsFlattened(), fields,
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields,
                 new Object[][]{{"E1", 1, 240L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 240L}, {"E2", null, null}, {null, null, 240L}},
                 new Object[][]{{"E1", 1, 210L}, {"E1", 2, null}, {"E2", 1, null}, {"E1", null, 210L}, {"E2", null, null}, {null, null, 210L}});
     }
