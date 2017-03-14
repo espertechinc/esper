@@ -589,7 +589,7 @@ public class EventTypeUtility {
                         propTypeName = EventTypeUtility.getPropertyRemoveArray(propTypeName);
                     }
                     EventType innerType = eventAdapterService.getExistsTypeByName(propTypeName);
-                    return innerType.getUnderlyingType();
+                    return innerType == null ? null : innerType.getUnderlyingType();
                 }
                 if (!(type instanceof Class)) {
                     return null;
