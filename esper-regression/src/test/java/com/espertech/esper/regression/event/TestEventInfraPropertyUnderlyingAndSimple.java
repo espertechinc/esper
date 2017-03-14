@@ -210,8 +210,8 @@ public class TestEventInfraPropertyUnderlyingAndSimple extends TestCase {
     }
 
     private void addMapEventType(Configuration configuration) {
-        Properties properties = new Properties();
-        properties.put("myInt", "int");
+        LinkedHashMap<String, Object> properties = new LinkedHashMap<>();
+        properties.put("myInt", Integer.class);
         properties.put("myString", "string");
         configuration.addEventType(MAP_TYPENAME, properties);
     }
