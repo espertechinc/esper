@@ -178,7 +178,7 @@ public abstract class EventAdapterAvroHandlerBase implements EventAdapterAvroHan
     }
 
     public Object convertEvent(EventBean theEvent, AvroSchemaEventType targetType) {
-        GenericData.Record original = ((AvroGenericDataEventBean) theEvent).getProperties();
+        GenericData.Record original = ((AvroGenericDataBackedEventBean) theEvent).getProperties();
         Schema targetSchema = (Schema) targetType.getSchema();
         GenericData.Record target = new GenericData.Record(targetSchema);
 
