@@ -723,17 +723,17 @@ public class SelectExprProcessorHelper {
                     if (resultEventType instanceof WrapperEventType) {
                         WrapperEventType wrapper = (WrapperEventType) resultEventType;
                         if (wrapper.getUnderlyingEventType() instanceof MapEventType) {
-                            return new EvalInsertNoWildcardSingleColCoercionMapWrap(selectExprContext, resultEventType);
+                            return new EvalInsertNoWildcardSingleColCoercionMapWrap(selectExprContext, wrapper);
                         } else if (wrapper.getUnderlyingEventType() instanceof ObjectArrayEventType) {
-                            return new EvalInsertNoWildcardSingleColCoercionObjectArrayWrap(selectExprContext, resultEventType);
+                            return new EvalInsertNoWildcardSingleColCoercionObjectArrayWrap(selectExprContext, wrapper);
                         } else if (wrapper.getUnderlyingEventType() instanceof AvroSchemaEventType) {
-                            return new EvalInsertNoWildcardSingleColCoercionAvroWrap(selectExprContext, resultEventType);
+                            return new EvalInsertNoWildcardSingleColCoercionAvroWrap(selectExprContext, wrapper);
                         } else if (wrapper.getUnderlyingEventType() instanceof VariantEventType) {
                             VariantEventType variantEventType = (VariantEventType) wrapper.getUnderlyingEventType();
                             vaeProcessor = valueAddEventService.getValueAddProcessor(variantEventType.getName());
-                            return new EvalInsertNoWildcardSingleColCoercionBeanWrapVariant(selectExprContext, resultEventType, vaeProcessor);
+                            return new EvalInsertNoWildcardSingleColCoercionBeanWrapVariant(selectExprContext, wrapper, vaeProcessor);
                         } else {
-                            return new EvalInsertNoWildcardSingleColCoercionBeanWrap(selectExprContext, resultEventType);
+                            return new EvalInsertNoWildcardSingleColCoercionBeanWrap(selectExprContext, wrapper);
                         }
                     } else {
                         if (resultEventType instanceof BeanEventType) {

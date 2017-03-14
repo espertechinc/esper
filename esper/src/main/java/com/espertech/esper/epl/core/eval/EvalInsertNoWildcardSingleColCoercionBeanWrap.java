@@ -11,23 +11,19 @@
 package com.espertech.esper.epl.core.eval;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.core.SelectExprProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.espertech.esper.event.WrapperEventType;
 
 import java.util.Collections;
 
-public class EvalInsertNoWildcardSingleColCoercionBeanWrap extends EvalBaseFirstProp implements SelectExprProcessor {
+public class EvalInsertNoWildcardSingleColCoercionBeanWrap extends EvalBaseFirstPropFromWrap implements SelectExprProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(EvalInsertNoWildcardSingleColCoercionBeanWrap.class);
-
-    public EvalInsertNoWildcardSingleColCoercionBeanWrap(SelectExprContext selectExprContext, EventType resultEventType) {
-        super(selectExprContext, resultEventType);
+    public EvalInsertNoWildcardSingleColCoercionBeanWrap(SelectExprContext selectExprContext, WrapperEventType wrapper) {
+        super(selectExprContext, wrapper);
     }
 
     public EventBean processFirstCol(Object result) {
-        EventBean wrappedEvent = super.getEventAdapterService().adapterForBean(result);
-        return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.EMPTY_MAP, super.getResultEventType());
+        EventBean wrappedEvent = super.getEventAdapterService().adapterForTypedBean(result, wrapper.getUnderlyingEventType());
+        return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.EMPTY_MAP, wrapper);
     }
 }

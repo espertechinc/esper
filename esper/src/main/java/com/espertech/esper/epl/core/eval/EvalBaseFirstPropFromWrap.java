@@ -10,20 +10,14 @@
  */
 package com.espertech.esper.epl.core.eval;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.core.SelectExprProcessor;
 import com.espertech.esper.event.WrapperEventType;
 
-import java.util.Collections;
+public abstract class EvalBaseFirstPropFromWrap extends EvalBaseFirstProp {
 
-public class EvalInsertNoWildcardSingleColCoercionAvroWrap extends EvalBaseFirstPropFromWrap implements SelectExprProcessor {
+    protected final WrapperEventType wrapper;
 
-    public EvalInsertNoWildcardSingleColCoercionAvroWrap(SelectExprContext selectExprContext, WrapperEventType wrapper) {
+    public EvalBaseFirstPropFromWrap(SelectExprContext selectExprContext, WrapperEventType wrapper) {
         super(selectExprContext, wrapper);
-    }
-
-    public EventBean processFirstCol(Object result) {
-        EventBean wrappedEvent = super.getEventAdapterService().adapterForTypedAvro(result, wrapper.getUnderlyingEventType());
-        return super.getEventAdapterService().adapterForTypedWrapper(wrappedEvent, Collections.EMPTY_MAP, wrapper);
+        this.wrapper = wrapper;
     }
 }

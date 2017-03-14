@@ -10,19 +10,18 @@
  */
 package com.espertech.esper.regression.epl;
 
+import com.espertech.esper.avro.core.AvroGenericDataBackedEventBean;
 import com.espertech.esper.avro.core.AvroGenericDataEventBean;
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.event.AvroBackedBean;
 import com.espertech.esper.event.MappedEventBean;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.event.WrapperEventType;
-import com.espertech.esper.event.arr.ObjectArrayEventBean;
 import com.espertech.esper.event.bean.BeanEventType;
-import com.espertech.esper.event.map.MapEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import com.espertech.esper.supportregression.bean.*;
+import com.espertech.esper.supportregression.bean.SupportBean;
+import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportStaticMethodLib;
 import com.espertech.esper.supportregression.event.SupportEventInfra;
@@ -30,7 +29,6 @@ import com.espertech.esper.util.JavaClassHelper;
 import junit.framework.TestCase;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,12 +89,12 @@ public class TestInsertIntoPopulateSingleColByMethodCall extends TestCase
         Map<String, Object> mapEventTwo = new HashMap<String, Object>();
         mapEventTwo.put("one", "3");
         mapEventTwo.put("two", "4");
-        runAssertionConversionConfiguredType("MapOne", "convertEventMap", "MapTwo", MapEventBean.class, HashMap.class, mapEventTwo, FMAPWTYPE, "one,two".split(","), new Object[] {"3", "|4|"});
+        runAssertionConversionConfiguredType("MapOne", "convertEventMap", "MapTwo", MappedEventBean.class, HashMap.class, mapEventTwo, FMAPWTYPE, "one,two".split(","), new Object[] {"3", "|4|"});
 
         // Object-Array
         runAssertionConversionImplicitType("OA", "OAOne", "convertEventObjectArray", WrapperEventType.class, Object[].class,
                 "OATwo", new Object[] {"1", "2"}, FOAWTYPE, "one,two".split(","), new Object[] {"1", "|2|"});
-        runAssertionConversionConfiguredType("OAOne", "convertEventObjectArray", "OATwo", ObjectArrayEventBean.class, Object[].class, new Object[] {"3", "4"}, FOAWTYPE, "one,two".split(","), new Object[] {"3", "|4|"});
+        runAssertionConversionConfiguredType("OAOne", "convertEventObjectArray", "OATwo", ObjectArrayBackedEventBean.class, Object[].class, new Object[] {"3", "4"}, FOAWTYPE, "one,two".split(","), new Object[] {"3", "|4|"});
 
         // Avro
         GenericData.Record rowOne = new GenericData.Record(schema);
@@ -108,7 +106,7 @@ public class TestInsertIntoPopulateSingleColByMethodCall extends TestCase
         GenericData.Record rowTwo = new GenericData.Record(schema);
         rowTwo.put("one", "3");
         rowTwo.put("two", "4");
-        runAssertionConversionConfiguredType("AvroOne", "convertEventAvro", "AvroTwo", AvroGenericDataEventBean.class, GenericData.Record.class, rowTwo, FAVROWTYPE, "one,two".split(","), new Object[] {"3", "|4|"});
+        runAssertionConversionConfiguredType("AvroOne", "convertEventAvro", "AvroTwo", AvroGenericDataBackedEventBean.class, GenericData.Record.class, rowTwo, FAVROWTYPE, "one,two".split(","), new Object[] {"3", "|4|"});
     }
 
     private void runAssertionConversionImplicitType(String prefix,
@@ -140,7 +138,7 @@ public class TestInsertIntoPopulateSingleColByMethodCall extends TestCase
         sendEvent.apply(epService, event, typeNameEvent);
 
         EventBean theEvent = listenerTwo.assertOneGetNewAndReset();
-        assertEquals(eventTypeType, theEvent.getEventType().getClass());
+        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(theEvent.getEventType().getClass(), eventTypeType));
         assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(theEvent.getUnderlying().getClass(), underlyingType));
         EPAssertionUtil.assertProps(theEvent, propertyName, propertyValues);
 
@@ -167,7 +165,7 @@ public class TestInsertIntoPopulateSingleColByMethodCall extends TestCase
 
         EventBean eventBean = listener.assertOneGetNewAndReset();
         assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventBean.getUnderlying().getClass(), underlyingType));
-        assertEquals(eventBeanType, eventBean.getClass());
+        assertTrue(JavaClassHelper.isSubclassOrImplementsInterface(eventBean.getClass(), eventBeanType));
         EPAssertionUtil.assertProps(eventBean, propertyName, propertyValues);
 
         epService.getEPAdministrator().destroyAllStatements();
