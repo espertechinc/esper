@@ -717,7 +717,7 @@ public class EPStatementStartMethodHelperSubselect {
                 }   // end of for loop
             }
 
-            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService());
+            aggregationServiceFactoryDesc = AggregationServiceFactoryFactory.getService(aggExprNodesSelect, Collections.<ExprNode, String>emptyMap(), Collections.<ExprDeclaredNode>emptyList(), groupByExpressions, aggExpressionNodesHaving, Collections.<ExprAggregateNode>emptyList(), groupKeyExpressions, hasGroupBy, annotations, statementContext.getVariableService(), false, true, statementSpec.getFilterRootNode(), statementSpec.getHavingExprRootNode(), statementContext.getAggregationServiceFactoryService(), subselectTypeService.getEventTypes(), null, statementSpec.getOptionalContextName(), null, null, false, false, false, statementContext.getEngineImportService());
 
             // assign select-clause
             if (!selectExpressions.isEmpty()) {

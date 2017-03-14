@@ -63,6 +63,7 @@
 					<source>1.7</source>
 					<target>1.7</target>
 					<skip>false</skip>
+					<compilerArgument>-XDignore.symbol.file</compilerArgument>
 				</configuration>
 			</plugin>
 			<plugin>

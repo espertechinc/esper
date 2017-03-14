@@ -155,7 +155,7 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
         return new ExprAggCountMinSketchNodeFactoryUse(this, addOrFrequencyEvaluator);
     }
 
-    private CountMinSketchSpec validateSpecification(ExprValidationContext exprValidationContext) throws ExprValidationException {
+    private CountMinSketchSpec validateSpecification(final ExprValidationContext exprValidationContext) throws ExprValidationException {
         // default specification
         final CountMinSketchSpec spec = new CountMinSketchSpec(new CountMinSketchSpecHashes(DEFAULT_EPS_OF_TOTAL_COUNT, DEFAULT_CONFIDENCE, DEFAULT_SEED), null, DEFAULT_AGENT);
 
