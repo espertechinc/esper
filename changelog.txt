@@ -8,17 +8,41 @@ Changes in version 6.0.0
     - ANTLR runtime library version is now 4.5.3 (antlr-runtime-4.5.3.jar) (previously antlr-runtime-4.5.3.jar)
     - CGLIB version is now 3.2.4 (cglib-nodep-3.2.4.jar) (previously cglib-nodep-3.1.jar)
     - SLF4J is now required (slf4j-api-1.7.21.jar) (commons-logging is no longer used) (optionally use with Log4J by adding slf4j-log4j12-1.7.21.jar)
+  - Support for subqueries to use a having-clause
   - Support for Avro
   - Support for passing transient objects as part of configuration, for extensions that rely on injected objects
   - Support for view parameters to originate from context-provided properties
-  - Support for overlapping and non-overlapping contexts without terminating condition
-  - Support for microsecond unit of time: new keywords "microseconds", "microsecond", "usec"
+  - Support for overlapping and non-overlapping contexts without terminating condition, i.e. "create context PerSession initiated by SessionEvent" making "terminated by" optional.
+  - Support for microsecond unit of time, allowing application to run either at millisecond and microsecond resolution; added new keywords "microseconds", "microsecond", "usec"
   - Support for deployment API to by default atomically deploy and undeploy all statements without the need to take an explicit lock; support for providing a timeout and backoff strategy
-  - New EsperIO Kafka input adapter
+  - Support for user-defined functions to return EventBean-typed values
+  - Support for scripts to return EventBean-typed values
+  - Support for method invocation joins to call script and UDFs and to accept EventBean-typed values
+  - Support for contained-event expressions to accept EventBean-typed values returned by the expression
+  - Support for dataflow operator arguments to accept variables as part of the expression
+  - Support for filter optimization to recognize "in"-keywords when used with array, map or Collection-type values
+  - Support for plugging-in a provider for class-for-classname and classloader
+  - Support for views to use #-syntax instead of namespace:name, i.e. "MyEvent#time(30)", and for views to have no parenthesis for empty parameter list
+  - Support for multiple unidirectional streams for full outer joins
+  - Support for Java-8 ZonedDateTime and LocalDateTime
+  - New EsperIO Kafka input and output adapter
+  - Many other improvements across the code and documentation that are not explicitly listed above
+  
+Version 6.0.0 API and EPL Backwards-Incompatible changes:
   - The @EventRepresentation annotation changed: it now takes a default parameter i.e. @EventRepresentation(map)
-  - Minor change in behavior in respect to Object-array event types: When inserting a single column into an existing Object-array event type the engine would allow that column to become the property of a Object-array fragment (inconsistent with other types)
+  - Minor change in behavior in respect to Object-array event types: When inserting a single column into an existing Object-array event type the engine would allow that column to become the property of a Object-array fragment, which was inconsistent with other types
   - Minor change to client API in CurrentTimeEvent to support microseconds: Rename of field "timeInMilliseconds" and CurrentTimeSpanEvent to "targetTime"
   - Minor change to deployment API EPDeploymentAdmin which now also declares InterruptedException and DeploymentLockException to indicate when a lock cannot be taken
+  
+Bug fixes
+  - Fixed issue #55 NPE thrown in pattern that has a function with a subselect with select-star in an atom filter
+  - Fixed issue #61 variable value null for filter boolean expression
+  - Fixed issue #62 warning logged re. IllegalArgumentException when undeploying module using context variables
+  - Fixed issue #65 Cannot set enum variables that contain methods
+  - Fixed issue QGZ-934-29530 NPE casting null constant to type using 'cast(null, type)'
+  - Fixed issue FEH-558-71216 NullPointerException thrown during Single Row Function invocation passing invocation context when eligible for filter optimizations  
+  - Fixed issue FIP-509-17859 NPE thrown context-event props used in output rate crontab
+  - Fixed issue CUI-623-48365 partitioned-context with null-value key not processing events
 
 Changes in version 5.5.0
 ------------------------
