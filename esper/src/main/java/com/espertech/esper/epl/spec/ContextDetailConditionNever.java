@@ -17,6 +17,7 @@ import java.util.List;
 
 public class ContextDetailConditionNever implements ContextDetailCondition {
     public final static ContextDetailConditionNever INSTANCE = new ContextDetailConditionNever();
+    private static final long serialVersionUID = -6227457952791397903L;
 
     private ContextDetailConditionNever() {
     }

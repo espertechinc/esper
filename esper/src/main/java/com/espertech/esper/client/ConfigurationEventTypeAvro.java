@@ -18,6 +18,7 @@ import java.io.Serializable;
  * Configuration for Avro event types.
  */
 public class ConfigurationEventTypeAvro extends ConfigurationEventTypeWithSupertype implements MetaDefItem, Serializable {
+    private static final long serialVersionUID = 6514448750173344310L;
     private String avroSchemaText;
     private Object avroSchema;
 

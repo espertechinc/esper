@@ -17,6 +17,8 @@ import java.io.StringWriter;
  */
 public class ContextDescriptorConditionNever implements ContextDescriptorCondition {
 
+    private static final long serialVersionUID = 4352107391117501969L;
+
     /**
      * Ctor.
      */

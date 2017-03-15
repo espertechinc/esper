@@ -1029,6 +1029,7 @@ public class ConfigurationEngineDefaults implements Serializable {
          * Avro settings.
          */
         public static class AvroSettings implements Serializable {
+            private static final long serialVersionUID = 2977645210525767203L;
             private boolean enableAvro = true;
             private boolean enableNativeString = true;
             private boolean enableSchemaDefaultNonNull = true;

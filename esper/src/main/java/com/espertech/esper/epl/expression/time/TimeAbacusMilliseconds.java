@@ -17,6 +17,7 @@ import java.util.Date;
 
 public class TimeAbacusMilliseconds implements TimeAbacus {
     public final static TimeAbacusMilliseconds INSTANCE = new TimeAbacusMilliseconds();
+    private static final long serialVersionUID = 7634550048792013972L;
 
     private TimeAbacusMilliseconds() {
     }
