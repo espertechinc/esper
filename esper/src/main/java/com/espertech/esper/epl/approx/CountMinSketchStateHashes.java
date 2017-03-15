@@ -20,10 +20,8 @@ import java.util.Random;
  * (source: Wikipedia, see http://en.wikipedia.org/wiki/Count%E2%80%93min_sketch)
  * </p>
  * <p>
- * <p>
  * Count-min sketch computes an approximate frequency and thereby top-k or heavy-hitters.
  * </p>
- * <p>
  * <p>
  * Paper:
  * Graham Cormode and S. Muthukrishnan. An improved data stream summary:

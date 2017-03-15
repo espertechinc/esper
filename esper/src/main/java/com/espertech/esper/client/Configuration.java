@@ -260,10 +260,18 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         addPlugInSingleRowFunction(functionName, className, methodName, ConfigurationPlugInSingleRowFunction.ValueCache.DISABLED, filterOptimizable);
     }
 
+    /**
+     * Returns transient configuration, i.e. information that is passed along as a reference and not as a value
+     * @return map of transients
+     */
     public Map<String, Object> getTransientConfiguration() {
         return transientConfiguration;
     }
 
+    /**
+     * Sets transient configuration, i.e. information that is passed along as a reference and not as a value
+     * @param transientConfiguration map of transients
+     */
     public void setTransientConfiguration(Map<String, Object> transientConfiguration) {
         this.transientConfiguration = transientConfiguration;
     }
@@ -514,6 +522,10 @@ public class Configuration implements ConfigurationOperations, ConfigurationInfo
         annotationImports.add(autoImport);
     }
 
+    /**
+     * Add a class to the imports available for annotations only
+     * @param autoImport class to add
+     */
     public void addAnnotationImport(Class autoImport) {
         addAnnotationImport(autoImport.getName());
     }

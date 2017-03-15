@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.client.util;
 
+/**
+ * Default class loader provider returns the current thread context classloader.
+ */
 public class ClassLoaderProviderDefault implements ClassLoaderProvider {
     public final static ClassLoaderProviderDefault INSTANCE = new ClassLoaderProviderDefault();
 

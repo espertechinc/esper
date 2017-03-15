@@ -329,6 +329,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      *
      * @param eventAdapterService is events adapter
      * @param configSnapshot      is the config snapshot
+     * @param engineImportService engine import service
      */
     protected static void init(EventAdapterService eventAdapterService, ConfigurationInformation configSnapshot, EngineImportService engineImportService) {
         // Extract legacy event type definitions for each event type name, if supplied.
@@ -568,6 +569,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      * @param configSnapshot        is the config snapshot
      * @param schedulingService     is the timer stuff
      * @param schedulingMgmtService for statement schedule management
+     * @param engineImportService   engine import service
      * @return database config svc
      */
     protected static DatabaseConfigService makeDatabaseRefService(ConfigurationInformation configSnapshot,

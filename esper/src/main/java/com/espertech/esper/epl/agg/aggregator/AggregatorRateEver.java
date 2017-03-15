@@ -30,6 +30,7 @@ public class AggregatorRateEver implements AggregationMethod {
      *
      * @param interval     rate interval
      * @param timeProvider time
+     * @param oneSecondTime number of ticks for one second
      */
     public AggregatorRateEver(long interval, long oneSecondTime, TimeProvider timeProvider) {
         this.interval = interval;

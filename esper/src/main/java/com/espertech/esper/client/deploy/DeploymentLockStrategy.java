@@ -21,6 +21,7 @@ public interface DeploymentLockStrategy {
      * Acquire should acquire the write lock of the provided read-write lock and may retry and backoff or fail.
      * @param engineWideLock the engine-wide event processing read-write lock
      * @throws DeploymentLockException to indicate lock attempt failed
+     * @throws InterruptedException when lock-taking is interrupted
      */
     void acquire(ManagedReadWriteLock engineWideLock) throws DeploymentLockException, InterruptedException;
 

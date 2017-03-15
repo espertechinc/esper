@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.client.hook;
 
+/**
+ * Indicates the phase during which and exception was encountered.
+ */
 public enum ExceptionHandlerExceptionType {
     PROCESS,
     STOP;

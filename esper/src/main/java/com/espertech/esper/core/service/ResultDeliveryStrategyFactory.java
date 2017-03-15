@@ -49,6 +49,8 @@ public class ResultDeliveryStrategyFactory {
      * @param selectClauseColumns the names of each column in the select clause
      * @param statement           statement
      * @param methodName          method name
+     * @param engineURI           engine URI
+     * @param engineImportService engine imports
      * @return strategy for dispatching naturals
      * @throws EPSubscriberException if the subscriber is invalid
      */

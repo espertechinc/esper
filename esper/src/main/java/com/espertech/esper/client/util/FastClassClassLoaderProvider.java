@@ -10,8 +10,16 @@
  */
 package com.espertech.esper.client.util;
 
+/**
+ * Class loader provider for use with FastClass-instance creation.
+ */
 public interface FastClassClassLoaderProvider {
     String NAME = "FastClassClassLoaderProvider";
 
+    /**
+     * Returns the classloader to use.
+     * @param clazz class to generate FastClass for
+     * @return class loader
+     */
     ClassLoader classloader(Class clazz);
 }

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.client.annotation;
 
+/**
+ * Annotation to target certain constructs.
+ */
 public enum AppliesTo {
     UNDEFINED,
     UNIQUE,

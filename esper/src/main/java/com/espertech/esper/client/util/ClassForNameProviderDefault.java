@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.client.util;
 
+/**
+ * Default provider for classname lookups.
+ */
 public class ClassForNameProviderDefault implements ClassForNameProvider {
     public final static ClassForNameProviderDefault INSTANCE = new ClassForNameProviderDefault();
 

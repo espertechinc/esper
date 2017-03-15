@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.client.util;
 
+/**
+ * Default class loader provider for use with FastClass-instance creation, uses current thread context class loader
+ */
 public class FastClassClassLoaderProviderDefault implements FastClassClassLoaderProvider {
     public final static FastClassClassLoaderProviderDefault INSTANCE = new FastClassClassLoaderProviderDefault();
 

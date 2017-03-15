@@ -51,6 +51,7 @@ public class XSDSchemaMapper {
      *
      * @param schemaResource schema to load and map.
      * @param schemaText     schema
+     * @param engineImportService engine imports
      * @return model
      */
     public static SchemaModel loadAndMap(String schemaResource, String schemaText, EngineImportService engineImportService) {

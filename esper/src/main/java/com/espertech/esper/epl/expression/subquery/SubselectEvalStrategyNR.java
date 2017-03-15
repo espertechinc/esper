@@ -27,6 +27,7 @@ public interface SubselectEvalStrategyNR {
      * @param isNewData            true for new data
      * @param matchingEvents       prefiltered events
      * @param exprEvaluatorContext expression evaluation context
+     * @param aggregationService aggregation service or null if none
      * @return eval result
      */
     public Object evaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext, AggregationService aggregationService);

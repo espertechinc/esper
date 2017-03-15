@@ -15,6 +15,10 @@ package com.espertech.esper.client.hook;
  */
 public interface EPLScriptContext {
 
+    /**
+     * Returns event and event type services
+     * @return event type and event services
+     */
     public EventBeanService getEventBeanService();
 
     /**

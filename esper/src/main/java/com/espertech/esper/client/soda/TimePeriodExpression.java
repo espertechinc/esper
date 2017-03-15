@@ -316,10 +316,20 @@ public class TimePeriodExpression extends ExpressionBase {
         this.hasWeeks = hasWeeks;
     }
 
+    /**
+     * Returns true if a subexpression exists that is a microsecond-part.
+     *
+     * @return indicator for presence of part
+     */
     public boolean isHasMicroseconds() {
         return hasMicroseconds;
     }
 
+    /**
+     * Set to true if a subexpression exists that is a microsecond-part.
+     *
+     * @param hasMicroseconds indicator for presence of part
+     */
     public void setHasMicroseconds(boolean hasMicroseconds) {
         this.hasMicroseconds = hasMicroseconds;
     }

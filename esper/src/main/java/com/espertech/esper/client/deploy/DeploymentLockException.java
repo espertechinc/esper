@@ -15,14 +15,27 @@ package com.espertech.esper.client.deploy;
  */
 public class DeploymentLockException extends DeploymentException {
 
+    /**
+     * Ctor.
+     * @param message message
+     */
     public DeploymentLockException(String message) {
         super(message);
     }
 
+    /**
+     * Ctor
+     * @param message message
+     * @param cause cause
+     */
     public DeploymentLockException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Ctor.
+     * @param cause cause
+     */
     public DeploymentLockException(Throwable cause) {
         super(cause);
     }

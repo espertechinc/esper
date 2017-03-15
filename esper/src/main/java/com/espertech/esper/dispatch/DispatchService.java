@@ -17,13 +17,13 @@ package com.espertech.esper.dispatch;
  * When a client invokes dispatch the implementation first invokes all internal Dispatchable
  * instances then all external Dispatchable instances. Dispatchables are invoked
  * in the same order they are added. Any dispatchable added twice is dispatched once.
- * <p>
- * <p>Note: Each execution thread owns its own dispatch queue.
+ * <p>Note: Each execution thread owns its own dispatch queue.</p>
  * <p>
  * Note: Dispatchs could result in further call to the dispatch service. This is because listener code
  * that is invoked as a result of a dispatch may create patterns that fireStatementStopped as soon as they are started
  * resulting in further dispatches within the same thread. Thus the implementation class must be careful
  * with the use of iterators to avoid ConcurrentModificationException errors.
+ * </p>
  */
 public interface DispatchService {
     /**

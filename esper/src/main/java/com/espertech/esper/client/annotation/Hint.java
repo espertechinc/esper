@@ -24,7 +24,15 @@ public @interface Hint {
      */
     String value() default "";
 
+    /**
+     * Optional information to what the hint applies to
+     * @return applies
+     */
     AppliesTo applies() default AppliesTo.UNDEFINED;
 
+    /**
+     * Optional model name.
+     * @return model name
+     */
     String model() default "";
 }

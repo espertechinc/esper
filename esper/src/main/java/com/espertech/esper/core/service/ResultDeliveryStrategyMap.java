@@ -42,6 +42,7 @@ public class ResultDeliveryStrategyMap implements ResultDeliveryStrategy {
      * @param method      the delivery method
      * @param columnNames the column names for the map
      * @param statement   statement
+     * @param engineImportService engine imports
      */
     public ResultDeliveryStrategyMap(EPStatement statement, Object subscriber, Method method, String[] columnNames, EngineImportService engineImportService) {
         this.statement = statement;

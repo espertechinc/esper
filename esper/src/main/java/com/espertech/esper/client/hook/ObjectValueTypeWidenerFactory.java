@@ -12,6 +12,9 @@ package com.espertech.esper.client.hook;
 
 import com.espertech.esper.util.TypeWidener;
 
+/**
+ * For Avro use widener or transformer of object values to Avro record values
+ */
 public interface ObjectValueTypeWidenerFactory {
     /**
      * Returns a type widener or coercer.

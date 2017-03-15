@@ -10,8 +10,19 @@
  */
 package com.espertech.esper.client.annotation;
 
+/**
+ * Annottation for use with Avro to provide a schema for a given event property.
+ */
 public @interface AvroSchemaField {
+    /**
+     * Property name.
+     * @return name
+     */
     String name();
 
+    /**
+     * Schema text.
+     * @return schema text
+     */
     String schema();
 }

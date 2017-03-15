@@ -28,6 +28,7 @@
 	</path>
 	
 	<target name="clean">
+		<mkdir dir="${dist.api.dir}"/>
         <delete>
         	<fileset dir="${dist.api.dir}" includes="**/*.*" />
         </delete>
@@ -43,7 +44,8 @@
 			windowtitle="${Name} API Documentation"
 			Overview="${doc.api.dir}/package.html"
 			doctitle="${Name} ${version} API Documentation"
-			maxmemory="1024M">
+			maxmemory="1024M"
+			additionalparam="--allow-script-in-comments">
 			<link href="${javadoc_link}"/>
 			<footer>
 				<![CDATA[

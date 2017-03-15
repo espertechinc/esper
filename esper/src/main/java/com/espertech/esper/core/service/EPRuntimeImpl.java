@@ -262,6 +262,21 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         threadWorkQueue.addBack(eventBean);
     }
 
+    public void routeAvro(Object avroGenericDataDotRecord, String avroEventTypeName) throws EPException {
+        if (avroGenericDataDotRecord == null) {
+            log.error(".sendEvent Null object supplied");
+            return;
+        }
+
+        if ((ExecutionPathDebugLog.isDebugEnabled) && (log.isDebugEnabled())) {
+            log.debug(".sendEvent Processing Avro event " + avroGenericDataDotRecord);
+        }
+
+        // Get it wrapped up, process event
+        EventBean eventBean = services.getEventAdapterService().adapterForAvro(avroGenericDataDotRecord, avroEventTypeName);
+        threadWorkQueue.addBack(eventBean);
+    }
+
     public void sendEvent(Map map, String mapEventTypeName) throws EPException {
         if (map == null) {
             throw new IllegalArgumentException("Invalid null event object");

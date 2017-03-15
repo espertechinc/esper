@@ -40,6 +40,7 @@ public class MethodStreamSpec extends StreamSpecBase implements StreamSpecRaw, S
      * @param className          the class name
      * @param methodName         the method name
      * @param expressions        the parameter expressions
+     * @param eventTypeName      event type name if provided
      */
     public MethodStreamSpec(String optionalStreamName, ViewSpec[] viewSpecs, String ident, String className, String methodName, List<ExprNode> expressions, String eventTypeName) {
         super(optionalStreamName, viewSpecs, StreamSpecOptions.DEFAULT);

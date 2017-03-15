@@ -12,6 +12,9 @@ package com.espertech.esper.client.util;
 
 import java.io.Serializable;
 
+/**
+ * Represents a time period.
+ */
 public class TimePeriod implements Serializable {
     private static final long serialVersionUID = 1897460581178729620L;
     private Integer years;
@@ -24,6 +27,18 @@ public class TimePeriod implements Serializable {
     private Integer milliseconds;
     private Integer microseconds;
 
+    /**
+     * Ctor.
+     * @param years years
+     * @param months month
+     * @param weeks weeks
+     * @param days days
+     * @param hours hours
+     * @param minutes minutes
+     * @param seconds seconds
+     * @param milliseconds milliseconds
+     * @param microseconds microseconds
+     */
     public TimePeriod(Integer years, Integer months, Integer weeks, Integer days, Integer hours, Integer minutes, Integer seconds, Integer milliseconds, Integer microseconds) {
         this.years = years;
         this.months = months;
@@ -36,121 +51,241 @@ public class TimePeriod implements Serializable {
         this.microseconds = microseconds;
     }
 
+    /**
+     * Ctor.
+     */
     public TimePeriod() {
     }
 
+    /**
+     * Returns years or null if not provided.
+     * @return years
+     */
     public Integer getYears() {
         return years;
     }
 
+    /**
+     * Returns months or null if not provided.
+     * @return months
+     */
     public Integer getMonths() {
         return months;
     }
 
+    /**
+     * Returns weeks or null if not provided.
+     * @return weeks
+     */
     public Integer getWeeks() {
         return weeks;
     }
 
+    /**
+     * Returns days or null if not provided.
+     * @return days
+     */
     public Integer getDays() {
         return days;
     }
 
+    /**
+     * Returns hours or null if not provided.
+     * @return hours
+     */
     public Integer getHours() {
         return hours;
     }
 
+    /**
+     * Returns minutes or null if not provided.
+     * @return minutes
+     */
     public Integer getMinutes() {
         return minutes;
     }
 
+    /**
+     * Returns seconds or null if not provided.
+     * @return seconds
+     */
     public Integer getSeconds() {
         return seconds;
     }
 
+    /**
+     * Returns milliseconds or null if not provided.
+     * @return millis
+     */
     public Integer getMilliseconds() {
         return milliseconds;
     }
 
+    /**
+     * Returns microseconds or null if not provided.
+     * @return micros
+     */
     public Integer getMicroseconds() {
         return microseconds;
     }
 
+    /**
+     * Sets years or null if not provided.
+     * @param years to set
+     */
     public void setYears(Integer years) {
         this.years = years;
     }
 
+    /**
+     * Sets months or null if not provided.
+     * @param months to set
+     */
     public void setMonths(Integer months) {
         this.months = months;
     }
 
+    /**
+     * Sets weeks or null if not provided.
+     * @param weeks to set
+     */
     public void setWeeks(Integer weeks) {
         this.weeks = weeks;
     }
 
+    /**
+     * Sets days or null if not provided.
+     * @param days to set
+     */
     public void setDays(Integer days) {
         this.days = days;
     }
 
+    /**
+     * Sets hours or null if not provided.
+     * @param hours to set
+     */
     public void setHours(Integer hours) {
         this.hours = hours;
     }
 
+    /**
+     * Sets minutes or null if not provided.
+     * @param minutes to set
+     */
     public void setMinutes(Integer minutes) {
         this.minutes = minutes;
     }
 
+    /**
+     * Sets seconds or null if not provided.
+     * @param seconds to set
+     */
     public void setSeconds(Integer seconds) {
         this.seconds = seconds;
     }
 
+    /**
+     * Sets milliseconds or null if not provided.
+     * @param milliseconds to set
+     */
     public void setMilliseconds(Integer milliseconds) {
         this.milliseconds = milliseconds;
     }
 
+    /**
+     * Sets microseconds or null if not provided.
+     * @param microseconds to set
+     */
     public void setMicroseconds(Integer microseconds) {
         this.microseconds = microseconds;
     }
 
+    /**
+     * Ctor for chain.
+     * @param years years
+     * @return time period
+     */
     public TimePeriod years(Integer years) {
         this.years = years;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param months months
+     * @return time period
+     */
     public TimePeriod months(Integer months) {
         this.months = months;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param weeks weeks
+     * @return time period
+     */
     public TimePeriod weeks(Integer weeks) {
         this.weeks = weeks;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param days days
+     * @return time period
+     */
     public TimePeriod days(Integer days) {
         this.days = days;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param hours hours
+     * @return time period
+     */
     public TimePeriod hours(Integer hours) {
         this.hours = hours;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param minutes minutes
+     * @return time period
+     */
     public TimePeriod min(Integer minutes) {
         this.minutes = minutes;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param seconds seconds
+     * @return time period
+     */
     public TimePeriod sec(Integer seconds) {
         this.seconds = seconds;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param milliseconds millis
+     * @return time period
+     */
     public TimePeriod millis(Integer milliseconds) {
         this.milliseconds = milliseconds;
         return this;
     }
 
+    /**
+     * Ctor for chain.
+     * @param microseconds micros
+     * @return time period
+     */
     public TimePeriod micros(Integer microseconds) {
         this.microseconds = microseconds;
         return this;
@@ -188,6 +323,10 @@ public class TimePeriod implements Serializable {
         return result;
     }
 
+    /**
+     * Returns ISO8601 string.
+     * @return formatted
+     */
     public String toStringISO8601() {
         StringBuilder buf = new StringBuilder();
         if (years != null) {
@@ -217,6 +356,10 @@ public class TimePeriod implements Serializable {
         return buf.toString();
     }
 
+    /**
+     * Returns the largest absolute value.
+     * @return largest absolute value
+     */
     public Integer largestAbsoluteValue() {
         Integer absMax = null;
         if (years != null && (absMax == null || Math.abs(years) > absMax)) {

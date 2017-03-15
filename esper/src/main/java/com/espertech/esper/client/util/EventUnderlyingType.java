@@ -46,14 +46,17 @@ public enum EventUnderlyingType {
     private String underlyingClassName;
 
     /**
-     * Returns the default property resolution style.
-     *
-     * @return is the case-sensitive resolution
+     * Returns the default underlying type.
+     * @return default underlying type
      */
     public static EventUnderlyingType getDefault() {
         return MAP;
     }
 
+    /**
+     * Returns the class name of the default underlying type.
+     * @return default underlying type class name
+     */
     public String getUnderlyingClassName() {
         return underlyingClassName;
     }

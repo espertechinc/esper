@@ -39,6 +39,10 @@ public class TypeWidenerFactory {
      * @param columnType            type of column
      * @param writeablePropertyType property type
      * @param writeablePropertyName propery name
+     * @param allowObjectArrayToCollectionConversion whether we widen object-array to collection
+     * @param customizer customization if any
+     * @param engineURI engine URI
+     * @param statementName statement name
      * @return type widender
      * @throws ExprValidationException if type validation fails
      */

@@ -58,6 +58,10 @@ public interface ConfigurationInformation {
      */
     public Map<String, ConfigurationEventTypeXMLDOM> getEventTypesXMLDOM();
 
+    /**
+     * Returns the Avro event types.
+     * @return Avro event types
+     */
     public Map<String, ConfigurationEventTypeAvro> getEventTypesAvro();
 
     /**
@@ -238,6 +242,10 @@ public interface ConfigurationInformation {
      */
     public Map<String, Map<String, Object>> getEventTypesNestableObjectArrayEvents();
 
+    /**
+     * Returns the transient configuration, which are configuration values that are passed by reference (and not by value)
+     * @return transient configuration
+     */
     public Map<String, Object> getTransientConfiguration();
 }
 

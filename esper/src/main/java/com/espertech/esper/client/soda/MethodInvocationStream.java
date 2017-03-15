@@ -121,10 +121,18 @@ public class MethodInvocationStream extends Stream {
         this.parameterExpressions = parameterExpressions;
     }
 
+    /**
+     * Returns the optional event type name
+     * @return event type name name
+     */
     public String getOptionalEventTypeName() {
         return optionalEventTypeName;
     }
 
+    /**
+     * Sets the optional event type name
+     * @param optionalEventTypeName event type name name
+     */
     public void setOptionalEventTypeName(String optionalEventTypeName) {
         this.optionalEventTypeName = optionalEventTypeName;
     }

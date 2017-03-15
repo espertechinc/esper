@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.client;
 
+import com.espertech.esper.client.hook.ObjectValueTypeWidenerFactory;
+import com.espertech.esper.client.hook.TypeRepresentationMapper;
 import com.espertech.esper.client.soda.StreamSelector;
 import com.espertech.esper.client.util.EventUnderlyingType;
 
@@ -1007,14 +1009,25 @@ public class ConfigurationEngineDefaults implements Serializable {
             this.anonymousCacheSize = anonymousCacheSize;
         }
 
+        /**
+         * Returns the Avro settings.
+         * @return avro settings
+         */
         public AvroSettings getAvroSettings() {
             return avroSettings;
         }
 
+        /**
+         * Sets the Avro settings.
+         * @param avroSettings avro settings
+         */
         public void setAvroSettings(AvroSettings avroSettings) {
             this.avroSettings = avroSettings;
         }
 
+        /**
+         * Avro settings.
+         */
         public static class AvroSettings implements Serializable {
             private boolean enableAvro = true;
             private boolean enableNativeString = true;
@@ -1022,42 +1035,86 @@ public class ConfigurationEngineDefaults implements Serializable {
             private String typeRepresentationMapperClass;
             private String objectValueTypeWidenerFactoryClass;
 
+            /**
+             * Returns the indicator whether Avro support is enabled when available (true by default).
+             * @return indicator
+             */
             public boolean isEnableAvro() {
                 return enableAvro;
             }
 
+            /**
+             * Sets the indicator whether Avro support is enabled when available (true by default).
+             * @param enableAvro indicator to set
+             */
             public void setEnableAvro(boolean enableAvro) {
                 this.enableAvro = enableAvro;
             }
 
+            /**
+             * Returns indicator whether for String-type values to use the "avro.java.string=String" (true by default)
+             * @return indicator
+             */
             public boolean isEnableNativeString() {
                 return enableNativeString;
             }
 
+            /**
+             * Sets indicator whether for String-type values to use the "avro.java.string=String" (true by default)
+             * @param enableNativeString indicator
+             */
             public void setEnableNativeString(boolean enableNativeString) {
                 this.enableNativeString = enableNativeString;
             }
 
+            /**
+             * Returns indicator whether generated schemas should assume non-null values (true by default)
+             * @return indicator
+             */
             public boolean isEnableSchemaDefaultNonNull() {
                 return enableSchemaDefaultNonNull;
             }
 
+            /**
+             * Sets indicator whether generated schemas should assume non-null values (true by default)
+             * @param enableSchemaDefaultNonNull indicator
+             */
             public void setEnableSchemaDefaultNonNull(boolean enableSchemaDefaultNonNull) {
                 this.enableSchemaDefaultNonNull = enableSchemaDefaultNonNull;
             }
 
+            /**
+             * Sets class name of mapping provider that maps types to an Avro schema; a mapper should implement {@link TypeRepresentationMapper}
+             * (null by default, using default mapping)
+             * @param typeRepresentationMapperClass class name
+             */
             public void setTypeRepresentationMapperClass(String typeRepresentationMapperClass) {
                 this.typeRepresentationMapperClass = typeRepresentationMapperClass;
             }
 
+            /**
+             * Returns class name of mapping provider that maps types to an Avro schema; a mapper should implement {@link TypeRepresentationMapper}
+             * (null by default, using default mapping)
+             * @return class name
+             */
             public String getTypeRepresentationMapperClass() {
                 return typeRepresentationMapperClass;
             }
 
+            /**
+             * Returns the class name of widening provider that widens, coerces or transforms object values to an Avro field value or record; a widener should implement {@link ObjectValueTypeWidenerFactory}
+             * (null by default, using default widening)
+             * @return class name
+             */
             public String getObjectValueTypeWidenerFactoryClass() {
                 return objectValueTypeWidenerFactoryClass;
             }
 
+            /**
+             * Sets the class name of widening provider that widens, coerces or transforms object values to an Avro field value or record; a widener should implement {@link ObjectValueTypeWidenerFactory}
+             * (null by default, using default widening)
+             * @param objectValueTypeWidenerFactoryClass class name
+             */
             public void setObjectValueTypeWidenerFactoryClass(String objectValueTypeWidenerFactoryClass) {
                 this.objectValueTypeWidenerFactoryClass = objectValueTypeWidenerFactoryClass;
             }
@@ -1438,10 +1495,18 @@ public class ConfigurationEngineDefaults implements Serializable {
             this.timeSourceType = timeSourceType;
         }
 
+        /**
+         * Returns the time unit time resolution level of time tracking
+         * @return time resolution
+         */
         public TimeUnit getTimeUnit() {
             return timeUnit;
         }
 
+        /**
+         * Sets the time unit time resolution level of time tracking
+         * @param timeUnit time resolution
+         */
         public void setTimeUnit(TimeUnit timeUnit) {
             this.timeUnit = timeUnit;
         }

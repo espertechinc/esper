@@ -26,6 +26,16 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable {
     private boolean rethrowExceptions = false;
     private String eventTypeName;
 
+    /**
+     * Ctor.
+     * @param name UDF name
+     * @param functionClassName class name
+     * @param functionMethodName method name
+     * @param valueCache value cache
+     * @param filterOptimizable optimizable setting
+     * @param rethrowExceptions rethrow setting
+     * @param eventTypeName optional event type name
+     */
     public ConfigurationPlugInSingleRowFunction(String name, String functionClassName, String functionMethodName, ValueCache valueCache, FilterOptimizable filterOptimizable, boolean rethrowExceptions, String eventTypeName) {
         this.name = name;
         this.functionClassName = functionClassName;
@@ -154,10 +164,18 @@ public class ConfigurationPlugInSingleRowFunction implements Serializable {
         this.rethrowExceptions = rethrowExceptions;
     }
 
+    /**
+     * Returns the event type name for functions that return {@link EventBean} instances.
+     * @return event type name
+     */
     public String getEventTypeName() {
         return eventTypeName;
     }
 
+    /**
+     * Sets the event type name for functions that return {@link EventBean} instances.
+     * @param eventTypeName event type name
+     */
     public void setEventTypeName(String eventTypeName) {
         this.eventTypeName = eventTypeName;
     }

@@ -243,6 +243,7 @@ public class ViewServiceHelper {
      * @param rootViewable  is the top rootViewable event stream to which all views are attached as child views
      *                      This parameter is changed by this method, ie. specifications are removed if they match existing views.
      * @param viewFactories is the view specifications for making views
+     * @param agentInstanceContext agent instance context
      * @return a pair of (A) the stream if no views matched, or the last child view that matched (B) the full list
      * of parent views
      */

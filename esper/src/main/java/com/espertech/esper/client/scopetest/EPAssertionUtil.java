@@ -454,6 +454,13 @@ public class EPAssertionUtil {
         safeIterator.close();
     }
 
+    /**
+     * Compare property values for insert and remove stream pair
+     * @param pair pair
+     * @param propertyNames names
+     * @param expectedNew expected insert-stream values
+     * @param expectedOld expected remove-stream values
+     */
     public static void assertPropsPerRowAnyOrder(UniformPair<EventBean[]> pair, String[] propertyNames, Object[][] expectedNew, Object[][] expectedOld) {
         assertPropsPerRowAnyOrder(pair.getFirst(), propertyNames, expectedNew);
         assertPropsPerRowAnyOrder(pair.getSecond(), propertyNames, expectedOld);

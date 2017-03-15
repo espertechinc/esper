@@ -30,6 +30,7 @@ public class DatabaseDMConnFactory implements DatabaseConnectionFactory {
      *
      * @param driverConfig       is the driver manager configuration
      * @param connectionSettings are connection-level settings
+     * @param engineImportService engine imports
      * @throws DatabaseConfigException thrown if the driver class cannot be loaded
      */
     public DatabaseDMConnFactory(ConfigurationDBRef.DriverManagerConnection driverConfig,

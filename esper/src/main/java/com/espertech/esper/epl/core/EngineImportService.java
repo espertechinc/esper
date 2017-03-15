@@ -71,7 +71,7 @@ public interface EngineImportService {
      * @param valueCache         setting to control value cache behavior which may cache a result value when constant parameters are passed
      * @param filterOptimizable  filter behavior setting
      * @param rethrowExceptions  for whether to rethrow
-     * @param optionalEventTypeName
+     * @param optionalEventTypeName event type name when provided
      * @throws EngineImportException throw if format or information is invalid
      */
     public void addSingleRow(String functionName, String singleRowFuncClass, String methodName, ConfigurationPlugInSingleRowFunction.ValueCache valueCache, ConfigurationPlugInSingleRowFunction.FilterOptimizable filterOptimizable, boolean rethrowExceptions, String optionalEventTypeName) throws EngineImportException;

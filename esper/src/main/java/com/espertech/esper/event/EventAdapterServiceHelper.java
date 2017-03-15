@@ -159,7 +159,7 @@ public class EventAdapterServiceHelper {
      * @param properties          to write
      * @param engineImportService for resolving methods
      * @param allowAnyType        whether any type property can be populated
-     * @param avroHandler
+     * @param avroHandler         avro handler
      * @return factory
      * @throws EventBeanManufactureException if a factory cannot be created for the type
      */

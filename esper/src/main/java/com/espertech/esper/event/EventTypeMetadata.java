@@ -106,6 +106,7 @@ public class EventTypeMetadata {
      * Factory for an anonymous type.
      *
      * @param associationName what the type is associated with
+     * @param applicationType type info
      * @return instance
      */
     public static EventTypeMetadata createAnonymous(String associationName, ApplicationType applicationType) {

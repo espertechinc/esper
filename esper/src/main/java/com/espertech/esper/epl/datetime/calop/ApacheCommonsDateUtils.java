@@ -18,7 +18,6 @@ import java.util.TimeZone;
 /**
  * <p>A suite of utilities surrounding the use of the
  * {@link java.util.Calendar} and {@link java.util.Date} object.</p>
- * <p>
  * <p>DateUtils contains a lot of common methods considering manipulations
  * of Dates or Calendars. Some methods require some extra explanation.
  * The truncate, ceiling and round methods could be considered the Math.floor(),

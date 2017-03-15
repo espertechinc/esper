@@ -41,6 +41,7 @@ public class PluggableObjectCollection {
      *
      * @param configurationPlugInViews     is a list of configured plug-in view objects.
      * @param configurationPlugInVirtualDW virtual data window configs
+     * @param engineImportService engine imports
      * @throws ConfigurationException if the configured views don't resolve
      */
     public void addViews(List<ConfigurationPlugInView> configurationPlugInViews, List<ConfigurationPlugInVirtualDataWindow> configurationPlugInVirtualDW, EngineImportService engineImportService) throws ConfigurationException {
@@ -52,6 +53,7 @@ public class PluggableObjectCollection {
      * Add a plug-in pattern object.
      *
      * @param configPattern is a list of configured plug-in pattern objects.
+     * @param engineImportService engine imports
      * @throws ConfigurationException if the configured patterns don't resolve
      */
     public void addPatternObjects(List<ConfigurationPlugInPatternObject> configPattern, EngineImportService engineImportService) throws ConfigurationException {

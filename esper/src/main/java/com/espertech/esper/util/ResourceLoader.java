@@ -25,6 +25,7 @@ public class ResourceLoader {
      *
      * @param resourceName           is the name for use in exceptions
      * @param urlOrClasspathResource is a URL string or classpath-relative filename
+     * @param classLoader class loader
      * @return URL or null if resolution was unsuccessful
      */
     public static URL resolveClassPathOrURLResource(String resourceName, String urlOrClasspathResource, ClassLoader classLoader) {
@@ -58,6 +59,7 @@ public class ResourceLoader {
      *
      * @param resourceName is the name for use in exceptions
      * @param resource     is the classpath-relative filename to resolve into a URL
+     * @param classLoader class loader
      * @return URL for resource
      */
     public static URL getClasspathResourceAsURL(String resourceName, String resource, ClassLoader classLoader) {

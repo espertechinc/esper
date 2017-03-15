@@ -456,5 +456,36 @@ public interface EPRuntime {
      */
     public boolean isExternalClockingEnabled();
 
+    /**
+     * Send an event represented by a Avro GenericData.Record to the event stream processing runtime.
+     * <p>
+     * Use the route method for sending events into the runtime from within UpdateListener code,
+     * to avoid the possibility of a stack overflow due to nested calls to sendEvent
+     * (except with the outbound-threading configuration), see {@link #routeAvro(Object, String)}}).
+     *
+     * @param avroGenericDataDotRecord is the event to sent to the runtime
+     * @param avroEventTypeName event type name
+     * @throws EPException is thrown when the processing of the event lead to an error
+     */
     void sendEventAvro(Object avroGenericDataDotRecord, String avroEventTypeName);
+
+    /**
+     * Route the event object back to the event stream processing runtime for internal dispatching,
+     * to avoid the possibility of a stack overflow due to nested calls to sendEvent.
+     * The route event is processed just like it was sent to the runtime, that is any
+     * active expressions seeking that event receive it. The routed event has priority over other
+     * events sent to the runtime. In a single-threaded application the routed event is
+     * processed before the next event is sent to the runtime through the
+     * EPRuntime.sendEvent method.
+     * <p>
+     * Note: when outbound-threading is enabled, the thread delivering to listeners
+     * is not the thread processing the original event. Therefore with outbound-threading
+     * enabled the sendEvent method should be used by listeners instead.
+     * </p>
+     *
+     * @param avroGenericDataDotRecord is the event to sent to the runtime
+     * @param avroEventTypeName event type name
+     * @throws EPException is thrown when the processing of the event lead to an error
+     */
+    public void routeAvro(Object avroGenericDataDotRecord, String avroEventTypeName) throws EPException;
 }

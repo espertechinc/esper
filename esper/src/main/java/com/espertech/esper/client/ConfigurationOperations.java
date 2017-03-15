@@ -651,9 +651,22 @@ public interface ConfigurationOperations {
      */
     public void updateObjectArrayEventType(String myEvent, String[] namesNew, Object[] typesNew);
 
+    /**
+     * Returns the transient configuration, which are configuration values that are passed by reference (and not by value)
+     * @return transient configuration
+     */
     public Map<String, Object> getTransientConfiguration();
 
+    /**
+     * Adds an Avro event type
+     * @param eventTypeName type name
+     * @param avro configs
+     */
     void addEventTypeAvro(String eventTypeName, ConfigurationEventTypeAvro avro);
 
+    /**
+     * Add a plug-in single-row function
+     * @param singleRowFunction configuration
+     */
     void addPlugInSingleRowFunction(ConfigurationPlugInSingleRowFunction singleRowFunction);
 }

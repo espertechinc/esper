@@ -10,6 +10,14 @@
  */
 package com.espertech.esper.client.hook;
 
+/**
+ * For Avro schemas for mapping a given type to a given Avro schema.
+ */
 public interface TypeRepresentationMapper {
+    /**
+     * Return Avro schema for type information provided.
+     * @param context type and contextual information
+     * @return schema
+     */
     Object map(TypeRepresentationMapperContext context);
 }

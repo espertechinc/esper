@@ -53,6 +53,7 @@ public class ResultDeliveryStrategyImpl implements ResultDeliveryStrategy {
      * @param endMethod         to call to indicate when delivery ends, or null if no such indication is required
      * @param rStreamMethod     to deliver the remove stream to, or null if no such indication is required
      * @param statement         statement
+     * @param engineImportService engine imports
      */
     public ResultDeliveryStrategyImpl(EPStatement statement, Object subscriber, DeliveryConvertor deliveryConvertor, Method method, Method startMethod, Method endMethod, Method rStreamMethod, EngineImportService engineImportService) {
         this.statement = statement;

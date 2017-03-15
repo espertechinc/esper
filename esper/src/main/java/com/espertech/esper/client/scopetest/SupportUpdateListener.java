@@ -393,6 +393,11 @@ public class SupportUpdateListener implements UpdateListener {
         return pair;
     }
 
+    /**
+     * For multiple listeners, return the invoked flags and reset each listener
+     * @param listeners listeners
+     * @return invoked flags
+     */
     public static boolean[] getInvokedFlagsAndReset(SupportUpdateListener[] listeners) {
         boolean[] invoked = new boolean[listeners.length];
         for (int i = 0; i < listeners.length; i++) {

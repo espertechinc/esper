@@ -63,6 +63,7 @@ public class SQLTypeMapUtil {
      *
      * @param sqlType   to return Java class for
      * @param className is the classname that result metadata returns for a column
+     * @param classForNameProvider class-for-classname lookup
      * @return Java class for JDBC sql types
      */
     public static Class sqlTypeToClass(int sqlType, String className, ClassForNameProvider classForNameProvider) {

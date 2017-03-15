@@ -29,6 +29,7 @@ public class EPLMethodInvocationContext {
      * @param engineURI           the engine URI
      * @param functionName        the name of the plug-in single row function, or the method name if not a plug-in single row function
      * @param statementUserObject the statement user object or null if not assigned
+     * @param eventBeanService    event and event type services
      */
     public EPLMethodInvocationContext(String statementName, int contextPartitionId, String engineURI, String functionName, Object statementUserObject, EventBeanService eventBeanService) {
         this.statementName = statementName;
@@ -84,6 +85,10 @@ public class EPLMethodInvocationContext {
         return statementUserObject;
     }
 
+    /**
+     * Returns event and event type services.
+     * @return eventBeanService
+     */
     public EventBeanService getEventBeanService() {
         return eventBeanService;
     }

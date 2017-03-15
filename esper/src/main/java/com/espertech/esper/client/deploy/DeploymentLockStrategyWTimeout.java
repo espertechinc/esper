@@ -23,6 +23,11 @@ public class DeploymentLockStrategyWTimeout implements DeploymentLockStrategy {
     private final long timeout;
     private final TimeUnit unit;
 
+    /**
+     * Ctor.
+     * @param timeout timeout value in the unit given
+     * @param unit unit
+     */
     public DeploymentLockStrategyWTimeout(long timeout, TimeUnit unit) {
         this.timeout = timeout;
         this.unit = unit;

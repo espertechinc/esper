@@ -42,6 +42,7 @@ public class ResultDeliveryStrategyTypeArr implements ResultDeliveryStrategy {
      * @param method        is the method to deliver to
      * @param statement     statement
      * @param componentType component type
+     * @param engineImportService engine imports
      */
     public ResultDeliveryStrategyTypeArr(EPStatement statement, Object subscriber, Method method, Class componentType, EngineImportService engineImportService) {
         this.statement = statement;

@@ -38,6 +38,7 @@ public class ResultDeliveryStrategyObjectArr implements ResultDeliveryStrategy {
      * @param subscriber is the subscriber to deliver to
      * @param method     the method to invoke
      * @param statement  statement
+     * @param engineImportService engine imports
      */
     public ResultDeliveryStrategyObjectArr(EPStatement statement, Object subscriber, Method method, EngineImportService engineImportService) {
         this.statement = statement;

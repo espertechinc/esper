@@ -697,6 +697,7 @@ public class JavaClassHelper {
      * Returns the class given a fully-qualified class name.
      *
      * @param className is the fully-qualified class name, java primitive types included.
+     * @param classForNameProvider       lookup of class for class name
      * @return class for name
      * @throws ClassNotFoundException if the class cannot be found
      */
@@ -735,6 +736,7 @@ public class JavaClassHelper {
      * Recognizes "int" as Integer.class and "strIng" as String.class, and "Integer" as Integer.class, and so on.
      *
      * @param className is the name to recognize
+     * @param classForNameProvider       lookup of class for class name
      * @return class
      * @throws EventAdapterException is throw if the class cannot be identified
      */
@@ -982,6 +984,7 @@ public class JavaClassHelper {
      *
      * @param implementedOrExtendedClass is the class that the looked-up class should extend or implement
      * @param className                  of the class to load, check type and instantiate
+     * @param classForNameProvider       lookup of class for class name
      * @return instance of given class, via newInstance
      * @throws ClassInstantiationException if the type does not match or the class cannot be loaded or an object instantiated
      */

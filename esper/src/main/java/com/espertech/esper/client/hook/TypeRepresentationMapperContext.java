@@ -10,12 +10,22 @@
  */
 package com.espertech.esper.client.hook;
 
+/**
+ * For Avro customized type mapping, use with {@link TypeRepresentationMapper}
+ */
 public class TypeRepresentationMapperContext {
     private final Class clazz;
     private final String propertyName;
     private final String statementName;
     private final String engineURI;
 
+    /**
+     * Ctor
+     * @param clazz class
+     * @param propertyName property name
+     * @param statementName statement name
+     * @param engineURI engine URI
+     */
     public TypeRepresentationMapperContext(Class clazz, String propertyName, String statementName, String engineURI) {
         this.clazz = clazz;
         this.propertyName = propertyName;
@@ -23,18 +33,34 @@ public class TypeRepresentationMapperContext {
         this.engineURI = engineURI;
     }
 
+    /**
+     * Returns the class.
+     * @return class
+     */
     public Class getClazz() {
         return clazz;
     }
 
+    /**
+     * Returns the property name
+     * @return property name
+     */
     public String getPropertyName() {
         return propertyName;
     }
 
+    /**
+     * Returns the statement name
+     * @return statement name
+     */
     public String getStatementName() {
         return statementName;
     }
 
+    /**
+     * Returns the engine URI
+     * @return engine URI
+     */
     public String getEngineURI() {
         return engineURI;
     }

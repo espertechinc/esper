@@ -40,6 +40,7 @@ public class ScriptExpression implements Serializable {
      * @param expressionText     script text
      * @param optionalReturnType return type
      * @param optionalDialect    dialect
+     * @param optionalEventTypeName optional event type name
      */
     public ScriptExpression(String name, List<String> parameterNames, String expressionText, String optionalReturnType, String optionalDialect, String optionalEventTypeName) {
         this.name = name;
@@ -153,10 +154,18 @@ public class ScriptExpression implements Serializable {
         this.parameterNames = parameterNames;
     }
 
+    /**
+     * Returns the optional event type name.
+     * @return type name
+     */
     public String getOptionalEventTypeName() {
         return optionalEventTypeName;
     }
 
+    /**
+     * Sets the optional event type name.
+     * @param optionalEventTypeName name
+     */
     public void setOptionalEventTypeName(String optionalEventTypeName) {
         this.optionalEventTypeName = optionalEventTypeName;
     }

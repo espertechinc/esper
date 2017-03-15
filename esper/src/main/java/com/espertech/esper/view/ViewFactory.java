@@ -70,7 +70,7 @@ public interface ViewFactory {
      * requires the view factory to compare view type, parameters and other capabilities provided.
      *
      * @param view                 is the candidate view to compare to
-     * @param agentInstanceContext
+     * @param agentInstanceContext agent instance context
      * @return true if the given view can be reused instead of creating a new view, or false to indicate
      * the view is not right for reuse
      */

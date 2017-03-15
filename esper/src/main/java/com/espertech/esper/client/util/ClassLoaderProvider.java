@@ -10,8 +10,18 @@
  */
 package com.espertech.esper.client.util;
 
+/**
+ * Provider of a classloader.
+ */
 public interface ClassLoaderProvider {
+    /**
+     * Name.
+     */
     String NAME = "ClassLoaderProvider";
 
+    /**
+     * Returns the classloader.
+     * @return classloader
+     */
     ClassLoader classloader();
 }

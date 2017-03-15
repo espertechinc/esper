@@ -71,6 +71,11 @@ public final class PropertyAccessException extends RuntimeException {
         return msg.toString();
     }
 
+    /**
+     * Generates the Not-A-Valid-Property exception
+     * @param propertyExpression property expression
+     * @return exception exception
+     */
     public static PropertyAccessException notAValidProperty(String propertyExpression) {
         return new PropertyAccessException("Property named '" + propertyExpression + "' is not a valid property name for this type");
     }

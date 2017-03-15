@@ -22,6 +22,7 @@ public interface DataCache {
      * or returning null to indicate no such key cached. Zero rows may also be cached.
      *
      * @param methodParams is the keys to look up in the cache
+     * @param numLookupKeys number of method param keys, from the start, that are for cache lookup
      * @return a list of rows that can be empty is the key was found in the cache, or null if
      * the key is not found in the cache
      */
@@ -33,7 +34,8 @@ public interface DataCache {
      * The put method is designed to be called when the cache does not contain a key as
      * determined by the get method. Implementations typically simply overwrite
      * any keys put into the cache that already existed in the cache.
-     *  @param methodParams is the keys to the cache entry
+     * @param methodParams is the keys to the cache entry
+     * @param numLookupKeys number of method param keys, from the start, that are for cache lookup
      * @param rows       is a number of rows
      */
     public void put(Object[] methodParams, int numLookupKeys, EventTable[] rows);

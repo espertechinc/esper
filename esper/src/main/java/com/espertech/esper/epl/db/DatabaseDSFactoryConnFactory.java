@@ -34,6 +34,7 @@ public class DatabaseDSFactoryConnFactory implements DatabaseConnectionFactory {
      *
      * @param dsConfig           is the datasource object name and initial context properties.
      * @param connectionSettings are the connection-level settings
+     * @param engineImportService engine imports
      * @throws DatabaseConfigException when the factory cannot be configured
      */
     public DatabaseDSFactoryConnFactory(ConfigurationDBRef.DataSourceFactory dsConfig,

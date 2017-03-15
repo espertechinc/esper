@@ -10,8 +10,20 @@
  */
 package com.espertech.esper.client.util;
 
+/**
+ * Provider of lookup of a class name resolving into a class.
+ */
 public interface ClassForNameProvider {
+    /**
+     * Name.
+     */
     String NAME = "ClassForNameProvider";
 
+    /**
+     * Lookup class name returning class.
+     * @param className to look up
+     * @return class
+     * @throws ClassNotFoundException if the class cannot be found
+     */
     Class classForName(String className) throws ClassNotFoundException;
 }
