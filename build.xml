@@ -19,7 +19,7 @@
 	<property name="dist.api.dir" value="doc/javadoc/api"/>
 
 	<property name="dist_includes" value="
-	    esper-license.txt, esperio-license.txt, changelog.txt, index.html,
+	    esper-license.txt, esperio-license.txt, esper-avro-license.txt, changelog.txt, index.html,
 	    esper-${version}.jar, esperio-${version}.jar,
 	    esper/doc/site/**,
 	    esper/lib/**, esper/etc/*.*, esper/doc/grammar/**,
@@ -64,8 +64,10 @@
             		<zipfileset prefix="grammar" dir="esper/grammar" includes="**"/>
             		<zipfileset prefix="pom" dir="esper" includes="pom.xml"/>
             		<zipfileset prefix="regression-test" dir="esper-regression/src/test/java" includes="**"/>
-            		<zipfileset prefix="avro-src" dir="esper-avro/src/main/java" includes="**"/>
-            		<zipfileset prefix="avro-test" dir="esper-avro/src/test/java" includes="**"/>
+        	</zip>
+		<zip zipfile="${dist.dir}/${fullname}-avro-src.zip">
+            		<zipfileset prefix="src" dir="esper-avro/src/main/java" includes="**"/>
+            		<zipfileset prefix="test" dir="esper-avro/src/test/java" includes="**"/>
         	</zip>
 		<zip zipfile="${dist.dir}/${fullnameio}-src.zip">
             		<zipfileset prefix="amqp" dir="esperio-amqp/src/main/java" includes="**"/>
@@ -94,7 +96,9 @@
 			<zipfileset prefix="${name}-${version}/esper/doc/api" dir="esper/doc/javadoc/api" includes="**"/>
 			<zipfileset prefix="${name}-${version}/esperio/doc/reference" dir="esperio/doc/reference/target/docbook/publish/en-US" includes="**"/>
 			<zipfileset prefix="${name}-${version}/esperio/doc/api" dir="esperio/doc/javadoc/api" includes="**"/>
+		    	<zipfileset prefix="${name}-${version}/esper-avro/doc/api" dir="esper-avro/doc/javadoc/api" includes="**"/>            
 			<zipfileset prefix="${name}-${version}" dir="esper/target" includes="esper-${version}.jar"/>
+			<zipfileset prefix="${name}-${version}" dir="esper-avro/target" includes="esper-avro-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio-amqp/target" includes="esperio-amqp*-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio-csv/target" includes="esperio-csv*-${version}.jar"/>
 			<zipfileset prefix="${name}-${version}" dir="esperio-http/target" includes="esperio-http*-${version}.jar"/>
@@ -130,7 +134,9 @@
 		    	<tarfileset prefix="${name}-${version}/esper/doc/api" dir="esper/doc/javadoc/api" includes="**"/>
 		    	<tarfileset prefix="${name}-${version}/esperio/doc/reference" dir="esperio/doc/reference/target/docbook/publish/en-US" includes="**"/>
 		    	<tarfileset prefix="${name}-${version}/esperio/doc/api" dir="esperio/doc/javadoc/api" includes="**"/>            
+		    	<tarfileset prefix="${name}-${version}/esper-avro/doc/api" dir="esper-avro/doc/javadoc/api" includes="**"/>            
 			<tarfileset prefix="${name}-${version}" dir="esper/target" includes="esper-${version}.jar"/>
+			<tarfileset prefix="${name}-${version}" dir="esper-avro/target" includes="esper-avro-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio-amqp/target" includes="esperio-amqp*-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio-csv/target" includes="esperio-csv*-${version}.jar"/>
 			<tarfileset prefix="${name}-${version}" dir="esperio-http/target" includes="esperio-http*-${version}.jar"/>
