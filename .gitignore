@@ -18,6 +18,7 @@
 /esperio-kafka/target
 /esperio/doc/reference/target
 /esperio/doc/javadoc/api
+/esper-avro/doc/javadoc/api
 /examples/target
 /examples/cycledetect/lib
 /examples/**/target
