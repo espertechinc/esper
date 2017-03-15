@@ -36,13 +36,14 @@ Version 6.0.0 API and EPL Backwards-Incompatible changes:
   
 Bug fixes
   - Fixed issue #55 NPE thrown in pattern that has a function with a subselect with select-star in an atom filter
-  - Fixed issue #61 variable value null for filter boolean expression
-  - Fixed issue #62 warning logged re. IllegalArgumentException when undeploying module using context variables
+  - Fixed issue #61 Variable value null for filter boolean expression
+  - Fixed issue #62 Warning logged re. IllegalArgumentException when undeploying module using context variables
   - Fixed issue #65 Cannot set enum variables that contain methods
   - Fixed issue QGZ-934-29530 NPE casting null constant to type using 'cast(null, type)'
   - Fixed issue FEH-558-71216 NullPointerException thrown during Single Row Function invocation passing invocation context when eligible for filter optimizations  
   - Fixed issue FIP-509-17859 NPE thrown context-event props used in output rate crontab
-  - Fixed issue CUI-623-48365 partitioned-context with null-value key not processing events
+  - Fixed issue CUI-623-48365 {artitioned-context with null-value key not processing events
+  - Fixed issue FHX-177-20419 Wrapper underlying EventBean has incorrect associated type for single-column select conversion
 
 Changes in version 5.5.0
 ------------------------
