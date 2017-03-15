@@ -8,24 +8,20 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
-import java.util.Map;
+import com.espertech.esper.adapter.InputAdapter;
 
 /**
- * Sender that sends without a threadpool.
+ * A AdapterCoordinator coordinates several Adapters so that the events they
+ * send into the runtime engine arrive in some well-defined order, in
+ * effect making the several Adapters into one large sending Adapter.
  */
-public class DirectSender extends AbstractSender {
-
-    public void sendEvent(AbstractSendableEvent theEvent, Object beanToSend) {
-        runtime.sendEvent(beanToSend);
-    }
-
-    public void sendEvent(AbstractSendableEvent theEvent, Map mapToSend, String eventTypeName) {
-        runtime.sendEvent(mapToSend, eventTypeName);
-    }
-
-    public void onFinish() {
-        // do nothing
-    }
+public interface AdapterCoordinator extends InputAdapter {
+    /**
+     * Coordinate an InputAdapter.
+     *
+     * @param adapter - the InputAdapter to coordinate
+     */
+    public void coordinate(InputAdapter adapter);
 }

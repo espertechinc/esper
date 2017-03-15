@@ -20,7 +20,7 @@ import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.util.EventRepresentationChoice;
-import com.espertech.esperio.dataflow.FileSourceFactory;
+import com.espertech.esperio.file.FileSourceFactory;
 import junit.framework.TestCase;
 
 import java.util.Calendar;

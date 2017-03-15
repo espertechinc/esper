@@ -8,20 +8,25 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
-import com.espertech.esper.adapter.InputAdapter;
+import java.util.Comparator;
 
 /**
- * A AdapterCoordinator coordinates several Adapters so that the events they
- * send into the runtime engine arrive in some well-defined order, in
- * effect making the several Adapters into one large sending Adapter.
+ * A comparator that orders SendableEvents first on sendTime, and
+ * then on schedule slot.
  */
-public interface AdapterCoordinator extends InputAdapter {
-    /**
-     * Coordinate an InputAdapter.
-     *
-     * @param adapter - the InputAdapter to coordinate
-     */
-    public void coordinate(InputAdapter adapter);
+public class SendableEventComparator implements Comparator<SendableEvent> {
+    public int compare(SendableEvent one, SendableEvent two) {
+        if (one.getSendTime() < two.getSendTime()) {
+            return -1;
+        } else if (one.getSendTime() > two.getSendTime()) {
+            return 1;
+        } else {
+            if (one.getScheduleSlot() == two.getScheduleSlot()) {
+                return 0;
+            }
+            return one.getScheduleSlot() < two.getScheduleSlot() ? -1 : 1;
+        }
+    }
 }

@@ -33,6 +33,8 @@ Version 6.0.0 API and EPL Backwards-Incompatible changes:
   - Minor change in behavior in respect to Object-array event types: When inserting a single column into an existing Object-array event type the engine would allow that column to become the property of a Object-array fragment, which was inconsistent with other types
   - Minor change to client API in CurrentTimeEvent to support microseconds: Rename of field "timeInMilliseconds" and CurrentTimeSpanEvent to "targetTime"
   - Minor change to deployment API EPDeploymentAdmin which now also declares InterruptedException and DeploymentLockException to indicate when a lock cannot be taken
+  - Minor change to packages for classes in EsperIO CSV+File adapter: classes moved to "com.espertech.esperio.csv" and "com.espertech.esperio.file".
+  - Minor change to packages for classes in EsperIO JMS adapter: classes moved to "com.espertech.esperio.jms"
   
 Bug fixes
   - Fixed issue #55 NPE thrown in pattern that has a function with a subselect with select-star in an atom filter

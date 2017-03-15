@@ -19,9 +19,9 @@ import com.espertech.esper.client.dataflow.EPDataFlowInstantiationOptions;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
-import com.espertech.esperio.AdapterInputSource;
+import com.espertech.esperio.csv.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapter;
-import com.espertech.esperio.dataflow.FileSourceCSV;
+import com.espertech.esperio.file.FileSourceCSV;
 import com.espertech.esperio.support.util.ExampleMarketDataBeanReadWrite;
 
 /**

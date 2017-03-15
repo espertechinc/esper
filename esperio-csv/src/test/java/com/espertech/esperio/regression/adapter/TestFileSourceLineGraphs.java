@@ -21,7 +21,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
-import com.espertech.esperio.dataflow.FileSourceFactory;
+import com.espertech.esperio.file.FileSourceFactory;
 import junit.framework.TestCase;
 
 import java.util.List;

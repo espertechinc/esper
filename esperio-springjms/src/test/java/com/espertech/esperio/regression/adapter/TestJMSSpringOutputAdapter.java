@@ -13,8 +13,8 @@ package com.espertech.esperio.regression.adapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esperio.SpringContext;
-import com.espertech.esperio.SpringContextLoader;
+import com.espertech.esperio.jms.SpringContext;
+import com.espertech.esperio.jms.SpringContextLoader;
 import com.espertech.esperio.support.util.SupportSerializableBean;
 import junit.framework.TestCase;
 

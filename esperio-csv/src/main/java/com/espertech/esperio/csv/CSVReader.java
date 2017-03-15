@@ -12,7 +12,6 @@ package com.espertech.esperio.csv;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.util.ExecutionPathDebugLog;
-import com.espertech.esperio.AdapterInputSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

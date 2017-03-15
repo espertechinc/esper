@@ -15,8 +15,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.core.service.EPServiceProviderSPI;
 import com.espertech.esper.plugin.PluginLoader;
-import com.espertech.esperio.SpringContext;
-import com.espertech.esperio.SpringContextLoader;
+import com.espertech.esperio.jms.SpringContext;
+import com.espertech.esperio.jms.SpringContextLoader;
 import com.espertech.esperio.support.util.SupportSerializableBean;
 import junit.framework.TestCase;
 

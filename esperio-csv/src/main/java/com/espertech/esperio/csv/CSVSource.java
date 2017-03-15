@@ -10,8 +10,6 @@
  */
 package com.espertech.esperio.csv;
 
-import com.espertech.esperio.AdapterInputSource;
-
 import java.io.*;
 
 

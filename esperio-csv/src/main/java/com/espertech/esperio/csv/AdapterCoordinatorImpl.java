@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.InputAdapter;
@@ -100,7 +100,7 @@ public class AdapterCoordinatorImpl extends AbstractCoordinatedAdapter implement
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.AdapterCoordinator#add(com.espertech.esperio.Adapter)
+     * @see com.espertech.esperio.csv.AdapterCoordinator#add(com.espertech.esperio.Adapter)
      */
     public void coordinate(InputAdapter inputAdapter) {
         if (inputAdapter == null) {

@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 /**
  * A wrapper that packages an event up so that it can be

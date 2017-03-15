@@ -16,7 +16,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
-import com.espertech.esperio.AdapterInputSource;
+import com.espertech.esperio.csv.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 import junit.framework.TestCase;

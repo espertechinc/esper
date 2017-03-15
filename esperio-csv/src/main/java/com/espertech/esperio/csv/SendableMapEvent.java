@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class SendableMapEvent extends AbstractSendableEvent {
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.SendableEvent#send(com.espertech.esper.client.EPRuntime)
+     * @see com.espertech.esperio.csv.SendableEvent#send(com.espertech.esper.client.EPRuntime)
      */
     public void send(AbstractSender sender) {
         sender.sendEvent(this, mapToSend, eventTypeName);

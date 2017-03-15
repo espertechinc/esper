@@ -8,25 +8,19 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
-
-import java.util.Comparator;
+package com.espertech.esperio.jms;
 
 /**
- * A comparator that orders SendableEvents first on sendTime, and
- * then on schedule slot.
+ * Supplies properties for use in configuration files to configure Spring application context.
  */
-public class SendableEventComparator implements Comparator<SendableEvent> {
-    public int compare(SendableEvent one, SendableEvent two) {
-        if (one.getSendTime() < two.getSendTime()) {
-            return -1;
-        } else if (one.getSendTime() > two.getSendTime()) {
-            return 1;
-        } else {
-            if (one.getScheduleSlot() == two.getScheduleSlot()) {
-                return 0;
-            }
-            return one.getScheduleSlot() < two.getScheduleSlot() ? -1 : 1;
-        }
-    }
+public class SpringContext {
+    /**
+     * Use to configure a classpath context.
+     */
+    public final static String CLASSPATH_CONTEXT = "classpath-app-context";
+
+    /**
+     * Use to configure a file context.
+     */
+    public final static String FILE_APP_CONTEXT = "file-app-context";
 }

@@ -121,7 +121,7 @@
 		<programlisting><![CDATA[<esper-configuration>
 
   <!-- Sample configuration for an input/output adapter loader -->
-  <plugin-loader name="MyLoader" class-name="com.espertech.esperio.SpringContextLoader">
+  <plugin-loader name="MyLoader" class-name="com.espertech.esperio.jms.SpringContextLoader">
     <!-- SpringApplicationContext translates into Spring ClassPathXmlApplicationContext 
            or FileSystemXmlApplicationContext. Only one app-context of a sort can be used. 
            When both attributes are used classpath and file, classpath prevails -->

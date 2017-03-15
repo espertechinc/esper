@@ -8,19 +8,24 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
+
+import java.util.Map;
 
 /**
- * Supplies properties for use in configuration files to configure Spring application context.
+ * Sender that sends without a threadpool.
  */
-public class SpringContext {
-    /**
-     * Use to configure a classpath context.
-     */
-    public final static String CLASSPATH_CONTEXT = "classpath-app-context";
+public class DirectSender extends AbstractSender {
 
-    /**
-     * Use to configure a file context.
-     */
-    public final static String FILE_APP_CONTEXT = "file-app-context";
+    public void sendEvent(AbstractSendableEvent theEvent, Object beanToSend) {
+        runtime.sendEvent(beanToSend);
+    }
+
+    public void sendEvent(AbstractSendableEvent theEvent, Map mapToSend, String eventTypeName) {
+        runtime.sendEvent(mapToSend, eventTypeName);
+    }
+
+    public void onFinish() {
+        // do nothing
+    }
 }

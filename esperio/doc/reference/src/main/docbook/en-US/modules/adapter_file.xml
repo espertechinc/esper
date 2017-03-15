@@ -299,7 +299,7 @@ instance.run();]]></programlisting>
 
 		<para>
 			This chapter discusses the CSV input adapter API. CSV is an abbreviation for comma-separated values. CSV files are simple text files in which each line
-			is a comma-separated list of values. CSV-formatted text can be read from many different input sources via <literal>com.espertech.esperio.AdapterInputSource</literal>.
+			is a comma-separated list of values. CSV-formatted text can be read from many different input sources via <literal>com.espertech.esperio.csv.AdapterInputSource</literal>.
 			Please consult the JavaDoc for additional information on <literal>AdapterInputSource</literal> and the CSV adapter.
 		</para>
     

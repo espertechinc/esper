@@ -386,6 +386,167 @@ inputAdapter.stop();]]></programlisting>
         
     </sect1>
 
+    <sect1 xml:id="adapter-shared">
+        <title>CSV Adapter Input Classes</title>
+        
+		<sect2 xml:id="adapter-inputadapter">
+			<title>The Adapter Interface</title>
+	
+			<para>
+					The <literal>Adapter</literal> interface allows client applications to control the state of an input and output adapter. It provides state transition methods that each
+					input and output adapter implements. 
+			</para>
+			
+			<para>
+					An input or output adapter is always in one of the following states:
+			</para>
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						Opened - The begin state; The adapter is not generating or accepting events in this state
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Started - When the adapter is active, generating and accepting events
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Paused - When operation of the adapter is suspended
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Destroyed
+					</para>
+				</listitem>
+			</itemizedlist>
+
+			<para>
+					The state transition table below outlines adapter states and, for each state, the valid state transitions:
+			</para>
+
+			<table frame="topbot" xml:id="adapter-states" revision="2">
+				<title>Adapter State Transitions</title>
+				<tgroup cols="3">
+					<colspec colwidth="2.0*"/>
+					<colspec colwidth="1.5*"/>
+					<colspec colwidth="2.0*"/>
+					<thead>
+						<row>
+							<entry>Start State</entry>
+							<entry>Method</entry>
+							<entry>Next State</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Opened</entry>
+							<entry>start()</entry>
+							<entry>Started</entry>
+						</row>
+						<row>
+							<entry>Opened</entry>
+							<entry>destroy()</entry>
+							<entry>Destroyed</entry>
+						</row>
+						<row>
+							<entry>Started</entry>
+							<entry>stop()</entry>
+							<entry>Opened</entry>
+						</row>
+						<row>
+							<entry>Started</entry>
+							<entry>pause()</entry>
+							<entry>Paused</entry>
+						</row>
+						<row>
+							<entry>Started</entry>
+							<entry>destroy()</entry>
+							<entry>Destroyed</entry>
+						</row>
+						<row>
+							<entry>Paused</entry>
+							<entry>resume()</entry>
+							<entry>Started</entry>
+						</row>
+						<row>
+							<entry>Paused</entry>
+							<entry>stop()</entry>
+							<entry>Opened</entry>
+						</row>
+						<row>
+							<entry>Paused</entry>
+							<entry>destroy()</entry>
+							<entry>Destroyed</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+						
+		</sect2>
+
+		<sect2 xml:id="adapter-inputsource">
+			<title>Using AdapterInputSource</title>
+	
+			<para>
+					The <literal>com.espertech.esperio.csv.AdapterInputSource</literal> encapsulates information about an input source. Input adapters use the <literal>AdapterInputSource</literal> to determine how to read input. The class provides constructors for use with different input sources:
+			</para>	
+
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						<literal>java.io.Reader</literal> to read character streams
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<literal>java.io.InputStream</literal> to read byte streams
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<literal>java.net.URL</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Classpath resource by name
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<literal>java.io.File</literal>
+					</para>
+				</listitem>
+			</itemizedlist>
+
+			<para>
+					Adapters resolve Classpath resources in the following order:
+			</para>	
+
+			<orderedlist spacing="compact">
+				<listitem>
+					<para>
+						Current thread classloader via <literal>Thread.currentThread().getContextClassLoader().getResourceAsStream</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						If the resource is not found: <literal>AdapterInputSource.class.getResourceAsStream</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						If the resource is not found: <literal>AdapterInputSource.class.getClassLoader().getResourceAsStream</literal>
+					</para>
+				</listitem>
+			</orderedlist>
+		</sect2>		
+    </sect1>
+
 </chapter>
 
 

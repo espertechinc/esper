@@ -8,10 +8,9 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esperio.csv.CSVReader;
 
 import java.io.File;
 import java.io.IOException;

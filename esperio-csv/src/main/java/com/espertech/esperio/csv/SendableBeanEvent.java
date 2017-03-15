@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.util.FastClassClassLoaderProviderDefault;
@@ -70,7 +70,7 @@ public class SendableBeanEvent extends AbstractSendableEvent {
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.SendableEvent#send(com.espertech.esper.client.EPRuntime)
+     * @see com.espertech.esperio.csv.SendableEvent#send(com.espertech.esper.client.EPRuntime)
      */
     public void send(AbstractSender sender) {
         sender.sendEvent(this, beanToSend);

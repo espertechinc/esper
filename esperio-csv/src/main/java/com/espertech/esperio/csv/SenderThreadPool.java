@@ -8,9 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio.ext;
-
-import com.espertech.esperio.DirectSender;
+package com.espertech.esperio.csv;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;

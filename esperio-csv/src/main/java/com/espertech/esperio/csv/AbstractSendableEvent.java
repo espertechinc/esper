@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 /**
  * Base class for sendable event, provides timestamp and schedule slot.
@@ -36,14 +36,14 @@ public abstract class AbstractSendableEvent implements SendableEvent {
     public abstract void send(AbstractSender sender);
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.SendableEvent#getScheduleSlot()
+     * @see com.espertech.esperio.csv.SendableEvent#getScheduleSlot()
      */
     public long getScheduleSlot() {
         return scheduleSlot;
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.SendableEvent#getSendTime()
+     * @see com.espertech.esperio.csv.SendableEvent#getSendTime()
      */
     public long getSendTime() {
         return timestamp;

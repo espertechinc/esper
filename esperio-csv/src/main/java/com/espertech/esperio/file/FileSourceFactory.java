@@ -8,13 +8,13 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio.dataflow;
+package com.espertech.esperio.file;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;
 import com.espertech.esper.dataflow.interfaces.DataFlowOperatorFactory;
 import com.espertech.esper.dataflow.interfaces.DataFlowSourceOperator;
-import com.espertech.esperio.AdapterInputSource;
+import com.espertech.esperio.csv.AdapterInputSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

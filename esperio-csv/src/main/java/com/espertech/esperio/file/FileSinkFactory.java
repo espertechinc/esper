@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio.dataflow;
+package com.espertech.esperio.file;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.dataflow.annotations.DataFlowOpParameter;

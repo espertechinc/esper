@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.jms;
 
 import com.espertech.esper.adapter.Adapter;
 import com.espertech.esper.adapter.AdapterSPI;

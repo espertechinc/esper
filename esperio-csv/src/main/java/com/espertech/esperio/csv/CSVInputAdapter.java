@@ -22,7 +22,6 @@ import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.map.MapEventType;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esperio.*;
 import net.sf.cglib.core.ReflectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +135,7 @@ public class CSVInputAdapter extends AbstractCoordinatedAdapter implements Input
 
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.AbstractCoordinatedAdapter#setEPService(com.espertech.esper.client.EPServiceProvider)
+     * @see com.espertech.esperio.csv.AbstractCoordinatedAdapter#setEPService(com.espertech.esper.client.EPServiceProvider)
      */
     @Override
     public void setEPService(EPServiceProvider epService) {

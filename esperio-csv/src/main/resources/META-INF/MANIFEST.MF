@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Export-Package: com.espertech.esperio,
  com.espertech.esperio.csv,
- com.espertech.esperio.ext
+ com.espertech.esperio.csv.ext
 Bundle-Name: Esper CEP engine for Java - Input Output Adapters
 Bundle-RequiredExecutionEnvironment: J2SE-1.8
 Bundle-Vendor: EsperTech

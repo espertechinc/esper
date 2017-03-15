@@ -8,7 +8,7 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esperio;
+package com.espertech.esperio.csv;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.adapter.AdapterStateManager;
@@ -157,14 +157,14 @@ public abstract class AbstractCoordinatedAdapter implements CoordinatedAdapter {
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.CoordinatedAdapter#setScheduleSlot(com.espertech.esper.schedule.ScheduleSlot)
+     * @see com.espertech.esperio.csv.CoordinatedAdapter#setScheduleSlot(com.espertech.esper.schedule.ScheduleSlot)
      */
     public void setScheduleSlot(long scheduleSlot) {
         this.scheduleSlot = scheduleSlot;
     }
 
     /* (non-Javadoc)
-     * @see com.espertech.esperio.CoordinatedAdapter#setEPService(com.espertech.esper.client.EPServiceProvider)
+     * @see com.espertech.esperio.csv.CoordinatedAdapter#setEPService(com.espertech.esper.client.EPServiceProvider)
      */
     public void setEPService(EPServiceProvider epService) {
         if (epService == null) {

@@ -23,12 +23,12 @@ import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.dataflow.util.DefaultSupportCaptureOp;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphOpProvider;
 import com.espertech.esper.dataflow.util.DefaultSupportGraphParamProvider;
-import com.espertech.esperio.AdapterCoordinator;
-import com.espertech.esperio.AdapterCoordinatorImpl;
-import com.espertech.esperio.AdapterInputSource;
+import com.espertech.esperio.csv.AdapterCoordinator;
+import com.espertech.esperio.csv.AdapterCoordinatorImpl;
+import com.espertech.esperio.csv.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
-import com.espertech.esperio.dataflow.FileSourceCSV;
+import com.espertech.esperio.file.FileSourceCSV;
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
