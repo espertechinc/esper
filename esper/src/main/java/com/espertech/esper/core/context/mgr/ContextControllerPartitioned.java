@@ -163,6 +163,10 @@ public class ContextControllerPartitioned implements ContextController, ContextC
 
         partitionKeys.put(key, handle);
 
+        // update the filter version for this handle
+        long filterVersion = factoryContext.getServicesContext().getFilterService().getFiltersVersion();
+        factory.getFactoryContext().getAgentInstanceContextCreate().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filterVersion);
+
         Object[] keyObjectSaved = getKeyObjectsAccountForMultikey(key);
         factory.getFactoryContext().getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), keyObjectSaved, factory.getBinding());
     }

@@ -339,11 +339,15 @@ public class StatementAgentInstanceUtil {
                     stmtCallbacks.put(agentInstanceFound, handleCallback);
                 } else if (stmtCallback instanceof ArrayDeque) {
                     ArrayDeque<EPStatementHandleCallback> q = (ArrayDeque<EPStatementHandleCallback>) stmtCallback;
-                    q.add(handleCallback);
+                    if (!q.contains(handleCallback)) { // De-duplicate for Filter OR expression paths
+                        q.add(handleCallback);
+                    }
                 } else {
                     ArrayDeque<EPStatementHandleCallback> q = new ArrayDeque<EPStatementHandleCallback>(4);
                     q.add((EPStatementHandleCallback) stmtCallback);
-                    q.add(handleCallback);
+                    if (stmtCallback != handleCallback) { // De-duplicate for Filter OR expression paths
+                        q.add(handleCallback);
+                    }
                     stmtCallbacks.put(agentInstanceFound, q);
                 }
                 continue;

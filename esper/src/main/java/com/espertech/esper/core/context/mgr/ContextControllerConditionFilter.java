@@ -36,6 +36,7 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
 
     private EPStatementHandleCallback filterHandle;
     private FilterServiceEntry filterServiceEntry;
+    private EventBean lastEvent;
 
     public ContextControllerConditionFilter(EPServicesContext servicesContext, AgentInstanceContext agentInstanceContext, ContextDetailConditionFilter endpointFilterSpec, ContextControllerConditionCallback callback, ContextInternalFilterAddendum filterAddendum) {
         this.servicesContext = servicesContext;
@@ -82,6 +83,13 @@ public class ContextControllerConditionFilter implements ContextControllerCondit
     }
 
     private void filterMatchFound(EventBean theEvent) {
+        // For OR-type filters we de-duplicate here by keeping the last event instance
+        if (endpointFilterSpec.getFilterSpecCompiled().getParameters().length > 1) {
+            if (theEvent == lastEvent) {
+                return;
+            }
+            lastEvent = theEvent;
+        }
         Map<String, Object> props = Collections.emptyMap();
         if (endpointFilterSpec.getOptionalFilterAsName() != null) {
             props = Collections.<String, Object>singletonMap(endpointFilterSpec.getOptionalFilterAsName(), theEvent);

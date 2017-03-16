@@ -256,15 +256,19 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         runAssertionBooleanExprAnd();
 
+        runAssertionSubquery();
+
+        runAssertionHint();
+
         runAssertionContextPartitionedSegmented();
 
         runAssertionContextPartitionedHash();
 
         runAssertionContextPartitionedCategory();
 
-        runAssertionSubquery();
+        runAssertionContextPartitionedInitiatedSameEvent();
 
-        runAssertionHint();
+        runAssertionContextPartitionedInitiated();
     }
 
     public void testOrPerformance()
@@ -758,9 +762,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
             stmt.addListener(listener);
 
             epService.getEPRuntime().sendEvent(new SupportBean("a", 0));
-            assertTrue(listener.getAndClearIsInvoked());
+            listener.assertOneGetNewAndReset();
             epService.getEPRuntime().sendEvent(new SupportBean("b", 1));
-            assertTrue(listener.getAndClearIsInvoked());
+            listener.assertOneGetNewAndReset();
             epService.getEPRuntime().sendEvent(new SupportBean("c", 0));
             assertFalse(listener.getAndClearIsInvoked());
 
@@ -916,6 +920,26 @@ public class TestFilterExpressionsOptimizable extends TestCase
         assertFalse(listener.getAndClearIsInvoked());
 
         stmt.destroy();
+    }
+
+    private void runAssertionContextPartitionedInitiated() {
+        epService.getEPAdministrator().createEPL("@name('ctx') create context MyContext initiated by SupportBean(theString='A' or intPrimitive=1) terminated after 24 hours");
+        epService.getEPAdministrator().createEPL("@name('select') context MyContext select * from SupportBean").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("A", 1));
+        listener.assertOneGetNewAndReset();
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionContextPartitionedInitiatedSameEvent() {
+        epService.getEPAdministrator().createEPL("create context MyContext initiated by SupportBean terminated after 24 hours");
+        epService.getEPAdministrator().createEPL("context MyContext select * from SupportBean(theString='A' or intPrimitive=1)").addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean("A", 1));
+        listener.assertOneGetNewAndReset();
+
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
     private void assertFilterTwo(String epl, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {

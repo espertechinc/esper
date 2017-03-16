@@ -9,6 +9,7 @@
 	<property name="fullversion" value="${version}${patchlevel}"/>
 	<property name="fullname" value="${name}-${fullversion}"/>
 	<property name="fullnameio" value="${nameio}-${fullversion}"/>
+	<property name="fullnameavro" value="${name}-avro-${fullversion}"/>
 
 	<property name="dist.dir" value=".."/>
 	<property name="lib.dir" value="lib"/>
@@ -65,7 +66,7 @@
             		<zipfileset prefix="pom" dir="esper" includes="pom.xml"/>
             		<zipfileset prefix="regression-test" dir="esper-regression/src/test/java" includes="**"/>
         	</zip>
-		<zip zipfile="${dist.dir}/${fullname}-avro-src.zip">
+		<zip zipfile="${dist.dir}/${fullnameavro}-src.zip">
             		<zipfileset prefix="src" dir="esper-avro/src/main/java" includes="**"/>
             		<zipfileset prefix="test" dir="esper-avro/src/test/java" includes="**"/>
         	</zip>

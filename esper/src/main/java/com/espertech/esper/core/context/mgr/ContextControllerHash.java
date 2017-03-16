@@ -172,7 +172,12 @@ public class ContextControllerHash implements ContextController, ContextControll
 
         ContextControllerInstanceHandle handle = activationCallback.contextPartitionInstantiate(null, currentSubpathId, null, this, theEvent, null, id, properties, null, filterAddendumToUse, factory.getFactoryContext().isRecoveringResilient(), ContextPartitionState.STARTED);
         partitionKeys.put(id, handle);
+
         factory.getFactoryContext().getStateCache().addContextPath(factoryContext.getOutermostContextName(), factoryContext.getNestingLevel(), pathId, currentSubpathId, handle.getContextPartitionOrPathId(), id, factory.getBinding());
+
+        // update the filter version for this handle
+        long filterVersion = factoryContext.getServicesContext().getFilterService().getFiltersVersion();
+        factory.getFactoryContext().getAgentInstanceContextCreate().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filterVersion);
     }
 
     public ContextControllerFactory getFactory() {

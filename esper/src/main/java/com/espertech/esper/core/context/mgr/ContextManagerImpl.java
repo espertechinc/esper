@@ -176,9 +176,6 @@ public class ContextManagerImpl implements ContextManager, ContextControllerLife
         ContextControllerTreeAgentInstanceList agentInstanceList = new ContextControllerTreeAgentInstanceList(filterVersion, partitionKey, contextProperties, newInstances, state);
         agentInstances.put(assignedContextId, agentInstanceList);
 
-        // update the filter version for this handle
-        factory.getFactoryContext().getAgentInstanceContextCreate().getEpStatementAgentInstanceHandle().getStatementFilterVersion().setStmtFilterVersion(filterVersion);
-
         return new ContextNestedHandleImpl(subPathId, assignedContextId, agentInstanceList);
     }
 
