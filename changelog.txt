@@ -1,7 +1,7 @@
 Esper Changelog
 ===================
 
-Changes in version 6.0.0
+Changes in version 6.0.1
 ------------------------
   - Requires Java 8
   - The following dependent jar files are upgraded:
@@ -28,7 +28,7 @@ Changes in version 6.0.0
   - New EsperIO Kafka input and output adapter
   - Many other improvements across the code and documentation that are not explicitly listed above
   
-Version 6.0.0 API and EPL Backwards-Incompatible changes:
+Version 6.0.1 API and EPL Backwards-Incompatible changes:
   - The @EventRepresentation annotation changed: it now takes a default parameter i.e. @EventRepresentation(map)
   - Minor change in behavior in respect to Object-array event types: When inserting a single column into an existing Object-array event type the engine would allow that column to become the property of a Object-array fragment, which was inconsistent with other types
   - Minor change to client API in CurrentTimeEvent to support microseconds: Rename of field "timeInMilliseconds" and CurrentTimeSpanEvent to "targetTime"
@@ -44,8 +44,14 @@ Bug fixes
   - Fixed issue QGZ-934-29530 NPE casting null constant to type using 'cast(null, type)'
   - Fixed issue FEH-558-71216 NullPointerException thrown during Single Row Function invocation passing invocation context when eligible for filter optimizations  
   - Fixed issue FIP-509-17859 NPE thrown context-event props used in output rate crontab
-  - Fixed issue CUI-623-48365 {artitioned-context with null-value key not processing events
+  - Fixed issue CUI-623-48365 Partitioned-context with null-value key not processing events
   - Fixed issue FHX-177-20419 Wrapper underlying EventBean has incorrect associated type for single-column select conversion
+  - Fixed issue SIP-889-27087 Unparsable for JavaScript script with single-quote in a commented line
+  - Fixed issue ZBL-605-95607 Event matches twice when filter has an 'or' and when used with contexts causing duplicate delivery or stack overflow
+
+Changes in version 6.0.0
+------------------------
+  - Same as 6.0.1, with the exception of SIP-889-27087 and ZBL-605-95607
 
 Changes in version 5.5.0
 ------------------------
