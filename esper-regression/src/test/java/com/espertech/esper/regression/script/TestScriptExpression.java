@@ -48,6 +48,18 @@ public class TestScriptExpression extends TestCase {
         listener = null;
     }
 
+    public void testQuoteEscape() throws Exception {
+        String eplSLComment = "create expression f(params)[\n" +
+                "  // I'am...\n" +
+                "];";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(eplSLComment);
+
+        String eplMLComment = "create expression g(params)[\n" +
+                "  /* I'am... */" +
+                "];";
+        epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(eplMLComment);
+    }
+
     public void testScriptReturningEvents() {
         epService.getEPAdministrator().createEPL("create schema ItemEvent(id string)");
 

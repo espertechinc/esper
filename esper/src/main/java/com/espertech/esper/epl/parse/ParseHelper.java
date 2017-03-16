@@ -275,6 +275,8 @@ public class ParseHelper {
                 } else {
                     current = new UniformPair<Integer>(-1, -1);
                 }
+            } else if (t.getType() == EsperEPL2GrammarParser.SL_COMMENT || t.getType() == EsperEPL2GrammarParser.ML_COMMENT) {
+                writeCommentEscapeSingleQuote(writer, t);
             } else {
                 if (t.getType() == EsperEPL2GrammarParser.QUOTED_STRING_LITERAL && i > current.getFirst() && i < current.getSecond()) {
                     writer.append("\\'");
@@ -367,6 +369,22 @@ public class ParseHelper {
     public static boolean hasControlCharacters(String text) {
         String textWithoutControlCharacters = text.replaceAll("\\p{Cc}", "");
         return !textWithoutControlCharacters.equals(text);
+    }
+
+    private static void writeCommentEscapeSingleQuote(StringWriter writer, Token t) {
+        String text = t.getText();
+        if (!text.contains("'")) {
+            return;
+        }
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '\'') {
+                writer.append('\\');
+                writer.append(c);
+            } else {
+                writer.append(c);
+            }
+        }
     }
 
     private static class ScriptResult {
