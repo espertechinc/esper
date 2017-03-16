@@ -3,7 +3,7 @@
      "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 <module name="Checker">
 	<property name="localeLanguage" value="en"/>
-	<module name="Header"/>
+	<module name="Header"> <property name="headerFile" value="${checkstyle.header.file}"/> </module>
 	<module name="FileTabCharacter"/>
 	<module name="TreeWalker">
 		<!-- code cleanup -->

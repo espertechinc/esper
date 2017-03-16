@@ -8,11 +8,11 @@
     <properties>
         <rootPath>${project.parent.parent.basedir}</rootPath>
     </properties>
-    <name>Esper Examples - OHLCPlugInView</name>
+    <name>Esper Examples - VirtualDW</name>
     <groupId>com.espertech</groupId>
-    <artifactId>esper-example-ohlcpluginview</artifactId>
+    <artifactId>esper-example-virtualdw</artifactId>
     <packaging>jar</packaging>
-    <description>Esper Example OHLCPlugInView</description>
+    <description>Esper Example VirtualDW</description>
     <dependencies>
         <dependency>
             <groupId>com.espertech</groupId>

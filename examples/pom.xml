@@ -30,6 +30,7 @@
 		<module>terminalsvc-jse</module>
 		<module>transaction</module>
 		<module>trivia</module>
+		<module>virtualdw</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>

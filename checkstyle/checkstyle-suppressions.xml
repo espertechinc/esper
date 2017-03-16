@@ -9,4 +9,6 @@
     <suppress files="EsperEPL2GrammarLexer.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="EsperEPL2GrammarBaseListener.java" checks="[a-zA-Z0-9]*"/>
     <suppress files="EsperEPL2GrammarListener.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="statements.properties" checks="[a-zA-Z0-9]*"/>
+    <suppress files="servershell_config.properties" checks="[a-zA-Z0-9]*"/>
 </suppressions>
