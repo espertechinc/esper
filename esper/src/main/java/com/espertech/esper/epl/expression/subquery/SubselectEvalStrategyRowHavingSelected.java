@@ -43,24 +43,20 @@ public class SubselectEvalStrategyRowHavingSelected implements SubselectEvalStra
 
     // Filter and Select
     public Collection evaluateGetCollScalar(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext context, ExprSubselectRowNode parent) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     // Filter and Select
     public Object[] typableEvaluate(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext, ExprSubselectRowNode parent) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     public Object[][] typableEvaluateMultirow(EventBean[] eventsPerStream, boolean newData, Collection<EventBean> matchingEvents, ExprEvaluatorContext exprEvaluatorContext, ExprSubselectRowNode parent) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     // Filter and Select
     public EventBean evaluateGetEventBean(EventBean[] eventsPerStream, boolean isNewData, Collection<EventBean> matchingEvents, ExprEvaluatorContext context, ExprSubselectRowNode parent) {
-        // TODO
-        throw new UnsupportedOperationException();
+        return null;
     }
 }
