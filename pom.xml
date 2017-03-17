@@ -5,6 +5,8 @@
 	<version>6.0.1</version>
 	<artifactId>esper-parent</artifactId>
 	<packaging>pom</packaging>
+	<url>http://www.espertech.com/esper</url>
+	<description>Complex event processing and event series analysis component</description>
 	<modules>
 		<module>esper</module>
 		<module>esper-avro</module>
@@ -29,6 +31,40 @@
 		<avro.version>1.8.1</avro.version>
 		<rootPath>${basedir}</rootPath>
 	</properties>
+	<licenses>
+		<license>
+			<name>GNU General Public License Version 2</name>
+			<url>http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>https://github.com/espertechinc/esper.git</url>
+		<developerConnection>scm:git:git@github.com:espertechinc/esper.git</developerConnection>
+		<connection>scm:git:git@github.com:espertechinc/esper.git</connection>
+	</scm>
+	<developers>
+		<developer>
+			<id>espertech</id>
+			<name>EsperTech</name>
+			<email>info@espertech.com</email>
+			<url>http://www.espertech.com</url>
+			<organization>EsperTech</organization>
+			<organizationUrl>http://www.espertech.com</organizationUrl>
+		</developer>
+	</developers>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus snapshot repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Sonatype Nexus release repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -50,6 +86,23 @@
 						</configuration>
 						<goals>
 							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<configuration>
+					<passphrase>${gpg.passphrase}</passphrase>
+				</configuration>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
 						</goals>
 					</execution>
 				</executions>
