@@ -30,7 +30,7 @@ public enum DatetimeMethodEnum {
 
     // reformat ops
     GET("get", DatetimeMethodEnumStatics.REFORMAT_OP_FACTORY, DatetimeMethodEnumParams.CALFIELD),
-    FORMAT("format", DatetimeMethodEnumStatics.REFORMAT_OP_FACTORY, DatetimeMethodEnumParams.NOPARAM),
+    FORMAT("format", DatetimeMethodEnumStatics.REFORMAT_OP_FACTORY, DatetimeMethodEnumParams.FORMAT),
     TOCALENDAR("toCalendar", DatetimeMethodEnumStatics.REFORMAT_OP_FACTORY, DatetimeMethodEnumParams.NOPARAM),
     TODATE("toDate", DatetimeMethodEnumStatics.REFORMAT_OP_FACTORY, DatetimeMethodEnumParams.NOPARAM),
     TOMILLISEC("toMillisec", DatetimeMethodEnumStatics.REFORMAT_OP_FACTORY, DatetimeMethodEnumParams.NOPARAM),

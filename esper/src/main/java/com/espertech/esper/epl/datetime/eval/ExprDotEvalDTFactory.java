@@ -83,7 +83,7 @@ public class ExprDotEvalDTFactory {
                 CalendarOp calendarOp = ((CalendarOpFactory) currentMethod.getOpFactory()).getOp(currentMethod, currentMethodName, currentParameters, evaluators);
                 calendarOps.add(calendarOp);
             } else if (opFactory instanceof ReformatOpFactory) {
-                reformatOp = ((ReformatOpFactory) opFactory).getOp(timeZone, timeAbacus, currentMethod, currentMethodName, currentParameters);
+                reformatOp = ((ReformatOpFactory) opFactory).getOp(inputType, timeZone, timeAbacus, currentMethod, currentMethodName, currentParameters);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {

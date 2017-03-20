@@ -152,7 +152,10 @@
 						</entry>
 					</row>
 					<row>
-						<entry>format()</entry>
+						<entry>
+							<para>format()</para>
+							<para>format(format)</para>
+						</entry>
 						<entry>
 							<para>
 								Formats the date-time returning a string.
@@ -555,41 +558,94 @@ from RFIDEvent#lastevent rfid, WifiEvent#lastevent wifi]]></programlisting>
 			</para>
 			
 			<para>
-				The method takes no parameters. It returns the date-time value formatted using the formatter as follows:
+				The method takes either no parameter or a single format parameter.
 			</para>
 			
-			<table frame="topbot" xml:id="datetime-method-format-table" revision="2">
-				<title>RoundHalf Examples</title>
-				<tgroup cols="2">
-					<colspec colwidth="1.0*"/>
-					<colspec colwidth="1.0*"/>
-					<thead>
-						<row>
-							<entry>Input</entry>
-							<entry>String Formatter</entry>
-						</row>
-					</thead>
-					<tbody>
-						<row>
-							<entry><literal>long, Date, Calendar</literal></entry>
-							<entry><literal>new SimpleDateFormat()</literal></entry>
-						</row>
-						<row>
-							<entry><literal>java.time.LocalTimeDate</literal></entry>
-							<entry><literal>DateTimeFormatter.ISO_DATE_TIME</literal></entry>
-						</row>
-						<row>
-							<entry><literal>java.time.ZonedTimeDate</literal></entry>
-							<entry><literal>DateTimeFormatter.ISO_ZONED_DATE_TIME</literal></entry>
-						</row>
-					</tbody>
-				</tgroup>
-			</table>		
+			<sect3 xml:id="datetime-method-format-default">
+			  <title>Format with Default Formatter</title>
+				<para>
+					When passing no parameter, the method returns the date-time value formatted using the default formatter as follows:
+				</para>
+		
+				<table frame="topbot" xml:id="datetime-method-format-table" revision="2">
+					<title>RoundHalf Examples</title>
+					<tgroup cols="2">
+						<colspec colwidth="1.0*"/>
+						<colspec colwidth="1.0*"/>
+						<thead>
+							<row>
+								<entry>Input</entry>
+								<entry>String Formatter</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>long, Date, Calendar</literal></entry>
+								<entry><literal>new SimpleDateFormat()</literal></entry>
+							</row>
+							<row>
+								<entry><literal>java.time.LocalTimeDate</literal></entry>
+								<entry><literal>DateTimeFormatter.ISO_DATE_TIME</literal></entry>
+							</row>
+							<row>
+								<entry><literal>java.time.ZonedTimeDate</literal></entry>
+								<entry><literal>DateTimeFormatter.ISO_ZONED_DATE_TIME</literal></entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>		
+		
+				<para>
+					The example below outputs the time-taken property value of the RFID event:
+				</para>
+				<programlisting>select timeTaken.format() as timeTakenStr from RFIDEvent</programlisting>
+			</sect3>
 
-			<para>
-				The example below outputs the time-taken property value of the RFID event:
-			</para>
-			<programlisting>select timeTaken.format() as timeTakenStr from RFIDEvent</programlisting>
+			<sect3 xml:id="datetime-method-format-provided">
+			  <title>Providing a Format</title>
+				<para>
+					For input values that are <literal>long</literal>-typed, <literal>Date</literal>-typed or <literal>Calendar</literal>-typed you must provide an expression that returns either:
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							A <literal>String</literal>-type format that adheres to <literal>SimpleDateFormat</literal> rules.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A <literal>DateFormat</literal> instance.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					For input values that are <literal>LocalDateTime</literal>-typed or <literal>ZonedDateTime</literal>-typed you must provide an expression that returns either:
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							A <literal>String</literal>-type format that adheres to <literal>DateTimeFormatter</literal> rules.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+					<para>
+						A <literal>DateTimeFormatter</literal> instance.
+					</para>
+					</ns:listitem>
+				</itemizedlist>
+				
+				<para>
+					The engine evaluates the format expression at statement compilation time therefore the format expression must return a value that is not computed from time or events.
+				</para>
+
+				<para>
+					For example:
+				</para>
+				<programlisting>select timeTaken.format('yyyy.MM.dd G 'at' HH:mm:ss') from RFIDEvent</programlisting>
+				<programlisting>select timeTaken.format(SimpleDateFormat.getDateInstance()) from RFIDEvent</programlisting>
+				<programlisting>select localDateTime.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE) from RFIDEvent</programlisting>
+			</sect3>
 		</sect2>
 				
 		<sect2 xml:id="datetime-method-get">

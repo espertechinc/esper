@@ -18,6 +18,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.rettype.EPType;
 
 import java.util.List;
 import java.util.TimeZone;
@@ -26,13 +27,17 @@ public class ReformatOpFactory implements OpFactory {
 
     private final static ReformatOp FORMAT_STRING = new ReformatOpStringFormat();
 
-    public ReformatOp getOp(TimeZone timeZone, TimeAbacus timeAbacus, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters) throws ExprValidationException {
+    public ReformatOp getOp(EPType inputType, TimeZone timeZone, TimeAbacus timeAbacus, DatetimeMethodEnum method, String methodNameUsed, List<ExprNode> parameters) throws ExprValidationException {
         if (method == DatetimeMethodEnum.GET) {
             CalendarFieldEnum fieldNum = CalendarOpUtil.getEnum(methodNameUsed, parameters.get(0));
             return new ReformatOpGetField(fieldNum, timeZone, timeAbacus);
         }
         if (method == DatetimeMethodEnum.FORMAT) {
-            return FORMAT_STRING;
+            if (parameters.isEmpty()) {
+                return FORMAT_STRING;
+            }
+            Object formatter = CalendarOpUtil.getFormatter(inputType, methodNameUsed, parameters.get(0));
+            return new ReformatOpFormat(formatter, timeAbacus);
         }
         if (method == DatetimeMethodEnum.TOCALENDAR) {
             return new ReformatOpToCalendar(timeZone, timeAbacus);

@@ -150,7 +150,7 @@ public class DotMethodUtil {
         }
     }
 
-    public static void validateSpecificType(String methodUsedName, DotMethodTypeEnum type, DotMethodFPParamTypeEnum expectedTypeEnum, Class expectedTypeClass, Class providedType, int parameterNum, ExprNode parameterExpression)
+    public static void validateSpecificType(String methodUsedName, DotMethodTypeEnum type, DotMethodFPParamTypeEnum expectedTypeEnum, Class[] expectedTypeClasses, Class providedType, int parameterNum, ExprNode parameterExpression)
             throws ExprValidationException {
         String message = "Error validating " + type.getTypeName() + " method '" + methodUsedName + "', ";
         if (expectedTypeEnum == DotMethodFPParamTypeEnum.BOOLEAN && (!JavaClassHelper.isBoolean(providedType))) {
@@ -160,10 +160,23 @@ public class DotMethodUtil {
             throw new ExprValidationException(message + "expected a number-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
         }
         if (expectedTypeEnum == DotMethodFPParamTypeEnum.SPECIFIC) {
-            Class boxedExpectedType = JavaClassHelper.getBoxedType(expectedTypeClass);
             Class boxedProvidedType = JavaClassHelper.getBoxedType(providedType);
-            if (!JavaClassHelper.isSubclassOrImplementsInterface(boxedProvidedType, boxedExpectedType)) {
-                throw new ExprValidationException(message + "expected a " + boxedExpectedType.getSimpleName() + "-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
+            boolean found = false;
+            for (Class expectedTypeClass : expectedTypeClasses) {
+                Class boxedExpectedType = JavaClassHelper.getBoxedType(expectedTypeClass);
+                if (boxedProvidedType != null && JavaClassHelper.isSubclassOrImplementsInterface(boxedProvidedType, boxedExpectedType)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                String expected;
+                if (expectedTypeClasses.length == 1) {
+                    expected = "a " + JavaClassHelper.getParameterAsString(expectedTypeClasses);
+                } else {
+                    expected = "any of [" + JavaClassHelper.getParameterAsString(expectedTypeClasses) + "]";
+                }
+                throw new ExprValidationException(message + "expected " + expected + "-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
             }
         }
         if (expectedTypeEnum == DotMethodFPParamTypeEnum.TIME_PERIOD_OR_SEC) {

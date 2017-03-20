@@ -15,7 +15,7 @@ public class DotMethodFPParam {
     private final int lambdaParamNum; // 0 means not a lambda expression expected, 1 means "x=>", 2 means "(x,y)=>"
     private final String description;
     private final DotMethodFPParamTypeEnum type;
-    private final Class specificType;
+    private final Class[] specificType;
 
     public DotMethodFPParam(int lambdaParamNum, String description, DotMethodFPParamTypeEnum type) {
         this.lambdaParamNum = lambdaParamNum;
@@ -27,7 +27,11 @@ public class DotMethodFPParam {
         }
     }
 
-    public DotMethodFPParam(String description, DotMethodFPParamTypeEnum type, Class specificType) {
+    public DotMethodFPParam(String description, DotMethodFPParamTypeEnum type) {
+        this(description, type, (Class[]) null);
+    }
+
+    public DotMethodFPParam(String description, DotMethodFPParamTypeEnum type, Class ... specificType) {
         this.description = description;
         this.type = type;
         this.specificType = specificType;
@@ -46,7 +50,7 @@ public class DotMethodFPParam {
         return type;
     }
 
-    public Class getSpecificType() {
+    public Class[] getSpecificType() {
         return specificType;
     }
 }
