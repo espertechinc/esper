@@ -12,31 +12,38 @@ package com.espertech.esper.epl.expression.funcs;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 
+import java.text.DateFormat;
 import java.time.format.DateTimeFormatter;
 
 public class ExprCastNodeDateDesc {
-    private final String staticDateFormat;
-    private final ExprEvaluator dynamicDateFormat;
     private final boolean iso8601Format;
+    private final ExprEvaluator dynamicDateFormat;
+    private final String staticDateFormatString;
+    private final DateFormat dateFormat;
     private final DateTimeFormatter dateTimeFormatter;
 
-    public ExprCastNodeDateDesc(String staticDateFormat, ExprEvaluator dynamicDateFormat, boolean iso8601Format, DateTimeFormatter dateTimeFormatter) {
-        this.staticDateFormat = staticDateFormat;
-        this.dynamicDateFormat = dynamicDateFormat;
+    public ExprCastNodeDateDesc(boolean iso8601Format, ExprEvaluator dynamicDateFormat, String staticDateFormatString, DateFormat dateFormat, DateTimeFormatter dateTimeFormatter) {
         this.iso8601Format = iso8601Format;
+        this.dynamicDateFormat = dynamicDateFormat;
+        this.staticDateFormatString = staticDateFormatString;
+        this.dateFormat = dateFormat;
         this.dateTimeFormatter = dateTimeFormatter;
     }
 
-    public String getStaticDateFormat() {
-        return staticDateFormat;
+    public boolean isIso8601Format() {
+        return iso8601Format;
     }
 
     public ExprEvaluator getDynamicDateFormat() {
         return dynamicDateFormat;
     }
 
-    public boolean iso8601Format() {
-        return iso8601Format;
+    public String getStaticDateFormatString() {
+        return staticDateFormatString;
+    }
+
+    public DateFormat getDateFormat() {
+        return dateFormat;
     }
 
     public DateTimeFormatter getDateTimeFormatter() {

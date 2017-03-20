@@ -69,6 +69,17 @@ public class ExprNodeUtility {
     public static final ExprDeclaredNode[] EMPTY_DECLARED_ARR = new ExprDeclaredNode[0];
     public static final ExpressionScriptProvided[] EMPTY_SCRIPTS = new ExpressionScriptProvided[0];
 
+    public static Object evaluateValidationTimeNoStreams(ExprEvaluator evaluator, ExprEvaluatorContext context, String expressionName) throws ExprValidationException {
+        try {
+            return evaluator.evaluate(null, true, context);
+        } catch (EPException ex) {
+            throw new ExprValidationException("Invalid " + expressionName + " expression: " + ex.getMessage(), ex);
+        } catch (RuntimeException ex) {
+            log.warn("Invalid " + expressionName + " expression evaluation: {}", ex.getMessage(), ex);
+            throw new ExprValidationException("Invalid " + expressionName + " expression");
+        }
+    }
+
     public static boolean deepEqualsIsSubset(ExprNode[] subset, ExprNode[] superset) {
         for (ExprNode subsetNode : subset) {
             boolean found = false;

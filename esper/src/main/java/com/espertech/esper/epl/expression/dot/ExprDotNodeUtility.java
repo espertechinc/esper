@@ -109,7 +109,7 @@ public class ExprDotNodeUtility {
             // resolve datetime
             if (DatetimeMethodEnum.isDateTimeMethod(chainElement.getName()) && (!matchingMethod || methodTarget == Calendar.class || methodTarget == Date.class)) {
                 DatetimeMethodEnum datetimeMethod = DatetimeMethodEnum.fromName(chainElement.getName());
-                ExprDotEvalDTMethodDesc datetimeImpl = ExprDotEvalDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getEngineImportService().getTimeZone(), validationContext.getEngineImportService().getTimeAbacus());
+                ExprDotEvalDTMethodDesc datetimeImpl = ExprDotEvalDTFactory.validateMake(validationContext.getStreamTypeService(), chainSpecStack, datetimeMethod, chainElement.getName(), currentInputType, chainElement.getParameters(), inputDesc, validationContext.getEngineImportService().getTimeZone(), validationContext.getEngineImportService().getTimeAbacus(), validationContext.getExprEvaluatorContext());
                 currentInputType = datetimeImpl.getReturnType();
                 if (currentInputType == null) {
                     throw new IllegalStateException("Date-time method '" + chainElement.getName() + "' has not returned type information");

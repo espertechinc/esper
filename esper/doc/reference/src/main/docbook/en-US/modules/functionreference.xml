@@ -336,10 +336,12 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 				</para>
 
 				<para>
-					You must provide the <literal>dateformat</literal> named parameter as the last parameter to the <literal>cast</literal> function. The date format can be any platform date format
-					(<literal>SimpleDateFormat</literal> for <literal>long</literal>/<literal>Date</literal>/<literal>Calendar</literal> or <literal>DateTimeFormatter</literal> for <literal>LocalDateTime</literal>/<literal>ZonedDateTime</literal>/<literal>LocalDate</literal>/<literal>LocalTime</literal>) as a string-type value.
+					You must provide the <literal>dateformat</literal> named parameter as the last parameter to the <literal>cast</literal> function. 
+					The <literal>dateformat</literal> parameter expression must return a <literal>String</literal>-typed value, a <literal>SimpleDateFormat</literal>-type value or a <literal>DateTimeFormatter</literal>-type value. 
+					Return a <literal>SimpleDateFormat</literal> for <literal>long</literal>/<literal>Date</literal>/<literal>Calendar</literal>.
+					Return a <literal>DateTimeFormatter</literal> for <literal>LocalDateTime</literal>/<literal>ZonedDateTime</literal>/<literal>LocalDate</literal>/<literal>LocalTime</literal>.
 				</para>
-				
+								
 				<para>
 					The next EPL outputs the date May 2, 2010 as a <literal>Date</literal>-type value:
 				</para>
@@ -406,6 +408,11 @@ for user-controlled imports of classes and packages as outlined in <xref linkend
 				</table>
 			</sect3>
 
+			<para>
+				Additional examples are:
+			</para>
+			<programlisting><![CDATA[select cast(orderDate, localdatetime, dateformat:java.time.format.DateTimeFormatter.ISO_DATE_TIME) from OrderEvent]]></programlisting>
+			<programlisting><![CDATA[select cast(orderDate, calendar, dateformat:SimpleDateFormat.getInstance()) from OrderEvent]]></programlisting>
 		</sect2>
 
 		<sect2 xml:id="epl-single-row-function-ref-coalesce">

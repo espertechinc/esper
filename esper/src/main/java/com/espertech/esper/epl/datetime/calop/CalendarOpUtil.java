@@ -46,23 +46,13 @@ public class CalendarOpUtil {
         return fieldNum;
     }
 
-    public static Object getFormatter(EPType inputType, String methodName, ExprNode exprNode) throws ExprValidationException {
+    public static Object getFormatter(EPType inputType, String methodName, ExprNode exprNode, ExprEvaluatorContext exprEvaluatorContext) throws ExprValidationException {
         if (!(inputType instanceof ClassEPType)) {
             throw new ExprValidationException(getMessage(methodName) + " requires a datetime input value but received " + inputType);
         }
 
         ClassEPType input = (ClassEPType) inputType;
-        Object format;
-        try {
-            format = exprNode.getExprEvaluator().evaluate(null, true, null);
-        } catch (RuntimeException ex) {
-            String message = validateConstant(methodName, exprNode);
-            if (message == null) {
-                message = "Failed to determine date format: " + ex.getMessage();
-            }
-            throw new ExprValidationException(message, ex);
-        }
-
+        Object format = ExprNodeUtility.evaluateValidationTimeNoStreams(exprNode.getExprEvaluator(), exprEvaluatorContext, "date format");
         if (format == null) {
             throw new ExprValidationException(getMessage(methodName) + " invalid null format object");
         }

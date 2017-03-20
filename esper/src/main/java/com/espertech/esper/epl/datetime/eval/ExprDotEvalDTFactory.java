@@ -38,7 +38,7 @@ import java.util.TimeZone;
 
 public class ExprDotEvalDTFactory {
 
-    public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeZone timeZone, TimeAbacus timeAbacus)
+    public static ExprDotEvalDTMethodDesc validateMake(StreamTypeService streamTypeService, Deque<ExprChainedSpec> chainSpecStack, DatetimeMethodEnum dtMethod, String dtMethodName, EPType inputType, List<ExprNode> parameters, ExprDotNodeFilterAnalyzerInput inputDesc, TimeZone timeZone, TimeAbacus timeAbacus, ExprEvaluatorContext exprEvaluatorContext)
             throws ExprValidationException {
         // verify input
         String message = "Date-time enumeration method '" + dtMethodName + "' requires either a Calendar, Date, long, LocalDateTime or ZonedDateTime value as input or events of an event type that declares a timestamp property";
@@ -83,7 +83,7 @@ public class ExprDotEvalDTFactory {
                 CalendarOp calendarOp = ((CalendarOpFactory) currentMethod.getOpFactory()).getOp(currentMethod, currentMethodName, currentParameters, evaluators);
                 calendarOps.add(calendarOp);
             } else if (opFactory instanceof ReformatOpFactory) {
-                reformatOp = ((ReformatOpFactory) opFactory).getOp(inputType, timeZone, timeAbacus, currentMethod, currentMethodName, currentParameters);
+                reformatOp = ((ReformatOpFactory) opFactory).getOp(inputType, timeZone, timeAbacus, currentMethod, currentMethodName, currentParameters, exprEvaluatorContext);
 
                 // compile filter analyzer information if there are no calendar ops in the chain
                 if (calendarOps.isEmpty()) {

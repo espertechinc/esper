@@ -16,10 +16,13 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.pattern.observer.TimerScheduleISO8601Parser;
 import com.espertech.esper.schedule.ScheduleParameterException;
 import com.espertech.esper.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -34,6 +37,8 @@ import java.util.*;
  * Represents the CAST(expression, type) function is an expression tree.
  */
 public class ExprCastNode extends ExprNodeBase {
+    private static Logger log = LoggerFactory.getLogger(ExprCastNode.class);
+
     private final String classIdentifier;
     private Class targetType;
     private boolean isConstant;
@@ -75,7 +80,7 @@ public class ExprCastNode extends ExprNodeBase {
         ExprNodeUtility.validateNamed(namedParams, new String[]{"dateformat"});
         ExprNamedParameterNode dateFormatParameter = namedParams.get("dateformat");
         if (dateFormatParameter != null) {
-            ExprNodeUtility.validateNamedExpectType(dateFormatParameter, new Class[]{String.class});
+            ExprNodeUtility.validateNamedExpectType(dateFormatParameter, new Class[]{String.class, DateFormat.class, DateTimeFormatter.class});
         }
 
         // identify target type
@@ -102,84 +107,70 @@ public class ExprCastNode extends ExprNodeBase {
             if (targetType == Date.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("date")) {
                 targetType = Date.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, false);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToDateWStaticISOFormatComputer();
-                    } else {
-                        casterParserComputer = new StringToDateWStaticFormatComputer(desc.getStaticDateFormat());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToDateWStaticISOFormatComputer();
+                } else if (desc.getDateFormat() != null) {
+                    casterParserComputer = new StringToDateWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat());
                 } else {
                     casterParserComputer = new StringToDateWDynamicFormatComputer(desc.getDynamicDateFormat());
                 }
             } else if (targetType == Calendar.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("calendar")) {
                 targetType = Calendar.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, false);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToCalendarWStaticISOFormatComputer();
-                    } else {
-                        casterParserComputer = new StringToCalendarWStaticFormatComputer(desc.getStaticDateFormat(), validationContext.getEngineImportService().getTimeZone());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToCalendarWStaticISOFormatComputer();
+                } else if (desc.getDateFormat() != null) {
+                    casterParserComputer = new StringToCalendarWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat(), validationContext.getEngineImportService().getTimeZone());
                 } else {
                     casterParserComputer = new StringToCalendarWDynamicFormatComputer(desc.getDynamicDateFormat(), validationContext.getEngineImportService().getTimeZone());
                 }
             } else if (targetType == Long.class) {
                 targetType = Long.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, false);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToLongWStaticISOFormatComputer();
-                    } else {
-                        casterParserComputer = new StringToLongWStaticFormatComputer(desc.getStaticDateFormat());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToLongWStaticISOFormatComputer();
+                } else if (desc.getDateFormat() != null) {
+                    casterParserComputer = new StringToLongWStaticFormatComputer(desc.getStaticDateFormatString(), desc.getDateFormat());
                 } else {
                     casterParserComputer = new StringToLongWDynamicFormatComputer(desc.getDynamicDateFormat());
                 }
             } else if (targetType == LocalDateTime.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("localdatetime")) {
                 targetType = LocalDateTime.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToLocalDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_DATE_TIME);
-                    } else {
-                        casterParserComputer = new StringToLocalDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToLocalDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_DATE_TIME);
+                } else if (desc.getDateTimeFormatter() != null) {
+                    casterParserComputer = new StringToLocalDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
                     casterParserComputer = new StringToLocalDateTimeWDynamicFormatComputer(desc.getDynamicDateFormat());
                 }
             } else if (targetType == LocalDate.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("localdate")) {
                 targetType = LocalDate.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToLocalDateWStaticFormatComputer(DateTimeFormatter.ISO_DATE);
-                    } else {
-                        casterParserComputer = new StringToLocalDateWStaticFormatComputer(desc.getDateTimeFormatter());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToLocalDateWStaticFormatComputer(DateTimeFormatter.ISO_DATE);
+                } else if (desc.getDateTimeFormatter() != null) {
+                    casterParserComputer = new StringToLocalDateWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
                     casterParserComputer = new StringToLocalDateWDynamicFormatComputer(desc.getDynamicDateFormat());
                 }
             } else if (targetType == LocalTime.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("localtime")) {
                 targetType = LocalTime.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToLocalTimeWStaticFormatComputer(DateTimeFormatter.ISO_TIME);
-                    } else {
-                        casterParserComputer = new StringToLocalTimeWStaticFormatComputer(desc.getDateTimeFormatter());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToLocalTimeWStaticFormatComputer(DateTimeFormatter.ISO_TIME);
+                } else if (desc.getDateTimeFormatter() != null) {
+                    casterParserComputer = new StringToLocalTimeWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
                     casterParserComputer = new StringToLocalTimeWDynamicFormatComputer(desc.getDynamicDateFormat());
                 }
             } else if (targetType == ZonedDateTime.class || classIdentifier.trim().toLowerCase(Locale.ENGLISH).equals("zoneddatetime")) {
                 targetType = ZonedDateTime.class;
                 ExprCastNodeDateDesc desc = validateDateFormat(dateFormatParameter, validationContext, true);
-                if (desc.getStaticDateFormat() != null) {
-                    if (desc.iso8601Format()) {
-                        casterParserComputer = new StringToZonedDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_ZONED_DATE_TIME);
-                    } else {
-                        casterParserComputer = new StringToZonedDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
-                    }
+                if (desc.isIso8601Format()) {
+                    casterParserComputer = new StringToZonedDateTimeWStaticFormatComputer(DateTimeFormatter.ISO_ZONED_DATE_TIME);
+                } else if (desc.getDateTimeFormatter() != null) {
+                    casterParserComputer = new StringToZonedDateTimeWStaticFormatComputer(desc.getDateTimeFormatter());
                 } else {
                     casterParserComputer = new StringToZonedDateTimeWDynamicFormatComputer(desc.getDynamicDateFormat());
                 }
@@ -381,14 +372,17 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     public static abstract class StringToDateLongWStaticFormat implements CasterParserComputer {
-        protected final String dateFormat;
-        protected final ThreadLocal<SimpleDateFormat> formats = new ThreadLocal<SimpleDateFormat>() {
-            protected synchronized SimpleDateFormat initialValue() {
-                return new SimpleDateFormat(dateFormat);
+        protected final String dateFormatString;
+        protected final DateFormat dateFormat;
+
+        protected final ThreadLocal<DateFormat> formats = new ThreadLocal<DateFormat>() {
+            protected synchronized DateFormat initialValue() {
+                return (DateFormat) dateFormat.clone();
             }
         };
 
-        protected StringToDateLongWStaticFormat(String dateFormat) {
+        protected StringToDateLongWStaticFormat(String dateFormatString, DateFormat dateFormat) {
+            this.dateFormatString = dateFormatString;
             this.dateFormat = dateFormat;
         }
 
@@ -430,15 +424,15 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     public static class StringToDateWStaticFormatComputer extends StringToDateLongWStaticFormat {
-        public StringToDateWStaticFormatComputer(String dateFormat) {
-            super(dateFormat);
+        public StringToDateWStaticFormatComputer(String dateFormatString, DateFormat dateFormat) {
+            super(dateFormatString, dateFormat);
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parseSafe(dateFormat, formats.get(), input);
+            return parseSafe(dateFormatString, formats.get(), input);
         }
 
-        protected static Object parseSafe(String formatString, SimpleDateFormat format, Object input) {
+        protected static Object parseSafe(String formatString, DateFormat format, Object input) {
             try {
                 return format.parse(input.toString());
             } catch (ParseException e) {
@@ -597,19 +591,19 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     public static class StringToLongWStaticFormatComputer extends StringToDateLongWStaticFormat {
-        public StringToLongWStaticFormatComputer(String dateFormat) {
-            super(dateFormat);
+        public StringToLongWStaticFormatComputer(String dateFormatString, DateFormat dateFormat) {
+            super(dateFormatString, dateFormat);
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parseSafe(dateFormat, formats.get(), input);
+            return parseSafe(dateFormatString, formats.get(), input);
         }
 
-        protected static Object parseSafe(String dateFormat, SimpleDateFormat format, Object input) {
+        protected static Object parseSafe(String dateFormatString, DateFormat format, Object input) {
             try {
                 return format.parse(input.toString()).getTime();
             } catch (ParseException e) {
-                throw handleParseException(dateFormat, input.toString(), e);
+                throw handleParseException(dateFormatString, input.toString(), e);
             }
         }
     }
@@ -632,16 +626,16 @@ public class ExprCastNode extends ExprNodeBase {
 
         private final TimeZone timeZone;
 
-        public StringToCalendarWStaticFormatComputer(String dateFormat, TimeZone timeZone) {
-            super(dateFormat);
+        public StringToCalendarWStaticFormatComputer(String dateFormatString, DateFormat dateFormat, TimeZone timeZone) {
+            super(dateFormatString, dateFormat);
             this.timeZone = timeZone;
         }
 
         public Object compute(Object input, EventBean[] eventsPerStream, boolean newData, ExprEvaluatorContext exprEvaluatorContext) {
-            return parse(dateFormat, formats.get(), input, timeZone);
+            return parse(dateFormatString, formats.get(), input, timeZone);
         }
 
-        protected static Object parse(String formatString, SimpleDateFormat format, Object input, TimeZone timeZone) {
+        protected static Object parse(String formatString, DateFormat format, Object input, TimeZone timeZone) {
             try {
                 Calendar cal = Calendar.getInstance(timeZone);
                 Date date = format.parse(input.toString());
@@ -703,33 +697,58 @@ public class ExprCastNode extends ExprNodeBase {
     }
 
     private ExprCastNodeDateDesc validateDateFormat(ExprNamedParameterNode dateFormatParameter, ExprValidationContext validationContext, boolean java8Formatter) throws ExprValidationException {
-        String staticDateFormat = null;
+        String staticFormatString = null;
+        DateFormat dateFormat = null;
         ExprEvaluator dynamicDateFormat = null;
         boolean iso8601Format = false;
         DateTimeFormatter dateTimeFormatter = null;
 
-        if (!dateFormatParameter.getChildNodes()[0].isConstantResult()) {
-            dynamicDateFormat = dateFormatParameter.getChildNodes()[0].getExprEvaluator();
-        } else {
-            staticDateFormat = (String) dateFormatParameter.getChildNodes()[0].getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
-            if (staticDateFormat.toLowerCase(Locale.ENGLISH).trim().equals("iso")) {
-                iso8601Format = true;
+        ExprNode formatExpr = dateFormatParameter.getChildNodes()[0];
+        ExprEvaluator formatEval = formatExpr.getExprEvaluator();
+        Class formatReturnType = formatExpr.getExprEvaluator().getType();
+
+        if (formatReturnType == String.class) {
+            if (!formatExpr.isConstantResult()) {
+                dynamicDateFormat = formatEval;
             } else {
-                if (!java8Formatter) {
-                    try {
-                        new SimpleDateFormat(staticDateFormat);
-                    } catch (RuntimeException ex) {
-                        throw new ExprValidationException("Invalid date format '" + staticDateFormat + "' (as obtained from new SimpleDateFormat): " + ex.getMessage(), ex);
-                    }
+                staticFormatString = (String) formatEval.evaluate(null, true, validationContext.getExprEvaluatorContext());
+                if (staticFormatString.toLowerCase(Locale.ENGLISH).trim().equals("iso")) {
+                    iso8601Format = true;
                 } else {
-                    try {
-                        dateTimeFormatter = DateTimeFormatter.ofPattern(staticDateFormat);
-                    } catch (RuntimeException ex) {
-                        throw new ExprValidationException("Invalid date format '" + staticDateFormat + "' (as obtained from DateTimeFormatter.ofPattern): " + ex.getMessage(), ex);
+                    if (!java8Formatter) {
+                        try {
+                            dateFormat = new SimpleDateFormat(staticFormatString);
+                        } catch (RuntimeException ex) {
+                            throw new ExprValidationException("Invalid date format '" + staticFormatString + "' (as obtained from new SimpleDateFormat): " + ex.getMessage(), ex);
+                        }
+                    } else {
+                        try {
+                            dateTimeFormatter = DateTimeFormatter.ofPattern(staticFormatString);
+                        } catch (RuntimeException ex) {
+                            throw new ExprValidationException("Invalid date format '" + staticFormatString + "' (as obtained from DateTimeFormatter.ofPattern): " + ex.getMessage(), ex);
+                        }
                     }
                 }
             }
+        } else {
+            Object dateFormatObject = ExprNodeUtility.evaluateValidationTimeNoStreams(formatEval, validationContext.getExprEvaluatorContext(), "date format");
+            if (!java8Formatter) {
+                if (!(dateFormatObject instanceof DateFormat)) {
+                    throw getFailedExpected(DateFormat.class, dateFormatObject);
+                }
+                dateFormat = (DateFormat) dateFormatObject;
+            } else {
+                if (!(dateFormatObject instanceof DateTimeFormatter)) {
+                    throw getFailedExpected(DateTimeFormatter.class, dateFormatObject);
+                }
+                dateTimeFormatter = (DateTimeFormatter) dateFormatObject;
+            }
         }
-        return new ExprCastNodeDateDesc(staticDateFormat, dynamicDateFormat, iso8601Format, dateTimeFormatter);
+
+        return new ExprCastNodeDateDesc(iso8601Format, dynamicDateFormat, staticFormatString, dateFormat, dateTimeFormatter);
+    }
+
+    private ExprValidationException getFailedExpected(Class expected, Object received) {
+        return new ExprValidationException("Invalid format, expected string-format or " + expected.getSimpleName() + " but received " + JavaClassHelper.getClassNameFullyQualPretty(received.getClass()));
     }
 }

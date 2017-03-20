@@ -14,6 +14,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.soda.*;
+import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
@@ -60,13 +61,32 @@ public class TestCastExpr extends TestCase
 
         runAssertionDatetimeRenderOutCol();
 
-        runAssertionDatetimeInvalid();
-
         runAssertionDynamicDateFormat();
 
         runAssertionConstantDate();
 
         runAssertionISO8601Date();
+
+        runAssertionDateformatNonString();
+
+        runAssertionDatetimeInvalid();
+    }
+
+    private void runAssertionDateformatNonString() {
+        SupportDateTime sdt = SupportDateTime.make("2002-05-30T09:00:00.000");
+        String sdfDate = SimpleDateFormat.getInstance().format(sdt.getUtildate());
+        String ldtDate = sdt.getLocaldate().format(DateTimeFormatter.ISO_DATE_TIME);
+
+        String epl = "select " +
+                "cast('" + sdfDate + "',date,dateformat:SimpleDateFormat.getInstance()) as c0," +
+                "cast('" + ldtDate + "',localdatetime,dateformat:java.time.format.DateTimeFormatter.ISO_DATE_TIME) as c1" +
+                " from SupportBean";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new SupportBean());
+        EventBean event = listener.assertOneGetNewAndReset();
+        EPAssertionUtil.assertProps(event, "c0,c1".split(","), new Object[] {sdt.getUtildate(), sdt.getLocaldate()});
     }
 
     private void runAssertionISO8601Date() {
@@ -107,6 +127,8 @@ public class TestCastExpr extends TestCase
         assertEquals(ZonedDateTime.parse("1997-07-16T19:20:30+01:00", DateTimeFormatter.ISO_ZONED_DATE_TIME), event.get("c12"));
         assertEquals(LocalDate.parse("1997-07-16", DateTimeFormatter.ISO_DATE), event.get("c13"));
         assertEquals(LocalTime.parse("19:20:30", DateTimeFormatter.ISO_TIME), event.get("c14"));
+
+        stmt.destroy();
     }
 
     private void runAssertionConstantDate() throws Exception {
@@ -213,7 +235,7 @@ public class TestCastExpr extends TestCase
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(theString, date, dateformat:'BBBBMMDD') from SupportBean",
                 "Error starting statement: Failed to validate select-clause expression 'cast(theString,date,dateformat:\"BBB...(42 chars)': Invalid date format 'BBBBMMDD' (as obtained from new SimpleDateFormat): Illegal pattern character 'B'");
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(theString, date, dateformat:1) from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'cast(theString,date,dateformat:1)': Failed to validate named parameter 'dateformat', expected a single expression returning a string-typed value");
+                "Error starting statement: Failed to validate select-clause expression 'cast(theString,date,dateformat:1)': Failed to validate named parameter 'dateformat', expected a single expression returning any of the following types: string,DateFormat,DateTimeFormatter");
 
         // invalid input
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(intPrimitive, date, dateformat:'yyyyMMdd') from SupportBean",
@@ -222,6 +244,12 @@ public class TestCastExpr extends TestCase
         // invalid target
         SupportMessageAssertUtil.tryInvalid(epService, "select cast(theString, int, dateformat:'yyyyMMdd') from SupportBean",
                 "Error starting statement: Failed to validate select-clause expression 'cast(theString,int,dateformat:\"yyyy...(41 chars)': Use of the 'dateformat' named parameter requires a target type of calendar, date, long, localdatetime, localdate, localtime or zoneddatetime");
+
+        // invalid parser
+        SupportMessageAssertUtil.tryInvalid(epService, "select cast('xx', date, dateformat:java.time.format.DateTimeFormatter.ofPattern(\"yyyyMMddHHmmssVV\")) from SupportBean",
+                "Error starting statement: Failed to validate select-clause expression 'cast(\"xx\",date,dateformat:java.time...(91 chars)': Invalid format, expected string-format or DateFormat but received java.time.format.DateTimeFormatter");
+        SupportMessageAssertUtil.tryInvalid(epService, "select cast('xx', localdatetime, dateformat:SimpleDateFormat.getInstance()) from SupportBean",
+                "Error starting statement: Failed to validate select-clause expression 'cast(\"xx\",localdatetime,dateformat:...(66 chars)': Invalid format, expected string-format or DateTimeFormatter but received java.text.SimpleDateFormat");
     }
 
     private void runAssertionDatetimeRenderOutCol() {
