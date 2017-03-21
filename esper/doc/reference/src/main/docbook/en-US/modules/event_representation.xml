@@ -753,6 +753,72 @@ public class InnerType {
 		 </sect2>
      </sect1>
        
+	<sect1 xml:id="eventrep-generictuple">
+	   <title>Support for Generic Tuples</title>
+		   <para>
+			   Esper does not require a fixed tuple structure and fully supports generic tuples, i.e.  there does not need to be a fixed set of attributes or event properties and event properties can be added and queried at runtime.
+		   </para>
+		   
+		   <para>
+			 The facilities for support of generic tuples are:  
+		   </para>
+		   <itemizedlist>
+				<ns:listitem>
+					<para>Dynamic properties allow to query properties that are not defined, see <xref linkend="eventrep-dyncproperties"/>.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The <literal>cast</literal> function for operations that require strongly-typed data, see <xref linkend="epl-single-row-function-cast"/>.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Type inheritance for adding properties to supertypes, see <xref linkend="epl_createschema"/></para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The Map event representation, as it allows any map key to become an event property, see <xref linkend="appendix_eventrepmap"/></para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The Avro event representation, as it allows any Avro field to become an event property, see <xref linkend="appendix_eventrepavro"/></para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The POJO event representation, as getter-methods and fields can be dynamically discovered to become an event property, see <xref linkend="appendix_eventrepbean"/></para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The XML event representation, as the DOM can have any attribute or nested element and there does not need to be a schema, see <xref linkend="appendix_eventrepxml"/></para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Event types can be updated at runtime using the API</para>
+				</ns:listitem>
+			</itemizedlist>
+			
+			<para>
+				There is no need to explicitly create an event type for each tuple type. It is not necessary to create classes for tuple types at all. Events can be arbitrary objects.
+			</para>
+
+			<para>
+				The engine validates EPL at statement creation time therefore there is an advantage if type information is available: the engine can verify your EPL statement against the known properties and types,
+				preventing you as the EPL designer from making mistakes in EPL design.
+				The engine does not verify dynamic properties, which may return <literal>null</literal> at runtime. 
+				If type information is not available then properties are assumed to return <literal>java.lang.Object</literal>-typed values.
+			</para>
+
+			<para>
+				For example, let's say we need a generic tuple and we have <literal>Map</literal> events:
+			</para>
+			<programlisting>create schema GenericTuple()</programlisting> 
+
+			<para>
+				Create statements that use dynamic properties, as the next EPL shows, which casts the timestamp value to a <literal>long</literal>-type value and outputs the hour-minute-second string:
+			</para>
+			<programlisting>select cast(timestamp?, long).format('hh mm ss') from GenericTuple</programlisting> 
+
+			<para>
+				Send events like this:
+			</para>
+			<programlisting><![CDATA[Map<String, Object> genericEvent = new HashMap<>();
+genericEvent.put("timestamp", new Date().getTime());
+genericEvent.put("some_other_property", "hello");
+epService.getEPRuntime().sendEvent(genericEvent, "GenericTuple");]]></programlisting>
+     </sect1>
+
 	<sect1 xml:id="eventrep-plug-in">
 	   <title>Additional Event Representations</title>
 	   
