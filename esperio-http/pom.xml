@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.espertech</groupId>
 		<artifactId>esper-parent</artifactId>
-		<version>6.0.1</version>
+		<version>6.1.0</version>
 	</parent>
 	<properties>
 		<rootPath>${project.parent.basedir}</rootPath>

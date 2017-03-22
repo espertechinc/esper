@@ -16,7 +16,7 @@ set LIB=..\..\..\esper\lib
 
 set CLASSPATH=.
 set CLASSPATH=%CLASSPATH%;..\target\classes
-set CLASSPATH=%CLASSPATH%;..\..\..\esper-6.0.1.jar
+set CLASSPATH=%CLASSPATH%;..\..\..\esper-6.1.0.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\cglib-nodep-3.2.4.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-api-1.7.21.jar
 set CLASSPATH=%CLASSPATH%;%LIB%\slf4j-log4j12-1.7.21.jar

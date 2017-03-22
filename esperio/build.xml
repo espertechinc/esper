@@ -3,7 +3,7 @@
 	<!-- Name of project and version, used to create filenames -->
 	<property name="Name" value="EsperIO"/>
 	<property name="name" value="esperio"/>
-	<property name="version" value="6.0.1"/>
+	<property name="version" value="6.1.0"/>
 	<property name="patchlevel" value=""/>
 	<property name="fullversion" value="${version}${patchlevel}"/>
 	<property name="fullname" value="${name}-${fullversion}"/>
