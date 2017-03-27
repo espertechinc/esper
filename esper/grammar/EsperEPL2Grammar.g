@@ -925,7 +925,7 @@ matchUntilRange : LBRACK ( low=expression (c1=COLON high=expression?)? | c2=COLO
 	
 //----------------------------------------------------------------------------
 // Filter expressions
-//   Operators are the usual bunch =, <, >, =<, >= 
+//   Operators are the usual bunch =, <, >, <=, >= 
 //	 Ranges such as 'property in [a,b]' are allowed and ([ and )] distinguish open/closed range endpoints
 //----------------------------------------------------------------------------
 eventFilterExpression
