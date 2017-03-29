@@ -15,10 +15,12 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 public class ExprAggregateNodeParamDesc {
     private final ExprNode[] positionalParams;
     private final ExprAggregateLocalGroupByDesc optLocalGroupBy;
+    private final ExprNode optionalFilter;
 
-    public ExprAggregateNodeParamDesc(ExprNode[] positionalParams, ExprAggregateLocalGroupByDesc optLocalGroupBy) {
+    public ExprAggregateNodeParamDesc(ExprNode[] positionalParams, ExprAggregateLocalGroupByDesc optLocalGroupBy, ExprNode optionalFilter) {
         this.positionalParams = positionalParams;
         this.optLocalGroupBy = optLocalGroupBy;
+        this.optionalFilter = optionalFilter;
     }
 
     public ExprNode[] getPositionalParams() {
@@ -27,5 +29,9 @@ public class ExprAggregateNodeParamDesc {
 
     public ExprAggregateLocalGroupByDesc getOptLocalGroupBy() {
         return optLocalGroupBy;
+    }
+
+    public ExprNode getOptionalFilter() {
+        return optionalFilter;
     }
 }

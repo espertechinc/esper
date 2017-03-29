@@ -27,7 +27,13 @@ public class AggregationStateFactorySorted implements AggregationStateFactory {
 
     public AggregationState createAccess(int agentInstanceId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
         if (join) {
+            if (spec.getOptionalFilter() != null) {
+                return new AggregationStateSortedJoinWFilter(spec);
+            }
             return new AggregationStateSortedJoin(spec);
+        }
+        if (spec.getOptionalFilter() != null) {
+            return new AggregationStateSortedWFilter(spec);
         }
         return new AggregationStateSortedImpl(spec);
     }

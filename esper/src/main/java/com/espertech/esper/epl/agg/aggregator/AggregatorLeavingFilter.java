@@ -8,25 +8,17 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.plugin;
+package com.espertech.esper.epl.agg.aggregator;
 
-import com.espertech.esper.epl.expression.core.ExprNode;
-
-public class PlugInAggregationMultiFunctionAgentContext {
-
-    private final ExprNode[] childNodes;
-    private final ExprNode optionalFilterExpression;
-
-    public PlugInAggregationMultiFunctionAgentContext(ExprNode[] childNodes, ExprNode optionalFilterExpression) {
-        this.childNodes = childNodes;
-        this.optionalFilterExpression = optionalFilterExpression;
-    }
-
-    public ExprNode[] getChildNodes() {
-        return childNodes;
-    }
-
-    public ExprNode getOptionalFilterExpression() {
-        return optionalFilterExpression;
+/**
+ * Aggregator for the very last value.
+ */
+public class AggregatorLeavingFilter extends AggregatorLeaving {
+    @Override
+    public void leave(Object parameters) {
+        Boolean pass = (Boolean) parameters;
+        if (pass != null && pass) {
+            super.leave(null);
+        }
     }
 }

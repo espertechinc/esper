@@ -20,13 +20,15 @@ public class AggregationStateMinMaxByEverSpec {
     private final boolean max;
     private final Comparator<Object> comparator;
     private Object criteriaKeyBinding;
+    private final ExprEvaluator optionalFilter;
 
-    public AggregationStateMinMaxByEverSpec(int streamId, ExprEvaluator[] criteria, boolean max, Comparator<Object> comparator, Object criteriaKeyBinding) {
+    public AggregationStateMinMaxByEverSpec(int streamId, ExprEvaluator[] criteria, boolean max, Comparator<Object> comparator, Object criteriaKeyBinding, ExprEvaluator optionalFilter) {
         this.streamId = streamId;
         this.criteria = criteria;
         this.max = max;
         this.comparator = comparator;
         this.criteriaKeyBinding = criteriaKeyBinding;
+        this.optionalFilter = optionalFilter;
     }
 
     public int getStreamId() {
@@ -51,5 +53,9 @@ public class AggregationStateMinMaxByEverSpec {
 
     public void setCriteriaKeyBinding(Object criteriaKeyBinding) {
         this.criteriaKeyBinding = criteriaKeyBinding;
+    }
+
+    public ExprEvaluator getOptionalFilter() {
+        return optionalFilter;
     }
 }

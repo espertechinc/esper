@@ -24,16 +24,17 @@ import com.espertech.esper.type.MinMaxTypeEnum;
  * Represents the min/max(distinct? ...) aggregate function is an expression tree.
  */
 public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
-    private final MinMaxTypeEnum minMaxTypeEnum;
     private static final long serialVersionUID = -7828413362615586145L;
 
-    private final boolean hasFilter;
+    private final MinMaxTypeEnum minMaxTypeEnum;
+    private final boolean isFFunc;
     private final boolean isEver;
+    private boolean hasFilter;
 
-    public ExprMinMaxAggrNode(boolean distinct, MinMaxTypeEnum minMaxTypeEnum, boolean hasFilter, boolean isEver) {
+    public ExprMinMaxAggrNode(boolean distinct, MinMaxTypeEnum minMaxTypeEnum, boolean isFFunc, boolean isEver) {
         super(distinct);
         this.minMaxTypeEnum = minMaxTypeEnum;
-        this.hasFilter = hasFilter;
+        this.isFFunc = isFFunc;
         this.isEver = isEver;
     }
 
@@ -54,12 +55,14 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
             }
         }
 
-        if (hasFilter) {
+        if (isFFunc) {
             if (positionalParams.length < 2) {
                 throw new ExprValidationException(minMaxTypeEnum.toString() + "-filtered aggregation function must have a filter expression as a second parameter");
             }
             super.validateFilter(positionalParams[1].getExprEvaluator());
         }
+
+        hasFilter = positionalParams.length == 2;
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeMinMax(validationContext.getStatementExtensionSvcContext(), this, child.getExprEvaluator().getType(), hasDataWindows);
     }
 
@@ -91,5 +94,9 @@ public class ExprMinMaxAggrNode extends ExprAggregateNodeBase {
 
     public boolean isEver() {
         return isEver;
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
     }
 }

@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.epl.agg.factory;
 
-import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
-import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEver;
-import com.espertech.esper.epl.agg.access.AggregationStateMinMaxByEverSpec;
+import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -29,6 +26,9 @@ public class AggregationStateFactoryMinMaxByEver implements AggregationStateFact
     }
 
     public AggregationState createAccess(int agentInstanceId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
+        if (spec.getOptionalFilter() != null) {
+            return new AggregationStateMinMaxByEverWFilter(spec);
+        }
         return new AggregationStateMinMaxByEver(spec);
     }
 

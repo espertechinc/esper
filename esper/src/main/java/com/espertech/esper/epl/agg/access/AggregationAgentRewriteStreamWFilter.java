@@ -8,29 +8,35 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.epl.approx;
+package com.espertech.esper.epl.agg.access;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
-import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public class CountMinSketchAggAgentAdd implements AggregationAgent {
+public class AggregationAgentRewriteStreamWFilter implements AggregationAgent {
 
-    protected final ExprEvaluator stringEvaluator;
+    private final int streamNum;
+    private final ExprEvaluator filterEval;
 
-    public CountMinSketchAggAgentAdd(ExprEvaluator stringEvaluator) {
-        this.stringEvaluator = stringEvaluator;
+    public AggregationAgentRewriteStreamWFilter(int streamNum, ExprEvaluator filterEval) {
+        this.streamNum = streamNum;
+        this.filterEval = filterEval;
     }
 
     public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState) {
-        Object value = stringEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
-        CountMinSketchAggState state = (CountMinSketchAggState) aggregationState;
-        state.add(value);
+        Boolean pass = (Boolean) filterEval.evaluate(eventsPerStream, true, exprEvaluatorContext);
+        if (pass != null && pass) {
+            EventBean[] rewrite = new EventBean[]{eventsPerStream[streamNum]};
+            aggregationState.applyEnter(rewrite, exprEvaluatorContext);
+        }
     }
 
     public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState) {
-
+        Boolean pass = (Boolean) filterEval.evaluate(eventsPerStream, false, exprEvaluatorContext);
+        if (pass != null && pass) {
+            EventBean[] rewrite = new EventBean[]{eventsPerStream[streamNum]};
+            aggregationState.applyLeave(rewrite, exprEvaluatorContext);
+        }
     }
 }

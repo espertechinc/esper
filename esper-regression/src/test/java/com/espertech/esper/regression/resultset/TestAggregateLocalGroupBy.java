@@ -68,11 +68,11 @@ public class TestAggregateLocalGroupBy extends TestCase
 
         // not allowed with tables
         SupportMessageAssertUtil.tryInvalid(epService, "create table MyTable(col sum(int, group_by:theString) @type(SupportBean))",
-                "Error starting statement: Failed to validate table-column expression 'sum(int,group_by:theString)': The 'group_by' parameter is not allowed in create-table statements");
+                "Error starting statement: Failed to validate table-column expression 'sum(int,group_by:theString)': The 'group_by' and 'filter' parameter is not allowed in create-table statements");
 
         // invalid named parameter
         SupportMessageAssertUtil.tryInvalid(epService, "select sum(intPrimitive, xxx:theString) from SupportBean",
-                "Error starting statement: Failed to validate select-clause expression 'sum(intPrimitive,xxx:theString)': Invalid named parameter 'xxx' (did you mean 'group_by'?) [");
+                "Error starting statement: Failed to validate select-clause expression 'sum(intPrimitive,xxx:theString)': Invalid named parameter 'xxx' (did you mean 'group_by' or 'filter'?) [");
 
         // invalid group-by expression
         SupportMessageAssertUtil.tryInvalid(epService, "select sum(intPrimitive, group_by:sum(intPrimitive)) from SupportBean",

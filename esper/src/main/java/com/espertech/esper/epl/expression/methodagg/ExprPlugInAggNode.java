@@ -19,6 +19,10 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregationPlugInNodeMarker;
 import com.espertech.esper.epl.expression.core.*;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 /**
  * Represents a custom aggregation function in an expresson tree.
  */
@@ -71,7 +75,14 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
             count++;
         }
 
-        AggregationValidationContext context = new AggregationValidationContext(parameterTypes, isConstant, constant, super.isDistinct(), hasDataWindows, expressions);
+        LinkedHashMap<String, List<ExprNode>> namedParameters = null;
+        if (optionalFilter != null) {
+            namedParameters = new LinkedHashMap<>();
+            namedParameters.put("filter", Collections.singletonList(optionalFilter));
+            positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+        }
+
+        AggregationValidationContext context = new AggregationValidationContext(parameterTypes, isConstant, constant, super.isDistinct(), hasDataWindows, expressions, namedParameters);
         try {
             // the aggregation function factory is transient, obtain if not provided
             if (aggregationFunctionFactory == null) {
@@ -88,6 +99,8 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
             childType = positionalParams[0].getExprEvaluator().getType();
         }
 
+
+
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makePlugInMethod(validationContext.getStatementExtensionSvcContext(), this, aggregationFunctionFactory, childType);
     }
 
@@ -102,5 +115,9 @@ public class ExprPlugInAggNode extends ExprAggregateNodeBase implements ExprAggr
 
         ExprPlugInAggNode other = (ExprPlugInAggNode) node;
         return other.getAggregationFunctionName().equals(this.getAggregationFunctionName());
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
     }
 }

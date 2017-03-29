@@ -17,6 +17,7 @@ import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -68,17 +69,17 @@ public class AggregationMethodFactoryMinMax implements AggregationMethodFactory 
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationValidationUtil.validateAggregationType(this, intoTableAgg);
         AggregationMethodFactoryMinMax that = (AggregationMethodFactoryMinMax) intoTableAgg;
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(type, that.type);
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
+        AggregationValidationUtil.validateAggregationInputType(type, that.type);
+        AggregationValidationUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
         if (parent.getMinMaxTypeEnum() != that.parent.getMinMaxTypeEnum()) {
             throw new ExprValidationException("The aggregation declares " +
                     parent.getMinMaxTypeEnum().getExpressionText() +
                     " and provided is " +
                     that.parent.getMinMaxTypeEnum().getExpressionText());
         }
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationUnbound(hasDataWindows, that.hasDataWindows);
+        AggregationValidationUtil.validateAggregationUnbound(hasDataWindows, that.hasDataWindows);
     }
 
     public AggregationAgent getAggregationStateAgent() {

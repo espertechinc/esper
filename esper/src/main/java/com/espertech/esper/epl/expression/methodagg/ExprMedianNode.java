@@ -54,4 +54,8 @@ public class ExprMedianNode extends ExprAggregateNodeBase {
     public boolean isHasFilter() {
         return hasFilter;
     }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
+    }
 }

@@ -67,6 +67,30 @@ public class AggregatorRateEver implements AggregationMethod {
         return (points.size() * oneSecondTime * 1d) / interval;
     }
 
+    public long getInterval() {
+        return interval;
+    }
+
+    public long getOneSecondTime() {
+        return oneSecondTime;
+    }
+
+    public ArrayDeque<Long> getPoints() {
+        return points;
+    }
+
+    public boolean isHasLeave() {
+        return hasLeave;
+    }
+
+    public void setHasLeave(boolean hasLeave) {
+        this.hasLeave = hasLeave;
+    }
+
+    public TimeProvider getTimeProvider() {
+        return timeProvider;
+    }
+
     private void removeFromHead(long timestamp) {
         if (points.size() > 1) {
             while (true) {
@@ -75,9 +99,6 @@ public class AggregatorRateEver implements AggregationMethod {
                 if (delta >= interval) {
                     points.remove();
                     hasLeave = true;
-                } else if (delta == interval) {
-                    hasLeave = true;
-                    break;
                 } else {
                     break;
                 }

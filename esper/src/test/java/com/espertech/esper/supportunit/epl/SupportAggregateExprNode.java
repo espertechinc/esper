@@ -83,4 +83,8 @@ public class SupportAggregateExprNode extends ExprAggregateNodeBase {
     public void setValue(Object value) {
         this.value = value;
     }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
+    }
 }

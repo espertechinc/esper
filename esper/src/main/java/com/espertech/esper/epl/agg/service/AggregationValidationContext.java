@@ -12,6 +12,9 @@ package com.espertech.esper.epl.agg.service;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
 /**
  * Context for use with plug-in custom aggregation functions that implement {@link com.espertech.esper.client.hook.AggregationFunctionFactory}.
  * <p>
@@ -25,6 +28,7 @@ public class AggregationValidationContext {
     private final boolean distinct;
     private final boolean windowed;
     private final ExprNode[] expressions;
+    private final LinkedHashMap<String, List<ExprNode>> namedParameters;
 
     /**
      * Ctor.
@@ -34,15 +38,17 @@ public class AggregationValidationContext {
      * @param constantValues for each parameter expression that returns a constant result this array contains the constant value
      * @param distinct       true if 'distinct' keyword was provided
      * @param windowed       true if all event properties references by parameter expressions are from streams that have data windows declared onto the stream or are from named windows
-     * @param expressions    the parameter expressions themselves
+     * @param expressions    the parameter expressions themselves (positional parameters only)
+     * @param namedParameters provided when there are named parameters, such as the "filter:expression" parameter
      */
-    public AggregationValidationContext(Class[] parameterTypes, boolean[] constantValue, Object[] constantValues, boolean distinct, boolean windowed, ExprNode[] expressions) {
+    public AggregationValidationContext(Class[] parameterTypes, boolean[] constantValue, Object[] constantValues, boolean distinct, boolean windowed, ExprNode[] expressions, LinkedHashMap<String, List<ExprNode>> namedParameters) {
         this.parameterTypes = parameterTypes;
         this.isConstantValue = constantValue;
         this.constantValues = constantValues;
         this.distinct = distinct;
         this.windowed = windowed;
         this.expressions = expressions;
+        this.namedParameters = namedParameters;
     }
 
     /**
@@ -108,5 +114,13 @@ public class AggregationValidationContext {
      */
     public ExprNode[] getExpressions() {
         return expressions;
+    }
+
+    /**
+     * Returns any named parameters or null if there are no named parameters
+     * @return named parameters
+     */
+    public LinkedHashMap<String, List<ExprNode>> getNamedParameters() {
+        return namedParameters;
     }
 }

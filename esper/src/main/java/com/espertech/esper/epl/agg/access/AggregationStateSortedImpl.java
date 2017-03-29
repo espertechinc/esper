@@ -45,22 +45,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         if (theEvent == null) {
             return;
         }
-        if (referenceEvent(theEvent)) {
-            Object comparable = getComparable(spec.getCriteria(), eventsPerStream, true, exprEvaluatorContext);
-            Object existing = sorted.get(comparable);
-            if (existing == null) {
-                sorted.put(comparable, theEvent);
-            } else if (existing instanceof EventBean) {
-                ArrayDeque coll = new ArrayDeque(2);
-                coll.add(existing);
-                coll.add(theEvent);
-                sorted.put(comparable, coll);
-            } else {
-                ArrayDeque q = (ArrayDeque) existing;
-                q.add(theEvent);
-            }
-            size++;
-        }
+        referenceAdd(theEvent, eventsPerStream, exprEvaluatorContext);
     }
 
     protected boolean referenceEvent(EventBean theEvent) {
@@ -78,23 +63,7 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
         if (theEvent == null) {
             return;
         }
-        if (dereferenceEvent(theEvent)) {
-            Object comparable = getComparable(spec.getCriteria(), eventsPerStream, false, exprEvaluatorContext);
-            Object existing = sorted.get(comparable);
-            if (existing != null) {
-                if (existing.equals(theEvent)) {
-                    sorted.remove(comparable);
-                    size--;
-                } else if (existing instanceof ArrayDeque) {
-                    ArrayDeque q = (ArrayDeque) existing;
-                    q.remove(theEvent);
-                    if (q.isEmpty()) {
-                        sorted.remove(comparable);
-                    }
-                    size--;
-                }
-            }
-        }
+        dereferenceRemove(theEvent, eventsPerStream, exprEvaluatorContext);
     }
 
     public EventBean getFirstValue() {
@@ -139,6 +108,45 @@ public class AggregationStateSortedImpl implements AggregationStateWithSize, Agg
                 result[count++] = expr.evaluate(eventsPerStream, true, exprEvaluatorContext);
             }
             return new MultiKeyUntyped(result);
+        }
+    }
+
+    protected void referenceAdd(EventBean theEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (referenceEvent(theEvent)) {
+            Object comparable = getComparable(spec.getCriteria(), eventsPerStream, true, exprEvaluatorContext);
+            Object existing = sorted.get(comparable);
+            if (existing == null) {
+                sorted.put(comparable, theEvent);
+            } else if (existing instanceof EventBean) {
+                ArrayDeque coll = new ArrayDeque(2);
+                coll.add(existing);
+                coll.add(theEvent);
+                sorted.put(comparable, coll);
+            } else {
+                ArrayDeque q = (ArrayDeque) existing;
+                q.add(theEvent);
+            }
+            size++;
+        }
+    }
+
+    protected void dereferenceRemove(EventBean theEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        if (dereferenceEvent(theEvent)) {
+            Object comparable = getComparable(spec.getCriteria(), eventsPerStream, false, exprEvaluatorContext);
+            Object existing = sorted.get(comparable);
+            if (existing != null) {
+                if (existing.equals(theEvent)) {
+                    sorted.remove(comparable);
+                    size--;
+                } else if (existing instanceof ArrayDeque) {
+                    ArrayDeque q = (ArrayDeque) existing;
+                    q.remove(theEvent);
+                    if (q.isEmpty()) {
+                        sorted.remove(comparable);
+                    }
+                    size--;
+                }
+            }
         }
     }
 

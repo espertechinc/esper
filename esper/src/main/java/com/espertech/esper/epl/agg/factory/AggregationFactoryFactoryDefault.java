@@ -19,6 +19,7 @@ import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.approx.CountMinSketchSpec;
 import com.espertech.esper.epl.expression.accessagg.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
@@ -89,12 +90,12 @@ public class AggregationFactoryFactoryDefault implements AggregationFactoryFacto
         return new AggregationMethodFactoryStddev(exprStddevNode, childType);
     }
 
-    public AggregationMethodFactory makeLinearUnbounded(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode parent, EventType containedType, Class accessorResultType, int streamNum) {
-        return new AggregationMethodFactoryFirstLastUnbound(parent, containedType, accessorResultType, streamNum);
+    public AggregationMethodFactory makeLinearUnbounded(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode parent, EventType containedType, Class accessorResultType, int streamNum, boolean hasFilter) {
+        return new AggregationMethodFactoryFirstLastUnbound(parent, containedType, accessorResultType, streamNum, hasFilter);
     }
 
-    public AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum) {
-        return new AggregationStateFactoryLinear(expr, streamNum);
+    public AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprEvaluator optionalFilter) {
+        return new AggregationStateFactoryLinear(expr, streamNum, optionalFilter);
     }
 
     public AggregationStateFactoryCountMinSketch makeCountMinSketch(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggCountMinSketchNode expr, CountMinSketchSpec specification) {

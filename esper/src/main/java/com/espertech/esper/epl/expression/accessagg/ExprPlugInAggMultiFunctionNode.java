@@ -98,6 +98,10 @@ public class ExprPlugInAggMultiFunctionNode extends ExprAggregateNodeBase implem
         return super.aggregationResultFuture.getEventBean(column, eventsPerStream, isNewData, context);
     }
 
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
+    }
+
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return false;
     }

@@ -52,4 +52,8 @@ public class ExprFirstEverNode extends ExprAggregateNodeBase {
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprFirstEverNode;
     }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
+    }
 }

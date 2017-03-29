@@ -32,7 +32,7 @@ public class ExprLeavingAggNode extends ExprAggregateNodeBase {
     }
 
     public AggregationMethodFactory validateAggregationChild(ExprValidationContext validationContext) throws ExprValidationException {
-        if (positionalParams.length > 0) {
+        if (optionalFilter == null && positionalParams.length > 0) {
             throw makeExceptionExpectedParamNum(0, 0);
         }
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeLeaving(validationContext.getStatementExtensionSvcContext(), this);
@@ -44,5 +44,9 @@ public class ExprLeavingAggNode extends ExprAggregateNodeBase {
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprLeavingAggNode;
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
     }
 }

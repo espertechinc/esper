@@ -11,26 +11,26 @@
 package com.espertech.esper.epl.approx;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationState;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
-public class CountMinSketchAggAgentAdd implements AggregationAgent {
+public class CountMinSketchAggAgentAddFilter extends CountMinSketchAggAgentAdd {
 
-    protected final ExprEvaluator stringEvaluator;
+    private final ExprEvaluator filter;
 
-    public CountMinSketchAggAgentAdd(ExprEvaluator stringEvaluator) {
-        this.stringEvaluator = stringEvaluator;
+    public CountMinSketchAggAgentAddFilter(ExprEvaluator stringEvaluator, ExprEvaluator filter) {
+        super(stringEvaluator);
+        this.filter = filter;
     }
 
+    @Override
     public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState) {
-        Object value = stringEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
-        CountMinSketchAggState state = (CountMinSketchAggState) aggregationState;
-        state.add(value);
-    }
-
-    public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext, AggregationState aggregationState) {
-
+        Boolean pass = (Boolean) filter.evaluate(eventsPerStream, true, exprEvaluatorContext);
+        if (pass != null && pass) {
+            Object value = stringEvaluator.evaluate(eventsPerStream, true, exprEvaluatorContext);
+            CountMinSketchAggState state = (CountMinSketchAggState) aggregationState;
+            state.add(value);
+        }
     }
 }

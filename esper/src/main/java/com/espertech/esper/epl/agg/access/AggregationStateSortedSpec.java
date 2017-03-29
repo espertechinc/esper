@@ -19,12 +19,14 @@ public class AggregationStateSortedSpec {
     private final ExprEvaluator[] criteria;
     private final Comparator<Object> comparator;
     private Object criteriaKeyBinding;
+    private final ExprEvaluator optionalFilter;
 
-    public AggregationStateSortedSpec(int streamId, ExprEvaluator[] criteria, Comparator<Object> comparator, Object criteriaKeyBinding) {
+    public AggregationStateSortedSpec(int streamId, ExprEvaluator[] criteria, Comparator<Object> comparator, Object criteriaKeyBinding, ExprEvaluator optionalFilter) {
         this.streamId = streamId;
         this.criteria = criteria;
         this.comparator = comparator;
         this.criteriaKeyBinding = criteriaKeyBinding;
+        this.optionalFilter = optionalFilter;
     }
 
     public int getStreamId() {
@@ -45,5 +47,9 @@ public class AggregationStateSortedSpec {
 
     public void setCriteriaKeyBinding(Object criteriaKeyBinding) {
         this.criteriaKeyBinding = criteriaKeyBinding;
+    }
+
+    public ExprEvaluator getOptionalFilter() {
+        return optionalFilter;
     }
 }

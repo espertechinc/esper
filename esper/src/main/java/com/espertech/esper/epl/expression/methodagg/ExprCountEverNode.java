@@ -63,4 +63,8 @@ public class ExprCountEverNode extends ExprAggregateNodeBase {
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprCountEverNode;
     }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
+    }
 }

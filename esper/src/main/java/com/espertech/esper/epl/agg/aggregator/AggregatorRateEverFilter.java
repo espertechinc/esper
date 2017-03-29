@@ -8,25 +8,20 @@
  *  a copy of which has been included with this distribution in the license.txt file.  *
  ***************************************************************************************
  */
-package com.espertech.esper.plugin;
+package com.espertech.esper.epl.agg.aggregator;
 
-import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.schedule.TimeProvider;
 
-public class PlugInAggregationMultiFunctionAgentContext {
+public class AggregatorRateEverFilter extends AggregatorRateEver {
 
-    private final ExprNode[] childNodes;
-    private final ExprNode optionalFilterExpression;
-
-    public PlugInAggregationMultiFunctionAgentContext(ExprNode[] childNodes, ExprNode optionalFilterExpression) {
-        this.childNodes = childNodes;
-        this.optionalFilterExpression = optionalFilterExpression;
+    public AggregatorRateEverFilter(long interval, long oneSecondTime, TimeProvider timeProvider) {
+        super(interval, oneSecondTime, timeProvider);
     }
 
-    public ExprNode[] getChildNodes() {
-        return childNodes;
-    }
-
-    public ExprNode getOptionalFilterExpression() {
-        return optionalFilterExpression;
+    public void enter(Object object) {
+        Boolean pass = (Boolean) object;
+        if (pass != null && pass) {
+            super.enter(object);
+        }
     }
 }

@@ -18,7 +18,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.Locale;
 
-public class AggregationMethodFactoryUtil {
+public class AggregationValidationUtil {
     public static void validateAggregationType(AggregationMethodFactory requiredFactory,
                                                AggregationMethodFactory providedFactory) throws ExprValidationException {
         if (!JavaClassHelper.isSubclassOrImplementsInterface(providedFactory.getClass(), requiredFactory.getClass())) {

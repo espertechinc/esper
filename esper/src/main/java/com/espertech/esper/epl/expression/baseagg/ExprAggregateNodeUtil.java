@@ -11,25 +11,36 @@
 package com.espertech.esper.epl.expression.baseagg;
 
 import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
-import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.core.ExprNamedParameterNode;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeInnerNodeProvider;
+import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.*;
 
 public class ExprAggregateNodeUtil {
-    public static ExprAggregateNodeParamDesc getValidatePositionalParams(ExprNode[] childNodes, boolean allowOnlyGroupBy)
+    public static ExprAggregateNodeParamDesc getValidatePositionalParams(ExprNode[] childNodes, boolean builtinAggregationFunc)
             throws ExprValidationException {
         ExprAggregateLocalGroupByDesc optionalLocalGroupBy = null;
+        ExprNode optionalFilter = null;
         int count = 0;
         for (ExprNode node : childNodes) {
             if (!isNonPositionalParameter(node)) {
                 count++;
             } else {
-                ExprNamedParameterNodeImpl namedParameterNode = (ExprNamedParameterNodeImpl) node;
-                if (allowOnlyGroupBy &&
-                        !namedParameterNode.getParameterName().toLowerCase(Locale.ENGLISH).equals("group_by")) {
-                    throw new ExprValidationException("Invalid named parameter '" + namedParameterNode.getParameterName() + "' (did you mean 'group_by'?)");
+                ExprNamedParameterNode namedParameterNode = (ExprNamedParameterNode) node;
+                String paramNameLower = namedParameterNode.getParameterName().toLowerCase(Locale.ENGLISH);
+                if (paramNameLower.equals("group_by")) {
+                    optionalLocalGroupBy = new ExprAggregateLocalGroupByDesc(namedParameterNode.getChildNodes());
+                } else if (paramNameLower.equals("filter")) {
+                    if (namedParameterNode.getChildNodes().length != 1 | JavaClassHelper.getBoxedType(namedParameterNode.getChildNodes()[0].getExprEvaluator().getType()) != Boolean.class) {
+                        throw new ExprValidationException("Filter named parameter requires a single expression returning a boolean-typed value");
+                    }
+                    optionalFilter = namedParameterNode.getChildNodes()[0];
+                } else if (builtinAggregationFunc) {
+                    throw new ExprValidationException("Invalid named parameter '" + namedParameterNode.getParameterName() + "' (did you mean 'group_by' or 'filter'?)");
                 }
-                optionalLocalGroupBy = new ExprAggregateLocalGroupByDesc(namedParameterNode.getChildNodes());
             }
         }
         ExprNode[] positionals = new ExprNode[count];
@@ -39,7 +50,7 @@ public class ExprAggregateNodeUtil {
                 positionals[count++] = node;
             }
         }
-        return new ExprAggregateNodeParamDesc(positionals, optionalLocalGroupBy);
+        return new ExprAggregateNodeParamDesc(positionals, optionalLocalGroupBy, optionalFilter);
     }
 
     public static boolean isNonPositionalParameter(ExprNode node) {

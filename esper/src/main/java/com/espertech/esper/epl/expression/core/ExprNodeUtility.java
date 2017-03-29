@@ -1022,6 +1022,13 @@ public class ExprNodeUtility {
         return new ExprValidationException(message);
     }
 
+    public static ExprNode[] addExpression(ExprNode[] expressions, ExprNode expression) {
+        ExprNode[] target = new ExprNode[expressions.length + 1];
+        System.arraycopy(expressions, 0, target, 0, expressions.length);
+        target[expressions.length] = expression;
+        return target;
+    }
+
     /**
      * Encapsulates the parse result parsing a mapped property as a class and method name with args.
      */

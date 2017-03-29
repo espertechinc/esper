@@ -16,9 +16,10 @@ import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.aggregator.AggregatorLeaving;
+import com.espertech.esper.epl.agg.aggregator.AggregatorLeavingFilter;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -53,6 +54,9 @@ public class AggregationMethodFactoryLeaving implements AggregationMethodFactory
     }
 
     public AggregationMethod make() {
+        if (parent.getPositionalParams().length != 0) {
+            return new AggregatorLeavingFilter();
+        }
         return new AggregatorLeaving();
     }
 
@@ -61,7 +65,7 @@ public class AggregationMethodFactoryLeaving implements AggregationMethodFactory
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationValidationUtil.validateAggregationType(this, intoTableAgg);
     }
 
     public AggregationAgent getAggregationStateAgent() {

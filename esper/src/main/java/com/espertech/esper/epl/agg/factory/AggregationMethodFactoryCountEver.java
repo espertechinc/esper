@@ -16,7 +16,7 @@ import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
+import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -62,7 +62,7 @@ public class AggregationMethodFactoryCountEver implements AggregationMethodFacto
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationValidationUtil.validateAggregationType(this, intoTableAgg);
         AggregationMethodFactoryCountEver that = (AggregationMethodFactoryCountEver) intoTableAgg;
         if (that.ignoreNulls != ignoreNulls) {
             throw new ExprValidationException("The aggregation declares " +
@@ -70,7 +70,7 @@ public class AggregationMethodFactoryCountEver implements AggregationMethodFacto
                     " and provided is " +
                     (that.ignoreNulls ? "ignore-nulls" : "no-ignore-nulls"));
         }
-        AggregationMethodFactoryUtil.validateAggregationFilter(parent.hasFilter(), that.parent.hasFilter());
+        AggregationValidationUtil.validateAggregationFilter(parent.hasFilter(), that.parent.hasFilter());
     }
 
     public AggregationAgent getAggregationStateAgent() {

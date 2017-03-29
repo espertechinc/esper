@@ -12,9 +12,14 @@ package com.espertech.esper.plugin;
 
 import com.espertech.esper.client.ConfigurationPlugInAggregationMultiFunction;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprNamedParameterNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.table.mgmt.TableMetadataColumnAggregation;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Context for use with {@link PlugInAggregationMultiFunctionFactory} provides
@@ -122,5 +127,20 @@ public class PlugInAggregationMultiFunctionValidationContext {
      */
     public ExprNode[] getAllParameterExpressions() {
         return allParameterExpressions;
+    }
+
+    /**
+     * Gets the named parameters as a list
+     * @return named params
+     */
+    public LinkedHashMap<String, List<ExprNode>> getNamedParameters() {
+        LinkedHashMap<String, List<ExprNode>> named = new LinkedHashMap<>();
+        for (ExprNode node : allParameterExpressions) {
+            if (node instanceof ExprNamedParameterNode) {
+                ExprNamedParameterNode namedNode = (ExprNamedParameterNode) node;
+                named.put(namedNode.getParameterName(), Arrays.asList(namedNode.getChildNodes()));
+            }
+        }
+        return named;
     }
 }

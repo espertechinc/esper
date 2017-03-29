@@ -18,7 +18,7 @@ import com.espertech.esper.epl.agg.access.AggregationStateKey;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
+import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
@@ -97,7 +97,7 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationValidationUtil.validateAggregationType(this, intoTableAgg);
         ExprPlugInAggMultiFunctionNodeFactory that = (ExprPlugInAggMultiFunctionNodeFactory) intoTableAgg;
         if (!getAggregationStateKey(false).equals(that.getAggregationStateKey(false))) {
             throw new ExprValidationException("Mismatched state key");
@@ -105,7 +105,7 @@ public class ExprPlugInAggMultiFunctionNodeFactory implements AggregationMethodF
     }
 
     public AggregationAgent getAggregationStateAgent() {
-        PlugInAggregationMultiFunctionAgentContext ctx = new PlugInAggregationMultiFunctionAgentContext(parent.getChildNodes());
+        PlugInAggregationMultiFunctionAgentContext ctx = new PlugInAggregationMultiFunctionAgentContext(parent.getChildNodes(), parent.getOptionalFilter());
         return handlerPlugin.getAggregationAgent(ctx);
     }
 

@@ -14,12 +14,10 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.epl.agg.access.AggregationAccessor;
 import com.espertech.esper.epl.agg.access.AggregationAgent;
 import com.espertech.esper.epl.agg.access.AggregationStateKey;
-import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
-import com.espertech.esper.epl.agg.aggregator.AggregatorRate;
-import com.espertech.esper.epl.agg.aggregator.AggregatorRateEver;
+import com.espertech.esper.epl.agg.aggregator.*;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
-import com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -65,8 +63,15 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory {
 
     public AggregationMethod make() {
         if (isEver) {
-            return new AggregatorRateEver(intervalTime, timeAbacus.getOneSecond(), timeProvider);
+            if (parent.getPositionalParams().length == 0) {
+                return new AggregatorRateEver(intervalTime, timeAbacus.getOneSecond(), timeProvider);
+            } else {
+                return new AggregatorRateEverFilter(intervalTime, timeAbacus.getOneSecond(), timeProvider);
+            }
         } else {
+            if (parent.getOptionalFilter() != null) {
+                return new AggregatorRateFilter(timeAbacus.getOneSecond());
+            }
             return new AggregatorRate(timeAbacus.getOneSecond());
         }
     }
@@ -76,7 +81,7 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory {
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationValidationUtil.validateAggregationType(this, intoTableAgg);
         AggregationMethodFactoryRate that = (AggregationMethodFactoryRate) intoTableAgg;
         if (intervalTime != that.intervalTime) {
             throw new ExprValidationException("The size is " +
@@ -84,7 +89,7 @@ public class AggregationMethodFactoryRate implements AggregationMethodFactory {
                     " and provided is " +
                     that.intervalTime);
         }
-        AggregationMethodFactoryUtil.validateAggregationUnbound(!isEver, !that.isEver);
+        AggregationValidationUtil.validateAggregationUnbound(!isEver, !that.isEver);
     }
 
     public AggregationAgent getAggregationStateAgent() {

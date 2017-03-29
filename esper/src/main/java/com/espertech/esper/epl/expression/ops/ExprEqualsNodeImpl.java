@@ -133,12 +133,12 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
     }
 
     public boolean equalsNode(ExprNode node) {
-        if (!(node instanceof ExprEqualsNodeImpl)) {
+        if (!(node instanceof ExprEqualsNode)) {
             return false;
         }
 
-        ExprEqualsNodeImpl other = (ExprEqualsNodeImpl) node;
-        return other.isNotEquals == this.isNotEquals;
+        ExprEqualsNode other = (ExprEqualsNode) node;
+        return other.isNotEquals() == this.isNotEquals;
     }
 
     private ExprEvaluator getEvaluator(ExprEvaluator lhs, ExprEvaluator rhs) {

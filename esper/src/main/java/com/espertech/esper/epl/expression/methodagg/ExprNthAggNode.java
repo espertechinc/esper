@@ -14,6 +14,7 @@ import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNode;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
@@ -47,6 +48,10 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
         Number num = (Number) second.getExprEvaluator().evaluate(null, true, validationContext.getExprEvaluatorContext());
         int size = num.intValue();
 
+        if (optionalFilter != null) {
+            this.positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+        }
+
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeNth(validationContext.getStatementExtensionSvcContext(), this, first.getExprEvaluator().getType(), size);
     }
 
@@ -56,5 +61,9 @@ public class ExprNthAggNode extends ExprAggregateNodeBase {
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprNthAggNode;
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
     }
 }

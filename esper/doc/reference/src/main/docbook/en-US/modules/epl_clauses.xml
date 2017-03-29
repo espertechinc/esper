@@ -2096,7 +2096,7 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 					Here is the syntax for aggregate functions: 
 				</para>
 				<synopsis><emphasis>aggregate_function</emphasis>( [all | distinct] <emphasis>expression</emphasis> [,<emphasis>expression</emphasis> [,...]] 
-    [, <literal>group_by:<emphasis>local_group_by</emphasis></literal>] )</synopsis>
+    [, group_by:<emphasis>local_group_by</emphasis>] [, filter:<emphasis>filter_expression</emphasis>] )</synopsis>
 
 				<para>
 					You can apply aggregate functions to all events in an event stream window or other view, or to one or more groups of events. From each set of events to which 
@@ -2111,6 +2111,11 @@ from ProductEvent as prod, OrderEvent as ord]]></programlisting>
 				<para>
 					You can provide a grouping dimension for each aggregation function by providing the optional <literal>group_by</literal> parameter as part of aggregation function parameters. 
 					Please refer to <xref linkend="epl-grouping-agglocal"/>.
+				</para>			
+
+				<para>
+					You can provide a filter expression for each aggregation function by providing the optional <literal>filter</literal> parameter as part of aggregation function parameters. 
+					Please refer to <xref linkend="epl-grouping-aggfilter"/>.
 				</para>			
 
 				<para>
@@ -2626,6 +2631,45 @@ from Orders#time(1 min) group by account</programlisting>
 					</para>
 				</listitem>
 			</orderedlist>
+		</sect2>
+
+        <sect2 xml:id="epl-grouping-aggfilter" >
+			 <title>Specifying a filter expression for each aggregation function</title>
+			 <para>
+				EPL allows each aggregation function to specify its own filter expression. This is useful for conditionally aggregating.
+			 </para>
+
+			<para>
+				The syntax for the <literal>filter</literal> parameter for use with aggregation functions is: 
+			</para>
+			<synopsis>filter:<emphasis>expression</emphasis></synopsis>
+			
+			<para>
+				 The <literal>filter</literal> identifier can occur at any place within the aggregation function parameters. It follows a colon and the filter expression.
+				 The filter expression must return a <literal>boolean</literal>-type value.
+			</para>		
+  			 
+			<para>
+				If a filter expression is present, the engine evaluates the filter expression to determine whether to update the aggregation.
+			</para>		
+
+			<para>
+			  For example, the next statement returns the total price of small orders (price less 100), the total price of large orders (price >= 100), as well as the events themselves of each category, considering the last 10 seconds of orders:
+			</para>
+			<programlisting>select 
+  sum(price, filter: price &lt; 100) as smallOrderTotal, 
+  sum(price, filter: price &gt;= 100) as largeOrderTotal, 
+  window(*, filter: price &lt; 100) as smallOrderEvents, 
+  window(*, filter: price &gt;= 100) as largeOrderEvents
+    from Orders#time(10)</programlisting>
+    
+			<note>
+				<para>
+					Filter expression that are parameters to aggregation functions must return reproducible results:  
+					When the expression is evaluated against the same input values it should return the same result.
+					Aggregation functions and subqueries are not allowed therein.
+				</para>
+			</note>
 		</sect2>
 
         <sect2 xml:id="epl-grouping-having" >

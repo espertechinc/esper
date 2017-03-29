@@ -1251,6 +1251,10 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 		</para>
 
 		<para>
+			The EPL language allows each aggregation function to specify its own filter criteria. Please find further information in <xref linkend="epl-grouping-aggfilter"/>.
+		</para>
+
+		<para>
 			Aggregation values are always computed incrementally: Insert and remove streams result in aggregation value changes. The exceptions are on-demand queries and joins when using the <literal>unidirectional</literal> keyword. Aggregation functions are optimized to retain the minimal
 				information necessary to compute the aggregated result, and to share aggregation state between eligible other aggregation functions in the same statement so that same-kind aggregation state is
 				never held multiple times unless required.
@@ -1635,7 +1639,7 @@ from Trade#groupwin(symbol)#length(10)</programlisting>
 				<para>
 					The synopsis for the <literal>first</literal> aggregation function is:
 				</para>
-				<synopsis><literal>first(</literal>*|<emphasis>stream</emphasis>.*|<emphasis>value_expression</emphasis> [, <emphasis>index_expression</emphasis>])</synopsis>
+				<synopsis><literal>first(</literal>*|<emphasis>stream</emphasis>.*|<emphasis>value_expression</emphasis> [, <emphasis>index_expression</emphasis>] [, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					The <literal>first</literal> aggregation function returns properties of the very first event. When used with <literal>group by</literal>, it returns properties of the first event for each group. When specifying an index expression, the function returns properties of the Nth-subsequent event to the first event, all according to order of arrival.
@@ -1698,7 +1702,7 @@ from SensorEvent#time(10 sec)</programlisting>
 				<para>
 					The synopsis for the <literal>last</literal> aggregation function is:
 				</para>
-				<synopsis><literal>last(</literal>*|<emphasis>stream</emphasis>.*|<emphasis>value_expression</emphasis> [, <emphasis>index_expression</emphasis>])</synopsis>
+				<synopsis><literal>last(</literal>*|<emphasis>stream</emphasis>.*|<emphasis>value_expression</emphasis> [, <emphasis>index_expression</emphasis>][, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					The <literal>last</literal> aggregation function returns properties of the very last event. When used with <literal>group by</literal>, it returns properties of the last event for each group. When specifying an index expression, the function returns properties of the Nth-prior event to the last event, all according to order of arrival.
@@ -1737,7 +1741,7 @@ from SensorEvent#time(10 sec)</programlisting>
 				<para>
 					The synopsis for the <literal>maxby</literal> aggregation function is:
 				</para>
-				<synopsis><literal>maxby</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...])</synopsis>
+				<synopsis><literal>maxby</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...][, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					The <literal>maxby</literal> aggregation function returns the greatest of all events, compared by using criteria expressions.
@@ -1779,7 +1783,7 @@ from SensorEvent#time(10 sec)</programlisting>
 				<para>
 					The synopsis for the <literal>maxbyever</literal> aggregation function is:
 				</para>
-				<synopsis><literal>maxbyever</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...])</synopsis>
+				<synopsis><literal>maxbyever</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...][, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					The <literal>maxbyever</literal> aggregation function returns the greatest of all events that ever occurred, compared by using criteria expressions.
@@ -1806,7 +1810,7 @@ from SensorEvent#time(10) group by zone</programlisting>
 				<para>
 					The synopsis for the <literal>minby</literal> aggregation function is:
 				</para>
-				<synopsis><literal>minby</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...])</synopsis>
+				<synopsis><literal>minby</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...][, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					Similar to the <literal>maxby</literal> aggregation function, the <literal>minby</literal> aggregation function returns the lowest of all events, compared by using criteria expressions.
@@ -1839,7 +1843,7 @@ from SensorEvent#time(10) group by zone</programlisting>
 				<para>
 					The synopsis for the <literal>sorted</literal> aggregation function is:
 				</para>
-				<synopsis><literal>sorted</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...])</synopsis>
+				<synopsis><literal>sorted</literal>(<emphasis>sort_criteria_expression</emphasis> [asc/desc][, <emphasis>sort_criteria_expression</emphasis> [asc/desc]...][, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					The <literal>sorted</literal> aggregation function maintains a list of events sorted according to criteria expressions.
@@ -1880,7 +1884,7 @@ from SensorEvent</programlisting>
 				<para>
 					The synopsis for the <literal>window</literal> aggregation function is:
 				</para>
-				<synopsis><literal>window(</literal>*|<emphasis>stream</emphasis>.*|<emphasis>value_expression</emphasis>)</synopsis>
+				<synopsis><literal>window(</literal>*|<emphasis>stream</emphasis>.*|<emphasis>value_expression</emphasis> [, filter:<emphasis>filter_expression</emphasis>])</synopsis>
 
 				<para>
 					The <literal>window</literal> aggregation function returns all rows. When used with <literal>group by</literal>, it returns the rows for each group.
@@ -2058,7 +2062,7 @@ from SensorEvent</programlisting>
 					<title>Counting Values</title>
 					<para>
 						The <literal>countMinSketchAdd</literal> function counts value(s). It expects a single parameter expression returning the value(s) to be counted.
-						The function can only be used with statements that utilize <literal>into table</literal>.
+						The function can only be used with statements that utilize <literal>into table</literal> and can accept a <literal>filter:</literal> filter expression as a parameter.
 					</para>
 					
 					<para>
@@ -2223,7 +2227,7 @@ output every 5 sec</programlisting>
 							</entry>
 						</row>
 						<row>
-							<entry>leaving()</entry>
+							<entry>leaving([filter:<emphasis>filter_expression</emphasis>])</entry>
 							<entry>
 								<para>
 									Returns true when any remove stream data has passed, for use in the <literal>having</literal> clause to output only when a data window has filled.
@@ -2240,7 +2244,7 @@ having leaving()</programlisting>
 							</entry>
 						</row>
 						<row>
-							<entry>nth(<emphasis>expression</emphasis>, <emphasis>N_index</emphasis>)</entry>
+							<entry>nth(<emphasis>expression</emphasis>, <emphasis>N_index</emphasis> [, filter:<emphasis>filter_expression</emphasis>])</entry>
 							<entry>
 								<para>
 									Returns the Nth oldest element; If N=0 returns the most recent value. If N=1 returns the value before the most recent value. If N is larger than the events held in the data window for this group, returns null.
@@ -2264,7 +2268,7 @@ output last every 2 sec</programlisting>
 						<row>
 							<entry>
 								<para>
-									rate(<emphasis>number_of_seconds</emphasis>)
+									rate(<emphasis>number_of_seconds</emphasis> [, filter:<emphasis>filter_expression</emphasis>])
 								</para>
 							</entry>
 							<entry>
@@ -2287,7 +2291,7 @@ output snapshot every 2 sec</programlisting>
 						<row>
 							<entry>
 								<para>
-									rate(<emphasis>timestamp_property</emphasis>[, <emphasis>accumulator</emphasis>])
+									rate(<emphasis>timestamp_property</emphasis>[, <emphasis>accumulator</emphasis>] [, filter:<emphasis>filter_expression</emphasis>])
 								</para>
 							</entry>
 							<entry>

@@ -41,6 +41,7 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
             throw new ExprValidationException("The rate aggregation function minimally requires a numeric constant or expression as a parameter.");
         }
 
+        // handle "ever"
         ExprNode first = this.positionalParams[0];
         if (first.isConstantResult()) {
             String message = "The rate aggregation function requires a numeric constant or time period as the first parameter in the constant-value notation";
@@ -58,6 +59,11 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
                 throw new ExprValidationException(message);
             }
 
+            if (optionalFilter == null) {
+                this.positionalParams = ExprNodeUtility.EMPTY_EXPR_ARRAY;
+            } else {
+                this.positionalParams = new ExprNode[]{optionalFilter};
+            }
             return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, true, intervalTime, validationContext.getTimeProvider(), validationContext.getEngineImportService().getTimeAbacus());
         }
 
@@ -81,6 +87,9 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
         if (!hasDataWindows) {
             throw new ExprValidationException("The rate aggregation function in the timestamp-property notation requires data windows");
         }
+        if (optionalFilter != null) {
+            positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+        }
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeRate(validationContext.getStatementExtensionSvcContext(), this, false, -1, validationContext.getTimeProvider(), validationContext.getEngineImportService().getTimeAbacus());
     }
 
@@ -90,5 +99,9 @@ public class ExprRateAggNode extends ExprAggregateNodeBase {
 
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprRateAggNode;
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
     }
 }

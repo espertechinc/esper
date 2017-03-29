@@ -39,24 +39,7 @@ public class AggregationStateMinMaxByEver implements AggregationState, Aggregati
         if (theEvent == null) {
             return;
         }
-        Object comparable = AggregationStateSortedImpl.getComparable(spec.getCriteria(), eventsPerStream, true, exprEvaluatorContext);
-        if (currentMinMax == null) {
-            currentMinMax = comparable;
-            currentMinMaxBean = theEvent;
-        } else {
-            int compareResult = spec.getComparator().compare(currentMinMax, comparable);
-            if (spec.isMax()) {
-                if (compareResult < 0) {
-                    currentMinMax = comparable;
-                    currentMinMaxBean = theEvent;
-                }
-            } else {
-                if (compareResult > 0) {
-                    currentMinMax = comparable;
-                    currentMinMaxBean = theEvent;
-                }
-            }
-        }
+        addEvent(theEvent, eventsPerStream, exprEvaluatorContext);
     }
 
     public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
@@ -94,5 +77,46 @@ public class AggregationStateMinMaxByEver implements AggregationState, Aggregati
 
     public int size() {
         return currentMinMax == null ? 0 : 1;
+    }
+
+    public AggregationStateMinMaxByEverSpec getSpec() {
+        return spec;
+    }
+
+    public EventBean getCurrentMinMaxBean() {
+        return currentMinMaxBean;
+    }
+
+    public Object getCurrentMinMax() {
+        return currentMinMax;
+    }
+
+    public void setCurrentMinMaxBean(EventBean currentMinMaxBean) {
+        this.currentMinMaxBean = currentMinMaxBean;
+    }
+
+    public void setCurrentMinMax(Object currentMinMax) {
+        this.currentMinMax = currentMinMax;
+    }
+
+    protected void addEvent(EventBean theEvent, EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+        Object comparable = AggregationStateSortedImpl.getComparable(spec.getCriteria(), eventsPerStream, true, exprEvaluatorContext);
+        if (currentMinMax == null) {
+            currentMinMax = comparable;
+            currentMinMaxBean = theEvent;
+        } else {
+            int compareResult = spec.getComparator().compare(currentMinMax, comparable);
+            if (spec.isMax()) {
+                if (compareResult < 0) {
+                    currentMinMax = comparable;
+                    currentMinMaxBean = theEvent;
+                }
+            } else {
+                if (compareResult > 0) {
+                    currentMinMax = comparable;
+                    currentMinMaxBean = theEvent;
+                }
+            }
+        }
     }
 }

@@ -35,12 +35,7 @@ public class AggregatorNth implements AggregationMethod {
 
     public void enter(Object value) {
         Object[] arr = (Object[]) value;
-        numDataPoints++;
-        if (circularBuffer == null) {
-            clear();
-        }
-        circularBuffer[currentBufferElementPointer] = arr[0];
-        currentBufferElementPointer = (currentBufferElementPointer + 1) % sizeBuf;
+        enterValues(arr);
     }
 
     public void leave(Object value) {
@@ -62,5 +57,42 @@ public class AggregatorNth implements AggregationMethod {
         circularBuffer = new Object[sizeBuf];
         numDataPoints = 0;
         currentBufferElementPointer = 0;
+    }
+
+    protected void enterValues(Object[] arr) {
+        numDataPoints++;
+        if (circularBuffer == null) {
+            clear();
+        }
+        circularBuffer[currentBufferElementPointer] = arr[0];
+        currentBufferElementPointer = (currentBufferElementPointer + 1) % sizeBuf;
+    }
+
+    public int getSizeBuf() {
+        return sizeBuf;
+    }
+
+    public Object[] getCircularBuffer() {
+        return circularBuffer;
+    }
+
+    public void setCircularBuffer(Object[] circularBuffer) {
+        this.circularBuffer = circularBuffer;
+    }
+
+    public int getCurrentBufferElementPointer() {
+        return currentBufferElementPointer;
+    }
+
+    public void setCurrentBufferElementPointer(int currentBufferElementPointer) {
+        this.currentBufferElementPointer = currentBufferElementPointer;
+    }
+
+    public long getNumDataPoints() {
+        return numDataPoints;
+    }
+
+    public void setNumDataPoints(long numDataPoints) {
+        this.numDataPoints = numDataPoints;
     }
 }

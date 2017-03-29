@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * Implementation of access function for joins.
  */
-public class AggregationStateJoinImpl implements AggregationStateWithSize, AggregationStateLinear {
+public class AggregationStateLinearJoinImpl implements AggregationStateWithSize, AggregationStateLinear {
     protected int streamId;
     protected LinkedHashMap<EventBean, Integer> refSet = new LinkedHashMap<EventBean, Integer>();
     private EventBean[] array;
@@ -29,7 +29,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
      *
      * @param streamId stream id
      */
-    public AggregationStateJoinImpl(int streamId) {
+    public AggregationStateLinearJoinImpl(int streamId) {
         this.streamId = streamId;
     }
 
@@ -43,15 +43,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         if (theEvent == null) {
             return;
         }
-        array = null;
-        Integer value = refSet.get(theEvent);
-        if (value == null) {
-            refSet.put(theEvent, 1);
-            return;
-        }
-
-        value++;
-        refSet.put(theEvent, value);
+        addEvent(theEvent);
     }
 
     public void applyLeave(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
@@ -59,20 +51,7 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
         if (theEvent == null) {
             return;
         }
-        array = null;
-
-        Integer value = refSet.get(theEvent);
-        if (value == null) {
-            return;
-        }
-
-        if (value == 1) {
-            refSet.remove(theEvent);
-            return;
-        }
-
-        value--;
-        refSet.put(theEvent, value);
+        removeEvent(theEvent);
     }
 
     public EventBean getFirstNthValue(int index) {
@@ -140,6 +119,39 @@ public class AggregationStateJoinImpl implements AggregationStateWithSize, Aggre
 
     public int size() {
         return refSet.size();
+    }
+
+    public LinkedHashMap<EventBean, Integer> getRefSet() {
+        return refSet;
+    }
+
+    protected void addEvent(EventBean theEvent) {
+        array = null;
+        Integer value = refSet.get(theEvent);
+        if (value == null) {
+            refSet.put(theEvent, 1);
+            return;
+        }
+
+        value++;
+        refSet.put(theEvent, value);
+    }
+
+    protected void removeEvent(EventBean theEvent) {
+        array = null;
+
+        Integer value = refSet.get(theEvent);
+        if (value == null) {
+            return;
+        }
+
+        if (value == 1) {
+            refSet.remove(theEvent);
+            return;
+        }
+
+        value--;
+        refSet.put(theEvent, value);
     }
 
     private void initArray() {

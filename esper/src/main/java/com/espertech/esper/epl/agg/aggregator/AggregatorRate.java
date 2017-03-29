@@ -27,27 +27,18 @@ public class AggregatorRate implements AggregationMethod {
 
     public void enter(Object value) {
         if (value.getClass().isArray()) {
-            final Object[] parameters = (Object[]) value;
-            Number val = (Number) parameters[1];
-            accumulator += val.doubleValue();
-            latest = (Long) parameters[0];
+            enterValueArr((Object[]) value);
         } else {
-            accumulator += 1;
-            latest = (Long) value;
+            enterValueSingle(value);
         }
     }
 
     public void leave(Object value) {
         if (value.getClass().isArray()) {
-            final Object[] parameters = (Object[]) value;
-            Number val = (Number) parameters[1];
-            accumulator -= val.doubleValue();
-            oldest = (Long) parameters[0];
+            leaveValueArr((Object[]) value);
         } else {
-            accumulator -= 1;
-            oldest = (Long) value;
+            leaveValueSingle(value);
         }
-        if (!isSet) isSet = true;
     }
 
     public Object getValue() {
@@ -61,4 +52,63 @@ public class AggregatorRate implements AggregationMethod {
         oldest = 0;
     }
 
+    public long getOneSecondTime() {
+        return oneSecondTime;
+    }
+
+    public double getAccumulator() {
+        return accumulator;
+    }
+
+    public void setAccumulator(double accumulator) {
+        this.accumulator = accumulator;
+    }
+
+    public long getLatest() {
+        return latest;
+    }
+
+    public void setLatest(long latest) {
+        this.latest = latest;
+    }
+
+    public long getOldest() {
+        return oldest;
+    }
+
+    public void setOldest(long oldest) {
+        this.oldest = oldest;
+    }
+
+    public boolean isSet() {
+        return isSet;
+    }
+
+    public void setSet(boolean set) {
+        isSet = set;
+    }
+
+    protected void enterValueSingle(Object value) {
+        accumulator += 1;
+        latest = (Long) value;
+    }
+
+    protected void enterValueArr(Object[] parameters) {
+        Number val = (Number) parameters[1];
+        accumulator += val.doubleValue();
+        latest = (Long) parameters[0];
+    }
+
+    protected void leaveValueArr(Object[] parameters) {
+        Number val = (Number) parameters[1];
+        accumulator -= val.doubleValue();
+        oldest = (Long) parameters[0];
+        if (!isSet) isSet = true;
+    }
+
+    protected void leaveValueSingle(Object value) {
+        accumulator -= 1;
+        oldest = (Long) value;
+        if (!isSet) isSet = true;
+    }
 }

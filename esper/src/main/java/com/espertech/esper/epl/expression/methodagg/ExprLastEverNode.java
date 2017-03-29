@@ -52,4 +52,8 @@ public class ExprLastEverNode extends ExprAggregateNodeBase {
     public final boolean equalsNodeAggregateMethodOnly(ExprAggregateNode node) {
         return node instanceof ExprLastEverNode;
     }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
+    }
 }

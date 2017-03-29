@@ -125,11 +125,11 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
 
         // validate number of parameters
         if (aggType == CountMinSketchAggType.ADD || aggType == CountMinSketchAggType.FREQ) {
-            if (this.getChildNodes().length == 0 || this.getChildNodes().length > 1) {
+            if (positionalParams.length == 0 || positionalParams.length > 1) {
                 throw new ExprValidationException(getMessagePrefix() + "requires a single parameter expression");
             }
         } else {
-            if (this.getChildNodes().length != 0) {
+            if (positionalParams.length != 0) {
                 throw new ExprValidationException(getMessagePrefix() + "requires a no parameter expressions");
             }
         }
@@ -229,6 +229,10 @@ public class ExprAggCountMinSketchNode extends ExprAggregateNodeBase implements 
 
     public ExprValidationException getDeclaredWrongParameterExpr() throws ExprValidationException {
         return new ExprValidationException(getMessagePrefix() + " expects either no parameter or a single json parameter object");
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
     }
 
     private String getMessagePrefix() {

@@ -20,7 +20,7 @@ import java.util.Iterator;
 /**
  * Implementation of access function for single-stream (not joins).
  */
-public class AggregationStateImpl implements AggregationStateWithSize, AggregationStateLinear {
+public class AggregationStateLinearImpl implements AggregationStateWithSize, AggregationStateLinear {
     protected int streamId;
     protected ArrayList<EventBean> events = new ArrayList<EventBean>();
 
@@ -29,7 +29,7 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
      *
      * @param streamId stream id
      */
-    public AggregationStateImpl(int streamId) {
+    public AggregationStateLinearImpl(int streamId) {
         this.streamId = streamId;
     }
 
@@ -97,5 +97,9 @@ public class AggregationStateImpl implements AggregationStateWithSize, Aggregati
 
     public int size() {
         return events.size();
+    }
+
+    public ArrayList<EventBean> getEvents() {
+        return events;
     }
 }

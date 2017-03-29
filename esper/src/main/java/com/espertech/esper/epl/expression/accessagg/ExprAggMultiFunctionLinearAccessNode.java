@@ -174,14 +174,19 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
         boolean isFafWindow = streamTypeService.isOnDemandStreams() && stateType == AggregationStateType.WINDOW;
         TableMetadata tableMetadata = validationContext.getTableService().getTableMetadataFromEventType(containedType);
+
         if (tableMetadata == null && !isFafWindow && (istreamOnly || streamTypeService.isOnDemandStreams())) {
-            AggregationMethodFactory factory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinearUnbounded(validationContext.getStatementExtensionSvcContext(), this, containedType, accessorResultType, streamNum);
+            if (optionalFilter != null) {
+                positionalParams = ExprNodeUtility.addExpression(positionalParams, optionalFilter);
+            }
+            AggregationMethodFactory factory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinearUnbounded(validationContext.getStatementExtensionSvcContext(), this, containedType, accessorResultType, streamNum, optionalFilter != null);
             return new LinearAggregationFactoryDesc(factory, containedType, scalarCollectionComponentType);
         }
 
-        AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, new ExprNode[0]);
+        AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, AggregationStateTypeWStream.DATAWINDOWACCESS_LINEAR, new ExprNode[0], optionalFilter);
 
-        AggregationStateFactory stateFactory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinear(validationContext.getStatementExtensionSvcContext(), this, streamNum);
+        ExprEvaluator optionalFilterEval = optionalFilter == null ? null : optionalFilter.getExprEvaluator();
+        AggregationStateFactory stateFactory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinear(validationContext.getStatementExtensionSvcContext(), this, streamNum, optionalFilterEval);
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, accessorResultType, containedType,
                 stateKey, stateFactory, AggregationAgentDefault.INSTANCE);
         EventType enumerationType = scalarCollectionComponentType == null ? containedType : null;
@@ -202,7 +207,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[0];
         Class componentType = containedType.getUnderlyingType();
         AggregationAccessor accessor = new AggregationAccessorWindowNoEval(componentType);
-        AggregationStateFactory stateFactory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinear(validationContext.getStatementExtensionSvcContext(), this, 0);
+        AggregationStateFactory stateFactory = validationContext.getEngineImportService().getAggregationFactoryFactory().makeLinear(validationContext.getStatementExtensionSvcContext(), this, 0, null);
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, JavaClassHelper.getArrayType(componentType), containedType, null, stateFactory, null);
         return new LinearAggregationFactoryDesc(factory, factory.getContainedEventType(), null);
     }
@@ -233,12 +238,7 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
         EventType containedType = validationContext.getStreamTypeService().getEventTypes()[streamNum];
         Class componentType = containedType.getUnderlyingType();
         AggregationAccessor accessor = new AggregationAccessorWindowNoEval(componentType);
-        AggregationAgent agent;
-        if (streamNum == 0) {
-            agent = AggregationAgentDefault.INSTANCE;
-        } else {
-            agent = new AggregationAgentRewriteStream(streamNum);
-        }
+        AggregationAgent agent = ExprAggAggregationAgentFactory.make(streamNum, optionalFilter);
         ExprAggMultiFunctionLinearAccessNodeFactoryAccess factory = new ExprAggMultiFunctionLinearAccessNodeFactoryAccess(this, accessor, JavaClassHelper.getArrayType(componentType), containedType, null, null, agent);
         return new LinearAggregationFactoryDesc(factory, factory.getContainedEventType(), null);
     }
@@ -390,5 +390,9 @@ public class ExprAggMultiFunctionLinearAccessNode extends ExprAggregateNodeBase 
 
     private static String getErrorPrefix(AggregationStateType stateType) {
         return ExprAggMultiFunctionUtil.getErrorPrefix(stateType.toString().toLowerCase(Locale.ENGLISH));
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
     }
 }

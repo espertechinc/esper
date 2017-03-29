@@ -1360,6 +1360,36 @@ public EventType getEventType() {
 				</para>
 			</sect3>
 
+			<sect3 xml:id="custom-aggregation-single-filter" revision="1">
+				<title>Aggregation Single-Function: The Filter Parameter</title>
+				
+				<para>
+					When an EPL statement provides the <literal>filter</literal> named parameter the value of the filter expression is a <literal>boolean</literal>-type value
+					that the engine determines and provides to your <literal>enter</literal> method as the last value in the parameter array.
+				</para>
+			
+				<para>
+					For instance, assume an aggregation function <literal>concat</literal> that receives a <literal>word</literal> value and that has a <literal>filter</literal> expression as parameters:
+				</para>
+				<programlisting><![CDATA[select concat(word, filter: word not like '%jim%') from MyWordEvent]]></programlisting>
+
+				<para>
+					The <literal>enter</literal> method of the plug-in aggregation function may look as follows:
+				</para>
+				<programlisting><![CDATA[public void enter(Object value)  {
+  Object[] arr = (Object[]) value;
+  Boolean pass = (Boolean) arr[1];
+  if (pass != null && pass) {
+    buffer.append(arr[0].toString());
+  }
+}]]></programlisting>
+
+				<para>
+					Your code can obtain the actual filter expression from the <literal>AggregationValidationContext</literal> that is passed to the <literal>validate</literal> method and that 
+					returns the named parameters via <literal>getNamedParameters</literal>.
+				</para>
+			</sect3>
+
 			<sect3 xml:id="custom-aggregation-single-dotmethod" revision="1">
 				<title>Aggregation Single-Function: Dot-Operator Use</title>
 				<para>
@@ -1813,6 +1843,26 @@ engine.getEPAdministrator().getConfiguration().addPlugInAggregationMultiFunction
 					The engine uses <literal>AggregationStateKey</literal> to determine whether an aggregation function listed with <literal>into table</literal> is compatible with the aggregation type 
 					that a table column declares. The <literal>equals</literal> method of the object must return true for compatible and false for incompatible.
 				</para>
+			</sect3>
+
+			<sect3 xml:id="custom-aggregation-multi-filter" revision="1">
+				<title>Aggregation Multi-Function Use Filter Expression</title>
+			
+				<para>
+					The <literal>filter</literal> expression is passed to you in <literal>PlugInAggregationMultiFunctionValidationContext</literal> as part of <literal>getNamedParameters</literal> under the name <literal>filter</literal>. When use with tables the filter expression is part of <literal>PlugInAggregationMultiFunctionAgentContext</literal>.
+				</para>
+				
+				<para>
+					Your application must invoke the filter expression as the engine does not evaluate the filter expression for you. For example:
+				</para>
+				<programlisting><![CDATA[ExprEvaluator filterEval = validationContext.getNamedParameters().get("filter").get(0).getExprEvaluator();]]></programlisting>
+				<programlisting><![CDATA[public void applyEnter(EventBean[] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
+  Boolean pass = (Boolean) filterEval.evaluate(eventsPerStream, true, exprEvaluatorContext); // note: pass "false" for applyLeave
+  if (pass != null && pass) {
+    Object value = valueEval.evaluate(eventsPerStream, true, exprEvaluatorContext); // note: pass "false" for applyLeave
+    // do something
+  }
+}]]></programlisting>
 			</sect3>
 		</sect2>		
 	</sect1>

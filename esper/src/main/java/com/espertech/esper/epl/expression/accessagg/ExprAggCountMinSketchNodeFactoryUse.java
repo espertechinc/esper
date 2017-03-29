@@ -63,7 +63,10 @@ public class ExprAggCountMinSketchNodeFactoryUse extends ExprAggCountMinSketchNo
 
     public AggregationAgent getAggregationStateAgent() {
         if (parent.getAggType() == CountMinSketchAggType.ADD) {
-            return new CountMinSketchAggAgentAdd(addOrFrequencyEvaluator);
+            if (parent.getOptionalFilter() == null) {
+                return new CountMinSketchAggAgentAdd(addOrFrequencyEvaluator);
+            }
+            return new CountMinSketchAggAgentAddFilter(addOrFrequencyEvaluator, parent.getOptionalFilter().getExprEvaluator());
         }
         throw new IllegalStateException("Aggregation agent not available for this function '" + parent.getAggregationFunctionName() + "'");
     }

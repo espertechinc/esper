@@ -19,6 +19,7 @@ import com.espertech.esper.epl.agg.aggregator.AggregatorStddev;
 import com.espertech.esper.epl.agg.aggregator.AggregatorStddevFilter;
 import com.espertech.esper.epl.agg.service.AggregationMethodFactory;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
+import com.espertech.esper.epl.agg.service.AggregationValidationUtil;
 import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
@@ -67,10 +68,10 @@ public class AggregationMethodFactoryStddev implements AggregationMethodFactory 
     }
 
     public void validateIntoTableCompatible(AggregationMethodFactory intoTableAgg) throws ExprValidationException {
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationType(this, intoTableAgg);
+        AggregationValidationUtil.validateAggregationType(this, intoTableAgg);
         AggregationMethodFactoryStddev that = (AggregationMethodFactoryStddev) intoTableAgg;
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationInputType(aggregatedValueType, that.aggregatedValueType);
-        com.espertech.esper.epl.agg.service.AggregationMethodFactoryUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
+        AggregationValidationUtil.validateAggregationInputType(aggregatedValueType, that.aggregatedValueType);
+        AggregationValidationUtil.validateAggregationFilter(parent.isHasFilter(), that.parent.isHasFilter());
     }
 
     public AggregationAgent getAggregationStateAgent() {

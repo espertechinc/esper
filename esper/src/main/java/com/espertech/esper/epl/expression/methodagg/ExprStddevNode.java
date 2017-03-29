@@ -54,4 +54,8 @@ public class ExprStddevNode extends ExprAggregateNodeBase {
     public String getAggregationFunctionName() {
         return "stddev";
     }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return true;
+    }
 }

@@ -88,12 +88,10 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         int streamNum = streams.iterator().next();
 
         // validate that there is a remove stream, use "ever" if not
-        boolean forceEver = false;
         if (!ever && ExprAggMultiFunctionLinearAccessNode.getIstreamOnly(validationContext.getStreamTypeService(), streamNum)) {
             if (sortedwin) {
                 throw new ExprValidationException(getErrorPrefix() + " requires that a data window is declared for the stream");
             }
-            forceEver = true;
         }
 
         // determine typing and evaluation
@@ -126,12 +124,13 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         } else {
             type = AggregationStateTypeWStream.SORTED;
         }
-        AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, type, criteriaExpressions.getFirst());
+        AggregationStateKeyWStream stateKey = new AggregationStateKeyWStream(streamNum, containedType, type, criteriaExpressions.getFirst(), optionalFilter);
 
+        ExprEvaluator optionalFilterEval = optionalFilter == null ? null : optionalFilter.getExprEvaluator();
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
                 SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(),
                 ExprNodeUtility.getEvaluators(criteriaExpressions.getFirst()),
-                criteriaExpressions.getSecond(), ever, streamNum, this);
+                criteriaExpressions.getSecond(), ever, streamNum, this, optionalFilterEval);
 
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, stateKey, stateFactoryFactory, AggregationAgentDefault.INSTANCE);
     }
@@ -162,11 +161,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
             accessorResultType = JavaClassHelper.getArrayType(accessorResultType);
         }
 
-        AggregationAgent agent = AggregationAgentDefault.INSTANCE;
-        if (streamNum != 0) {
-            agent = new AggregationAgentRewriteStream(streamNum);
-        }
-
+        AggregationAgent agent = ExprAggAggregationAgentFactory.make(streamNum, optionalFilter);
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, null, null, agent);
     }
 
@@ -197,7 +192,7 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
         SortedAggregationStateFactoryFactory stateFactoryFactory = new
                 SortedAggregationStateFactoryFactory(validationContext.getEngineImportService(), validationContext.getStatementExtensionSvcContext(),
                 ExprNodeUtility.getEvaluators(criteriaExpressions.getFirst()),
-                criteriaExpressions.getSecond(), ever, 0, this);
+                criteriaExpressions.getSecond(), ever, 0, this, null);
         return new ExprAggMultiFunctionSortedMinMaxByNodeFactory(this, accessor, accessorResultType, containedType, null, stateFactoryFactory, null);
     }
 
@@ -281,6 +276,10 @@ public class ExprAggMultiFunctionSortedMinMaxByNode extends ExprAggregateNodeBas
 
     public boolean isMax() {
         return max;
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
+        return false;
     }
 
     @Override

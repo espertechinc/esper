@@ -10,29 +10,35 @@
  */
 package com.espertech.esper.epl.agg.factory;
 
-import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
-import com.espertech.esper.epl.agg.access.AggregationState;
-import com.espertech.esper.epl.agg.access.AggregationStateImpl;
-import com.espertech.esper.epl.agg.access.AggregationStateJoinImpl;
+import com.espertech.esper.epl.agg.access.*;
 import com.espertech.esper.epl.agg.service.AggregationStateFactory;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 
 public class AggregationStateFactoryLinear implements AggregationStateFactory {
 
     protected final ExprAggMultiFunctionLinearAccessNode expr;
     protected final int streamNum;
+    protected final ExprEvaluator optionalFilter;
 
-    public AggregationStateFactoryLinear(ExprAggMultiFunctionLinearAccessNode expr, int streamNum) {
+    public AggregationStateFactoryLinear(ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprEvaluator optionalFilter) {
         this.expr = expr;
         this.streamNum = streamNum;
+        this.optionalFilter = optionalFilter;
     }
 
     public AggregationState createAccess(int agentInstanceId, boolean join, Object groupKey, AggregationServicePassThru passThru) {
         if (join) {
-            return new AggregationStateJoinImpl(streamNum);
+            if (optionalFilter != null) {
+                return new AggregationStateLinearJoinWFilter(streamNum, optionalFilter);
+            }
+            return new AggregationStateLinearJoinImpl(streamNum);
         }
-        return new AggregationStateImpl(streamNum);
+        if (optionalFilter != null) {
+            return new AggregationStateLinearWFilter(streamNum, optionalFilter);
+        }
+        return new AggregationStateLinearImpl(streamNum);
     }
 
     public ExprNode getAggregationExpression() {

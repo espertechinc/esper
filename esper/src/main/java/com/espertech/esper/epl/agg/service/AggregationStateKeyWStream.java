@@ -20,13 +20,15 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
     private final int streamNum;
     private final EventType eventType;
     private final AggregationStateTypeWStream stateType;
-    private final ExprNode[] exprNodes;
+    private final ExprNode[] criteraExprNodes;
+    private final ExprNode filterExprNode;
 
-    public AggregationStateKeyWStream(int streamNum, EventType eventType, AggregationStateTypeWStream stateType, ExprNode[] exprNodes) {
+    public AggregationStateKeyWStream(int streamNum, EventType eventType, AggregationStateTypeWStream stateType, ExprNode[] criteraExprNodes, ExprNode filterExprNode) {
         this.streamNum = streamNum;
         this.eventType = eventType;
         this.stateType = stateType;
-        this.exprNodes = exprNodes;
+        this.criteraExprNodes = criteraExprNodes;
+        this.filterExprNode = filterExprNode;
     }
 
     public boolean equals(Object o) {
@@ -37,7 +39,7 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
 
         if (streamNum != that.streamNum) return false;
         if (stateType != that.stateType) return false;
-        if (!ExprNodeUtility.deepEquals(exprNodes, that.exprNodes)) return false;
+        if (!ExprNodeUtility.deepEquals(criteraExprNodes, that.criteraExprNodes)) return false;
         if (eventType != null) {
             if (that.eventType == null) {
                 return false;
@@ -45,7 +47,10 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
             if (!EventTypeUtility.isTypeOrSubTypeOf(that.eventType, eventType)) return false;
         }
 
-        return true;
+        if (filterExprNode == null) {
+            return that.filterExprNode == null;
+        }
+        return that.filterExprNode != null && ExprNodeUtility.deepEquals(filterExprNode, that.filterExprNode);
     }
 
     public int hashCode() {

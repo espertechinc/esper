@@ -58,6 +58,7 @@ public class ExprCountNode extends ExprAggregateNodeBase {
             }
             super.validateFilter(positionalParams[1].getExprEvaluator());
         }
+
         return validationContext.getEngineImportService().getAggregationFactoryFactory().makeCount(validationContext.getStatementExtensionSvcContext(), this, ignoreNulls, childType);
     }
 
@@ -74,6 +75,10 @@ public class ExprCountNode extends ExprAggregateNodeBase {
             return false;
         }
 
+        return true;
+    }
+
+    protected boolean isFilterExpressionAsLastParameter() {
         return true;
     }
 

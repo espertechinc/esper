@@ -22,6 +22,7 @@ import com.espertech.esper.epl.expression.accessagg.ExprAggCountMinSketchNode;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionLinearAccessNode;
 import com.espertech.esper.epl.expression.accessagg.ExprAggMultiFunctionSortedMinMaxByNode;
 import com.espertech.esper.epl.expression.accessagg.ExprPlugInAggMultiFunctionNodeFactory;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
@@ -58,9 +59,9 @@ public interface AggregationFactoryFactory {
 
     AggregationMethodFactory makeStddev(StatementExtensionSvcContext statementExtensionSvcContext, ExprStddevNode exprStddevNode, Class childType);
 
-    AggregationMethodFactory makeLinearUnbounded(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode exprAggMultiFunctionLinearAccessNode, EventType containedType, Class accessorResultType, int streamNum);
+    AggregationMethodFactory makeLinearUnbounded(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode exprAggMultiFunctionLinearAccessNode, EventType containedType, Class accessorResultType, int streamNum, boolean hasFilter);
 
-    AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum);
+    AggregationStateFactory makeLinear(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggMultiFunctionLinearAccessNode expr, int streamNum, ExprEvaluator optionalFilter);
 
     AggregationStateFactoryCountMinSketch makeCountMinSketch(StatementExtensionSvcContext statementExtensionSvcContext, ExprAggCountMinSketchNode expr, CountMinSketchSpec specification);
 

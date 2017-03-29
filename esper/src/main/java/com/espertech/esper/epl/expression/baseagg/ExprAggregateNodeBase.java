@@ -38,6 +38,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     protected int column;
     private transient AggregationMethodFactory aggregationMethodFactory;
     protected ExprAggregateLocalGroupByDesc optionalAggregateLocalGroupByDesc;
+    protected ExprNode optionalFilter;
     protected ExprNode[] positionalParams;
 
     /**
@@ -51,6 +52,8 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
      * @return aggregation function name
      */
     public abstract String getAggregationFunctionName();
+
+    protected abstract boolean isFilterExpressionAsLastParameter();
 
     /**
      * Return true if a expression aggregate node semantically equals the current node, or false if not.
@@ -96,8 +99,8 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         validatePositionals();
         aggregationMethodFactory = validateAggregationChild(validationContext);
         if (validationContext.getExprEvaluatorContext().getStatementType() == StatementType.CREATE_TABLE &&
-                optionalAggregateLocalGroupByDesc != null) {
-            throw new ExprValidationException("The 'group_by' parameter is not allowed in create-table statements");
+                (optionalAggregateLocalGroupByDesc != null || optionalFilter != null)) {
+            throw new ExprValidationException("The 'group_by' and 'filter' parameter is not allowed in create-table statements");
         }
         return null;
     }
@@ -105,11 +108,23 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
     public void validatePositionals() throws ExprValidationException {
         ExprAggregateNodeParamDesc paramDesc = ExprAggregateNodeUtil.getValidatePositionalParams(this.getChildNodes(), !(this instanceof ExprAggregationPlugInNodeMarker));
         this.optionalAggregateLocalGroupByDesc = paramDesc.getOptLocalGroupBy();
+        this.optionalFilter = paramDesc.getOptionalFilter();
         if (optionalAggregateLocalGroupByDesc != null) {
             ExprNodeUtility.validateNoSpecialsGroupByExpressions(optionalAggregateLocalGroupByDesc.getPartitionExpressions());
         }
-        this.positionalParams = paramDesc.getPositionalParams();
+        if (optionalFilter != null) {
+            ExprNodeUtility.validateNoSpecialsGroupByExpressions(new ExprNode[] {optionalFilter});
+        }
+        if (optionalFilter != null && isFilterExpressionAsLastParameter()) {
+            if (paramDesc.getPositionalParams().length > 1) {
+                throw new ExprValidationException("Only a single filter expression can be provided");
+            }
+            positionalParams = ExprNodeUtility.addExpression(paramDesc.getPositionalParams(), optionalFilter);
+        } else {
+            positionalParams = paramDesc.getPositionalParams();
+        }
     }
+
 
     public Class getType() {
         if (aggregationMethodFactory == null) {
@@ -256,6 +271,10 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
 
     public ExprAggregateLocalGroupByDesc getOptionalLocalGroupBy() {
         return optionalAggregateLocalGroupByDesc;
+    }
+
+    public ExprNode getOptionalFilter() {
+        return optionalFilter;
     }
 
     protected boolean isExprTextWildcardWhenNoParams() {
