@@ -25,7 +25,7 @@ import com.espertech.esper.supportregression.client.SupportConfigFactory;
 public class TestJoinNoWhereClause extends TestCase
 {
     private EPServiceProvider epService;
-    private SupportUpdateListener updateListener;
+    private SupportUpdateListener listener;
 
     private Object[] setOne;
     private Object[] setTwo;
@@ -38,7 +38,7 @@ public class TestJoinNoWhereClause extends TestCase
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
-        updateListener = new SupportUpdateListener();
+        listener = new SupportUpdateListener();
 
         setOne = new Object[5];
         setTwo = new Object[5];
@@ -54,9 +54,25 @@ public class TestJoinNoWhereClause extends TestCase
 
     protected void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
-        updateListener = null;
+        listener = null;
         setOne = null;
         setTwo = null;
+    }
+
+    public void testJoinWInnerKeywordWOOnClause() {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBean.class);
+
+        String[] fields = "a.theString,b.theString".split(",");
+        String epl = "select * from SupportBean(theString like 'A%')#length(3) as a inner join SupportBean(theString like 'B%')#length(3) as b " +
+                "where a.intPrimitive = b.intPrimitive";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        sendEvent("A1", 1);
+        sendEvent("A2", 2);
+        sendEvent("A3", 3);
+        sendEvent("B2", 2);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"A2", "B2"});
     }
 
     public void testJoinNoWhereClause()
@@ -67,24 +83,24 @@ public class TestJoinNoWhereClause extends TestCase
                 SupportBean.class.getName() + "()#length(3)";
 
         EPStatement joinView = epService.getEPAdministrator().createEPL(joinStatement);
-        joinView.addListener(updateListener);
+        joinView.addListener(listener);
 
         // Send 2 events, should join on second one
         sendEvent(setOne[0]);
         EPAssertionUtil.assertPropsPerRowAnyOrder(joinView.iterator(), fields, null);
 
         sendEvent(setTwo[0]);
-        assertEquals(1, updateListener.getLastNewData().length);
-        assertEquals(setOne[0], updateListener.getLastNewData()[0].get("stream_0"));
-        assertEquals(setTwo[0], updateListener.getLastNewData()[0].get("stream_1"));
-        updateListener.reset();
+        assertEquals(1, listener.getLastNewData().length);
+        assertEquals(setOne[0], listener.getLastNewData()[0].get("stream_0"));
+        assertEquals(setTwo[0], listener.getLastNewData()[0].get("stream_1"));
+        listener.reset();
         EPAssertionUtil.assertPropsPerRowAnyOrder(joinView.iterator(), fields,
                 new Object[][]{{0L, 0L}});
 
         sendEvent(setOne[1]);
         sendEvent(setOne[2]);
         sendEvent(setTwo[1]);
-        assertEquals(3, updateListener.getLastNewData().length);
+        assertEquals(3, listener.getLastNewData().length);
         EPAssertionUtil.assertPropsPerRowAnyOrder(joinView.iterator(), fields,
                 new Object[][]{{0L, 0L},
                         {1L, 0L},
@@ -92,6 +108,10 @@ public class TestJoinNoWhereClause extends TestCase
                         {0L, 1L},
                         {1L, 1L},
                         {2L, 1L}});
+    }
+
+    private void sendEvent(String theString, int intPrimitive) {
+        sendEvent(new SupportBean(theString, intPrimitive));
     }
 
     private void sendEvent(Object theEvent)

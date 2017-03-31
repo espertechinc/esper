@@ -153,4 +153,13 @@ public class OuterJoinDesc implements MetaDefItem, Serializable {
             throw new IllegalStateException("Failed to make representative node for outer join criteria");
         }
     }
+
+    public static boolean hasOnClauses(OuterJoinDesc[] outerJoinDescList) {
+        for (OuterJoinDesc desc : outerJoinDescList) {
+            if (desc.getOptLeftNode() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

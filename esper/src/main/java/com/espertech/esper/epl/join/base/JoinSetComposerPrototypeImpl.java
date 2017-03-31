@@ -14,10 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
-import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
 import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.join.exec.base.ExecNode;
@@ -280,11 +277,22 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
         if (!OuterJoinDesc.consistsOfAllInnerJoins(outerJoinDescList)) {    // all-inner joins
             return optionalFilterNode;
         }
-        ExprAndNode andNode = new ExprAndNodeImpl();
-        andNode.addChildNode(optionalFilterNode);
-        for (OuterJoinDesc outerJoinDesc : outerJoinDescList) {
-            andNode.addChildNode(outerJoinDesc.makeExprNode(null));
+
+        boolean hasOnClauses = OuterJoinDesc.hasOnClauses(outerJoinDescList);
+        if (!hasOnClauses) {
+            return optionalFilterNode;
         }
+
+        List<ExprNode> expressions = new ArrayList<>();
+        expressions.add(optionalFilterNode);
+
+        for (OuterJoinDesc outerJoinDesc : outerJoinDescList) {
+            if (outerJoinDesc.getOptLeftNode() != null) {
+                expressions.add(outerJoinDesc.makeExprNode(null));
+            }
+        }
+
+        ExprAndNode andNode = ExprNodeUtility.connectExpressionsByLogicalAnd(expressions);
         try {
             andNode.validate(null);
         } catch (ExprValidationException ex) {
