@@ -14,6 +14,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
+import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import junit.framework.TestCase;
 import com.espertech.esper.client.*;
@@ -22,7 +23,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.supportregression.bean.SupportBeanTimestamp;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
-public class TestViewTimeOrder extends TestCase
+public class TestViewTimeOrderAndTimeToLive extends TestCase
 {
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
@@ -39,6 +40,61 @@ public class TestViewTimeOrder extends TestCase
     protected void tearDown() throws Exception {
         if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
         listener = null;
+    }
+
+    public void testTimeToLive() {
+        epService.getEPAdministrator().getConfiguration().addEventType(SupportBeanTimestamp.class);
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
+
+        String[] fields = "id".split(",");
+        String epl = "select irstream * from SupportBeanTimestamp#timetolive(timestamp)";
+        EPStatement stmt = epService.getEPAdministrator().createEPL(epl);
+        stmt.addListener(listener);
+
+        sendEvent("E1", 1000);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E1"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E1"}});
+
+        sendEvent("E2", 500);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E2"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E2"}, {"E1"}});
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(499));
+        assertFalse(listener.getAndClearIsInvoked());
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(500));
+        EPAssertionUtil.assertProps(listener.assertOneGetOldAndReset(), fields, new Object[] {"E2"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E1"}});
+
+        sendEvent("E3", 200);
+        EPAssertionUtil.assertProps(listener.assertPairGetIRAndReset(), fields, new Object[] {"E3"}, new Object[] {"E3"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E1"}});
+
+        sendEvent("E4", 1200);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E4"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E1"}, {"E4"}});
+
+        sendEvent("E5", 1000);
+        EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), fields, new Object[] {"E5"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E1"}, {"E4"}, {"E5"}});
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(999));
+        assertFalse(listener.getAndClearIsInvoked());
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1000));
+        EPAssertionUtil.assertPropsPerRowAnyOrder(listener.getAndResetDataListsFlattened(), fields, null, new Object[][] {{"E1"}, {"E5"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, new Object[][] {{"E4"}});
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1199));
+        assertFalse(listener.getAndClearIsInvoked());
+
+        epService.getEPRuntime().sendEvent(new CurrentTimeEvent(1200));
+        EPAssertionUtil.assertProps(listener.assertOneGetOldAndReset(), fields, new Object[] {"E4"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, null);
+
+        sendEvent("E6", 1200);
+        EPAssertionUtil.assertProps(listener.assertPairGetIRAndReset(), fields, new Object[] {"E6"}, new Object[] {"E6"});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(stmt.iterator(), fields, null);
     }
 
     public void testMonthScoped() {

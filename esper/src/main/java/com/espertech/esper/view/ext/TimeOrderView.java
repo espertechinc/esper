@@ -47,7 +47,7 @@ import java.util.TreeMap;
  */
 public class TimeOrderView extends ViewSupport implements DataWindowView, CloneableView, StoppableView, StopCallback {
     protected final AgentInstanceViewFactoryChainContext agentInstanceContext;
-    private final TimeOrderViewFactory timeOrderViewFactory;
+    private final ViewFactory viewFactory;
     private final ExprNode timestampExpression;
     private final ExprEvaluator timestampEvaluator;
     protected final ExprTimePeriodEvalDeltaConst timeDeltaComputation;
@@ -61,13 +61,13 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     protected int eventCount;
 
     public TimeOrderView(AgentInstanceViewFactoryChainContext agentInstanceContext,
-                         TimeOrderViewFactory timeOrderViewFactory,
+                         ViewFactory viewFactory,
                          ExprNode timestampExpr,
                          ExprEvaluator timestampEvaluator,
                          ExprTimePeriodEvalDeltaConst timeDeltaComputation,
                          IStreamSortRankRandomAccess optionalSortedRandomAccess) {
         this.agentInstanceContext = agentInstanceContext;
-        this.timeOrderViewFactory = timeOrderViewFactory;
+        this.viewFactory = viewFactory;
         this.timestampExpression = timestampExpr;
         this.timestampEvaluator = timestampEvaluator;
         this.timeDeltaComputation = timeDeltaComputation;
@@ -79,7 +79,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
         ScheduleHandleCallback callback = new ScheduleHandleCallback() {
             public void scheduledTrigger(EngineLevelExtensionServicesContext extensionServicesContext) {
                 if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qViewScheduledEval(TimeOrderView.this, TimeOrderView.this.timeOrderViewFactory.getViewName());
+                    InstrumentationHelper.get().qViewScheduledEval(TimeOrderView.this, TimeOrderView.this.viewFactory.getViewName());
                 }
                 TimeOrderView.this.expire();
                 if (InstrumentationHelper.ENABLED) {
@@ -105,7 +105,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     }
 
     public View cloneView() {
-        return timeOrderViewFactory.makeView(agentInstanceContext);
+        return viewFactory.makeView(agentInstanceContext);
     }
 
     public final EventType getEventType() {
@@ -115,7 +115,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
 
     public final void update(EventBean[] newData, EventBean[] oldData) {
         if (InstrumentationHelper.ENABLED) {
-            InstrumentationHelper.get().qViewProcessIRStream(this, timeOrderViewFactory.getViewName(), newData, oldData);
+            InstrumentationHelper.get().qViewProcessIRStream(this, viewFactory.getViewName(), newData, oldData);
         }
 
         EventBean[] postOldEventsArray = null;
@@ -205,7 +205,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
         // update child views
         if (this.hasViews()) {
             if (InstrumentationHelper.ENABLED) {
-                InstrumentationHelper.get().qViewIndicate(this, timeOrderViewFactory.getViewName(), newData, postOldEventsArray);
+                InstrumentationHelper.get().qViewIndicate(this, viewFactory.getViewName(), newData, postOldEventsArray);
             }
             updateChildren(newData, postOldEventsArray);
             if (InstrumentationHelper.ENABLED) {
@@ -258,7 +258,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     }
 
     public void visitView(ViewDataVisitor viewDataVisitor) {
-        viewDataVisitor.visitPrimary(sortedEvents, false, timeOrderViewFactory.getViewName(), eventCount, null);
+        viewDataVisitor.visitPrimary(sortedEvents, false, viewFactory.getViewName(), eventCount, null);
     }
 
     /**
@@ -315,7 +315,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
             if ((releaseEvents != null) && (!releaseEvents.isEmpty())) {
                 EventBean[] oldEvents = releaseEvents.toArray(new EventBean[releaseEvents.size()]);
                 if (InstrumentationHelper.ENABLED) {
-                    InstrumentationHelper.get().qViewIndicate(this, timeOrderViewFactory.getViewName(), null, oldEvents);
+                    InstrumentationHelper.get().qViewIndicate(this, viewFactory.getViewName(), null, oldEvents);
                 }
                 updateChildren(null, oldEvents);
                 if (InstrumentationHelper.ENABLED) {
@@ -351,7 +351,7 @@ public class TimeOrderView extends ViewSupport implements DataWindowView, Clonea
     }
 
     public ViewFactory getViewFactory() {
-        return timeOrderViewFactory;
+        return viewFactory;
     }
 
     private static final Logger log = LoggerFactory.getLogger(TimeOrderView.class);

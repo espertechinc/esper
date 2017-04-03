@@ -109,6 +109,11 @@
 						<entry>Orders events that arrive out-of-order, using an expression providing timestamps to be ordered.</entry>
 					</row>
 					<row>
+						<entry>Time-To-Live Window</entry>
+						<entry><literal>timetolive(</literal><emphasis>timestamp expression</emphasis><literal>)</literal></entry>
+						<entry>Retains events until the time returned by the timestamp expression.</entry>
+					</row>
+					<row>
 						<entry>Unique Window</entry>
 						<entry><literal>unique(</literal><emphasis>unique criteria(s)</emphasis><literal>)</literal></entry>
 						<entry>Retains only the most recent among events having the same value for the criteria expression(s). Acts as a length window of size 1 for each distinct expression value.</entry>
@@ -1828,7 +1833,7 @@ events with the highest price (with ties resolved by alphabetical order of symbo
 				<indexterm><primary>data window views</primary><secondary>time-order window</secondary></indexterm>
 
 				<para>
-					This view orders events that arrive out-of-order, using timestamp-values provided by an expression, and by comparing that timestamp value to engine system time.
+					This view orders events that arrive out-of-order, using timestamp-values provided by an expression, and by comparing that timestamp value to engine time.
 				</para>
 
 				<para>
@@ -1842,7 +1847,7 @@ events with the highest price (with ties resolved by alphabetical order of symbo
 				</para>
 
 				<para>
-					Since the view compares timestamp values to engine time, the view requires that the timestamp values and current engine time are both following the same clock. Therefore, to the extend that the clocks that originated both timestamps differ, the view may produce inaccurate results.
+					Since the view compares timestamp values to engine time, the view requires that the timestamp values and engine time are both following the same clock. Therefore, to the extend that the clocks that originated both timestamps differ, the view may produce inaccurate results.
 				</para>
 
 				<para>
@@ -1868,5 +1873,82 @@ select rstream * from MyTimestampedEvent#time_order(arrival_time, 10 sec)]]></pr
 				</para> 
 			</sect2>
 
+			<sect2 xml:id="view-timetolive" >
+			   <title>Time-To-Live View (<literal>timetolive</literal> or <literal>ext:timetolive</literal>)</title>
+		
+				<indexterm><primary>time-to-live window</primary></indexterm>
+				<indexterm><primary>views</primary><secondary>time-to-live window</secondary></indexterm>
+				<indexterm><primary>data window views</primary><secondary>time-to-live window</secondary></indexterm>
+
+				<para>
+					This view retains events until engine time reaches the value returned by the given timestamp expression.
+				</para>
+
+				<para>
+					The syntax for this view is as follows:
+				</para>
+				<synopsis>timetolive(<emphasis>timestamp_expression</emphasis>)</synopsis>
+
+				<para>
+					The only parameter to the view is the expression that supplies timestamp values. The timestamp is expected to be a long-typed value that denotes an event's time-to-live. 
+				</para>
+
+				<para>
+					Since the view compares timestamp values to engine time, the view requires that the timestamp values and engine time are both following the same clock.
+				</para>
+
+				<para>
+					On arrival of an event, the engine evaluates the timestamp expression and obtains a long-type timestamp. The engine compares that timestamp value to engine time:
+				</para> 
+				<itemizedlist>
+					<ns:listitem>
+						<para>If the timestamp is older than engine time or the same as engine time, the engine releases the event immediately into the remove stream and does not retain the event at all.</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>If the timestamp value is newer than the engine time, the data window retains the event until engine time moves forward such that the timestamp is the same or older than engine time.</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					As an example, the next statement uses the <literal>arrival_time</literal> property of <literal>MyTimestampedEvent</literal> events to release events by arrival time:
+				</para>
+				<programlisting><![CDATA[insert rstream into ArrivalTimeOrderedStream
+select rstream * from MyTimestampedEvent#timetolive(arrival_time)]]></programlisting>
+
+				<para>
+					For example, assume engine time is <literal>8:00:00</literal> (8 am).
+				</para> 
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							If the <literal>arrival_time</literal> timestamp is <literal>8:00:00</literal> or older (such as <literal>7:59:00</literal>), the data window does not retain the event at all, i.e.
+							the engine releases the event into the remove stream upon arrival.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							If the <literal>arrival_time</literal> timestamp is after <literal>8:00:00</literal> the data window retains the event.
+							Let's say the <literal>arrival_time</literal> timestamp is <literal>8:02:00</literal> the engine retains the event until engine time is <literal>8:02:00</literal> or newer.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+				
+				<para>
+					The engine evaluates the expression only once at the arrival of each event to determine that event's time-to-live.
+				</para>
+
+				<para>
+					The insert stream of this sliding window consists of all arriving events. The remove stream of the view is ordered by timestamp value: The event that has the oldest timestamp value is released first, followed by the next newer events. Note the statement above uses the <literal>rstream</literal> keyword in both the <literal>insert into</literal> clause and the <literal>select</literal> clause to select ordered events only. It uses the <literal>insert into</literal> clause to makes such ordered stream available for subsequent statements to use.
+				</para> 
+
+				<para>
+					It is up to your application to populate the timestamp property into your events or use a sensible expression that returns timestamp values for consideration by the view. 
+					The view also works well if you use externally-provided time via timer events and if you have engine time track watermarks. 
+				</para> 
+
+				<para>
+					The time-to-live data window is fully equivalent to the time-order data window with a zero value for the time period.
+				</para> 
+			</sect2>
 		</sect1>
 </chapter>

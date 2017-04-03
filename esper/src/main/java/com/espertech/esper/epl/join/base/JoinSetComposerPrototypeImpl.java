@@ -16,7 +16,6 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.ops.ExprAndNode;
-import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
 import com.espertech.esper.epl.join.exec.base.ExecNode;
 import com.espertech.esper.epl.join.plan.*;
 import com.espertech.esper.epl.join.table.EventTable;

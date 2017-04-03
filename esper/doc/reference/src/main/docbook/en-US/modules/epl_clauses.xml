@@ -38,12 +38,12 @@
 		<orderedlist spacing="compact">
 			<listitem>
 				<para>
-					Data window views: <literal>win:length</literal>, <literal>win:length_batch</literal>, <literal>win:time</literal>, <literal>win:time_batch</literal>, <literal>win:time_length_batch</literal>, <literal>win:time_accum</literal>, <literal>win:ext_timed</literal>, <literal>win:ext_timed_batch</literal>, <literal>ext:sort</literal>, <literal>ext:rank</literal>, <literal>ext:time_order</literal>, <literal>std:unique</literal>, <literal>std:groupwin</literal>, <literal>std:lastevent</literal>, <literal>std:firstevent</literal>, <literal>std:firstunique</literal>, <literal>win:firstlength</literal>,  <literal>win:firsttime</literal>.
+					Data window views: <literal>length</literal>, <literal>length_batch</literal>, <literal>time</literal>, <literal>time_batch</literal>, <literal>time_length_batch</literal>, <literal>time_accum</literal>, <literal>ext_timed</literal>, <literal>ext_timed_batch</literal>, <literal>sort</literal>, <literal>rank</literal>, <literal>time_order</literal>, <literal>timetolive</literal>, <literal>unique</literal>, <literal>groupwin</literal>, <literal>lastevent</literal>, <literal>firstevent</literal>, <literal>firstunique</literal>, <literal>firstlength</literal>,  <literal>firsttime</literal>.
 				</para>
 			</listitem>
 			<listitem>
 				<para>
-					Views that derive statistics: <literal>std:size</literal>, <literal>stat:uni</literal>, <literal>stat:linest</literal>, <literal>stat:correl</literal>, <literal>stat:weighted_avg</literal>.
+					Views that derive statistics: <literal>size</literal>, <literal>uni</literal>, <literal>linest</literal>, <literal>correl</literal>, <literal>weighted_avg</literal>.
 				</para>
 			</listitem>
 		</orderedlist>

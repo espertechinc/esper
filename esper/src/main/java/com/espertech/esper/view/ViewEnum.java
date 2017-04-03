@@ -14,6 +14,7 @@ import com.espertech.esper.rowregex.EventRowRegexNFAViewFactory;
 import com.espertech.esper.view.ext.RankWindowViewFactory;
 import com.espertech.esper.view.ext.SortWindowViewFactory;
 import com.espertech.esper.view.ext.TimeOrderViewFactory;
+import com.espertech.esper.view.ext.TimeToLiveViewFactory;
 import com.espertech.esper.view.internal.IntersectViewFactory;
 import com.espertech.esper.view.internal.NoopViewFactory;
 import com.espertech.esper.view.internal.PriorEventViewFactory;
@@ -153,6 +154,11 @@ public enum ViewEnum {
      * Time order event window.
      */
     TIME_ORDER("ext", "time_order", TimeOrderViewFactory.class, null),
+
+    /**
+     * Time order event window.
+     */
+    TIMETOLIVE("ext", "timetolive", TimeToLiveViewFactory.class, null),
 
     /**
      * Prior event view.
