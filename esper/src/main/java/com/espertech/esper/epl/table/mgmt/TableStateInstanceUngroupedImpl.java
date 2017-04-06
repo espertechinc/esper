@@ -22,7 +22,7 @@ import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableOrganization;
 import com.espertech.esper.epl.join.table.EventTableOrganizationType;
 import com.espertech.esper.epl.join.table.SingleReferenceEventTable;
-import com.espertech.esper.epl.spec.CreateIndexDesc;
+import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -75,7 +75,7 @@ public class TableStateInstanceUngroupedImpl extends TableStateInstance implemen
         return eventReference.get();
     }
 
-    public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
+    public void addExplicitIndex(EventTableCreateIndexDesc desc, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
         throw new ExprValidationException("Tables without primary key column(s) do not allow creating an index");
     }
 

@@ -19,12 +19,14 @@ public class EventTableIndexMetadataEntry extends EventTableIndexEntryBase {
     private final boolean primary;
     private final Set<String> referencedByStmt;
     private final QueryPlanIndexItem queryPlanIndexItem;
+    private final EventTableCreateIndexDesc explicitIndexDesc;
 
-    public EventTableIndexMetadataEntry(String optionalIndexName, boolean primary, QueryPlanIndexItem queryPlanIndexItem) {
+    public EventTableIndexMetadataEntry(String optionalIndexName, boolean primary, QueryPlanIndexItem queryPlanIndexItem, EventTableCreateIndexDesc explicitIndexDesc) {
         super(optionalIndexName);
         this.primary = primary;
         this.queryPlanIndexItem = queryPlanIndexItem;
         referencedByStmt = primary ? null : new HashSet<String>();
+        this.explicitIndexDesc = explicitIndexDesc;
     }
 
     public void addReferringStatement(String statementName) {
@@ -53,5 +55,9 @@ public class EventTableIndexMetadataEntry extends EventTableIndexEntryBase {
 
     public QueryPlanIndexItem getQueryPlanIndexItem() {
         return queryPlanIndexItem;
+    }
+
+    public EventTableCreateIndexDesc getExplicitIndexDesc() {
+        return explicitIndexDesc;
     }
 }

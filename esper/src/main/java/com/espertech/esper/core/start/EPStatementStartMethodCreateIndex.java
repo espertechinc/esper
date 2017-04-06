@@ -57,19 +57,19 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
         EPLValidationUtil.validateContextName(namedWindowProcessor == null, spec.getWindowName(), infraContextName, statementSpec.getOptionalContextName(), true);
 
         // validate index
-        EventTableCreateIndexDesc validated = EventTableIndexUtil.validateCompileExplicitIndex(spec.isUnique(), spec.getColumns(), indexedEventType);
-        final IndexMultiKey imk = new IndexMultiKey(spec.isUnique(), validated.getHashProps(), validated.getBtreeProps());
+        EventTableCreateIndexDesc explicitIndexDesc = EventTableIndexUtil.validateCompileExplicitIndex(spec.getIndexName(), spec.isUnique(), spec.getColumns(), indexedEventType);
+        final IndexMultiKey imk = new IndexMultiKey(spec.isUnique(), explicitIndexDesc.getHashProps(), explicitIndexDesc.getBtreeProps());
 
         // for tables we add the index to metadata
         if (tableMetadata != null) {
-            services.getTableService().validateAddIndex(statementContext.getStatementName(), tableMetadata, spec.getIndexName(), imk);
+            services.getTableService().validateAddIndex(statementContext.getStatementName(), tableMetadata, explicitIndexDesc, imk);
         } else {
-            namedWindowProcessor.validateAddIndex(statementContext.getStatementName(), spec.getIndexName(), imk);
+            namedWindowProcessor.validateAddIndex(statementContext.getStatementName(), explicitIndexDesc, imk);
         }
 
         // allocate context factory
         Viewable viewable = new ViewableDefaultImpl(indexedEventType);
-        StatementAgentInstanceFactoryCreateIndex contextFactory = new StatementAgentInstanceFactoryCreateIndex(services, spec, viewable, namedWindowProcessor, tableMetadata == null ? null : tableMetadata.getTableName(), statementSpec.getOptionalContextName());
+        StatementAgentInstanceFactoryCreateIndex contextFactory = new StatementAgentInstanceFactoryCreateIndex(services, spec, viewable, namedWindowProcessor, tableMetadata == null ? null : tableMetadata.getTableName(), statementSpec.getOptionalContextName(), explicitIndexDesc);
         statementContext.setStatementAgentInstanceFactory(contextFactory);
 
         // provide destroy method which de-registers interest in this index

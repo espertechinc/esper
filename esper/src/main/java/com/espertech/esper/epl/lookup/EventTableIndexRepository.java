@@ -20,7 +20,6 @@ import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableAndNamePair;
 import com.espertech.esper.epl.join.table.EventTableUtil;
-import com.espertech.esper.epl.spec.CreateIndexItem;
 
 import java.util.*;
 
@@ -107,22 +106,21 @@ public class EventTableIndexRepository {
         return keySet.toArray(new IndexMultiKey[keySet.size()]);
     }
 
-    public void validateAddExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)
+    public void validateAddExplicitIndex(EventTableCreateIndexDesc desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)
             throws ExprValidationException {
-        if (explicitIndexes.containsKey(indexName)) {
+        if (explicitIndexes.containsKey(desc.getIndexName())) {
             if (allowIndexExists) {
                 return;
             }
-            throw new ExprValidationException("Index by name '" + indexName + "' already exists");
+            throw new ExprValidationException("Index by name '" + desc.getIndexName() + "' already exists");
         }
 
-        EventTableCreateIndexDesc desc = EventTableIndexUtil.validateCompileExplicitIndex(unique, columns, eventType);
-        addExplicitIndex(indexName, desc, eventType, dataWindowContents, agentInstanceContext, optionalSerde);
+        addExplicitIndex(desc, eventType, dataWindowContents, agentInstanceContext, optionalSerde);
     }
 
-    public void addExplicitIndex(String indexName, EventTableCreateIndexDesc desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
-        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc.isUnique(), desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, indexName, agentInstanceContext, optionalSerde);
-        explicitIndexes.put(indexName, pair.getSecond().getEventTable());
+    public void addExplicitIndex(EventTableCreateIndexDesc desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
+        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc.isUnique(), desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, desc.getIndexName(), agentInstanceContext, optionalSerde);
+        explicitIndexes.put(desc.getIndexName(), pair.getSecond().getEventTable());
     }
 
     public EventTable getExplicitIndexByName(String indexName) {

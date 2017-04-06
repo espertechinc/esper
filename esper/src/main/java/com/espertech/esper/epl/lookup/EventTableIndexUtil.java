@@ -31,7 +31,7 @@ public class EventTableIndexUtil {
     private static final Logger log = LoggerFactory.getLogger(EventTableIndexUtil.class);
     private final static IndexComparatorShortestPath INDEX_COMPARATOR_INSTANCE = new IndexComparatorShortestPath();
 
-    public static EventTableCreateIndexDesc validateCompileExplicitIndex(boolean unique, List<CreateIndexItem> columns, EventType eventType)
+    public static EventTableCreateIndexDesc validateCompileExplicitIndex(String indexName, boolean unique, List<CreateIndexItem> columns, EventType eventType)
             throws ExprValidationException {
         List<IndexedPropDesc> hashProps = new ArrayList<IndexedPropDesc>();
         List<IndexedPropDesc> btreeProps = new ArrayList<IndexedPropDesc>();
@@ -59,7 +59,7 @@ public class EventTableIndexUtil {
         if (unique && !btreeProps.isEmpty()) {
             throw new ExprValidationException("Combination of unique index with btree (range) is not supported");
         }
-        return new EventTableCreateIndexDesc(hashProps, btreeProps, unique);
+        return new EventTableCreateIndexDesc(indexName, hashProps, btreeProps, unique);
     }
 
     public static IndexMultiKey findIndexConsiderTyping(Map<IndexMultiKey, EventTableIndexMetadataEntry> tableIndexesRefCount,

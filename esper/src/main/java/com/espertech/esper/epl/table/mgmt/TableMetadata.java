@@ -19,6 +19,7 @@ import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.epl.agg.service.AggregationServiceTable;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexMetadata;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
@@ -68,7 +69,8 @@ public class TableMetadata {
 
         if (keyTypes.length > 0) {
             Pair<int[], IndexMultiKey> pair = TableServiceUtil.getIndexMultikeyForKeys(tableColumns, internalEventType);
-            eventTableIndexMetadataRepo.addIndex(true, pair.getSecond(), tableName, createTableStatementContext.getStatementName(), true, null);
+            EventTableCreateIndexDesc explicitIndexDesc = new EventTableCreateIndexDesc(tableName, pair.getSecond());
+            eventTableIndexMetadataRepo.addIndexExplicit(true, pair.getSecond(), explicitIndexDesc, createTableStatementContext.getStatementName(), true, null);
             tableRowKeyFactory = new TableRowKeyFactory(pair.getFirst());
         }
     }
@@ -139,9 +141,9 @@ public class TableMetadata {
         return eventToPublic;
     }
 
-    public void validateAddIndexAssignUpdateStrategies(String createIndexStatementName, IndexMultiKey imk, String indexName) throws ExprValidationException {
+    public void validateAddIndexAssignUpdateStrategies(String createIndexStatementName, IndexMultiKey imk, EventTableCreateIndexDesc explicitIndexDesc) throws ExprValidationException {
         // add index - for now
-        eventTableIndexMetadataRepo.addIndex(false, imk, indexName, createIndexStatementName, true, null);
+        eventTableIndexMetadataRepo.addIndexExplicit(false, imk, explicitIndexDesc, createIndexStatementName, true, null);
 
         // validate strategies, rollback if required
         for (Map.Entry<String, List<TableUpdateStrategyReceiverDesc>> stmtEntry : stmtNameToUpdateStrategyReceivers.entrySet()) {

@@ -19,7 +19,6 @@ import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableUtil;
 import com.espertech.esper.epl.lookup.*;
-import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
 import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.util.CollectionUtil;
@@ -27,7 +26,10 @@ import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.Viewable;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * The root window in a named window plays multiple roles: It holds the indexes for deleting rows, if any on-delete statement
@@ -172,16 +174,14 @@ public class NamedWindowRootViewInstance extends ViewSupport {
     /**
      * Add an explicit index.
      *
-     * @param unique                indicator whether unique
-     * @param indexName             indexname
-     * @param columns               properties indexed
+     * @param explicitIndexDesc                  index descriptor
      * @param isRecoveringResilient indicator for recovering
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the index fails to be valid
      */
-    public synchronized void addExplicitIndex(boolean unique, String indexName, List<CreateIndexItem> columns, boolean isRecoveringResilient) throws ExprValidationException {
+    public synchronized void addExplicitIndex(EventTableCreateIndexDesc explicitIndexDesc, boolean isRecoveringResilient) throws ExprValidationException {
         boolean initIndex = agentInstanceContext.getStatementContext().getEventTableIndexService().allowInitIndex(isRecoveringResilient);
         Iterable<EventBean> initializeFrom = initIndex ? this.dataWindowContents : CollectionUtil.NULL_EVENT_ITERABLE;
-        indexRepository.validateAddExplicitIndex(unique, indexName, columns, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
+        indexRepository.validateAddExplicitIndex(explicitIndexDesc, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
     }
 
     public boolean isVirtualDataWindow() {

@@ -14,14 +14,27 @@ import java.util.Arrays;
 import java.util.List;
 
 public class EventTableCreateIndexDesc {
+    private final String indexName;
     private final List<IndexedPropDesc> hashProps;
     private final List<IndexedPropDesc> btreeProps;
     private final boolean unique;
 
-    public EventTableCreateIndexDesc(List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, boolean unique) {
+    public EventTableCreateIndexDesc(String indexName, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, boolean unique) {
+        this.indexName = indexName;
         this.hashProps = hashProps;
         this.btreeProps = btreeProps;
         this.unique = unique;
+    }
+
+    public EventTableCreateIndexDesc(String indexName, IndexMultiKey indexMultiKey) {
+        this.indexName = indexName;
+        this.hashProps = Arrays.asList(indexMultiKey.getHashIndexedProps());
+        this.btreeProps = Arrays.asList(indexMultiKey.getRangeIndexedProps());
+        this.unique = indexMultiKey.isUnique();
+    }
+
+    public String getIndexName() {
+        return indexName;
     }
 
     public List<IndexedPropDesc> getHashProps() {
@@ -34,12 +47,5 @@ public class EventTableCreateIndexDesc {
 
     public boolean isUnique() {
         return unique;
-    }
-
-    public static EventTableCreateIndexDesc fromMultiKey(IndexMultiKey multiKey) {
-        return new EventTableCreateIndexDesc(
-                Arrays.asList(multiKey.getHashIndexedProps()),
-                Arrays.asList(multiKey.getRangeIndexedProps()),
-                multiKey.isUnique());
     }
 }

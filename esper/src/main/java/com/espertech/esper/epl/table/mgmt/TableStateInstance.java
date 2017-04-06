@@ -17,8 +17,8 @@ import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.table.EventTable;
+import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
-import com.espertech.esper.epl.spec.CreateIndexDesc;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -42,7 +42,7 @@ public abstract class TableStateInstance {
 
     public abstract void destroyInstance();
 
-    public abstract void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException;
+    public abstract void addExplicitIndex(EventTableCreateIndexDesc desc, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException;
 
     public abstract String[] getSecondaryIndexes();
 

@@ -208,7 +208,7 @@ public class SubordinateQueryPlannerUtil {
             if (desc.getIndexName() != null) {
                 repo.addIndexReference(desc.getIndexName(), statementName);
             } else {
-                repo.addIndex(false, desc.getIndexMultiKey(), null, statementName, false, desc.getQueryPlanIndexItem());
+                repo.addIndexNonExplicit(false, desc.getIndexMultiKey(), statementName, false, desc.getQueryPlanIndexItem());
                 repo.addIndexReference(desc.getIndexMultiKey(), statementName);
             }
         }

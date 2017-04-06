@@ -20,10 +20,10 @@ import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.join.table.*;
+import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.epl.lookup.EventTableIndexRepositoryEntry;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
-import com.espertech.esper.epl.spec.CreateIndexDesc;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
@@ -112,8 +112,8 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
         return new PrimaryIndexIterable(rows);
     }
 
-    public void addExplicitIndex(CreateIndexDesc spec, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
-        indexRepository.validateAddExplicitIndex(spec.isUnique(), spec.getIndexName(), spec.getColumns(), tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient || allowIndexExists, null);
+    public void addExplicitIndex(EventTableCreateIndexDesc desc, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
+        indexRepository.validateAddExplicitIndex(desc, tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient || allowIndexExists, null);
     }
 
     public String[] getSecondaryIndexes() {

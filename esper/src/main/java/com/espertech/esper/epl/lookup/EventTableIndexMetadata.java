@@ -21,10 +21,10 @@ public class EventTableIndexMetadata {
     public EventTableIndexMetadata() {
     }
 
-    public void addIndex(boolean isPrimary, IndexMultiKey indexMultiKey, String explicitIndexName, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
+    public void addIndexExplicit(boolean isPrimary, IndexMultiKey indexMultiKey, EventTableCreateIndexDesc explicitIndexDesc, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
             throws ExprValidationException {
-        if (getIndexByName(explicitIndexName) != null) {
-            throw new ExprValidationException("An index by name '" + explicitIndexName + "' already exists");
+        if (getIndexByName(explicitIndexDesc.getIndexName()) != null) {
+            throw new ExprValidationException("An index by name '" + explicitIndexDesc.getIndexName() + "' already exists");
         }
         if (indexes.containsKey(indexMultiKey)) {
             if (failIfExists) {
@@ -32,7 +32,20 @@ public class EventTableIndexMetadata {
             }
             return;
         }
-        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(explicitIndexName, isPrimary, optionalQueryPlanIndexItem);
+        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(explicitIndexDesc.getIndexName(), isPrimary, optionalQueryPlanIndexItem, explicitIndexDesc);
+        entry.addReferringStatement(statementName);
+        indexes.put(indexMultiKey, entry);
+    }
+
+    public void addIndexNonExplicit(boolean isPrimary, IndexMultiKey indexMultiKey, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
+            throws ExprValidationException {
+        if (indexes.containsKey(indexMultiKey)) {
+            if (failIfExists) {
+                throw new ExprValidationException("An index for the same columns already exists");
+            }
+            return;
+        }
+        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(null, isPrimary, optionalQueryPlanIndexItem, null);
         entry.addReferringStatement(statementName);
         indexes.put(indexMultiKey, entry);
     }
