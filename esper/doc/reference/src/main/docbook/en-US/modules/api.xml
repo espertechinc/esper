@@ -2250,6 +2250,18 @@ isolatedService.getEPRuntime().send(historyEvent);
         <para>
 			An exception handler can itself throw a runtime exception to cancel execution of the current event against any further statements.
         </para>
+        
+        <note>
+			<para>
+				Exceptions are meant to indicate an actual unexpected problem. 
+			</para>
+			<para>
+				We do not recommend explicitly throwing exceptions for the purpose of flow control, preempting execution or other normal situations.
+			</para>
+			<para>
+				The engine does not guarantee that throwing an exception has no other side effect and the engine may not roll back changes that are already made to state.
+			</para>
+		</note>
 
         <para>
 			For on-demand queries the API indicates any exception directly back to the caller without the exception handlers being invoked, as exception handlers apply to continuous queries only. The same applies to any API calls other than <literal>sendEvent</literal> and the <literal>EventSender</literal> methods.
