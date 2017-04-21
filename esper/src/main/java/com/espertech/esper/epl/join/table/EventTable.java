@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Iterator;
 
@@ -32,50 +33,58 @@ public interface EventTable extends Iterable<EventBean> {
      * since the an event can be both in the add and the remove stream.
      * </p>
      *
-     * @param newData to add
-     * @param oldData to remove
+     * @param newData              to add
+     * @param oldData              to remove
+     * @param exprEvaluatorContext evaluator context
      */
-    void addRemove(EventBean[] newData, EventBean[] oldData);
+    void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Add events to table.
      *
-     * @param events to add
+     * @param events               to add
+     * @param exprEvaluatorContext evaluator context
      */
-    public void add(EventBean[] events);
+    public void add(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Add event to table.
      *
-     * @param event to add
+     * @param event                to add
+     * @param exprEvaluatorContext evaluator context
      */
-    public void add(EventBean event);
+    public void add(EventBean event, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Remove events from table.
      *
-     * @param events to remove
+     * @param events               to remove
+     * @param exprEvaluatorContext evaluator context
      */
-    public void remove(EventBean[] events);
+    public void remove(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Remove event from table.
      *
-     * @param event to remove
+     * @param event                to remove
+     * @param exprEvaluatorContext evaluator context
      */
-    public void remove(EventBean event);
+    public void remove(EventBean event, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
-     * Returns an iterator over events in the table.
+     * Returns an iterator over events in the table. Not required to be implemented for all indexes.
+     * Full table scans and providers that have easy access to an iterator may implement.
      *
      * @return table iterator
+     * @throws UnsupportedOperationException for operation not supported for this type of index
      */
     public Iterator<EventBean> iterator();
 
     /**
-     * Returns true if the index is empty, or false if not
+     * Returns true if the index is definitely empty,
+     * or false if is not definitely empty but we can not certain.
      *
-     * @return true for empty index
+     * @return true for definitely empty index, false for there-may-be-rows and please-check-by-iterating
      */
     public boolean isEmpty();
 
@@ -103,13 +112,13 @@ public interface EventTable extends Iterable<EventBean> {
 
     /**
      * If the index retains events using some key-based organization this returns the number of keys,
-     * and may return null to indicate that either the number of keys is not available or
+     * and may return -1 to indicate that either the number of keys is not available or
      * costly to obtain.
      * <p>
      * The number returned can be an estimate and may not be accurate.
      * </p>
      *
-     * @return number of events
+     * @return number of keys
      */
     public int getNumKeys();
 

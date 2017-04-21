@@ -28,7 +28,7 @@ public class QueryGraphValueEntryInKeywordSingleIdx implements QueryGraphValueEn
     }
 
     public String toQueryPlan() {
-        return "in-keyword single-indexed multiple key lookup " + ExprNodeUtility.toExpressionStringMinPrecedence(keyExprs);
+        return "in-keyword single-indexed multiple key lookup " + ExprNodeUtility.toExpressionStringMinPrecedenceAsList(keyExprs);
     }
 }
 

@@ -43,7 +43,7 @@ public class TableUpdateStrategyIndexNonUnique implements TableUpdateStrategy {
         // remove from affected indexes
         for (String affectedIndexName : affectedIndexNames) {
             EventTable index = instance.getIndex(affectedIndexName);
-            index.remove(events);
+            index.remove(events, instance.getAgentInstanceContext());
         }
 
         // update (no-copy unless original values required)
@@ -66,7 +66,7 @@ public class TableUpdateStrategyIndexNonUnique implements TableUpdateStrategy {
         // add to affected indexes
         for (String affectedIndexName : affectedIndexNames) {
             EventTable index = instance.getIndex(affectedIndexName);
-            index.add(events);
+            index.add(events, instance.getAgentInstanceContext());
         }
     }
 }

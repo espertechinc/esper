@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.epl.lookup;
 
+import com.espertech.esper.epl.join.plan.QueryGraphValueEntryCustomKey;
+import com.espertech.esper.epl.join.plan.QueryGraphValueEntryCustomOperation;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
@@ -21,19 +24,22 @@ public class SubordPropPlan implements Serializable {
     private final Map<String, SubordPropRangeKey> rangeProps;
     private final SubordPropInKeywordSingleIndex inKeywordSingleIndex;
     private final SubordPropInKeywordMultiIndex inKeywordMultiIndex;
+    private final Map<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> customIndexOps;
 
     public SubordPropPlan() {
         hashProps = Collections.<String, SubordPropHashKey>emptyMap();
         rangeProps = Collections.<String, SubordPropRangeKey>emptyMap();
         inKeywordSingleIndex = null;
         inKeywordMultiIndex = null;
+        customIndexOps = null;
     }
 
-    public SubordPropPlan(Map<String, SubordPropHashKey> hashProps, Map<String, SubordPropRangeKey> rangeProps, SubordPropInKeywordSingleIndex inKeywordSingleIndex, SubordPropInKeywordMultiIndex inKeywordMultiIndex) {
+    public SubordPropPlan(Map<String, SubordPropHashKey> hashProps, Map<String, SubordPropRangeKey> rangeProps, SubordPropInKeywordSingleIndex inKeywordSingleIndex, SubordPropInKeywordMultiIndex inKeywordMultiIndex, Map<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> customIndexOps) {
         this.hashProps = hashProps;
         this.rangeProps = rangeProps;
         this.inKeywordSingleIndex = inKeywordSingleIndex;
         this.inKeywordMultiIndex = inKeywordMultiIndex;
+        this.customIndexOps = customIndexOps;
     }
 
     public Map<String, SubordPropRangeKey> getRangeProps() {
@@ -50,5 +56,9 @@ public class SubordPropPlan implements Serializable {
 
     public SubordPropInKeywordMultiIndex getInKeywordMultiIndex() {
         return inKeywordMultiIndex;
+    }
+
+    public Map<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> getCustomIndexOps() {
+        return customIndexOps;
     }
 }

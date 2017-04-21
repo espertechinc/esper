@@ -730,12 +730,12 @@ public class TestInfraOnSelect extends TestCase implements IndexBackingTableInfo
         epService.getEPAdministrator().getConfiguration().addEventType("SSB1", SupportSimpleBeanOne.class);
         epService.getEPAdministrator().getConfiguration().addEventType("SSB2", SupportSimpleBeanTwo.class);
 
-        String backingUniqueS1 = "unique hash={s1(string)} btree={}";
-        String backingUniqueS1L1 = "unique hash={s1(string),l1(long)} btree={}";
-        String backingNonUniqueS1 = "non-unique hash={s1(string)} btree={}";
-        String backingUniqueS1D1 = "unique hash={s1(string),d1(double)} btree={}";
-        String backingBtreeI1 = "non-unique hash={} btree={i1(int)}";
-        String backingBtreeD1 = "non-unique hash={} btree={d1(double)}";
+        String backingUniqueS1 = "unique hash={s1(string)} btree={} advanced={}";
+        String backingUniqueS1L1 = "unique hash={s1(string),l1(long)} btree={} advanced={}";
+        String backingNonUniqueS1 = "non-unique hash={s1(string)} btree={} advanced={}";
+        String backingUniqueS1D1 = "unique hash={s1(string),d1(double)} btree={} advanced={}";
+        String backingBtreeI1 = "non-unique hash={} btree={i1(int)} advanced={}";
+        String backingBtreeD1 = "non-unique hash={} btree={d1(double)} advanced={}";
         String expectedIdxNameS1 = isNamedWindow ? null : "MyInfra";
 
         Object[] preloadedEventsOne = new Object[] {new SupportSimpleBeanOne("E1", 10, 11, 12), new SupportSimpleBeanOne("E2", 20, 21, 22)};

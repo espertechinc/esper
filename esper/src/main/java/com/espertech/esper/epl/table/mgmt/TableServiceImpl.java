@@ -24,7 +24,7 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNode;
 import com.espertech.esper.epl.expression.table.ExprTableIdentNodeSubpropAccessor;
-import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.parse.ASTAggregationHelper;
 import com.espertech.esper.epl.table.strategy.*;
@@ -53,8 +53,8 @@ public class TableServiceImpl implements TableService {
     public TableServiceImpl() {
     }
 
-    public void validateAddIndex(String createIndexStatementName, TableMetadata tableMetadata, EventTableCreateIndexDesc explicitIndexDesc, IndexMultiKey imk) throws ExprValidationException {
-        tableMetadata.validateAddIndexAssignUpdateStrategies(createIndexStatementName, imk, explicitIndexDesc);
+    public void validateAddIndex(String createIndexStatementName, TableMetadata tableMetadata, String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, IndexMultiKey imk) throws ExprValidationException {
+        tableMetadata.validateAddIndexAssignUpdateStrategies(createIndexStatementName, imk, explicitIndexName, explicitIndexDesc);
     }
 
     public TableUpdateStrategy getTableUpdateStrategy(TableMetadata tableMetadata, EventBeanUpdateHelper updateHelper, boolean isOnMerge)

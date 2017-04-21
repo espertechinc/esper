@@ -63,6 +63,6 @@ public class InKeywordTableLookupPlanSingleIdx extends TableLookupPlan {
     public String toString() {
         return this.getClass().getSimpleName() + " " +
                 super.toString() +
-                " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedence(expressions);
+                " keyProperties=" + ExprNodeUtility.toExpressionStringMinPrecedenceAsList(expressions);
     }
 }

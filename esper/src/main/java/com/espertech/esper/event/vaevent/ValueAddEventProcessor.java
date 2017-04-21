@@ -12,6 +12,7 @@ package com.espertech.esper.event.vaevent;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
@@ -71,9 +72,9 @@ public interface ValueAddEventProcessor {
     /**
      * Called each time a data window posts a remove stream event, to indicate that a data window
      * remove an event as it expired according to a specified expiration policy.
-     *
-     * @param oldData         to remove
+     *  @param oldData         to remove
      * @param indexRepository the indexes to update
+     * @param agentInstanceContext agent instance context
      */
-    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository);
+    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository, AgentInstanceContext agentInstanceContext);
 }

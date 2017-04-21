@@ -13,8 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprInNode;
-import com.espertech.esper.epl.expression.ops.ExprInNodeImpl;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -71,13 +69,13 @@ public class TestExprInNode extends TestCase {
         ExprInNode otherInNodeNormal = SupportExprNodeFactory.makeInSetNode(false);
         ExprInNode otherInNodeNotIn = SupportExprNodeFactory.makeInSetNode(true);
 
-        assertTrue(inNodeNormal.equalsNode(otherInNodeNormal));
-        assertTrue(inNodeNotIn.equalsNode(otherInNodeNotIn));
+        assertTrue(inNodeNormal.equalsNode(otherInNodeNormal, false));
+        assertTrue(inNodeNotIn.equalsNode(otherInNodeNotIn, false));
 
-        assertFalse(inNodeNormal.equalsNode(otherInNodeNotIn));
-        assertFalse(inNodeNotIn.equalsNode(otherInNodeNormal));
-        assertFalse(inNodeNotIn.equalsNode(SupportExprNodeFactory.makeCaseSyntax1Node()));
-        assertFalse(inNodeNormal.equalsNode(SupportExprNodeFactory.makeCaseSyntax1Node()));
+        assertFalse(inNodeNormal.equalsNode(otherInNodeNotIn, false));
+        assertFalse(inNodeNotIn.equalsNode(otherInNodeNormal, false));
+        assertFalse(inNodeNotIn.equalsNode(SupportExprNodeFactory.makeCaseSyntax1Node(), false));
+        assertFalse(inNodeNormal.equalsNode(SupportExprNodeFactory.makeCaseSyntax1Node(), false));
     }
 
     public void testToExpressionString() throws Exception {

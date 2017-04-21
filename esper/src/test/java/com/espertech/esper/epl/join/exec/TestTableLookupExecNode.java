@@ -32,7 +32,7 @@ public class TestTableLookupExecNode extends TestCase {
     public void setUp() {
         EventType eventTypeIndex = SupportEventTypeFactory.createBeanType(SupportBean.class);
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(0, eventTypeIndex, new String[]{"theString"}, false, null);
-        index = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
+        index = (PropertyIndexedEventTable) factory.makeEventTables(null, null)[0];
 
         EventType eventTypeKeyGen = SupportEventTypeFactory.createBeanType(SupportMarketDataBean.class);
 
@@ -41,7 +41,7 @@ public class TestTableLookupExecNode extends TestCase {
 
     public void testFlow() {
         EventBean[] indexEvents = SupportEventBeanFactory.makeEvents(new String[]{"a1", "a2"});
-        index.add(indexEvents);
+        index.add(indexEvents, null);
 
         EventBean[] lookupEvents = SupportEventBeanFactory.makeMarketDataEvents(new String[]{"a2", "a3"});
 

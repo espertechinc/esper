@@ -102,7 +102,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         ExprNode commonExpressionNode;
         ExprNode lhs = childNodes[0].getChildNodes()[0];
         ExprNode rhs = childNodes[0].getChildNodes()[1];
-        if (ExprNodeUtility.deepEquals(lhs, rhs)) {
+        if (ExprNodeUtility.deepEquals(lhs, rhs, false)) {
             return constituent;
         }
         if (isExprExistsInAllEqualsChildNodes(childNodes, lhs)) {
@@ -118,7 +118,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         in.addChildNode(commonExpressionNode);
         for (int i = 0; i < constituent.getChildNodes().length; i++) {
             ExprNode child = constituent.getChildNodes()[i];
-            int nodeindex = ExprNodeUtility.deepEquals(commonExpressionNode, childNodes[i].getChildNodes()[0]) ? 1 : 0;
+            int nodeindex = ExprNodeUtility.deepEquals(commonExpressionNode, childNodes[i].getChildNodes()[0], false) ? 1 : 0;
             in.addChildNode(child.getChildNodes()[nodeindex]);
         }
 
@@ -513,10 +513,10 @@ public final class FilterSpecCompilerMakeParamUtil {
         for (ExprNode child : childNodes) {
             ExprNode lhs = child.getChildNodes()[0];
             ExprNode rhs = child.getChildNodes()[1];
-            if (!ExprNodeUtility.deepEquals(lhs, search) && !ExprNodeUtility.deepEquals(rhs, search)) {
+            if (!ExprNodeUtility.deepEquals(lhs, search, false) && !ExprNodeUtility.deepEquals(rhs, search, false)) {
                 return false;
             }
-            if (ExprNodeUtility.deepEquals(lhs, rhs)) {
+            if (ExprNodeUtility.deepEquals(lhs, rhs, false)) {
                 return false;
             }
         }

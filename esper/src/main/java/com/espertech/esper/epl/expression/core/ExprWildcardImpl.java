@@ -41,7 +41,7 @@ public class ExprWildcardImpl extends ExprNodeBase implements ExprEvaluator, Exp
         return true;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return node instanceof ExprWildcardImpl;
     }
 

@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.*;
 
@@ -37,7 +38,7 @@ public class PropertyIndexedEventTableSingleUnadorned extends PropertyIndexedEve
         return propertyIndex.get(key);
     }
 
-    public void add(EventBean theEvent) {
+    public void add(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         Object key = getKey(theEvent);
 
         Set<EventBean> events = propertyIndex.get(key);
@@ -49,7 +50,7 @@ public class PropertyIndexedEventTableSingleUnadorned extends PropertyIndexedEve
         events.add(theEvent);
     }
 
-    public void remove(EventBean theEvent) {
+    public void remove(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         Object key = getKey(theEvent);
 
         Set<EventBean> events = propertyIndex.get(key);

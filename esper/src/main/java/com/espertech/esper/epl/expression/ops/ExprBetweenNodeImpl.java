@@ -172,7 +172,7 @@ public class ExprBetweenNodeImpl extends ExprNodeBase implements ExprEvaluator, 
         return result;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprBetweenNodeImpl)) {
             return false;
         }

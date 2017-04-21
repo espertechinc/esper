@@ -278,12 +278,16 @@ public class ExprIdentNodeImpl extends ExprNodeBase implements ExprIdentNode {
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprIdentNode)) {
             return false;
         }
 
         ExprIdentNode other = (ExprIdentNode) node;
+
+        if (ignoreStreamPrefix && resolvedPropertyName != null && other.getResolvedPropertyName() != null && resolvedPropertyName.equals(other.getResolvedPropertyName())) {
+            return true;
+        }
 
         if (streamOrPropertyName != null ? !streamOrPropertyName.equals(other.getStreamOrPropertyName()) : other.getStreamOrPropertyName() != null)
             return false;

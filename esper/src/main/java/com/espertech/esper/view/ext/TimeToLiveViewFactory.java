@@ -74,7 +74,7 @@ public class TimeToLiveViewFactory implements DataWindowViewFactory, DataWindowV
             return false;
         }
         TimeToLiveViewFactory other = (TimeToLiveViewFactory) view;
-        return ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression);
+        return ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression, false);
     }
 
     public String getViewName() {

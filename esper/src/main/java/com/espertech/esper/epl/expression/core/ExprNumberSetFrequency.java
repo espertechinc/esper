@@ -44,7 +44,7 @@ public class ExprNumberSetFrequency extends ExprNodeBase implements ExprEvaluato
         return this.getChildNodes()[0].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprNumberSetFrequency)) {
             return false;
         }

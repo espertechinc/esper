@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 /**
  * Index that organizes events by the event property values into hash buckets. Based on a HashMap
@@ -34,7 +35,7 @@ public class PropertyIndexedEventTableCoerceAllFactory extends PropertyIndexedEv
         super(streamNum, eventType, propertyNames, coercionType);
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTableOrganization organization = getOrganization();
         return new EventTable[]{new PropertyIndexedEventTableCoerceAll(propertyGetters, organization, coercers, coercionType)};
     }

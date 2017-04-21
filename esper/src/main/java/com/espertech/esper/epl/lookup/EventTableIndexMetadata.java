@@ -21,31 +21,25 @@ public class EventTableIndexMetadata {
     public EventTableIndexMetadata() {
     }
 
-    public void addIndexExplicit(boolean isPrimary, IndexMultiKey indexMultiKey, EventTableCreateIndexDesc explicitIndexDesc, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
+    public void addIndexExplicit(boolean isPrimary, IndexMultiKey indexMultiKey, String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, String statementName)
             throws ExprValidationException {
-        if (getIndexByName(explicitIndexDesc.getIndexName()) != null) {
-            throw new ExprValidationException("An index by name '" + explicitIndexDesc.getIndexName() + "' already exists");
+        if (getIndexByName(explicitIndexName) != null) {
+            throw new ExprValidationException("An index by name '" + explicitIndexName + "' already exists");
         }
         if (indexes.containsKey(indexMultiKey)) {
-            if (failIfExists) {
-                throw new ExprValidationException("An index for the same columns already exists");
-            }
-            return;
+            throw new ExprValidationException("An index for the same columns already exists");
         }
-        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(explicitIndexDesc.getIndexName(), isPrimary, optionalQueryPlanIndexItem, explicitIndexDesc);
+        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(explicitIndexName, isPrimary, explicitIndexDesc, explicitIndexName);
         entry.addReferringStatement(statementName);
         indexes.put(indexMultiKey, entry);
     }
 
-    public void addIndexNonExplicit(boolean isPrimary, IndexMultiKey indexMultiKey, String statementName, boolean failIfExists, QueryPlanIndexItem optionalQueryPlanIndexItem)
+    public void addIndexNonExplicit(IndexMultiKey indexMultiKey, String statementName, QueryPlanIndexItem queryPlanIndexItem)
             throws ExprValidationException {
         if (indexes.containsKey(indexMultiKey)) {
-            if (failIfExists) {
-                throw new ExprValidationException("An index for the same columns already exists");
-            }
             return;
         }
-        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(null, isPrimary, optionalQueryPlanIndexItem, null);
+        EventTableIndexMetadataEntry entry = new EventTableIndexMetadataEntry(null, false, queryPlanIndexItem, null);
         entry.addReferringStatement(statementName);
         indexes.put(indexMultiKey, entry);
     }

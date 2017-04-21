@@ -38,7 +38,7 @@ public class JoinSetComposerAllUnidirectionalOuter implements JoinSetComposer {
         return false;
     }
 
-    public void init(EventBean[][] eventsPerStream) {
+    public void init(EventBean[][] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
     }
 
     public void destroy() {

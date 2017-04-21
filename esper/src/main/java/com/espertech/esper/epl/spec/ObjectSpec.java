@@ -99,7 +99,7 @@ public abstract class ObjectSpec implements MetaDefItem, Serializable {
             ExprNode otherParam = other.objectParameters.get(index);
             index++;
 
-            if (!ExprNodeUtility.deepEquals(thisParam, otherParam)) {
+            if (!ExprNodeUtility.deepEquals(thisParam, otherParam, false)) {
                 return false;
             }
         }

@@ -51,11 +51,11 @@ public class ExprNodeValidated extends ExprNodeBase implements ExprEvaluator {
         return inner.isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (node instanceof ExprNodeValidated) {
-            return inner.equalsNode(((ExprNodeValidated) node).inner);
+            return inner.equalsNode(((ExprNodeValidated) node).inner, false);
         }
-        return inner.equalsNode(node);
+        return inner.equalsNode(node, false);
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {

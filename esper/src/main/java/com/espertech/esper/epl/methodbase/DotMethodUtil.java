@@ -12,10 +12,8 @@ package com.espertech.esper.epl.methodbase;
 
 import com.espertech.esper.epl.enummethod.dot.ExprLambdaGoesNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprStreamUnderlyingNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.time.ExprTimePeriod;
-import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -146,51 +144,7 @@ public class DotMethodUtil {
             if (found.getLambdaParamNum() > 0) {
                 continue;
             }
-            validateSpecificType(methodUsedName, type, found.getType(), found.getSpecificType(), provided.getReturnType(), i, provided.getExpression());
-        }
-    }
-
-    public static void validateSpecificType(String methodUsedName, DotMethodTypeEnum type, DotMethodFPParamTypeEnum expectedTypeEnum, Class[] expectedTypeClasses, Class providedType, int parameterNum, ExprNode parameterExpression)
-            throws ExprValidationException {
-        String message = "Error validating " + type.getTypeName() + " method '" + methodUsedName + "', ";
-        if (expectedTypeEnum == DotMethodFPParamTypeEnum.BOOLEAN && (!JavaClassHelper.isBoolean(providedType))) {
-            throw new ExprValidationException(message + "expected a boolean-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
-        }
-        if (expectedTypeEnum == DotMethodFPParamTypeEnum.NUMERIC && (!JavaClassHelper.isNumeric(providedType))) {
-            throw new ExprValidationException(message + "expected a number-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
-        }
-        if (expectedTypeEnum == DotMethodFPParamTypeEnum.SPECIFIC) {
-            Class boxedProvidedType = JavaClassHelper.getBoxedType(providedType);
-            boolean found = false;
-            for (Class expectedTypeClass : expectedTypeClasses) {
-                Class boxedExpectedType = JavaClassHelper.getBoxedType(expectedTypeClass);
-                if (boxedProvidedType != null && JavaClassHelper.isSubclassOrImplementsInterface(boxedProvidedType, boxedExpectedType)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                String expected;
-                if (expectedTypeClasses.length == 1) {
-                    expected = "a " + JavaClassHelper.getParameterAsString(expectedTypeClasses);
-                } else {
-                    expected = "any of [" + JavaClassHelper.getParameterAsString(expectedTypeClasses) + "]";
-                }
-                throw new ExprValidationException(message + "expected " + expected + "-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
-            }
-        }
-        if (expectedTypeEnum == DotMethodFPParamTypeEnum.TIME_PERIOD_OR_SEC) {
-            if (parameterExpression instanceof ExprTimePeriod || parameterExpression instanceof ExprStreamUnderlyingNode) {
-                return;
-            }
-            if (!(JavaClassHelper.isNumeric(providedType))) {
-                throw new ExprValidationException(message + "expected a time-period expression or a numeric-type result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
-            }
-        }
-        if (expectedTypeEnum == DotMethodFPParamTypeEnum.DATETIME) {
-            if (!(JavaClassHelper.isDatetimeClass(providedType))) {
-                throw new ExprValidationException(message + "expected a long-typed, Date-typed or Calendar-typed result for expression parameter " + parameterNum + " but received " + JavaClassHelper.getClassNameFullyQualPretty(providedType));
-            }
+            EPLValidationUtil.validateParameterType(methodUsedName, type.getTypeName(), false, found.getType(), found.getSpecificType(), provided.getReturnType(), i, provided.getExpression());
         }
     }
 }

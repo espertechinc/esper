@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class PropertyIndexedEventTableFactory implements EventTableFactory {
         }
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTableOrganization organization = getOrganization();
         if (unique) {
             return new EventTable[]{new PropertyIndexedEventTableUnique(propertyGetters, organization)};

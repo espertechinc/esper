@@ -1447,16 +1447,16 @@ set field_a = 1,
 		</para>
 		<orderedlist spacing="compact">
 			<listitem>
-				Each property to be updated via assignment must be writable. For tables, all columns are always writable.
+				<para>Each property to be updated via assignment must be writable. For tables, all columns are always writable.</para>
 			</listitem>
 			<listitem>
-					For underlying event representations that are Java objects, a event object class must implement the java.io.Serializable interface as discussed in <xref linkend="epl-update-object"/> and must provide setter methods for updated properties.
+				<para>For underlying event representations that are Java objects, a event object class must implement the java.io.Serializable interface as discussed in <xref linkend="epl-update-object"/> and must provide setter methods for updated properties.</para>
 			</listitem>
 			<listitem>
-					When using an XML underlying event type, event properties in the XML document representation are not available for update.
+				<para>When using an XML underlying event type, event properties in the XML document representation are not available for update.</para>
 			</listitem>
 			<listitem>
-					Nested properties are not supported for update. Revision event types and variant streams may also not be updated.						
+				<para>Nested properties are not supported for update. Revision event types and variant streams may also not be updated.</para>
 			</listitem>
 		</orderedlist>
 
@@ -1871,7 +1871,7 @@ when matched and active = true then update set active = false]]></programlisting
 		
 		<orderedlist>
 		  <listitem>
-				  On-demand (fire-and-forget, non-continuous) queries as described in <xref linkend="api-ondemand"/>.
+				  <para>On-demand (fire-and-forget, non-continuous) queries as described in <xref linkend="api-ondemand"/>.</para>
 		  </listitem>
 		  <listitem>
 			  <para>
@@ -1896,13 +1896,16 @@ when matched and active = true then update set active = false]]></programlisting
 		</orderedlist>
 
 		<para>
-			Please use the following syntax to create an explicit index on a named window or table:
+			The syntax to create an explicit index on a named window or table is:
 		</para>
-		<synopsis>create [<literal>unique</literal>] index <emphasis>index_name</emphasis> on <emphasis>window_or_table_name</emphasis> (<emphasis>property</emphasis> [hash|btree] 
-    [, property] [hash|btree] [,...] )</synopsis>
+		<synopsis>create [unique] index <emphasis>index_name</emphasis> on <emphasis>window_or_table_name</emphasis> (
+  <emphasis>column_expression</emphasis> [hash|btree|<emphasis>index_type_expression</emphasis>] 
+  [, <emphasis>column_expression</emphasis>] [hash|btree|<emphasis>index_type_expression</emphasis>] 
+  [,...]
+)</synopsis>
 			
 		<para>
-			The optional <emphasis>unique</emphasis> keyboard indicates that the property or properties uniquely identify rows. If <emphasis>unique</emphasis> is not specified
+			The optional <emphasis>unique</emphasis> keyboard indicates that the column expressions uniquely identify rows. If <emphasis>unique</emphasis> is not specified
 			the index allows duplicate rows.
 		</para>
 
@@ -1915,14 +1918,29 @@ when matched and active = true then update set active = false]]></programlisting
 		</para>
 
 		<para>
-			The list of <emphasis>property</emphasis> names are the properties of rows to include in the index (we use the term property and column interchangeably).
-			Following each property name you may specify the optional <literal>hash</literal> or <literal>btree</literal> keyword.
+			After the table name or named window name follows a list of pairs of <emphasis>column_expression</emphasis> column expression and index type.
 		</para>
 		
+		<para>
+			A column expression is the expression that is subject to index building. 
+			Typically a column expression is an event property or column name. 
+			For special application-provided or spatial indexes other column expressions are allowed and such indexes may allow multiple columns to be combined.
+		</para>
+		
+		<para>
+			Following each column expression you may specify the index type by providing the optional <literal>hash</literal> or <literal>btree</literal> keywords or an <emphasis>index_type_expression</emphasis>. 
+			For special application-provided or spatial indexes please use the <emphasis>index_type_expression</emphasis>.
+		</para>
+				
 		<para>
 			If you specify no keyword or the <literal>hash</literal> keyword for a property, the index will be a hash-based (unsorted) index in respect to that property. If you specify the <literal>btree</literal> keyword, the index will be a binary-tree-based sorted index in respect to that property.
 			You may combine <literal>hash</literal> and <literal>btree</literal> properties for the same index.
 			Specify <literal>btree</literal> for a property if you expect to perform numerical or string comparison using relational operators (&lt;, &gt;, &gt;=, &lt;=), the <literal>between</literal> or the <literal>in</literal> keyword for ranges and inverted ranges. Use <literal>hash</literal> (the default) instead of <literal>btree</literal> if you expect to perform exact comparison using <literal>=</literal>.
+		</para>
+		
+		<para>
+			For <literal>hash</literal> and <literal>btree</literal> index types the column expression must be an event property or column name. Expressions such as <literal>col+1</literal> are not currently supported for 
+			<literal>hash</literal> and <literal>btree</literal> index types but are supported for other index types.
 		</para>
 
 		<para>
@@ -1986,7 +2004,7 @@ create index idx1 on TickEventWindow(symbol hash, buyPrice btree)]]></programlis
 select * from TickEventWindow where symbol='GE' and buyPrice between 10 and 20]]></programlisting>
 
 		<note>
-			A table that does not declare one or more primary key columns cannot have a secondary index, as the table holds a maximum of one row.
+			<para>A table that does not declare one or more primary key columns cannot have a secondary index, as the table holds a maximum of one row.</para>
 		</note>
 	</sect1>
 	
@@ -2233,8 +2251,10 @@ epService.getEPRuntime().executeQuery(query);]]></programlisting>
 		</para>
 
 		<tip>				
-			It usually does not make sense to configure a revision event type without delta event types. Use the unique data window (<literal>std:unique</literal>) or unique data window in intersection with other data windows
-			instead (i.e. <literal>std:unique(field)#time(1 hour)</literal>).
+			<para>
+				It usually does not make sense to configure a revision event type without delta event types. Use the unique data window (<literal>std:unique</literal>) or unique data window in intersection with other data windows
+				instead (i.e. <literal>std:unique(field)#time(1 hour)</literal>).
+			</para>
 		</tip>
 
 		<para>				

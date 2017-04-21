@@ -51,7 +51,7 @@ public class ExprOrderedExpr extends ExprNodeBase implements ExprEvaluator {
         return getChildNodes()[0].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprOrderedExpr)) {
             return false;
         }

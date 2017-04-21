@@ -119,7 +119,7 @@ public class FireAndForgetQueryExec {
             }
         }
 
-        if (tablePair == null) {
+        if (tablePair == null || tablePair.getFirst().getAdvancedIndexDesc() != null) {
             return null;    // indicates table scan
         }
 

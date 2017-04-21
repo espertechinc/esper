@@ -13,6 +13,7 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.collection.SuperIterator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValue;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueEquals;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueRange;
@@ -188,7 +189,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
         return propertyIndex;
     }
 
-    public void add(EventBean theEvent) {
+    public void add(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         Object key = getIndexedValue(theEvent);
 
         key = coerce(key);
@@ -207,7 +208,7 @@ public class PropertySortedEventTableImpl extends PropertySortedEventTable {
         events.add(theEvent);
     }
 
-    public void remove(EventBean theEvent) {
+    public void remove(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         Object key = getIndexedValue(theEvent);
 
         if (key == null) {

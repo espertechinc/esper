@@ -13,8 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
-import com.espertech.esper.epl.expression.ops.ExprNotNode;
-import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
@@ -85,9 +83,9 @@ public class TestExprNotNode extends TestCase {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(notNode.equalsNode(notNode));
-        assertFalse(notNode.equalsNode(new ExprMinMaxRowNode(MinMaxTypeEnum.MIN)));
-        assertFalse(notNode.equalsNode(new ExprOrNode()));
-        assertTrue(notNode.equalsNode(new ExprNotNode()));
+        assertTrue(notNode.equalsNode(notNode, false));
+        assertFalse(notNode.equalsNode(new ExprMinMaxRowNode(MinMaxTypeEnum.MIN), false));
+        assertFalse(notNode.equalsNode(new ExprOrNode(), false));
+        assertTrue(notNode.equalsNode(new ExprNotNode(), false));
     }
 }

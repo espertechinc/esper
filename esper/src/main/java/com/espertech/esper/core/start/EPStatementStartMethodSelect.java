@@ -192,7 +192,7 @@ public class EPStatementStartMethodSelect extends EPStatementStartMethodBase {
 
         // execute preload if any
         for (StatementAgentInstancePreload preload : preloadList) {
-            preload.executePreload();
+            preload.executePreload(defaultAgentInstanceContext);
         }
 
         // handle association to table

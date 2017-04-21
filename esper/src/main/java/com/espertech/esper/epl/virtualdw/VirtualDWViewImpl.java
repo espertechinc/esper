@@ -25,7 +25,6 @@ import com.espertech.esper.epl.join.table.EventTableOrganizationType;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
 import com.espertech.esper.epl.spec.CreateIndexItem;
-import com.espertech.esper.epl.spec.CreateIndexType;
 import com.espertech.esper.filter.Range;
 import com.espertech.esper.view.ViewSupport;
 import org.slf4j.Logger;
@@ -66,7 +65,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
             btreeFields.add(new VirtualDataWindowLookupFieldDesc(btreeprop.getIndexPropName(), null, btreeprop.getCoercionType()));
         }
         VirtualDWEventTable eventTable = new VirtualDWEventTable(unique, hashFields, btreeFields, TABLE_ORGANIZATION);
-        IndexMultiKey imk = new IndexMultiKey(unique, hashedProps, btreeProps);
+        IndexMultiKey imk = new IndexMultiKey(unique, hashedProps, btreeProps, null);
         return new Pair<IndexMultiKey, EventTable>(imk, eventTable);
     }
 
@@ -153,7 +152,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         }
 
         VirtualDWEventTable noopTable = new VirtualDWEventTable(false, hashFields, btreeFields, TABLE_ORGANIZATION);
-        IndexMultiKey imk = new IndexMultiKey(false, hashIndexedFields, btreeIndexedFields);
+        IndexMultiKey imk = new IndexMultiKey(false, hashIndexedFields, btreeIndexedFields, null);
 
         return new Pair<IndexMultiKey, EventTable>(imk, noopTable);
     }
@@ -225,7 +224,7 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         try {
             List<VirtualDataWindowEventStartIndex.VDWCreateIndexField> fields = new ArrayList<VirtualDataWindowEventStartIndex.VDWCreateIndexField>();
             for (CreateIndexItem col : spec.getColumns()) {
-                fields.add(new VirtualDataWindowEventStartIndex.VDWCreateIndexField(col.getName(), col.getType() == CreateIndexType.HASH));
+                fields.add(new VirtualDataWindowEventStartIndex.VDWCreateIndexField(col.getExpressions(), col.getType(), col.getParameters()));
             }
             VirtualDataWindowEventStartIndex create = new VirtualDataWindowEventStartIndex(spec.getWindowName(), spec.getIndexName(), fields, spec.isUnique());
             dataExternal.handleEvent(create);

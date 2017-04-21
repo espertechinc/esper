@@ -733,7 +733,7 @@ public class ResultSetProcessorFactoryFactory {
             boolean found = false;
 
             for (int i = 0; i < groupByNodes.length; i++) {
-                if (ExprNodeUtility.deepEquals(child, groupByNodes[i])) {
+                if (ExprNodeUtility.deepEquals(child, groupByNodes[i], false)) {
                     if (indexes.contains(i)) {
                         throw new ExprValidationException("Duplicate expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(child) + "' among grouping function parameters");
                     }

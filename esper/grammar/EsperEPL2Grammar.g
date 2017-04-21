@@ -406,7 +406,7 @@ createIndexExpr : CREATE (u=IDENT)? INDEX n=IDENT ON w=IDENT LPAREN createIndexC
 	
 createIndexColumnList : createIndexColumn (COMMA createIndexColumn)*;	
 
-createIndexColumn : c=IDENT t=IDENT?;	
+createIndexColumn : (expression | LPAREN i=expressionList? RPAREN) (t=IDENT (LPAREN p=expressionList? RPAREN)? )?;	
 
 createVariableExpr : CREATE c=IDENT? VARIABLE classIdentifier (arr=LBRACK p=IDENT? RBRACK)? n=IDENT (EQUALS expression)?;
 

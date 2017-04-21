@@ -87,8 +87,8 @@ public class CorrelationViewFactory implements ViewFactory {
         }
 
         CorrelationView other = (CorrelationView) view;
-        if (!ExprNodeUtility.deepEquals(other.getExpressionX(), expressionX) ||
-                (!ExprNodeUtility.deepEquals(other.getExpressionY(), expressionY))) {
+        if (!ExprNodeUtility.deepEquals(other.getExpressionX(), expressionX, false) ||
+                (!ExprNodeUtility.deepEquals(other.getExpressionY(), expressionY, false))) {
             return false;
         }
 

@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.plan;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprIdentNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNode;
@@ -20,10 +21,7 @@ import com.espertech.esper.type.RelationalOpEnum;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Model of relationships between streams based on properties in both streams that are
@@ -378,6 +376,24 @@ public class QueryGraph {
             if (i != setStreamNum) {
                 internalAddInKeywordMultiIndex(i, setStreamNum, testPropExpr, setPropExpr);
             }
+        }
+    }
+
+    public void addCustomIndex(String operationName, ExprNode[] indexExpressions, List<Pair<ExprNode, int[]>> streamKeys, int streamValue) {
+        int expressionPosition = 0;
+        for (Pair<ExprNode, int[]> pair : streamKeys) {
+            if (pair.getSecond().length == 0) {
+                for (int i = 0; i < numStreams; i++) {
+                    QueryGraphValue value = getCreateValue(i, streamValue);
+                    value.addCustom(indexExpressions, operationName, expressionPosition, pair.getFirst());
+                }
+            } else {
+                for (int providingStream : pair.getSecond()) {
+                    QueryGraphValue value = getCreateValue(providingStream, streamValue);
+                    value.addCustom(indexExpressions, operationName, expressionPosition, pair.getFirst());
+                }
+            }
+            expressionPosition++;
         }
     }
 

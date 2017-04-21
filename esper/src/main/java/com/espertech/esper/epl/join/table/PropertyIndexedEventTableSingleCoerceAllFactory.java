@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class PropertyIndexedEventTableSingleCoerceAllFactory extends PropertyIndexedEventTableSingleCoerceAddFactory {
     /**
@@ -25,7 +26,7 @@ public class PropertyIndexedEventTableSingleCoerceAllFactory extends PropertyInd
         super(streamNum, eventType, propertyName, coercionType);
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTableOrganization organization = getOrganization();
         return new EventTable[]{new PropertyIndexedEventTableSingleCoerceAll(propertyGetter, organization, coercer, coercionType)};
     }

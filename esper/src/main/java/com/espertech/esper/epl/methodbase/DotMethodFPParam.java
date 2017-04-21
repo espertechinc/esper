@@ -10,28 +10,30 @@
  */
 package com.espertech.esper.epl.methodbase;
 
+import com.espertech.esper.epl.util.EPLExpressionParamType;
+
 public class DotMethodFPParam {
 
     private final int lambdaParamNum; // 0 means not a lambda expression expected, 1 means "x=>", 2 means "(x,y)=>"
     private final String description;
-    private final DotMethodFPParamTypeEnum type;
+    private final EPLExpressionParamType type;
     private final Class[] specificType;
 
-    public DotMethodFPParam(int lambdaParamNum, String description, DotMethodFPParamTypeEnum type) {
+    public DotMethodFPParam(int lambdaParamNum, String description, EPLExpressionParamType type) {
         this.lambdaParamNum = lambdaParamNum;
         this.description = description;
         this.type = type;
         this.specificType = null;
-        if (type == DotMethodFPParamTypeEnum.SPECIFIC) {
+        if (type == EPLExpressionParamType.SPECIFIC) {
             throw new IllegalArgumentException("Invalid ctor for specific-type parameter");
         }
     }
 
-    public DotMethodFPParam(String description, DotMethodFPParamTypeEnum type) {
+    public DotMethodFPParam(String description, EPLExpressionParamType type) {
         this(description, type, (Class[]) null);
     }
 
-    public DotMethodFPParam(String description, DotMethodFPParamTypeEnum type, Class ... specificType) {
+    public DotMethodFPParam(String description, EPLExpressionParamType type, Class ... specificType) {
         this.description = description;
         this.type = type;
         this.specificType = specificType;
@@ -46,7 +48,7 @@ public class DotMethodFPParam {
         return description;
     }
 
-    public DotMethodFPParamTypeEnum getType() {
+    public EPLExpressionParamType getType() {
         return type;
     }
 

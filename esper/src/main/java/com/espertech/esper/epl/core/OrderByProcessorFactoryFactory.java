@@ -105,7 +105,7 @@ public class OrderByProcessorFactoryFactory {
         for (ExprAggregateNode orderAgg : orderAggNodes) {
             boolean inSelect = false;
             for (ExprAggregateNode selectAgg : selectAggNodes) {
-                if (ExprNodeUtility.deepEquals(selectAgg, orderAgg)) {
+                if (ExprNodeUtility.deepEquals(selectAgg, orderAgg, false)) {
                     inSelect = true;
                     break;
                 }

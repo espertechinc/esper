@@ -62,7 +62,7 @@ public class ExprNumberSetList extends ExprNodeBase implements ExprEvaluator {
         return true;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return node instanceof ExprNumberSetList;
     }
 

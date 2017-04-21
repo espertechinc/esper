@@ -43,7 +43,7 @@ public class TestExprPreviousNode extends TestCase {
 
     public void testEquals() throws Exception {
         ExprPreviousNode node1 = new ExprPreviousNode(ExprPreviousNodePreviousType.PREV);
-        assertTrue(node1.equalsNode(prevNode));
+        assertTrue(node1.equalsNode(prevNode, false));
     }
 
     public void testToExpressionString() throws Exception {

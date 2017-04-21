@@ -10,9 +10,15 @@
  */
 package com.espertech.esper.epl.join.plan;
 
+import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
+import com.espertech.esper.epl.lookup.IndexMultiKey;
+import com.espertech.esper.epl.lookup.IndexedPropDesc;
 import com.espertech.esper.util.CollectionUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Specifies an index to build as part of an overall query plan.
@@ -23,29 +29,38 @@ public class QueryPlanIndexItem {
     private final String[] rangeProps;
     private final Class[] optRangeCoercionTypes;
     private final boolean unique;
+    private final AdvancedIndexProvisionDesc advancedIndexProvisionDesc;
 
     /**
      * Ctor.
      *
-     * @param indexProps            - array of property names with the first dimension suplying the number of
-     *                              distinct indexes. The second dimension can be empty and indicates a full table scan.
-     * @param optIndexCoercionTypes - array of coercion types for each index, or null entry for no coercion required
-     * @param unique                whether index is unique on index props (not applicable to range-only)
-     * @param optRangeCoercionTypes coercion for ranges
-     * @param rangeProps            range props
+     * @param indexProps                 - array of property names with the first dimension suplying the number of
+     *                                   distinct indexes. The second dimension can be empty and indicates a full table scan.
+     * @param optIndexCoercionTypes      - array of coercion types for each index, or null entry for no coercion required
+     * @param rangeProps                 range props
+     * @param optRangeCoercionTypes      coercion for ranges
+     * @param unique                     whether index is unique on index props (not applicable to range-only)
+     * @param advancedIndexProvisionDesc advanced indexes
      */
-    public QueryPlanIndexItem(String[] indexProps, Class[] optIndexCoercionTypes, String[] rangeProps, Class[] optRangeCoercionTypes, boolean unique) {
+    public QueryPlanIndexItem(String[] indexProps, Class[] optIndexCoercionTypes, String[] rangeProps, Class[] optRangeCoercionTypes, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
+        if (advancedIndexProvisionDesc == null) {
+            if (unique && indexProps.length == 0) {
+                throw new IllegalArgumentException("Invalid unique index planned without hash index props");
+            }
+            if (unique && rangeProps.length > 0) {
+                throw new IllegalArgumentException("Invalid unique index planned that includes range props");
+            }
+        }
         this.indexProps = indexProps;
         this.optIndexCoercionTypes = optIndexCoercionTypes;
         this.rangeProps = (rangeProps == null || rangeProps.length == 0) ? null : rangeProps;
         this.optRangeCoercionTypes = optRangeCoercionTypes;
         this.unique = unique;
-        if (unique && indexProps.length == 0) {
-            throw new IllegalStateException("Invalid unique index planned without hash index props");
-        }
-        if (unique && rangeProps.length > 0) {
-            throw new IllegalStateException("Invalid unique index planned that includes range props");
-        }
+        this.advancedIndexProvisionDesc = advancedIndexProvisionDesc;
+    }
+
+    public QueryPlanIndexItem(List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
+        this(getNames(hashProps), getTypes(hashProps), getNames(btreeProps), getTypes(btreeProps), unique, advancedIndexProvisionDesc);
     }
 
     public String[] getIndexProps() {
@@ -72,6 +87,10 @@ public class QueryPlanIndexItem {
         return unique;
     }
 
+    public AdvancedIndexProvisionDesc getAdvancedIndexProvisionDesc() {
+        return advancedIndexProvisionDesc;
+    }
+
     @Override
     public String toString() {
         return "QueryPlanIndexItem{" +
@@ -80,7 +99,8 @@ public class QueryPlanIndexItem {
                 ", rangeProps=" + (rangeProps == null ? null : Arrays.asList(rangeProps)) +
                 ", optIndexCoercionTypes=" + (optIndexCoercionTypes == null ? null : Arrays.asList(optIndexCoercionTypes)) +
                 ", optRangeCoercionTypes=" + (optRangeCoercionTypes == null ? null : Arrays.asList(optRangeCoercionTypes)) +
-                '}';
+                ", advanced=" + (advancedIndexProvisionDesc == null ? null : advancedIndexProvisionDesc.getIndexDesc().getIndexTypeName()) +
+                "}";
     }
 
     public boolean equalsCompareSortedProps(QueryPlanIndexItem other) {
@@ -91,6 +111,67 @@ public class QueryPlanIndexItem {
         String[] thisIndexProps = CollectionUtil.copySortArray(this.getIndexProps());
         String[] otherRangeProps = CollectionUtil.copySortArray(other.getRangeProps());
         String[] thisRangeProps = CollectionUtil.copySortArray(this.getRangeProps());
-        return CollectionUtil.compare(otherIndexProps, thisIndexProps) && CollectionUtil.compare(otherRangeProps, thisRangeProps);
+        boolean compared = CollectionUtil.compare(otherIndexProps, thisIndexProps) && CollectionUtil.compare(otherRangeProps, thisRangeProps);
+        return compared && advancedIndexProvisionDesc == null && other.advancedIndexProvisionDesc == null;
+    }
+
+    public List<IndexedPropDesc> getHashPropsAsList() {
+        return asList(indexProps, optIndexCoercionTypes);
+    }
+
+    public List<IndexedPropDesc> getBtreePropsAsList() {
+        return asList(rangeProps, optRangeCoercionTypes);
+    }
+
+    private List<IndexedPropDesc> asList(String[] props, Class[] types) {
+        if (props == null || props.length == 0) {
+            return Collections.emptyList();
+        }
+        List<IndexedPropDesc> list = new ArrayList<>(props.length);
+        for (int i = 0; i < props.length; i++) {
+            list.add(new IndexedPropDesc(props[i], types[i]));
+        }
+        return list;
+    }
+
+    private static String[] getNames(IndexedPropDesc[] props) {
+        String[] names = new String[props.length];
+        for (int i = 0; i < props.length; i++) {
+            names[i] = props[i].getIndexPropName();
+        }
+        return names;
+    }
+
+    private static Class[] getTypes(IndexedPropDesc[] props) {
+        Class[] types = new Class[props.length];
+        for (int i = 0; i < props.length; i++) {
+            types[i] = props[i].getCoercionType();
+        }
+        return types;
+    }
+
+    private static String[] getNames(List<IndexedPropDesc> props) {
+        String[] names = new String[props.size()];
+        for (int i = 0; i < props.size(); i++) {
+            names[i] = props.get(i).getIndexPropName();
+        }
+        return names;
+    }
+
+    private static Class[] getTypes(List<IndexedPropDesc> props) {
+        Class[] types = new Class[props.size()];
+        for (int i = 0; i < props.size(); i++) {
+            types[i] = props.get(i).getCoercionType();
+        }
+        return types;
+    }
+
+    public static QueryPlanIndexItem fromIndexMultikeyTablePrimaryKey(IndexMultiKey indexMultiKey) {
+        return new QueryPlanIndexItem(
+                getNames(indexMultiKey.getHashIndexedProps()),
+                getTypes(indexMultiKey.getHashIndexedProps()),
+                getNames(indexMultiKey.getRangeIndexedProps()),
+                getTypes(indexMultiKey.getRangeIndexedProps()),
+                indexMultiKey.isUnique(), null);
     }
 }

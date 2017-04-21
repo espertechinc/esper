@@ -210,7 +210,7 @@ public class ExprCaseNode extends ExprNodeBase implements ExprEvaluator, ExprEva
         return null;    // always single-row
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprCaseNode)) {
             return false;
         }

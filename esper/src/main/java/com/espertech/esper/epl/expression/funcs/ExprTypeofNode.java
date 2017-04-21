@@ -112,7 +112,7 @@ public class ExprTypeofNode extends ExprNodeBase implements ExprFilterOptimizabl
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return node instanceof ExprTypeofNode;
     }
 

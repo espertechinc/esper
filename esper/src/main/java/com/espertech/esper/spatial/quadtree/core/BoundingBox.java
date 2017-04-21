@@ -1,0 +1,185 @@
+/*
+ ***************************************************************************************
+ *  Copyright (C) 2006 EsperTech, Inc. All rights reserved.                            *
+ *  http://www.espertech.com/esper                                                     *
+ *  http://www.espertech.com                                                           *
+ *  ---------------------------------------------------------------------------------- *
+ *  The software in this package is published under the terms of the GPL license       *
+ *  a copy of which has been included with this distribution in the license.txt file.  *
+ ***************************************************************************************
+ */
+package com.espertech.esper.spatial.quadtree.core;
+
+public class BoundingBox {
+    private final double minX;
+    private final double minY;
+    private final double maxX;
+    private final double maxY;
+
+    public BoundingBox(double minX, double minY, double maxX, double maxY) {
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+    }
+
+    public double getMinX() {
+        return minX;
+    }
+
+    public double getMinY() {
+        return minY;
+    }
+
+    public double getMaxX() {
+        return maxX;
+    }
+
+    public double getMaxY() {
+        return maxY;
+    }
+
+    public boolean containsPoint(double x, double y) {
+        return x >= minX && y >= minY && x < maxX && y < maxY;
+    }
+
+    public boolean intersectsBox(double x, double y, double width, double height) {
+        double otherMaxX = x + width;
+        double otherMaxY = y + height;
+        if (maxX < x) return false; // a is left of b
+        if (minX > otherMaxX) return false; // a is right of b
+        if (maxY < y) return false; // a is above b
+        if (minY > otherMaxY) return false; // a is below b
+        return true; // boxes overlap
+    }
+
+    public static boolean containsPoint(double x, double y, double width, double height, double px, double py) {
+        if (px >= x + width) return false;
+        if (px < x) return false;
+        if (py >= y + height) return false;
+        if (py < y) return false;
+        return true;
+    }
+
+    public String toString() {
+        return "{" +
+                "minX=" + minX +
+                ", minY=" + minY +
+                ", maxX=" + maxX +
+                ", maxY=" + maxY +
+                '}';
+    }
+
+    public QuadrantEnum getQuadrant(double x, double y) {
+        double deltaX = x - minX;
+        double deltaY = y - minY;
+        double halfWidth = (maxX - minX) / 2;
+        double halfHeight = (maxY - minY) / 2;
+        if (deltaX < halfWidth) {
+            return deltaY < halfHeight ? QuadrantEnum.NW : QuadrantEnum.SW;
+        }
+        return deltaY < halfHeight ? QuadrantEnum.NE : QuadrantEnum.SE;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BoundingBox that = (BoundingBox) o;
+
+        if (Double.compare(that.minX, minX) != 0) return false;
+        if (Double.compare(that.minY, minY) != 0) return false;
+        if (Double.compare(that.maxX, maxX) != 0) return false;
+        return Double.compare(that.maxY, maxY) == 0;
+    }
+
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(minX);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(minY);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(maxX);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(maxY);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    public BoundingBox[] subdivide() {
+        double w = (maxX - minX) / 2d;
+        double h = (maxY - minY) / 2d;
+
+        BoundingBox bbNW = new BoundingBox(minX, minY, minX + w, minY + h);
+        BoundingBox bbNE = new BoundingBox(minX + w, minY, maxX, minY + h);
+        BoundingBox bbSW = new BoundingBox(minX, minY + h, minX + w, maxY);
+        BoundingBox bbSE = new BoundingBox(minX + w, minY + h, maxX, maxY);
+        return new BoundingBox[]{bbNW, bbNE, bbSW, bbSE};
+    }
+
+    public BoundingBoxNode treeForDepth(int depth) {
+        BoundingBoxNode[] quadrants = new BoundingBoxNode[4];
+        if (depth > 0) {
+            BoundingBox[] subs = subdivide();
+            quadrants[0] = subs[0].treeForDepth(depth - 1);
+            quadrants[1] = subs[1].treeForDepth(depth - 1);
+            quadrants[2] = subs[2].treeForDepth(depth - 1);
+            quadrants[3] = subs[3].treeForDepth(depth - 1);
+        }
+        return new BoundingBoxNode(this, quadrants[0], quadrants[1], quadrants[2], quadrants[3]);
+    }
+
+    public BoundingBoxNode treeForPath(String[] path) {
+        return treeForPath(path, 0);
+    }
+
+    private BoundingBoxNode treeForPath(String[] path, int offset) {
+        BoundingBoxNode[] quadrants = new BoundingBoxNode[4];
+        if (offset < path.length) {
+            BoundingBox[] subs = subdivide();
+            String q = path[offset];
+            if (q.equals("nw")) {
+                quadrants[0] = subs[0].treeForPath(path, offset + 1);
+            }
+            if (q.equals("ne")) {
+                quadrants[1] = subs[1].treeForPath(path, offset + 1);
+            }
+            if (q.equals("sw")) {
+                quadrants[2] = subs[2].treeForPath(path, offset + 1);
+            }
+            if (q.equals("se")) {
+                quadrants[3] = subs[3].treeForPath(path, offset + 1);
+            }
+        }
+        return new BoundingBoxNode(this, quadrants[0], quadrants[1], quadrants[2], quadrants[3]);
+    }
+
+    public static class BoundingBoxNode {
+        public final BoundingBox bb;
+        public final BoundingBoxNode nw;
+        public final BoundingBoxNode ne;
+        public final BoundingBoxNode sw;
+        public final BoundingBoxNode se;
+
+        public BoundingBoxNode(BoundingBox bb, BoundingBoxNode nw, BoundingBoxNode ne, BoundingBoxNode sw, BoundingBoxNode se) {
+            this.bb = bb;
+            this.nw = nw;
+            this.ne = ne;
+            this.sw = sw;
+            this.se = se;
+        }
+
+        public BoundingBoxNode getQuadrant(QuadrantEnum q) {
+            if (q == QuadrantEnum.NW) {
+                return nw;
+            } else if (q == QuadrantEnum.NE) {
+                return ne;
+            } else if (q == QuadrantEnum.SW) {
+                return sw;
+            } else {
+                return se;
+            }
+        }
+    }
+}

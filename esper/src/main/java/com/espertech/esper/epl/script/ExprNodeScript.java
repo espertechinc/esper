@@ -79,7 +79,7 @@ public class ExprNodeScript extends ExprNodeBase implements ExprNodeInnerNodePro
         return false;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (this == node) return true;
         if (node == null || getClass() != node.getClass()) return false;
 

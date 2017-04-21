@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNodeOrigin;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprMathNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.MathArithTypeEnum;
@@ -84,8 +83,8 @@ public class TestExprMathNode extends TestCase {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(arithNode.equalsNode(arithNode));
-        assertFalse(arithNode.equalsNode(new ExprMathNode(MathArithTypeEnum.DIVIDE, false, false)));
+        assertTrue(arithNode.equalsNode(arithNode, false));
+        assertFalse(arithNode.equalsNode(new ExprMathNode(MathArithTypeEnum.DIVIDE, false, false), false));
     }
 
     private ExprMathNode makeNode(Object valueLeft, Class typeLeft, Object valueRight, Class typeRight) throws Exception {

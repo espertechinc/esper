@@ -113,7 +113,7 @@ public class ExprPlugInSingleRowNode extends ExprNodeBase implements ExprNodeInn
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprPlugInSingleRowNode)) {
             return false;
         }

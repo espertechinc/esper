@@ -124,7 +124,7 @@ public class GroupByViewFactory implements ViewFactory, GroupByViewFactoryMarker
         }
 
         GroupByView myView = (GroupByView) view;
-        if (!ExprNodeUtility.deepEquals(myView.getCriteriaExpressions(), criteriaExpressions)) {
+        if (!ExprNodeUtility.deepEquals(myView.getCriteriaExpressions(), criteriaExpressions, false)) {
             return false;
         }
 

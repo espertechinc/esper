@@ -132,7 +132,7 @@ public class ExprEqualsNodeImpl extends ExprNodeBase implements ExprEqualsNode {
         return ExprPrecedenceEnum.EQUALS;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprEqualsNode)) {
             return false;
         }

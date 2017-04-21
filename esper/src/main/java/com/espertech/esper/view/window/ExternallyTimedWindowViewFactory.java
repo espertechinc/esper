@@ -87,7 +87,7 @@ public class ExternallyTimedWindowViewFactory implements DataWindowViewFactory, 
         ExternallyTimedWindowView myView = (ExternallyTimedWindowView) view;
         ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
-                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression))) {
+                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression, false))) {
             return false;
         }
         return myView.isEmpty();

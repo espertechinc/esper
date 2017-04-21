@@ -39,7 +39,7 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
 
         if (streamNum != that.streamNum) return false;
         if (stateType != that.stateType) return false;
-        if (!ExprNodeUtility.deepEquals(criteraExprNodes, that.criteraExprNodes)) return false;
+        if (!ExprNodeUtility.deepEquals(criteraExprNodes, that.criteraExprNodes, false)) return false;
         if (eventType != null) {
             if (that.eventType == null) {
                 return false;
@@ -50,7 +50,7 @@ public class AggregationStateKeyWStream implements AggregationStateKey {
         if (filterExprNode == null) {
             return that.filterExprNode == null;
         }
-        return that.filterExprNode != null && ExprNodeUtility.deepEquals(filterExprNode, that.filterExprNode);
+        return that.filterExprNode != null && ExprNodeUtility.deepEquals(filterExprNode, that.filterExprNode, false);
     }
 
     public int hashCode() {

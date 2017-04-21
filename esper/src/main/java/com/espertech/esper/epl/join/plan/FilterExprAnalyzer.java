@@ -14,7 +14,7 @@ import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.dot.ExprDotNode;
+import com.espertech.esper.epl.expression.core.ExprQueryFilterAnalyzerNode;
 import com.espertech.esper.epl.expression.ops.*;
 import com.espertech.esper.epl.join.util.Eligibility;
 import com.espertech.esper.epl.join.util.EligibilityDesc;
@@ -59,9 +59,9 @@ public class FilterExprAnalyzer {
         } else if (topNode instanceof ExprRelationalOpNode) {
             ExprRelationalOpNode relNode = (ExprRelationalOpNode) topNode;
             analyzeRelationalOpNode(relNode, queryGraph);
-        } else if (topNode instanceof ExprDotNode && !isOuterJoin) {
-            ExprDotNode dotNode = (ExprDotNode) topNode;
-            analyzeDotNode(dotNode, queryGraph);
+        } else if (topNode instanceof ExprQueryFilterAnalyzerNode) {
+            ExprQueryFilterAnalyzerNode filterAnalyzerNode = (ExprQueryFilterAnalyzerNode) topNode;
+            analyzeFilterAnalyzerNode(filterAnalyzerNode, queryGraph, isOuterJoin);
         } else if (topNode instanceof ExprInNode) {
             ExprInNode inNode = (ExprInNode) topNode;
             analyzeInNode(inNode, queryGraph);
@@ -206,8 +206,8 @@ public class FilterExprAnalyzer {
         return setExpressions;
     }
 
-    private static void analyzeDotNode(ExprDotNode dotNode, QueryGraph queryGraph) {
-        ExprDotNodeFilterAnalyzerDesc interval = dotNode.getExprDotNodeFilterAnalyzerDesc();
+    private static void analyzeFilterAnalyzerNode(ExprQueryFilterAnalyzerNode node, QueryGraph queryGraph, boolean isOuterJoin) {
+        ExprDotNodeFilterAnalyzerDesc interval = node.getExprDotNodeFilterAnalyzerDesc(isOuterJoin);
         if (interval == null) {
             return;
         }

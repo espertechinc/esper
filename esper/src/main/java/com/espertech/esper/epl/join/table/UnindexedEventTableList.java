@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.util.CollectionUtil;
 
@@ -37,7 +38,7 @@ public class UnindexedEventTableList implements EventTable {
         this.streamNum = streamNum;
     }
 
-    public void addRemove(EventBean[] newData, EventBean[] oldData) {
+    public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
         }
@@ -54,7 +55,7 @@ public class UnindexedEventTableList implements EventTable {
         }
     }
 
-    public void add(EventBean[] events) {
+    public void add(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -68,7 +69,7 @@ public class UnindexedEventTableList implements EventTable {
         }
     }
 
-    public void remove(EventBean[] events) {
+    public void remove(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
@@ -86,11 +87,11 @@ public class UnindexedEventTableList implements EventTable {
         }
     }
 
-    public void add(EventBean event) {
+    public void add(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
         eventSet.add(event);
     }
 
-    public void remove(EventBean event) {
+    public void remove(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
         eventSet.remove(event);
     }
 

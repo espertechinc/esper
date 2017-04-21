@@ -45,10 +45,10 @@ public class TestNestedIterationExecNode extends TestCase {
         streamEvents[3] = SupportEventBeanFactory.makeEvents_D(new String[]{"d1", "d2"});
 
         // Fill with data
-        indexes[0].add(streamEvents[0]);
-        indexes[1].add(streamEvents[1]);
-        indexes[2].add(streamEvents[2]);
-        indexes[3].add(streamEvents[3]);
+        indexes[0].add(streamEvents[0], null);
+        indexes[1].add(streamEvents[1], null);
+        indexes[2].add(streamEvents[2], null);
+        indexes[3].add(streamEvents[3], null);
     }
 
     public void testLookup() {

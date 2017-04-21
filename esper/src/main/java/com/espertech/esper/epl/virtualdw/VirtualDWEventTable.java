@@ -12,6 +12,7 @@ package com.espertech.esper.epl.virtualdw;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.hook.VirtualDataWindowLookupFieldDesc;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableOrganization;
 
@@ -33,21 +34,21 @@ public class VirtualDWEventTable implements EventTable {
         this.organization = organization;
     }
 
-    public void addRemove(EventBean[] newData, EventBean[] oldData) {
-        add(newData);
-        remove(oldData);
+    public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
+        add(newData, exprEvaluatorContext);
+        remove(oldData, exprEvaluatorContext);
     }
 
-    public void add(EventBean[] events) {
+    public void add(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
     }
 
-    public void remove(EventBean[] events) {
+    public void remove(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
     }
 
-    public void add(EventBean event) {
+    public void add(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
     }
 
-    public void remove(EventBean event) {
+    public void remove(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
     }
 
     public Iterator<EventBean> iterator() {

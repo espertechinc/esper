@@ -21,6 +21,7 @@ import com.espertech.esper.epl.enummethod.dot.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
+import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodPointInsideRectange;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.variable.VariableMetaData;
@@ -73,6 +74,13 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
     }
 
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
+
+        // check for plannable methods: these are validated according to different rules
+        ExprAppDotMethod appDotMethod = getAppDotMethod();
+        if (appDotMethod != null) {
+            return appDotMethod;
+        }
+
         // validate all parameters
         ExprNodeUtility.validate(ExprNodeOrigin.DOTNODEPARAMETER, chainSpec, validationContext);
 
@@ -413,8 +421,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
         return null;
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getExprDotNodeFilterAnalyzerDesc() {
-        return exprDotNodeFilterAnalyzerDesc;
+    public ExprDotNodeFilterAnalyzerDesc getExprDotNodeFilterAnalyzerDesc(boolean isOuterJoin) {
+        return isOuterJoin ? null : exprDotNodeFilterAnalyzerDesc;
     }
 
     private ExprEvaluator getPropertyPairEvaluator(ExprEvaluator parameterEval, Pair<PropertyResolutionDescriptor, String> propertyInfoPair, ExprValidationContext validationContext)
@@ -504,7 +512,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
         return null;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprDotNodeImpl)) {
             return false;
         }
@@ -536,6 +544,44 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
 
     private ExprValidationException handleNotFound(String name) {
         return new ExprValidationException("Unknown single-row function, expression declaration, script or aggregation function named '" + name + "' could not be resolved");
+    }
+
+    private ExprAppDotMethod getAppDotMethod() throws ExprValidationException {
+        if (chainSpec.size() < 2) {
+            return null;
+        }
+        String lhsName = chainSpec.get(0).getName().toLowerCase(Locale.ENGLISH);
+        if (!lhsName.equals("point")) {
+            return null;
+        }
+        String operationName = chainSpec.get(1).getName().toLowerCase(Locale.ENGLISH);
+        if (!operationName.equals("inside")) {
+            return null;
+        }
+        if (chainSpec.get(1).getParameters().size() != 1) {
+            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+        }
+        ExprNode param = chainSpec.get(1).getParameters().get(0);
+        if (!(param instanceof ExprDotNode)) {
+            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+        }
+        ExprDotNode compared = (ExprDotNode) chainSpec.get(1).getParameters().get(0);
+        if (compared.getChainSpec().size() != 1) {
+            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+        }
+        String rhsName = compared.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH);
+        if (!rhsName.equals("rectangle")) {
+            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+        }
+
+        ExprNode[] lhs = ExprNodeUtility.toArray(chainSpec.get(0).getParameters());
+        ExprNode[] rhs = ExprNodeUtility.toArray(compared.getChainSpec().get(0).getParameters());
+        EngineImportApplicationDotMethodPointInsideRectange special = new EngineImportApplicationDotMethodPointInsideRectange(lhsName, lhs, operationName, rhsName, rhs);
+        return new ExprAppDotMethod(special);
+    }
+
+    private ExprValidationException getAppDocMethodException(String lhsName, String operationName, String rectangle) {
+        return new ExprValidationException(lhsName + "." + operationName + " requires a single rectangle as parameter");
     }
 }
 

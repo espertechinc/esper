@@ -137,6 +137,8 @@
 
     <xi:include href="modules/datetimereference.xml" />
 
+    <xi:include href="modules/spatial.xml" />
+
     <xi:include href="modules/viewreference.xml" />
 
     <xi:include href="modules/dataflow.xml" />

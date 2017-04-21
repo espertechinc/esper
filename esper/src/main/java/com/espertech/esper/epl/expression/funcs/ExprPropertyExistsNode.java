@@ -75,7 +75,7 @@ public class ExprPropertyExistsNode extends ExprNodeBase implements ExprEvaluato
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprPropertyExistsNode)) {
             return false;
         }

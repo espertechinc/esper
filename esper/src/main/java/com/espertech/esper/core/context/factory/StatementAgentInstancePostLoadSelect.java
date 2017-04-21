@@ -77,7 +77,7 @@ public class StatementAgentInstancePostLoadSelect implements StatementAgentInsta
             }
             events[stream] = eventsInWindow.toArray(new EventBean[eventsInWindow.size()]);
         }
-        joinSetComposer.getJoinSetComposer().init(events);
+        joinSetComposer.getJoinSetComposer().init(events, exprEvaluatorContext);
     }
 
     public void acceptIndexVisitor(StatementAgentInstancePostLoadIndexVisitor visitor) {

@@ -74,7 +74,7 @@ public class UnivariateStatisticsViewFactory implements ViewFactory {
         }
 
         UnivariateStatisticsView other = (UnivariateStatisticsView) view;
-        if (!ExprNodeUtility.deepEquals(other.getFieldExpression(), fieldExpression)) {
+        if (!ExprNodeUtility.deepEquals(other.getFieldExpression(), fieldExpression, false)) {
             return false;
         }
 

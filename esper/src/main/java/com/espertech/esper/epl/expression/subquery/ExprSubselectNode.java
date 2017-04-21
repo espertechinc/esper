@@ -238,7 +238,7 @@ public abstract class ExprSubselectNode extends ExprNodeBase implements ExprEval
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return false;   // 2 subselects are never equivalent
     }
 

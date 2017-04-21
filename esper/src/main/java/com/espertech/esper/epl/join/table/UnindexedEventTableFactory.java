@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.epl.join.table;
 
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+
 /**
  * Factory for simple table of events without an index.
  */
@@ -20,7 +22,7 @@ public class UnindexedEventTableFactory implements EventTableFactory {
         this.streamNum = streamNum;
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         return new EventTable[]{new UnindexedEventTableImpl(streamNum)};
     }
 

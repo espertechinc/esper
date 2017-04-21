@@ -73,7 +73,7 @@ public class ExprNumberSetCronParam extends ExprNodeBase implements ExprEvaluato
         return this.getChildNodes()[0].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprNumberSetCronParam)) {
             return false;
         }

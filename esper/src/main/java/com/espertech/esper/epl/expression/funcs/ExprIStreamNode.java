@@ -62,7 +62,7 @@ public class ExprIStreamNode extends ExprNodeBase implements ExprEvaluator {
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprIStreamNode)) {
             return false;
         }

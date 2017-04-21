@@ -10,29 +10,35 @@
  */
 package com.espertech.esper.epl.spec;
 
+import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.util.MetaDefItem;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Specification for creating a named window index column.
  */
 public class CreateIndexItem implements MetaDefItem, Serializable {
-    private static final long serialVersionUID = -3552356958442063252L;
+    private final List<ExprNode> expressions;
+    private final String type;
+    private final List<ExprNode> parameters;
 
-    private final String name;
-    private final CreateIndexType type;
-
-    public CreateIndexItem(String name, CreateIndexType type) {
-        this.name = name;
+    public CreateIndexItem(List<ExprNode> expressions, String type, List<ExprNode> parameters) {
+        this.expressions = expressions;
         this.type = type;
+        this.parameters = parameters;
     }
 
-    public String getName() {
-        return name;
+    public List<ExprNode> getExpressions() {
+        return expressions;
     }
 
-    public CreateIndexType getType() {
+    public String getType() {
         return type;
+    }
+
+    public List<ExprNode> getParameters() {
+        return parameters;
     }
 }

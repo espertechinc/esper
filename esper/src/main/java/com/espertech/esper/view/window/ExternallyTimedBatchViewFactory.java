@@ -100,7 +100,7 @@ public class ExternallyTimedBatchViewFactory implements DataWindowBatchingViewFa
         ExternallyTimedBatchView myView = (ExternallyTimedBatchView) view;
         ExprTimePeriodEvalDeltaConst delta = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!delta.equalsTimePeriod(myView.getTimeDeltaComputation())) ||
-                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression))) {
+                (!ExprNodeUtility.deepEquals(myView.getTimestampExpression(), timestampExpression, false))) {
             return false;
         }
         return myView.isEmpty();

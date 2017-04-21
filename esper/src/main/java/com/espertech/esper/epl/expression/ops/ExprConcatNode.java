@@ -69,7 +69,7 @@ public class ExprConcatNode extends ExprNodeBase {
         return ExprPrecedenceEnum.CONCAT;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprConcatNode)) {
             return false;
         }

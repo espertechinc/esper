@@ -54,7 +54,7 @@ public class JoinSetComposerImpl implements JoinSetComposer {
         return allowInitIndex;
     }
 
-    public void init(EventBean[][] eventsPerStream) {
+    public void init(EventBean[][] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         if (!allowInitIndex) {
             throw new IllegalStateException("Initialization by events not supported");
         }
@@ -62,7 +62,7 @@ public class JoinSetComposerImpl implements JoinSetComposer {
         for (int i = 0; i < eventsPerStream.length; i++) {
             if (eventsPerStream[i] != null) {
                 for (int j = 0; j < repositories[i].length; j++) {
-                    repositories[i][j].add(eventsPerStream[i]);
+                    repositories[i][j].add(eventsPerStream[i], exprEvaluatorContext);
                 }
             }
         }
@@ -109,7 +109,7 @@ public class JoinSetComposerImpl implements JoinSetComposer {
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().qJoinCompositionStepUpdIndex(stream, newDataPerStream[stream], oldDataPerStream[stream]);
                 }
-                repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream]);
+                repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream], exprEvaluatorContext);
                 if (InstrumentationHelper.ENABLED) {
                     InstrumentationHelper.get().aJoinCompositionStepUpdIndex();
                 }

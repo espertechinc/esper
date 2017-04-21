@@ -234,13 +234,13 @@ public class ExprDeclaredNodeImpl extends ExprNodeBase implements ExprDeclaredNo
         return false;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprDeclaredNodeImpl)) {
             return false;
         }
 
         ExprDeclaredNodeImpl otherExprCaseNode = (ExprDeclaredNodeImpl) node;
-        return ExprNodeUtility.deepEquals(expressionBodyCopy, otherExprCaseNode);
+        return ExprNodeUtility.deepEquals(expressionBodyCopy, otherExprCaseNode, false);
     }
 
     public void accept(ExprNodeVisitor visitor) {

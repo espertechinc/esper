@@ -56,7 +56,7 @@ public class TestExprPriorNode extends TestCase {
 
     public void testEquals() throws Exception {
         ExprPriorNode node1 = new ExprPriorNode();
-        assertTrue(node1.equalsNode(priorNode));
+        assertTrue(node1.equalsNode(priorNode, false));
     }
 
     public void testToExpressionString() throws Exception {

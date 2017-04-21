@@ -247,7 +247,7 @@ public class StatementAgentInstanceUtil {
 
             // execute preloads, if any
             for (StatementAgentInstancePreload preload : startResult.getPreloadList()) {
-                preload.executePreload();
+                preload.executePreload(agentInstanceContext);
             }
 
             if (statementContext.getStatementExtensionServicesContext() != null && statementContext.getStatementExtensionServicesContext().getStmtResources() != null) {

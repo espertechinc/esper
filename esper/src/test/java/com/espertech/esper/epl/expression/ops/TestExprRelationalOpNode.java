@@ -12,9 +12,6 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprOrNode;
-import com.espertech.esper.epl.expression.ops.ExprRelationalOpNode;
-import com.espertech.esper.epl.expression.ops.ExprRelationalOpNodeImpl;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.RelationalOpEnum;
@@ -109,8 +106,8 @@ public class TestExprRelationalOpNode extends TestCase {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(opNode.equalsNode(opNode));
-        assertFalse(opNode.equalsNode(new ExprRelationalOpNodeImpl(RelationalOpEnum.LE)));
-        assertFalse(opNode.equalsNode(new ExprOrNode()));
+        assertTrue(opNode.equalsNode(opNode, false));
+        assertFalse(opNode.equalsNode(new ExprRelationalOpNodeImpl(RelationalOpEnum.LE), false));
+        assertFalse(opNode.equalsNode(new ExprOrNode(), false));
     }
 }

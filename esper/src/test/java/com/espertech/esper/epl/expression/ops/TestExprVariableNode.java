@@ -15,7 +15,6 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.core.ExprVariableNodeImpl;
-import com.espertech.esper.epl.expression.ops.ExprInNode;
 import com.espertech.esper.epl.variable.VariableService;
 import com.espertech.esper.epl.variable.VariableServiceImpl;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -50,11 +49,11 @@ public class TestExprVariableNode extends TestCase {
         ExprVariableNodeImpl otherVarTwo = new ExprVariableNodeImpl(variableService.getVariableMetaData("var1"), null);
         ExprVariableNodeImpl otherVarThree = new ExprVariableNodeImpl(variableService.getVariableMetaData("var1"), "abc");
 
-        assertTrue(varNode.equalsNode(varNode));
-        assertTrue(varNode.equalsNode(otherVarTwo));
-        assertFalse(varNode.equalsNode(otherVarOne));
-        assertFalse(varNode.equalsNode(otherInNode));
-        assertFalse(otherVarTwo.equalsNode(otherVarThree));
+        assertTrue(varNode.equalsNode(varNode, false));
+        assertTrue(varNode.equalsNode(otherVarTwo, false));
+        assertFalse(varNode.equalsNode(otherVarOne, false));
+        assertFalse(varNode.equalsNode(otherInNode, false));
+        assertFalse(otherVarTwo.equalsNode(otherVarThree, false));
     }
 
     public void testToExpressionString() throws Exception {

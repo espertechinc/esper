@@ -50,8 +50,8 @@ public class TestExprAvgNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest));
-        assertFalse(validatedNodeToTest.equalsNode(new ExprSumNode(false)));
+        assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest, false));
+        assertFalse(validatedNodeToTest.equalsNode(new ExprSumNode(false), false));
     }
 
     private ExprAvgNode makeNode(Object value, Class type, boolean isDistinct) throws Exception {

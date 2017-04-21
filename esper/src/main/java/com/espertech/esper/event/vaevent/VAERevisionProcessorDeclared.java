@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
@@ -87,7 +88,7 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
 
             // Insert into indexes for fast deletion, if there are any
             for (EventTable table : indexRepository.getTables()) {
-                table.remove(oldData);
+                table.remove(oldData, namedWindowRootView.getAgentInstanceContext());
             }
 
             // make as not the latest event since its due for removal
@@ -157,7 +158,7 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
 
             // Insert into indexes for fast deletion, if there are any
             for (EventTable table : indexRepository.getTables()) {
-                table.add(newData);
+                table.add(newData, namedWindowRootView.getAgentInstanceContext());
             }
 
             // post to data window
@@ -205,8 +206,8 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
 
         // update indexes
         for (EventTable table : indexRepository.getTables()) {
-            table.remove(oldDataPost);
-            table.add(newDataPost);
+            table.remove(oldDataPost, namedWindowRootView.getAgentInstanceContext());
+            table.add(newDataPost, namedWindowRootView.getAgentInstanceContext());
         }
 
         // keep reference to last event
@@ -235,7 +236,7 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
         }
     }
 
-    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository) {
+    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository, AgentInstanceContext agentInstanceContext) {
         for (int i = 0; i < oldData.length; i++) {
             RevisionEventBeanDeclared theEvent = (RevisionEventBeanDeclared) oldData[i];
 
@@ -245,7 +246,7 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
                 statePerKey.remove(key);
 
                 for (EventTable table : indexRepository.getTables()) {
-                    table.remove(oldData);
+                    table.remove(oldData, agentInstanceContext);
                 }
             }
         }

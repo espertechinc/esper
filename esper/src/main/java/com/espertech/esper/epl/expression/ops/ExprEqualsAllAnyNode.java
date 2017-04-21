@@ -668,7 +668,7 @@ public class ExprEqualsAllAnyNode extends ExprNodeBase implements ExprEvaluator 
         return ExprPrecedenceEnum.EQUALS;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprEqualsAllAnyNode)) {
             return false;
         }

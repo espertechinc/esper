@@ -87,7 +87,7 @@ public class TimeOrderViewFactory implements DataWindowViewFactory, DataWindowVi
         TimeOrderView other = (TimeOrderView) view;
         ExprTimePeriodEvalDeltaConst timeDeltaComputation = timeDeltaComputationFactory.make(getViewName(), "view", agentInstanceContext);
         if ((!timeDeltaComputation.equalsTimePeriod(other.getTimeDeltaComputation())) ||
-                (!ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression))) {
+                (!ExprNodeUtility.deepEquals(other.getTimestampExpression(), timestampExpression, false))) {
             return false;
         }
 

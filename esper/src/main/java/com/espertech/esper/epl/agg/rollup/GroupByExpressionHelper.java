@@ -43,7 +43,7 @@ public class GroupByExpressionHelper {
             for (int i = 0; i < distinctGroupByExpressions.size(); i++) {
                 ExprNode other = distinctGroupByExpressions.get(i);
                 // find same expression
-                if (ExprNodeUtility.deepEquals(exprNode, other)) {
+                if (ExprNodeUtility.deepEquals(exprNode, other, false)) {
                     expressionToIndex.put(exprNode, i);
                     found = true;
                     break;

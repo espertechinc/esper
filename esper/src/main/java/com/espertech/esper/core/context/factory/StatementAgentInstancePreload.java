@@ -10,7 +10,9 @@
  */
 package com.espertech.esper.core.context.factory;
 
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+
 public interface StatementAgentInstancePreload {
 
-    public void executePreload();
+    public void executePreload(ExprEvaluatorContext exprEvaluatorContext);
 }

@@ -138,7 +138,7 @@ public class EPStatementStartMethodCreateContext extends EPStatementStartMethodB
                 StreamTypeServiceImpl types = new StreamTypeServiceImpl(filter.getFilterSpecCompiled().getFilterForEventType(), filter.getOptionalFilterAsName(), true, servicesContext.getEngineURI());
                 ExprValidationContext validationContext = new ExprValidationContext(types, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getSchedulingService(), statementContext.getVariableService(), statementContext.getTableService(), getDefaultAgentInstanceContext(statementContext), statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, false);
                 for (int i = 0; i < distinctExpressions.length; i++) {
-                    ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTEXTDISTINCT, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(distinctExpressions[i]), distinctExpressions[i]);
+                    ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i]);
                     distinctExpressions[i] = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CONTEXTDISTINCT, distinctExpressions[i], validationContext);
                 }
             }

@@ -118,7 +118,7 @@ public class ExprBitWiseNode extends ExprNodeBase implements ExprEvaluator {
         return bitWiseOpEnumComputer.compute(valueChildOne, valueChildTwo);
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprBitWiseNode)) {
             return false;
         }

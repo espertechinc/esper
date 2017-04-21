@@ -13,6 +13,7 @@ package com.espertech.esper.event.vaevent;
 import com.espertech.esper.client.ConfigurationVariantStream;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
@@ -104,7 +105,7 @@ public class VAEVariantProcessor implements ValueAddEventProcessor {
         throw new UnsupportedOperationException();
     }
 
-    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository) {
+    public void removeOldData(EventBean[] oldData, EventTableIndexRepository indexRepository, AgentInstanceContext agentInstanceContext) {
         throw new UnsupportedOperationException();
     }
 

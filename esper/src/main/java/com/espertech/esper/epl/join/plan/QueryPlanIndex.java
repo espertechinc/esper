@@ -57,7 +57,7 @@ public class QueryPlanIndex {
      */
     protected Pair<TableLookupIndexReqKey, int[]> getIndexNum(String[] indexProps, String[] rangeProps) {
         // find an exact match first
-        QueryPlanIndexItem proposed = new QueryPlanIndexItem(indexProps, null, rangeProps, null, false);
+        QueryPlanIndexItem proposed = new QueryPlanIndexItem(indexProps, null, rangeProps, null, false, null);
         for (Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> entry : items.entrySet()) {
             if (entry.getValue().equalsCompareSortedProps(proposed)) {
                 return new Pair<TableLookupIndexReqKey, int[]>(entry.getKey(), null);
@@ -90,7 +90,7 @@ public class QueryPlanIndex {
      */
     public String addIndex(String[] indexProperties, Class[] coercionTypes) {
         String uuid = UuidGenerator.generate();
-        items.put(new TableLookupIndexReqKey(uuid), new QueryPlanIndexItem(indexProperties, coercionTypes, null, null, false));
+        items.put(new TableLookupIndexReqKey(uuid), new QueryPlanIndexItem(indexProperties, coercionTypes, null, null, false, null));
         return uuid;
     }
 

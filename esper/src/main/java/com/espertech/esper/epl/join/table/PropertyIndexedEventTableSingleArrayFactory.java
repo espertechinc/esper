@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.EventBeanUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class PropertyIndexedEventTableSingleArrayFactory implements EventTableFa
         }
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTable[] tables = new EventTable[propertyGetters.length];
         if (unique) {
             for (int i = 0; i < tables.length; i++) {

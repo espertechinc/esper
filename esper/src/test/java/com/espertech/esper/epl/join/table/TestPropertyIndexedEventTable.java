@@ -33,7 +33,7 @@ public class TestPropertyIndexedEventTable extends TestCase {
         propertyNames = new String[]{"intPrimitive", "theString"};
         eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, eventType, propertyNames, false, null);
-        index = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
+        index = (PropertyIndexedEventTable) factory.makeEventTables(null, null)[0];
 
         // Populate with testEvents
         int intValues[] = new int[]{0, 1, 1, 2, 1, 0};
@@ -45,7 +45,7 @@ public class TestPropertyIndexedEventTable extends TestCase {
             testEvents[i] = makeBean(intValues[i], stringValues[i]);
             testEventsUnd[i] = testEvents[i].getUnderlying();
         }
-        index.add(testEvents);
+        index.add(testEvents, null);
     }
 
     public void testFind() {
@@ -70,7 +70,7 @@ public class TestPropertyIndexedEventTable extends TestCase {
         // Add event without these properties should fail
         EventBean theEvent = SupportEventBeanFactory.createObject(new SupportBean_A("d"));
         try {
-            index.add(new EventBean[]{theEvent});
+            index.add(new EventBean[]{theEvent}, null);
             TestCase.fail();
         } catch (PropertyAccessException ex) {
             // Expected
@@ -78,7 +78,7 @@ public class TestPropertyIndexedEventTable extends TestCase {
 
         // Add null should fail
         try {
-            index.add(new EventBean[]{null});
+            index.add(new EventBean[]{null}, null);
             TestCase.fail();
         } catch (NullPointerException ex) {
             // Expected
@@ -86,35 +86,35 @@ public class TestPropertyIndexedEventTable extends TestCase {
     }
 
     public void testRemove() {
-        index.remove(testEvents);
+        index.remove(testEvents, null);
     }
 
     public void testAddArray() {
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(1, eventType, propertyNames, false, null);
-        index = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
+        index = (PropertyIndexedEventTable) factory.makeEventTables(null, null)[0];
 
         // Add just 2
         EventBean[] events = new EventBean[2];
         events[0] = testEvents[1];
         events[1] = testEvents[4];
-        index.add(events);
+        index.add(events, null);
 
         Set<EventBean> result = index.lookup(new Object[]{1, "b"});
         assertEquals(2, result.size());
     }
 
     public void testRemoveArray() {
-        index.remove(testEvents);
+        index.remove(testEvents, null);
 
         Set<EventBean> result = index.lookup(new Object[]{1, "b"});
         assertNull(result);
 
         // Remove again - already removed but won't throw an exception
-        index.remove(testEvents);
+        index.remove(testEvents, null);
     }
 
     public void testMixed() {
-        index.remove(new EventBean[]{testEvents[1]});
+        index.remove(new EventBean[]{testEvents[1]}, null);
         Set<EventBean> result = index.lookup(new Object[]{1, "b"});
         assertEquals(1, result.size());
         assertTrue(result.contains(testEvents[4]));
@@ -123,7 +123,7 @@ public class TestPropertyIndexedEventTable extends TestCase {
         Object[] underlying = EPAssertionUtil.iteratorToArrayUnderlying(index.iterator());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{testEventsUnd[0], testEventsUnd[2], testEventsUnd[3], testEventsUnd[4], testEventsUnd[5]}, underlying);
 
-        index.remove(new EventBean[]{testEvents[4]});
+        index.remove(new EventBean[]{testEvents[4]}, null);
         result = index.lookup(new Object[]{1, "b"});
         assertNull(result);
 
@@ -131,7 +131,7 @@ public class TestPropertyIndexedEventTable extends TestCase {
         underlying = EPAssertionUtil.iteratorToArrayUnderlying(index.iterator());
         EPAssertionUtil.assertEqualsAnyOrder(new Object[]{testEventsUnd[0], testEventsUnd[2], testEventsUnd[3], testEventsUnd[5]}, underlying);
 
-        index.add(new EventBean[]{testEvents[1]});
+        index.add(new EventBean[]{testEvents[1]}, null);
         result = index.lookup(new Object[]{1, "b"});
         assertEquals(1, result.size());
         assertTrue(result.contains(testEvents[1]));

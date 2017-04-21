@@ -12,9 +12,6 @@ package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprAndNode;
-import com.espertech.esper.epl.expression.ops.ExprAndNodeImpl;
-import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.supportunit.epl.SupportBoolExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
@@ -79,7 +76,7 @@ public class TestExprAndNode extends TestCase {
     }
 
     public void testEqualsNode() {
-        assertTrue(andNode.equalsNode(new ExprAndNodeImpl()));
-        assertFalse(andNode.equalsNode(new ExprOrNode()));
+        assertTrue(andNode.equalsNode(new ExprAndNodeImpl(), false));
+        assertFalse(andNode.equalsNode(new ExprOrNode(), false));
     }
 }

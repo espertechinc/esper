@@ -2005,11 +2005,6 @@ match_recognize (
 					When using <literal>match_recognize</literal> on unbound streams (no data window provided) the <literal>iterator</literal> pull API returns no rows.
 				</para>
 			</listitem>
-			<listitem>
-				<para>
-					A Statement Object Model API for <literal>match_recognize</literal> is not yet available.
-				</para>
-			</listitem>
 		</orderedlist>
 		
 	</sect1>

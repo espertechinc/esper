@@ -67,8 +67,8 @@ public class TestExprStreamUnderlyingNode extends TestCase {
 
     public void testEqualsNode() throws Exception {
         node.validate(SupportExprValidationContextFactory.make(streamTypeService));
-        assertTrue(node.equalsNode(new ExprStreamUnderlyingNodeImpl("s0", false)));
-        assertFalse(node.equalsNode(new ExprStreamUnderlyingNodeImpl("xxx", false)));
+        assertTrue(node.equalsNode(new ExprStreamUnderlyingNodeImpl("s0", false), false));
+        assertFalse(node.equalsNode(new ExprStreamUnderlyingNodeImpl("xxx", false), false));
     }
 
     protected static EventBean makeEvent(int intPrimitive) {

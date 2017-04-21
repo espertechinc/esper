@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.pollindex;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentStmt;
@@ -47,10 +48,11 @@ public class PollResultIndexingStrategyIndexSingleArray implements PollResultInd
             return new EventTable[]{new UnindexedEventTableList(pollResult, streamNum)};
         }
         EventTable[] tables = new EventTable[propertyNames.length];
+        ExprEvaluatorContextStatement evaluatorContextStatement = new ExprEvaluatorContextStatement(statementContext, false);
         for (int i = 0; i < propertyNames.length; i++) {
             PropertyIndexedEventTableSingleFactory factory = new PropertyIndexedEventTableSingleFactory(streamNum, eventType, propertyNames[i], false, null);
-            tables[i] = factory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext))[0];
-            tables[i].add(pollResult.toArray(new EventBean[pollResult.size()]));
+            tables[i] = factory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext), evaluatorContextStatement)[0];
+            tables[i].add(pollResult.toArray(new EventBean[pollResult.size()]), evaluatorContextStatement);
         }
         return tables;
     }

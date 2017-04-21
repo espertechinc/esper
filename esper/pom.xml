@@ -115,6 +115,7 @@
 					<target>1.8</target>
 					<!-- <showDeprecation>true</showDeprecation> -->
 					<skip>false</skip>
+					<useIncrementalCompilation>false</useIncrementalCompilation>
 					<compilerArgument>-XDignore.symbol.file</compilerArgument>
 				</configuration>
 			</plugin>

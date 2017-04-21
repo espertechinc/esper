@@ -43,6 +43,8 @@ public enum ExprNodeOrigin {
     CONTAINEDEVENT("contained-event"),
     CREATEWINDOWFILTER("create-window filter"),
     CREATETABLECOLUMN("table-column"),
+    CREATEINDEXCOLUMN("create-index index-column"),
+    CREATEINDEXPARAMETER("create-index index-parameter"),
     SUBQUERYSELECT("subquery select-clause"),
     FILTER("filter"),
     FORCLAUSE("for-clause"),

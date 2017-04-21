@@ -329,7 +329,7 @@ public class GroupByViewImpl extends ViewSupport implements CloneableView, Group
             // Determine if view is our merge view
             if (subView instanceof MergeViewMarker) {
                 MergeViewMarker mergeView = (MergeViewMarker) subView;
-                if (ExprNodeUtility.deepEquals(mergeView.getGroupFieldNames(), criteriaExpressions)) {
+                if (ExprNodeUtility.deepEquals(mergeView.getGroupFieldNames(), criteriaExpressions, false)) {
                     if (mergeView.getEventType() != copyView.getEventType()) {
                         // We found our merge view - install a new data merge view on top of it
                         AddPropertyValueOptionalView addPropertyView = new AddPropertyValueOptionalView(agentInstanceContext, propertyNames, groupByValues, mergeView.getEventType());

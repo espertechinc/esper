@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 public class PropertySortedEventTableCoercedFactory extends PropertySortedEventTableFactory {
     protected Class coercionType;
@@ -29,7 +30,7 @@ public class PropertySortedEventTableCoercedFactory extends PropertySortedEventT
     }
 
     @Override
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTableOrganization organization = getOrganization();
         return new EventTable[]{new PropertySortedEventTableCoerced(propertyGetter, organization, coercionType)};
     }

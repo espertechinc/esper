@@ -15,8 +15,6 @@ import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprConcatNode;
-import com.espertech.esper.epl.expression.ops.ExprMathNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeUtil;
 import com.espertech.esper.type.MathArithTypeEnum;
@@ -76,8 +74,8 @@ public class TestExprConcatNode extends TestCase {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(concatNode.equalsNode(concatNode));
-        assertFalse(concatNode.equalsNode(new ExprMathNode(MathArithTypeEnum.DIVIDE, false, false)));
+        assertTrue(concatNode.equalsNode(concatNode, false));
+        assertFalse(concatNode.equalsNode(new ExprMathNode(MathArithTypeEnum.DIVIDE, false, false), false));
     }
 
     public void testThreading() throws Exception {

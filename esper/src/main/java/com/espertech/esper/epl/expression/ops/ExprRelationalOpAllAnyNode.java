@@ -338,7 +338,7 @@ public class ExprRelationalOpAllAnyNode extends ExprNodeBase implements ExprEval
         return ExprPrecedenceEnum.RELATIONAL_BETWEEN_IN;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprRelationalOpAllAnyNode)) {
             return false;
         }

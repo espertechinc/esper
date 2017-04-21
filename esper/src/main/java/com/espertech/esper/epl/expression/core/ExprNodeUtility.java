@@ -84,7 +84,7 @@ public class ExprNodeUtility {
         for (ExprNode subsetNode : subset) {
             boolean found = false;
             for (ExprNode supersetNode : superset) {
-                if (deepEquals(subsetNode, supersetNode)) {
+                if (deepEquals(subsetNode, supersetNode, false)) {
                     found = true;
                     break;
                 }
@@ -106,7 +106,7 @@ public class ExprNodeUtility {
         for (ExprNode one : setOne) {
             boolean found = false;
             for (int i = 0; i < setTwo.length; i++) {
-                if (deepEquals(one, setTwo[i])) {
+                if (deepEquals(one, setTwo[i], false)) {
                     found = true;
                     foundTwo[i] = true;
                 }
@@ -122,7 +122,7 @@ public class ExprNodeUtility {
                 continue;
             }
             for (ExprNode one : setOne) {
-                if (deepEquals(one, setTwo[i])) {
+                if (deepEquals(one, setTwo[i], false)) {
                     break;
                 }
             }
@@ -166,15 +166,29 @@ public class ExprNodeUtility {
         }
     }
 
-    public static String toExpressionStringMinPrecedence(ExprNode[] nodes) {
+    public static String[] toExpressionStringMinPrecedenceAsArray(ExprNode[] nodes) {
+        String[] expressions = new String[nodes.length];
+        for (int i = 0; i < expressions.length; i++) {
+            StringWriter writer = new StringWriter();
+            nodes[i].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            expressions[i] = writer.toString();
+        }
+        return expressions;
+    }
+
+    public static String toExpressionStringMinPrecedenceAsList(ExprNode[] nodes) {
         StringWriter writer = new StringWriter();
+        toExpressionStringMinPrecedenceAsList(nodes, writer);
+        return writer.toString();
+    }
+
+    public static void toExpressionStringMinPrecedenceAsList(ExprNode[] nodes, StringWriter writer) {
         String delimiter = "";
         for (ExprNode node : nodes) {
             writer.append(delimiter);
             node.toEPL(writer, ExprPrecedenceEnum.MINIMUM);
             delimiter = ",";
         }
-        return writer.toString();
     }
 
     public static Pair<String, ExprNode> checkGetAssignmentToProp(ExprNode node) {
@@ -787,18 +801,30 @@ public class ExprNodeUtility {
         return new ExprNodeUtilMethodDesc(allConstants, paramTypes, childEvals, method, staticMethod, null);
     }
 
-    public static void validatePlainExpression(ExprNodeOrigin origin, String expressionTextualName, ExprNode expression) throws ExprValidationException {
+    public static void validatePlainExpression(ExprNodeOrigin origin, ExprNode expression) throws ExprValidationException {
         ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
+        validatePlainExpression(origin, expression, summaryVisitor);
+    }
+
+    public static void validatePlainExpression(ExprNodeOrigin origin, ExprNode[] expressions) throws ExprValidationException {
+        ExprNodeSummaryVisitor summaryVisitor = new ExprNodeSummaryVisitor();
+        for (ExprNode expression : expressions) {
+            validatePlainExpression(origin, expression, summaryVisitor);
+        }
+    }
+
+    private static void validatePlainExpression(ExprNodeOrigin origin, ExprNode expression, ExprNodeSummaryVisitor summaryVisitor) throws ExprValidationException {
         expression.accept(summaryVisitor);
         if (summaryVisitor.isHasAggregation() || summaryVisitor.isHasSubselect() || summaryVisitor.isHasStreamSelect() || summaryVisitor.isHasPreviousPrior()) {
-            throw new ExprValidationException("Invalid " + origin.getClauseName() + " expression '" + expressionTextualName + "': Aggregation, sub-select, previous or prior functions are not supported in this context");
+            String text = toExpressionStringMinPrecedenceSafe(expression);
+            throw new ExprValidationException("Invalid " + origin.getClauseName() + " expression '" + text + "': Aggregation, sub-select, previous or prior functions are not supported in this context");
         }
     }
 
     public static ExprNode validateSimpleGetSubtree(ExprNodeOrigin origin, ExprNode expression, StatementContext statementContext, EventType optionalEventType, boolean allowBindingConsumption)
             throws ExprValidationException {
 
-        ExprNodeUtility.validatePlainExpression(origin, toExpressionStringMinPrecedenceSafe(expression), expression);
+        ExprNodeUtility.validatePlainExpression(origin, expression);
 
         StreamTypeServiceImpl streamTypes;
         if (optionalEventType != null) {
@@ -839,7 +865,7 @@ public class ExprNodeUtility {
 
     public static List<Pair<ExprNode, ExprNode>> findExpression(ExprNode selectExpression, ExprNode searchExpression) {
         List<Pair<ExprNode, ExprNode>> pairs = new ArrayList<Pair<ExprNode, ExprNode>>();
-        if (deepEquals(selectExpression, searchExpression)) {
+        if (deepEquals(selectExpression, searchExpression, false)) {
             pairs.add(new Pair<ExprNode, ExprNode>(null, selectExpression));
             return pairs;
         }
@@ -849,7 +875,7 @@ public class ExprNodeUtility {
 
     private static void findExpressionChildRecursive(ExprNode parent, ExprNode searchExpression, List<Pair<ExprNode, ExprNode>> pairs) {
         for (ExprNode child : parent.getChildNodes()) {
-            if (deepEquals(child, searchExpression)) {
+            if (deepEquals(child, searchExpression, false)) {
                 pairs.add(new Pair<ExprNode, ExprNode>(parent, child));
                 continue;
             }
@@ -1313,20 +1339,21 @@ public class ExprNodeUtility {
      *
      * @param nodeOne - first expression top node of the tree to compare
      * @param nodeTwo - second expression top node of the tree to compare
+     * @param ignoreStreamPrefix when the equals-comparison can ignore prefix of event properties
      * @return false if this or all child nodes are not equal, true if equal
      */
-    public static boolean deepEquals(ExprNode nodeOne, ExprNode nodeTwo) {
+    public static boolean deepEquals(ExprNode nodeOne, ExprNode nodeTwo, boolean ignoreStreamPrefix) {
         if (nodeOne.getChildNodes().length != nodeTwo.getChildNodes().length) {
             return false;
         }
-        if (!nodeOne.equalsNode(nodeTwo)) {
+        if (!nodeOne.equalsNode(nodeTwo, ignoreStreamPrefix)) {
             return false;
         }
         for (int i = 0; i < nodeOne.getChildNodes().length; i++) {
             ExprNode childNodeOne = nodeOne.getChildNodes()[i];
             ExprNode childNodeTwo = nodeTwo.getChildNodes()[i];
 
-            if (!ExprNodeUtility.deepEquals(childNodeOne, childNodeTwo)) {
+            if (!ExprNodeUtility.deepEquals(childNodeOne, childNodeTwo, ignoreStreamPrefix)) {
                 return false;
             }
         }
@@ -1339,14 +1366,15 @@ public class ExprNodeUtility {
      *
      * @param one array of expressions
      * @param two array of expressions
+     * @param ignoreStreamPrefix indicator whether we ignore stream prefixes and instead use resolved property name
      * @return true if the expressions are equal, false if not
      */
-    public static boolean deepEquals(ExprNode[] one, ExprNode[] two) {
+    public static boolean deepEquals(ExprNode[] one, ExprNode[] two, boolean ignoreStreamPrefix) {
         if (one.length != two.length) {
             return false;
         }
         for (int i = 0; i < one.length; i++) {
-            if (!ExprNodeUtility.deepEquals(one[i], two[i])) {
+            if (!ExprNodeUtility.deepEquals(one[i], two[i], ignoreStreamPrefix)) {
                 return false;
             }
         }
@@ -1358,7 +1386,7 @@ public class ExprNodeUtility {
             return false;
         }
         for (int i = 0; i < one.size(); i++) {
-            if (!ExprNodeUtility.deepEquals(one.get(i), two.get(i))) {
+            if (!ExprNodeUtility.deepEquals(one.get(i), two.get(i), false)) {
                 return false;
             }
         }

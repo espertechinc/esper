@@ -68,7 +68,7 @@ public class FirstUniqueByPropertyViewFactory implements AsymetricDataWindowView
         }
 
         FirstUniqueByPropertyView myView = (FirstUniqueByPropertyView) view;
-        if (!ExprNodeUtility.deepEquals(criteriaExpressions, myView.getUniqueCriteria())) {
+        if (!ExprNodeUtility.deepEquals(criteriaExpressions, myView.getUniqueCriteria(), false)) {
             return false;
         }
 

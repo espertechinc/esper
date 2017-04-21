@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.base;
 
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.internal.BufferView;
 
 /**
@@ -21,8 +22,9 @@ public interface JoinPreloadMethod {
      * Initialize a stream from the stream buffers data.
      *
      * @param stream to initialize and load indexes
+     * @param exprEvaluatorContext evaluator context
      */
-    public void preloadFromBuffer(int stream);
+    public void preloadFromBuffer(int stream, ExprEvaluatorContext exprEvaluatorContext);
 
     /**
      * Initialize the result set process for the purpose of grouping and aggregation

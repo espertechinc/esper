@@ -50,7 +50,7 @@ public class ExprNamedParameterNodeImpl extends ExprNodeBase implements ExprName
         return false;
     }
 
-    public boolean equalsNode(ExprNode other) {
+    public boolean equalsNode(ExprNode other, boolean ignoreStreamPrefix) {
         if (!(other instanceof ExprNamedParameterNode)) {
             return false;
         }

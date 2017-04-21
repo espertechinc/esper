@@ -29,6 +29,7 @@ import com.espertech.esper.core.service.StreamJoinAnalysisResult;
 import com.espertech.esper.core.start.*;
 import com.espertech.esper.epl.agg.service.AggregationService;
 import com.espertech.esper.epl.core.*;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
@@ -296,7 +297,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                                 final boolean yesRecoveringResilient = isRecoveringResilient;
                                 final FilterSpecCompiled preloadFilterSpec = namedWindowPostloadFilters[i];
                                 preloadList.add(new StatementAgentInstancePreload() {
-                                    public void executePreload() {
+                                    public void executePreload(ExprEvaluatorContext exprEvaluatorContext) {
                                         Collection<EventBean> snapshot = consumerView.snapshot(preloadFilterSpec, statementContext.getAnnotations());
                                         List<EventBean> eventsInWindow = new ArrayList<EventBean>(snapshot.size());
                                         ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
@@ -313,10 +314,10 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                         }
 
                         preloadList.add(new StatementAgentInstancePreload() {
-                            public void executePreload() {
+                            public void executePreload(ExprEvaluatorContext exprEvaluatorContext) {
                                 // in a join, preload indexes, if any
                                 if (joinPreloadMethod != null) {
-                                    joinPreloadMethod.preloadFromBuffer(streamNum);
+                                    joinPreloadMethod.preloadFromBuffer(streamNum, exprEvaluatorContext);
                                 } else {
                                     if (agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable() != null) {
                                         agentInstanceContext.getEpStatementAgentInstanceHandle().getOptionalDispatchable().execute();
@@ -330,7 +331,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                 // last, for aggregation we need to send the current join results to the result set processor
                 if (hasNamedWindow && (joinPreloadMethod != null) && (!isRecoveringResilient) && resultSetProcessorFactoryDesc.getResultSetProcessorFactory().hasAggregation()) {
                     preloadList.add(new StatementAgentInstancePreload() {
-                        public void executePreload() {
+                        public void executePreload(ExprEvaluatorContext exprEvaluatorContext) {
                             joinPreloadMethod.preloadAggregation(resultSetProcessor);
                         }
                     });

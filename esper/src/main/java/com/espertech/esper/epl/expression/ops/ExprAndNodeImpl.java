@@ -94,7 +94,7 @@ public class ExprAndNodeImpl extends ExprNodeBase implements ExprEvaluator, Expr
         return ExprPrecedenceEnum.AND;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprAndNodeImpl)) {
             return false;
         }

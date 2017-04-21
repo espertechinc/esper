@@ -11,7 +11,6 @@
 package com.espertech.esper.epl.expression.ops;
 
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.ops.ExprArrayNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
@@ -82,7 +81,7 @@ public class TestExprArrayNode extends TestCase {
     }
 
     public void testEqualsNode() {
-        assertTrue(arrayNodes[0].equalsNode(arrayNodes[1]));
-        assertFalse(arrayNodes[0].equalsNode(new SupportExprNode(null)));
+        assertTrue(arrayNodes[0].equalsNode(arrayNodes[1], false));
+        assertFalse(arrayNodes[0].equalsNode(new SupportExprNode(null), false));
     }
 }

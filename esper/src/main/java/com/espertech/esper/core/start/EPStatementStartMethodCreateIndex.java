@@ -22,7 +22,8 @@ import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
+import com.espertech.esper.epl.lookup.AdvancedIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexUtil;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
@@ -57,14 +58,15 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
         EPLValidationUtil.validateContextName(namedWindowProcessor == null, spec.getWindowName(), infraContextName, statementSpec.getOptionalContextName(), true);
 
         // validate index
-        EventTableCreateIndexDesc explicitIndexDesc = EventTableIndexUtil.validateCompileExplicitIndex(spec.getIndexName(), spec.isUnique(), spec.getColumns(), indexedEventType);
-        final IndexMultiKey imk = new IndexMultiKey(spec.isUnique(), explicitIndexDesc.getHashProps(), explicitIndexDesc.getBtreeProps());
+        QueryPlanIndexItem explicitIndexDesc = EventTableIndexUtil.validateCompileExplicitIndex(spec.getIndexName(), spec.isUnique(), spec.getColumns(), indexedEventType, statementContext);
+        AdvancedIndexDesc advancedIndexDesc = explicitIndexDesc.getAdvancedIndexProvisionDesc() == null ? null : explicitIndexDesc.getAdvancedIndexProvisionDesc().getIndexDesc();
+        final IndexMultiKey imk = new IndexMultiKey(spec.isUnique(), explicitIndexDesc.getHashPropsAsList(), explicitIndexDesc.getBtreePropsAsList(), advancedIndexDesc);
 
         // for tables we add the index to metadata
         if (tableMetadata != null) {
-            services.getTableService().validateAddIndex(statementContext.getStatementName(), tableMetadata, explicitIndexDesc, imk);
+            services.getTableService().validateAddIndex(statementContext.getStatementName(), tableMetadata, spec.getIndexName(), explicitIndexDesc, imk);
         } else {
-            namedWindowProcessor.validateAddIndex(statementContext.getStatementName(), explicitIndexDesc, imk);
+            namedWindowProcessor.validateAddIndex(statementContext.getStatementName(), spec.getIndexName(), explicitIndexDesc, imk);
         }
 
         // allocate context factory
@@ -115,7 +117,11 @@ public class EPStatementStartMethodCreateIndex extends EPStatementStartMethodBas
                 if (ex.getCause() instanceof ExprValidationException) {
                     throw (ExprValidationException) ex.getCause();
                 }
+                destroyMethod.destroy();
                 throw ex;
+            } catch (Throwable t) {
+                destroyMethod.destroy();
+                throw t;
             }
             final StopCallback stopCallback = services.getEpStatementFactory().makeStopMethod(result);
             stopMethod = new EPStatementStopMethod() {

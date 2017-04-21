@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCoalesceNode;
-import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
@@ -95,8 +94,8 @@ public class TestExprCoalesceNode extends TestCase {
     }
 
     public void testEquals() throws Exception {
-        assertFalse(coalesceNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false)));
-        assertTrue(coalesceNodes[0].equalsNode(coalesceNodes[1]));
+        assertFalse(coalesceNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false), false));
+        assertTrue(coalesceNodes[0].equalsNode(coalesceNodes[1], false));
     }
 
     public void testToExpressionString() throws Exception {

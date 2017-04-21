@@ -46,9 +46,10 @@ public interface ExprNode extends ExprValidator, MetaDefItem, Serializable {
      * that impact the evaluation of a node.
      *
      * @param node to compare to
+     * @param ignoreStreamPrefix when the equals-comparison can ignore prefix of event properties
      * @return true if semantically equal, or false if not equals
      */
-    public boolean equalsNode(ExprNode node);
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix);
 
     /**
      * Accept the visitor. The visitor will first visit the parent then visit all child nodes, then their child nodes.

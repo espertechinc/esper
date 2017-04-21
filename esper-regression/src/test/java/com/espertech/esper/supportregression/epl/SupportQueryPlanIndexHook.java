@@ -106,7 +106,7 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
         }
         else {
             Assert.assertNull(onexp.getTables());
-            Assert.assertNull(indexDescription);
+            Assert.assertNull(onexp.getTableLookupStrategy());
         }
         reset();
     }

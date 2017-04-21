@@ -78,8 +78,8 @@ public class RegressionLinestViewFactory implements ViewFactory {
         }
 
         RegressionLinestView myView = (RegressionLinestView) view;
-        if ((!ExprNodeUtility.deepEquals(myView.getExpressionX(), expressionX)) ||
-                (!ExprNodeUtility.deepEquals(myView.getExpressionY(), expressionY))) {
+        if ((!ExprNodeUtility.deepEquals(myView.getExpressionX(), expressionX, false)) ||
+                (!ExprNodeUtility.deepEquals(myView.getExpressionY(), expressionY, false))) {
             return false;
         }
         return true;

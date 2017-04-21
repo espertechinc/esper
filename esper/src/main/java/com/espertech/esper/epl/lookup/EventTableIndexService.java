@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.table.EventTableFactory;
 
 public interface EventTableIndexService {
@@ -37,4 +38,6 @@ public interface EventTableIndexService {
     EventTableFactory createSortedCoerce(int indexedStreamNum, EventType eventType, String indexedProp, Class indexCoercionType, boolean isFireAndForget);
 
     EventTableFactory createInArray(int indexedStreamNum, EventType eventType, String[] indexedProp, boolean unique);
+
+    EventTableFactory createCustom(String indexName, int indexedStreamNum, EventType eventType, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc);
 }

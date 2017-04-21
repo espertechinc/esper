@@ -14,8 +14,6 @@ import com.espertech.esper.epl.expression.TestExprAggregateNodeAdapter;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
-import com.espertech.esper.epl.expression.ops.ExprMathNode;
-import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.type.MathArithTypeEnum;
@@ -79,8 +77,8 @@ public class TestExprSumNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(sumNode.equalsNode(sumNode));
-        assertFalse(sumNode.equalsNode(new ExprOrNode()));
+        assertTrue(sumNode.equalsNode(sumNode, false));
+        assertFalse(sumNode.equalsNode(new ExprOrNode(), false));
     }
 
     private ExprSumNode makeNode(Object value, Class type) throws Exception {

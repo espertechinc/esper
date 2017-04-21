@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
 import com.espertech.esper.util.SimpleNumberCoercerFactory;
@@ -38,7 +39,7 @@ public class PropertyIndexedEventTableSingleCoerceAddFactory extends PropertyInd
     }
 
     @Override
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTableOrganization organization = getOrganization();
         return new EventTable[]{new PropertyIndexedEventTableSingleCoerceAdd(propertyGetter, organization, coercer, coercionType)};
     }

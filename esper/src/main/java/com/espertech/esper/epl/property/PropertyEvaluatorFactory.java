@@ -88,7 +88,7 @@ public class PropertyEvaluatorFactory {
 
             // evaluate splitter expression
             if (containedEventEval == null) {
-                ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTAINEDEVENT, ExprNodeUtility.toExpressionStringMinPrecedenceSafe(atom.getSplitterExpression()), atom.getSplitterExpression());
+                ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CONTAINEDEVENT, atom.getSplitterExpression());
 
                 EventType[] availableTypes = streamEventTypes.toArray(new EventType[streamEventTypes.size()]);
                 String[] availableStreamNames = streamNames.toArray(new String[streamNames.size()]);

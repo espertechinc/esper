@@ -18,9 +18,7 @@ import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.util.JavaClassHelper;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Build query index plans.
@@ -71,7 +69,7 @@ public class QueryPlanIndexBuilder {
                     QueryGraphValuePairInKWSingleIdx singles = value.getInKeywordSingles();
                     if (!singles.getKey().isEmpty()) {
                         String indexedProp = singles.getIndexed()[0];
-                        QueryPlanIndexItem indexItem = new QueryPlanIndexItem(new String[]{indexedProp}, null, null, null, false);
+                        QueryPlanIndexItem indexItem = new QueryPlanIndexItem(new String[]{indexedProp}, null, null, null, false, null);
                         checkDuplicateOrAdd(indexItem, indexesSet);
                     }
 
@@ -80,7 +78,7 @@ public class QueryPlanIndexBuilder {
                         QueryGraphValuePairInKWMultiIdx multi = multis.get(0);
                         for (ExprNode propIndexed : multi.getIndexed()) {
                             ExprIdentNode identNode = (ExprIdentNode) propIndexed;
-                            QueryPlanIndexItem indexItem = new QueryPlanIndexItem(new String[]{identNode.getResolvedPropertyName()}, null, null, null, false);
+                            QueryPlanIndexItem indexItem = new QueryPlanIndexItem(new String[]{identNode.getResolvedPropertyName()}, null, null, null, false, null);
                             checkDuplicateOrAdd(indexItem, indexesSet);
                         }
                     }
@@ -98,13 +96,13 @@ public class QueryPlanIndexBuilder {
                     rangeCoercionTypeArr = new Class[0];
                 }
 
-                QueryPlanIndexItem proposed = new QueryPlanIndexItem(hashIndexProps, hashCoercionTypeArr, rangeIndexProps, rangeCoercionTypeArr, unique);
+                QueryPlanIndexItem proposed = new QueryPlanIndexItem(hashIndexProps, hashCoercionTypeArr, rangeIndexProps, rangeCoercionTypeArr, unique, null);
                 checkDuplicateOrAdd(proposed, indexesSet);
             }
 
             // create full-table-scan
             if (indexesSet.isEmpty()) {
-                indexesSet.add(new QueryPlanIndexItem(null, null, null, null, false));
+                indexesSet.add(new QueryPlanIndexItem(null, null, null, null, false, null));
             }
 
             indexSpecs[streamIndexed] = QueryPlanIndex.makeIndex(indexesSet);
@@ -126,11 +124,24 @@ public class QueryPlanIndexBuilder {
         // Build a list of streams and indexes
         LinkedHashMap<String, SubordPropHashKey> joinProps = new LinkedHashMap<String, SubordPropHashKey>();
         LinkedHashMap<String, SubordPropRangeKey> rangeProps = new LinkedHashMap<String, SubordPropRangeKey>();
+        Map<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> customIndexOps = Collections.emptyMap();
+
         for (int stream = 0; stream < outsideStreamCount; stream++) {
             int lookupStream = stream + 1;
 
             QueryGraphValue queryGraphValue = queryGraph.getGraphValue(lookupStream, 0);
             QueryGraphValuePairHashKeyIndex hashKeysAndIndexes = queryGraphValue.getHashKeyProps();
+
+            // determine application functions
+            for (QueryGraphValueDesc item : queryGraphValue.getItems()) {
+                if (item.getEntry() instanceof QueryGraphValueEntryCustom) {
+                    if (customIndexOps.isEmpty()) {
+                        customIndexOps = new HashMap<>();
+                    }
+                    QueryGraphValueEntryCustom custom = (QueryGraphValueEntryCustom) item.getEntry();
+                    custom.mergeInto(customIndexOps);
+                }
+            }
 
             // handle key-lookups
             List<QueryGraphValueEntryHashKeyed> keyPropertiesJoin = hashKeysAndIndexes.getKeys();
@@ -272,7 +283,7 @@ public class QueryPlanIndexBuilder {
             }
         }
 
-        return new SubordPropPlan(joinProps, rangeProps, inKeywordSingleIdxProp, inKeywordMultiIdxProp);
+        return new SubordPropPlan(joinProps, rangeProps, inKeywordSingleIdxProp, inKeywordMultiIdxProp, customIndexOps);
     }
 
     private static void checkDuplicateOrAdd(QueryPlanIndexItem proposed, List<QueryPlanIndexItem> indexesSet) {

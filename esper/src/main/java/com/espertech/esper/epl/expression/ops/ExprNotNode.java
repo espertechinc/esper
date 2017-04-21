@@ -76,7 +76,7 @@ public class ExprNotNode extends ExprNodeBase implements ExprEvaluator {
         return ExprPrecedenceEnum.NEGATED;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprNotNode)) {
             return false;
         }

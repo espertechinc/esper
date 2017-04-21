@@ -44,7 +44,7 @@ public class TableUpdateStrategyWUniqueConstraint implements TableUpdateStrategy
         // remove from affected indexes
         for (String affectedIndexName : affectedIndexNames) {
             EventTable index = instance.getIndex(affectedIndexName);
-            index.remove(events);
+            index.remove(events, exprEvaluatorContext);
         }
 
         // copy event data, since we are updating unique keys and must guarantee rollback (no half update)
@@ -75,14 +75,14 @@ public class TableUpdateStrategyWUniqueConstraint implements TableUpdateStrategy
         try {
             for (String affectedIndexName : affectedIndexNames) {
                 EventTable index = instance.getIndex(affectedIndexName);
-                index.add(events);
+                index.add(events, exprEvaluatorContext);
             }
         } catch (EPException ex) {
             // rollback
             // remove updated events
             for (String affectedIndexName : affectedIndexNames) {
                 EventTable index = instance.getIndex(affectedIndexName);
-                index.remove(events);
+                index.remove(events, exprEvaluatorContext);
             }
             // rollback change to events
             for (int i = 0; i < events.length; i++) {
@@ -92,7 +92,7 @@ public class TableUpdateStrategyWUniqueConstraint implements TableUpdateStrategy
             // add old events
             for (String affectedIndexName : affectedIndexNames) {
                 EventTable index = instance.getIndex(affectedIndexName);
-                index.add(events);
+                index.add(events, exprEvaluatorContext);
             }
             throw ex;
         }

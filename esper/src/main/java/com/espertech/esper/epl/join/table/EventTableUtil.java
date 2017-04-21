@@ -40,37 +40,39 @@ public class EventTableUtil {
         EventTableIndexService eventTableIndexService = agentInstanceContext.getStatementContext().getEventTableIndexService();
 
         EventTable table;
-        if (rangeProps == null || rangeProps.length == 0) {
+        if (item.getAdvancedIndexProvisionDesc() != null) {
+            table = eventTableIndexService.createCustom(optionalIndexName, indexedStreamNum, eventType, item.isUnique(), item.getAdvancedIndexProvisionDesc()).makeEventTables(ident, agentInstanceContext)[0];
+        } else if (rangeProps == null || rangeProps.length == 0) {
             if (indexProps == null || indexProps.length == 0) {
                 EventTableFactory factory = eventTableIndexService.createUnindexed(indexedStreamNum, optionalSerde, isFireAndForget);
-                table = factory.makeEventTables(ident)[0];
+                table = factory.makeEventTables(ident, agentInstanceContext)[0];
             } else {
                 // single index key
                 if (indexProps.length == 1) {
                     if (indexCoercionTypes == null || indexCoercionTypes.length == 0) {
                         EventTableFactory factory = eventTableIndexService.createSingle(indexedStreamNum, eventType, indexProps[0], unique, optionalIndexName, optionalSerde, isFireAndForget);
-                        table = factory.makeEventTables(ident)[0];
+                        table = factory.makeEventTables(ident, agentInstanceContext)[0];
                     } else {
                         if (coerceOnAddOnly) {
                             EventTableFactory factory = eventTableIndexService.createSingleCoerceAdd(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0], optionalSerde, isFireAndForget);
-                            table = factory.makeEventTables(ident)[0];
+                            table = factory.makeEventTables(ident, agentInstanceContext)[0];
                         } else {
                             EventTableFactory factory = eventTableIndexService.createSingleCoerceAll(indexedStreamNum, eventType, indexProps[0], indexCoercionTypes[0], optionalSerde, isFireAndForget);
-                            table = factory.makeEventTables(ident)[0];
+                            table = factory.makeEventTables(ident, agentInstanceContext)[0];
                         }
                     }
                 } else {
                     // Multiple index keys
                     if (indexCoercionTypes == null || indexCoercionTypes.length == 0) {
                         EventTableFactory factory = eventTableIndexService.createMultiKey(indexedStreamNum, eventType, indexProps, unique, optionalIndexName, optionalSerde, isFireAndForget);
-                        table = factory.makeEventTables(ident)[0];
+                        table = factory.makeEventTables(ident, agentInstanceContext)[0];
                     } else {
                         if (coerceOnAddOnly) {
                             EventTableFactory factory = eventTableIndexService.createMultiKeyCoerceAdd(indexedStreamNum, eventType, indexProps, indexCoercionTypes, isFireAndForget);
-                            table = factory.makeEventTables(ident)[0];
+                            table = factory.makeEventTables(ident, agentInstanceContext)[0];
                         } else {
                             EventTableFactory factory = eventTableIndexService.createMultiKeyCoerceAll(indexedStreamNum, eventType, indexProps, indexCoercionTypes, isFireAndForget);
-                            table = factory.makeEventTables(ident)[0];
+                            table = factory.makeEventTables(ident, agentInstanceContext)[0];
                         }
                     }
                 }
@@ -79,14 +81,14 @@ public class EventTableUtil {
             if ((rangeProps.length == 1) && (indexProps == null || indexProps.length == 0)) {
                 if (rangeCoercionTypes == null) {
                     EventTableFactory factory = eventTableIndexService.createSorted(indexedStreamNum, eventType, rangeProps[0], isFireAndForget);
-                    return factory.makeEventTables(ident)[0];
+                    return factory.makeEventTables(ident, agentInstanceContext)[0];
                 } else {
                     EventTableFactory factory = eventTableIndexService.createSortedCoerce(indexedStreamNum, eventType, rangeProps[0], rangeCoercionTypes[0], isFireAndForget);
-                    return factory.makeEventTables(ident)[0];
+                    return factory.makeEventTables(ident, agentInstanceContext)[0];
                 }
             } else {
                 EventTableFactory factory = eventTableIndexService.createComposite(indexedStreamNum, eventType, indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, isFireAndForget);
-                return factory.makeEventTables(ident)[0];
+                return factory.makeEventTables(ident, agentInstanceContext)[0];
             }
         }
         return table;

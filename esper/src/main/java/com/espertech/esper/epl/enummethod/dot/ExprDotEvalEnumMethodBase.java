@@ -25,6 +25,8 @@ import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierCollectVisit
 import com.espertech.esper.epl.methodbase.*;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
+import com.espertech.esper.epl.util.EPLExpressionParamType;
+import com.espertech.esper.epl.util.EPLValidationUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.util.CollectionUtil;
@@ -240,9 +242,9 @@ public abstract class ExprDotEvalEnumMethodBase implements ExprDotEvalEnumMethod
         }
 
         ExprEvaluator filterEvaluator = filter.getExprEvaluator();
-        DotMethodFPParamTypeEnum expectedType = footprint.getParameters()[parameterNum].getType();
+        EPLExpressionParamType expectedType = footprint.getParameters()[parameterNum].getType();
         // Lambda-methods don't use a specific expected return-type, so passing null for type is fine.
-        DotMethodUtil.validateSpecificType(enumMethodUsedName, DotMethodTypeEnum.ENUM, expectedType, null, filterEvaluator.getType(), parameterNum, filter);
+        EPLValidationUtil.validateParameterType(enumMethodUsedName, DotMethodTypeEnum.ENUM.getTypeName(), false, expectedType, null, filterEvaluator.getType(), parameterNum, filter);
 
         int numStreamsIncoming = validationContext.getStreamTypeService().getEventTypes().length;
         return new ExprDotEvalParamLambda(parameterNum, filter, filterEvaluator,

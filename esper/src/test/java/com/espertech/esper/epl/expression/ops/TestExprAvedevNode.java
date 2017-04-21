@@ -33,8 +33,8 @@ public class TestExprAvedevNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest));
-        assertFalse(validatedNodeToTest.equalsNode(new ExprStddevNode(false)));
+        assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest, false));
+        assertFalse(validatedNodeToTest.equalsNode(new ExprStddevNode(false), false));
     }
 
     public void testAggregateFunction() {

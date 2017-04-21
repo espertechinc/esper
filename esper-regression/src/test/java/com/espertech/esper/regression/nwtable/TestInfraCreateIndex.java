@@ -147,8 +147,8 @@ public class TestInfraCreateIndex extends TestCase
         SupportMessageAssertUtil.tryInvalid(epService, "create index IndexTwo on MyWindowX(f1, f1)",
                 "Error starting statement: A named window or table by name 'MyWindowX' does not exist [create index IndexTwo on MyWindowX(f1, f1)]");
 
-        SupportMessageAssertUtil.tryInvalid(epService, "create index IndexTwo on MyWindowX(f1 bubu, f2)",
-                "Invalid column index type 'bubu' encountered, please use any of the following index type names [BTREE, HASH] [create index IndexTwo on MyWindowX(f1 bubu, f2)]");
+        SupportMessageAssertUtil.tryInvalid(epService, "create index IndexTwo on MyInfra(f1 bubu, f2)",
+                "Error starting statement: Unrecognized advanced-type index 'bubu'");
 
         SupportMessageAssertUtil.tryInvalid(epService, "create gugu index IndexTwo on MyInfra(f2)",
                 "Invalid keyword 'gugu' in create-index encountered, expected 'unique' [create gugu index IndexTwo on MyInfra(f2)]");
@@ -441,7 +441,7 @@ public class TestInfraCreateIndex extends TestCase
 
     private EventTableIndexMetadataEntry getIndexEntry(boolean namedWindow) {
         IndexedPropDesc descOne = new IndexedPropDesc("col0", String.class);
-        IndexMultiKey index = new IndexMultiKey(false, Arrays.asList(descOne), Collections.<IndexedPropDesc>emptyList());
+        IndexMultiKey index = new IndexMultiKey(false, Arrays.asList(descOne), Collections.<IndexedPropDesc>emptyList(), null);
         EventTableIndexMetadata meta = getIndexMetaRepo(namedWindow);
         return meta.getIndexes().get(index);
     }

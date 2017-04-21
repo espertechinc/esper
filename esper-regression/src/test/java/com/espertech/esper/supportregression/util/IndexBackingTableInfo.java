@@ -10,11 +10,13 @@
  */
 package com.espertech.esper.supportregression.util;
 
+import com.espertech.esper.client.annotation.Hook;
+import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.epl.join.table.*;
 import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
 
 public interface IndexBackingTableInfo {
-    public final static String INDEX_CALLBACK_HOOK = "@Hook(type=HookType.INTERNAL_QUERY_PLAN, hook='" + SupportQueryPlanIndexHook.resetGetClassName() + "')\n";
+    public final static String INDEX_CALLBACK_HOOK = "@Hook(type=" + HookType.class.getName() + ".INTERNAL_QUERY_PLAN,hook='" + SupportQueryPlanIndexHook.resetGetClassName() + "')";
 
     public final static String BACKING_SINGLE_UNIQUE = PropertyIndexedEventTableSingleUnique.class.getSimpleName();
     public final static String BACKING_SINGLE_DUPS = PropertyIndexedEventTableSingle.class.getSimpleName();

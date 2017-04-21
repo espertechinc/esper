@@ -526,9 +526,16 @@ public class StatementSpecMapper {
         }
         List<CreateIndexColumn> cols = new ArrayList<CreateIndexColumn>();
         for (CreateIndexItem item : createIndexDesc.getColumns()) {
-            cols.add(new CreateIndexColumn(item.getName(), CreateIndexColumnType.valueOf(item.getType().name().toUpperCase(Locale.ENGLISH))));
+            CreateIndexColumn col = unmapCreateIndexColumn(item, unmapContext);
+            cols.add(col);
         }
         model.setCreateIndex(new CreateIndexClause(createIndexDesc.getIndexName(), createIndexDesc.getWindowName(), cols, createIndexDesc.isUnique()));
+    }
+
+    private static CreateIndexColumn unmapCreateIndexColumn(CreateIndexItem item, StatementSpecUnMapContext unmapContext) {
+        List<Expression> columns = unmapExpressionDeep(item.getExpressions(), unmapContext);
+        List<Expression> parameters = unmapExpressionDeep(item.getParameters(), unmapContext);
+        return new CreateIndexColumn(columns, item.getType(), parameters);
     }
 
     private static void unmapCreateVariable(CreateVariableDesc createVariableDesc, EPStatementObjectModel model, StatementSpecUnMapContext unmapContext) {
@@ -1365,11 +1372,18 @@ public class StatementSpecMapper {
 
         List<CreateIndexItem> cols = new ArrayList<CreateIndexItem>();
         for (CreateIndexColumn col : clause.getColumns()) {
-            cols.add(new CreateIndexItem(col.getColumnName(), CreateIndexType.valueOf(col.getType().name().toUpperCase(Locale.ENGLISH))));
+            CreateIndexItem item = mapCreateIndexCol(col, mapContext);
+            cols.add(item);
         }
 
         CreateIndexDesc desc = new CreateIndexDesc(clause.isUnique(), clause.getIndexName(), clause.getWindowName(), cols);
         raw.setCreateIndexDesc(desc);
+    }
+
+    private static CreateIndexItem mapCreateIndexCol(CreateIndexColumn col, StatementSpecMapContext mapContext) {
+        List<ExprNode> columns = mapExpressionDeep(col.getColumns(), mapContext);
+        List<ExprNode> parameters = mapExpressionDeep(col.getParameters(), mapContext);
+        return new CreateIndexItem(columns, col.getType() == null ? CreateIndexType.HASH.getNameLower() : col.getType(), parameters);
     }
 
     private static void mapUpdateClause(UpdateClause updateClause, StatementSpecRaw raw, StatementSpecMapContext mapContext) {
@@ -1877,6 +1891,7 @@ public class StatementSpecMapper {
             }
             List<ExprChainedSpec> chain = mapChains(single.getChain(), mapContext);
             String functionName = chain.get(0).getName();
+
             Pair<Class, EngineImportSingleRowDesc> pair;
             try {
                 pair = mapContext.getEngineImportService().resolveSingleRow(functionName);

@@ -100,7 +100,7 @@ public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTa
 
     public void runAssertionNoIndexShareIndexChoice(boolean namedWindow) {
 
-        String backingUniqueS1 = "unique hash={s1(string)} btree={}";
+        String backingUniqueS1 = "unique hash={s1(string)} btree={} advanced={}";
 
         Object[] preloadedEventsOne = new Object[] {new SupportSimpleBeanOne("E1", 10, 11, 12), new SupportSimpleBeanOne("E2", 20, 21, 22)};
         IndexAssertionEventSend eventSendAssertion = new IndexAssertionEventSend() {
@@ -142,13 +142,13 @@ public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTa
 
     private void runAssertionIndexShareIndexChoice(boolean namedWindow) {
 
-        String backingUniqueS1 = "unique hash={s1(string)} btree={}";
-        String backingUniqueS1L1 = "unique hash={s1(string),l1(long)} btree={}";
-        String backingUniqueS1D1 = "unique hash={s1(string),d1(double)} btree={}";
-        String backingNonUniqueS1 = "non-unique hash={s1(string)} btree={}";
-        String backingNonUniqueD1 = "non-unique hash={d1(double)} btree={}";
-        String backingBtreeI1 = "non-unique hash={} btree={i1(int)}";
-        String backingBtreeD1 = "non-unique hash={} btree={d1(double)}";
+        String backingUniqueS1 = "unique hash={s1(string)} btree={} advanced={}";
+        String backingUniqueS1L1 = "unique hash={s1(string),l1(long)} btree={} advanced={}";
+        String backingUniqueS1D1 = "unique hash={s1(string),d1(double)} btree={} advanced={}";
+        String backingNonUniqueS1 = "non-unique hash={s1(string)} btree={} advanced={}";
+        String backingNonUniqueD1 = "non-unique hash={d1(double)} btree={} advanced={}";
+        String backingBtreeI1 = "non-unique hash={} btree={i1(int)} advanced={}";
+        String backingBtreeD1 = "non-unique hash={} btree={d1(double)} advanced={}";
         String primaryIndexTable = namedWindow ? null : "MyInfra";
 
         Object[] preloadedEventsOne = new Object[] {new SupportSimpleBeanOne("E1", 10, 11, 12), new SupportSimpleBeanOne("E2", 20, 21, 22)};
@@ -261,8 +261,8 @@ public class TestInfraSubqCorrelIndex extends TestCase implements IndexBackingTa
                 return o1.getTables()[0].getIndexName().compareTo(o2.getTables()[0].getIndexName());
             }
         });
-        SupportQueryPlanIndexHook.assertSubquery(subqueries.get(0), 1, "I1", "unique hash={s1(string)} btree={}");
-        SupportQueryPlanIndexHook.assertSubquery(subqueries.get(1), 0, "I2", "unique hash={i1(int)} btree={}");
+        SupportQueryPlanIndexHook.assertSubquery(subqueries.get(0), 1, "I1", "unique hash={s1(string)} btree={} advanced={}");
+        SupportQueryPlanIndexHook.assertSubquery(subqueries.get(1), 0, "I2", "unique hash={i1(int)} btree={} advanced={}");
 
         epService.getEPAdministrator().destroyAllStatements();
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", false);

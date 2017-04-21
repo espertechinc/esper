@@ -86,11 +86,11 @@ public class TestExprCaseNode extends TestCase {
         ExprCaseNode caseNodeSyntax2 = SupportExprNodeFactory.makeCaseSyntax2Node();
         ExprCaseNode otherCaseNodeSyntax2 = SupportExprNodeFactory.makeCaseSyntax2Node();
 
-        assertTrue(caseNode.equalsNode(otherCaseNode));
-        assertTrue(otherCaseNode.equalsNode(caseNode));
-        assertFalse(caseNode.equalsNode(caseNodeSyntax2));
-        assertFalse(caseNodeSyntax2.equalsNode(caseNode));
-        assertTrue(caseNodeSyntax2.equalsNode(otherCaseNodeSyntax2));
+        assertTrue(caseNode.equalsNode(otherCaseNode, false));
+        assertTrue(otherCaseNode.equalsNode(caseNode, false));
+        assertFalse(caseNode.equalsNode(caseNodeSyntax2, false));
+        assertFalse(caseNodeSyntax2.equalsNode(caseNode, false));
+        assertTrue(caseNodeSyntax2.equalsNode(otherCaseNodeSyntax2, false));
     }
 
     public void testToExpressionString() throws Exception {

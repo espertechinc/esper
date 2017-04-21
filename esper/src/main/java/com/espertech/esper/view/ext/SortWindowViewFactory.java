@@ -111,7 +111,7 @@ public class SortWindowViewFactory implements DataWindowViewFactory, DataWindowV
         int sortWindowSize = ViewFactorySupport.evaluateSizeParam(getViewName(), sizeEvaluator, agentInstanceContext);
         if ((other.getSortWindowSize() != sortWindowSize) ||
                 (!compare(other.getIsDescendingValues(), isDescendingValues)) ||
-                (!ExprNodeUtility.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions))) {
+                (!ExprNodeUtility.deepEquals(other.getSortCriteriaExpressions(), sortCriteriaExpressions, false))) {
             return false;
         }
 

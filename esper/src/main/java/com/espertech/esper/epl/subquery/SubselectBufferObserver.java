@@ -12,6 +12,7 @@ package com.espertech.esper.epl.subquery;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.FlushedEventBuffer;
+import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.view.internal.BufferObserver;
 
@@ -21,21 +22,24 @@ import com.espertech.esper.view.internal.BufferObserver;
  */
 public class SubselectBufferObserver implements BufferObserver {
     private final EventTable[] eventIndex;
+    private final AgentInstanceContext agentInstanceContext;
 
     /**
      * Ctor.
      *
      * @param eventIndex index to update
+     * @param agentInstanceContext agent instance context
      */
-    public SubselectBufferObserver(EventTable[] eventIndex) {
+    public SubselectBufferObserver(EventTable[] eventIndex, AgentInstanceContext agentInstanceContext) {
         this.eventIndex = eventIndex;
+        this.agentInstanceContext = agentInstanceContext;
     }
 
     public void newData(int streamId, FlushedEventBuffer newEventBuffer, FlushedEventBuffer oldEventBuffer) {
         EventBean[] newData = newEventBuffer.getAndFlush();
         EventBean[] oldData = oldEventBuffer.getAndFlush();
         for (EventTable table : eventIndex) {
-            table.addRemove(newData, oldData);
+            table.addRemove(newData, oldData, agentInstanceContext);
         }
     }
 }

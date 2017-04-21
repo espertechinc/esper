@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.hint.IndexHintInstruction;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -48,23 +49,24 @@ public class EventTableIndexRepository {
             boolean unique,
             List<IndexedPropDesc> hashProps,
             List<IndexedPropDesc> btreeProps,
+            AdvancedIndexProvisionDesc advancedIndexProvisionDesc,
             Iterable<EventBean> prefilledEvents,
             EventType indexedType,
             String indexName,
             AgentInstanceContext agentInstanceContext,
             Object optionalSerde) {
-        if (hashProps.isEmpty() && btreeProps.isEmpty()) {
+        if (hashProps.isEmpty() && btreeProps.isEmpty() && advancedIndexProvisionDesc == null) {
             throw new IllegalArgumentException("Invalid zero element list for hash and btree columns");
         }
 
         // Get an existing table, if any, matching the exact requirement
-        IndexMultiKey indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), unique, hashProps, btreeProps);
+        IndexMultiKey indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), unique, hashProps, btreeProps, advancedIndexProvisionDesc == null ? null : advancedIndexProvisionDesc.getIndexDesc());
         if (indexPropKeyMatch != null) {
             EventTableIndexRepositoryEntry refTablePair = tableIndexesRefCount.get(indexPropKeyMatch);
             return new Pair<IndexMultiKey, EventTableAndNamePair>(indexPropKeyMatch, new EventTableAndNamePair(refTablePair.getTable(), refTablePair.getOptionalIndexName()));
         }
 
-        return addIndex(unique, hashProps, btreeProps, prefilledEvents, indexedType, indexName, false, agentInstanceContext, optionalSerde);
+        return addIndex(unique, hashProps, btreeProps, advancedIndexProvisionDesc, prefilledEvents, indexedType, indexName, false, agentInstanceContext, optionalSerde);
     }
 
     public void addIndex(IndexMultiKey indexMultiKey, EventTableIndexRepositoryEntry entry) {
@@ -106,21 +108,21 @@ public class EventTableIndexRepository {
         return keySet.toArray(new IndexMultiKey[keySet.size()]);
     }
 
-    public void validateAddExplicitIndex(EventTableCreateIndexDesc desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)
+    public void validateAddExplicitIndex(String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)
             throws ExprValidationException {
-        if (explicitIndexes.containsKey(desc.getIndexName())) {
+        if (explicitIndexes.containsKey(explicitIndexName)) {
             if (allowIndexExists) {
                 return;
             }
-            throw new ExprValidationException("Index by name '" + desc.getIndexName() + "' already exists");
+            throw new ExprValidationException("Index by name '" + explicitIndexName + "' already exists");
         }
 
-        addExplicitIndex(desc, eventType, dataWindowContents, agentInstanceContext, optionalSerde);
+        addExplicitIndex(explicitIndexName, explicitIndexDesc, eventType, dataWindowContents, agentInstanceContext, optionalSerde);
     }
 
-    public void addExplicitIndex(EventTableCreateIndexDesc desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
-        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc.isUnique(), desc.getHashProps(), desc.getBtreeProps(), dataWindowContents, eventType, desc.getIndexName(), agentInstanceContext, optionalSerde);
-        explicitIndexes.put(desc.getIndexName(), pair.getSecond().getEventTable());
+    public void addExplicitIndex(String explicitIndexName, QueryPlanIndexItem desc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
+        Pair<IndexMultiKey, EventTableAndNamePair> pair = addExplicitIndexOrReuse(desc.isUnique(), desc.getHashPropsAsList(), desc.getBtreePropsAsList(), desc.getAdvancedIndexProvisionDesc(), dataWindowContents, eventType, explicitIndexName, agentInstanceContext, optionalSerde);
+        explicitIndexes.put(explicitIndexName, pair.getSecond().getEventTable());
     }
 
     public EventTable getExplicitIndexByName(String indexName) {
@@ -135,10 +137,10 @@ public class EventTableIndexRepository {
         return entry.getTable();
     }
 
-    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, boolean mustCoerce, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
+    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, AdvancedIndexProvisionDesc advancedIndexProvisionDesc, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, boolean mustCoerce, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
 
         // not resolved as full match and not resolved as unique index match, allocate
-        IndexMultiKey indexPropKey = new IndexMultiKey(unique, hashProps, btreeProps);
+        IndexMultiKey indexPropKey = new IndexMultiKey(unique, hashProps, btreeProps, advancedIndexProvisionDesc == null ? null : advancedIndexProvisionDesc.getIndexDesc());
 
         IndexedPropDesc[] indexedPropDescs = hashProps.toArray(new IndexedPropDesc[hashProps.size()]);
         String[] indexProps = IndexedPropDesc.getIndexProperties(indexedPropDescs);
@@ -151,14 +153,14 @@ public class EventTableIndexRepository {
         String[] rangeProps = IndexedPropDesc.getIndexProperties(rangePropDescs);
         Class[] rangeCoercionTypes = IndexedPropDesc.getCoercionTypes(rangePropDescs);
 
-        QueryPlanIndexItem indexItem = new QueryPlanIndexItem(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, false);
+        QueryPlanIndexItem indexItem = new QueryPlanIndexItem(indexProps, indexCoercionTypes, rangeProps, rangeCoercionTypes, unique, advancedIndexProvisionDesc);
         EventTable table = EventTableUtil.buildIndex(agentInstanceContext, 0, indexItem, indexedType, true, unique, indexName, optionalSerde, false);
 
         // fill table since its new
         EventBean[] events = new EventBean[1];
         for (EventBean prefilledEvent : prefilledEvents) {
             events[0] = prefilledEvent;
-            table.add(events);
+            table.add(events, agentInstanceContext);
         }
 
         // add table

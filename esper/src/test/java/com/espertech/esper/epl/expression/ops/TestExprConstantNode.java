@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprConstantNode;
 import com.espertech.esper.epl.expression.core.ExprConstantNodeImpl;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
 
@@ -48,12 +47,12 @@ public class TestExprConstantNode extends TestCase {
     }
 
     public void testEqualsNode() {
-        assertTrue(constantNode.equalsNode(new ExprConstantNodeImpl("5")));
-        assertFalse(constantNode.equalsNode(new ExprOrNode()));
-        assertFalse(constantNode.equalsNode(new ExprConstantNodeImpl(null)));
-        assertFalse(constantNode.equalsNode(new ExprConstantNodeImpl(3)));
+        assertTrue(constantNode.equalsNode(new ExprConstantNodeImpl("5"), false));
+        assertFalse(constantNode.equalsNode(new ExprOrNode(), false));
+        assertFalse(constantNode.equalsNode(new ExprConstantNodeImpl(null), false));
+        assertFalse(constantNode.equalsNode(new ExprConstantNodeImpl(3), false));
 
         constantNode = new ExprConstantNodeImpl(null);
-        assertTrue(constantNode.equalsNode(new ExprConstantNodeImpl(null)));
+        assertTrue(constantNode.equalsNode(new ExprConstantNodeImpl(null), false));
     }
 }

@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprLikeNode;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -77,9 +76,9 @@ public class TestExprLikeNode extends TestCase {
         ExprLikeNode otherLikeNodeNot = SupportExprNodeFactory.makeLikeNode(true, "@");
         ExprLikeNode otherLikeNodeNot2 = SupportExprNodeFactory.makeLikeNode(true, "!");
 
-        assertTrue(likeNodeNot.equalsNode(otherLikeNodeNot2));
-        assertTrue(otherLikeNodeNot2.equalsNode(otherLikeNodeNot)); // Escape char itself is an expression
-        assertFalse(likeNodeNormal.equalsNode(otherLikeNodeNot));
+        assertTrue(likeNodeNot.equalsNode(otherLikeNodeNot2, false));
+        assertTrue(otherLikeNodeNot2.equalsNode(otherLikeNodeNot, false)); // Escape char itself is an expression
+        assertFalse(likeNodeNormal.equalsNode(otherLikeNodeNot, false));
     }
 
     public void testToExpressionString() throws Exception {

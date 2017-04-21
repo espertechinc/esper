@@ -13,6 +13,7 @@ package com.espertech.esper.epl.join.table;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.*;
 
@@ -35,7 +36,7 @@ public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTabl
         return propertyIndex.get(key);
     }
 
-    public void add(EventBean theEvent) {
+    public void add(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         MultiKeyUntyped key = getMultiKey(theEvent);
 
         Set<EventBean> events = propertyIndex.get(key);
@@ -47,7 +48,7 @@ public class PropertyIndexedEventTableUnadorned extends PropertyIndexedEventTabl
         events.add(theEvent);
     }
 
-    public void remove(EventBean theEvent) {
+    public void remove(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         MultiKeyUntyped key = getMultiKey(theEvent);
 
         Set<EventBean> events = propertyIndex.get(key);

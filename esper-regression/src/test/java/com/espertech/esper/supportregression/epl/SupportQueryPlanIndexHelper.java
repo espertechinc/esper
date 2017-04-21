@@ -136,18 +136,18 @@ public class SupportQueryPlanIndexHelper {
         else if (expectedPlan instanceof InKeywordTableLookupPlanMultiIdx && actualPlan instanceof InKeywordTableLookupPlanMultiIdx) {
             InKeywordTableLookupPlanMultiIdx inExpected = (InKeywordTableLookupPlanMultiIdx) expectedPlan;
             InKeywordTableLookupPlanMultiIdx inActual = (InKeywordTableLookupPlanMultiIdx) actualPlan;
-            assertTrue(ExprNodeUtility.deepEquals(inExpected.getKeyExpr(), inActual.getKeyExpr()));
+            assertTrue(ExprNodeUtility.deepEquals(inExpected.getKeyExpr(), inActual.getKeyExpr(), false));
         }
         else if (expectedPlan instanceof InKeywordTableLookupPlanSingleIdx && actualPlan instanceof InKeywordTableLookupPlanSingleIdx) {
             InKeywordTableLookupPlanSingleIdx inExpected = (InKeywordTableLookupPlanSingleIdx) expectedPlan;
             InKeywordTableLookupPlanSingleIdx inActual = (InKeywordTableLookupPlanSingleIdx) actualPlan;
-            assertTrue(ExprNodeUtility.deepEquals(inExpected.getExpressions(), inActual.getExpressions()));
+            assertTrue(ExprNodeUtility.deepEquals(inExpected.getExpressions(), inActual.getExpressions(), false));
         }
         else if (expectedPlan instanceof SortedTableLookupPlan && actualPlan instanceof SortedTableLookupPlan) {
             SortedTableLookupPlan inExpected = (SortedTableLookupPlan) expectedPlan;
             SortedTableLookupPlan inActual = (SortedTableLookupPlan) actualPlan;
             assertEquals(inExpected.getLookupStream(), inActual.getLookupStream());
-            assertTrue(ExprNodeUtility.deepEquals(inExpected.getRangeKeyPair().getExpressions(), inActual.getRangeKeyPair().getExpressions()));
+            assertTrue(ExprNodeUtility.deepEquals(inExpected.getRangeKeyPair().getExpressions(), inActual.getRangeKeyPair().getExpressions(), false));
         }
         else {
             Assert.fail("Failed to compare plan for stream " + streamNum + ", found type " + actualPlan.getClass());

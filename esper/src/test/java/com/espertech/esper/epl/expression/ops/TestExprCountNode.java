@@ -40,9 +40,9 @@ public class TestExprCountNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest));
-        assertFalse(validatedNodeToTest.equalsNode(new ExprSumNode(false)));
-        assertTrue(wildcardCount.equalsNode(wildcardCount));
+        assertTrue(validatedNodeToTest.equalsNode(validatedNodeToTest, false));
+        assertFalse(validatedNodeToTest.equalsNode(new ExprSumNode(false), false));
+        assertTrue(wildcardCount.equalsNode(wildcardCount, false));
     }
 
     private ExprCountNode makeNode(Object value, Class type) throws Exception {

@@ -147,7 +147,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         }
 
         // create index/holder table
-        final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstanceSubq(agentInstanceContext, this.subqueryNumber));
+        final EventTable[] index = pair.getFirst().makeEventTables(new EventTableFactoryTableIdentAgentInstanceSubq(agentInstanceContext, this.subqueryNumber), agentInstanceContext);
         stopCallbackList.add(new SubqueryStopCallback(index));
 
         // create strategy
@@ -201,7 +201,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
         }
 
         BufferView bufferView = new BufferView(subSelectHolder.getStreamNumber());
-        bufferView.setObserver(new SubselectBufferObserver(index));
+        bufferView.setObserver(new SubselectBufferObserver(index, agentInstanceContext));
         subselectView.addView(bufferView);
 
         return new SubSelectStrategyRealization(strategy, subselectAggregationPreprocessor, aggregationService, priorNodeStrategies, previousNodeStrategies, subselectView, postLoad);
@@ -250,7 +250,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             }
             if (eventIndex != null) {
                 for (EventTable table : eventIndex) {
-                    table.add(newEvents);  // fill index
+                    table.add(newEvents, agentInstanceContext);  // fill index
                 }
             }
         } else {
@@ -264,7 +264,7 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
                 }
                 if (eventIndex != null) {
                     for (EventTable table : eventIndex) {
-                        table.add(preloadEvents.toArray(new EventBean[preloadEvents.size()]));
+                        table.add(preloadEvents.toArray(new EventBean[preloadEvents.size()]), agentInstanceContext);
                     }
                 }
             }

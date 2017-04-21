@@ -861,7 +861,7 @@ public class SelectExprProcessorHelper {
             boolean found = false;
             for (int rollupKeyIndex : level.getRollupKeys()) {
                 ExprNode groupExpression = groupByRollupInfo.getExprNodes()[rollupKeyIndex];
-                if (ExprNodeUtility.deepEquals(groupExpression, expr)) {
+                if (ExprNodeUtility.deepEquals(groupExpression, expr, false)) {
                     found = true;
                     break;
                 }

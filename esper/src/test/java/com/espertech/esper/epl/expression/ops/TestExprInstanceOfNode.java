@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprInstanceofNode;
-import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
@@ -83,9 +82,9 @@ public class TestExprInstanceOfNode extends TestCase {
     }
 
     public void testEquals() throws Exception {
-        assertFalse(instanceofNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false)));
-        assertFalse(instanceofNodes[0].equalsNode(instanceofNodes[1]));
-        assertTrue(instanceofNodes[0].equalsNode(instanceofNodes[0]));
+        assertFalse(instanceofNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false), false));
+        assertFalse(instanceofNodes[0].equalsNode(instanceofNodes[1], false));
+        assertTrue(instanceofNodes[0].equalsNode(instanceofNodes[0], false));
     }
 
     public void testToExpressionString() throws Exception {

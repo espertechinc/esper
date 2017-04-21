@@ -19,7 +19,7 @@ public class TestUnindexedEventTable extends TestCase {
         UnindexedEventTable rep = new UnindexedEventTableImpl(1);
 
         EventBean[] addOne = SupportEventBeanFactory.makeEvents(new String[]{"a", "b"});
-        rep.add(addOne);
-        rep.remove(new EventBean[]{addOne[0]});
+        rep.add(addOne, null);
+        rep.remove(new EventBean[]{addOne[0]}, null);
     }
 }

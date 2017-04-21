@@ -137,8 +137,8 @@ public class TestExprIdentNode extends TestCase {
         identNodes[0].validate(SupportExprValidationContextFactory.make(streamTypeService));
         identNodes[2].validate(SupportExprValidationContextFactory.make(streamTypeService));
         identNodes[3].validate(SupportExprValidationContextFactory.make(streamTypeService));
-        assertTrue(identNodes[3].equalsNode(identNodes[3]));
-        assertFalse(identNodes[0].equalsNode(identNodes[2]));
+        assertTrue(identNodes[3].equalsNode(identNodes[3], false));
+        assertFalse(identNodes[0].equalsNode(identNodes[2], false));
     }
 
     protected static EventBean makeEvent(int intPrimitive) {

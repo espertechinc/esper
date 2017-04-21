@@ -17,10 +17,20 @@ public enum CreateIndexColumnType {
     /**
      * Hash-index.
      */
-    HASH,
+    HASH("hash"),
 
     /**
      * Binary-tree (sorted) index.
      */
-    BTREE
+    BTREE("btree");
+
+    private final String nameLower;
+
+    CreateIndexColumnType(String nameLower) {
+        this.nameLower = nameLower;
+    }
+
+    public String getNameLower() {
+        return nameLower;
+    }
 }

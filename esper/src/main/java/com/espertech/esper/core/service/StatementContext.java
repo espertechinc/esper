@@ -21,6 +21,7 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.index.service.AdvancedIndexProvisionService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
@@ -516,6 +517,10 @@ public final class StatementContext {
 
     public EventTableIndexService getEventTableIndexService() {
         return stmtEngineServices.getEventTableIndexService();
+    }
+
+    public AdvancedIndexProvisionService getIndexProvisionService() {
+        return stmtEngineServices.getAdvancedIndexProvisionService();
     }
 
     public StatementLockFactory getStatementLockFactory() {

@@ -209,8 +209,10 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
             this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
         } else {
             this.getChildNodes()[0].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
-            writer.append(",");
-            this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            if (this.getChildNodes().length > 1) {
+                writer.append(",");
+                this.getChildNodes()[1].toEPL(writer, ExprPrecedenceEnum.MINIMUM);
+            }
         }
         writer.append(')');
     }
@@ -224,7 +226,7 @@ public class ExprPreviousNode extends ExprNodeBase implements ExprEvaluator, Exp
         return previousType != null ? previousType.hashCode() : 0;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (node == null || getClass() != node.getClass()) {
             return false;
         }

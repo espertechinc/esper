@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.epl.join.table;
 
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+
 /**
  * Table of events allowing add and remove. Lookup in table is coordinated
  * through the underlying implementation.
@@ -17,7 +19,7 @@ package com.espertech.esper.epl.join.table;
 public interface EventTableFactory {
     public Class getEventTableClass();
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent);
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext);
 
     public String toQueryPlan();
 }

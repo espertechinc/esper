@@ -112,7 +112,7 @@ public class ExprCoalesceNode extends ExprNodeBase implements ExprEvaluator {
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprCoalesceNode)) {
             return false;
         }

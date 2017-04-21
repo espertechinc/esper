@@ -16,6 +16,7 @@ import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoadIn
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableUtil;
 import com.espertech.esper.epl.lookup.*;
@@ -92,10 +93,10 @@ public class NamedWindowRootViewInstance extends ViewSupport {
      */
     public void removeOldData(EventBean[] oldData) {
         if (rootView.getRevisionProcessor() != null) {
-            rootView.getRevisionProcessor().removeOldData(oldData, indexRepository);
+            rootView.getRevisionProcessor().removeOldData(oldData, indexRepository, agentInstanceContext);
         } else {
             for (EventTable table : indexRepository.getTables()) {
-                table.remove(oldData);
+                table.remove(oldData, agentInstanceContext);
             }
         }
     }
@@ -109,7 +110,7 @@ public class NamedWindowRootViewInstance extends ViewSupport {
         if (rootView.getRevisionProcessor() == null) {
             // Update indexes for fast deletion, if there are any
             for (EventTable table : indexRepository.getTables()) {
-                table.add(newData);
+                table.add(newData, agentInstanceContext);
             }
         }
     }
@@ -122,7 +123,7 @@ public class NamedWindowRootViewInstance extends ViewSupport {
             // Update indexes for fast deletion, if there are any
             for (EventTable table : indexRepository.getTables()) {
                 if (rootView.isChildBatching()) {
-                    table.add(newData);
+                    table.add(newData, agentInstanceContext);
                 }
             }
 
@@ -176,12 +177,13 @@ public class NamedWindowRootViewInstance extends ViewSupport {
      *
      * @param explicitIndexDesc                  index descriptor
      * @param isRecoveringResilient indicator for recovering
+     * @param explicitIndexName index name
      * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the index fails to be valid
      */
-    public synchronized void addExplicitIndex(EventTableCreateIndexDesc explicitIndexDesc, boolean isRecoveringResilient) throws ExprValidationException {
+    public synchronized void addExplicitIndex(String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, boolean isRecoveringResilient) throws ExprValidationException {
         boolean initIndex = agentInstanceContext.getStatementContext().getEventTableIndexService().allowInitIndex(isRecoveringResilient);
         Iterable<EventBean> initializeFrom = initIndex ? this.dataWindowContents : CollectionUtil.NULL_EVENT_ITERABLE;
-        indexRepository.validateAddExplicitIndex(explicitIndexDesc, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
+        indexRepository.validateAddExplicitIndex(explicitIndexName, explicitIndexDesc, rootView.getEventType(), initializeFrom, agentInstanceContext, isRecoveringResilient, null);
     }
 
     public boolean isVirtualDataWindow() {
@@ -200,7 +202,7 @@ public class NamedWindowRootViewInstance extends ViewSupport {
         for (EventBean event : dataWindowContents) {
             events[0] = event;
             for (EventTable table : indexRepository.getTables()) {
-                table.add(events);
+                table.add(events, agentInstanceContext);
             }
         }
     }

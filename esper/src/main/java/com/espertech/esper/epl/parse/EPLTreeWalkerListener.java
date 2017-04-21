@@ -1094,36 +1094,8 @@ public class EPLTreeWalkerListener implements EsperEPL2GrammarListener {
     }
 
     public void exitCreateIndexExpr(EsperEPL2GrammarParser.CreateIndexExprContext ctx) {
-        String indexName = ctx.n.getText();
-        String windowName = ctx.w.getText();
-
-        List<CreateIndexItem> columns = new ArrayList<>();
-        boolean unique = false;
-        List<EsperEPL2GrammarParser.CreateIndexColumnContext> cols = ctx.createIndexColumnList().createIndexColumn();
-        for (EsperEPL2GrammarParser.CreateIndexColumnContext col : cols) {
-            CreateIndexType type = CreateIndexType.HASH;
-            String columnName = col.c.getText();
-            if (col.t != null) {
-                String typeName = col.t.getText();
-                try {
-                    type = CreateIndexType.valueOf(typeName.toUpperCase(Locale.ENGLISH));
-                } catch (RuntimeException ex) {
-                    throw ASTWalkException.from("Invalid column index type '" + typeName + "' encountered, please use any of the following index type names " + Arrays.asList(CreateIndexType.values()));
-                }
-            }
-            columns.add(new CreateIndexItem(columnName, type));
-        }
-
-        if (ctx.u != null) {
-            String ident = ctx.u.getText();
-            if (ident.toLowerCase(Locale.ENGLISH).trim().equals("unique")) {
-                unique = true;
-            } else {
-                throw ASTWalkException.from("Invalid keyword '" + ident + "' in create-index encountered, expected 'unique'");
-            }
-        }
-
-        statementSpec.setCreateIndexDesc(new CreateIndexDesc(unique, indexName, windowName, columns));
+        CreateIndexDesc desc = ASTIndexHelper.walk(ctx, astExprNodeMap);
+        statementSpec.setCreateIndexDesc(desc);
     }
 
     public void exitAnnotationEnum(EsperEPL2GrammarParser.AnnotationEnumContext ctx) {

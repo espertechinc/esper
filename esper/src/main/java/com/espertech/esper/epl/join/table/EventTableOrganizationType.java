@@ -16,5 +16,6 @@ public enum EventTableOrganizationType {
     BTREE,
     COMPOSITE,
     MULTIINDEX,
+    APPLICATION,
     VDW
 }

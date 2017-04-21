@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
 import com.espertech.esper.epl.expression.core.ExprChainedSpec;
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprQueryFilterAnalyzerNode;
 import com.espertech.esper.epl.variable.VariableService;
 
 import java.util.List;
@@ -20,10 +20,9 @@ import java.util.List;
 /**
  * Represents an Dot-operator expression, for use when "(expression).method(...).method(...)"
  */
-public interface ExprDotNode extends ExprNode {
+public interface ExprDotNode extends ExprNode, ExprQueryFilterAnalyzerNode {
     Integer getStreamReferencedIfAny();
     List<ExprChainedSpec> getChainSpec();
     String isVariableOpGetName(VariableService variableService);
-    ExprDotNodeFilterAnalyzerDesc getExprDotNodeFilterAnalyzerDesc();
 }
 

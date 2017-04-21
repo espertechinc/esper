@@ -13,20 +13,20 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 
 public class SubordinateQueryIndexDesc {
-    private final IndexKeyInfo indexKeyInfo;
+    private final IndexKeyInfo optionalIndexKeyInfo;
     private final String indexName;
     private final IndexMultiKey indexMultiKey;
     private final QueryPlanIndexItem queryPlanIndexItem;
 
-    public SubordinateQueryIndexDesc(IndexKeyInfo indexKeyInfo, String indexName, IndexMultiKey indexMultiKey, QueryPlanIndexItem queryPlanIndexItem) {
-        this.indexKeyInfo = indexKeyInfo;
+    public SubordinateQueryIndexDesc(IndexKeyInfo optionalIndexKeyInfo, String indexName, IndexMultiKey indexMultiKey, QueryPlanIndexItem queryPlanIndexItem) {
+        this.optionalIndexKeyInfo = optionalIndexKeyInfo;
         this.indexName = indexName;
         this.indexMultiKey = indexMultiKey;
         this.queryPlanIndexItem = queryPlanIndexItem;
     }
 
-    public IndexKeyInfo getIndexKeyInfo() {
-        return indexKeyInfo;
+    public IndexKeyInfo getOptionalIndexKeyInfo() {
+        return optionalIndexKeyInfo;
     }
 
     public String getIndexName() {

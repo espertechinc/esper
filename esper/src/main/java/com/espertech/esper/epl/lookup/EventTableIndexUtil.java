@@ -13,11 +13,17 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.epl.expression.core.ExprIdentNode;
+import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.hint.IndexHintInstruction;
 import com.espertech.esper.epl.join.hint.IndexHintInstructionBust;
 import com.espertech.esper.epl.join.hint.IndexHintInstructionExplicit;
 import com.espertech.esper.epl.join.hint.IndexHintInstructionIndexName;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.spec.CreateIndexItem;
 import com.espertech.esper.epl.spec.CreateIndexType;
 import com.espertech.esper.util.JavaClassHelper;
@@ -31,35 +37,69 @@ public class EventTableIndexUtil {
     private static final Logger log = LoggerFactory.getLogger(EventTableIndexUtil.class);
     private final static IndexComparatorShortestPath INDEX_COMPARATOR_INSTANCE = new IndexComparatorShortestPath();
 
-    public static EventTableCreateIndexDesc validateCompileExplicitIndex(String indexName, boolean unique, List<CreateIndexItem> columns, EventType eventType)
+    public static QueryPlanIndexItem validateCompileExplicitIndex(String indexName, boolean unique, List<CreateIndexItem> columns, EventType eventType, StatementContext statementContext)
             throws ExprValidationException {
+
         List<IndexedPropDesc> hashProps = new ArrayList<IndexedPropDesc>();
         List<IndexedPropDesc> btreeProps = new ArrayList<IndexedPropDesc>();
+        Set<String> indexedColumns = new HashSet<String>();
+        AdvancedIndexProvisionDesc advancedIndexProvisionDesc = null;
 
-        Set<String> indexed = new HashSet<String>();
         for (CreateIndexItem columnDesc : columns) {
-            String columnName = columnDesc.getName();
-
-            Class type = JavaClassHelper.getBoxedType(eventType.getPropertyType(columnName));
-            if (type == null) {
-                throw new ExprValidationException("Property named '" + columnName + "' not found");
-            }
-            if (!indexed.add(columnName)) {
-                throw new ExprValidationException("Property named '" + columnName + "' has been declared more then once");
-            }
-
-            IndexedPropDesc desc = new IndexedPropDesc(columnName, type);
-            if (columnDesc.getType() == CreateIndexType.HASH) {
-                hashProps.add(desc);
+            String indexType = columnDesc.getType().toLowerCase(Locale.ENGLISH).trim();
+            if (indexType.equals(CreateIndexType.HASH.getNameLower()) || indexType.equals(CreateIndexType.BTREE.getNameLower())) {
+                validateBuiltin(columnDesc, eventType, hashProps, btreeProps, indexedColumns);
             } else {
-                btreeProps.add(desc);
+                if (advancedIndexProvisionDesc != null) {
+                    throw new ExprValidationException("Nested advanced-type indexes are not supported");
+                }
+                advancedIndexProvisionDesc = statementContext.getIndexProvisionService().validateCreateIndex(indexName, columnDesc, unique, eventType, statementContext);
             }
         }
 
         if (unique && !btreeProps.isEmpty()) {
             throw new ExprValidationException("Combination of unique index with btree (range) is not supported");
         }
-        return new EventTableCreateIndexDesc(indexName, hashProps, btreeProps, unique);
+        if ((!btreeProps.isEmpty() || !hashProps.isEmpty()) && advancedIndexProvisionDesc != null) {
+            throw new ExprValidationException("Combination of hash/btree columns an advanced-type indexes is not supported");
+        }
+        return new QueryPlanIndexItem(hashProps, btreeProps, unique, advancedIndexProvisionDesc);
+    }
+
+    private static void validateBuiltin(CreateIndexItem columnDesc, EventType eventType, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, Set<String> indexedColumns)
+            throws ExprValidationException {
+
+        if (columnDesc.getExpressions().isEmpty()) {
+            throw new ExprValidationException("Invalid empty list of index expressions");
+        }
+        if (columnDesc.getExpressions().size() > 1) {
+            throw new ExprValidationException("Invalid multiple index expressions for index type '" + columnDesc.getType() + "'");
+        }
+        ExprNode expression = columnDesc.getExpressions().get(0);
+        if (!(expression instanceof ExprIdentNode)) {
+            throw new ExprValidationException("Invalid index expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression) + "'");
+        }
+        ExprIdentNode identNode = (ExprIdentNode) expression;
+        if (identNode.getFullUnresolvedName().contains(".")) {
+            throw new ExprValidationException("Invalid index expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(expression) + "'");
+        }
+
+        String columnName = identNode.getFullUnresolvedName();
+        Class type = JavaClassHelper.getBoxedType(eventType.getPropertyType(columnName));
+        if (type == null) {
+            throw new ExprValidationException("Property named '" + columnName + "' not found");
+        }
+        if (!indexedColumns.add(columnName)) {
+            throw new ExprValidationException("Property named '" + columnName + "' has been declared more then once");
+        }
+
+        IndexedPropDesc desc = new IndexedPropDesc(columnName, type);
+        String indexType = columnDesc.getType().toLowerCase(Locale.ENGLISH);
+        if (indexType.equals(CreateIndexType.HASH.getNameLower())) {
+            hashProps.add(desc);
+        } else {
+            btreeProps.add(desc);
+        }
     }
 
     public static IndexMultiKey findIndexConsiderTyping(Map<IndexMultiKey, EventTableIndexMetadataEntry> tableIndexesRefCount,
@@ -82,9 +122,9 @@ public class EventTableIndexUtil {
         }
 
         // Get an existing table, if any, matching the exact requirement, prefer unique
-        IndexMultiKey indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), true, hashProps, btreeProps);
+        IndexMultiKey indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), true, hashProps, btreeProps, null);
         if (indexPropKeyMatch == null) {
-            indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), false, hashProps, btreeProps);
+            indexPropKeyMatch = EventTableIndexUtil.findExactMatchNameAndType(tableIndexesRefCount.keySet(), false, hashProps, btreeProps, null);
         }
         if (indexPropKeyMatch != null) {
             return indexPropKeyMatch;
@@ -179,9 +219,9 @@ public class EventTableIndexUtil {
         return null;
     }
 
-    public static IndexMultiKey findExactMatchNameAndType(Set<IndexMultiKey> indexMultiKeys, boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps) {
+    public static IndexMultiKey findExactMatchNameAndType(Set<IndexMultiKey> indexMultiKeys, boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, AdvancedIndexDesc advancedIndexDesc) {
         for (IndexMultiKey existing : indexMultiKeys) {
-            if (isExactMatch(existing, unique, hashProps, btreeProps)) {
+            if (isExactMatch(existing, unique, hashProps, btreeProps, advancedIndexDesc)) {
                 return existing;
             }
         }
@@ -231,12 +271,20 @@ public class EventTableIndexUtil {
         return false;
     }
 
-    private static boolean isExactMatch(IndexMultiKey existing, boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps) {
+    private static boolean isExactMatch(IndexMultiKey existing, boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, AdvancedIndexDesc advancedIndexDesc) {
         if (existing.isUnique() != unique) {
             return false;
         }
-        boolean keyPropCompare = IndexedPropDesc.compare(Arrays.asList(existing.getHashIndexedProps()), hashProps);
-        return keyPropCompare && IndexedPropDesc.compare(Arrays.asList(existing.getRangeIndexedProps()), btreeProps);
+        if (!IndexedPropDesc.compare(Arrays.asList(existing.getHashIndexedProps()), hashProps)) {
+            return false;
+        }
+        if (!IndexedPropDesc.compare(Arrays.asList(existing.getRangeIndexedProps()), btreeProps)) {
+            return false;
+        }
+        if (existing.getAdvancedIndexDesc() == null) {
+            return advancedIndexDesc == null;
+        }
+        return advancedIndexDesc != null && existing.getAdvancedIndexDesc().equalsAdvancedIndex(advancedIndexDesc);
     }
 
     private static boolean indexMatchesProvided(IndexMultiKey indexDesc, List<IndexedPropDesc> hashPropsProvided, List<IndexedPropDesc> rangePropsProvided) {

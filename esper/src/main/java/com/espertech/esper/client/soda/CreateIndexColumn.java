@@ -12,6 +12,8 @@ package com.espertech.esper.client.soda;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -20,8 +22,9 @@ import java.util.Locale;
 public class CreateIndexColumn implements Serializable {
     private static final long serialVersionUID = 0L;
 
-    private String columnName;
-    private CreateIndexColumnType type = CreateIndexColumnType.HASH;
+    private List<Expression> columns;
+    private String type;
+    private List<Expression> parameters;
 
     /**
      * Ctor.
@@ -35,7 +38,7 @@ public class CreateIndexColumn implements Serializable {
      * @param columnName column name
      */
     public CreateIndexColumn(String columnName) {
-        this.columnName = columnName;
+        this(columnName, CreateIndexColumnType.HASH);
     }
 
     /**
@@ -45,8 +48,20 @@ public class CreateIndexColumn implements Serializable {
      * @param type       index type
      */
     public CreateIndexColumn(String columnName, CreateIndexColumnType type) {
-        this.columnName = columnName;
+        this.columns = Collections.singletonList(Expressions.property(columnName));
+        this.type = type.name();
+    }
+
+    /**
+     * Ctor
+     * @param columns columns
+     * @param type index type
+     * @param parameters index parameters
+     */
+    public CreateIndexColumn(List<Expression> columns, String type, List<Expression> parameters) {
+        this.columns = columns;
         this.type = type;
+        this.parameters = parameters;
     }
 
     /**
@@ -55,46 +70,79 @@ public class CreateIndexColumn implements Serializable {
      * @param writer to output to
      */
     public void toEPL(StringWriter writer) {
-        writer.write(columnName);
-        if (type != CreateIndexColumnType.HASH) {
+        if (columns.size() > 1) {
+            writer.write("(");
+        }
+
+        ExpressionBase.toPrecedenceFreeEPL(columns, writer);
+        if (columns.size() > 1) {
+            writer.write(")");
+        }
+
+        if (type != null && !type.toLowerCase(Locale.ENGLISH).equals(CreateIndexColumnType.HASH.getNameLower())) {
             writer.write(' ');
-            writer.write(type.toString().toLowerCase(Locale.ENGLISH));
+            writer.write(type.toLowerCase(Locale.ENGLISH));
+        }
+
+        if (!parameters.isEmpty()) {
+            writer.write("(");
+            ExpressionBase.toPrecedenceFreeEPL(parameters, writer);
+            writer.write(")");
         }
     }
 
     /**
-     * Returns the column name.
+     * Returns index column expressions
      *
-     * @return column name
+     * @return columns to be indexed
      */
-    public String getColumnName() {
-        return columnName;
+    public List<Expression> getColumns() {
+        return columns;
     }
 
     /**
-     * Set the column name.
+     * Sets index column expressions
      *
-     * @param columnName name to set
+     * @param columns to be indexed
      */
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
+    public void setColumns(List<Expression> columns) {
+        this.columns = columns;
     }
 
     /**
-     * Returns the index type.
+     * Sets the index type
      *
-     * @return index type
+     * @param type index type name
      */
-    public CreateIndexColumnType getType() {
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     * Returns the index type name
+     *
+     * @return index type name
+     */
+    public String getType() {
         return type;
     }
 
     /**
-     * Sets the index type.
+     * Returns index parameters
      *
-     * @param type of index
+     * @return parameters
      */
-    public void setType(CreateIndexColumnType type) {
-        this.type = type;
+    public List<Expression> getParameters() {
+        return parameters;
     }
+
+    /**
+     * Sets index parameters
+     *
+     * @param parameters to ser
+     */
+    public void setParameters(List<Expression> parameters) {
+        this.parameters = parameters;
+    }
+
 }

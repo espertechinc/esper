@@ -57,6 +57,6 @@ public class TableServiceUtil {
             count++;
         }
         int[] keyColIndexes = CollectionUtil.intArray(keyIndexes);
-        return new Pair<int[], IndexMultiKey>(keyColIndexes, new IndexMultiKey(true, indexFields, Collections.<IndexedPropDesc>emptyList()));
+        return new Pair<int[], IndexMultiKey>(keyColIndexes, new IndexMultiKey(true, indexFields, Collections.<IndexedPropDesc>emptyList(), null));
     }
 }

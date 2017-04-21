@@ -53,11 +53,11 @@ public class TestExprNode extends TestCase {
     }
 
     public void testDeepEquals() throws Exception {
-        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make2SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd()));
-        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeEqualsNode(), SupportExprNodeFactory.makeMathNode()));
-        assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.makeMathNode()));
-        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.make2SubNodeAnd()));
-        assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make3SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd()));
+        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make2SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd(), false));
+        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeEqualsNode(), SupportExprNodeFactory.makeMathNode(), false));
+        assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.makeMathNode(), false));
+        assertFalse(ExprNodeUtility.deepEquals(SupportExprNodeFactory.makeMathNode(), SupportExprNodeFactory.make2SubNodeAnd(), false));
+        assertTrue(ExprNodeUtility.deepEquals(SupportExprNodeFactory.make3SubNodeAnd(), SupportExprNodeFactory.make3SubNodeAnd(), false));
     }
 
     public void testParseMappedProp() {

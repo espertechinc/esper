@@ -19,7 +19,7 @@ import com.espertech.esper.core.service.resource.StatementResourceHolder;
 import com.espertech.esper.core.service.resource.StatementResourceService;
 import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.lookup.EventTableIndexMetadata;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.lookup.IndexedPropDesc;
@@ -264,8 +264,8 @@ public class NamedWindowProcessor {
         }
     }
 
-    public void validateAddIndex(String statementName, EventTableCreateIndexDesc explicitIndexDesc, IndexMultiKey imk) throws ExprValidationException {
-        eventTableIndexMetadataRepo.addIndexExplicit(false, imk, explicitIndexDesc, statementName, true, null);
+    public void validateAddIndex(String statementName, String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, IndexMultiKey imk) throws ExprValidationException {
+        eventTableIndexMetadataRepo.addIndexExplicit(false, imk, explicitIndexName, explicitIndexDesc, statementName);
     }
 
     public void removeIndexReferencesStmtMayRemoveIndex(IndexMultiKey imk, String finalStatementName) {

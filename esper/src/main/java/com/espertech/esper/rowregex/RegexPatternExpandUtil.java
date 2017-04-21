@@ -239,13 +239,12 @@ public class RegexPatternExpandUtil {
     }
 
     private static void validateExpression(ExprNode repeat) throws ExprValidationException {
-        String expression = "pattern quantifier '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(repeat) + "'";
-        ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.MATCHRECOGPATTERN, expression, repeat);
+        ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.MATCHRECOGPATTERN, repeat);
         if (!repeat.isConstantResult()) {
-            throw new ExprValidationException(expression + " must return a constant value");
+            throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return a constant value");
         }
         if (JavaClassHelper.getBoxedType(repeat.getExprEvaluator().getType()) != Integer.class) {
-            throw new ExprValidationException(expression + " must return an integer-type value");
+            throw new ExprValidationException(getPatternQuantifierExpressionText(repeat) + " must return an integer-type value");
         }
     }
 
@@ -270,5 +269,9 @@ public class RegexPatternExpandUtil {
             }
             return nestedCopy;
         }
+    }
+
+    private static String getPatternQuantifierExpressionText(ExprNode exprNode) {
+        return "pattern quantifier '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(exprNode) + "'";
     }
 }

@@ -553,7 +553,7 @@ public class ExprTimePeriodImpl extends ExprNodeBase implements ExprTimePeriod, 
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprTimePeriodImpl)) {
             return false;
         }

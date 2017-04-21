@@ -41,9 +41,9 @@ public class TestJoinSetComposerImpl extends TestCase {
         newEventTwo = SupportEventBeanFactory.makeEvents(new String[]{"s2_3"});
 
         indexLeft = new UnindexedEventTableImpl(1);
-        indexLeft.add(indexedEventOne);
+        indexLeft.add(indexedEventOne, null);
         indexRight = new UnindexedEventTableImpl(1);
-        indexRight.add(indexedEventTwo);
+        indexRight.add(indexedEventTwo, null);
 
         QueryStrategy[] queryStrategies = new QueryStrategy[2];
         TableLookupExecNode lookupLeft = new TableLookupExecNode(1, new FullTableScanLookupStrategy(indexRight));

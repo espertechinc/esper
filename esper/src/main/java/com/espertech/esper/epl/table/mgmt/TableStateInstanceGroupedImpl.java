@@ -19,8 +19,8 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.agg.access.AggregationServicePassThru;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.*;
-import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.epl.lookup.EventTableIndexRepositoryEntry;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
@@ -82,11 +82,11 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
         }
         try {
             for (EventTable table : indexRepository.getTables()) {
-                table.add(theEvent);
+                table.add(theEvent, agentInstanceContext);
             }
         } catch (EPException ex) {
             for (EventTable table : indexRepository.getTables()) {
-                table.remove(theEvent);
+                table.remove(theEvent, agentInstanceContext);
             }
             throw ex;
         } finally {
@@ -101,7 +101,7 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
             InstrumentationHelper.get().qTableDeleteEvent(matchingEvent);
         }
         for (EventTable table : indexRepository.getTables()) {
-            table.remove(matchingEvent);
+            table.remove(matchingEvent, agentInstanceContext);
         }
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().aTableDeleteEvent();
@@ -112,8 +112,8 @@ public class TableStateInstanceGroupedImpl extends TableStateInstance implements
         return new PrimaryIndexIterable(rows);
     }
 
-    public void addExplicitIndex(EventTableCreateIndexDesc desc, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
-        indexRepository.validateAddExplicitIndex(desc, tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient || allowIndexExists, null);
+    public void addExplicitIndex(String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, boolean isRecoveringResilient, boolean allowIndexExists) throws ExprValidationException {
+        indexRepository.validateAddExplicitIndex(explicitIndexName, explicitIndexDesc, tableMetadata.getInternalEventType(), new PrimaryIndexIterable(rows), getAgentInstanceContext(), isRecoveringResilient || allowIndexExists, null);
     }
 
     public String[] getSecondaryIndexes() {

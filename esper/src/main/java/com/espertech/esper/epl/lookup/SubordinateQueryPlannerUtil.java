@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SubordinateQueryPlannerUtil {
+    private EventBean[] events;
+
     public static void queryPlanLogOnExpr(boolean queryPlanLogging, Logger queryPlanLog, SubordinateWMatchExprQueryPlanResult strategy, Annotation[] annotations, EngineImportService engineImportService) {
         QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, engineImportService);
         if (queryPlanLogging && (queryPlanLog.isInfoEnabled() || hook != null)) {
@@ -185,14 +187,14 @@ public class SubordinateQueryPlannerUtil {
             SubordinateQueryIndexDesc desc = indexDescriptors[i];
             EventTable table = indexRepository.getIndexByDesc(desc.getIndexMultiKey());
             if (table == null) {
-                table = EventTableUtil.buildIndex(agentInstanceContext, 0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), null, null, false);
+                table = EventTableUtil.buildIndex(agentInstanceContext, 0, desc.getQueryPlanIndexItem(), eventType, true, desc.getIndexMultiKey().isUnique(), desc.getIndexName(), null, false);
 
                 // fill table since its new
                 if (!isRecoveringResilient) {
                     EventBean[] events = new EventBean[1];
                     for (EventBean prefilledEvent : contents) {
                         events[0] = prefilledEvent;
-                        table.add(events);
+                        table.add(events, agentInstanceContext);
                     }
                 }
 
@@ -208,7 +210,7 @@ public class SubordinateQueryPlannerUtil {
             if (desc.getIndexName() != null) {
                 repo.addIndexReference(desc.getIndexName(), statementName);
             } else {
-                repo.addIndexNonExplicit(false, desc.getIndexMultiKey(), statementName, false, desc.getQueryPlanIndexItem());
+                repo.addIndexNonExplicit(desc.getIndexMultiKey(), statementName, desc.getQueryPlanIndexItem());
                 repo.addIndexReference(desc.getIndexMultiKey(), statementName);
             }
         }

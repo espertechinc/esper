@@ -62,6 +62,7 @@ public class SupportMessageAssertUtil {
         }
         else {
             // Comment-in for logging: log.error("Exception: " + ex.getMessage(), ex);
+            ex.printStackTrace();
             Assert.fail("No assertion provided, received: " + ex.getMessage());
         }
     }

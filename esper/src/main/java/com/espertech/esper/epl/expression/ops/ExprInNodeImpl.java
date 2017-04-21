@@ -253,7 +253,7 @@ public class ExprInNodeImpl extends ExprNodeBase implements ExprEvaluator, ExprI
         return false;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprInNodeImpl)) {
             return false;
         }

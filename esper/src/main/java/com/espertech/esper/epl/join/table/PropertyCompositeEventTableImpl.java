@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexEnterRemove;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexQueryResultPostProcessor;
 
@@ -48,11 +49,11 @@ public class PropertyCompositeEventTableImpl extends PropertyCompositeEventTable
         return index;
     }
 
-    public void add(EventBean theEvent) {
+    public void add(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         chain.enter(theEvent, index);
     }
 
-    public void remove(EventBean theEvent) {
+    public void remove(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         chain.remove(theEvent, index);
     }
 

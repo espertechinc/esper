@@ -124,7 +124,7 @@ public class ExprTableIdentNodeSubpropAccessor extends ExprNodeBase implements E
         return false;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return false;
     }
 

@@ -260,6 +260,10 @@
 			</para>
 			
 			<para>
+				The dot-operator is also relevant to spatial methods and the use of spatial indexes. See <xref linkend="spatial"/>.
+			</para>
+
+			<para>
 				This section only describes the dot-operator in relation to property instance methods, the special <literal>get</literal> and <literal>size</literal> indexed-property methods and duck typing.
 			</para>
 

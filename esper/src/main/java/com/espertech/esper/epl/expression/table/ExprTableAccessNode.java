@@ -111,7 +111,7 @@ public abstract class ExprTableAccessNode extends ExprNodeBase {
         return column;
     }
 
-    public boolean equalsNode(ExprNode o) {
+    public boolean equalsNode(ExprNode o, boolean ignoreStreamPrefix) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 

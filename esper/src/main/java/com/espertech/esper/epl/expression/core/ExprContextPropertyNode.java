@@ -93,7 +93,7 @@ public class ExprContextPropertyNode extends ExprNodeBase implements ExprEvaluat
         return getter;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (this == node) return true;
         if (node == null || getClass() != node.getClass()) return false;
 

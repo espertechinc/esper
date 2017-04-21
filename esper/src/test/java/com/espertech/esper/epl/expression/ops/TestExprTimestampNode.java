@@ -14,7 +14,6 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.epl.expression.time.ExprTimestampNode;
 import com.espertech.esper.schedule.TimeProvider;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
@@ -57,8 +56,8 @@ public class TestExprTimestampNode extends TestCase {
     }
 
     public void testEquals() throws Exception {
-        assertFalse(node.equalsNode(new ExprEqualsNodeImpl(true, false)));
-        assertTrue(node.equalsNode(new ExprTimestampNode()));
+        assertFalse(node.equalsNode(new ExprEqualsNodeImpl(true, false), false));
+        assertTrue(node.equalsNode(new ExprTimestampNode(), false));
     }
 
     public void testToExpressionString() throws Exception {

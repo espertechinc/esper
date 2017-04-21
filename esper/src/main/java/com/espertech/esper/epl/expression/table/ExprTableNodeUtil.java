@@ -47,7 +47,7 @@ public class ExprTableNodeUtil {
                         " expression for use with table '" +
                         tableName +
                         "', the " + providedName + " expression '" +
-                        ExprNodeUtility.toExpressionStringMinPrecedence(providedExpr) + "' returns '" +
+                        ExprNodeUtility.toExpressionStringMinPrecedenceAsList(providedExpr) + "' returns '" +
                         JavaClassHelper.getClassNameFullyQualPretty(actual) + "' but the table expects '" +
                         JavaClassHelper.getClassNameFullyQualPretty(expected) + "'");
             }

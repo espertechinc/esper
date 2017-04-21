@@ -175,7 +175,7 @@ public abstract class ExprAggregateNodeBase extends ExprNodeBase implements Expr
         return isDistinct;
     }
 
-    public final boolean equalsNode(ExprNode node) {
+    public final boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprAggregateNode)) {
             return false;
         }

@@ -1,6 +1,14 @@
 Esper Changelog
 ===================
 
+Changes in version 6.1.0
+------------------------
+
+API Change:
+  - We have changed how to the statement object model reflects indexes. This affected the following classes:
+    com.espertech.esper.client.soda.CreateIndexColumn (from the statement object model)
+    com.espertech.esper.client.hook.VirtualDataWindowEventStartIndex (from the virtual data window SPI)
+
 Changes in version 6.0.1
 ------------------------
   - Requires Java 8

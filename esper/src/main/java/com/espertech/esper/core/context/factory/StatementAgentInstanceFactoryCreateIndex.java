@@ -14,7 +14,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.lookup.EventTableCreateIndexDesc;
+import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.spec.CreateIndexDesc;
@@ -31,9 +31,9 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
     private final NamedWindowProcessor namedWindowProcessor;
     private final String tableName;
     private final String contextName;
-    private final EventTableCreateIndexDesc explicitIndexDesc;
+    private final QueryPlanIndexItem explicitIndexDesc;
 
-    public StatementAgentInstanceFactoryCreateIndex(EPServicesContext services, CreateIndexDesc spec, Viewable finalView, NamedWindowProcessor namedWindowProcessor, String tableName, String contextName, EventTableCreateIndexDesc explicitIndexDesc) {
+    public StatementAgentInstanceFactoryCreateIndex(EPServicesContext services, CreateIndexDesc spec, Viewable finalView, NamedWindowProcessor namedWindowProcessor, String tableName, String contextName, QueryPlanIndexItem explicitIndexDesc) {
         this.services = services;
         this.spec = spec;
         this.finalView = finalView;
@@ -61,7 +61,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
                 };
             } else {
                 try {
-                    processorInstance.getRootViewInstance().addExplicitIndex(explicitIndexDesc, isRecoveringResilient);
+                    processorInstance.getRootViewInstance().addExplicitIndex(spec.getIndexName(), explicitIndexDesc, isRecoveringResilient);
                 } catch (ExprValidationException e) {
                     throw new EPException("Failed to create index: " + e.getMessage(), e);
                 }
@@ -83,7 +83,7 @@ public class StatementAgentInstanceFactoryCreateIndex implements StatementAgentI
             // handle table access
             try {
                 TableStateInstance instance = services.getTableService().getState(tableName, agentInstanceContext.getAgentInstanceId());
-                instance.addExplicitIndex(explicitIndexDesc, isRecoveringResilient, contextName != null);
+                instance.addExplicitIndex(spec.getIndexName(), explicitIndexDesc, isRecoveringResilient, contextName != null);
             } catch (ExprValidationException ex) {
                 throw new EPException("Failed to create index: " + ex.getMessage(), ex);
             }

@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.SingleEventIterator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.event.ObjectArrayBackedEventBean;
 
 import java.util.Collections;
@@ -28,23 +29,23 @@ public class SingleReferenceEventTable implements EventTable, EventTableAsSet {
         this.eventReference = eventReference;
     }
 
-    public void addRemove(EventBean[] newData, EventBean[] oldData) {
+    public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean[] events) {
+    public void add(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean event) {
+    public void add(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void remove(EventBean[] events) {
+    public void remove(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void remove(EventBean event) {
+    public void remove(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 

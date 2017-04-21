@@ -55,7 +55,7 @@ public class ExprLambdaGoesNode extends ExprNodeBase implements ExprEvaluator, E
         throw new UnsupportedOperationException();
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return false;
     }
 

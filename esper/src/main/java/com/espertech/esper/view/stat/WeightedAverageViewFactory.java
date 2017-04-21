@@ -81,8 +81,8 @@ public class WeightedAverageViewFactory implements ViewFactory {
         }
 
         WeightedAverageView myView = (WeightedAverageView) view;
-        if ((!ExprNodeUtility.deepEquals(fieldNameWeight, myView.getFieldNameWeight())) ||
-                (!ExprNodeUtility.deepEquals(fieldNameX, myView.getFieldNameX()))) {
+        if ((!ExprNodeUtility.deepEquals(fieldNameWeight, myView.getFieldNameWeight(), false)) ||
+                (!ExprNodeUtility.deepEquals(fieldNameX, myView.getFieldNameX(), false))) {
             return false;
         }
         return true;

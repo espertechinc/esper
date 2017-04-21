@@ -14,6 +14,7 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
 import java.util.*;
@@ -36,23 +37,23 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
 
     /**
      * Remove then add events.
-     *
-     * @param newData to add
+     *  @param newData to add
      * @param oldData to remove
+     * @param exprEvaluatorContext evaluator context
      */
     @Override
-    public void addRemove(EventBean[] newData, EventBean[] oldData) {
+    public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
         }
         if (oldData != null) {
             for (EventBean theEvent : oldData) {
-                remove(theEvent);
+                remove(theEvent, exprEvaluatorContext);
             }
         }
         if (newData != null) {
             for (EventBean theEvent : newData) {
-                add(theEvent);
+                add(theEvent, exprEvaluatorContext);
             }
         }
         if (InstrumentationHelper.ENABLED) {
@@ -69,7 +70,7 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         return null;
     }
 
-    public void add(EventBean theEvent) {
+    public void add(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         MultiKeyUntyped key = getMultiKey(theEvent);
 
         EventBean existing = propertyIndex.put(key, theEvent);
@@ -83,7 +84,7 @@ public class PropertyIndexedEventTableUnique extends PropertyIndexedEventTable i
         throw new EPException("Unique index violation, index" + indexNameDisplay + " is a unique index and key '" + key + "' already exists");
     }
 
-    public void remove(EventBean theEvent) {
+    public void remove(EventBean theEvent, ExprEvaluatorContext exprEvaluatorContext) {
         MultiKeyUntyped key = getMultiKey(theEvent);
         propertyIndex.remove(key);
     }

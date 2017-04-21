@@ -14,6 +14,16 @@ package com.espertech.esper.epl.spec;
  * Specification for creating a named window index column type.
  */
 public enum CreateIndexType {
-    BTREE,
-    HASH
+    HASH("hash"),
+    BTREE("btree");
+
+    private final String nameLower;
+
+    CreateIndexType(String nameLower) {
+        this.nameLower = nameLower;
+    }
+
+    public String getNameLower() {
+        return nameLower;
+    }
 }

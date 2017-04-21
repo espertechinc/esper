@@ -15,7 +15,6 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.methodagg.ExprMinMaxAggrNode;
 import com.espertech.esper.epl.expression.methodagg.ExprSumNode;
-import com.espertech.esper.epl.expression.ops.ExprMathNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
 import com.espertech.esper.supportunit.epl.SupportStreamTypeSvc3Stream;
@@ -83,9 +82,9 @@ public class TestExprMinMaxAggrNode extends TestExprAggregateNodeAdapter {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(minNode.equalsNode(minNode));
-        assertFalse(maxNode.equalsNode(minNode));
-        assertFalse(minNode.equalsNode(new ExprSumNode(false)));
+        assertTrue(minNode.equalsNode(minNode, false));
+        assertFalse(maxNode.equalsNode(minNode, false));
+        assertFalse(minNode.equalsNode(new ExprSumNode(false), false));
     }
 
     private ExprMinMaxAggrNode makeNode(MinMaxTypeEnum minMaxType, Object value, Class type) throws Exception {

@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexEnterRemove;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexEnterRemoveKeyed;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexEnterRemoveRange;
@@ -68,7 +69,7 @@ public class PropertyCompositeEventTableFactory implements EventTableFactory {
         chain = enterRemoves.get(0);
     }
 
-    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent) {
+    public EventTable[] makeEventTables(EventTableFactoryTableIdent tableIdent, ExprEvaluatorContext exprEvaluatorContext) {
         EventTableOrganization organization = getOrganization();
         return new EventTable[]{new PropertyCompositeEventTableImpl(optKeyCoercedTypes, optRangeCoercedTypes, organization, optionalKeyedProps != null && optionalKeyedProps.length > 0, chain)};
     }

@@ -125,7 +125,7 @@ public class ExprRelationalOpNodeImpl extends ExprNodeBase implements ExprEvalua
         return ExprPrecedenceEnum.RELATIONAL_BETWEEN_IN;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprRelationalOpNodeImpl)) {
             return false;
         }

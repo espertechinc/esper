@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.pollindex;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.join.table.*;
 
@@ -43,9 +44,10 @@ public class PollResultIndexingStrategySorted implements PollResultIndexingStrat
         } else {
             tableFactory = new PropertySortedEventTableCoercedFactory(streamNum, eventType, propertyName, coercionType);
         }
-        EventTable[] tables = tableFactory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext));
+        ExprEvaluatorContextStatement evaluatorContextStatement = new ExprEvaluatorContextStatement(statementContext, false);
+        EventTable[] tables = tableFactory.makeEventTables(new EventTableFactoryTableIdentStmt(statementContext), evaluatorContextStatement);
         for (EventTable table : tables) {
-            table.add(pollResult.toArray(new EventBean[pollResult.size()]));
+            table.add(pollResult.toArray(new EventBean[pollResult.size()]), evaluatorContextStatement);
         }
         return tables;
     }

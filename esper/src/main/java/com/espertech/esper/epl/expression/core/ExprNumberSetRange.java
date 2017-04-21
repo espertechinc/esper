@@ -47,7 +47,7 @@ public class ExprNumberSetRange extends ExprNodeBase implements ExprEvaluator {
         return this.getChildNodes()[0].isConstantResult() && this.getChildNodes()[1].isConstantResult();
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return node instanceof ExprNumberSetRange;
     }
 

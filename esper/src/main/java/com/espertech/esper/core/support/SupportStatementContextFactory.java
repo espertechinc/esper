@@ -21,6 +21,7 @@ import com.espertech.esper.epl.agg.factory.AggregationFactoryFactoryDefault;
 import com.espertech.esper.epl.agg.service.AggregationServiceFactoryServiceImpl;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.index.service.AdvancedIndexProvisionService;
 import com.espertech.esper.epl.named.NamedWindowMgmtServiceImpl;
 import com.espertech.esper.epl.spec.PluggableObjectCollection;
 import com.espertech.esper.epl.spec.PluggableObjectRegistryImpl;
@@ -98,7 +99,7 @@ public class SupportStatementContextFactory {
                 null,
                 null,
                 null,
-                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl(), timeSourceService, SupportEngineImportServiceFactory.make(), AggregationFactoryFactoryDefault.INSTANCE, new SchedulingServiceImpl(timeSourceService), null);
+                new StatementEventTypeRefImpl(), null, null, null, null, null, new ViewServicePreviousFactoryImpl(), null, new PatternNodeFactoryImpl(), new FilterBooleanExpressionFactoryImpl(), timeSourceService, SupportEngineImportServiceFactory.make(), AggregationFactoryFactoryDefault.INSTANCE, new SchedulingServiceImpl(timeSourceService), null, new AdvancedIndexProvisionService());
 
         return new StatementContext(stmtEngineServices,
                 stub,

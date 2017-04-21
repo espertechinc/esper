@@ -12,6 +12,7 @@ package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValue;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 
@@ -66,18 +67,18 @@ public abstract class PropertySortedEventTable implements EventTable {
         return propertyGetter.get(theEvent);
     }
 
-    public void addRemove(EventBean[] newData, EventBean[] oldData) {
+    public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
         if (InstrumentationHelper.ENABLED) {
             InstrumentationHelper.get().qIndexAddRemove(this, newData, oldData);
         }
         if (newData != null) {
             for (EventBean theEvent : newData) {
-                add(theEvent);
+                add(theEvent, exprEvaluatorContext);
             }
         }
         if (oldData != null) {
             for (EventBean theEvent : oldData) {
-                remove(theEvent);
+                remove(theEvent, exprEvaluatorContext);
             }
         }
         if (InstrumentationHelper.ENABLED) {
@@ -90,22 +91,23 @@ public abstract class PropertySortedEventTable implements EventTable {
      * Allow null passed instead of an empty array.
      *
      * @param events to add
+     * @param exprEvaluatorContext evaluator context
      * @throws IllegalArgumentException if the event was already existed in the index
      */
-    public void add(EventBean[] events) {
+    public void add(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
                 InstrumentationHelper.get().qIndexAdd(this, events);
                 for (EventBean theEvent : events) {
-                    add(theEvent);
+                    add(theEvent, exprEvaluatorContext);
                 }
                 InstrumentationHelper.get().aIndexAdd();
                 return;
             }
 
             for (EventBean theEvent : events) {
-                add(theEvent);
+                add(theEvent, exprEvaluatorContext);
             }
         }
     }
@@ -114,22 +116,23 @@ public abstract class PropertySortedEventTable implements EventTable {
      * Remove events.
      *
      * @param events to be removed, can be null instead of an empty array.
+     * @param exprEvaluatorContext evaluator context
      * @throws IllegalArgumentException when the event could not be removed as its not in the index
      */
-    public void remove(EventBean[] events) {
+    public void remove(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         if (events != null) {
 
             if (InstrumentationHelper.ENABLED && events.length > 0) {
                 InstrumentationHelper.get().qIndexRemove(this, events);
                 for (EventBean theEvent : events) {
-                    remove(theEvent);
+                    remove(theEvent, exprEvaluatorContext);
                 }
                 InstrumentationHelper.get().aIndexRemove();
                 return;
             }
 
             for (EventBean theEvent : events) {
-                remove(theEvent);
+                remove(theEvent, exprEvaluatorContext);
             }
         }
     }

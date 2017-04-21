@@ -19,11 +19,13 @@ public class IndexMultiKey {
     private final boolean unique;
     private final IndexedPropDesc[] hashIndexedProps;
     private final IndexedPropDesc[] rangeIndexedProps;
+    private final AdvancedIndexDesc advancedIndexDesc;
 
-    public IndexMultiKey(boolean unique, List<IndexedPropDesc> hashIndexedProps, List<IndexedPropDesc> rangeIndexedProps) {
+    public IndexMultiKey(boolean unique, List<IndexedPropDesc> hashIndexedProps, List<IndexedPropDesc> rangeIndexedProps, AdvancedIndexDesc advancedIndexDesc) {
         this.unique = unique;
         this.hashIndexedProps = hashIndexedProps.toArray(new IndexedPropDesc[hashIndexedProps.size()]);
         this.rangeIndexedProps = rangeIndexedProps.toArray(new IndexedPropDesc[rangeIndexedProps.size()]);
+        this.advancedIndexDesc = advancedIndexDesc;
     }
 
     public boolean isUnique() {
@@ -38,6 +40,10 @@ public class IndexMultiKey {
         return rangeIndexedProps;
     }
 
+    public AdvancedIndexDesc getAdvancedIndexDesc() {
+        return advancedIndexDesc;
+    }
+
     public String toQueryPlan() {
         StringWriter writer = new StringWriter();
         writer.append(unique ? "unique " : "non-unique ");
@@ -45,6 +51,8 @@ public class IndexMultiKey {
         IndexedPropDesc.toQueryPlan(writer, hashIndexedProps);
         writer.append("} btree={");
         IndexedPropDesc.toQueryPlan(writer, rangeIndexedProps);
+        writer.append("} advanced={");
+        writer.append(advancedIndexDesc == null ? "" : advancedIndexDesc.toQueryPlan());
         writer.append("}");
         return writer.toString();
     }
@@ -58,8 +66,11 @@ public class IndexMultiKey {
         if (unique != that.unique) return false;
         if (!Arrays.equals(hashIndexedProps, that.hashIndexedProps)) return false;
         if (!Arrays.equals(rangeIndexedProps, that.rangeIndexedProps)) return false;
-
-        return true;
+        if (advancedIndexDesc == null) {
+            return that.advancedIndexDesc == null;
+        } else {
+            return that.advancedIndexDesc != null && advancedIndexDesc.equalsAdvancedIndex(that.advancedIndexDesc);
+        }
     }
 
     public int hashCode() {

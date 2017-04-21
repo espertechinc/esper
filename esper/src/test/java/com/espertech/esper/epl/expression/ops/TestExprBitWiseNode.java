@@ -78,8 +78,8 @@ public class TestExprBitWiseNode extends TestCase {
     public void testEqualsNode() throws Exception {
         log.debug(".testEqualsNode");
         _bitWiseNode = new ExprBitWiseNode(BitWiseOpEnum.BAND);
-        assertTrue(_bitWiseNode.equalsNode(_bitWiseNode));
-        assertFalse(_bitWiseNode.equalsNode(new ExprBitWiseNode(BitWiseOpEnum.BXOR)));
+        assertTrue(_bitWiseNode.equalsNode(_bitWiseNode, false));
+        assertFalse(_bitWiseNode.equalsNode(new ExprBitWiseNode(BitWiseOpEnum.BXOR), false));
     }
 
     public void testToExpressionString() throws Exception {

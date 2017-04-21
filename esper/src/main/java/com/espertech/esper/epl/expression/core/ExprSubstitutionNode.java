@@ -89,7 +89,7 @@ public class ExprSubstitutionNode extends ExprNodeBase {
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprSubstitutionNode)) {
             return false;
         }

@@ -151,7 +151,7 @@ public class ExprMinMaxRowNode extends ExprNodeBase implements ExprEvaluator {
         return ExprPrecedenceEnum.UNARY;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprMinMaxRowNode)) {
             return false;
         }

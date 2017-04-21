@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.expression.ops.ExprRegexpNode;
 import com.espertech.esper.supportunit.bean.SupportBean;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.supportunit.epl.SupportExprNodeFactory;
@@ -66,8 +65,8 @@ public class TestExprRegexpNode extends TestCase {
     public void testEquals() throws Exception {
         ExprRegexpNode otherRegexpNodeNot = SupportExprNodeFactory.makeRegexpNode(true);
 
-        assertTrue(regexpNodeNot.equalsNode(otherRegexpNodeNot));
-        assertFalse(regexpNodeNormal.equalsNode(otherRegexpNodeNot));
+        assertTrue(regexpNodeNot.equalsNode(otherRegexpNodeNot, false));
+        assertFalse(regexpNodeNormal.equalsNode(otherRegexpNodeNot, false));
     }
 
     public void testToExpressionString() throws Exception {

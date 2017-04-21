@@ -147,7 +147,7 @@ public class ExprLikeNode extends ExprNodeBase implements ExprEvaluator {
         return result;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprLikeNode)) {
             return false;
         }

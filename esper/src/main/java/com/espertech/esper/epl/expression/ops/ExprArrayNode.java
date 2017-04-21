@@ -240,7 +240,7 @@ public class ExprArrayNode extends ExprNodeBase implements ExprEvaluator, ExprEv
         return null;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprArrayNode)) {
             return false;
         }

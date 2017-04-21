@@ -248,7 +248,7 @@ public class JoinSetComposerPrototypeImpl implements JoinSetComposerPrototype {
             }
 
             // init
-            joinSetComposerDesc.getJoinSetComposer().init(eventsPerStream);
+            joinSetComposerDesc.getJoinSetComposer().init(eventsPerStream, exprEvaluatorContext);
         }
 
         return joinSetComposerDesc;

@@ -156,7 +156,7 @@ public class TestRowPatternRecognitionRepetition extends TestCase {
         SupportMessageAssertUtil.tryInvalid(epService, template.replaceAll("REPLACE", "A{myvariable}"),
                 "Error starting statement: pattern quantifier 'myvariable' must return a constant value");
         SupportMessageAssertUtil.tryInvalid(epService, template.replaceAll("REPLACE", "A{prev(A)}"),
-                "Error starting statement: Invalid match-recognize pattern expression 'pattern quantifier");
+                "Error starting statement: Invalid match-recognize pattern expression 'prev(A)': Aggregation, sub-select, previous or prior functions are not supported in this context");
 
         String expected = "Error starting statement: Invalid pattern quantifier value -1, expecting a minimum of 1";
         SupportMessageAssertUtil.tryInvalid(epService, template.replaceAll("REPLACE", "A{-1}"), expected);

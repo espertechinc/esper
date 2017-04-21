@@ -41,7 +41,7 @@ public class ExprGroupingNode extends ExprNodeBase implements ExprEvaluator {
         return false;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         return false;
     }
 

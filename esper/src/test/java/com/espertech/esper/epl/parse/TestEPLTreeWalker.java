@@ -153,10 +153,10 @@ public class TestEPLTreeWalker extends TestCase {
         assertEquals("A_INDEX", createIndex.getIndexName());
         assertEquals("B_NAMEDWIN", createIndex.getWindowName());
         assertEquals(2, createIndex.getColumns().size());
-        assertEquals("c", createIndex.getColumns().get(0).getName());
-        assertEquals(CreateIndexType.HASH, createIndex.getColumns().get(0).getType());
-        assertEquals("d", createIndex.getColumns().get(1).getName());
-        assertEquals(CreateIndexType.BTREE, createIndex.getColumns().get(1).getType());
+        assertEquals("c", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(createIndex.getColumns().get(0).getExpressions().get(0)));
+        assertEquals(CreateIndexType.HASH.getNameLower(), createIndex.getColumns().get(0).getType());
+        assertEquals("d", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(createIndex.getColumns().get(1).getExpressions().get(0)));
+        assertEquals(CreateIndexType.BTREE.getNameLower(), createIndex.getColumns().get(1).getType());
     }
 
     public void testWalkViewExpressions() throws Exception {

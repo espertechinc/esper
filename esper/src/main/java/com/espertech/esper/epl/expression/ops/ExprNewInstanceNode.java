@@ -62,7 +62,7 @@ public class ExprNewInstanceNode extends ExprNodeBase implements ExprEvaluator {
         return classIdent;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprNewInstanceNode)) {
             return false;
         }

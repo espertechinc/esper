@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprCastNode;
-import com.espertech.esper.epl.expression.ops.ExprEqualsNodeImpl;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
 import junit.framework.TestCase;
@@ -62,9 +61,9 @@ public class TestExprCastNode extends TestCase {
     }
 
     public void testEquals() throws Exception {
-        assertFalse(castNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false)));
-        assertFalse(castNodes[0].equalsNode(castNodes[1]));
-        assertFalse(castNodes[0].equalsNode(new ExprCastNode("java.lang.Integer")));
+        assertFalse(castNodes[0].equalsNode(new ExprEqualsNodeImpl(true, false), false));
+        assertFalse(castNodes[0].equalsNode(castNodes[1], false));
+        assertFalse(castNodes[0].equalsNode(new ExprCastNode("java.lang.Integer"), false));
     }
 
     public void testToExpressionString() throws Exception {

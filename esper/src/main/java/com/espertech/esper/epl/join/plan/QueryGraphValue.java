@@ -159,7 +159,7 @@ public class QueryGraphValue {
         String delimiter = "";
         for (QueryGraphValueDesc desc : items) {
             writer.append(delimiter);
-            writer.append(ExprNodeUtility.toExpressionStringMinPrecedence(desc.getIndexExprs()));
+            writer.append(ExprNodeUtility.toExpressionStringMinPrecedenceAsList(desc.getIndexExprs()));
             writer.append(": ");
             writer.append(desc.getEntry().toString());
             delimiter = ", ";
@@ -209,6 +209,33 @@ public class QueryGraphValue {
         return multi;
     }
 
+    public void addCustom(ExprNode[] indexExpressions, String operationName, int expressionPosition, ExprNode expression) {
+
+        // find existing custom-entry for same index expressions
+        QueryGraphValueEntryCustom found = null;
+        for (QueryGraphValueDesc desc : items) {
+            if (desc.getEntry() instanceof QueryGraphValueEntryCustom) {
+                if (ExprNodeUtility.deepEquals(desc.getIndexExprs(), indexExpressions, true)) {
+                    found = (QueryGraphValueEntryCustom) desc.getEntry();
+                    break;
+                }
+            }
+        }
+        if (found == null) {
+            found = new QueryGraphValueEntryCustom();
+            items.add(new QueryGraphValueDesc(indexExpressions, found));
+        }
+
+        // find/create operation against the indexed fields
+        QueryGraphValueEntryCustomKey key = new QueryGraphValueEntryCustomKey(operationName, indexExpressions);
+        QueryGraphValueEntryCustomOperation op = found.getOperations().get(key);
+        if (op == null) {
+            op = new QueryGraphValueEntryCustomOperation();
+            found.getOperations().put(key, op);
+        }
+        op.getPositionalExpressions().put(expressionPosition, expression);
+    }
+
     private QueryGraphValueDesc findIdentEntry(ExprIdentNode search) {
         for (QueryGraphValueDesc desc : items) {
             if (desc.getIndexExprs().length > 1 || !(desc.getIndexExprs()[0] instanceof ExprIdentNode)) {
@@ -224,7 +251,7 @@ public class QueryGraphValue {
 
     private QueryGraphValueDesc findEntry(ExprNode[] search) {
         for (QueryGraphValueDesc desc : items) {
-            if (ExprNodeUtility.deepEquals(search, desc.getIndexExprs())) {
+            if (ExprNodeUtility.deepEquals(search, desc.getIndexExprs(), true)) {
                 return desc;
             }
         }

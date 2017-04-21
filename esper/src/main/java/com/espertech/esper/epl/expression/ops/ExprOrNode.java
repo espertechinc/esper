@@ -91,7 +91,7 @@ public class ExprOrNode extends ExprNodeBase implements ExprEvaluator {
         return ExprPrecedenceEnum.OR;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprOrNode)) {
             return false;
         }

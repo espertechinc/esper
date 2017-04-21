@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.base;
 
 import com.espertech.esper.epl.core.ResultSetProcessor;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.view.internal.BufferView;
 
 /**
@@ -23,7 +24,7 @@ public class JoinPreloadMethodNull implements JoinPreloadMethod {
     public JoinPreloadMethodNull() {
     }
 
-    public void preloadFromBuffer(int stream) {
+    public void preloadFromBuffer(int stream, ExprEvaluatorContext exprEvaluatorContext) {
     }
 
     public void preloadAggregation(ResultSetProcessor resultSetProcessor) {

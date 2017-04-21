@@ -31,10 +31,10 @@ public class TestIndexedTableLookupStrategy extends TestCase {
         eventType = SupportEventTypeFactory.createBeanType(SupportBean.class);
 
         PropertyIndexedEventTableFactory factory = new PropertyIndexedEventTableFactory(0, eventType, new String[]{"theString", "intPrimitive"}, false, null);
-        propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables(null)[0];
+        propertyMapEventIndex = (PropertyIndexedEventTable) factory.makeEventTables(null, null)[0];
         lookupStrategy = new IndexedTableLookupStrategy(eventType, new String[]{"theString", "intPrimitive"}, propertyMapEventIndex);
 
-        propertyMapEventIndex.add(new EventBean[]{SupportEventBeanFactory.createObject(new SupportBean("a", 1))});
+        propertyMapEventIndex.add(new EventBean[]{SupportEventBeanFactory.createObject(new SupportBean("a", 1))}, null);
     }
 
     public void testLookup() {

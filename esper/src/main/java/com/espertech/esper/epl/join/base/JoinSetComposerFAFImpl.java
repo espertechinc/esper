@@ -33,7 +33,7 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl {
     }
 
     @Override
-    public void init(EventBean[][] eventsPerStream) {
+    public void init(EventBean[][] eventsPerStream, ExprEvaluatorContext exprEvaluatorContext) {
         // no action
     }
 
@@ -51,7 +51,7 @@ public class JoinSetComposerFAFImpl extends JoinSetComposerImpl {
         // Unique indexes may remove then add.
         for (int stream = 0; stream < newDataPerStream.length; stream++) {
             for (int j = 0; j < repositories[stream].length; j++) {
-                repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream]);
+                repositories[stream][j].addRemove(newDataPerStream[stream], oldDataPerStream[stream], exprEvaluatorContext);
             }
         }
 

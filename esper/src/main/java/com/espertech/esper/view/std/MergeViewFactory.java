@@ -51,7 +51,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker {
                 continue;
             }
             GroupByViewFactoryMarker candidateGroupByView = (GroupByViewFactoryMarker) parentView;
-            if (ExprNodeUtility.deepEquals(candidateGroupByView.getCriteriaExpressions(), unvalidated)) {
+            if (ExprNodeUtility.deepEquals(candidateGroupByView.getCriteriaExpressions(), unvalidated, false)) {
                 groupByViewFactory = candidateGroupByView;
             }
         }
@@ -118,7 +118,7 @@ public class MergeViewFactory implements ViewFactory, MergeViewFactoryMarker {
         }
 
         MergeView myView = (MergeView) view;
-        if (!ExprNodeUtility.deepEquals(myView.getGroupFieldNames(), criteriaExpressions)) {
+        if (!ExprNodeUtility.deepEquals(myView.getGroupFieldNames(), criteriaExpressions, false)) {
             return false;
         }
         return true;

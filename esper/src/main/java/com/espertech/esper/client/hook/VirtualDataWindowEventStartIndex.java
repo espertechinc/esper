@@ -10,6 +10,8 @@
  */
 package com.espertech.esper.client.hook;
 
+import com.espertech.esper.epl.expression.core.ExprNode;
+
 import java.util.List;
 
 /**
@@ -77,36 +79,38 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
      * Captures virtual data window indexed field informaion.
      */
     public static class VDWCreateIndexField {
-        private String name;
-        private boolean hash;
+        private List<ExprNode> expressions;
+        private String type;
+        private List<ExprNode> parameters;
 
-        /**
-         * Ctor.
-         *
-         * @param name named window name
-         * @param hash true for hash-based index, false for btree index
-         */
-        public VDWCreateIndexField(String name, boolean hash) {
-            this.name = name;
-            this.hash = hash;
+        public VDWCreateIndexField(List<ExprNode> expressions, String type, List<ExprNode> parameters) {
+            this.expressions = expressions;
+            this.type = type;
+            this.parameters = parameters;
         }
 
         /**
-         * Name of the indexed field.
-         *
-         * @return field name
+         * Returns index expressions
+         * @return index expressions
          */
-        public String getName() {
-            return name;
+        public List<ExprNode> getExpressions() {
+            return expressions;
         }
 
         /**
-         * Indicate whether the index is hash or btree, true for hash.
-         *
-         * @return index type indicator
+         * Returns index type name
+         * @return type name of index
          */
-        public boolean isHash() {
-            return hash;
+        public String getType() {
+            return type;
+        }
+
+        /**
+         * Returns index field parameters if any
+         * @return index field parameters
+         */
+        public List<ExprNode> getParameters() {
+            return parameters;
         }
     }
 }

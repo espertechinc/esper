@@ -14,6 +14,7 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.*;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
@@ -438,10 +439,10 @@ public class TestVirtualDataWindow extends TestCase implements IndexBackingTable
         assertEquals("MyVDW", startEvent.getNamedWindowName());
         assertEquals("IndexOne", startEvent.getIndexName());
         assertEquals(2, startEvent.getFields().size());
-        assertEquals("col3", startEvent.getFields().get(0).getName());
-        assertEquals(true, startEvent.getFields().get(0).isHash());
-        assertEquals("col2", startEvent.getFields().get(1).getName());
-        assertEquals(false, startEvent.getFields().get(1).isHash());
+        assertEquals("col3", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(startEvent.getFields().get(0).getExpressions().get(0)));
+        assertEquals("hash", startEvent.getFields().get(0).getType());
+        assertEquals("col2", ExprNodeUtility.toExpressionStringMinPrecedenceSafe(startEvent.getFields().get(1).getExpressions().get(0)));
+        assertEquals("btree", startEvent.getFields().get(1).getType());
         assertFalse(startEvent.isUnique());
 
         // stop-index event

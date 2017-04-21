@@ -136,7 +136,7 @@ public class ExprStreamUnderlyingNodeImpl extends ExprNodeBase implements ExprEv
         return eventType;
     }
 
-    public boolean equalsNode(ExprNode node) {
+    public boolean equalsNode(ExprNode node, boolean ignoreStreamPrefix) {
         if (!(node instanceof ExprStreamUnderlyingNodeImpl)) {
             return false;
         }

@@ -13,7 +13,6 @@ package com.espertech.esper.epl.expression.ops;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.funcs.ExprMinMaxRowNode;
-import com.espertech.esper.epl.expression.ops.ExprOrNode;
 import com.espertech.esper.supportunit.epl.SupportExprNode;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.support.SupportExprValidationContextFactory;
@@ -97,9 +96,9 @@ public class TestExprMinMaxRowNode extends TestCase {
     }
 
     public void testEqualsNode() throws Exception {
-        assertTrue(minMaxNode.equalsNode(minMaxNode));
-        assertFalse(minMaxNode.equalsNode(new ExprMinMaxRowNode(MinMaxTypeEnum.MIN)));
-        assertFalse(minMaxNode.equalsNode(new ExprOrNode()));
+        assertTrue(minMaxNode.equalsNode(minMaxNode, false));
+        assertFalse(minMaxNode.equalsNode(new ExprMinMaxRowNode(MinMaxTypeEnum.MIN), false));
+        assertFalse(minMaxNode.equalsNode(new ExprOrNode(), false));
     }
 
     private static void setupNode(ExprMinMaxRowNode nodeMin, int intValue, double doubleValue, Float floatValue) throws Exception {

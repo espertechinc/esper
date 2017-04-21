@@ -11,6 +11,7 @@
 package com.espertech.esper.epl.join.table;
 
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.io.StringWriter;
 import java.util.Iterator;
@@ -47,23 +48,23 @@ public class MultiIndexEventTable implements EventTable {
         return tables;
     }
 
-    public void addRemove(EventBean[] newData, EventBean[] oldData) {
+    public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean[] events) {
+    public void add(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void add(EventBean event) {
+    public void add(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void remove(EventBean[] events) {
+    public void remove(EventBean[] events, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 
-    public void remove(EventBean event) {
+    public void remove(EventBean event, ExprEvaluatorContext exprEvaluatorContext) {
         throw new UnsupportedOperationException();
     }
 

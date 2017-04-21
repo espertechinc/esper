@@ -494,10 +494,10 @@ public class AggregationServiceFactoryFactory {
             // (a) equals on node returns true
             // (b) positional parameters are the same
             // (c) non-positional (group-by over, if present, are the same ignoring duplicates)
-            if (!aggNode.equalsNode(aggNodeToAdd)) {
+            if (!aggNode.equalsNode(aggNodeToAdd, false)) {
                 continue;
             }
-            if (!ExprNodeUtility.deepEquals(aggNode.getPositionalParams(), aggNodeToAdd.getPositionalParams())) {
+            if (!ExprNodeUtility.deepEquals(aggNode.getPositionalParams(), aggNodeToAdd.getPositionalParams(), false)) {
                 continue;
             }
             if (aggNode.getOptionalLocalGroupBy() != null || aggNodeToAdd.getOptionalLocalGroupBy() != null) {
