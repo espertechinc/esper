@@ -10,17 +10,19 @@
  */
 package com.espertech.esper.epl.core;
 
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.filter.FilterSpecCompilerAdvIndexDesc;
 
 public interface EngineImportApplicationDotMethod {
 
     ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException;
 
-    ExprDotNodeFilterAnalyzerDesc getExprDotNodeFilterAnalyzerDesc();
+    FilterExprAnalyzerAffector getFilterExprAnalyzerAffector();
+    FilterSpecCompilerAdvIndexDesc getFilterSpecCompilerAdvIndexDesc();
 
     ExprEvaluator getExprEvaluator();
 

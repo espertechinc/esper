@@ -36,7 +36,6 @@ import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.expression.time.TimeAbacusMicroseconds;
 import com.espertech.esper.epl.expression.time.TimeAbacusMilliseconds;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionService;
 import com.espertech.esper.epl.lookup.EventTableIndexServiceImpl;
 import com.espertech.esper.epl.metric.MetricReportingServiceImpl;
 import com.espertech.esper.epl.named.*;
@@ -224,7 +223,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 new FilterNonPropertyRegisteryServiceImpl(), new ResultSetProcessorHelperFactoryImpl(),
                 new ViewServicePreviousFactoryImpl(), new EventTableIndexServiceImpl(), new EPRuntimeIsolatedFactoryImpl(),
                 new FilterBooleanExpressionFactoryImpl(), new DataCacheFactory(), new MultiMatchHandlerFactoryImpl(), NamedWindowConsumerMgmtServiceImpl.INSTANCE,
-                AggregationFactoryFactoryDefault.INSTANCE, new AdvancedIndexProvisionService());
+                AggregationFactoryFactoryDefault.INSTANCE);
 
         // Engine services subset available to statements
         statementContextFactory.setStmtEngineServices(services);

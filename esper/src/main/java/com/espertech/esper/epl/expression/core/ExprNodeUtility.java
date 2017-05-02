@@ -1453,6 +1453,10 @@ public class ExprNodeUtility {
         }
     }
 
+    public static void toExpressionString(ExprNode node, StringWriter buffer) {
+        node.toEPL(buffer, ExprPrecedenceEnum.MINIMUM);
+    }
+
     public static void toExpressionStringIncludeParen(List<ExprNode> parameters, StringWriter buffer) {
         buffer.append("(");
         toExpressionStringParameterList(parameters, buffer);

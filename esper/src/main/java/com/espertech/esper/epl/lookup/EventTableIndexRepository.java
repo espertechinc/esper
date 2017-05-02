@@ -15,7 +15,7 @@ import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
+import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.hint.IndexHintInstruction;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.EventTable;
@@ -49,7 +49,7 @@ public class EventTableIndexRepository {
             boolean unique,
             List<IndexedPropDesc> hashProps,
             List<IndexedPropDesc> btreeProps,
-            AdvancedIndexProvisionDesc advancedIndexProvisionDesc,
+            EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc,
             Iterable<EventBean> prefilledEvents,
             EventType indexedType,
             String indexName,
@@ -137,7 +137,7 @@ public class EventTableIndexRepository {
         return entry.getTable();
     }
 
-    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, AdvancedIndexProvisionDesc advancedIndexProvisionDesc, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, boolean mustCoerce, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
+    private Pair<IndexMultiKey, EventTableAndNamePair> addIndex(boolean unique, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc, Iterable<EventBean> prefilledEvents, EventType indexedType, String indexName, boolean mustCoerce, AgentInstanceContext agentInstanceContext, Object optionalSerde) {
 
         // not resolved as full match and not resolved as unique index match, allocate
         IndexMultiKey indexPropKey = new IndexMultiKey(unique, hashProps, btreeProps, advancedIndexProvisionDesc == null ? null : advancedIndexProvisionDesc.getIndexDesc());

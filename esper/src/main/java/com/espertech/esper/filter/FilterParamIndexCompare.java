@@ -64,18 +64,19 @@ public final class FilterParamIndexCompare extends FilterParamIndexLookupableBas
         }
     }
 
-    public final boolean remove(Object filterConstant) {
+    public final void remove(Object filterConstant) {
         if (constantsMap.remove(filterConstant) == null) {
-            return false;
+            return;
         }
-
         updateBounds();
-
-        return true;
     }
 
-    public final int size() {
+    public final int sizeExpensive() {
         return constantsMap.size();
+    }
+
+    public boolean isEmpty() {
+        return constantsMap.isEmpty();
     }
 
     public final ReadWriteLock getReadWriteLock() {

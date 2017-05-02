@@ -115,12 +115,12 @@ public class TestPatternStreamSpecRaw extends TestCase {
         assertEquals(2, inlist.getListOfValues().size());
 
         // in-value 1
-        InSetOfValuesEventProp prop = (InSetOfValuesEventProp) inlist.getListOfValues().get(0);
+        FilterForEvalEventPropMayCoerce prop = (FilterForEvalEventPropMayCoerce) inlist.getListOfValues().get(0);
         assertEquals("s", prop.getResultEventAsName());
         assertEquals("intBoxed", prop.getResultEventProperty());
 
         // in-value 1
-        InSetOfValuesConstant constant = (InSetOfValuesConstant) inlist.getListOfValues().get(1);
+        FilterForEvalConstantAnyType constant = (FilterForEvalConstantAnyType) inlist.getListOfValues().get(1);
         assertEquals(0, constant.getConstant());
     }
 
@@ -153,12 +153,12 @@ public class TestPatternStreamSpecRaw extends TestCase {
         assertEquals(FilterOperator.RANGE_CLOSED, range.getFilterOperator());
 
         // min-value
-        RangeValueEventProp prop = (RangeValueEventProp) range.getMin();
+        FilterForEvalEventPropDouble prop = (FilterForEvalEventPropDouble) range.getMin();
         assertEquals("s", prop.getResultEventAsName());
         assertEquals("intBoxed", prop.getResultEventProperty());
 
         // max-value
-        RangeValueDouble constant = (RangeValueDouble) range.getMax();
+        FilterForEvalConstantDouble constant = (FilterForEvalConstantDouble) range.getMax();
         assertEquals(100d, constant.getDoubleValue());
     }
 

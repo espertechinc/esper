@@ -8,27 +8,24 @@
         
 	<sect1 xml:id="spatial_intro">
 		<title>Overview</title>
-		<indexterm><primary>methods</primary><secondary>spatial</secondary></indexterm>
+		<indexterm><primary>spatial</primary><secondary>intro</secondary></indexterm>
 		
 		<para>
 			EPL provides spatial methods and spatial indexes.  
 		</para>
 		
 		<para>
-			The engine analyzes the <literal>where</literal>-clause for correlation criteria and considers spatial methods for query plans that can utilize spatial indexes.
+			The engine analyzes filter criteria and the <literal>where</literal>-clause and considers spatial methods, utilizing spatial filter indexes or spatial event indexes for efficient matching and lookup.
 		</para>
 
 		<para>
 			For general information on the dot-operator please consult <xref linkend="epl-operator-ref-dot"/>.
 		</para>
-
-		<para>
-			For general information on creating an index please consult <xref linkend="named_explicit_index"/>.
-		</para>
 	</sect1>
 	
 	<sect1 xml:id="spatial_method">
 		<title>Spatial Methods</title>
+		<indexterm><primary>spatial</primary><secondary>method</secondary></indexterm>
 		<indexterm><primary>method</primary><secondary>spatial</secondary></indexterm>
 		
 		<para>
@@ -72,10 +69,11 @@
 			<para>
 				The method takes a point as input and a rectangle as a parameter:
 			</para>
-			<synopsis>point(<emphasis>point_x</emphasis>, <emphasis>point_y</emphasis>).inside(rectangle(<emphasis>rect_x</emphasis>, <emphasis>rect_y</emphasis>, <emphasis>width</emphasis>, <emphasis>height</emphasis>))</synopsis>
+			<synopsis>point(<emphasis>point_x</emphasis>, <emphasis>point_y</emphasis> [, filterindex:<emphasis>configexpression</emphasis>]).inside(rectangle(<emphasis>rect_x</emphasis>, <emphasis>rect_y</emphasis>, <emphasis>width</emphasis>, <emphasis>height</emphasis>))</synopsis>
 
 			<para>
 				For the point, please provide the <emphasis>point_x</emphasis> and <emphasis>point_y</emphasis> expressions that return the (x, y)-coordinates of the point. 
+				The <literal>filterindex</literal> named parameter is for use with filter indexes as described below.
 			</para>
 
 			<para>
@@ -121,17 +119,205 @@
 					</tbody>
 				</tgroup>
 			</table>		
+		</sect2>
+	</sect1>
+
+	<sect1 xml:id="spatial_index">
+		<title>Spatial Index - Quadtree</title>
+		<indexterm><primary>spatial</primary><secondary>index</secondary></indexterm>
+		<indexterm><primary>index</primary><secondary>spatial</secondary></indexterm>
+		
+		<sect2 xml:id="spatial_index_overview">
+			<title>Overview</title>
+			<para>
+				A quadtree is a tree data structure in which each internal node has exactly four children. 
+				Quadtrees are often used to partition a two-dimensional space by recursively subdividing it into four quadrants or regions (source:WikiPedia).			
+			</para>		
+			
+			<para>
+				A node in a point-region quadtree contains:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>
+						Four pointers to nodes: quadrant Â‘north-west, quadrant north-east, quadrant south-west, and quadrant south-east.
+					</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>
+						(x,y) Coordinates; each coordinate pair is associated to index content; same (x, y) coordinates share the same entry. Index content is active filters for filter indexes and events for event indexes.
+					</para>
+				</ns:listitem>
+			</itemizedlist>
+			
+			<para>
+				Quadtree indexes can be used for:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>Filter indexes, which organize active filters so that they can be searched efficiently. When the engine receives an event, it consults the filter indexes to determine which statements, if any, must process the event.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Event indexes, which organize properties of events so that they can be searched efficiently. When the engine performs statement processing it may use event indexes to find correlated events efficiently.</para>
+				</ns:listitem>
+			</itemizedlist>
+		</sect2>
+			
+		<sect2 xml:id="spatial_index_declarae">
+			<title>Declaring a Quadtree Index</title>
+			
+			<para>
+				Declaring a quadtree index is the same for both filter indexes and event indexes.
+			</para>
+			
+			<para>
+				The synopsis to declare a quadtree index, as part of an EPL statement, is:
+			</para>
+			<synopsis>pointregionquadtree(<emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>, 
+  <emphasis>width</emphasis>, <emphasis>height</emphasis> [, <emphasis>leaf_capacity_expression</emphasis> [, <emphasis>max_tree_height_expression</emphasis>]] )</synopsis>
 
 			<para>
-				The next example declares a table that contains points:
+				The <emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>,  <emphasis>width</emphasis>, <emphasis>height</emphasis> are index parameter expressions 
+				that return the range of the index. The width and height must be greater zero. The index range rectangle is represented by <literal>double</literal>-type values internally.
+				A point is inside the index range if <literal>x &gt;= minX and y &gt;= minY and x &lt; minX+width and y &lt; minY+height</literal>.
+			</para>
+				
+			<note>
+				<para>
+					An attempt to insert points into the index that are outside of the declared index range causes an exception. 
+				</para>
+			</note>
+
+			<para>
+				The <emphasis>leaf_capacity_expression</emphasis> is optional and must return a positive integer. It defines the number of coordinates a node may contain before it gets split into regions.
+				The default value is 4.
+			</para>
+	
+			<para>
+				The <emphasis>max_tree_height_expression</emphasis> is optional and must return an integer value of 2 or more. It defines the maximum depth of the tree. 
+				Upon the tree reaching the maximum depth a leaf node  does not get split into regions. The default value is 20.
+			</para>
+		</sect2>
+		
+		<sect2 xml:id="spatial_filterindex_use">
+			<title>Using Quadtree as a Filter Index</title>
+
+			<para>
+				The section that summarizes filter indexes is <xref linkend="processingmodel_indexes_filterindexes"/>.
+				As there could be many <literal>point(...).inside(rectangle)</literal> filters active, having a filter index allows the engine to efficiently match incoming events to EPL statements.
+			</para>
+
+			<para>
+				For use of a quadtree index within filter criteria you must: 
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>Define an expression that returns the quadtree configuration.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Add the <literal>filterindex</literal> named parameter providing the expression name.</para>
+				</ns:listitem>
+			</itemizedlist>
+			
+			<para>
+				For defining a local or global expression, please consult <xref linkend="epl-syntax-expression-decl"/>.
+			</para>
+			
+			<para>
+				This sample EPL query defines the quadtree filter index to have a bounding box of <literal>(0,0,100,100)</literal>:
+			</para>
+			<programlisting>expression myQuadtreeSettings { pointregionquadtree(0, 0, 100, 100) } 
+select * from RectangleEvent(point(0, 0, filterindex:myQuadtreeSettings).inside(rectangle(x, y, width, height)))</programlisting>
+	
+			<para>
+				The <literal>filterindex</literal> named parameter instructs the engine that the settings for the quadtree filter index are provided by the expression <literal>myQuadtreeSettings</literal>, a local expression in this example.
+				For sharing quadtree settings across statements you may use a global expression instead. Please see <xref linkend="create-exprglobal"/>.
+			</para>
+			
+			<para>
+				If your EPL does not specify <literal>filterindex</literal> the engine does not build a quadtree filter index.
+			</para>
+
+			<para>
+				If your EPL specifies <literal>filterindex</literal> the engine always builds and uses a quadtree filter index.
+				In the case when the engine analyses filter criteria and determines that it cannot use the quadtree filter index, the engine fails statement validation.
+			</para>
+
+			<para>
+				If your EPL specifies <literal>filterindex</literal> and the engine determines that it cannot use the quadtree filter index it fails statement validation.
+			</para>
+			
+			<para>
+				The engine shares quadtree filter indexes across the engine within the same event type given that:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>Filters have the same <literal>rectangle</literal> expressions.</para>
+				</listitem>
+				<listitem>
+					<para>Filters use the same <literal>filterindex</literal> parameter i.e. the text <literal>myQuadtreeSettings</literal> in above example</para>
+				</listitem>
+				<listitem>
+					<para>Filters use the same quadtree configuration i.e. <literal>(0,0,100,100)</literal> in above example</para>
+				</listitem>
+			</orderedlist>
+
+			<para>
+				For use with the <literal>filterindex</literal> named parameter, the following requirements apply towards <literal>point</literal> expressions:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>Point expressions must be a constant, a context-provided built-in property or an event property provided by a previous pattern match within the same pattern.</para>
+				</listitem>
+			</orderedlist>
+
+			<para>
+				For use with the <literal>filterindex</literal> named parameter, the following requirements apply towards <literal>rectangle</literal> expressions:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>Rectangle expressions must be event properties.</para>
+				</listitem>
+			</orderedlist>
+		</sect2>
+
+		<sect2 xml:id="spatial_eventindex_use">
+			<title>Using Quadtree as an Event Index</title>
+
+			<para>
+				The section that summarizes event indexes is  <xref linkend="processingmodel_indexes_eventindexes"/>. The <literal>create index</literal> clause is described in <xref linkend="named_explicit_index"/>.
+			</para>
+			
+			<para>
+				Declare a point-region quadtree event index as follows:
+			</para>
+			<synopsis>create index ... on ... (
+  (<emphasis>x_expression</emphasis>, <emphasis>y_expression</emphasis>) pointregionquadtree(<emphasis>quadtree_configuration</emphasis>)
+)</synopsis>
+	
+			<para>
+				The <emphasis>x_expression</emphasis> and <emphasis>y_expression</emphasis> expressions form the index columns. 
+				The expressions return the (x, y)-coordinates and must return numeric values.  Coordinates are represented as <literal>double</literal>-type values internally.
+			</para>
+			
+			<para>
+				The description of <emphasis>quadtree_configuration</emphasis> quadtree configuration can be found above.
+			</para>
+	
+			<para>
+				For example, assume we have a table that contains points:
 			</para>
 			<programlisting>create table PointTable(pointId string primary key, px double, py double)</programlisting>
 			
 			<para>
-				The example also creates a quadtree-index on the points, so that the engine can find points using an index:
+				This example EPL declares an index on the points, with <literal>px</literal> and <literal>py</literal> becoming index columns that determine (x, y)-coordinates:
 			</para>
 			<programlisting>create index PointIndex on PointTable((px, py) pointregionquadtree(0, 0, 100, 100))</programlisting>
-			
+
+			<para>
+				The above sample quadtree index expects (x, y)-coordinates that are in the range <literal>0 &lt;= px &lt;= 100</literal> and <literal>0 &lt;= py &lt;= 100</literal>.
+			</para>
+
 			<para>
 				The example schema for events providing rectangles is:
 			</para>
@@ -147,103 +333,63 @@ where point(px, py).inside(rectangle(rx, ry, w, h))</programlisting>
 			<para>
 				Internally the engine does not instantiate point or rectange objects at all but instead optimizes the expression to comparison between <literal>double</literal>-type values.
 			</para>
+
+			<sect3 xml:id="spatial_eventindex_use_notes">
+				<title>Quadtree Event Index Usage Notes</title>
+				<para>
+					Quadtree indexes allow computed values for both index columns and index parameters. For example, the following EPL declares an index wherein (x, y)-coordinates are <literal>(px/100, py/100)</literal>-values. The sample EPL assumes that <literal>context.frame</literal> is a built-in property as provided by context <literal>FramedCtx</literal>:
+				</para>		
+				<programlisting>context FramedCtx create index PointIndex on PointTable((Math.round(px/100), Math.round(py/100)) pointregionquadtree(context.frame.startx, context.frame.starty, context.frame.w, context.frame.h))</programlisting>
+				
+				<para>
+					The engine compares the index column expressions to the <literal>point-in-rectangle</literal> left-hand-side expressions to determine which index to use.				
+					For example, if the expression is <literal>point(px+1, py+1).inside(rectangle(rx, ry, w, h))</literal>
+					as <literal>(px+1, py+1)</literal> does not match <literal>(Math.round(px/100), Math.round(py/100))</literal> the query planner does not use the index.
+					If the expression is <literal>point(Math.round(px/100), Math.round(py/100)).inside(rectangle(rx, ry, w, h))</literal> the query planner does use the index as index column expressions match.
+				</para>
+				
+				<para>
+					The query planner prefers quadtree over other index types. Index hints are not yet available for query planning with quadtree indexes.
+				</para>			
+			</sect3>
 		</sect2>
 	</sect1>
-
-	<sect1 xml:id="spatial_index">
-		<title>Spatial Index - Quadtree</title>
-		<indexterm><primary>index</primary><secondary>spatial</secondary></indexterm>
+	
+		<sect1 xml:id="spatial_etc">
+		<title>Spatial Types, Functions and Methods from External Libraries</title>
+		<indexterm><primary>spatial</primary><secondary>types</secondary></indexterm>
+		<indexterm><primary>spatial</primary><secondary>functions</secondary></indexterm>
+		<indexterm><primary>spatial</primary><secondary>methods (external library)</secondary></indexterm>
 		
-		<sect2 xml:id="spatial_index_use">
-			<title>Declaring a Quadtree Index</title>
-			<para>
-				A quadtree is a tree data structure in which each internal node has exactly four children. 
-				Quadtrees are often used to partition a two-dimensional space by recursively subdividing it into four quadrants or regions (source:WikiPedia).			
-			</para>		
-			
-			<para>
-				A node in a point-region quadtree contains:
-			</para>
-			<itemizedlist>
-				<ns:listitem>
-					<para>
-						Four pointers to nodes: quadrant [‘NW’], quadrant [‘NE’], quadrant [‘SW’], and quadrant [‘SE’].
-					</para>
-				</ns:listitem>
-				<ns:listitem>
-					<para>
-						(x,y) Coordinates; each coordinate pair is associated to one or more events; same (x, y) coordinates share the same entry.
-					</para>
-				</ns:listitem>
-			</itemizedlist>
-			
-			<para>
-				Declare a point-region quadtree as follows:
-			</para>
-			<synopsis>create index ... on ... (
-  (<emphasis>x_expression</emphasis>, <emphasis>y_expression</emphasis>) pointregionquadtree(<emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>, 
-  <emphasis>width</emphasis>, <emphasis>height</emphasis> [, <emphasis>leaf_capacity_expression</emphasis> [, <emphasis>max_tree_height_expression</emphasis>]])
-)</synopsis>
-	
-			<para>
-				The <emphasis>x_expression</emphasis> and <emphasis>y_expression</emphasis> expresions form the index columns. 
-				The expressions return the (x, y)-coordinates and must return numeric values.  Coordinates are represented as <literal>double</literal>-type values internally.
-			</para>
-	
-			<para>
-				The <emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>,  <emphasis>width</emphasis>, <emphasis>height</emphasis> are index parameter expressions 
-				that return the range of the index. The width and height must be greater zero. The index range rectangle is represented by <literal>double</literal>-type values internally.
-				A point is inside the index range if <literal>x &gt;= minX and y &gt;= minY and x &lt; minX+width and y &lt; minY+height</literal>.
-			</para>
-				
-			<note>
-				<para>
-				An attempt to insert points into the index that are outside of the declared index range causes an exception. 
-				</para>
-			</note>
+		<para>
+			The scope of the Esper engine does not include addressing all geographical, topological or spatial processing. 
+			We encourage using external libraries with Esper and Esper.
+			Esper and EPL make it easy to use and extend EPL, using functions, methods, data types and data structures provided by external libraries.
+		</para>		
+		
+		<para>
+			For example, assume you would like to use a geometric data type and the geographical distance function. 
+			Please consider using the Java Topology Suite (JTS) (<literal>https://www.locationtech.org</literal>) which provides a pretty complete set of geo computing functionality.
+		</para>
+		
+		<para>
+			To pick an example data type, Esper allows any class such as the JTS Geometry class (<literal>org.locationtech.jts.geom.Geometry</literal>) to become an event type, an event property type or a column type in a named window, table.
+			Esper also allows the use of such class anywhere within EPL expressions as well.
+		</para>
 
-			<para>
-				The <emphasis>leaf_capacity_expression</emphasis> is optional and must return a positive integer. It defines the number of coordinates a node may contain before it gets split into regions.
-				The default value is 4.
-			</para>
-	
-			<para>
-				The <emphasis>max_tree_height_expression</emphasis> is optional and must return an integer value of 2 or more. It defines the maximum depth of the tree. 
-				Upon the tree reaching the maximum depth a leaf node  does not get split into regions. The default value is 20.
-			</para>
-			
-			<para>
-				For example, assume we have a table that contains points:
-			</para>
-			<programlisting>create table PointTable(pointId string primary key, px double, py double)</programlisting>
-			
-			<para>
-				This example EPL declare an index on the points, with <literal>px</literal> and <literal>py</literal> becoming index columns that determine (x, y)-coordinates:
-			</para>
-			<programlisting>create index PointIndex on PointTable((px, py) pointregionquadtree(0, 0, 100, 100))</programlisting>
+		<para>
+			The EPL snippet below declares an event type that has a Geometry property: 
+		</para>
+		<programlisting>create schema ShapeArrivalEvent(shapeId string, geometry org.locationtech.jts.geom.Geometry) // use imports to remove the need to have a package name</programlisting>
 
-			<para>
-				The above sample quadtree index expects (x, y)-coordinates that are in the range <literal>0 &lt;= px &lt;= 100</literal> and <literal>0 &lt;= py &lt;= 100</literal>.
-			</para>
-		</sect2>
+		<para>
+			EPL can call methods and your application can declare its own functions. Registering an own EPL function is described in  <xref linkend="custom-singlerow-function"/>.
+		</para>
 
-		<sect2 xml:id="spatial_index_notes">
-			<title>Quadtree Index Usage Notes</title>
-			<para>
-				Quadtree indexes allow computed values for both index columns and index parameters. For example, the following EPL declares an index wherein (x, y)-coordinates are <literal>(px/100, py/100)</literal>-values. The sample EPL assumes that <literal>context.frame</literal> is a built-in property as provided by context <literal>FramedCtx</literal>:
-			</para>		
-			<programlisting>context FramedCtx create index PointIndex on PointTable((Math.round(px/100), Math.round(py/100)) pointregionquadtree(context.frame.startx, context.frame.starty, context.frame.w, context.frame.h))</programlisting>
-			
-			<para>
-				The engine compares the index column expressions to the <literal>point-in-rectangle</literal> left-hand-side expressions to determine which index to use.				
-				For example, if the expression is <literal>point(px+1, py+1).inside(rectangle(rx, ry, w, h))</literal>
-				as <literal>(px+1, py+1)</literal> does not match <literal>(Math.round(px/100), Math.round(py/100))</literal> the query planner does not use the index.
-				If the expression is <literal>point(Math.round(px/100), Math.round(py/100)).inside(rectangle(rx, ry, w, h))</literal> the query planner does use the index as index column expressions match.
-			</para>
-			
-			<para>
-				The query planner prefers quadtree over other index types. Index hints are not yet available for query planning with quadtree indexes.
-			</para>			
-		</sect2>
+		<para>
+			This sample EPL outputs events that have a <literal>distance</literal> of more than 100 comparing the current event's <literal>geometry</literal> to the last 1 minute of previous event's <literal>geometry</literal>:
+		</para>
+		<programlisting>select * from ShapeArrivalEvent as e1 unidirectional, ShapeArrivalEvent.time(1 minute) as e2
+where e1.geometry.distance(e2.geometry) &gt; 100</programlisting>
 	</sect1>
 </chapter>

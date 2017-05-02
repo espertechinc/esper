@@ -2891,7 +2891,7 @@ config.getEngineDefaults().getExecution().
 				
 				<para>
 					In the default configuration the setting is 16, which means that the filter expression analyzer can at most create 16 path expressions from a given filter expression. If the number of
-					path expressions is over 16, the expression will instead be evaluated as non-path and not be subject to to be entered into filter reverse indexes.
+					path expressions is over 16, the expression will instead be evaluated as non-path and not be subject to to be entered into filter indexes.
 				</para> 					
 
 				<para>
@@ -2899,7 +2899,7 @@ config.getEngineDefaults().getExecution().
 				</para> 					
 				<programlisting><![CDATA[// The engine optimizes the filter expression to become:
 //   "a=1, c=1" or "b=1, c=1" or "a=1, d=1" or "b=1, d=1".
-//   This enables reverse index sharing between filter expressions.
+//   This enables filter index sharing between filter expressions.
 select * from Event((a=1 or b=1) and (c=1 or d=1))]]></programlisting>
 				<programlisting><![CDATA[// The engine does not optimize filter expressions
 @Hint('MAX_FILTER_WIDTH=0') select * from Event((a=1 or b=1) and (c=1 or d=1))]]></programlisting>

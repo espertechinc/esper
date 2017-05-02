@@ -16,6 +16,7 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.epl.join.util.QueryPlanIndexDescOnExpr;
 import com.espertech.esper.epl.join.util.QueryPlanIndexDescSubquery;
+import com.espertech.esper.filter.FilterOperator;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.spatial.quadtree.core.BoundingBox;
 import com.espertech.esper.supportregression.bean.SupportSpatialAABB;
@@ -23,15 +24,19 @@ import com.espertech.esper.supportregression.bean.SupportSpatialDualPoint;
 import com.espertech.esper.supportregression.bean.SupportSpatialPoint;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;
-import com.espertech.esper.supportregression.util.IndexBackingTableInfo;
-import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
-import com.espertech.esper.supportregression.util.SupportModelHelper;
+import com.espertech.esper.supportregression.util.*;
 import junit.framework.TestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringJoiner;
 
-public class TestSpatialPointRegionQuadTree extends TestCase
-{
+public class TestSpatialPointRegionQuadTree extends TestCase {
+    private static final Logger log = LoggerFactory.getLogger(TestSpatialPointRegionQuadTree.class);
+
     private final static List<BoundingBox> BOXES = Arrays.asList(
             new BoundingBox(0, 0, 50, 50),
             new BoundingBox(50, 0, 100, 50),
@@ -39,36 +44,48 @@ public class TestSpatialPointRegionQuadTree extends TestCase
             new BoundingBox(50, 50, 100, 100),
             new BoundingBox(25, 25, 75, 75)
     );
-    
+
     private EPServiceProvider epService;
     private SupportUpdateListener listener;
 
-    public void setUp()
-    {
+    public void setUp() {
         Configuration config = SupportConfigFactory.getConfiguration();
+        config.getEngineDefaults().getExecution().setAllowIsolatedService(true);
         config.getEngineDefaults().getLogging().setEnableQueryPlan(true);
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epService.initialize();
         for (Class clazz : Arrays.asList(SupportSpatialPoint.class, SupportSpatialAABB.class, MyEventRectangleWithOffset.class, SupportSpatialDualPoint.class)) {
             epService.getEPAdministrator().getConfiguration().addEventType(clazz);
         }
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(epService, this.getClass(), getName());}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.startTest(epService, this.getClass(), getName());
+        }
         listener = new SupportUpdateListener();
     }
-    
+
     protected void tearDown() throws Exception {
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+        if (InstrumentationHelper.ENABLED) {
+            InstrumentationHelper.endTest();
+        }
         listener = null;
     }
 
-    public void testInvalid() throws Exception {
-        runAssertionInvalidIndexCreate();
-        runAssertionInvalidIndexRuntime();
-
-        runAssertionInvalidMethod();
+    public void testFilterIndex() throws Exception {
+        runAssertionFilterPerfStatement();
+        runAssertionFilterPerfContextPartition();
+        runAssertionFilterPerfPattern();
+        runAssertionFilterUnoptimized();
+        runAssertionFilterIndexTypeAssertion();
     }
 
-    public void testPointInside() throws Exception {
+    public void testInvalid() throws Exception {
+        runAssertionInvalidEventIndexCreate();
+        runAssertionInvalidEventIndexRuntime();
+        runAssertionInvalidMethod();
+        runAssertionInvalidFilterIndex();
+    }
+
+    public void testEventIndex() throws Exception {
         runAssertionUnindexed();
 
         runAssertionIndexUnusedTableFireAndForget();
@@ -88,12 +105,57 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         runAssertionDocSample();
     }
 
+    private void runAssertionFilterIndexTypeAssertion() {
+        String eplNoIndex = "select * from SupportSpatialAABB(point(0, 0).inside(rectangle(x, y, width, height)))";
+        SupportFilterHelper.assertFilterMulti(epService, eplNoIndex, "SupportSpatialAABB", new SupportFilterItem[][] {{SupportFilterItem.getBoolExprFilterItem()}});
+
+        String eplIndexed = "expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
+                "select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))";
+        SupportFilterHelper.assertFilterMulti(epService, eplIndexed, "SupportSpatialAABB", new SupportFilterItem[][] {{new SupportFilterItem("x,y,width,height/myindex/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionInvalidFilterIndex() {
+        // unrecognized named parameter
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportSpatialAABB#keepall where point(0, 0, a:1).inside(rectangle(x, y, width, height))",
+                "Error validating expression: Failed to validate filter expression 'point(0,0,a:1).inside(rectangle(x,y...(50 chars)': point does not accept 'a' as a named parameter");
+
+        // not a filter
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {pointregionquadtree(0, 0, 100, 100)} select * from SupportSpatialAABB#keepall where point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height))",
+                "Error validating expression: Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': The 'filterindex' named parameter can only be used in in filter expressions");
+
+        // invalid index expression
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportSpatialAABB(point(0, 0, filterindex:1).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:1).inside(rec...(60 chars)': Named parameter 'filterindex' requires an expression name");
+        SupportMessageAssertUtil.tryInvalid(epService, "select * from SupportSpatialAABB(point(0, 0, filterindex:dummy).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:dummy).inside...(64 chars)': Named parameter 'filterindex' requires an expression name");
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {0} select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': Named parameter 'filterindex' requires an index expression");
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {dummy(0)} select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': Unrecognized advanced-type index 'dummy'");
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {pointregionquadtree(0)} select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': Index of type 'pointregionquadtree' requires at least 4 parameters but received 1 [");
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {pointregionquadtree(0,0,0,0)} select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': Invalid value for index 'myindex' parameter 'width' received 0.0 and expected value>0");
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {pointregionquadtree(0,0,100,100).help()} select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))",
+                "Failed to validate filter expression 'point(0,0,filterindex:myindex()).in...(68 chars)': Named parameter 'filterindex' invalid chained index expression");
+
+        // filter-not-optimizable
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {pointregionquadtree(0, 0, 100, 100)} select * from SupportSpatialAABB(point(x, y, filterindex:myindex).inside(rectangle(x, y, width, height)))",
+                "Invalid filter-indexable expression 'x' in respect to index 'myindex': expected either a constant, context-builtin or property from a previous pattern match [expression myindex {pointregionquadtree(0, 0, 100, 100)} select * from SupportSpatialAABB(point(x, y, filterindex:myindex).inside(rectangle(x, y, width, height)))]");
+        SupportMessageAssertUtil.tryInvalid(epService, "expression myindex {pointregionquadtree(0, 0, 100, 100)} select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(0, y, width, height)))",
+                "Invalid filter-index lookup expression '0' in respect to index 'myindex': expected an event property");
+    }
+
     private void runAssertionDocSample() throws Exception {
         String epl =
                 "create table PointTable(pointId string primary key, px double, py double);\n" +
-                "create index PointIndex on PointTable((px, py) pointregionquadtree(0, 0, 100, 100));\n" +
-                "create schema RectangleEvent(rx double, ry double, w double, h double);\n" +
-                "on RectangleEvent select pointId from PointTable where point(px, py).inside(rectangle(rx, ry, w, h));\n";
+                        "create index PointIndex on PointTable((px, py) pointregionquadtree(0, 0, 100, 100));\n" +
+                        "create schema RectangleEvent(rx double, ry double, w double, h double);\n" +
+                        "on RectangleEvent select pointId from PointTable where point(px, py).inside(rectangle(rx, ry, w, h));" +
+                        "expression myQuadtreeSettings { pointregionquadtree(0, 0, 100, 100) } \n" +
+                        "select * from SupportSpatialAABB(point(0, 0, filterindex:myQuadtreeSettings).inside(rectangle(x, y, width, height)));\n";
         String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
 
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
@@ -128,8 +190,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         try {
             sendPoint("P2", 10, 15);
             fail();
-        }
-        catch (RuntimeException ex) { // we have a handler
+        } catch (RuntimeException ex) { // we have a handler
             SupportMessageAssertUtil.assertMessage(ex,
                     "Unexpected exception in statement 'win': Unique index violation, index 'Idx' is a unique index and key '(10.0,15.0)' already exists");
         }
@@ -139,9 +200,9 @@ public class TestSpatialPointRegionQuadTree extends TestCase
 
     private void runAssertionIndexedPerformance() throws Exception {
         String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
-                     "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
-                     "create index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n" +
-                     "@Name('out') on SupportSpatialAABB select mpw.id as c0 from MyPointWindow as mpw where point(px, py).inside(rectangle(x, y, width, height));\n";
+                "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
+                "create index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n" +
+                "@Name('out') on SupportSpatialAABB select mpw.id as c0 from MyPointWindow as mpw where point(px, py).inside(rectangle(x, y, width, height));\n";
         String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
         epService.getEPAdministrator().getStatement("out").addListener(listener);
 
@@ -184,7 +245,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase
 
         EPOnDemandQueryResult result = epService.getEPRuntime().executeQuery(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "select id as c0 from MyTable where point(tx, ty).inside(rectangle(45, 45, 10, 10))");
         SupportQueryPlanIndexHook.assertFAFAndReset(null, null);
-        EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), "c0".split(","), new Object[][] {{"P1"}, {"P2"}});
+        EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), "c0".split(","), new Object[][]{{"P1"}, {"P2"}});
 
         epService.getEPAdministrator().destroyAllStatements();
     }
@@ -217,13 +278,13 @@ public class TestSpatialPointRegionQuadTree extends TestCase
 
     private void runAssertionIndexedChoiceOfTwo() throws Exception {
         String epl =
-                    "create table MyPointTable(" +
-                    " id string primary key," +
-                    " x1 double, y1 double, \n" +
-                    " x2 double, y2 double);\n" +
-                    "create index Idx1 on MyPointTable( (x1, y1) pointregionquadtree(0, 0, 100, 100));\n" +
-                    "create index Idx2 on MyPointTable( (x2, y2) pointregionquadtree(0, 0, 100, 100));\n" +
-                    "on SupportSpatialDualPoint dp merge MyPointTable t where dp.id = t.id when not matched then insert select dp.id as id,x1,y1,x2,y2;\n";
+                "create table MyPointTable(" +
+                        " id string primary key," +
+                        " x1 double, y1 double, \n" +
+                        " x2 double, y2 double);\n" +
+                        "create index Idx1 on MyPointTable( (x1, y1) pointregionquadtree(0, 0, 100, 100));\n" +
+                        "create index Idx2 on MyPointTable( (x2, y2) pointregionquadtree(0, 0, 100, 100));\n" +
+                        "on SupportSpatialDualPoint dp merge MyPointTable t where dp.id = t.id when not matched then insert select dp.id as id,x1,y1,x2,y2;\n";
         String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
 
         String textOne = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyPointTable as tbl where point(x1, y1).inside(rectangle(x, y, width, height))";
@@ -246,7 +307,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void runAssertionIndexedSubqNamedWindowIndexShare() throws Exception{
+    private void runAssertionIndexedSubqNamedWindowIndexShare() throws Exception {
         String epl = "@Hint('enable_window_subquery_indexshare') create window MyWindow#length(5) as select * from SupportSpatialPoint;\n" +
                 "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into MyWindow select * from SupportSpatialPoint;\n" +
@@ -268,8 +329,8 @@ public class TestSpatialPointRegionQuadTree extends TestCase
 
     private void runAssertionIndexUnusedOnTrigger() throws Exception {
         String epl = "create window MyWindow#length(5) as select * from SupportSpatialPoint;\n" +
-                     "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
-                     "insert into MyWindow select * from SupportSpatialPoint;\n";
+                "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
+                "insert into MyWindow select * from SupportSpatialPoint;\n";
         DeploymentResult deploymentResult = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
 
         sendPoint("P1", 5, 5);
@@ -358,11 +419,11 @@ public class TestSpatialPointRegionQuadTree extends TestCase
 
     private void runAssertionIndexedOnTriggerContextParameterized() throws Exception {
         String epl = "create context CtxBox initiated by MyEventRectangleWithOffset box;\n" +
-                     "context CtxBox create window MyWindow#keepall as SupportSpatialPoint;\n" +
-                     "context CtxBox create index MyIndex on MyWindow((px+context.box.xOffset, py+context.box.yOffset) pointregionquadtree(context.box.x, context.box.y, context.box.width, context.box.height));\n" +
-                     "context CtxBox on SupportSpatialPoint(category = context.box.id) merge MyWindow when not matched then insert select *;\n" +
-                     "@name('out') context CtxBox on SupportSpatialAABB(category = context.box.id) aabb " +
-                     "  select points.id as c0 from MyWindow points where point(px, py).inside(rectangle(x, y, width, height))";
+                "context CtxBox create window MyWindow#keepall as SupportSpatialPoint;\n" +
+                "context CtxBox create index MyIndex on MyWindow((px+context.box.xOffset, py+context.box.yOffset) pointregionquadtree(context.box.x, context.box.y, context.box.width, context.box.height));\n" +
+                "context CtxBox on SupportSpatialPoint(category = context.box.id) merge MyWindow when not matched then insert select *;\n" +
+                "@name('out') context CtxBox on SupportSpatialAABB(category = context.box.id) aabb " +
+                "  select points.id as c0 from MyWindow points where point(px, py).inside(rectangle(x, y, width, height))";
         DeploymentResult deploymentResult = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
         epService.getEPAdministrator().getStatement("out").addListener(listener);
 
@@ -435,10 +496,10 @@ public class TestSpatialPointRegionQuadTree extends TestCase
     private void runAssertionIndexedOnTriggerTable() throws Exception {
         String epl =
                 "create table MyPointTable(my_x double primary key, my_y double primary key, my_id string);\n" +
-                "@Audit create index MyIndex on MyPointTable( (my_x, my_y) pointregionquadtree(0, 0, 100, 100));\n" +
-                "on SupportSpatialPoint ssp merge MyPointTable where ssp.px = my_x and ssp.py = my_y when not matched then insert select px as my_x, py as my_y, id as my_id;\n" +
-                IndexBackingTableInfo.INDEX_CALLBACK_HOOK +
-                "@Audit @name('s0') on SupportSpatialAABB select my_id as c0 from MyPointTable as c0 where point(my_x, my_y).inside(rectangle(x, y, width, height))";
+                        "@Audit create index MyIndex on MyPointTable( (my_x, my_y) pointregionquadtree(0, 0, 100, 100));\n" +
+                        "on SupportSpatialPoint ssp merge MyPointTable where ssp.px = my_x and ssp.py = my_y when not matched then insert select px as my_x, py as my_y, id as my_id;\n" +
+                        IndexBackingTableInfo.INDEX_CALLBACK_HOOK +
+                        "@Audit @name('s0') on SupportSpatialAABB select my_id as c0 from MyPointTable as c0 where point(my_x, my_y).inside(rectangle(x, y, width, height))";
         String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
 
         EPStatement stmt = epService.getEPAdministrator().getStatement("s0");
@@ -462,7 +523,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void assertRectanglesSingleValue(List<BoundingBox> rectangles, String ... matches) {
+    private void assertRectanglesSingleValue(List<BoundingBox> rectangles, String... matches) {
         for (int i = 0; i < rectangles.size(); i++) {
             BoundingBox box = rectangles.get(i);
             sendRectangle("R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
@@ -471,7 +532,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         }
     }
 
-    private void assertRectanglesManyRow(List<BoundingBox> rectangles, String ... matches) {
+    private void assertRectanglesManyRow(List<BoundingBox> rectangles, String... matches) {
         for (int i = 0; i < rectangles.size(); i++) {
             BoundingBox box = rectangles.get(i);
             sendRectangle("R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
@@ -479,8 +540,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase
                 if (listener.isInvoked()) {
                     fail("Unexpected output for box " + i + ": " + joinProperty(listener.getAndResetLastNewData(), "c0"));
                 }
-            }
-            else {
+            } else {
                 if (!listener.isInvoked()) {
                     fail("No output for box " + i);
                 }
@@ -489,28 +549,26 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         }
     }
 
-    private void runAssertionInvalidIndexRuntime() throws Exception {
+    private void runAssertionInvalidEventIndexRuntime() throws Exception {
         String epl = "@name('mywindow') create window PointWindow#keepall as SupportSpatialPoint;\n" +
-                     "insert into PointWindow select * from SupportSpatialPoint;\n" +
-                     "create index MyIndex on PointWindow((px, py) pointregionquadtree(0, 0, 100, 100));\n";
+                "insert into PointWindow select * from SupportSpatialPoint;\n" +
+                "create index MyIndex on PointWindow((px, py) pointregionquadtree(0, 0, 100, 100));\n";
         epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
 
         try {
             epService.getEPRuntime().sendEvent(new SupportSpatialPoint("E1", null, null));
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             SupportMessageAssertUtil.assertMessage(ex, "Unexpected exception in statement 'mywindow': Invalid value for index 'MyIndex' column 'x' received null and expected non-null");
         }
 
         try {
             epService.getEPRuntime().sendEvent(new SupportSpatialPoint("E1", 200d, 200d));
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             SupportMessageAssertUtil.assertMessage(ex, "Unexpected exception in statement 'mywindow': Invalid value for index 'MyIndex' column '(x,y)' received (200.0,200.0) and expected a value within index bounding box (range-end-non-inclusive) {minX=0.0, minY=0.0, maxX=100.0, maxY=100.0}");
         }
     }
 
-    private void runAssertionInvalidIndexCreate() {
+    private void runAssertionInvalidEventIndexCreate() {
         epService.getEPAdministrator().createEPL("create window MyWindow#keepall as SupportSpatialPoint");
 
         // invalid number of columns
@@ -584,6 +642,57 @@ public class TestSpatialPointRegionQuadTree extends TestCase
         epService.getEPAdministrator().destroyAllStatements();
     }
 
+    private void runAssertionFilterUnoptimized() {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportSpatialAABB(point(5, 10).inside(rectangle(x, y, width, height)))");
+        stmt.addListener(listener);
+
+        sendRectangle("R1", 0, 0, 5, 10);
+        sendRectangle("R2", 4, 3, 2, 20);
+        assertEquals("R2", listener.assertOneGetNewAndReset().get("id"));
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionFilterPerfStatement() {
+        EPPreparedStatement prepared = epService.getEPAdministrator().prepareEPL("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
+                "select * from SupportSpatialAABB(point(?, ?, filterindex:myindex).inside(rectangle(x, y, width, height)))");
+
+        for (int x = 0; x < 100; x++) {
+            for (int y = 0; y < 20; y++) {
+                prepared.setObject(1, x);
+                prepared.setObject(2, y);
+                epService.getEPAdministrator().create(prepared).addListener(listener);
+            }
+        }
+        sendAssertSpatialAABB(100, 20, 1000);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionFilterPerfPattern() {
+        EPStatement stmt = epService.getEPAdministrator().createEPL("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
+                "select * from pattern [every p=SupportSpatialPoint -> SupportSpatialAABB(point(p.px, p.py, filterindex:myindex).inside(rectangle(x, y, width, height)))]");
+        stmt.addListener(listener);
+
+        sendSpatialPoints(100, 100);
+        sendAssertSpatialAABB(100, 100, 1000);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
+    private void runAssertionFilterPerfContextPartition() {
+
+        epService.getEPAdministrator().createEPL("create context PerPointCtx initiated by SupportSpatialPoint ssp");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
+                "context PerPointCtx select count(*) from SupportSpatialAABB(point(context.ssp.px, context.ssp.py, filterindex:myindex).inside(rectangle(x, y, width, height)))");
+        stmt.addListener(listener);
+
+        sendSpatialPoints(100, 100);
+        sendAssertSpatialAABB(100, 100, 1000);
+
+        epService.getEPAdministrator().destroyAllStatements();
+    }
+
     private void sendPoint(String id, double x, double y) {
         epService.getEPRuntime().sendEvent(new SupportSpatialPoint(id, x, y));
     }
@@ -627,6 +736,26 @@ public class TestSpatialPointRegionQuadTree extends TestCase
             joiner.add(event.get(propertyName).toString());
         }
         return joiner.toString();
+    }
+
+    private void sendSpatialPoints(int numX, int numY) {
+        for (int x = 0; x < numX; x++) {
+            for (int y = 0; y < numY; y++) {
+                epService.getEPRuntime().sendEvent(new SupportSpatialPoint("P_" + x + "_" + y, (double) x, (double) y));
+            }
+        }
+    }
+
+    private void sendAssertSpatialAABB(int numX, int numY, long deltaMSec) {
+        long start = System.currentTimeMillis();
+        for (int x = 0; x < numX; x++) {
+            for (int y = 0; y < numY; y++) {
+                epService.getEPRuntime().sendEvent(new SupportSpatialAABB("", x, y, 1, 1));
+                listener.assertOneGetNewAndReset();
+            }
+        }
+        long delta = System.currentTimeMillis() - start;
+        assertTrue("Delta: " + delta, delta < deltaMSec);
     }
 
     public static class MyEventRectangleWithOffset {

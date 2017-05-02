@@ -20,6 +20,7 @@ import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputProp;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputStream;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -184,7 +185,7 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
         }
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
+    public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
         if (includeLow == null || includeHigh == null) {
             return null;
         }
@@ -204,6 +205,6 @@ public class ReformatOpBetweenNonConstantParams implements ReformatOp {
             return null;
         }
 
-        return new ExprDotNodeFilterAnalyzerDTBetweenDesc(typesPerStream, targetStreamNum, targetProperty, start, end, includeLow, includeHigh);
+        return new FilterExprAnalyzerDTBetweenAffector(typesPerStream, targetStreamNum, targetProperty, start, end, includeLow, includeHigh);
     }
 }

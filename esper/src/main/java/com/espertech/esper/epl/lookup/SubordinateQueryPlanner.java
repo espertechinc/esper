@@ -15,7 +15,7 @@ import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.index.quadtree.SubordTableLookupStrategyFactoryQuadTree;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
+import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.hint.ExcludePlanHint;
 import com.espertech.esper.epl.join.hint.IndexHint;
 import com.espertech.esper.epl.join.hint.IndexHintInstruction;
@@ -96,7 +96,7 @@ public class SubordinateQueryPlanner {
             for (Map.Entry<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> op : joinDesc.getCustomIndexOps().entrySet()) {
                 for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> index : indexMetadata.getIndexes().entrySet()) {
                     if (isCustomIndexMatch(index, op)) {
-                        AdvancedIndexProvisionDesc provisionDesc = index.getValue().getQueryPlanIndexItem().getAdvancedIndexProvisionDesc();
+                        EventAdvancedIndexProvisionDesc provisionDesc = index.getValue().getQueryPlanIndexItem().getAdvancedIndexProvisionDesc();
                         SubordTableLookupStrategyFactoryQuadTree lookupStrategyFactory = provisionDesc.getFactory().getSubordinateLookupStrategy(op.getKey().getOperationName(), op.getValue().getPositionalExpressions(), isNWOnTrigger, outerStreams.length);
                         SubordinateQueryIndexDesc indexDesc = new SubordinateQueryIndexDesc(null, index.getValue().getOptionalIndexName(), index.getKey(), null);
                         return new SubordinateQueryPlanDesc(lookupStrategyFactory, new SubordinateQueryIndexDesc[] {indexDesc});
@@ -171,7 +171,7 @@ public class SubordinateQueryPlanner {
         if (index.getValue().getExplicitIndexNameIfExplicit() == null || index.getValue().getQueryPlanIndexItem() == null) {
             return false;
         }
-        AdvancedIndexProvisionDesc provision = index.getValue().getQueryPlanIndexItem().getAdvancedIndexProvisionDesc();
+        EventAdvancedIndexProvisionDesc provision = index.getValue().getQueryPlanIndexItem().getAdvancedIndexProvisionDesc();
         if (provision == null) {
             return false;
         }

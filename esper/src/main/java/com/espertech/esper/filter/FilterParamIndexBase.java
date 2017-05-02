@@ -62,18 +62,26 @@ public abstract class FilterParamIndexBase implements EventEvaluator {
      * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
      *
      * @param filterConstant is the value supplied in the filter paremeter
-     * @return true if found and removed, false if not found
      */
-    public abstract boolean remove(Object filterConstant);
+    public abstract void remove(Object filterConstant);
 
     /**
-     * Return the number of distinct filter parameter constants stored.
+     * Return the number of distinct filter parameter constants stored, which can be an expensive call.
      * The calling class must make sure that access to the underlying resource is protected
      * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
      *
      * @return Number of entries in index
      */
-    public abstract int size();
+    public abstract int sizeExpensive();
+
+    /**
+     * Return empty indicator.
+     * The calling class must make sure that access to the underlying resource is protected
+     * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
+     *
+     * @return empty flag
+     */
+    public abstract boolean isEmpty();
 
     /**
      * Supplies the lock for protected access.

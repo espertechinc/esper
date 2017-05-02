@@ -68,18 +68,22 @@ public abstract class FilterParamIndexDoubleRangeBase extends FilterParamIndexLo
         ranges.put(range, matcher);
     }
 
-    public final boolean remove(Object filterConstant) {
+    public final void remove(Object filterConstant) {
         DoubleRange range = (DoubleRange) filterConstant;
 
         if ((range.getMax() == null) || (range.getMin() == null)) {
-            return rangesNullEndpoints.remove(range) != null;
+            rangesNullEndpoints.remove(range);
+            return;
         }
-
-        return ranges.remove(range) != null;
+        ranges.remove(range);
     }
 
-    public final int size() {
+    public final int sizeExpensive() {
         return ranges.size();
+    }
+
+    public boolean isEmpty() {
+        return ranges.isEmpty();
     }
 
     public final ReadWriteLock getReadWriteLock() {

@@ -25,7 +25,7 @@ public class SpikeAndErrorMonitor {
         String eventName = OperationMeasurement.class.getName();
 
         EPStatement myPattern = admin.createPattern(
-                "every (spike=" + eventName + "(latency>20000) or error=" + eventName + "(success=false))");
+                "every spike=" + eventName + "(latency>20000) or every error=" + eventName + "(success=false)");
 
         myPattern.addListener(new UpdateListener() {
             public void update(EventBean[] newEvents, EventBean[] oldEvents) {

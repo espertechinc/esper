@@ -24,6 +24,7 @@ import com.espertech.esper.epl.expression.dot.ExprDotEval;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.methodbase.DotMethodFPProvided;
 import com.espertech.esper.epl.methodbase.DotMethodInputTypeMatcher;
 import com.espertech.esper.epl.methodbase.DotMethodTypeEnum;
@@ -66,7 +67,7 @@ public class ExprDotEvalDTFactory {
         String currentMethodName = dtMethodName;
 
         // drain all calendar ops
-        ExprDotNodeFilterAnalyzerDesc filterAnalyzerDesc = null;
+        FilterExprAnalyzerAffector filterAnalyzerDesc = null;
         while (true) {
 
             // handle the first one only if its a calendar op

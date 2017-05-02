@@ -28,6 +28,7 @@ public class FilterSpecParamComparator implements Comparator<FilterOperator>, Me
         FilterOperator.EQUAL,
         FilterOperator.IS,
         FilterOperator.IN_LIST_OF_VALUES,
+        FilterOperator.ADVANCED_INDEX,
         FilterOperator.RANGE_OPEN,
         FilterOperator.RANGE_HALF_OPEN,
         FilterOperator.RANGE_HALF_CLOSED,

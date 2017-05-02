@@ -72,7 +72,7 @@
 			</listitem>
 			<listitem>
 				<para>
-                    Read <xref linkend="technology_overview_intro_cep"/> if you are new to CEP and ESP (complex event processing, event stream processing)
+                    Read <xref linkend="gettingstarted"/> if you are new to CEP and ESP (complex event processing, event stream processing)
                 </para>
 			</listitem>
 			<listitem>

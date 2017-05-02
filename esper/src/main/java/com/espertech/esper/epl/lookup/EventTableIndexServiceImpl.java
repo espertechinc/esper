@@ -11,7 +11,7 @@
 package com.espertech.esper.epl.lookup;
 
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
+import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.index.service.EventTableFactoryCustomIndex;
 import com.espertech.esper.epl.join.table.*;
 
@@ -64,7 +64,7 @@ public class EventTableIndexServiceImpl implements EventTableIndexService {
         return new PropertyIndexedEventTableSingleArrayFactory(0, eventType, indexedProp, unique, null);
     }
 
-    public EventTableFactory createCustom(String indexName, int indexedStreamNum, EventType eventType, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
+    public EventTableFactory createCustom(String indexName, int indexedStreamNum, EventType eventType, boolean unique, EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
         return new EventTableFactoryCustomIndex(indexName, indexedStreamNum, eventType, unique, advancedIndexProvisionDesc);
     }
 }

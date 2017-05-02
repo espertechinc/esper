@@ -61,7 +61,7 @@ public class TestCreateIndexAdvancedSyntax extends TestCase
         SupportMessageAssertUtil.tryInvalid(epService, "create index MyIndex on MyWindow(x.y)",
                 "Error starting statement: Invalid index expression 'x.y'");
 
-        SupportMessageAssertUtil.tryInvalid(epService, "create index MyIndex on MyWindow(intPrimitive xxxx)",
+        SupportMessageAssertUtil.tryInvalid(epService, "create index MyIndex on MyWindow(id xxxx)",
                 "Error starting statement: Unrecognized advanced-type index 'xxxx'");
     }
 

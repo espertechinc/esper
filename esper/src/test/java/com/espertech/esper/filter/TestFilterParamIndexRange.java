@@ -58,8 +58,8 @@ public class TestFilterParamIndexRange extends TestCase {
         index.put(testRange, testEvaluator);
         assertEquals(testEvaluator, index.get(testRange));
         assertTrue(index.getReadWriteLock() != null);
-        assertTrue(index.remove(testRange));
-        assertFalse(index.remove(testRange));
+        index.remove(testRange);
+        index.remove(testRange);
         assertEquals(null, index.get(testRange));
 
         try {

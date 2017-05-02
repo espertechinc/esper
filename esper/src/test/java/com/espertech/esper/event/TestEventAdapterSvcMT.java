@@ -20,10 +20,7 @@ import com.espertech.esper.supportunit.bean.SupportBean_S1;
 import com.espertech.esper.supportunit.bean.SupportMarketDataBean;
 import junit.framework.TestCase;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -37,7 +34,7 @@ public class TestEventAdapterSvcMT extends TestCase {
     }
 
     public void testAddBeanTypeClass() throws Exception {
-        final Set<EventType> types = new HashSet<EventType>();
+        final Collection<EventType> types = Collections.synchronizedCollection(new HashSet<EventType>());
 
         Callable callables[] = new Callable[2];
         for (int i = 0; i < callables.length; i++) {

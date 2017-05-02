@@ -41,6 +41,14 @@ import java.util.*;
  * <p> is this a numeric type.
  */
 public class JavaClassHelper {
+
+    public static boolean isImplementsCharSequence(Class type) {
+        if (type == String.class || type == CharSequence.class) {
+            return true;
+        }
+        return isSubclassOrImplementsInterface(type, CharSequence.class);
+    }
+
     public static boolean isArrayTypeCompatible(Class target, Class provided) {
         if (target == provided || target == Object.class) {
             return true;

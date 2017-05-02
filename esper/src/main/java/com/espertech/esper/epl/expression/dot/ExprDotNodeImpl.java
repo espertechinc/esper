@@ -16,12 +16,12 @@ import com.espertech.esper.core.start.EPStatementStartMethod;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
 import com.espertech.esper.epl.enummethod.dot.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodPointInsideRectange;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
 import com.espertech.esper.epl.variable.VariableMetaData;
@@ -49,7 +49,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
     private transient ExprEvaluator exprEvaluator;
     private boolean isReturnsConstantResult;
 
-    private transient ExprDotNodeFilterAnalyzerDesc exprDotNodeFilterAnalyzerDesc;
+    private transient FilterExprAnalyzerAffector filterExprAnalyzerAffector;
     private Integer streamNumReferenced;
     private String rootPropertyName;
 
@@ -76,7 +76,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
     public ExprNode validate(ExprValidationContext validationContext) throws ExprValidationException {
 
         // check for plannable methods: these are validated according to different rules
-        ExprAppDotMethod appDotMethod = getAppDotMethod();
+        ExprAppDotMethodImpl appDotMethod = getAppDotMethod(validationContext.isFilterExpression());
         if (appDotMethod != null) {
             return appDotMethod;
         }
@@ -216,7 +216,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
                 EPType typeInfo = EPTypeHelper.singleEvent(eventType);
                 ExprDotNodeRealizedChain chain = ExprDotNodeUtility.getChainEvaluators(prefixedStreamNumber, typeInfo, remainderChain, validationContext, false, new ExprDotNodeFilterAnalyzerInputStream(prefixedStreamNumber));
                 eventTypeMethodChain = chain.getChainWithUnpack();
-                exprDotNodeFilterAnalyzerDesc = chain.getFilterAnalyzerDesc();
+                filterExprAnalyzerAffector = chain.getFilterAnalyzerDesc();
             } catch (ExprValidationException ex) {
                 enumDatetimeEx = ex;
                 // expected - may not be able to find the methods on the underlying
@@ -336,7 +336,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
             }
 
             exprEvaluator = new ExprDotEvalRootChild(hasEnumerationMethod, this, rootNodeEvaluator, enumerationEval, inputType, evals.getChain(), evals.getChainWithUnpack(), !rootIsEventBean);
-            exprDotNodeFilterAnalyzerDesc = evals.getFilterAnalyzerDesc();
+            filterExprAnalyzerAffector = evals.getFilterAnalyzerDesc();
             streamNumReferenced = propertyInfoPair.getFirst().getStreamNum();
             rootPropertyName = propertyInfoPair.getFirst().getPropertyName();
             return null;
@@ -421,8 +421,8 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
         return null;
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getExprDotNodeFilterAnalyzerDesc(boolean isOuterJoin) {
-        return isOuterJoin ? null : exprDotNodeFilterAnalyzerDesc;
+    public FilterExprAnalyzerAffector getAffector(boolean isOuterJoin) {
+        return isOuterJoin ? null : filterExprAnalyzerAffector;
     }
 
     private ExprEvaluator getPropertyPairEvaluator(ExprEvaluator parameterEval, Pair<PropertyResolutionDescriptor, String> propertyInfoPair, ExprValidationContext validationContext)
@@ -546,7 +546,7 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
         return new ExprValidationException("Unknown single-row function, expression declaration, script or aggregation function named '" + name + "' could not be resolved");
     }
 
-    private ExprAppDotMethod getAppDotMethod() throws ExprValidationException {
+    private ExprAppDotMethodImpl getAppDotMethod(boolean filterExpression) throws ExprValidationException {
         if (chainSpec.size() < 2) {
             return null;
         }
@@ -559,28 +559,47 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
             return null;
         }
         if (chainSpec.get(1).getParameters().size() != 1) {
-            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+            throw getAppDocMethodException(lhsName, operationName);
         }
         ExprNode param = chainSpec.get(1).getParameters().get(0);
         if (!(param instanceof ExprDotNode)) {
-            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+            throw getAppDocMethodException(lhsName, operationName);
         }
         ExprDotNode compared = (ExprDotNode) chainSpec.get(1).getParameters().get(0);
         if (compared.getChainSpec().size() != 1) {
-            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+            throw getAppDocMethodException(lhsName, operationName);
         }
         String rhsName = compared.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH);
         if (!rhsName.equals("rectangle")) {
-            throw getAppDocMethodException(lhsName, operationName, "rectangle");
+            throw getAppDocMethodException(lhsName, operationName);
         }
 
-        ExprNode[] lhs = ExprNodeUtility.toArray(chainSpec.get(0).getParameters());
+        List<ExprNode> lhsExpressions = chainSpec.get(0).getParameters();
+        ExprNode[] indexNamedParameter = null;
+        List<ExprNode> lhsExpressionsValues = new ArrayList<>();
+        for (ExprNode lhsExpression : lhsExpressions) {
+            if (lhsExpression instanceof ExprNamedParameterNode) {
+                ExprNamedParameterNode named = (ExprNamedParameterNode) lhsExpression;
+                if (named.getParameterName().toLowerCase(Locale.ENGLISH).equals(FILTERINDEX_NAMED_PARAMETER)) {
+                    if (!filterExpression) {
+                        throw new ExprValidationException("The '" + named.getParameterName() + "' named parameter can only be used in in filter expressions");
+                    }
+                    indexNamedParameter = named.getChildNodes();
+                } else {
+                    throw new ExprValidationException(lhsName + " does not accept '" + named.getParameterName() + "' as a named parameter");
+                }
+            } else {
+                lhsExpressionsValues.add(lhsExpression);
+            }
+        }
+
+        ExprNode[] lhs = ExprNodeUtility.toArray(lhsExpressionsValues);
         ExprNode[] rhs = ExprNodeUtility.toArray(compared.getChainSpec().get(0).getParameters());
-        EngineImportApplicationDotMethodPointInsideRectange special = new EngineImportApplicationDotMethodPointInsideRectange(lhsName, lhs, operationName, rhsName, rhs);
-        return new ExprAppDotMethod(special);
+        EngineImportApplicationDotMethodPointInsideRectange special = new EngineImportApplicationDotMethodPointInsideRectange(lhsName, lhs, operationName, rhsName, rhs, indexNamedParameter);
+        return new ExprAppDotMethodImpl(special);
     }
 
-    private ExprValidationException getAppDocMethodException(String lhsName, String operationName, String rectangle) {
+    private ExprValidationException getAppDocMethodException(String lhsName, String operationName) {
         return new ExprValidationException(lhsName + "." + operationName + " requires a single rectangle as parameter");
     }
 }

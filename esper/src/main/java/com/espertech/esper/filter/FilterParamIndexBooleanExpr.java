@@ -42,13 +42,17 @@ public final class FilterParamIndexBooleanExpr extends FilterParamIndexBase {
         evaluatorsMap.put(keys, evaluator);
     }
 
-    public final boolean remove(Object filterConstant) {
+    public final void remove(Object filterConstant) {
         ExprNodeAdapterBase keys = (ExprNodeAdapterBase) filterConstant;
-        return evaluatorsMap.remove(keys) != null;
+        evaluatorsMap.remove(keys);
     }
 
-    public final int size() {
+    public final int sizeExpensive() {
         return evaluatorsMap.size();
+    }
+
+    public boolean isEmpty() {
+        return evaluatorsMap.isEmpty();
     }
 
     public final ReadWriteLock getReadWriteLock() {

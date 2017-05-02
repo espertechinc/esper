@@ -61,8 +61,8 @@ public class TestFilterParamIndexNotIn extends TestCase {
         MultiKeyUntyped inList = new MultiKeyUntyped(new Object[]{3L, 4L, 5L});
         assertEquals(testEvaluators[1], index.get(inList));
         assertTrue(index.getReadWriteLock() != null);
-        assertTrue(index.remove(inList));
-        assertFalse(index.remove(inList));
+        index.remove(inList);
+        index.remove(inList);
         assertEquals(null, index.get(inList));
 
         // now that {3,4,5} is removed, verify results again

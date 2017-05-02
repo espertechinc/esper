@@ -10,15 +10,19 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.dot.FilterSpecCompilerAdvIndexDescProvider;
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.epl.expression.ops.*;
+import com.espertech.esper.epl.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
 import com.espertech.esper.event.property.IndexedProperty;
 import com.espertech.esper.event.property.NestedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
+import com.espertech.esper.spatial.quadtree.core.XYPoint;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
@@ -41,11 +45,11 @@ public final class FilterSpecCompilerMakeParamUtil {
      * @param statementName        statement name
      * @param exprEvaluatorContext context
      * @return filter parameter representing the expression, or null
-     * @throws com.espertech.esper.epl.expression.core.ExprValidationException if the expression is invalid
+     * @throws ExprValidationException if the expression is invalid
      */
     protected static FilterSpecParam makeFilterParam(ExprNode constituent, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName)
             throws ExprValidationException {
-        // Is this expresson node a simple compare, i.e. a=5 or b<4; these can be indexed
+        // Is this expression node a simple compare, i.e. a=5 or b<4; these can be indexed
         if ((constituent instanceof ExprEqualsNode) ||
                 (constituent instanceof ExprRelationalOpNode)) {
             FilterSpecParam param = handleEqualsAndRelOp(constituent, arrayEventTypes, exprEvaluatorContext, statementName);
@@ -78,7 +82,74 @@ public final class FilterSpecCompilerMakeParamUtil {
             }
         }
 
+        if (constituent instanceof FilterSpecCompilerAdvIndexDescProvider) {
+            FilterSpecParam param = handleAdvancedIndexDescProvider((FilterSpecCompilerAdvIndexDescProvider) constituent, arrayEventTypes, statementName, exprEvaluatorContext);
+            if (param != null) {
+                return param;
+            }
+        }
+
         return null;
+    }
+
+    private static FilterSpecParam handleAdvancedIndexDescProvider(FilterSpecCompilerAdvIndexDescProvider provider, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName, ExprEvaluatorContext exprEvaluatorContext) throws ExprValidationException {
+        FilterSpecCompilerAdvIndexDesc filterDesc = provider.getFilterSpecDesc();
+        if (filterDesc == null) {
+            return null;
+        }
+
+        ExprNode[] indexExpressions = filterDesc.getIndexExpressions();
+        FilterSpecParamFilterForEvalDouble xEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[0], arrayEventTypes, statementName, exprEvaluatorContext);
+        FilterSpecParamFilterForEvalDouble yEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[1], arrayEventTypes, statementName, exprEvaluatorContext);
+
+        ExprNode[] keyExpressions = filterDesc.getKeyExpressions();
+        EventPropertyGetter xGetter = resolveFilterIndexRequiredGetter(filterDesc.getIndexName(), keyExpressions[0]);
+        EventPropertyGetter yGetter = resolveFilterIndexRequiredGetter(filterDesc.getIndexName(), keyExpressions[1]);
+        EventPropertyGetter widthGetter = resolveFilterIndexRequiredGetter(filterDesc.getIndexName(), keyExpressions[2]);
+        EventPropertyGetter heightGetter = resolveFilterIndexRequiredGetter(filterDesc.getIndexName(), keyExpressions[3]);
+        AdvancedIndexConfigContextPartitionQuadTree config = (AdvancedIndexConfigContextPartitionQuadTree) filterDesc.getIndexSpec();
+
+        StringWriter builder = new StringWriter();
+        ExprNodeUtility.toExpressionString(keyExpressions[0], builder);
+        builder.append(",");
+        ExprNodeUtility.toExpressionString(keyExpressions[1], builder);
+        builder.append(",");
+        ExprNodeUtility.toExpressionString(keyExpressions[2], builder);
+        builder.append(",");
+        ExprNodeUtility.toExpressionString(keyExpressions[3], builder);
+        builder.append("/");
+        builder.append(filterDesc.getIndexName().toLowerCase(Locale.ENGLISH));
+        builder.append("/");
+        config.toConfiguration(builder);
+        String expression = builder.toString();
+
+        FilterSpecLookupableAdvancedIndex lookupable = new FilterSpecLookupableAdvancedIndex(expression, null, XYPoint.class, config, xGetter, yGetter, widthGetter, heightGetter);
+        return new FilterSpecParamAdvancedIndex(lookupable, FilterOperator.ADVANCED_INDEX, xEval, yEval);
+    }
+
+    private static FilterSpecParamFilterForEvalDouble resolveFilterIndexDoubleEval(String indexName, ExprNode indexExpression, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName, ExprEvaluatorContext exprEvaluatorContext) throws ExprValidationException {
+        FilterSpecParamFilterForEvalDouble resolved = null;
+        if (indexExpression instanceof ExprIdentNode) {
+            resolved = getIdentNodeDoubleEval((ExprIdentNode) indexExpression, arrayEventTypes, statementName);
+        } else if (indexExpression instanceof ExprContextPropertyNode) {
+            ExprContextPropertyNode node = (ExprContextPropertyNode) indexExpression;
+            resolved = new FilterForEvalContextPropDouble(node.getGetter(), node.getPropertyName());
+        } else if (ExprNodeUtility.isConstantValueExpr(indexExpression)) {
+            ExprConstantNode constantNode = (ExprConstantNode) indexExpression;
+            double d = ((Number) constantNode.getConstantValue(exprEvaluatorContext)).doubleValue();
+            resolved = new FilterForEvalConstantDouble(d);
+        }
+        if (resolved != null) {
+            return resolved;
+        }
+        throw new ExprValidationException("Invalid filter-indexable expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(indexExpression) + "' in respect to index '" + indexName + "': expected either a constant, context-builtin or property from a previous pattern match");
+    }
+
+    private static EventPropertyGetter resolveFilterIndexRequiredGetter(String indexName, ExprNode keyExpression) throws ExprValidationException {
+        if (!(keyExpression instanceof ExprIdentNode)) {
+            throw new ExprValidationException("Invalid filter-index lookup expression '" + ExprNodeUtility.toExpressionStringMinPrecedenceSafe(keyExpression) + "' in respect to index '" + indexName + "': expected an event property name");
+        }
+        return ((ExprIdentNode) keyExpression).getExprEvaluatorIdent().getGetter();
     }
 
     public static ExprNode rewriteOrToInIfApplicable(ExprNode constituent) {
@@ -151,8 +222,8 @@ public final class FilterSpecCompilerMakeParamUtil {
             FilterOperator op = FilterOperator.parseRangeOperator(betweenNode.isLowEndpointIncluded(), betweenNode.isHighEndpointIncluded(),
                     betweenNode.isNotBetween());
 
-            FilterSpecParamRangeValue low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], arrayEventTypes, exprEvaluatorContext, statementName);
-            FilterSpecParamRangeValue high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], arrayEventTypes, exprEvaluatorContext, statementName);
+            FilterSpecParamFilterForEval low = handleRangeNodeEndpoint(betweenNode.getChildNodes()[1], arrayEventTypes, exprEvaluatorContext, statementName);
+            FilterSpecParamFilterForEval high = handleRangeNodeEndpoint(betweenNode.getChildNodes()[2], arrayEventTypes, exprEvaluatorContext, statementName);
 
             if ((low != null) && (high != null)) {
                 return new FilterSpecParamRange(lookupable, op, low, high);
@@ -161,7 +232,7 @@ public final class FilterSpecCompilerMakeParamUtil {
         return null;
     }
 
-    private static FilterSpecParamRangeValue handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName) {
+    private static FilterSpecParamFilterForEval handleRangeNodeEndpoint(ExprNode endpoint, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, ExprEvaluatorContext exprEvaluatorContext, String statementName) {
         // constant
         if (ExprNodeUtility.isConstantValueExpr(endpoint)) {
             ExprConstantNode node = (ExprConstantNode) endpoint;
@@ -170,30 +241,24 @@ public final class FilterSpecCompilerMakeParamUtil {
                 return null;
             }
             if (value instanceof String) {
-                return new RangeValueString((String) value);
+                return new FilterForEvalConstantString((String) value);
             } else {
-                return new RangeValueDouble(((Number) value).doubleValue());
+                return new FilterForEvalConstantDouble(((Number) value).doubleValue());
             }
         }
 
         if (endpoint instanceof ExprContextPropertyNode) {
             ExprContextPropertyNode node = (ExprContextPropertyNode) endpoint;
-            return new RangeValueContextProp(node.getGetter());
+            if (JavaClassHelper.isImplementsCharSequence(node.getType())) {
+                return new FilterForEvalContextPropString(node.getGetter(), node.getPropertyName());
+            } else {
+                return new FilterForEvalContextPropDouble(node.getGetter(), node.getPropertyName());
+            }
         }
 
         // or property
         if (endpoint instanceof ExprIdentNode) {
-            ExprIdentNode identNodeInner = (ExprIdentNode) endpoint;
-            if (identNodeInner.getStreamId() == 0) {
-                return null;
-            }
-
-            if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(identNodeInner.getResolvedStreamName())) {
-                Pair<Integer, String> indexAndProp = getStreamIndex(identNodeInner.getResolvedPropertyName());
-                return new RangeValueEventPropIndexed(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(), indexAndProp.getSecond(), statementName);
-            } else {
-                return new RangeValueEventProp(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName());
-            }
+            return getIdentNodeDoubleEval((ExprIdentNode) endpoint, arrayEventTypes, statementName);
         }
 
         return null;
@@ -232,14 +297,14 @@ public final class FilterSpecCompilerMakeParamUtil {
                     for (int i = 0; i < Array.getLength(constant); i++) {
                         Object arrayElement = Array.get(constant, i);
                         Object arrayElementCoerced = handleConstantsCoercion(lookupable, arrayElement);
-                        listofValues.add(new InSetOfValuesConstant(arrayElementCoerced));
+                        listofValues.add(new FilterForEvalConstantAnyType(arrayElementCoerced));
                         if (i > 0) {
                             expectedNumberOfConstants++;
                         }
                     }
                 } else {
                     constant = handleConstantsCoercion(lookupable, constant);
-                    listofValues.add(new InSetOfValuesConstant(constant));
+                    listofValues.add(new FilterForEvalConstantAnyType(constant));
                 }
             }
             if (subNode instanceof ExprContextPropertyNode) {
@@ -253,7 +318,7 @@ public final class FilterSpecCompilerMakeParamUtil {
                     coercer = getNumberCoercer(left.getExprEvaluator().getType(), contextPropertyNode.getType(), lookupable.getExpression());
                 }
                 Class finalReturnType = coercer != null ? coercer.getReturnType() : returnType;
-                listofValues.add(new InSetOfValuesContextProp(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer, finalReturnType));
+                listofValues.add(new FilterForEvalContextPropMayCoerce(contextPropertyNode.getPropertyName(), contextPropertyNode.getGetter(), coercer, finalReturnType));
             }
             if (subNode instanceof ExprIdentNode) {
                 ExprIdentNode identNodeInner = (ExprIdentNode) subNode;
@@ -284,10 +349,10 @@ public final class FilterSpecCompilerMakeParamUtil {
                 String streamName = identNodeInner.getResolvedStreamName();
                 if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(streamName)) {
                     Pair<Integer, String> indexAndProp = getStreamIndex(identNodeInner.getResolvedPropertyName());
-                    inValue = new InSetOfValuesEventPropIndexed(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(),
+                    inValue = new FilterForEvalEventPropIndexedMayCoerce(identNodeInner.getResolvedStreamName(), indexAndProp.getFirst(),
                             indexAndProp.getSecond(), isMustCoerce, coerceToType, statementName);
                 } else {
-                    inValue = new InSetOfValuesEventProp(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName(), isMustCoerce, coerceToType);
+                    inValue = new FilterForEvalEventPropMayCoerce(identNodeInner.getResolvedStreamName(), identNodeInner.getResolvedPropertyName(), isMustCoerce, coerceToType);
                 }
 
                 listofValues.add(inValue);
@@ -521,5 +586,18 @@ public final class FilterSpecCompilerMakeParamUtil {
             }
         }
         return true;
+    }
+
+    private static FilterSpecParamFilterForEvalDouble getIdentNodeDoubleEval(ExprIdentNode node, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName) {
+        if (node.getStreamId() == 0) {
+            return null;
+        }
+
+        if (arrayEventTypes != null && !arrayEventTypes.isEmpty() && arrayEventTypes.containsKey(node.getResolvedStreamName())) {
+            Pair<Integer, String> indexAndProp = getStreamIndex(node.getResolvedPropertyName());
+            return new FilterForEvalEventPropIndexedDouble(node.getResolvedStreamName(), indexAndProp.getFirst(), indexAndProp.getSecond(), statementName);
+        } else {
+            return new FilterForEvalEventPropDouble(node.getResolvedStreamName(), node.getResolvedPropertyName());
+        }
     }
 }

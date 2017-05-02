@@ -84,14 +84,14 @@ public final class FilterSpecCompilerConsolidateUtil {
             if (param instanceof FilterSpecParamConstant) {
                 FilterSpecParamConstant constantParam = (FilterSpecParamConstant) param;
                 Object constant = constantParam.getFilterConstant();
-                values.add(new InSetOfValuesConstant(constant));
+                values.add(new FilterForEvalConstantAnyType(constant));
             } else if (param instanceof FilterSpecParamEventProp) {
                 FilterSpecParamEventProp eventProp = (FilterSpecParamEventProp) param;
-                values.add(new InSetOfValuesEventProp(eventProp.getResultEventAsName(), eventProp.getResultEventProperty(),
+                values.add(new FilterForEvalEventPropMayCoerce(eventProp.getResultEventAsName(), eventProp.getResultEventProperty(),
                         eventProp.isMustCoerce(), JavaClassHelper.getBoxedType(eventProp.getCoercionType())));
             } else if (param instanceof FilterSpecParamEventPropIndexed) {
                 FilterSpecParamEventPropIndexed eventProp = (FilterSpecParamEventPropIndexed) param;
-                values.add(new InSetOfValuesEventPropIndexed(eventProp.getResultEventAsName(), eventProp.getResultEventIndex(), eventProp.getResultEventProperty(),
+                values.add(new FilterForEvalEventPropIndexedMayCoerce(eventProp.getResultEventAsName(), eventProp.getResultEventIndex(), eventProp.getResultEventProperty(),
                         eventProp.isMustCoerce(), JavaClassHelper.getBoxedType(eventProp.getCoercionType()), statementName));
             } else {
                 throw new IllegalArgumentException("Unknown filter parameter:" + param.toString());

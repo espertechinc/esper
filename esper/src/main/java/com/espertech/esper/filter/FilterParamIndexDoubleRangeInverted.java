@@ -12,8 +12,6 @@ package com.espertech.esper.filter;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -82,6 +80,4 @@ public final class FilterParamIndexDoubleRangeInverted extends FilterParamIndexD
             InstrumentationHelper.get().aFilterReverseIndex(null);
         }
     }
-
-    private static final Logger log = LoggerFactory.getLogger(FilterParamIndexDoubleRangeInverted.class);
 }

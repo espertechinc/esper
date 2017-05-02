@@ -11,9 +11,9 @@
 package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
-import com.espertech.esper.epl.lookup.AdvancedIndexConfigStatement;
+import com.espertech.esper.epl.lookup.EventAdvancedIndexConfigStatement;
 
-public class AdvancedIndexConfigStatementQuadtree implements AdvancedIndexConfigStatement {
+public class AdvancedIndexConfigStatementQuadtree implements EventAdvancedIndexConfigStatement {
     private final ExprEvaluator xEval;
     private final ExprEvaluator yEval;
 

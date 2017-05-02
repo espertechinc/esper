@@ -19,7 +19,7 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerLocalDateTime;
 import com.espertech.esper.epl.datetime.eval.DatetimeLongCoercerZonedDateTime;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDTIntervalDesc;
+import com.espertech.esper.epl.datetime.eval.FilterExprAnalyzerDTIntervalAffector;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInputProp;
@@ -155,7 +155,7 @@ public class IntervalOpImpl implements IntervalOp {
      * @param currentParameters current params
      * @param inputDesc         descriptor of what the input to this interval method is
      */
-    public ExprDotNodeFilterAnalyzerDTIntervalDesc getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
+    public FilterExprAnalyzerDTIntervalAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
 
         // with intervals is not currently query planned
         if (currentParameters.size() > 1) {
@@ -186,7 +186,7 @@ public class IntervalOpImpl implements IntervalOp {
             return null;
         }
 
-        return new ExprDotNodeFilterAnalyzerDTIntervalDesc(currentMethod, typesPerStream,
+        return new FilterExprAnalyzerDTIntervalAffector(currentMethod, typesPerStream,
                 targetStreamNum, targetPropertyStart, targetPropertyEnd,
                 parameterStreamNum, parameterPropertyStart, parameterPropertyEnd);
     }

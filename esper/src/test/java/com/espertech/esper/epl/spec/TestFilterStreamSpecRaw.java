@@ -218,12 +218,12 @@ public class TestFilterStreamSpecRaw extends TestCase {
         assertEquals(1.0, getConstant(rangeParam.getMax()));
     }
 
-    private double getConstant(FilterSpecParamRangeValue param) {
-        return ((RangeValueDouble) param).getDoubleValue();
+    private double getConstant(FilterSpecParamFilterForEval param) {
+        return ((FilterForEvalConstantDouble) param).getDoubleValue();
     }
 
     private Object getConstant(FilterSpecParamInValue param) {
-        InSetOfValuesConstant constant = (InSetOfValuesConstant) param;
+        FilterForEvalConstantAnyType constant = (FilterForEvalConstantAnyType) param;
         return constant.getConstant();
     }
 

@@ -207,7 +207,7 @@ public final class IndexTreeBuilder {
             }
 
             // Remove the index if the index is now empty
-            if (nextIndex.size() == 0) {
+            if (nextIndex.isEmpty()) {
                 boolean isRemoved = currentNode.remove(nextIndex);
 
                 if (!isRemoved) {
@@ -248,9 +248,7 @@ public final class IndexTreeBuilder {
                     // another thread had been adding anything to this FilterHandleSetNode
                     index.remove(filterForValue);
                 }
-                int size = index.size();
-
-                return size == 0;
+                return index.isEmpty();
             }
 
             FilterParamIndexBase nextIndex = (FilterParamIndexBase) eventEvaluator;
@@ -278,9 +276,7 @@ public final class IndexTreeBuilder {
                 // another thread had been adding anything to this FilterHandleSetNode
                 index.remove(filterForValue);
             }
-            int size = index.size();
-
-            return size == 0;
+            return index.isEmpty();
         } finally {
             index.getReadWriteLock().writeLock().unlock();
         }

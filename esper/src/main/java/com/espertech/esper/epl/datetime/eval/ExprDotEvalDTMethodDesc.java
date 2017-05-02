@@ -11,15 +11,16 @@
 package com.espertech.esper.epl.datetime.eval;
 
 import com.espertech.esper.epl.expression.dot.ExprDotEval;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.rettype.EPType;
 
 public class ExprDotEvalDTMethodDesc {
 
     private final ExprDotEval eval;
     private final EPType returnType;
-    private final ExprDotNodeFilterAnalyzerDesc intervalFilterDesc;
+    private final FilterExprAnalyzerAffector intervalFilterDesc;
 
-    public ExprDotEvalDTMethodDesc(ExprDotEval eval, EPType returnType, ExprDotNodeFilterAnalyzerDesc intervalFilterDesc) {
+    public ExprDotEvalDTMethodDesc(ExprDotEval eval, EPType returnType, FilterExprAnalyzerAffector intervalFilterDesc) {
         this.eval = eval;
         this.returnType = returnType;
         this.intervalFilterDesc = intervalFilterDesc;
@@ -33,7 +34,7 @@ public class ExprDotEvalDTMethodDesc {
         return returnType;
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getIntervalFilterDesc() {
+    public FilterExprAnalyzerAffector getIntervalFilterDesc() {
         return intervalFilterDesc;
     }
 }

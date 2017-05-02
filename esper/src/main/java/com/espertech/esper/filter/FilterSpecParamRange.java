@@ -17,8 +17,8 @@ import com.espertech.esper.pattern.MatchedEventMap;
  * This class represents a range filter parameter in an {@link FilterSpecCompiled} filter specification.
  */
 public final class FilterSpecParamRange extends FilterSpecParam {
-    private final FilterSpecParamRangeValue min;
-    private final FilterSpecParamRangeValue max;
+    private final FilterSpecParamFilterForEval min;
+    private final FilterSpecParamFilterForEval max;
     private static final long serialVersionUID = -3381167844631490119L;
 
     /**
@@ -30,7 +30,7 @@ public final class FilterSpecParamRange extends FilterSpecParam {
      * @param max            is the end point of the range
      * @throws IllegalArgumentException if an operator was supplied that does not take a double range value
      */
-    public FilterSpecParamRange(FilterSpecLookupable lookupable, FilterOperator filterOperator, FilterSpecParamRangeValue min, FilterSpecParamRangeValue max)
+    public FilterSpecParamRange(FilterSpecLookupable lookupable, FilterOperator filterOperator, FilterSpecParamFilterForEval min, FilterSpecParamFilterForEval max)
             throws IllegalArgumentException {
         super(lookupable, filterOperator);
         this.min = min;
@@ -56,7 +56,7 @@ public final class FilterSpecParamRange extends FilterSpecParam {
      *
      * @return lower endpoint
      */
-    public FilterSpecParamRangeValue getMin() {
+    public FilterSpecParamFilterForEval getMin() {
         return min;
     }
 
@@ -65,7 +65,7 @@ public final class FilterSpecParamRange extends FilterSpecParam {
      *
      * @return upper endpoint
      */
-    public FilterSpecParamRangeValue getMax() {
+    public FilterSpecParamFilterForEval getMax() {
         return max;
     }
 
@@ -87,11 +87,8 @@ public final class FilterSpecParamRange extends FilterSpecParam {
             return false;
         }
 
-        if (this.min.equals(other.min) &&
-                (this.max.equals(other.max))) {
-            return true;
-        }
-        return false;
+        return this.min.equals(other.min) &&
+                (this.max.equals(other.max));
     }
 
     public int hashCode() {

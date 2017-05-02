@@ -121,7 +121,7 @@ public class EventTypeIndex implements EventEvaluator {
             for (Map.Entry<EventType, FilterHandleSetNode> entry : eventTypes.entrySet()) {
                 count += entry.getValue().getFilterCallbackCount();
                 for (FilterParamIndexBase index : entry.getValue().getIndizes()) {
-                    count += index.size();
+                    count += index.sizeExpensive();
                 }
             }
         } finally {

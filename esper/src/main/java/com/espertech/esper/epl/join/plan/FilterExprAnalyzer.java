@@ -10,11 +10,9 @@
  */
 package com.espertech.esper.epl.join.plan;
 
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprQueryFilterAnalyzerNode;
 import com.espertech.esper.epl.expression.ops.*;
 import com.espertech.esper.epl.join.util.Eligibility;
 import com.espertech.esper.epl.join.util.EligibilityDesc;
@@ -59,9 +57,9 @@ public class FilterExprAnalyzer {
         } else if (topNode instanceof ExprRelationalOpNode) {
             ExprRelationalOpNode relNode = (ExprRelationalOpNode) topNode;
             analyzeRelationalOpNode(relNode, queryGraph);
-        } else if (topNode instanceof ExprQueryFilterAnalyzerNode) {
-            ExprQueryFilterAnalyzerNode filterAnalyzerNode = (ExprQueryFilterAnalyzerNode) topNode;
-            analyzeFilterAnalyzerNode(filterAnalyzerNode, queryGraph, isOuterJoin);
+        } else if (topNode instanceof FilterExprAnalyzerAffectorProvider) {
+            FilterExprAnalyzerAffectorProvider provider = (FilterExprAnalyzerAffectorProvider) topNode;
+            analyzeAffectorProvider(provider, queryGraph, isOuterJoin);
         } else if (topNode instanceof ExprInNode) {
             ExprInNode inNode = (ExprInNode) topNode;
             analyzeInNode(inNode, queryGraph);
@@ -206,12 +204,12 @@ public class FilterExprAnalyzer {
         return setExpressions;
     }
 
-    private static void analyzeFilterAnalyzerNode(ExprQueryFilterAnalyzerNode node, QueryGraph queryGraph, boolean isOuterJoin) {
-        ExprDotNodeFilterAnalyzerDesc interval = node.getExprDotNodeFilterAnalyzerDesc(isOuterJoin);
-        if (interval == null) {
+    private static void analyzeAffectorProvider(FilterExprAnalyzerAffectorProvider provider, QueryGraph queryGraph, boolean isOuterJoin) {
+        FilterExprAnalyzerAffector affector = provider.getAffector(isOuterJoin);
+        if (affector == null) {
             return;
         }
-        interval.apply(queryGraph);
+        affector.apply(queryGraph);
     }
 
     private static void analyzeRelationalOpNode(ExprRelationalOpNode relNode, QueryGraph queryGraph) {

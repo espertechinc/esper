@@ -530,4 +530,456 @@ group by account]]></programlisting>
 		</para>
 	</sect1>
 
+	<sect1 xml:id="processingmodel_indexes" revision="1">
+		<title>Indexes</title>
+		
+		<sect2 xml:id="processingmodel_indexes_kinds" revision="1">
+			<title>Index Kinds</title>
+			<para>
+				Esper, depending on the EPL statements, builds and maintains two kinds of indexes: filter indexes and event indexes.
+			</para>
+			
+			<para>
+				Esper builds and maintains indexes for efficiency so as to achieve good performance.
+			</para>
+			
+			<para>
+				The following table compares the two kinds of indexes:
+			</para>
+			<table frame="topbot">
+				<title>Kinds of Indexes</title>
+				<tgroup cols="3">
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<colspec colwidth="1*"/>
+					<thead>
+						<row>
+							<entry></entry>
+							<entry>Filter Indexes</entry>
+							<entry>Event Indexes</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry>Improve the speed of</entry>
+							<entry>Matching incoming events to currently-active filters that should process the event</entry>
+							<entry>Lookup of rows</entry>
+						</row>
+						<row>
+							<entry>Similar to</entry>
+							<entry>A structured registry of callbacks; or content-based routing</entry>
+							<entry>Database index</entry>
+						</row>
+						<row>
+							<entry>Index stores values Of</entry>
+							<entry>Values provided by expressions</entry>
+							<entry>Values for certain column(s)</entry>
+						</row>
+						<row>
+							<entry>Index points to</entry>
+							<entry>Currently-active filters</entry>
+							<entry>Rows</entry>
+						</row>
+						<row>
+							<entry>Comparable to </entry>
+							<entry>A sieve or a switchboard</entry>
+							<entry>An index in a book</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+		</sect2>
+		
+		<sect2 xml:id="processingmodel_indexes_filterindexes" revision="1">
+			<title>Filter Indexes</title>
+			
+			<para>
+				Filter indexes organize filters so that they can be searched efficiently. Filter indexes link back to the statement that the filter(s) come from. 
+			</para>
+
+			<para>
+			    We use the term <emphasis>filter</emphasis> or <emphasis>filter criteria</emphasis> to mean the selection predicate, such as <literal>symbol=“google” and price > 200 and volume > 111000</literal>. 
+			    Statements provide filter criteria in the <literal>from</literal>-clause, and/or in EPL patterns and/or in context declarations. 
+			    Please see <xref linkend="epl-from-clause-filter"/>, <xref linkend="pattern-filter"/> and <xref linkend="context_def_condition_filter"/>.
+			</para>
+
+			<para>
+				When the engine receives an event, it consults the filter indexes to determine which statements, if any, must process the event.
+			</para>
+			
+			<para>
+				The purpose of filter indexes is to enable:
+			</para>
+
+			<itemizedlist>
+				<ns:listitem>
+					<para>Efficient matching of events to only those statements that need them.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Efficient discarding of events that are not needed by any statement.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Efficient evaluation with best case approximately O(1) to O(log n) i.e. in the best case executes in approximately the same time regardless of the size of the input data set  which is the number of active filters.</para>
+				</ns:listitem>
+			</itemizedlist>
+			
+			<para>
+				Filter index building is a result of the engine analyzing the filter criteria in the <literal>from</literal>-clause and also in EPL patterns. It is done automatically by the engine.
+			</para>
+
+			<para>
+				Esper builds and maintains separate sets of filter indexes per event type, when such event type occurs in the <literal>from</literal>-clause or pattern. 
+				Filter indexes are sharable within the same event type filter. Thus various <literal>from</literal>-clauses and patterns that refer for the same event type can contribute to the same set of filter indexes.
+			</para>
+			
+			<para>
+				Esper builds filter indexes in a nested fashion: Filter indexes may contain further filter indexes, forming a tree-like structure, a filter index tree. The nesting of indexes is beyond the introductory discussion provided here.
+			</para>
+
+			<sect3 xml:id="processingmodel_indexes_filterindexes_stmt" revision="1">
+				<title>Filter Index Multi-Statement Example</title>
+
+				<para>
+					The <literal>from</literal>-clause in a statement and, in special cases, also the <literal>where</literal>-clause provide filter criteria that the engine analyzes and for which it builds filter indexes.
+				</para>
+
+				<para>
+					For example, assume the <literal>WithdrawalEvent</literal> has an <literal>accountId</literal> field. One could create three EPL statements like so:
+				</para>
+				<programlisting><![CDATA[@name('A') select * from WithdrawalEvent(accountId = 1)]]></programlisting>
+				<programlisting><![CDATA[@name('B') select * from WithdrawalEvent(accountId = 1)]]></programlisting>
+				<programlisting><![CDATA[@name('C') select * from WithdrawalEvent(accountId = 2)]]></programlisting>
+
+				<para>
+					In this example, both statement A and statement B register interest in <literal>WithdrawalEvent</literal> events that have an <literal>accountId</literal> value of 1. 
+					Statement C registers interest in <literal>WithdrawalEvent</literal> events that have an <literal>accountId</literal> value of 2.
+				</para>
+								
+				<para>
+					The below table is a sample filter index for the three statements:
+				</para>
+
+				<table frame="topbot">
+					<title>Sample Filter Index Multi-Statement Example</title>
+					<tgroup cols="2">
+						<colspec colwidth="0.5*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Value of <literal>accountId</literal></entry>
+								<entry>Filter</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>1</literal></entry>
+								<entry>Statement A, Statement B</entry>
+							</row>
+							<row>
+								<entry><literal>2</literal></entry>
+								<entry>Statement C</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+				
+				<para>
+					When a <literal>Withdrawal</literal> event arrives, the engine extracts the <literal>accountId</literal> and performs a lookup into above table. 
+					If there are no matching rows in the table, for example when the <literal>accountId</literal> is 3, the engine knows that there is no further processing for the event.
+				</para>
+			</sect3>
+			
+			<sect3 xml:id="processingmodel_indexes_filterindexes_pattern" revision="1">
+				<title>Filter Index Pattern Example</title>
+
+				<para>
+					As part of a pattern you may specify event types and filter criteria. The engine analyzes patterns and determines filter criteria for filter index building. 
+				</para>
+
+				<para>
+					Consider the following example pattern that fires for each <literal>WithdrawalEvent</literal> that is followed by another <literal>WithdrawalEvent</literal> for the same <literal>accountId</literal> value:
+				</para>
+				<programlisting><![CDATA[@name('P') select * from pattern [every w1=WithdrawalEvent -> w2=WithdrawalEvent(accountId = w.accountId)]]]></programlisting>
+
+				<para>
+					Upon creating the above statement, the engine starts looking for <literal>WithdrawalEvent</literal> events. At this time there is only one active filter:
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>WithdrawalEvent</literal> events regardless of account id.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					Assume a <literal>WithdrawalEvent</literal> W<subscript>a</subscript> for account 1 arrives. The engine then activates a filter looking for another <literal>WithdrawalEvent</literal> for account 1.
+					At this time there are 2 active filters: 
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>WithdrawalEvent</literal> events regardless of account id.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>w1</literal>=W<subscript>a</subscript>.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					Assume another <literal>WithdrawalEvent</literal> W<subscript>b</subscript> for account 1 arrives. The engine then activates a filter looking for another <literal>WithdrawalEvent</literal> for account 1.
+					At this time there are 3 active filters: 
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>WithdrawalEvent</literal> events regardless of account id.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>w1</literal>=W<subscript>a</subscript>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>w2</literal>=W<subscript>b</subscript>.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					Assume another <literal>WithdrawalEvent</literal> W<subscript>c</subscript> for account 2 arrives. The engine then activates a filter looking for another <literal>WithdrawalEvent</literal> for account 2.
+					At this time there are 4 active filters:
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>WithdrawalEvent</literal> events regardless of account id.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>w1</literal>=W<subscript>a</subscript>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>w1</literal>=W<subscript>b</subscript>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=2)</literal> associated to <literal>w1</literal>=W<subscript>c</subscript>.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					The below table is a sample filter index for the pattern after the W<subscript>a</subscript>, W<subscript>b</subscript>and W<subscript>c</subscript> events arrived:
+				</para>
+
+				<table frame="topbot">
+					<title>Sample Filter Index Pattern Example</title>
+					<tgroup cols="2">
+						<colspec colwidth="1*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Value of <literal>accountId</literal></entry>
+								<entry>Filter</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>1</literal></entry>
+								<entry>Statement P Pattern <literal>w1</literal>=W<subscript>a</subscript>, Statement P Pattern <literal>w1</literal>=W<subscript>b</subscript></entry>
+							</row>
+							<row>
+								<entry><literal>2</literal></entry>
+								<entry>Statement P Pattern <literal>w1</literal>=W<subscript>c</subscript></entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+
+				<para>
+					When a <literal>Withdrawal</literal> event arrives, the engine extracts the <literal>accountId</literal> and performs a lookup into above table. 
+					If a matching row is found, the engine can hand off the event to the relevant pattern subexpressions.
+				</para>
+			</sect3>
+			
+			<sect3 xml:id="processingmodel_indexes_filterindexes_context" revision="1">
+				<title>Filter Index Context Example</title>
+
+				<para>
+					This example is similar to the previous example of multiple statements, but instead it declares a context and associates a single statement to the context.
+				</para>
+
+				<para>
+					For example, assume the <literal>LoginEvent</literal> has an <literal>accountId</literal> field. One could declare a context initiated by a <literal>LoginEvent</literal> for a user:
+				</para>
+				<programlisting><![CDATA[@name('A') create context UserSession initiated by LoginEvent as loginEvent]]></programlisting>
+
+				<para>
+					By associating the statement to the context we can tell the engine to analze per <literal>LoginEvent</literal>, for example:
+				</para>
+				<programlisting><![CDATA[@name('B') context UserSession select count(*) from WithdrawalEvent(accountId = context.loginEvent.accountId)]]></programlisting>
+
+				<para>
+					Upon creating the above two statements, the engine starts looking for <literal>LoginEvent</literal> events. At this time there is only one active filter:
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>LoginEvent</literal> events (any account id).
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					Assume a <literal>LoginEvent</literal> L<subscript>a</subscript> for account 1 arrives. The engine then activates a context partition of statement B and therefore the filter looking for <literal>WithdrawalEvent</literal> for account 1.
+					At this time there are 2 active filters: 
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>LoginEvent</literal> events (any account id).
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>loginEvent</literal>=L<subscript>a</subscript>.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+								
+				<para>
+					Assume a <literal>LoginEvent</literal> L<subscript>b</subscript> for account 1 arrives. The engine then activates a context partition of statement B and therefore the filter looking for <literal>WithdrawalEvent</literal> for account 1.
+					At this time there are 3 active filters: 
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>LoginEvent</literal> events (any account id).
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>loginEvent</literal>=L<subscript>a</subscript>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>loginEvent</literal>=L<subscript>b</subscript>.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					Assume a <literal>LoginEvent</literal> L<subscript>c</subscript> for account 2 arrives. The engine then activates a context partition of statement B and therefore the filter looking for <literal>WithdrawalEvent</literal> for account 2.
+					At this time there are 4 active filters: 
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							 A filter looking for <literal>LoginEvent</literal> events (any account id).
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>loginEvent</literal>=L<subscript>a</subscript>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=1)</literal> associated to <literal>loginEvent</literal>=L<subscript>b</subscript>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							A filter looking for <literal>WithdrawalEvent(accountId=2)</literal> associated to <literal>loginEvent</literal>=L<subscript>c</subscript>.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+
+				<para>
+					The below table is a sample filter index for the three statement context partitions:
+				</para>
+
+				<table frame="topbot">
+					<title>Sample Filter Index Context Example</title>
+					<tgroup cols="2">
+						<colspec colwidth="0.5*"/>
+						<colspec colwidth="1*"/>
+						<thead>
+							<row>
+								<entry>Value of <literal>accountId</literal></entry>
+								<entry>Filter</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry><literal>1</literal></entry>
+								<entry>Statement B Context Partition #0 <literal>loginEvent</literal>=L<subscript>a</subscript>, Statement B Context Partition #1 <literal>loginEvent</literal>=L<subscript>b</subscript></entry>
+							</row>
+							<row>
+								<entry><literal>2</literal></entry>
+								<entry>Statement B Context Partition #2 <literal>loginEvent</literal>=L<subscript>c</subscript></entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+				
+				<para>
+					When a <literal>Withdrawal</literal> event arrives, the engine extracts the <literal>accountId</literal> and performs a lookup into above table. 
+					It can then hand of the event directly to the relevant statement context partitions, or ignore the event if no rows are found for a given account id.
+				</para>
+			</sect3>
+		</sect2>
+		
+		<sect2 xml:id="processingmodel_indexes_eventindexes" revision="1">
+			<title>Event Indexes</title>
+			
+			<para>
+				Event indexes organize certain columns so that they can be searched efficiently. Event indexes link back to the row that the column(s) come from.
+			</para>
+
+			<para>
+			    As event indexes are similar to database indexes, for this discussion, we use the term <emphasis>column</emphasis> to mean a column in a EPL table or named window and to also mean an event property or field.
+				We use the term <emphasis>row</emphasis> to mean a row in an EPL table or named window and to also mean an event.
+			</para>
+			
+			<para>
+				When the engine performs statement processing it may use event indexes to find correlated rows efficiently.
+			</para>
+
+			<para>
+				The purpose of event indexes is to enable:
+			</para>
+
+			<itemizedlist>
+				<ns:listitem>
+					<para>Efficient evaluation of subqueries.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Efficient evaluation of joins.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Efficient evaluation of on-action statements.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Efficient evaluation of fire-and-forget queries.</para>
+				</ns:listitem>
+			</itemizedlist>
+
+			<para>
+				Event index building is a result of the engine analyzing the <literal>where-</literal>clause correlation criteria for joins (<literal>on-</literal>clause for outer joins), subqueries, on-action and fire-and-forget queries.
+				It is done automatically by the engine. You may utilize the <literal>create index</literal> clause to explicitly index named windows and tables. You may utilize query planner hints to influence index building, use and sharing.
+			</para>
+		</sect2>		
+	</sect1>
 </chapter>

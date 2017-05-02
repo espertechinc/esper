@@ -15,9 +15,9 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.join.table.EventTableOrganization;
 import com.espertech.esper.spatial.quadtree.core.BoundingBox;
 import com.espertech.esper.spatial.quadtree.core.QuadTree;
-import com.espertech.esper.spatial.quadtree.user.QuadTreeToolAdd;
-import com.espertech.esper.spatial.quadtree.user.QuadTreeToolQuery;
-import com.espertech.esper.spatial.quadtree.user.QuadTreeToolRemove;
+import com.espertech.esper.spatial.quadtree.rowindex.QuadTreeRowIndexAdd;
+import com.espertech.esper.spatial.quadtree.rowindex.QuadTreeRowIndexQuery;
+import com.espertech.esper.spatial.quadtree.rowindex.QuadTreeRowIndexRemove;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,7 +41,7 @@ public class EventTablePointRegionQuadTreeImpl implements EventTablePointRegionQ
     }
 
     public Collection<EventBean> queryRange(double x, double y, double width, double height) {
-        return (Collection<EventBean>) (Collection) QuadTreeToolQuery.queryRange(quadTree, x, y, width, height);
+        return (Collection<EventBean>) (Collection) QuadTreeRowIndexQuery.queryRange(quadTree, x, y, width, height);
     }
 
     public void addRemove(EventBean[] newData, EventBean[] oldData, ExprEvaluatorContext exprEvaluatorContext) {
@@ -65,7 +65,7 @@ public class EventTablePointRegionQuadTreeImpl implements EventTablePointRegionQ
         eventsPerStream[0] = event;
         double x = evalDoubleColumn(config.getxEval(), organization.getIndexName(), COL_X, eventsPerStream, true, exprEvaluatorContext);
         double y = evalDoubleColumn(config.getyEval(), organization.getIndexName(), COL_Y, eventsPerStream, true, exprEvaluatorContext);
-        boolean added = QuadTreeToolAdd.add(x, y, event, quadTree, organization.isUnique(), organization.getIndexName());
+        boolean added = QuadTreeRowIndexAdd.add(x, y, event, quadTree, organization.isUnique(), organization.getIndexName());
         if (!added) {
             throw invalidColumnValue(organization.getIndexName(), "(x,y)", "(" + x + "," + y + ")", "a value within index bounding box (range-end-non-inclusive) " + quadTree.getRoot().getBb());
         }
@@ -75,7 +75,7 @@ public class EventTablePointRegionQuadTreeImpl implements EventTablePointRegionQ
         eventsPerStream[0] = event;
         double x = evalDoubleColumn(config.getxEval(), organization.getIndexName(), COL_X, eventsPerStream, false, exprEvaluatorContext);
         double y = evalDoubleColumn(config.getyEval(), organization.getIndexName(), COL_Y, eventsPerStream, false, exprEvaluatorContext);
-        QuadTreeToolRemove.remove(x, y, event, quadTree);
+        QuadTreeRowIndexRemove.remove(x, y, event, quadTree);
     }
 
     public Iterator<EventBean> iterator() {

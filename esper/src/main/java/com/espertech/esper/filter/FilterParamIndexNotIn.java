@@ -61,16 +61,12 @@ public final class FilterParamIndexNotIn extends FilterParamIndexLookupableBase 
         }
     }
 
-    public final boolean remove(Object filterConstant) {
+    public final void remove(Object filterConstant) {
         MultiKeyUntyped keys = (MultiKeyUntyped) filterConstant;
 
         // remove the mapping of value set to evaluator
         EventEvaluator eval = filterValueEvaluators.remove(keys);
         evaluatorsSet.remove(eval);
-        boolean isRemoved = false;
-        if (eval != null) {
-            isRemoved = true;
-        }
 
         Object[] keyValues = keys.getKeys();
         for (Object keyValue : keyValues) {
@@ -83,11 +79,14 @@ public final class FilterParamIndexNotIn extends FilterParamIndexLookupableBase 
                 }
             }
         }
-        return isRemoved;
     }
 
-    public final int size() {
+    public final int sizeExpensive() {
         return constantsMap.size();
+    }
+
+    public boolean isEmpty() {
+        return constantsMap.isEmpty();
     }
 
     public final ReadWriteLock getReadWriteLock() {

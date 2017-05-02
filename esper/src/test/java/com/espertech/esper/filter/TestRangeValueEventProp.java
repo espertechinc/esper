@@ -20,14 +20,14 @@ import com.espertech.esper.supportunit.event.SupportEventBeanFactory;
 import junit.framework.TestCase;
 
 public class TestRangeValueEventProp extends TestCase {
-    private FilterSpecParamRangeValue params[] = new FilterSpecParamRangeValue[5];
+    private FilterSpecParamFilterForEval params[] = new FilterSpecParamFilterForEval[5];
 
     public void setUp() {
-        params[0] = new RangeValueEventProp("a", "b");
-        params[1] = new RangeValueEventProp("asName", "b");
-        params[2] = new RangeValueEventProp("asName", "boolPrimitive");
-        params[3] = new RangeValueEventProp("asName", "intPrimitive");
-        params[4] = new RangeValueEventProp("asName", "intPrimitive");
+        params[0] = new FilterForEvalEventPropDouble("a", "b");
+        params[1] = new FilterForEvalEventPropDouble("asName", "b");
+        params[2] = new FilterForEvalEventPropDouble("asName", "boolPrimitive");
+        params[3] = new FilterForEvalEventPropDouble("asName", "intPrimitive");
+        params[4] = new FilterForEvalEventPropDouble("asName", "intPrimitive");
     }
 
     public void testGetFilterValue() {
@@ -48,7 +48,7 @@ public class TestRangeValueEventProp extends TestCase {
         assertTrue(params[3].equals(params[4]));
     }
 
-    private void tryInvalidGetFilterValue(MatchedEventMap matchedEvents, FilterSpecParamRangeValue value) {
+    private void tryInvalidGetFilterValue(MatchedEventMap matchedEvents, FilterSpecParamFilterForEval value) {
         try {
             value.getFilterValue(matchedEvents, null);
             fail();

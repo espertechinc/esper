@@ -25,6 +25,8 @@ import com.espertech.esper.epl.expression.core.ExprCurrentEvaluationContextNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderPointRegionQuadTree;
+import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MethodResolver;
@@ -60,6 +62,7 @@ public class EngineImportServiceImpl implements EngineImportService {
     private final ConfigurationEngineDefaults.ThreadingProfile threadingProfile;
     private final Map<String, Object> transientConfiguration;
     private final AggregationFactoryFactory aggregationFactoryFactory;
+    private final LinkedHashMap<String, AdvancedIndexFactoryProvider> advancedIndexProviders = new LinkedHashMap<>(8);
 
     public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory) {
         imports = new ArrayList<String>();
@@ -78,6 +81,7 @@ public class EngineImportServiceImpl implements EngineImportService {
         this.threadingProfile = threadingProfile;
         this.transientConfiguration = transientConfiguration;
         this.aggregationFactoryFactory = aggregationFactoryFactory;
+        this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
     }
 
     public boolean isUdfCache() {
@@ -481,6 +485,14 @@ public class EngineImportServiceImpl implements EngineImportService {
 
     public AggregationFactoryFactory getAggregationFactoryFactory() {
         return aggregationFactoryFactory;
+    }
+
+    public AdvancedIndexFactoryProvider resolveAdvancedIndexProvider(String indexTypeName) throws EngineImportException {
+        AdvancedIndexFactoryProvider provider = advancedIndexProviders.get(indexTypeName);
+        if (provider == null) {
+            throw new EngineImportException("Unrecognized advanced-type index '" + indexTypeName + "'");
+        }
+        return provider;
     }
 
     /**

@@ -37,15 +37,16 @@ public abstract class FilterParamIndexNotEqualsBase extends FilterParamIndexLook
         constantsMap.put(filterConstant, evaluator);
     }
 
-    public final boolean remove(Object filterConstant) {
-        if (constantsMap.remove(filterConstant) == null) {
-            return false;
-        }
-        return true;
+    public final void remove(Object filterConstant) {
+        constantsMap.remove(filterConstant);
     }
 
-    public final int size() {
+    public final int sizeExpensive() {
         return constantsMap.size();
+    }
+
+    public boolean isEmpty() {
+        return constantsMap.isEmpty();
     }
 
     public final ReadWriteLock getReadWriteLock() {

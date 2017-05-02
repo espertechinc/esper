@@ -67,7 +67,7 @@ public class TestIndexTreeBuilder extends TestCase {
         filterSpec = makeFilterValues("intPrimitive", FilterOperator.EQUAL, 100);
         IndexTreeBuilder.add(filterSpec, testFilterCallback[1], topNode, lockFactory);
         assertTrue(topNode.getIndizes().size() == 1);
-        assertTrue(topNode.getIndizes().get(0).size() == 1);
+        assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 1);
 
         // Match again
         topNode.matchEvent(eventBean, matches);
@@ -78,7 +78,7 @@ public class TestIndexTreeBuilder extends TestCase {
         filterSpec = makeFilterValues("intPrimitive", FilterOperator.EQUAL, 50);
         IndexTreeBuilder.add(filterSpec, testFilterCallback[2], topNode, lockFactory);
         assertTrue(topNode.getIndizes().size() == 1);
-        assertTrue(topNode.getIndizes().get(0).size() == 2);
+        assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 2);
 
         // match
         topNode.matchEvent(eventBean, matches);
@@ -89,8 +89,8 @@ public class TestIndexTreeBuilder extends TestCase {
         filterSpec = makeFilterValues("doublePrimitive", FilterOperator.LESS, 1.1);
         IndexTreeBuilder.add(filterSpec, testFilterCallback[3], topNode, lockFactory);
         assertTrue(topNode.getIndizes().size() == 2);
-        assertTrue(topNode.getIndizes().get(0).size() == 2);
-        assertTrue(topNode.getIndizes().get(1).size() == 1);
+        assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 2);
+        assertTrue(topNode.getIndizes().get(1).sizeExpensive() == 1);
 
         topNode.matchEvent(eventBean, matches);
         assertTrue(matches.size() == 3);
@@ -99,9 +99,9 @@ public class TestIndexTreeBuilder extends TestCase {
         filterSpec = makeFilterValues("doublePrimitive", FilterOperator.LESS_OR_EQUAL, 0.5);
         IndexTreeBuilder.add(filterSpec, testFilterCallback[4], topNode, lockFactory);
         assertTrue(topNode.getIndizes().size() == 3);
-        assertTrue(topNode.getIndizes().get(0).size() == 2);
-        assertTrue(topNode.getIndizes().get(1).size() == 1);
-        assertTrue(topNode.getIndizes().get(2).size() == 1);
+        assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 2);
+        assertTrue(topNode.getIndizes().get(1).sizeExpensive() == 1);
+        assertTrue(topNode.getIndizes().get(2).sizeExpensive() == 1);
 
         topNode.matchEvent(eventBean, matches);
         assertTrue(matches.size() == 4);
@@ -112,9 +112,9 @@ public class TestIndexTreeBuilder extends TestCase {
                 "theString", FilterOperator.EQUAL, "jack");
         IndexTreeBuilder.add(filterSpec, testFilterCallback[5], topNode, lockFactory);
         assertTrue(topNode.getIndizes().size() == 3);
-        assertTrue(topNode.getIndizes().get(0).size() == 2);
-        assertTrue(topNode.getIndizes().get(1).size() == 1);
-        assertTrue(topNode.getIndizes().get(2).size() == 1);
+        assertTrue(topNode.getIndizes().get(0).sizeExpensive() == 2);
+        assertTrue(topNode.getIndizes().get(1).sizeExpensive() == 1);
+        assertTrue(topNode.getIndizes().get(2).sizeExpensive() == 1);
         FilterHandleSetNode nextLevelSetNode = (FilterHandleSetNode) topNode.getIndizes().get(1).get(Double.valueOf(1.1));
         assertTrue(nextLevelSetNode != null);
         assertTrue(nextLevelSetNode.getIndizes().size() == 1);

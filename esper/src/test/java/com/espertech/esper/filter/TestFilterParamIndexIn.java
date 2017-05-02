@@ -55,8 +55,8 @@ public class TestFilterParamIndexIn extends TestCase {
 
         assertEquals(testEvaluator, index.get(inList));
         assertTrue(index.getReadWriteLock() != null);
-        assertTrue(index.remove(inList));
-        assertFalse(index.remove(inList));
+        index.remove(inList);
+        index.remove(inList);
         assertEquals(null, index.get(inList));
 
         try {

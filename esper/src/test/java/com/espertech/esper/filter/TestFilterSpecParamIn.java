@@ -33,7 +33,7 @@ public class TestFilterSpecParamIn extends TestCase {
     private List<FilterSpecParamInValue> getList(Object[] keys) {
         List<FilterSpecParamInValue> list = new LinkedList<FilterSpecParamInValue>();
         for (int i = 0; i < keys.length; i++) {
-            list.add(new InSetOfValuesConstant(keys[i]));
+            list.add(new FilterForEvalConstantAnyType(keys[i]));
         }
         return list;
     }

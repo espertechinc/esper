@@ -36,8 +36,8 @@ public class SupportFilterSpecBuilder {
                 double min = ((Number) objects[index++]).doubleValue();
                 double max = ((Number) objects[index++]).doubleValue();
                 filterParams.add(new FilterSpecParamRange(makeLookupable(eventType, propertyName), filterOperator,
-                        new RangeValueDouble(min),
-                        new RangeValueDouble(max)));
+                        new FilterForEvalConstantDouble(min),
+                        new FilterForEvalConstantDouble(max)));
             }
         }
 

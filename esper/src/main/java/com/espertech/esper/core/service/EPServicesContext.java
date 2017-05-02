@@ -28,7 +28,6 @@ import com.espertech.esper.epl.core.ResultSetProcessorHelperFactory;
 import com.espertech.esper.epl.db.DataCacheFactory;
 import com.espertech.esper.epl.db.DatabaseConfigService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowConsumerMgmtService;
@@ -115,7 +114,6 @@ public final class EPServicesContext {
     private MultiMatchHandlerFactory multiMatchHandlerFactory;
     private NamedWindowConsumerMgmtService namedWindowConsumerMgmtService;
     private AggregationFactoryFactory aggregationFactoryFactory;
-    private AdvancedIndexProvisionService advancedIndexProvisionService;
 
     // Supplied after construction to avoid circular dependency
     private StatementLifecycleSvc statementLifecycleSvc;
@@ -180,8 +178,7 @@ public final class EPServicesContext {
                              DataCacheFactory dataCacheFactory,
                              MultiMatchHandlerFactory multiMatchHandlerFactory,
                              NamedWindowConsumerMgmtService namedWindowConsumerMgmtService,
-                             AggregationFactoryFactory aggregationFactoryFactory,
-                             AdvancedIndexProvisionService advancedIndexProvisionService) {
+                             AggregationFactoryFactory aggregationFactoryFactory) {
         this.engineURI = engineURI;
         this.schedulingService = schedulingService;
         this.eventAdapterService = eventAdapterService;
@@ -240,7 +237,6 @@ public final class EPServicesContext {
         this.multiMatchHandlerFactory = multiMatchHandlerFactory;
         this.namedWindowConsumerMgmtService = namedWindowConsumerMgmtService;
         this.aggregationFactoryFactory = aggregationFactoryFactory;
-        this.advancedIndexProvisionService = advancedIndexProvisionService;
     }
 
     public PatternNodeFactory getPatternNodeFactory() {
@@ -753,9 +749,5 @@ public final class EPServicesContext {
 
     public AggregationFactoryFactory getAggregationFactoryFactory() {
         return aggregationFactoryFactory;
-    }
-
-    public AdvancedIndexProvisionService getAdvancedIndexProvisionService() {
-        return advancedIndexProvisionService;
     }
 }

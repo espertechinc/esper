@@ -66,7 +66,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * @param filterConstant is the value supplied in the filter paremeter
      * @return true if found and removed, false if not found
      */
-    public abstract boolean remove(Object filterConstant);
+    public abstract void remove(Object filterConstant);
 
     /**
      * Return the number of distinct filter parameter constants stored.
@@ -75,7 +75,7 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      *
      * @return Number of entries in index
      */
-    public abstract int size();
+    public abstract int sizeExpensive();
 
     /**
      * Supplies the lock for protected access.

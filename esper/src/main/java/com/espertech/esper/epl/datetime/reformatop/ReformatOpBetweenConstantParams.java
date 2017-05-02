@@ -17,6 +17,7 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.expression.dot.ExprDotNodeFilterAnalyzerInput;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -115,7 +116,7 @@ public class ReformatOpBetweenConstantParams implements ReformatOp {
         return Boolean.class;
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
+    public FilterExprAnalyzerAffector getFilterDesc(EventType[] typesPerStream, DatetimeMethodEnum currentMethod, List<ExprNode> currentParameters, ExprDotNodeFilterAnalyzerInput inputDesc) {
         return null;
     }
 }

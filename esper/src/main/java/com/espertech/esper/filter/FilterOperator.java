@@ -112,6 +112,11 @@ public enum FilterOperator {
     NOT_IN_LIST_OF_VALUES("!in"),
 
     /**
+     * Advanced-index
+     */
+    ADVANCED_INDEX("ai"),
+
+    /**
      * Boolean expression filter operator
      */
     BOOLEAN_EXPRESSION("boolean_expr");

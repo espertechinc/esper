@@ -6581,7 +6581,7 @@ select minPrice() as minprice from MarketData]]></programlisting>
 		</para>
 
 		<para>
-			The <emphasis>contained_expression</emphasis> is required and returns individual events. The expression can, for example, be an event property name that returns an event fragment, i.e. a property that can itself be represented as an event by the underlying event representation. The expression can also be any other expression such as a single-row function or a script that returns either an array or a <literal>java.util.Collection</literal> of events. Simple values such as integer or string are not fragments but can be used as well as described in <xref linkend="epl-containedeventselect-array"/>.
+			The <emphasis>contained_expression</emphasis> is required and returns individual events. The expression can, for example, be an event property name that returns an event fragment, i.e. a property that can itself be represented as an event by the underlying event representation. The expression can also be any other expression such as a single-row function or a script that returns either an array or a <literal>java.util.Collection</literal> of events. Simple values such as integer or string are not fragments but can be used as well as described below.
 		</para>
 		
 		<para>

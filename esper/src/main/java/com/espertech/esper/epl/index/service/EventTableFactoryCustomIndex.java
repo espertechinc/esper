@@ -18,10 +18,10 @@ import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
 
 public class EventTableFactoryCustomIndex implements EventTableFactory {
     protected final EventType eventType;
-    protected final AdvancedIndexProvisionDesc advancedIndexProvisionDesc;
+    protected final EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc;
     protected final EventTableOrganization organization;
 
-    public EventTableFactoryCustomIndex(String indexName, int indexedStreamNum, EventType eventType, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
+    public EventTableFactoryCustomIndex(String indexName, int indexedStreamNum, EventType eventType, boolean unique, EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
         this.eventType = eventType;
         this.advancedIndexProvisionDesc = advancedIndexProvisionDesc;
         String[] expressions = ExprNodeUtility.toExpressionStringMinPrecedenceAsArray(advancedIndexProvisionDesc.getIndexDesc().getIndexedExpressions());

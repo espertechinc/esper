@@ -28,12 +28,15 @@ public class SupportFilterParamIndex extends FilterParamIndexLookupableBase {
     public void put(Object expressionValue, EventEvaluator evaluator) {
     }
 
-    public boolean remove(Object expressionValue) {
-        return true;
+    public void remove(Object expressionValue) {
     }
 
-    public int size() {
+    public int sizeExpensive() {
         return 0;
+    }
+
+    public boolean isEmpty() {
+        return true;
     }
 
     public ReadWriteLock getReadWriteLock() {

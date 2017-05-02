@@ -41,8 +41,8 @@ public class TestFilterSpecParamRange extends TestCase {
 
     private FilterSpecParamRange makeParam(String propertyName, FilterOperator filterOp, DoubleRange doubleRange) {
         return new FilterSpecParamRange(makeLookupable(propertyName), filterOp,
-                new RangeValueDouble(doubleRange.getMin()),
-                new RangeValueDouble(doubleRange.getMax()));
+                new FilterForEvalConstantDouble(doubleRange.getMin()),
+                new FilterForEvalConstantDouble(doubleRange.getMax()));
     }
 
     private FilterSpecLookupable makeLookupable(String fieldName) {

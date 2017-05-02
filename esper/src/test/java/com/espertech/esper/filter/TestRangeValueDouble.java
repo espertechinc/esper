@@ -13,12 +13,12 @@ package com.espertech.esper.filter;
 import junit.framework.TestCase;
 
 public class TestRangeValueDouble extends TestCase {
-    private FilterSpecParamRangeValue params[] = new FilterSpecParamRangeValue[5];
+    private FilterSpecParamFilterForEval params[] = new FilterSpecParamFilterForEval[5];
 
     public void setUp() {
-        params[0] = new RangeValueDouble(5.5);
-        params[1] = new RangeValueDouble(0);
-        params[2] = new RangeValueDouble(5.5);
+        params[0] = new FilterForEvalConstantDouble(5.5);
+        params[1] = new FilterForEvalConstantDouble(0);
+        params[2] = new FilterForEvalConstantDouble(5.5);
     }
 
     public void testGetFilterValue() {

@@ -1028,7 +1028,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 			
 			<para>
 				If possible, consider moving some of the checking performed by the function back into the filter or consider splitting the function into a two parts separated by <literal>and</literal> conjunction. In general for all expressions, the engine evaluates expressions left of the <literal>and</literal> first and can skip evaluation of the 
-				further expressions in the conjunction in the case when the first expression returns false. In addition the engine can build a reverse index for fields provided in stream or pattern filters.
+				further expressions in the conjunction in the case when the first expression returns false. In addition the engine can build a filter index for fields provided in stream or pattern filters.
 			</para>
 
 			<para>
@@ -1070,7 +1070,7 @@ from WithdrawalWindow(accountNumber=’123’) as w]]></programlisting>
 			</para>
 			
 			<para>
-				Note that the engine does not guarantee short-circuit evaluation in all cases. The engine may rewrite the where-clause or filter conditions into another order of evaluation so that it can perform index or reverse index lookups.
+				Note that the engine does not guarantee short-circuit evaluation in all cases. The engine may rewrite the where-clause or filter conditions into another order of evaluation so that it can perform index lookups.
 			</para>
 		</sect2>
 
@@ -1544,7 +1544,7 @@ select * from A#keepall as a, B#keepall as b where aprop = bprop]]></programlist
 				<programlisting><![CDATA[@name('statment-N) select * from GeoEvent(id = '0002', value between 20 and 30, marker in ('c', 'd'))]]></programlisting>
 
 				<para>
-					If your application creates 100k statements as above, the engine must analyze each statement separately, determine filter criteria and the engine must enter each set of filter criteria into a shared reverse index. Remember that
+					If your application creates 100k statements as above, the engine must analyze each statement separately, determine filter criteria and the engine must enter each set of filter criteria into a shared filter index tree. Remember that
 					the engine can process incoming events very fast, with low latency and high throughput, even for 100k statements. However analysis of 100k individual statements does take CPU time.
 				</para>				
 

@@ -204,7 +204,7 @@ EPStatement statement = engine.getEPAdministrator().createEPL(epl);</programlist
 			</para>
 			
 			<para>
-				After successful verification, the engine internally adds an entry to an internally-maintained reverse index tree structure that ensures that when a <literal>PersonEvent</literal> comes in it will be processed by the statement.
+				After successful verification, the engine internally adds an entry to an internally-maintained filter index tree structure that ensures that when a <literal>PersonEvent</literal> comes in it will be processed by the statement.
 			</para>
 
 			<para>
@@ -243,7 +243,7 @@ EPStatement statement = engine.getEPAdministrator().createEPL(epl);</programlist
 			<programlisting>Name: Peter, Age: 10</programlisting>
 			
 			<para>
-				Upon sending the <literal>PersonEvent</literal> event object to the engine, the engine consults the internally-maintainced shared reverse index tree structure to determine if any EPL statement is interested in <literal>PersonEvent</literal> events.
+				Upon sending the <literal>PersonEvent</literal> event object to the engine, the engine consults the internally-maintainced shared filter index tree structure to determine if any EPL statement is interested in <literal>PersonEvent</literal> events.
 				The EPL statement that was created as part of this example has <literal>PersonEvent</literal> in the <literal>from</literal>-clause, thus the engine delegates processing of such events to the statement.
 				The EPL statement obtains the name and age properties by calling the <literal>getName</literal> and <literal>getAge</literal> methods.
 			</para>

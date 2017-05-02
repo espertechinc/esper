@@ -92,6 +92,11 @@ public class IndexFactory {
         if (filterOperator == FilterOperator.BOOLEAN_EXPRESSION) {
             return new FilterParamIndexBooleanExpr(lockFactory.obtainNew());
         }
+
+        // Handle advanced-index
+        if (filterOperator == FilterOperator.ADVANCED_INDEX) {
+            return new FilterParamIndexAdvancedIndex(lockFactory.obtainNew(), lookupable);
+        }
         throw new IllegalArgumentException("Cannot create filter index instance for filter operator " + filterOperator);
     }
 }

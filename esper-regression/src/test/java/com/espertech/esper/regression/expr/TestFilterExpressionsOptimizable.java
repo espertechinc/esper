@@ -12,12 +12,13 @@ package com.espertech.esper.regression.expr;
 
 import com.espertech.esper.client.*;
 import com.espertech.esper.client.hook.EPLMethodInvocationContext;
-import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.core.service.EPStatementSPI;
 import com.espertech.esper.filter.*;
 import com.espertech.esper.supportregression.bean.*;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
+import com.espertech.esper.supportregression.util.SupportFilterHelper;
+import com.espertech.esper.supportregression.util.SupportFilterItem;
 import com.espertech.esper.supportregression.util.SupportMessageAssertUtil;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.util.SerializableObjectCopier;
@@ -32,6 +33,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static com.espertech.esper.supportregression.util.SupportFilterItem.getBoolExprFilterItem;
 
 public class TestFilterExpressionsOptimizable extends TestCase
 {
@@ -229,7 +232,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         }
 
         String epl = "select * from SupportBean(intPrimitive = 1 and (theString='a' or theString='b'))";
-        assertFilterTwo(epl, "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
+        SupportFilterHelper.assertFilterTwo(epService, epl, "intPrimitive", FilterOperator.EQUAL, "theString", FilterOperator.IN_LIST_OF_VALUES);
     }
 
     public void testOrRewrite()
@@ -336,8 +339,8 @@ public class TestFilterExpressionsOptimizable extends TestCase
         assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 2, true);
 
         assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 3, false);
-        assertFilterMulti("SupportBean", stmt, new FilterItem[][] {
-                {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
+        SupportFilterHelper.assertFilterMulti(stmt, "SupportBean", new SupportFilterItem[][] {
+                {new SupportFilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
         });
 
         stmt.destroy();
@@ -352,8 +355,8 @@ public class TestFilterExpressionsOptimizable extends TestCase
         assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 3, true);
 
         assertInKeywordReceivedPattern(SerializableObjectCopier.copy(prototype), 1, false);
-        assertFilterMulti("SupportBean", stmt, new FilterItem[][] {
-                {new FilterItem("intPrimitive", FilterOperator.NOT_IN_LIST_OF_VALUES)},
+        SupportFilterHelper.assertFilterMulti(stmt, "SupportBean", new SupportFilterItem[][] {
+                {new SupportFilterItem("intPrimitive", FilterOperator.NOT_IN_LIST_OF_VALUES)},
         });
 
         stmt.destroy();
@@ -380,8 +383,8 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         assertInKeywordReceivedContext(listenerOne, listenerTwo);
 
-        assertFilterMulti("SupportBean", statementTwo, new FilterItem[][] {
-                {new FilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
+        SupportFilterHelper.assertFilterMulti(statementTwo, "SupportBean", new SupportFilterItem[][] {
+                {new SupportFilterItem("intPrimitive", FilterOperator.IN_LIST_OF_VALUES)},
         });
 
         statementOne.destroy();
@@ -466,10 +469,10 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_StringAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean_StringAlphabetic", epl, new FilterItem[][] {
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), getBoolExprFilterItem()},
-                    {new FilterItem("b", FilterOperator.EQUAL), getBoolExprFilterItem()},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean_StringAlphabetic", new SupportFilterItem[][] {
+                    {new SupportFilterItem("a", FilterOperator.EQUAL), new SupportFilterItem("b", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("a", FilterOperator.EQUAL), getBoolExprFilterItem()},
+                    {new SupportFilterItem("b", FilterOperator.EQUAL), getBoolExprFilterItem()},
                     {getBoolExprFilterItem()},
             });
             stmt.addListener(listener);
@@ -488,9 +491,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_StringAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean_StringAlphabetic", epl, new FilterItem[][] {
-                    {new FilterItem("b", FilterOperator.EQUAL), getBoolExprFilterItem()},
-                    {new FilterItem("c", FilterOperator.EQUAL), getBoolExprFilterItem()},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean_StringAlphabetic", new SupportFilterItem[][] {
+                    {new SupportFilterItem("b", FilterOperator.EQUAL), getBoolExprFilterItem()},
+                    {new SupportFilterItem("c", FilterOperator.EQUAL), getBoolExprFilterItem()},
             });
             stmt.addListener(listener);
 
@@ -516,9 +519,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), getBoolExprFilterItem()},
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), getBoolExprFilterItem()},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean_IntAlphabetic", new SupportFilterItem[][] {
+                    {new SupportFilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), getBoolExprFilterItem()},
+                    {new SupportFilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), getBoolExprFilterItem()},
             });
             stmt.addListener(listener);
 
@@ -536,9 +539,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("a", FilterOperator.NOT_EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean_IntAlphabetic", new SupportFilterItem[][] {
+                    {new SupportFilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new SupportFilterItem("a", FilterOperator.NOT_EQUAL)},
+                    {new SupportFilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new SupportFilterItem("a", FilterOperator.NOT_EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -556,9 +559,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filters) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("b", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new FilterItem("c", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean_IntAlphabetic", new SupportFilterItem[][] {
+                    {new SupportFilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new SupportFilterItem("b", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("a", FilterOperator.NOT_IN_LIST_OF_VALUES), new SupportFilterItem("c", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -576,9 +579,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("longPrimitive", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL), new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL), new SupportFilterItem("longPrimitive", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -596,11 +599,11 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean_IntAlphabetic(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean_IntAlphabetic", epl, new FilterItem[][] {
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("d", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("c", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
-                    {new FilterItem("a", FilterOperator.EQUAL), new FilterItem("b", FilterOperator.EQUAL), new FilterItem("e", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean_IntAlphabetic", new SupportFilterItem[][] {
+                    {new SupportFilterItem("a", FilterOperator.EQUAL), new SupportFilterItem("b", FilterOperator.EQUAL), new SupportFilterItem("d", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("a", FilterOperator.EQUAL), new SupportFilterItem("c", FilterOperator.EQUAL), new SupportFilterItem("d", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("a", FilterOperator.EQUAL), new SupportFilterItem("c", FilterOperator.EQUAL), new SupportFilterItem("e", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("a", FilterOperator.EQUAL), new SupportFilterItem("b", FilterOperator.EQUAL), new SupportFilterItem("e", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -621,15 +624,15 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("boolPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("intBoxed", FilterOperator.EQUAL)},
-                    {new FilterItem("longBoxed", FilterOperator.EQUAL)},
-                    {new FilterItem("doubleBoxed", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("longPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("doublePrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("boolPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("intBoxed", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("longBoxed", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("doubleBoxed", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -650,11 +653,11 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("doublePrimitive", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("longPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("doublePrimitive", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -673,10 +676,10 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -696,9 +699,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL), new FilterItem("intPrimitive", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL), new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL), new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -717,10 +720,10 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
-                    {new FilterItem("longPrimitive", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("longPrimitive", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -755,9 +758,9 @@ public class TestFilterExpressionsOptimizable extends TestCase
         };
         for (String filter : filtersAB) {
             String epl = "select * from SupportBean(" + filter + ")";
-            EPStatement stmt = assertFilterMulti("SupportBean", epl, new FilterItem[][] {
-                    {new FilterItem("intPrimitive", FilterOperator.EQUAL)},
-                    {new FilterItem("theString", FilterOperator.EQUAL)},
+            EPStatement stmt = SupportFilterHelper.assertFilterMulti(epService, epl, "SupportBean", new SupportFilterItem[][] {
+                    {new SupportFilterItem("intPrimitive", FilterOperator.EQUAL)},
+                    {new SupportFilterItem("theString", FilterOperator.EQUAL)},
             });
             stmt.addListener(listener);
 
@@ -770,65 +773,6 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
             epService.getEPAdministrator().destroyAllStatements();
         }
-    }
-
-    private EPStatement assertFilterMulti(String eventTypeName, String epl, FilterItem[][] expected) {
-        EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
-        if (!((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
-            return statementSPI;
-        }
-        assertFilterMulti(eventTypeName, statementSPI, expected);
-        return statementSPI;
-    }
-
-    private void assertFilterMulti(String eventTypeName, EPStatementSPI statementSPI, FilterItem[][] expected) {
-        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
-        FilterSet set = filterServiceSPI.take(Collections.singleton(statementSPI.getStatementId()));
-
-        FilterSetEntry filterSetEntry = null;
-        for (FilterSetEntry entry : set.getFilters()) {
-            if (entry.getFilterValueSet().getEventType().getName().equals(eventTypeName)) {
-                if (filterSetEntry != null) {
-                    fail("Multiple filters for type " + eventTypeName);
-                }
-                filterSetEntry = entry;
-            }
-        }
-
-        FilterValueSet valueSet = filterSetEntry.getFilterValueSet();
-        FilterValueSetParam[][] params = valueSet.getParameters();
-
-        Comparator<FilterItem> comparator = new Comparator<FilterItem>() {
-            public int compare(FilterItem o1, FilterItem o2) {
-                if (o1.getName().equals(o2.getName())) {
-                    if (o1.getOp().ordinal() > o1.getOp().ordinal()) {
-                        return 1;
-                    }
-                    if (o1.getOp().ordinal() < o1.getOp().ordinal()) {
-                        return -1;
-                    }
-                    return 0;
-                }
-                return o1.getName().compareTo(o2.getName());
-            }
-        };
-
-        FilterItem[][] found = new FilterItem[params.length][];
-        for (int i = 0; i < found.length; i++) {
-            found[i] = new FilterItem[params[i].length];
-            for (int j = 0; j < params[i].length; j++) {
-                found[i][j] = new FilterItem(params[i][j].getLookupable().getExpression().toString(),
-                        params[i][j].getFilterOperator());
-            }
-            Arrays.sort(found[i], comparator);
-        }
-
-        for (int i = 0; i < expected.length; i++) {
-            Arrays.sort(expected[i], comparator);
-        }
-
-        EPAssertionUtil.assertEqualsAnyOrder(expected, found);
-        filterServiceSPI.apply(set);
     }
 
     private void runAssertionEquals(String epl, SupportUpdateListener[] listeners) {
@@ -889,7 +833,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
     private void assertFilterSingle(String epl, String expression, FilterOperator op) {
         EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
         if (((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
-            FilterValueSetParam param = getFilterSingle(statementSPI);
+            FilterValueSetParam param = SupportFilterHelper.getFilterSingle(statementSPI);
             assertEquals("failed for '" + epl + "'", op, param.getFilterOperator());
             assertEquals(expression, param.getLookupable().getExpression());
         }
@@ -940,32 +884,6 @@ public class TestFilterExpressionsOptimizable extends TestCase
         listener.assertOneGetNewAndReset();
 
         epService.getEPAdministrator().destroyAllStatements();
-    }
-
-    private void assertFilterTwo(String epl, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {
-        EPStatementSPI statementSPI = (EPStatementSPI) epService.getEPAdministrator().createEPL(epl);
-        if (((FilterServiceSPI) statementSPI.getStatementContext().getFilterService()).isSupportsTakeApply()) {
-            FilterValueSetParam[] multi = getFilterMulti(statementSPI);
-            assertEquals(2, multi.length);
-            assertEquals(opOne, multi[0].getFilterOperator());
-            assertEquals(expressionOne, multi[0].getLookupable().getExpression());
-            assertEquals(opTwo, multi[1].getFilterOperator());
-            assertEquals(expressionTwo, multi[1].getLookupable().getExpression());
-        }
-    }
-
-    private FilterValueSetParam getFilterSingle(EPStatementSPI statementSPI) {
-        FilterValueSetParam[] params = getFilterMulti(statementSPI);
-        assertEquals(1, params.length);
-        return params[0];
-    }
-
-    private FilterValueSetParam[] getFilterMulti(EPStatementSPI statementSPI) {
-        FilterServiceSPI filterServiceSPI = (FilterServiceSPI) statementSPI.getStatementContext().getFilterService();
-        FilterSet set = filterServiceSPI.take(Collections.singleton(statementSPI.getStatementId()));
-        assertEquals(1, set.getFilters().size());
-        FilterValueSet valueSet = set.getFilters().get(0).getFilterValueSet();
-        return valueSet.getParameters()[0];
     }
 
     private SupportBean makeEvent(String theString, int intPrimitive) {
@@ -1022,11 +940,7 @@ public class TestFilterExpressionsOptimizable extends TestCase
         event.setIntBoxed(intBoxed);
         return event;
     }
-
-    public FilterItem getBoolExprFilterItem() {
-        return new FilterItem(FilterSpecCompiler.PROPERTY_NAME_BOOLEAN_EXPRESSION, FilterOperator.BOOLEAN_EXPRESSION);
-    }
-
+    
     public static String myCustomOkFunction(Object e, EPLMethodInvocationContext ctx) {
         methodInvocationContextFilterOptimized = ctx;
         return "OK";
@@ -1057,49 +971,6 @@ public class TestFilterExpressionsOptimizable extends TestCase
 
         public static void resetCountInvoked() {
             countInvoked = 0;
-        }
-    }
-
-    public static class FilterItem {
-        private final String name;
-        private final FilterOperator op;
-
-        public FilterItem(String name, FilterOperator op) {
-            this.name = name;
-            this.op = op;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public FilterOperator getOp() {
-            return op;
-        }
-
-        public String toString() {
-            return "FilterItem{" +
-                    "name='" + name + '\'' +
-                    ", op=" + op +
-                    '}';
-        }
-
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            FilterItem that = (FilterItem) o;
-
-            if (op != that.op) return false;
-            if (name != null ? !name.equals(that.name) : that.name != null) return false;
-
-            return true;
-        }
-
-        public int hashCode() {
-            int result = name != null ? name.hashCode() : 0;
-            result = 31 * result + (op != null ? op.hashCode() : 0);
-            return result;
         }
     }
 

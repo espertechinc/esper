@@ -13,12 +13,15 @@ package com.espertech.esper.epl.lookup;
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
+import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.epl.expression.core.ExprIdentNode;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
+import com.espertech.esper.epl.core.EngineImportException;
+import com.espertech.esper.epl.core.StreamTypeService;
+import com.espertech.esper.epl.core.StreamTypeServiceImpl;
+import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierAndStreamRefVisitor;
+import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.hint.IndexHintInstruction;
 import com.espertech.esper.epl.join.hint.IndexHintInstructionBust;
 import com.espertech.esper.epl.join.hint.IndexHintInstructionExplicit;
@@ -43,7 +46,7 @@ public class EventTableIndexUtil {
         List<IndexedPropDesc> hashProps = new ArrayList<IndexedPropDesc>();
         List<IndexedPropDesc> btreeProps = new ArrayList<IndexedPropDesc>();
         Set<String> indexedColumns = new HashSet<String>();
-        AdvancedIndexProvisionDesc advancedIndexProvisionDesc = null;
+        EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc = null;
 
         for (CreateIndexItem columnDesc : columns) {
             String indexType = columnDesc.getType().toLowerCase(Locale.ENGLISH).trim();
@@ -53,7 +56,7 @@ public class EventTableIndexUtil {
                 if (advancedIndexProvisionDesc != null) {
                     throw new ExprValidationException("Nested advanced-type indexes are not supported");
                 }
-                advancedIndexProvisionDesc = statementContext.getIndexProvisionService().validateCreateIndex(indexName, columnDesc, unique, eventType, statementContext);
+                advancedIndexProvisionDesc = validateAdvanced(indexName, indexType, columnDesc, eventType, statementContext);
             }
         }
 
@@ -64,6 +67,41 @@ public class EventTableIndexUtil {
             throw new ExprValidationException("Combination of hash/btree columns an advanced-type indexes is not supported");
         }
         return new QueryPlanIndexItem(hashProps, btreeProps, unique, advancedIndexProvisionDesc);
+    }
+
+    private static EventAdvancedIndexProvisionDesc validateAdvanced(String indexName, String indexType, CreateIndexItem columnDesc, EventType eventType, StatementContext statementContext) throws ExprValidationException {
+        // validate index expressions: valid and plain expressions
+        ExprValidationContext validationContextColumns = getValidationContext(eventType, statementContext);
+        ExprNode[] columns = columnDesc.getExpressions().toArray(new ExprNode[columnDesc.getExpressions().size()]);
+        ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATEINDEXCOLUMN, columns, validationContextColumns);
+        ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CREATEINDEXCOLUMN, columns);
+
+        // validate parameters, may not depend on props
+        ExprNode[] parameters = null;
+        if (columnDesc.getParameters() != null && !columnDesc.getParameters().isEmpty()) {
+            parameters = columnDesc.getParameters().toArray(new ExprNode[columnDesc.getParameters().size()]);
+            ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.CREATEINDEXPARAMETER, parameters, validationContextColumns);
+            ExprNodeUtility.validatePlainExpression(ExprNodeOrigin.CREATEINDEXPARAMETER, parameters);
+
+            // validate no stream dependency of parameters
+            ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(false);
+            for (ExprNode param : columnDesc.getParameters()) {
+                param.accept(visitor);
+                if (!visitor.getRefs().isEmpty()) {
+                    throw new ExprValidationException("Index parameters may not refer to event properties");
+                }
+            }
+        }
+
+        // obtain provider
+        AdvancedIndexFactoryProvider provider;
+        try {
+            provider = statementContext.getEngineImportService().resolveAdvancedIndexProvider(indexType);
+        } catch (EngineImportException ex) {
+            throw new ExprValidationException(ex.getMessage(), ex);
+        }
+
+        return provider.validateEventIndex(indexName, indexType, columns, parameters);
     }
 
     private static void validateBuiltin(CreateIndexItem columnDesc, EventType eventType, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, Set<String> indexedColumns)
@@ -310,6 +348,13 @@ public class EventTableIndexUtil {
     private static Pair<IndexMultiKey, EventTableIndexEntryBase> getPair(Map<IndexMultiKey, ? extends EventTableIndexEntryBase> tableIndexesRefCount, IndexMultiKey indexMultiKey) {
         EventTableIndexEntryBase indexFound = tableIndexesRefCount.get(indexMultiKey);
         return new Pair<IndexMultiKey, EventTableIndexEntryBase>(indexMultiKey, indexFound);
+    }
+
+    private static ExprValidationContext getValidationContext(EventType eventType, StatementContext statementContext) {
+        StreamTypeService streamTypeService = new StreamTypeServiceImpl(eventType, null, false, statementContext.getEngineURI());
+        return new ExprValidationContext(streamTypeService, statementContext.getEngineImportService(),
+                statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), new ExprEvaluatorContextStatement(statementContext, false),
+                statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), true, false, false, false, null, false);
     }
 
     private static class IndexComparatorShortestPath implements Comparator<IndexMultiKey>, Serializable {

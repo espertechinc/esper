@@ -10,7 +10,7 @@
  */
 package com.espertech.esper.epl.join.plan;
 
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionDesc;
+import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.lookup.IndexMultiKey;
 import com.espertech.esper.epl.lookup.IndexedPropDesc;
 import com.espertech.esper.util.CollectionUtil;
@@ -29,7 +29,7 @@ public class QueryPlanIndexItem {
     private final String[] rangeProps;
     private final Class[] optRangeCoercionTypes;
     private final boolean unique;
-    private final AdvancedIndexProvisionDesc advancedIndexProvisionDesc;
+    private final EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc;
 
     /**
      * Ctor.
@@ -42,7 +42,7 @@ public class QueryPlanIndexItem {
      * @param unique                     whether index is unique on index props (not applicable to range-only)
      * @param advancedIndexProvisionDesc advanced indexes
      */
-    public QueryPlanIndexItem(String[] indexProps, Class[] optIndexCoercionTypes, String[] rangeProps, Class[] optRangeCoercionTypes, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
+    public QueryPlanIndexItem(String[] indexProps, Class[] optIndexCoercionTypes, String[] rangeProps, Class[] optRangeCoercionTypes, boolean unique, EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
         if (advancedIndexProvisionDesc == null) {
             if (unique && indexProps.length == 0) {
                 throw new IllegalArgumentException("Invalid unique index planned without hash index props");
@@ -59,7 +59,7 @@ public class QueryPlanIndexItem {
         this.advancedIndexProvisionDesc = advancedIndexProvisionDesc;
     }
 
-    public QueryPlanIndexItem(List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, boolean unique, AdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
+    public QueryPlanIndexItem(List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps, boolean unique, EventAdvancedIndexProvisionDesc advancedIndexProvisionDesc) {
         this(getNames(hashProps), getTypes(hashProps), getNames(btreeProps), getTypes(btreeProps), unique, advancedIndexProvisionDesc);
     }
 
@@ -87,7 +87,7 @@ public class QueryPlanIndexItem {
         return unique;
     }
 
-    public AdvancedIndexProvisionDesc getAdvancedIndexProvisionDesc() {
+    public EventAdvancedIndexProvisionDesc getAdvancedIndexProvisionDesc() {
         return advancedIndexProvisionDesc;
     }
 

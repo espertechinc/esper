@@ -116,17 +116,16 @@
 				value of the <literal>latency</literal> event property is over 20 seconds, and on every <literal>ServiceMeasurement</literal> event in which the
 				<literal>success</literal> property is false. Either one or the other condition must be true for this pattern to match.
 			</para>
-<programlisting><![CDATA[every (
-  spike=ServiceMeasurement(latency>20000) 
-  or 
-  error=ServiceMeasurement(success=false)
-)]]></programlisting>
+<programlisting><![CDATA[every spike=ServiceMeasurement(latency>20000) 
+ or every error=ServiceMeasurement(success=false)]]></programlisting>
 			
 			<para>
-				In the example above, the pattern expression starts with an <literal>every</literal> operator to indicate that the pattern should fire for every matching events and not just the first
-				matching event. Within the <literal>every</literal> operator in parentheses is a nested pattern expression using the <literal>or</literal> operator. 
-				The left hand of the <literal>or</literal> operator is a filter expression that filters for events with a high latency value. The right hand of the operator 
-				contains a filter expression that filters for events with error status. Filter expressions are explained in <xref linkend="pattern-filter"/>.
+				In the example above, the pattern expression <literal>or</literal> operator indicates that the pattern should fire when either of the 
+				filter expressions fire. The <literal>every</literal> operator indicates to fire for every matching event and not just the first
+				matching event.
+				The left hand of the <literal>or</literal> operator filters for events with a high latency value. 
+				The right hand of the <literal>or</literal> operator filters for events with error status. 
+				Filter expressions are explained in <xref linkend="pattern-filter"/>.
 			</para>
 						
 			<para>
@@ -149,7 +148,7 @@
 String eventName = ServiceMeasurement.class.getName();
 
 EPStatement myTrigger = admin.createEPL("select * from pattern [" +
-  "every (spike=" + eventName + "(latency>20000) or error=" + eventName + "(success=false))]");
+  "every spike=" + eventName + "(latency>20000) or every error=" + eventName + "(success=false)]");
 ]]></programlisting>
 
 			<para>
@@ -157,7 +156,7 @@ EPStatement myTrigger = admin.createEPL("select * from pattern [" +
 			</para>
 
 			<programlisting><![CDATA[EPStatement myTrigger = admin.createPattern(
-  "every (spike=" + eventName + "(latency>20000) or error=" + eventName + "(success=false))");
+  "every spike=" + eventName + "(latency>20000) or every error=" + eventName + "(success=false)");
 ]]></programlisting>
 		</sect2>
 		
@@ -244,7 +243,7 @@ else {
 			<para>
 				This pattern specifies a length window of 10 elements that retains the last 10 matches of A and B events, for use via iterator or for use in a join or subquery:
 			</para>
-			<programlisting><![CDATA[select * from pattern [every (A or B)#length(10)]]></programlisting>
+			<programlisting><![CDATA[select * from pattern [every (A or B)]#length(10)]]></programlisting>
 		</sect2>
 
         <sect2 xml:id="pattern-errorreporting" >
@@ -1548,7 +1547,7 @@ a=A -> (B(id = a.id) and C(id = a.id))]]></programlisting>
 
 			<para>
 				Elaborating further, the expression <literal>every A or every B</literal> is equivalent to <literal>every (A or B)</literal>. 
-				We prefer <literal>every A or every B</literal> as the <literal>every</literal> keys lets the engine know that filters for A and B can remain active.
+				We prefer <literal>every A or every B</literal> as the <literal>every</literal> keyword lets the engine know that filters for A and B can remain active.
 				Consider the expression <literal>every A or every timer:interval(10 sec)</literal> which is not equivalent to <literal>every (A or timer:interval(10 sec))</literal>. 
 				This is because in the latter expression when an A event arrives the interval restarts.
 			</para>

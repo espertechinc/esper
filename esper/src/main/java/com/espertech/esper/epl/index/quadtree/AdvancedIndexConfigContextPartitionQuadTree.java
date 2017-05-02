@@ -12,6 +12,8 @@ package com.espertech.esper.epl.index.quadtree;
 
 import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
 
+import java.io.StringWriter;
+
 public class AdvancedIndexConfigContextPartitionQuadTree implements AdvancedIndexConfigContextPartition {
 
     private final double x;
@@ -52,5 +54,19 @@ public class AdvancedIndexConfigContextPartitionQuadTree implements AdvancedInde
 
     public int getMaxTreeHeight() {
         return maxTreeHeight;
+    }
+
+    public void toConfiguration(StringWriter builder) {
+        builder.append(Double.toString(x));
+        builder.append(",");
+        builder.append(Double.toString(y));
+        builder.append(",");
+        builder.append(Double.toString(width));
+        builder.append(",");
+        builder.append(Double.toString(height));
+        builder.append(",");
+        builder.append(Double.toString(leafCapacity));
+        builder.append(",");
+        builder.append(Double.toString(maxTreeHeight));
     }
 }

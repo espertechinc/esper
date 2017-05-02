@@ -16,7 +16,6 @@ import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.EngineSettingsService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredService;
-import com.espertech.esper.epl.index.service.AdvancedIndexProvisionService;
 import com.espertech.esper.epl.lookup.EventTableIndexService;
 import com.espertech.esper.epl.metric.MetricReportingServiceSPI;
 import com.espertech.esper.epl.named.NamedWindowMgmtService;
@@ -63,9 +62,8 @@ public final class StatementContextEngineServices {
     private final AggregationFactoryFactory aggregationFactoryFactory;
     private final SchedulingService schedulingService;
     private final ExprDeclaredService exprDeclaredService;
-    private final AdvancedIndexProvisionService advancedIndexProvisionService;
 
-    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService, PatternNodeFactory patternNodeFactory, FilterBooleanExpressionFactory filterBooleanExpressionFactory, TimeSourceService timeSourceService, EngineImportService engineImportService, AggregationFactoryFactory aggregationFactoryFactory, SchedulingService schedulingService, ExprDeclaredService exprDeclaredService, AdvancedIndexProvisionService advancedIndexProvisionService) {
+    public StatementContextEngineServices(String engineURI, EventAdapterService eventAdapterService, NamedWindowMgmtService namedWindowMgmtService, VariableService variableService, TableService tableService, EngineSettingsService engineSettingsService, ValueAddEventService valueAddEventService, ConfigurationInformation configSnapshot, MetricReportingServiceSPI metricReportingService, ViewService viewService, ExceptionHandlingService exceptionHandlingService, ExpressionResultCacheService expressionResultCacheService, StatementEventTypeRef statementEventTypeRef, TableExprEvaluatorContext tableExprEvaluatorContext, EngineLevelExtensionServicesContext engineLevelExtensionServicesContext, RegexHandlerFactory regexHandlerFactory, StatementLockFactory statementLockFactory, ContextManagementService contextManagementService, ViewServicePreviousFactory viewServicePreviousFactory, EventTableIndexService eventTableIndexService, PatternNodeFactory patternNodeFactory, FilterBooleanExpressionFactory filterBooleanExpressionFactory, TimeSourceService timeSourceService, EngineImportService engineImportService, AggregationFactoryFactory aggregationFactoryFactory, SchedulingService schedulingService, ExprDeclaredService exprDeclaredService) {
         this.engineURI = engineURI;
         this.eventAdapterService = eventAdapterService;
         this.namedWindowMgmtService = namedWindowMgmtService;
@@ -93,7 +91,6 @@ public final class StatementContextEngineServices {
         this.aggregationFactoryFactory = aggregationFactoryFactory;
         this.schedulingService = schedulingService;
         this.exprDeclaredService = exprDeclaredService;
-        this.advancedIndexProvisionService = advancedIndexProvisionService;
     }
 
     public String getEngineURI() {
@@ -206,9 +203,5 @@ public final class StatementContextEngineServices {
 
     public ExprDeclaredService getExprDeclaredService() {
         return exprDeclaredService;
-    }
-
-    public AdvancedIndexProvisionService getAdvancedIndexProvisionService() {
-        return advancedIndexProvisionService;
     }
 }

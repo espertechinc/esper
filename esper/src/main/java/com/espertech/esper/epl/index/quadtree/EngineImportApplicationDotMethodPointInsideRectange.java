@@ -13,16 +13,25 @@ package com.espertech.esper.epl.index.quadtree;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.core.EngineImportApplicationDotMethod;
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
+import com.espertech.esper.epl.core.EngineImportException;
+import com.espertech.esper.epl.declexpr.ExprDeclaredNode;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.expression.dot.ExprDotNode;
 import com.espertech.esper.epl.expression.visitor.ExprNodeIdentifierAndStreamRefVisitor;
-import com.espertech.esper.epl.index.service.ExprDotNodeFilterAnalyzerDescIndexProvision;
+import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.epl.index.service.FilterExprAnalyzerAffectorIndexProvision;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
+import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
 import com.espertech.esper.epl.util.EPLExpressionParamType;
 import com.espertech.esper.epl.util.EPLValidationUtil;
+import com.espertech.esper.filter.FilterSpecCompilerAdvIndexDesc;
 import com.espertech.esper.spatial.quadtree.core.BoundingBox;
 import com.espertech.esper.util.CollectionUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class EngineImportApplicationDotMethodPointInsideRectange implements EngineImportApplicationDotMethod {
     public final static String LOOKUP_OPERATION_NAME = "point.inside(rectangle)";
@@ -32,15 +41,19 @@ public class EngineImportApplicationDotMethodPointInsideRectange implements Engi
     private final String dotMethodName;
     private final String rhsName;
     private final ExprNode[] rhs;
+    private final ExprNode[] indexNamedParameter;
+    private String optionalIndexName;
+    private AdvancedIndexConfigContextPartition optionalIndexConfig;
 
     private ExprEvaluator evaluator;
 
-    public EngineImportApplicationDotMethodPointInsideRectange(String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs) {
+    public EngineImportApplicationDotMethodPointInsideRectange(String lhsName, ExprNode[] lhs, String dotMethodName, String rhsName, ExprNode[] rhs, ExprNode[] indexNamedParameter) {
         this.lhsName = lhsName;
         this.lhs = lhs;
         this.dotMethodName = dotMethodName;
         this.rhsName = rhsName;
         this.rhs = rhs;
+        this.indexNamedParameter = indexNamedParameter;
     }
 
     public String getLhsName() {
@@ -86,6 +99,10 @@ public class EngineImportApplicationDotMethodPointInsideRectange implements Engi
         ExprEvaluator widthEval = rhs[2].getExprEvaluator();
         ExprEvaluator heightEval = rhs[3].getExprEvaluator();
         evaluator = new IntersectsEvaluator(pxEval, pyEval, xEval, yEval, widthEval, heightEval);
+
+        if (indexNamedParameter != null) {
+            validateIndexNamedParameter(validationContext);
+        }
         return null;
     }
 
@@ -93,8 +110,7 @@ public class EngineImportApplicationDotMethodPointInsideRectange implements Engi
         return evaluator;
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getExprDotNodeFilterAnalyzerDesc() {
-
+    public FilterExprAnalyzerAffector getFilterExprAnalyzerAffector() {
         ExprNodeIdentifierAndStreamRefVisitor visitor = new ExprNodeIdentifierAndStreamRefVisitor(false);
         lhs[0].accept(visitor);
         lhs[1].accept(visitor);
@@ -102,10 +118,12 @@ public class EngineImportApplicationDotMethodPointInsideRectange implements Engi
         for (ExprNodePropOrStreamDesc ref : visitor.getRefs()) {
             indexedPropertyStreams.add(ref.getStreamNum());
         }
+
         if (indexedPropertyStreams.size() == 0 || indexedPropertyStreams.size() > 1) {
             return null; // there are no properties from any streams that could be used for building an index, or the properties come from different disjoint streams
         }
         int streamNumIndex = indexedPropertyStreams.iterator().next();
+
         ExprNode[] indexExpressions = new ExprNode[] {lhs[0], lhs[1]};
 
         List<Pair<ExprNode, int[]>> keyExpressions = new ArrayList<>();
@@ -123,7 +141,45 @@ public class EngineImportApplicationDotMethodPointInsideRectange implements Engi
             Pair<ExprNode, int[]> pair = new Pair<>(node, CollectionUtil.intArray(dependencies));
             keyExpressions.add(pair);
         }
-        return new ExprDotNodeFilterAnalyzerDescIndexProvision(EngineImportApplicationDotMethodPointInsideRectange.LOOKUP_OPERATION_NAME, indexExpressions, keyExpressions, streamNumIndex);
+
+        return new FilterExprAnalyzerAffectorIndexProvision(EngineImportApplicationDotMethodPointInsideRectange.LOOKUP_OPERATION_NAME, indexExpressions, keyExpressions, streamNumIndex);
+    }
+
+    public FilterSpecCompilerAdvIndexDesc getFilterSpecCompilerAdvIndexDesc() {
+        if (indexNamedParameter == null) {
+            return null;
+        }
+        return new FilterSpecCompilerAdvIndexDesc(lhs, rhs, optionalIndexConfig, optionalIndexName);
+    }
+
+    private void validateIndexNamedParameter(ExprValidationContext validationContext) throws ExprValidationException {
+        if (indexNamedParameter.length != 1 || !(indexNamedParameter[0] instanceof ExprDeclaredNode)) {
+            throw getIndexNameMessage("requires an expression name");
+        }
+        ExprDeclaredNode node = (ExprDeclaredNode) indexNamedParameter[0];
+        if (!(node.getBody() instanceof ExprDotNode)) {
+            throw getIndexNameMessage("requires an index expression");
+        }
+        ExprDotNode dotNode = (ExprDotNode) node.getBody();
+        if (dotNode.getChainSpec().size() > 1) {
+            throw getIndexNameMessage("invalid chained index expression");
+        }
+        List<ExprNode> params = dotNode.getChainSpec().get(0).getParameters();
+        String indexTypeName = dotNode.getChainSpec().get(0).getName();
+        optionalIndexName = node.getPrototype().getName();
+
+        AdvancedIndexFactoryProvider provider;
+        try {
+            provider = validationContext.getEngineImportService().resolveAdvancedIndexProvider(indexTypeName);
+        } catch (EngineImportException e) {
+            throw new ExprValidationException(e.getMessage(), e);
+        }
+
+        optionalIndexConfig = provider.validateConfigureFilterIndex(optionalIndexName, indexTypeName, ExprNodeUtility.toArray(params), validationContext);
+    }
+
+    private ExprValidationException getIndexNameMessage(String message) {
+        return new ExprValidationException("Named parameter '" + ExprDotNode.FILTERINDEX_NAMED_PARAMETER + "' " + message);
     }
 
     public final static class IntersectsEvaluator implements ExprEvaluator {

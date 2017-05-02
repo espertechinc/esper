@@ -10,14 +10,14 @@
  */
 package com.espertech.esper.epl.expression.dot;
 
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 
 public class ExprDotNodeRealizedChain {
     private final ExprDotEval[] chain;
     private final ExprDotEval[] chainWithUnpack;
-    private final ExprDotNodeFilterAnalyzerDesc filterAnalyzerDesc;
+    private final FilterExprAnalyzerAffector filterAnalyzerDesc;
 
-    public ExprDotNodeRealizedChain(ExprDotEval[] chain, ExprDotEval[] chainWithUnpack, ExprDotNodeFilterAnalyzerDesc filterAnalyzerDesc) {
+    public ExprDotNodeRealizedChain(ExprDotEval[] chain, ExprDotEval[] chainWithUnpack, FilterExprAnalyzerAffector filterAnalyzerDesc) {
         this.chain = chain;
         this.chainWithUnpack = chainWithUnpack;
         this.filterAnalyzerDesc = filterAnalyzerDesc;
@@ -31,7 +31,7 @@ public class ExprDotNodeRealizedChain {
         return chainWithUnpack;
     }
 
-    public ExprDotNodeFilterAnalyzerDesc getFilterAnalyzerDesc() {
+    public FilterExprAnalyzerAffector getFilterAnalyzerDesc() {
         return filterAnalyzerDesc;
     }
 }

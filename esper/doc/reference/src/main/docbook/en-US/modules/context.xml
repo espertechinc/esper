@@ -1238,6 +1238,102 @@ select custId, account, sum(amount) from BankTxn group by account]]></programlis
 		   In the example above the engine does not start tracking PassengerScanEvent events or hash codes or allocate context partitions until a TrainEnterEvent arrives.
 		</para>
         
+		<sect2 xml:id="context_nesting_walkthru" revision="1">
+			<title>Nested Context Sample Walk-Through</title>
+
+			<para>
+				This section declares a nested context with nested non-overlapping contexts and walks through a specific scenario to help you better understand nested context lifecycles.
+			</para>
+
+			<para>
+				Assume event types <literal>AStart</literal>, <literal>AEnd</literal>, <literal>BStart</literal>, <literal>BEnd</literal> and <literal>C</literal>.
+				The following EPL counts <literal>C</literal>-events that occur within the span of  <literal>AStart</literal> and <literal>AEnd</literal> and 
+				a span of <literal>BStart</literal> and <literal>BEnd</literal>, wherein the span of <literal>AStart</literal>-to-<literal>AEnd</literal> must contain the span of <literal>BStart</literal>-to-<literal>BEnd</literal>:
+			</para>
+			<programlisting><![CDATA[create context CtxSampleNestedContext
+  context SpanA start AStart end AEnd,
+  context SpanB start BStart end BEnd]]></programlisting>
+			<programlisting><![CDATA[context CtxSampleNestedContext select count(*) from C]]></programlisting>
+			
+			<para>
+				Upon creating the EPL statements above, the engine starts looking for an <literal>AStart</literal> event only and does not yet look for <literal>AEnd</literal>, <literal>BStart</literal>, <literal>BEnd</literal> or <literal>C</literal> events.
+			</para>
+			
+			<para>
+				In the scenario that we analyze here, assume that an <literal>AStart</literal> event arrives next. This is, logically,  the beginning of the <literal>SpanA</literal> lifecycle (aka. session, interval):
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>The engine stops looking for an <literal>AStart</literal> event.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine starts looking for an <literal>AEnd</literal> event, since that would mean the end of the current <literal>SpanA</literal> lifecycle.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine starts looking for a <literal>BStart</literal> event, in order to detect the beginning of a <literal>SpanB</literal> lifecycle.</para>
+				</ns:listitem>
+			</itemizedlist>
+
+			<para>
+				In the scenario, assume that a <literal>BStart</literal> event arrives. This is, logically, the beginning of the <literal>SpanB</literal> lifecycle:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>The engine stops looking for further <literal>BStart</literal> events.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine starts looking for a <literal>BEnd</literal> event, since that would mean the end of the current <literal>SpanB</literal> lifecycle.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine keeps looking for an <literal>AEnd</literal> event, since that would mean the end of the current <literal>SpanA</literal> lifecycle.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine starts looking for <literal>C</literal> events and now starts counting each <literal>C</literal> that arrives.</para>
+				</ns:listitem>
+			</itemizedlist>
+
+			<para>
+				In the scenario, assume that a <literal>BEnd</literal> event arrives. This is, logically, the end of the <literal>SpanB</literal> lifecycle:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>The engine stops looking for a <literal>BEnd</literal> event.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine stops looking for <literal>C</literal> events and stops counting each.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine starts looking for a <literal>BStart</literal> event, since that would mean the beginning of another <literal>SpanB</literal> lifecycle.</para>
+				</ns:listitem>
+			</itemizedlist>
+
+			<para>
+				In the scenario, assume that an <literal>AEnd</literal> event arrives. This is, logically, the end of the <literal>SpanA</literal> lifecycle:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>The engine stops looking for an <literal>AEnd</literal> event.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine stops looking for a <literal>BStart</literal> event.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>The engine starts looking for an <literal>AStart</literal> event, since that would mean the beginning of another <literal>SpanA</literal> lifecycle.</para>
+				</ns:listitem>
+			</itemizedlist>
+
+			<para>
+				In the scenario describe above, after the <literal>AEnd</literal> arrives, the engine is back to the same state as the engine had after the statements were created originally.
+			</para>
+			
+			<para>
+				If your use case calls for a logical OR relationships, please consider a pattern for the start condition, like for example so (not equivalent to above):
+			</para>
+			<programlisting><![CDATA[create context CtxSampleNestedContext 
+  start pattern[every a=AStart or every a=BStart] as mypattern 
+  end pattern[every AEnd or every BEnd]]]></programlisting>
+		</sect2>
+
 		<sect2 xml:id="context_nesting_builtin" revision="1">
 			<title>Built-In Nested Context Properties</title>
 			  

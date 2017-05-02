@@ -15,7 +15,7 @@ import com.espertech.esper.epl.core.StreamTypeService;
 import com.espertech.esper.epl.datetime.eval.DatetimeMethodEnum;
 import com.espertech.esper.epl.datetime.eval.ExprDotEvalDTFactory;
 import com.espertech.esper.epl.datetime.eval.ExprDotEvalDTMethodDesc;
-import com.espertech.esper.epl.datetime.eval.ExprDotNodeFilterAnalyzerDesc;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.enummethod.dot.*;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.rettype.*;
@@ -47,7 +47,7 @@ public class ExprDotNodeUtility {
         EPType currentInputType = inputType;
         EnumMethodEnum lastLambdaFunc = null;
         ExprChainedSpec lastElement = chainSpec.isEmpty() ? null : chainSpec.get(chainSpec.size() - 1);
-        ExprDotNodeFilterAnalyzerDesc filterAnalyzerDesc = null;
+        FilterExprAnalyzerAffector filterAnalyzerDesc = null;
 
         Deque<ExprChainedSpec> chainSpecStack = new ArrayDeque<ExprChainedSpec>(chainSpec);
         while (!chainSpecStack.isEmpty()) {

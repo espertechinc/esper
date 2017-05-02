@@ -11,9 +11,14 @@
 package com.espertech.esper.epl.index.service;
 
 import com.espertech.esper.epl.expression.core.ExprNode;
+import com.espertech.esper.epl.expression.core.ExprValidationContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.lookup.AdvancedIndexConfigContextPartition;
 
 public interface AdvancedIndexFactoryProvider {
-    AdvancedIndexProvisionDesc validate(String indexName, String indexTypeName, boolean unique, ExprNode[] columns, ExprNode[] parameters)
+    EventAdvancedIndexProvisionDesc validateEventIndex(String indexName, String indexTypeName, ExprNode[] columns, ExprNode[] parameters)
+            throws ExprValidationException;
+
+    AdvancedIndexConfigContextPartition validateConfigureFilterIndex(String indexName, String indexTypeName, ExprNode[] parameters, ExprValidationContext validationContext)
             throws ExprValidationException;
 }
