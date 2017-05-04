@@ -17,6 +17,7 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.FireAndForgetSpecUpdate;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
@@ -24,7 +25,6 @@ import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelperFactory;
 import com.espertech.esper.event.EventTypeSPI;
-import com.espertech.esper.filter.FilterSpecCompiled;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -34,7 +34,7 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
         super(statementSpec, services, statementContext);
     }
 
-    public EPPreparedExecuteIUDSingleStreamExec getExecutor(FilterSpecCompiled filter, String aliasName) {
+    public EPPreparedExecuteIUDSingleStreamExec getExecutor(QueryGraph queryGraph, String aliasName) {
         FireAndForgetSpecUpdate updateSpec = (FireAndForgetSpecUpdate) statementSpec.getFireAndForgetSpec();
 
         StreamTypeServiceImpl assignmentTypeService = new StreamTypeServiceImpl(
@@ -60,7 +60,6 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
         EventBeanUpdateHelper updateHelper;
         TableUpdateStrategy tableUpdateStrategy = null;
         try {
-
             boolean copyOnWrite = !(processor instanceof FireAndForgetProcessorTable);
             updateHelper = EventBeanUpdateHelperFactory.make(processor.getNamedWindowOrTableName(),
                     (EventTypeSPI) processor.getEventTypeResultSetProcessor(), updateSpec.getAssignments(), aliasName, null, copyOnWrite, statementContext.getStatementName(), services.getEngineURI(), services.getEventAdapterService());
@@ -68,12 +67,11 @@ public class EPPreparedExecuteIUDSingleStreamUpdate extends EPPreparedExecuteIUD
             if (processor instanceof FireAndForgetProcessorTable) {
                 FireAndForgetProcessorTable tableProcessor = (FireAndForgetProcessorTable) processor;
                 tableUpdateStrategy = services.getTableService().getTableUpdateStrategy(tableProcessor.getTableMetadata(), updateHelper, false);
-                copyOnWrite = false;
             }
         } catch (ExprValidationException e) {
             throw new EPException(e.getMessage(), e);
         }
 
-        return new EPPreparedExecuteIUDSingleStreamExecUpdate(filter, statementSpec.getFilterRootNode(), statementSpec.getAnnotations(), updateHelper, tableUpdateStrategy, statementSpec.getTableNodes(), services);
+        return new EPPreparedExecuteIUDSingleStreamExecUpdate(queryGraph, statementSpec.getFilterRootNode(), statementSpec.getAnnotations(), updateHelper, tableUpdateStrategy, statementSpec.getTableNodes(), services);
     }
 }

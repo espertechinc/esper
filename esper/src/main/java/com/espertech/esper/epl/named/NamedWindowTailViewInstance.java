@@ -21,9 +21,9 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewSupport;
 
@@ -187,28 +187,28 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
     /**
      * Returns a snapshot of window contents, thread-safely
      *
-     * @param filter      filters if any
+     * @param queryGraph  query graph
      * @param annotations annotations
      * @return window contents
      */
-    public Collection<EventBean> snapshot(FilterSpecCompiled filter, Annotation[] annotations) {
+    public Collection<EventBean> snapshot(QueryGraph queryGraph, Annotation[] annotations) {
         if (tailView.getRevisionProcessor() != null) {
             return tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
         }
 
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
         try {
-            return snapshotNoLock(filter, annotations);
+            return snapshotNoLock(queryGraph, annotations);
         } finally {
             releaseTableLocks(agentInstanceContext);
             agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().releaseReadLock();
         }
     }
 
-    public EventBean[] snapshotUpdate(FilterSpecCompiled filter, ExprNode optionalWhereClause, EventBeanUpdateHelper updateHelper, Annotation[] annotations) {
+    public EventBean[] snapshotUpdate(QueryGraph queryGraph, ExprNode optionalWhereClause, EventBeanUpdateHelper updateHelper, Annotation[] annotations) {
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
         try {
-            Collection<EventBean> events = snapshotNoLockWithFilter(filter, annotations, optionalWhereClause, agentInstanceContext);
+            Collection<EventBean> events = snapshotNoLockWithFilter(queryGraph, annotations, optionalWhereClause, agentInstanceContext);
             if (events.isEmpty()) {
                 return CollectionUtil.EVENTBEANARRAY_EMPTY;
             }
@@ -229,10 +229,10 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
     }
 
-    public EventBean[] snapshotDelete(FilterSpecCompiled filter, ExprNode filterExpr, Annotation[] annotations) {
+    public EventBean[] snapshotDelete(QueryGraph queryGraph, ExprNode filterExpr, Annotation[] annotations) {
         agentInstanceContext.getEpStatementAgentInstanceHandle().getStatementAgentInstanceLock().acquireReadLock();
         try {
-            Collection<EventBean> events = snapshotNoLockWithFilter(filter, annotations, filterExpr, agentInstanceContext);
+            Collection<EventBean> events = snapshotNoLockWithFilter(queryGraph, annotations, filterExpr, agentInstanceContext);
             if (events.isEmpty()) {
                 return CollectionUtil.EVENTBEANARRAY_EMPTY;
             }
@@ -245,12 +245,12 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         }
     }
 
-    public Collection<EventBean> snapshotNoLock(FilterSpecCompiled filter, Annotation[] annotations) {
+    public Collection<EventBean> snapshotNoLock(QueryGraph queryGraph, Annotation[] annotations) {
         if (tailView.getRevisionProcessor() != null) {
             return tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
         }
 
-        Collection<EventBean> indexedResult = rootViewInstance.snapshot(filter, annotations);
+        Collection<EventBean> indexedResult = rootViewInstance.snapshot(queryGraph, annotations);
         if (indexedResult != null) {
             return indexedResult;
         }
@@ -265,12 +265,12 @@ public class NamedWindowTailViewInstance extends ViewSupport implements Iterable
         return list;
     }
 
-    public Collection<EventBean> snapshotNoLockWithFilter(FilterSpecCompiled filter, Annotation[] annotations, ExprNode filterExpr, ExprEvaluatorContext exprEvaluatorContext) {
+    public Collection<EventBean> snapshotNoLockWithFilter(QueryGraph queryGraph, Annotation[] annotations, ExprNode filterExpr, ExprEvaluatorContext exprEvaluatorContext) {
         if (tailView.getRevisionProcessor() != null) {
             return tailView.getRevisionProcessor().getSnapshot(agentInstanceContext.getEpStatementAgentInstanceHandle(), parent);
         }
 
-        Collection<EventBean> indexedResult = rootViewInstance.snapshot(filter, annotations);
+        Collection<EventBean> indexedResult = rootViewInstance.snapshot(queryGraph, annotations);
         if (indexedResult != null) {
             if (indexedResult.isEmpty()) {
                 return indexedResult;

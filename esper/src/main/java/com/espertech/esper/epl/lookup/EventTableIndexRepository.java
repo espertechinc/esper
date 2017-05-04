@@ -35,14 +35,21 @@ public class EventTableIndexRepository {
     private final List<EventTable> tables;
     private final Map<IndexMultiKey, EventTableIndexRepositoryEntry> tableIndexesRefCount;
     private final HashMap<String, EventTable> explicitIndexes;
+    private final EventTableIndexMetadata eventTableIndexMetadata;
 
     /**
      * Ctor.
+     * @param eventTableIndexMetadata metadata for index
      */
-    public EventTableIndexRepository() {
+    public EventTableIndexRepository(EventTableIndexMetadata eventTableIndexMetadata) {
         tables = new ArrayList<EventTable>();
         tableIndexesRefCount = new HashMap<IndexMultiKey, EventTableIndexRepositoryEntry>();
         explicitIndexes = new HashMap<String, EventTable>();
+        this.eventTableIndexMetadata = eventTableIndexMetadata;
+    }
+
+    public EventTableIndexMetadata getEventTableIndexMetadata() {
+        return eventTableIndexMetadata;
     }
 
     public Pair<IndexMultiKey, EventTableAndNamePair> addExplicitIndexOrReuse(
@@ -106,6 +113,10 @@ public class EventTableIndexRepository {
     public IndexMultiKey[] getIndexDescriptors() {
         Set<IndexMultiKey> keySet = tableIndexesRefCount.keySet();
         return keySet.toArray(new IndexMultiKey[keySet.size()]);
+    }
+
+    public Map<IndexMultiKey, EventTableIndexRepositoryEntry> getTableIndexesRefCount() {
+        return tableIndexesRefCount;
     }
 
     public void validateAddExplicitIndex(String explicitIndexName, QueryPlanIndexItem explicitIndexDesc, EventType eventType, Iterable<EventBean> dataWindowContents, AgentInstanceContext agentInstanceContext, boolean allowIndexExists, Object optionalSerde)

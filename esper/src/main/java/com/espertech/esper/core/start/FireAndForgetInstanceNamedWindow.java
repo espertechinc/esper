@@ -14,9 +14,9 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.service.StatementAgentInstanceLock;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.view.Viewable;
 
 import java.lang.annotation.Annotation;
@@ -57,17 +57,17 @@ public class FireAndForgetInstanceNamedWindow extends FireAndForgetInstance {
 
     public EventBean[] processDelete(EPPreparedExecuteIUDSingleStreamExecDelete delete) {
         EPPreparedExecuteTableHelper.assignTableAccessStrategies(delete.getServices(), delete.getOptionalTableNodes(), processorInstance.getTailViewInstance().getAgentInstanceContext());
-        return processorInstance.getTailViewInstance().snapshotDelete(delete.getFilter(), delete.getOptionalWhereClause(), delete.getAnnotations());
+        return processorInstance.getTailViewInstance().snapshotDelete(delete.getQueryGraph(), delete.getOptionalWhereClause(), delete.getAnnotations());
     }
 
     public EventBean[] processUpdate(EPPreparedExecuteIUDSingleStreamExecUpdate update) {
         EPPreparedExecuteTableHelper.assignTableAccessStrategies(update.getServices(), update.getOptionalTableNodes(), processorInstance.getTailViewInstance().getAgentInstanceContext());
-        return processorInstance.getTailViewInstance().snapshotUpdate(update.getFilter(), update.getOptionalWhereClause(), update.getUpdateHelper(), update.getAnnotations());
+        return processorInstance.getTailViewInstance().snapshotUpdate(update.getQueryGraph(), update.getOptionalWhereClause(), update.getUpdateHelper(), update.getAnnotations());
     }
 
-    public Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery query, FilterSpecCompiled filter, Annotation[] annotations) {
+    public Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery query, QueryGraph queryGraph, Annotation[] annotations) {
         EPPreparedExecuteTableHelper.assignTableAccessStrategies(query.getServices(), query.getTableNodes(), processorInstance.getTailViewInstance().getAgentInstanceContext());
-        return processorInstance.getTailViewInstance().snapshot(filter, annotations);
+        return processorInstance.getTailViewInstance().snapshot(queryGraph, annotations);
     }
 
     public AgentInstanceContext getAgentInstanceContext() {

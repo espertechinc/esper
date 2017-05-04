@@ -16,12 +16,12 @@ import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoadIn
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.join.plan.QueryPlanIndexItem;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableUtil;
 import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.ViewSupport;
 import com.espertech.esper.view.Viewable;
@@ -50,7 +50,7 @@ public class NamedWindowRootViewInstance extends ViewSupport {
         this.rootView = rootView;
         this.agentInstanceContext = agentInstanceContext;
 
-        this.indexRepository = new EventTableIndexRepository();
+        this.indexRepository = new EventTableIndexRepository(eventTableIndexMetadata);
         for (Map.Entry<IndexMultiKey, EventTableIndexMetadataEntry> entry : eventTableIndexMetadata.getIndexes().entrySet()) {
             if (entry.getValue().getQueryPlanIndexItem() != null) {
                 EventTable index = EventTableUtil.buildIndex(agentInstanceContext, 0, entry.getValue().getQueryPlanIndexItem(), rootView.getEventType(), true, entry.getKey().isUnique(), entry.getValue().getOptionalIndexName(), null, false);
@@ -158,16 +158,16 @@ public class NamedWindowRootViewInstance extends ViewSupport {
     /**
      * Return a snapshot using index lookup filters.
      *
-     * @param optionalFilter to index lookup
      * @param annotations    annotations
+     * @param queryGraph    query graph
      * @return events
      */
-    public Collection<EventBean> snapshot(FilterSpecCompiled optionalFilter, Annotation[] annotations) {
+    public Collection<EventBean> snapshot(QueryGraph queryGraph, Annotation[] annotations) {
         VirtualDWView virtualDataWindow = null;
         if (isVirtualDataWindow()) {
             virtualDataWindow = getVirtualDataWindow();
         }
-        return FireAndForgetQueryExec.snapshot(optionalFilter, annotations, virtualDataWindow,
+        return FireAndForgetQueryExec.snapshot(queryGraph, annotations, virtualDataWindow,
                 indexRepository, rootView.isQueryPlanLogging(), NamedWindowRootView.getQueryPlanLog(),
                 rootView.getEventType().getName(), agentInstanceContext);
     }

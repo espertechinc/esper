@@ -16,10 +16,7 @@ import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.util.CollectionUtil;
 
 import java.io.StringWriter;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 /**
  * Property lists stored as a value for each stream-to-stream relationship, for use by {@link QueryGraph}.
@@ -31,7 +28,7 @@ public class QueryGraphValue {
      * Ctor.
      */
     public QueryGraphValue() {
-        items = new ArrayList<QueryGraphValueDesc>();
+        items = new ArrayList<>();
     }
 
     public boolean isEmptyNotNavigable() {

@@ -14,19 +14,19 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
-import com.espertech.esper.filter.FilterSpecCompiled;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 
 import java.lang.annotation.Annotation;
 
 public class EPPreparedExecuteIUDSingleStreamExecDelete implements EPPreparedExecuteIUDSingleStreamExec {
-    private final FilterSpecCompiled filter;
+    private final QueryGraph queryGraph;
     private final ExprNode optionalWhereClause;
     private final Annotation[] annotations;
     private final ExprTableAccessNode[] optionalTableNodes;
     private final EPServicesContext services;
 
-    public EPPreparedExecuteIUDSingleStreamExecDelete(FilterSpecCompiled filter, ExprNode optionalWhereClause, Annotation[] annotations, ExprTableAccessNode[] optionalTableNodes, EPServicesContext services) {
-        this.filter = filter;
+    public EPPreparedExecuteIUDSingleStreamExecDelete(QueryGraph queryGraph, ExprNode optionalWhereClause, Annotation[] annotations, ExprTableAccessNode[] optionalTableNodes, EPServicesContext services) {
+        this.queryGraph = queryGraph;
         this.optionalWhereClause = optionalWhereClause;
         this.annotations = annotations;
         this.optionalTableNodes = optionalTableNodes;
@@ -35,10 +35,6 @@ public class EPPreparedExecuteIUDSingleStreamExecDelete implements EPPreparedExe
 
     public EventBean[] execute(FireAndForgetInstance fireAndForgetProcessorInstance) {
         return fireAndForgetProcessorInstance.processDelete(this);
-    }
-
-    public FilterSpecCompiled getFilter() {
-        return filter;
     }
 
     public ExprNode getOptionalWhereClause() {
@@ -55,5 +51,9 @@ public class EPPreparedExecuteIUDSingleStreamExecDelete implements EPPreparedExe
 
     public EPServicesContext getServices() {
         return services;
+    }
+
+    public QueryGraph getQueryGraph() {
+        return queryGraph;
     }
 }

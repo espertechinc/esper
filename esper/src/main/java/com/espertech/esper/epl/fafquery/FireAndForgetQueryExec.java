@@ -10,48 +10,52 @@
  */
 package com.espertech.esper.epl.fafquery;
 
+import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.collection.CombinationEnumeration;
-import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
+import com.espertech.esper.epl.index.quadtree.EventTablePointRegionQuadTree;
+import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValue;
-import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueEquals;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueRange;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexLookup;
 import com.espertech.esper.epl.join.exec.composite.CompositeIndexLookupFactory;
 import com.espertech.esper.epl.join.hint.IndexHint;
 import com.espertech.esper.epl.join.hint.IndexHintInstruction;
-import com.espertech.esper.epl.join.plan.QueryGraphRangeConsolidateDesc;
-import com.espertech.esper.epl.join.plan.QueryGraphRangeEnum;
-import com.espertech.esper.epl.join.plan.QueryGraphRangeUtil;
+import com.espertech.esper.epl.join.plan.*;
 import com.espertech.esper.epl.join.table.*;
 import com.espertech.esper.epl.join.util.IndexNameAndDescPair;
 import com.espertech.esper.epl.join.util.QueryPlanIndexDescFAF;
 import com.espertech.esper.epl.join.util.QueryPlanIndexHook;
 import com.espertech.esper.epl.join.util.QueryPlanIndexHookUtil;
-import com.espertech.esper.epl.lookup.EventTableIndexRepository;
-import com.espertech.esper.epl.lookup.IndexMultiKey;
-import com.espertech.esper.epl.lookup.IndexedPropDesc;
+import com.espertech.esper.epl.lookup.*;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.*;
+import com.espertech.esper.filter.DoubleRange;
+import com.espertech.esper.filter.Range;
+import com.espertech.esper.filter.StringRange;
+import com.espertech.esper.util.JavaClassHelper;
+import com.espertech.esper.util.NullableObject;
 import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class FireAndForgetQueryExec {
-    public static Collection<EventBean> snapshot(
-            FilterSpecCompiled optionalFilter,
-            Annotation[] annotations,
-            VirtualDWView virtualDataWindow,
-            EventTableIndexRepository indexRepository,
-            boolean queryPlanLogging,
-            Logger queryPlanLogDestination,
-            String objectName,
-            AgentInstanceContext agentInstanceContext) {
+    public static Collection<EventBean> snapshot(QueryGraph queryGraph,
+                                                 Annotation[] annotations,
+                                                 VirtualDWView virtualDataWindow,
+                                                 EventTableIndexRepository indexRepository,
+                                                 boolean queryPlanLogging,
+                                                 Logger queryPlanLogDestination,
+                                                 String objectName,
+                                                 AgentInstanceContext agentInstanceContext) {
 
-        if (optionalFilter == null || optionalFilter.getParameters().length == 0) {
+        QueryGraphValue queryGraphValue = queryGraph == null ? null : queryGraph.getGraphValue(QueryGraph.SELF_STREAM, 0);
+        if (queryGraphValue == null || queryGraphValue.getItems().isEmpty()) {
             if (virtualDataWindow != null) {
                 Pair<IndexMultiKey, EventTable> pair = virtualDataWindow.getFireAndForgetDesc(Collections.<String>emptySet(), Collections.<String>emptySet());
                 return virtualDataWindow.getFireAndForgetData(pair.getSecond(), new Object[0], new RangeIndexLookupValue[0], annotations);
@@ -59,119 +63,73 @@ public class FireAndForgetQueryExec {
             return null;
         }
 
-        // Determine what straight-equals keys and which ranges are available.
-        // Widening/Coercion is part of filter spec compile.
-        Set<String> keysAvailable = new HashSet<String>();
-        Set<String> rangesAvailable = new HashSet<String>();
-        if (optionalFilter.getParameters().length == 1) {
-            for (FilterSpecParam param : optionalFilter.getParameters()[0]) {
-                if (!(param instanceof FilterSpecParamConstant ||
-                        param instanceof FilterSpecParamRange ||
-                        param instanceof FilterSpecParamIn)) {
-                    continue;
-                }
-                if (param.getFilterOperator() == FilterOperator.EQUAL ||
-                        param.getFilterOperator() == FilterOperator.IS ||
-                        param.getFilterOperator() == FilterOperator.IN_LIST_OF_VALUES) {
-                    keysAvailable.add(param.getLookupable().getExpression());
-                } else if (param.getFilterOperator().isRangeOperator() ||
-                        param.getFilterOperator().isInvertedRangeOperator() ||
-                        param.getFilterOperator().isComparisonOperator()) {
-                    rangesAvailable.add(param.getLookupable().getExpression());
-                } else if (param.getFilterOperator().isRangeOperator()) {
-                    rangesAvailable.add(param.getLookupable().getExpression());
-                }
-            }
+        // determine custom index
+        NullableObject<Collection<EventBean>> customResult = snapshotCustomIndex(queryGraphValue, indexRepository, annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+        if (customResult != null) {
+            return customResult.getObject();
         }
 
-        // Find an index that matches the needs
+        // determine lookup based on hash-keys and ranges
+        QueryGraphValuePairHashKeyIndex keysAvailable = queryGraphValue.getHashKeyProps();
+        Set<String> keyNamesAvailable = keysAvailable.getIndexed().length == 0 ? Collections.emptySet() : new HashSet<>(Arrays.asList(keysAvailable.getIndexed()));
+        QueryGraphValuePairRangeIndex rangesAvailable = queryGraphValue.getRangeProps();
+        Set<String> rangeNamesAvailable = rangesAvailable.getIndexed().length == 0 ? Collections.emptySet() : new HashSet<>(Arrays.asList(rangesAvailable.getIndexed()));
         Pair<IndexMultiKey, EventTableAndNamePair> tablePair;
+
+        // find index that matches the needs
+        tablePair = findIndex(keyNamesAvailable, rangeNamesAvailable, indexRepository, virtualDataWindow, annotations);
+
+        // regular index lookup
+        if (tablePair != null) {
+            return snapshotIndex(keysAvailable, rangesAvailable, tablePair, virtualDataWindow, annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+        }
+
+        // in-keyword lookup
+        NullableObject<Collection<EventBean>> inkwResult = snapshotInKeyword(queryGraphValue, indexRepository, virtualDataWindow, annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+        if (inkwResult != null) {
+            return inkwResult.getObject();
+        }
+
+        queryPlanReportTableScan(annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+        return null;
+    }
+
+    private static Pair<IndexMultiKey, EventTableAndNamePair> findIndex(Set<String> keyNamesAvailable, Set<String> rangeNamesAvailable, EventTableIndexRepository indexRepository, VirtualDWView virtualDataWindow, Annotation[] annotations) {
         if (virtualDataWindow != null) {
-            Pair<IndexMultiKey, EventTable> tablePairNoName = virtualDataWindow.getFireAndForgetDesc(keysAvailable, rangesAvailable);
-            tablePair = new Pair<IndexMultiKey, EventTableAndNamePair>(tablePairNoName.getFirst(), new EventTableAndNamePair(tablePairNoName.getSecond(), null));
-        } else {
-            IndexHint indexHint = IndexHint.getIndexHint(annotations);
-            List<IndexHintInstruction> optionalIndexHintInstructions = null;
-            if (indexHint != null) {
-                optionalIndexHintInstructions = indexHint.getInstructionsFireAndForget();
-            }
-            tablePair = indexRepository.findTable(keysAvailable, rangesAvailable, optionalIndexHintInstructions);
+            Pair<IndexMultiKey, EventTable> tablePairNoName = virtualDataWindow.getFireAndForgetDesc(keyNamesAvailable, rangeNamesAvailable);
+            return new Pair<>(tablePairNoName.getFirst(), new EventTableAndNamePair(tablePairNoName.getSecond(), null));
+        }
+        IndexHint indexHint = IndexHint.getIndexHint(annotations);
+        List<IndexHintInstruction> optionalIndexHintInstructions = indexHint != null ? indexHint.getInstructionsFireAndForget() : null;
+        return indexRepository.findTable(keyNamesAvailable, rangeNamesAvailable, optionalIndexHintInstructions);
+    }
+
+    private static NullableObject<Collection<EventBean>> snapshotInKeyword(QueryGraphValue queryGraphValue, EventTableIndexRepository indexRepository, VirtualDWView virtualDataWindow, Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
+        QueryGraphValuePairInKWSingleIdx inkwSingles = queryGraphValue.getInKeywordSingles();
+        if (inkwSingles.getIndexed().length == 0) {
+            return null;
         }
 
-        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, agentInstanceContext.getStatementContext().getEngineImportService());
-        if (queryPlanLogging && (queryPlanLogDestination.isInfoEnabled() || hook != null)) {
-            String prefix = "Fire-and-forget from " + objectName + " ";
-            String indexName = tablePair != null && tablePair.getSecond() != null ? tablePair.getSecond().getIndexName() : null;
-            String indexText = indexName != null ? "index " + indexName + " " : "full table scan ";
-            indexText += "(snapshot only, for join see separate query plan)";
-            if (tablePair == null) {
-                queryPlanLogDestination.info(prefix + indexText);
-            } else {
-                queryPlanLogDestination.info(prefix + indexText + tablePair.getSecond().getEventTable().toQueryPlan());
-            }
-
-            if (hook != null) {
-                hook.fireAndForget(new QueryPlanIndexDescFAF(
-                    new IndexNameAndDescPair[]{
-                        new IndexNameAndDescPair(indexName, tablePair != null ?
-                                tablePair.getSecond().getEventTable().getProviderClass().getSimpleName() : null)
-                    }));
-            }
+        Pair<IndexMultiKey, EventTableAndNamePair> tablePair = findIndex(new HashSet<>(Arrays.asList(inkwSingles.getIndexed())), Collections.emptySet(), indexRepository, virtualDataWindow, annotations);
+        if (tablePair == null) {
+            return null;
         }
 
-        if (tablePair == null || tablePair.getFirst().getAdvancedIndexDesc() != null) {
-            return null;    // indicates table scan
-        }
-
-        // Compile key sets which contain key index lookup values
-        String[] keyIndexProps = IndexedPropDesc.getIndexProperties(tablePair.getFirst().getHashIndexedProps());
-        boolean hasKeyWithInClause = false;
-        Object[] keyValues = new Object[keyIndexProps.length];
-        for (int keyIndex = 0; keyIndex < keyIndexProps.length; keyIndex++) {
-            for (FilterSpecParam param : optionalFilter.getParameters()[0]) {
-                if (param.getLookupable().getExpression().equals(keyIndexProps[keyIndex])) {
-                    if (param.getFilterOperator() == FilterOperator.IN_LIST_OF_VALUES) {
-                        Object[] keyValuesList = ((MultiKeyUntyped) param.getFilterValue(null, agentInstanceContext)).getKeys();
-                        if (keyValuesList.length == 0) {
-                            continue;
-                        } else if (keyValuesList.length == 1) {
-                            keyValues[keyIndex] = keyValuesList[0];
-                        } else {
-                            keyValues[keyIndex] = keyValuesList;
-                            hasKeyWithInClause = true;
-                        }
-                    } else {
-                        keyValues[keyIndex] = param.getFilterValue(null, agentInstanceContext);
-                    }
-                    break;
-                }
-            }
-        }
-
-        // Analyze ranges - these may include key lookup value (EQUALS semantics)
-        String[] rangeIndexProps = IndexedPropDesc.getIndexProperties(tablePair.getFirst().getRangeIndexedProps());
-        RangeIndexLookupValue[] rangeValues;
-        if (rangeIndexProps.length > 0) {
-            rangeValues = compileRangeLookupValues(rangeIndexProps, optionalFilter.getParameters()[0], agentInstanceContext);
-        } else {
-            rangeValues = new RangeIndexLookupValue[0];
-        }
-
-        EventTable eventTable = tablePair.getSecond().getEventTable();
-        IndexMultiKey indexMultiKey = tablePair.getFirst();
-
-        // table lookup without in-clause
-        if (!hasKeyWithInClause) {
-            return fafTableLookup(virtualDataWindow, indexMultiKey, eventTable, keyValues, rangeValues, annotations);
-        }
+        queryPlanReport(tablePair.getSecond().getIndexName(), tablePair.getSecond().getEventTable(), annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
 
         // table lookup with in-clause: determine combinations
-        Object[][] combinations = new Object[keyIndexProps.length][];
-        for (int i = 0; i < keyValues.length; i++) {
-            if (keyValues[i] instanceof Object[]) {
-                combinations[i] = (Object[]) keyValues[i];
-            } else {
-                combinations[i] = new Object[]{keyValues[i]};
+        IndexedPropDesc[] tableHashProps = tablePair.getFirst().getHashIndexedProps();
+        Object[][] combinations = new Object[tableHashProps.length][];
+        for (int tableHashPropNum = 0; tableHashPropNum < tableHashProps.length; tableHashPropNum++) {
+            for (int i = 0; i < inkwSingles.getIndexed().length; i++) {
+                if (inkwSingles.getIndexed()[i].equals(tableHashProps[tableHashPropNum].getIndexPropName())) {
+                    QueryGraphValueEntryInKeywordSingleIdx keysExpressions = inkwSingles.getKey().get(i);
+                    Object[] values = new Object[keysExpressions.getKeyExprs().length];
+                    combinations[tableHashPropNum] = values;
+                    for (int j = 0; j < keysExpressions.getKeyExprs().length; j++) {
+                        values[j] = keysExpressions.getKeyExprs()[j].getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                    }
+                }
             }
         }
 
@@ -180,10 +138,152 @@ public class FireAndForgetQueryExec {
         HashSet<EventBean> events = new HashSet<EventBean>();
         for (; enumeration.hasMoreElements(); ) {
             Object[] keys = enumeration.nextElement();
-            Collection<EventBean> result = fafTableLookup(virtualDataWindow, indexMultiKey, eventTable, keys, rangeValues, annotations);
+            Collection<EventBean> result = fafTableLookup(virtualDataWindow, tablePair.getFirst(), tablePair.getSecond().getEventTable(), keys, null, annotations);
             events.addAll(result);
         }
-        return events;
+        return new NullableObject<>(events);
+    }
+
+    private static Collection<EventBean> snapshotIndex(QueryGraphValuePairHashKeyIndex keysAvailable, QueryGraphValuePairRangeIndex rangesAvailable, Pair<IndexMultiKey, EventTableAndNamePair> tablePair, VirtualDWView virtualDataWindow, Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
+
+        // report plan
+        queryPlanReport(tablePair.getSecond().getIndexName(), tablePair.getSecond().getEventTable(), annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+
+        // compile hash lookup values
+        IndexedPropDesc[] tableHashProps = tablePair.getFirst().getHashIndexedProps();
+        Object[] keyValues = new Object[tableHashProps.length];
+        for (int tableHashPropNum = 0; tableHashPropNum < tableHashProps.length; tableHashPropNum++) {
+            IndexedPropDesc tableHashProp = tableHashProps[tableHashPropNum];
+            for (int i = 0; i < keysAvailable.getIndexed().length; i++) {
+                if (keysAvailable.getIndexed()[i].equals(tableHashProp.getIndexPropName())) {
+                    QueryGraphValueEntryHashKeyed key = keysAvailable.getKeys().get(i);
+                    Object value = key.getKeyExpr().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                    if (value != null) {
+                        value = mayCoerceNonNull(value, tableHashProp.getCoercionType());
+                        keyValues[tableHashPropNum] = value;
+                    }
+                }
+            }
+        }
+
+        // compile range lookup values
+        IndexedPropDesc[] tableRangeProps = tablePair.getFirst().getRangeIndexedProps();
+        RangeIndexLookupValue[] rangeValues = new RangeIndexLookupValue[tableRangeProps.length];
+        for (int tableRangePropNum = 0; tableRangePropNum < tableRangeProps.length; tableRangePropNum++) {
+            IndexedPropDesc tableRangeProp = tableRangeProps[tableRangePropNum];
+            for (int i = 0; i < rangesAvailable.getIndexed().length; i++) {
+                if (rangesAvailable.getIndexed()[i].equals(tableRangeProp.getIndexPropName())) {
+                    QueryGraphValueEntryRange range = rangesAvailable.getKeys().get(i);
+                    if (range instanceof QueryGraphValueEntryRangeIn) {
+                        QueryGraphValueEntryRangeIn between = (QueryGraphValueEntryRangeIn) range;
+                        Object start = between.getExprStart().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        Object end = between.getExprEnd().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        Range rangeValue;
+                        if (JavaClassHelper.isNumeric(tableRangeProp.getCoercionType())) {
+                            Double startDouble = null;
+                            if (start != null) {
+                                startDouble = ((Number) start).doubleValue();
+                            }
+                            Double endDouble = null;
+                            if (end != null) {
+                                endDouble = ((Number) end).doubleValue();
+                            }
+                            rangeValue = new DoubleRange(startDouble, endDouble);
+                        } else {
+                            rangeValue = new StringRange(start == null ? null : start.toString(), end == null ? null : end.toString());
+                        }
+                        rangeValues[tableRangePropNum] = new RangeIndexLookupValueRange(rangeValue, between.getType(), between.isAllowRangeReversal());
+                    } else {
+                        QueryGraphValueEntryRangeRelOp relOp = (QueryGraphValueEntryRangeRelOp) range;
+                        Object value = relOp.getExpression().getExprEvaluator().evaluate(null, true, agentInstanceContext);
+                        if (value != null) {
+                            value = mayCoerceNonNull(value, tableRangeProp.getCoercionType());
+                        }
+                        rangeValues[tableRangePropNum] = new RangeIndexLookupValueRange(value, relOp.getType(), true);
+                    }
+                }
+            }
+        }
+
+        // perform lookup
+        return fafTableLookup(virtualDataWindow, tablePair.getFirst(), tablePair.getSecond().getEventTable(), keyValues, rangeValues, annotations);
+    }
+
+    private static Object mayCoerceNonNull(Object value, Class coercionType) {
+        if (value.getClass() == coercionType) {
+            return value;
+        }
+        if (value instanceof Number) {
+            return JavaClassHelper.coerceBoxed((Number) value, coercionType);
+        }
+        return value;
+    }
+
+    private static NullableObject<Collection<EventBean>> snapshotCustomIndex(QueryGraphValue queryGraphValue, EventTableIndexRepository indexRepository, Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
+
+        EventTable table = null;
+        String indexName = null;
+        QueryGraphValueEntryCustomOperation values = null;
+
+        // find matching index
+        boolean found = false;
+        for (QueryGraphValueDesc valueDesc : queryGraphValue.getItems()) {
+            if (valueDesc.getEntry() instanceof QueryGraphValueEntryCustom) {
+                QueryGraphValueEntryCustom customIndex = (QueryGraphValueEntryCustom) valueDesc.getEntry();
+
+                for (Map.Entry<IndexMultiKey, EventTableIndexRepositoryEntry> entry : indexRepository.getTableIndexesRefCount().entrySet()) {
+                    if (entry.getKey().getAdvancedIndexDesc() == null) {
+                        continue;
+                    }
+                    EventTableIndexMetadataEntry metadata = indexRepository.getEventTableIndexMetadata().getIndexes().get(entry.getKey());
+                    if (metadata == null || metadata.getExplicitIndexNameIfExplicit() == null) {
+                        continue;
+                    }
+                    EventAdvancedIndexProvisionDesc provision = metadata.getQueryPlanIndexItem().getAdvancedIndexProvisionDesc();
+                    if (provision == null) {
+                        continue;
+                    }
+                    for (Map.Entry<QueryGraphValueEntryCustomKey, QueryGraphValueEntryCustomOperation> op : customIndex.getOperations().entrySet()) {
+                        if (!provision.getFactory().providesIndexForOperation(op.getKey().getOperationName(), op.getValue().getPositionalExpressions())) {
+                            continue;
+                        }
+                        if (ExprNodeUtility.deepEquals(entry.getKey().getAdvancedIndexDesc().getIndexedExpressions(), op.getKey().getExprNodes(), true)) {
+                            values = op.getValue();
+                            table = entry.getValue().getTable();
+                            indexName = metadata.getExplicitIndexNameIfExplicit();
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+
+        if (table == null) {
+            return null;
+        }
+
+        // report
+        queryPlanReport(indexName, table, annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+
+        // execute
+        EventTablePointRegionQuadTree index = (EventTablePointRegionQuadTree) table;
+        double x = eval(values.getPositionalExpressions().get(0).getExprEvaluator(), agentInstanceContext, "x");
+        double y = eval(values.getPositionalExpressions().get(1).getExprEvaluator(), agentInstanceContext, "y");
+        double width = eval(values.getPositionalExpressions().get(2).getExprEvaluator(), agentInstanceContext, "width");
+        double height = eval(values.getPositionalExpressions().get(3).getExprEvaluator(), agentInstanceContext, "height");
+        return new NullableObject<>(index.queryRange(x, y, width, height));
+    }
+
+    public String toQueryPlan() {
+        return this.getClass().getSimpleName();
     }
 
     private static Collection<EventBean> fafTableLookup(VirtualDWView virtualDataWindow, IndexMultiKey indexMultiKey, EventTable eventTable, Object[] keyValues, RangeIndexLookupValue[] rangeValues, Annotation[] annotations) {
@@ -216,54 +316,36 @@ public class FireAndForgetQueryExec {
         return Collections.EMPTY_LIST;
     }
 
-    private static RangeIndexLookupValue[] compileRangeLookupValues(String[] rangeIndexProps, FilterSpecParam[] parameters, AgentInstanceContext agentInstanceContext) {
-        RangeIndexLookupValue[] result = new RangeIndexLookupValue[rangeIndexProps.length];
-
-        for (int rangeIndex = 0; rangeIndex < rangeIndexProps.length; rangeIndex++) {
-            for (FilterSpecParam param : parameters) {
-                if (!(param.getLookupable().getExpression().equals(rangeIndexProps[rangeIndex]))) {
-                    continue;
-                }
-
-                if (param.getFilterOperator() == FilterOperator.EQUAL || param.getFilterOperator() == FilterOperator.IS) {
-                    result[rangeIndex] = new RangeIndexLookupValueEquals(param.getFilterValue(null, agentInstanceContext));
-                } else if (param.getFilterOperator().isRangeOperator() || param.getFilterOperator().isInvertedRangeOperator()) {
-                    QueryGraphRangeEnum opAdd = QueryGraphRangeEnum.mapFrom(param.getFilterOperator());
-                    result[rangeIndex] = new RangeIndexLookupValueRange(param.getFilterValue(null, agentInstanceContext), opAdd, true);
-                } else if (param.getFilterOperator().isComparisonOperator()) {
-
-                    RangeIndexLookupValue existing = result[rangeIndex];
-                    QueryGraphRangeEnum opAdd = QueryGraphRangeEnum.mapFrom(param.getFilterOperator());
-                    if (existing == null) {
-                        result[rangeIndex] = new RangeIndexLookupValueRange(param.getFilterValue(null, agentInstanceContext), opAdd, true);
-                    } else {
-                        if (!(existing instanceof RangeIndexLookupValueRange)) {
-                            continue;
-                        }
-                        RangeIndexLookupValueRange existingRange = (RangeIndexLookupValueRange) existing;
-                        QueryGraphRangeEnum opExist = existingRange.getOperator();
-                        QueryGraphRangeConsolidateDesc desc = QueryGraphRangeUtil.getCanConsolidate(opExist, opAdd);
-                        if (desc != null) {
-                            DoubleRange doubleRange = getDoubleRange(desc.isReverse(), existing.getValue(), param.getFilterValue(null, agentInstanceContext));
-                            result[rangeIndex] = new RangeIndexLookupValueRange(doubleRange, desc.getType(), false);
-                        }
-                    }
-                }
-            }
+    private static double eval(ExprEvaluator eval, ExprEvaluatorContext context, String name) {
+        Number number = (Number) eval.evaluate(null, true, context);
+        if (number == null) {
+            throw new EPException("Invalid null value for '" + name + "'");
         }
-        return result;
+        return number.doubleValue();
     }
 
-    private static DoubleRange getDoubleRange(boolean reverse, Object start, Object end) {
-        if (start == null || end == null) {
-            return null;
-        }
-        double startDbl = ((Number) start).doubleValue();
-        double endDbl = ((Number) end).doubleValue();
-        if (reverse) {
-            return new DoubleRange(startDbl, endDbl);
-        } else {
-            return new DoubleRange(endDbl, startDbl);
+    private static void queryPlanReportTableScan(Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
+        queryPlanReport(null, null, annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
+    }
+
+    private static void queryPlanReport(String indexNameOrNull, EventTable eventTableOrNull, Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
+        QueryPlanIndexHook hook = QueryPlanIndexHookUtil.getHook(annotations, agentInstanceContext.getStatementContext().getEngineImportService());
+        if (queryPlanLogging && (queryPlanLogDestination.isInfoEnabled() || hook != null)) {
+            String prefix = "Fire-and-forget from " + objectName + " ";
+            String indexText = indexNameOrNull != null ? "index " + indexNameOrNull + " " : "full table scan ";
+            indexText += "(snapshot only, for join see separate query plan) ";
+            if (eventTableOrNull == null) {
+                queryPlanLogDestination.info(prefix + indexText);
+            } else {
+                queryPlanLogDestination.info(prefix + indexText + eventTableOrNull.toQueryPlan());
+            }
+
+            if (hook != null) {
+                hook.fireAndForget(new QueryPlanIndexDescFAF(
+                    new IndexNameAndDescPair[]{
+                        new IndexNameAndDescPair(indexNameOrNull, eventTableOrNull != null ? eventTableOrNull.getProviderClass().getSimpleName() : null)
+                    }));
+            }
         }
     }
 }

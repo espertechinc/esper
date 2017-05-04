@@ -12,7 +12,6 @@ package com.espertech.esper.core.context.subselect;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoad;
 import com.espertech.esper.core.context.factory.StatementAgentInstancePostLoadIndexVisitor;
@@ -32,6 +31,7 @@ import com.espertech.esper.epl.expression.prev.ExprPreviousEvalStrategy;
 import com.espertech.esper.epl.expression.prev.ExprPreviousNode;
 import com.espertech.esper.epl.expression.prior.ExprPriorEvalStrategy;
 import com.espertech.esper.epl.expression.prior.ExprPriorNode;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.join.table.EventTableFactory;
 import com.espertech.esper.epl.join.table.EventTableFactoryTableIdentAgentInstanceSubq;
@@ -43,8 +43,6 @@ import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
 import com.espertech.esper.epl.named.NamedWindowTailViewInstance;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.subquery.*;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.util.StopCallback;
 import com.espertech.esper.view.View;
 import com.espertech.esper.view.ViewFactory;
@@ -224,20 +222,11 @@ public class SubSelectStrategyFactoryLocalViewPreloaded implements SubSelectStra
             // preload view for stream
             Collection<EventBean> eventsInWindow;
             if (namedSpec.getFilterExpressions() != null && !namedSpec.getFilterExpressions().isEmpty()) {
-
-                try {
-                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
-                    LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
-                    FilterSpecCompiled filterSpecCompiled = FilterSpecCompiler.makeFilterSpec(types.getEventTypes()[0], types.getStreamNames()[0],
-                            namedSpec.getFilterExpressions(), null, tagged, tagged, types, null, agentInstanceContext.getStatementContext(), Collections.singleton(0));
-                    Collection<EventBean> snapshot = consumerView.snapshotNoLock(filterSpecCompiled, agentInstanceContext.getStatementContext().getAnnotations());
-                    eventsInWindow = new ArrayList<EventBean>(snapshot.size());
-                    ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
-                } catch (Exception ex) {
-                    log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
-                    eventsInWindow = new ArrayList<EventBean>();
-                    ExprNodeUtility.applyFilterExpressionsIterable(consumerView, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
-                }
+                StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), consumerView.getEventType().getName(), false, services.getEngineURI());
+                QueryGraph queryGraph = ExprNodeUtility.validateFilterGetQueryGraphSafe(ExprNodeUtility.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions()), agentInstanceContext.getStatementContext(), types);
+                Collection<EventBean> snapshot = consumerView.snapshotNoLock(queryGraph, agentInstanceContext.getStatementContext().getAnnotations());
+                eventsInWindow = new ArrayList<EventBean>(snapshot.size());
+                ExprNodeUtility.applyFilterExpressionsIterable(snapshot, namedSpec.getFilterExpressions(), agentInstanceContext, eventsInWindow);
             } else {
                 eventsInWindow = new ArrayList<EventBean>();
                 for (Iterator<EventBean> it = consumerView.iterator(); it.hasNext(); ) {

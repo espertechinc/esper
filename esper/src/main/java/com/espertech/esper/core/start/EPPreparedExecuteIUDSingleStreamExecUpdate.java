@@ -14,14 +14,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.table.upd.TableUpdateStrategy;
 import com.espertech.esper.epl.updatehelper.EventBeanUpdateHelper;
-import com.espertech.esper.filter.FilterSpecCompiled;
 
 import java.lang.annotation.Annotation;
 
 public class EPPreparedExecuteIUDSingleStreamExecUpdate implements EPPreparedExecuteIUDSingleStreamExec {
-    private final FilterSpecCompiled filter;
+    private final QueryGraph queryGraph;
     private final ExprNode optionalWhereClause;
     private final Annotation[] annotations;
     private final EventBeanUpdateHelper updateHelper;
@@ -29,8 +29,8 @@ public class EPPreparedExecuteIUDSingleStreamExecUpdate implements EPPreparedExe
     private final ExprTableAccessNode[] optionalTableNodes;
     private final EPServicesContext services;
 
-    public EPPreparedExecuteIUDSingleStreamExecUpdate(FilterSpecCompiled filter, ExprNode optionalWhereClause, Annotation[] annotations, EventBeanUpdateHelper updateHelper, TableUpdateStrategy tableUpdateStrategy, ExprTableAccessNode[] optionalTableNodes, EPServicesContext services) {
-        this.filter = filter;
+    public EPPreparedExecuteIUDSingleStreamExecUpdate(QueryGraph queryGraph, ExprNode optionalWhereClause, Annotation[] annotations, EventBeanUpdateHelper updateHelper, TableUpdateStrategy tableUpdateStrategy, ExprTableAccessNode[] optionalTableNodes, EPServicesContext services) {
+        this.queryGraph = queryGraph;
         this.optionalWhereClause = optionalWhereClause;
         this.annotations = annotations;
         this.updateHelper = updateHelper;
@@ -41,10 +41,6 @@ public class EPPreparedExecuteIUDSingleStreamExecUpdate implements EPPreparedExe
 
     public EventBean[] execute(FireAndForgetInstance fireAndForgetProcessorInstance) {
         return fireAndForgetProcessorInstance.processUpdate(this);
-    }
-
-    public FilterSpecCompiled getFilter() {
-        return filter;
     }
 
     public ExprNode getOptionalWhereClause() {
@@ -69,5 +65,9 @@ public class EPPreparedExecuteIUDSingleStreamExecUpdate implements EPPreparedExe
 
     public EPServicesContext getServices() {
         return services;
+    }
+
+    public QueryGraph getQueryGraph() {
+        return queryGraph;
     }
 }

@@ -96,7 +96,7 @@ public class EventTablePointRegionQuadTreeImpl implements EventTablePointRegionQ
     }
 
     public String toQueryPlan() {
-        return this.getClass().toString();
+        return this.getClass().getName();
     }
 
     public Class getProviderClass() {

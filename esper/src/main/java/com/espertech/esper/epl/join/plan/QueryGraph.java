@@ -28,6 +28,8 @@ import java.util.*;
  * specified as equal in a filter expression.
  */
 public class QueryGraph {
+    public final static int SELF_STREAM = Integer.MIN_VALUE;
+
     private final int numStreams;
     private final ExcludePlanHint optionalHint;
     private final boolean nToZeroAnalysis; // for subqueries and on-action
@@ -249,13 +251,12 @@ public class QueryGraph {
     public void addRangeStrict(int streamNumStart, ExprIdentNode propertyStartExpr,
                                int streamNumEnd, ExprIdentNode propertyEndExpr,
                                int streamNumValue, ExprIdentNode propertyValueExpr,
-                               boolean includeStart, boolean includeEnd, boolean isInverted) {
+                               QueryGraphRangeEnum rangeOp) {
         check(streamNumStart, streamNumValue);
         check(streamNumEnd, streamNumValue);
 
         // add as a range if the endpoints are from the same stream
         if (streamNumStart == streamNumEnd && streamNumStart != streamNumValue) {
-            QueryGraphRangeEnum rangeOp = QueryGraphRangeEnum.getRangeOp(includeStart, includeEnd, isInverted);
             internalAddRange(streamNumStart, streamNumValue, rangeOp, propertyStartExpr, propertyEndExpr, propertyValueExpr);
 
             internalAddRelOp(streamNumValue, streamNumStart, propertyValueExpr, QueryGraphRangeEnum.GREATER_OR_EQUAL, propertyEndExpr, false);
@@ -291,10 +292,14 @@ public class QueryGraph {
             throw new IllegalArgumentException("Invalid indexed stream " + indexedStream);
         }
 
-        for (int i = 0; i < numStreams; i++) {
-            if (i != indexedStream) {
-                internalAddEqualsUnkeyed(i, indexedStream, indexedProp, exprNodeNoIdent);
+        if (numStreams > 1) {
+            for (int i = 0; i < numStreams; i++) {
+                if (i != indexedStream) {
+                    internalAddEqualsUnkeyed(i, indexedStream, indexedProp, exprNodeNoIdent);
+                }
             }
+        } else {
+            internalAddEqualsUnkeyed(SELF_STREAM, indexedStream, indexedProp, exprNodeNoIdent);
         }
     }
 
@@ -307,21 +312,34 @@ public class QueryGraph {
         if (indexedStream < 0 || indexedStream >= numStreams) {
             throw new IllegalArgumentException("Invalid indexed stream " + indexedStream);
         }
-        if (keyStream < 0 || keyStream >= numStreams) {
+        if (keyStream >= numStreams) {
             throw new IllegalArgumentException("Invalid key stream " + keyStream);
+        }
+        if (numStreams > 1) {
+            if (keyStream < 0) {
+                throw new IllegalArgumentException("Invalid key stream " + keyStream);
+            }
+        } else {
+            if (keyStream != SELF_STREAM) {
+                throw new IllegalArgumentException("Invalid key stream " + keyStream);
+            }
         }
         if (keyStream == indexedStream) {
             throw new IllegalArgumentException("Invalid key stream equals indexed stream " + keyStream);
         }
     }
 
-    public void addRangeExpr(int indexedStream, ExprIdentNode indexedProp, ExprNode startNode, Integer optionalStartStreamNum, ExprNode endNode, Integer optionalEndStreamNum) {
+    public void addRangeExpr(int indexedStream, ExprIdentNode indexedProp, ExprNode startNode, Integer optionalStartStreamNum, ExprNode endNode, Integer optionalEndStreamNum, QueryGraphRangeEnum rangeOp) {
         if (optionalStartStreamNum == null && optionalEndStreamNum == null) {
-            for (int i = 0; i < numStreams; i++) {
-                if (i == indexedStream) {
-                    continue;
+            if (numStreams > 1) {
+                for (int i = 0; i < numStreams; i++) {
+                    if (i == indexedStream) {
+                        continue;
+                    }
+                    internalAddRange(i, indexedStream, rangeOp, startNode, endNode, indexedProp);
                 }
-                internalAddRange(i, indexedStream, QueryGraphRangeEnum.RANGE_CLOSED, startNode, endNode, indexedProp);
+            } else {
+                internalAddRange(SELF_STREAM, indexedStream, rangeOp, startNode, endNode, indexedProp);
             }
             return;
         }
@@ -331,20 +349,24 @@ public class QueryGraph {
 
         // add for a specific stream only
         if (optionalStartStreamNum.equals(optionalEndStreamNum) || optionalEndStreamNum.equals(-1)) {
-            internalAddRange(optionalStartStreamNum, indexedStream, QueryGraphRangeEnum.RANGE_CLOSED, startNode, endNode, indexedProp);
+            internalAddRange(optionalStartStreamNum, indexedStream, rangeOp, startNode, endNode, indexedProp);
         }
         if (optionalStartStreamNum.equals(-1)) {
-            internalAddRange(optionalEndStreamNum, indexedStream, QueryGraphRangeEnum.RANGE_CLOSED, startNode, endNode, indexedProp);
+            internalAddRange(optionalEndStreamNum, indexedStream, rangeOp, startNode, endNode, indexedProp);
         }
     }
 
     public void addRelationalOp(int indexedStream, ExprIdentNode indexedProp, Integer keyStreamNum, ExprNode exprNodeNoIdent, RelationalOpEnum relationalOpEnum) {
         if (keyStreamNum == null) {
-            for (int i = 0; i < numStreams; i++) {
-                if (i == indexedStream) {
-                    continue;
+            if (numStreams > 1) {
+                for (int i = 0; i < numStreams; i++) {
+                    if (i == indexedStream) {
+                        continue;
+                    }
+                    internalAddRelOp(i, indexedStream, exprNodeNoIdent, QueryGraphRangeEnum.mapFrom(relationalOpEnum), indexedProp, false);
                 }
-                internalAddRelOp(i, indexedStream, exprNodeNoIdent, QueryGraphRangeEnum.mapFrom(relationalOpEnum), indexedProp, false);
+            } else {
+                internalAddRelOp(SELF_STREAM, indexedStream, exprNodeNoIdent, QueryGraphRangeEnum.mapFrom(relationalOpEnum), indexedProp, false);
             }
             return;
         }
@@ -359,10 +381,14 @@ public class QueryGraph {
     }
 
     public void addInSetSingleIndexUnkeyed(int testStreamNum, ExprNode testPropExpr, ExprNode[] setPropExpr) {
-        for (int i = 0; i < numStreams; i++) {
-            if (i != testStreamNum) {
-                internalAddInKeywordSingleIndex(i, testStreamNum, testPropExpr, setPropExpr);
+        if (numStreams > 1) {
+            for (int i = 0; i < numStreams; i++) {
+                if (i != testStreamNum) {
+                    internalAddInKeywordSingleIndex(i, testStreamNum, testPropExpr, setPropExpr);
+                }
             }
+        } else {
+            internalAddInKeywordSingleIndex(SELF_STREAM, testStreamNum, testPropExpr, setPropExpr);
         }
     }
 
@@ -383,8 +409,13 @@ public class QueryGraph {
         int expressionPosition = 0;
         for (Pair<ExprNode, int[]> pair : streamKeys) {
             if (pair.getSecond().length == 0) {
-                for (int i = 0; i < numStreams; i++) {
-                    QueryGraphValue value = getCreateValue(i, streamValue);
+                if (numStreams > 1) {
+                    for (int i = 0; i < numStreams; i++) {
+                        QueryGraphValue value = getCreateValue(i, streamValue);
+                        value.addCustom(indexExpressions, operationName, expressionPosition, pair.getFirst());
+                    }
+                } else {
+                    QueryGraphValue value = getCreateValue(SELF_STREAM, streamValue);
                     value.addCustom(indexExpressions, operationName, expressionPosition, pair.getFirst());
                 }
             } else {

@@ -16,9 +16,9 @@ import com.espertech.esper.core.service.ExprEvaluatorContextStatement;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.*;
 import com.espertech.esper.epl.expression.core.*;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.named.NamedWindowOnMergeHelper;
 import com.espertech.esper.epl.spec.*;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.util.UuidGenerator;
 
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class EPPreparedExecuteIUDInsertInto extends EPPreparedExecuteIUDSingleSt
         super(associatedFromClause(statementSpec), services, statementContext);
     }
 
-    public EPPreparedExecuteIUDSingleStreamExec getExecutor(FilterSpecCompiled filter, String aliasName) throws ExprValidationException {
+    public EPPreparedExecuteIUDSingleStreamExec getExecutor(QueryGraph queryGraph, String aliasName) throws ExprValidationException {
 
         List<SelectClauseElementCompiled> selectNoWildcard = NamedWindowOnMergeHelper.compileSelectNoWildcard(UuidGenerator.generate(), Arrays.asList(statementSpec.getSelectClauseSpec().getSelectExprList()));
 

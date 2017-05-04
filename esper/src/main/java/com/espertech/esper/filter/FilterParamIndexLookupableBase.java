@@ -64,7 +64,6 @@ public abstract class FilterParamIndexLookupableBase extends FilterParamIndexBas
      * for multi-threaded writes, the getReadWriteLock() method must supply a lock for this purpose.
      *
      * @param filterConstant is the value supplied in the filter paremeter
-     * @return true if found and removed, false if not found
      */
     public abstract void remove(Object filterConstant);
 

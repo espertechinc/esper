@@ -30,7 +30,7 @@ public abstract class TableStateInstance {
     protected final TableMetadata tableMetadata;
     protected final AgentInstanceContext agentInstanceContext;
     private final ReentrantReadWriteLock tableLevelRWLock = new ReentrantReadWriteLock();
-    protected final EventTableIndexRepository indexRepository = new EventTableIndexRepository();
+    protected final EventTableIndexRepository indexRepository;
 
     public abstract Iterable<EventBean> getIterableTableScan();
 
@@ -72,6 +72,7 @@ public abstract class TableStateInstance {
     protected TableStateInstance(TableMetadata tableMetadata, AgentInstanceContext agentInstanceContext) {
         this.tableMetadata = tableMetadata;
         this.agentInstanceContext = agentInstanceContext;
+        this.indexRepository = new EventTableIndexRepository(tableMetadata.getEventTableIndexMetadataRepo());
     }
 
     public TableMetadata getTableMetadata() {

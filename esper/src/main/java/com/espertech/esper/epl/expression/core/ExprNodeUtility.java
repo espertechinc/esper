@@ -38,6 +38,9 @@ import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.expression.time.ExprTimePeriod;
 import com.espertech.esper.epl.expression.visitor.*;
+import com.espertech.esper.epl.join.hint.ExcludePlanHint;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzer;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.ExpressionScriptProvided;
 import com.espertech.esper.epl.spec.OnTriggerSetAssignment;
 import com.espertech.esper.epl.table.mgmt.TableMetadata;
@@ -282,6 +285,16 @@ public class ExprNodeUtility {
             andNode.addChildNode(node);
         }
         return andNode;
+    }
+
+    public static ExprNode connectExpressionsByLogicalAndWhenNeeded(Collection<ExprNode> nodes) {
+        if (nodes.isEmpty()) {
+            return null;
+        }
+        if (nodes.size() == 1) {
+            return nodes.iterator().next();
+        }
+        return connectExpressionsByLogicalAnd(nodes);
     }
 
     /**
@@ -1055,6 +1068,30 @@ public class ExprNodeUtility {
         return target;
     }
 
+    public static QueryGraph validateFilterGetQueryGraphSafe(ExprNode filterExpression, StatementContext statementContext, StreamTypeServiceImpl typeService) {
+        ExcludePlanHint excludePlanHint = null;
+        try {
+            excludePlanHint = ExcludePlanHint.getHint(typeService.getStreamNames(), statementContext);
+        } catch (ExprValidationException ex) {
+            log.warn("Failed to consider exclude-plan hint: " + ex.getMessage(), ex);
+        }
+
+        QueryGraph queryGraph = new QueryGraph(1, excludePlanHint, false);
+        validateFilterWQueryGraphSafe(queryGraph, filterExpression, statementContext, typeService);
+        return queryGraph;
+    }
+
+    public static void validateFilterWQueryGraphSafe(QueryGraph queryGraph, ExprNode filterExpression, StatementContext statementContext, StreamTypeServiceImpl typeService) {
+        try {
+            ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
+            ExprValidationContext validationContext = new ExprValidationContext(typeService, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
+            ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, filterExpression, validationContext);
+            FilterExprAnalyzer.analyze(validated, queryGraph, false);
+        } catch (Exception ex) {
+            log.warn("Unexpected exception analyzing filterable expression '" + toExpressionStringMinPrecedenceSafe(filterExpression) + "': " + ex.getMessage(), ex);
+        }
+    }
+
     /**
      * Encapsulates the parse result parsing a mapped property as a class and method name with args.
      */
@@ -1337,8 +1374,8 @@ public class ExprNodeUtility {
      * Recursive call since it uses this method to compare child nodes in the same exact sequence.
      * Nodes are compared using the equalsNode method.
      *
-     * @param nodeOne - first expression top node of the tree to compare
-     * @param nodeTwo - second expression top node of the tree to compare
+     * @param nodeOne            - first expression top node of the tree to compare
+     * @param nodeTwo            - second expression top node of the tree to compare
      * @param ignoreStreamPrefix when the equals-comparison can ignore prefix of event properties
      * @return false if this or all child nodes are not equal, true if equal
      */
@@ -1364,8 +1401,8 @@ public class ExprNodeUtility {
      * Compares two expression nodes via deep comparison, considering all
      * child nodes of either side.
      *
-     * @param one array of expressions
-     * @param two array of expressions
+     * @param one                array of expressions
+     * @param two                array of expressions
      * @param ignoreStreamPrefix indicator whether we ignore stream prefixes and instead use resolved property name
      * @return true if the expressions are equal, false if not
      */

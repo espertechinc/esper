@@ -13,8 +13,8 @@ package com.espertech.esper.core.start;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
-import com.espertech.esper.filter.FilterSpecCompiled;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -24,7 +24,7 @@ public class EPPreparedExecuteIUDSingleStreamDelete extends EPPreparedExecuteIUD
         super(statementSpec, services, statementContext);
     }
 
-    public EPPreparedExecuteIUDSingleStreamExec getExecutor(FilterSpecCompiled filter, String aliasName) {
-        return new EPPreparedExecuteIUDSingleStreamExecDelete(filter, statementSpec.getFilterRootNode(), statementSpec.getAnnotations(), statementSpec.getTableNodes(), services);
+    public EPPreparedExecuteIUDSingleStreamExec getExecutor(QueryGraph queryGraph, String aliasName) {
+        return new EPPreparedExecuteIUDSingleStreamExecDelete(queryGraph, statementSpec.getFilterRootNode(), statementSpec.getAnnotations(), statementSpec.getTableNodes(), services);
     }
 }

@@ -141,14 +141,14 @@ public class VirtualDWViewImpl extends ViewSupport implements VirtualDWView {
         List<IndexedPropDesc> hashIndexedFields = new ArrayList<IndexedPropDesc>();
         for (String hashprop : keysAvailable) {
             hashFields.add(new VirtualDataWindowLookupFieldDesc(hashprop, VirtualDataWindowLookupOp.EQUALS, null));
-            hashIndexedFields.add(new IndexedPropDesc(hashprop, null));
+            hashIndexedFields.add(new IndexedPropDesc(hashprop, eventType.getPropertyType(hashprop)));
         }
 
         List<VirtualDataWindowLookupFieldDesc> btreeFields = new ArrayList<VirtualDataWindowLookupFieldDesc>();
         List<IndexedPropDesc> btreeIndexedFields = new ArrayList<IndexedPropDesc>();
         for (String btreeprop : rangesAvailable) {
             btreeFields.add(new VirtualDataWindowLookupFieldDesc(btreeprop, null, null));
-            btreeIndexedFields.add(new IndexedPropDesc(btreeprop, null));
+            btreeIndexedFields.add(new IndexedPropDesc(btreeprop, eventType.getPropertyType(btreeprop)));
         }
 
         VirtualDWEventTable noopTable = new VirtualDWEventTable(false, hashFields, btreeFields, TABLE_ORGANIZATION);

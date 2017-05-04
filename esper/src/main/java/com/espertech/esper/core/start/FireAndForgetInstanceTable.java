@@ -16,11 +16,11 @@ import com.espertech.esper.epl.agg.service.AggregationRowPair;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.fafquery.FireAndForgetQueryExec;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.table.mgmt.TableServiceImpl;
 import com.espertech.esper.epl.table.mgmt.TableStateInstance;
 import com.espertech.esper.epl.table.strategy.ExprTableEvalLockUtil;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.util.CollectionUtil;
 import com.espertech.esper.view.Viewable;
 
@@ -54,7 +54,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
             return CollectionUtil.EVENTBEANARRAY_EMPTY;
         }
 
-        Collection<EventBean> found = snapshotAndApplyFilter(delete.getFilter(), delete.getAnnotations(), delete.getOptionalWhereClause(), instance.getAgentInstanceContext());
+        Collection<EventBean> found = snapshotAndApplyFilter(delete.getQueryGraph(), delete.getAnnotations(), delete.getOptionalWhereClause(), instance.getAgentInstanceContext());
         for (EventBean event : found) {
             instance.deleteEvent(event);
         }
@@ -63,7 +63,7 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
 
     public EventBean[] processUpdate(EPPreparedExecuteIUDSingleStreamExecUpdate update) {
         ExprTableEvalLockUtil.obtainLockUnless(instance.getTableLevelRWLock().writeLock(), update.getServices().getTableService().getTableExprEvaluatorContext());
-        Collection<EventBean> events = snapshotAndApplyFilter(update.getFilter(), update.getAnnotations(), update.getOptionalWhereClause(), instance.getAgentInstanceContext());
+        Collection<EventBean> events = snapshotAndApplyFilter(update.getQueryGraph(), update.getAnnotations(), update.getOptionalWhereClause(), instance.getAgentInstanceContext());
 
         if (events != null && events.isEmpty()) {
             return CollectionUtil.EVENTBEANARRAY_EMPTY;
@@ -78,17 +78,17 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
         return CollectionUtil.EVENTBEANARRAY_EMPTY;
     }
 
-    public Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery query, FilterSpecCompiled filter, Annotation[] annotations) {
+    public Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery query, QueryGraph queryGraph, Annotation[] annotations) {
         ExprTableEvalLockUtil.obtainLockUnless(instance.getTableLevelRWLock().readLock(), query.getAgentInstanceContext());
-        Collection<EventBean> events = snapshotNullWhenNoIndex(filter, annotations, null, null);
+        Collection<EventBean> events = snapshotNullWhenNoIndex(queryGraph, annotations, null, null);
         if (events != null) {
             return events;
         }
         return instance.getEventCollection();
     }
 
-    private Collection<EventBean> snapshotAndApplyFilter(FilterSpecCompiled filter, Annotation[] annotations, ExprNode filterExpr, AgentInstanceContext agentInstanceContext) {
-        Collection<EventBean> indexedResult = snapshotNullWhenNoIndex(filter, annotations, null, null);
+    private Collection<EventBean> snapshotAndApplyFilter(QueryGraph queryGraph, Annotation[] annotations, ExprNode filterExpr, AgentInstanceContext agentInstanceContext) {
+        Collection<EventBean> indexedResult = snapshotNullWhenNoIndex(queryGraph, annotations, null, null);
         if (indexedResult != null) {
             if (indexedResult.isEmpty() || filterExpr == null) {
                 return indexedResult;
@@ -119,9 +119,9 @@ public class FireAndForgetInstanceTable extends FireAndForgetInstance {
      * Returns null when a filter cannot be applied, and a collection iterator must be used instead.
      * Returns best-effort matching events otherwise which should still be run through any filter expressions.
      */
-    private Collection<EventBean> snapshotNullWhenNoIndex(FilterSpecCompiled filter, Annotation[] annotations, ExprNode optionalWhereClause, AgentInstanceContext agentInstanceContext) {
+    private Collection<EventBean> snapshotNullWhenNoIndex(QueryGraph queryGraph, Annotation[] annotations, ExprNode optionalWhereClause, AgentInstanceContext agentInstanceContext) {
         // return null when filter cannot be applies
-        return FireAndForgetQueryExec.snapshot(filter, annotations, null,
+        return FireAndForgetQueryExec.snapshot(queryGraph, annotations, null,
                 instance.getIndexRepository(), instance.getTableMetadata().isQueryPlanLogging(),
                 TableServiceImpl.getQueryPlanLog(), instance.getTableMetadata().getTableName(),
                 instance.getAgentInstanceContext());

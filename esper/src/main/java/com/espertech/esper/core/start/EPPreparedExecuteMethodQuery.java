@@ -14,20 +14,17 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.context.ContextPartitionSelector;
 import com.espertech.esper.collection.MultiKey;
-import com.espertech.esper.collection.Pair;
 import com.espertech.esper.collection.UniformPair;
 import com.espertech.esper.core.context.mgr.ContextPropertyRegistryImpl;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
-import com.espertech.esper.core.service.EPPreparedQueryResult;
-import com.espertech.esper.core.service.EPServicesContext;
-import com.espertech.esper.core.service.StatementContext;
-import com.espertech.esper.core.service.StreamJoinAnalysisResult;
+import com.espertech.esper.core.service.*;
 import com.espertech.esper.epl.core.*;
-import com.espertech.esper.epl.expression.core.ExprNode;
-import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.join.base.*;
+import com.espertech.esper.epl.join.hint.ExcludePlanHint;
+import com.espertech.esper.epl.join.plan.FilterExprAnalyzer;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.NamedWindowConsumerStreamSpec;
 import com.espertech.esper.epl.spec.StatementSpecCompiled;
 import com.espertech.esper.epl.spec.StreamSpecCompiled;
@@ -38,8 +35,6 @@ import com.espertech.esper.event.EventBeanReader;
 import com.espertech.esper.event.EventBeanReaderDefaultImpl;
 import com.espertech.esper.event.EventBeanUtility;
 import com.espertech.esper.event.EventTypeSPI;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.view.Viewable;
 import org.slf4j.Logger;
@@ -61,7 +56,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
     private final EPServicesContext services;
     private EventBeanReader eventBeanReader;
     private JoinSetComposerPrototype joinSetComposerPrototype;
-    private final FilterSpecCompiled[] filters;
+    private final QueryGraph queryGraph;
     private boolean hasTableAccess;
 
     /**
@@ -112,16 +107,16 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
         }
 
         // compile filter to optimize access to named window
-        filters = new FilterSpecCompiled[numStreams];
+        StreamTypeServiceImpl types = new StreamTypeServiceImpl(typesPerStream, namesPerStream, new boolean[numStreams], services.getEngineURI(), false);
+        ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(types.getStreamNames(), statementContext);
+        queryGraph = new QueryGraph(numStreams, excludePlanHint, false);
         if (statementSpec.getFilterRootNode() != null) {
-            LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
             for (int i = 0; i < numStreams; i++) {
                 try {
-                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(typesPerStream, namesPerStream, new boolean[numStreams], services.getEngineURI(), false);
-                    filters[i] = FilterSpecCompiler.makeFilterSpec(typesPerStream[i], namesPerStream[i],
-                            Collections.singletonList(statementSpec.getFilterRootNode()), null,
-                            tagged, tagged, types,
-                            null, statementContext, Collections.singleton(i));
+                    ExprEvaluatorContextStatement evaluatorContextStmt = new ExprEvaluatorContextStatement(statementContext, false);
+                    ExprValidationContext validationContext = new ExprValidationContext(types, statementContext.getEngineImportService(), statementContext.getStatementExtensionServicesContext(), null, statementContext.getTimeProvider(), statementContext.getVariableService(), statementContext.getTableService(), evaluatorContextStmt, statementContext.getEventAdapterService(), statementContext.getStatementName(), statementContext.getStatementId(), statementContext.getAnnotations(), statementContext.getContextDescriptor(), false, false, true, false, null, true);
+                    ExprNode validated = ExprNodeUtility.getValidatedSubtree(ExprNodeOrigin.FILTER, statementSpec.getFilterRootNode(), validationContext);
+                    FilterExprAnalyzer.analyze(validated, queryGraph, false);
                 } catch (Exception ex) {
                     log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
                 }
@@ -224,7 +219,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
                 FireAndForgetInstance processorInstance = processors[0].getProcessorInstanceContextById(agentInstanceId);
                 if (processorInstance != null) {
                     EPPreparedExecuteTableHelper.assignTableAccessStrategies(services, statementSpec.getTableNodes(), processorInstance.getAgentInstanceContext());
-                    Collection<EventBean> coll = processorInstance.snapshotBestEffort(this, filters[0], statementSpec.getAnnotations());
+                    Collection<EventBean> coll = processorInstance.snapshotBestEffort(this, queryGraph, statementSpec.getAnnotations());
                     contextPartitionResults.add(new ContextPartitionResult(coll, processorInstance.getAgentInstanceContext()));
                 }
             }
@@ -279,7 +274,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
         for (int agentInstanceId : contextPartitions) {
             processorInstance = fireAndForgetProcessor.getProcessorInstanceContextById(agentInstanceId);
             if (processorInstance != null) {
-                Collection<EventBean> coll = processorInstance.snapshotBestEffort(this, filters[streamNum], statementSpec.getAnnotations());
+                Collection<EventBean> coll = processorInstance.snapshotBestEffort(this, queryGraph, statementSpec.getAnnotations());
                 events.addAll(coll);
             }
         }
@@ -287,7 +282,7 @@ public class EPPreparedExecuteMethodQuery implements EPPreparedExecuteMethod {
     }
 
     private Collection<EventBean> getStreamSnapshotInstance(int streamNum, List<ExprNode> filterExpressions, FireAndForgetInstance processorInstance) {
-        Collection<EventBean> coll = processorInstance.snapshotBestEffort(this, filters[streamNum], statementSpec.getAnnotations());
+        Collection<EventBean> coll = processorInstance.snapshotBestEffort(this, queryGraph, statementSpec.getAnnotations());
         if (filterExpressions.size() != 0) {
             coll = getFiltered(coll, filterExpressions);
         }

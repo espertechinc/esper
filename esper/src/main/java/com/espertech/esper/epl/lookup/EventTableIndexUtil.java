@@ -269,6 +269,9 @@ public class EventTableIndexUtil {
     private static Map<IndexMultiKey, ? extends EventTableIndexEntryBase> findCandidates(Map<IndexMultiKey, ? extends EventTableIndexEntryBase> indexes, List<IndexedPropDesc> hashProps, List<IndexedPropDesc> btreeProps) {
         Map<IndexMultiKey, EventTableIndexEntryBase> indexCandidates = new HashMap<IndexMultiKey, EventTableIndexEntryBase>();
         for (Map.Entry<IndexMultiKey, ? extends EventTableIndexEntryBase> entry : indexes.entrySet()) {
+            if (entry.getKey().getAdvancedIndexDesc() != null) {
+                continue;
+            }
             boolean matches = indexMatchesProvided(entry.getKey(), hashProps, btreeProps);
             if (matches) {
                 indexCandidates.put(entry.getKey(), entry.getValue());

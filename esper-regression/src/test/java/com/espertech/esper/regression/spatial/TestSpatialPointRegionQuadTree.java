@@ -29,10 +29,7 @@ import junit.framework.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class TestSpatialPointRegionQuadTree extends TestCase {
     private static final Logger log = LoggerFactory.getLogger(TestSpatialPointRegionQuadTree.class);
@@ -88,9 +85,8 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
     public void testEventIndex() throws Exception {
         runAssertionUnindexed();
 
-        runAssertionIndexUnusedTableFireAndForget();
-        runAssertionIndexUnusedNamedWindowFireAndForget();
         runAssertionIndexUnusedOnTrigger();
+        runAssertionIndexUnusedNamedWindowFireAndForget();
 
         runAssertionIndexedOnTriggerNWInsertRemove(false);
         runAssertionIndexedOnTriggerNWInsertRemove(true);
@@ -103,6 +99,47 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         runAssertionIndexedPerformance();
         runAssertionIndexedChoiceBetweenIndexTypes();
         runAssertionDocSample();
+        runAssertionIndexedTableFireAndForget();
+        runAssertionIndexedNWFireAndForgetPerformance();
+    }
+
+    private void runAssertionIndexedNWFireAndForgetPerformance() throws Exception {
+        String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
+                "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
+                "create index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n";
+        String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
+
+        Random random = new Random();
+        List<SupportSpatialPoint> points = new ArrayList<>();
+        for (int i = 0; i < 10000; i++) {
+            double px = random.nextDouble() * 100;
+            double py = random.nextDouble() * 100;
+            SupportSpatialPoint point = new SupportSpatialPoint("P" + Integer.toString(i), px, py);
+            epService.getEPRuntime().sendEvent(point);
+            points.add(point);
+            // Comment-me-in: log.info("Point P" + i + " " + px + " " + py);
+        }
+
+        EPOnDemandPreparedQueryParameterized prepared = epService.getEPRuntime().prepareQueryWithParameters("select * from MyPointWindow where point(px,py).inside(rectangle(?,?,?,?))");
+        long start = System.currentTimeMillis();
+        String[] fields = "id".split(",");
+        for (int i = 0; i < 500; i++) {
+            double x = random.nextDouble() * 100;
+            double y = random.nextDouble() * 100;
+            // Comment-me-in: log.info("Query " + x + " " + y + " " + width + " " + height);
+
+            prepared.setObject(1, x);
+            prepared.setObject(2, y);
+            prepared.setObject(3, 5);
+            prepared.setObject(4, 5);
+            EventBean[] events = epService.getEPRuntime().executeQuery(prepared).getArray();
+            Object[][] expected = getExpected(points, x, y, 5, 5);
+            EPAssertionUtil.assertPropsPerRowAnyOrder(events, fields, expected);
+        }
+        long delta = System.currentTimeMillis() - start;
+        assertTrue("delta=" + delta, delta < 1000);
+
+        epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
     private void runAssertionFilterIndexTypeAssertion() {
@@ -237,14 +274,15 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeployRemove(deploymentId);
     }
 
-    private void runAssertionIndexUnusedTableFireAndForget() {
+    private void runAssertionIndexedTableFireAndForget() {
         epService.getEPAdministrator().createEPL("create table MyTable(id string primary key, tx double, ty double)");
-        epService.getEPRuntime().executeQuery("insert into MyTable values ('P1', 50, 50)");
-        epService.getEPRuntime().executeQuery("insert into MyTable values ('P2', 49, 49)");
+        epService.getEPAdministrator().createEPL("insert into MyTable select id, px as tx, py as ty from SupportSpatialPoint");
+        epService.getEPRuntime().sendEvent(new SupportSpatialPoint("P1", 50d, 50d));
+        epService.getEPRuntime().sendEvent(new SupportSpatialPoint("P2", 49d, 49d));
         epService.getEPAdministrator().createEPL("create index MyIdxWithExpr on MyTable( (tx, ty) pointregionquadtree(0, 0, 100, 100))");
 
         EPOnDemandQueryResult result = epService.getEPRuntime().executeQuery(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "select id as c0 from MyTable where point(tx, ty).inside(rectangle(45, 45, 10, 10))");
-        SupportQueryPlanIndexHook.assertFAFAndReset(null, null);
+        SupportQueryPlanIndexHook.assertFAFAndReset("MyIdxWithExpr", "EventTablePointRegionQuadTreeImpl");
         EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), "c0".split(","), new Object[][]{{"P1"}, {"P2"}});
 
         epService.getEPAdministrator().destroyAllStatements();
@@ -744,6 +782,25 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
                 epService.getEPRuntime().sendEvent(new SupportSpatialPoint("P_" + x + "_" + y, (double) x, (double) y));
             }
         }
+    }
+
+    private Object[][] getExpected(List<SupportSpatialPoint> points, double x, double y, double width, double height) {
+        Set<String> expected = new TreeSet<>();
+        BoundingBox boundingBox = new BoundingBox(x, y, x+width, y+height);
+        for (SupportSpatialPoint p : points) {
+            if (boundingBox.containsPoint(p.getPx(), p.getPy())) {
+                if (expected.contains(p.getId())) {
+                    fail();
+                }
+                expected.add(p.getId());
+            }
+        }
+        Object[][] rows = new Object[expected.size()][];
+        int index = 0;
+        for (String id : expected) {
+            rows[index++] = new Object[] {id};
+        }
+        return rows;
     }
 
     private void sendAssertSpatialAABB(int numX, int numY, long deltaMSec) {

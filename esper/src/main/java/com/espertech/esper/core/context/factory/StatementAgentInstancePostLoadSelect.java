@@ -15,8 +15,8 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.join.base.JoinSetComposerDesc;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.named.NamedWindowTailViewInstance;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.view.HistoricalEventViewable;
 import com.espertech.esper.view.Viewable;
 
@@ -30,12 +30,12 @@ public class StatementAgentInstancePostLoadSelect implements StatementAgentInsta
     private final Viewable[] streamViews;
     private final JoinSetComposerDesc joinSetComposer;
     private final NamedWindowTailViewInstance[] namedWindowTailViews;
-    private final FilterSpecCompiled[] namedWindowPostloadFilters;
+    private final QueryGraph[] namedWindowPostloadFilters;
     private final List<ExprNode>[] namedWindowFilters;
     private final Annotation[] annotations;
     private final ExprEvaluatorContext exprEvaluatorContext;
 
-    public StatementAgentInstancePostLoadSelect(Viewable[] streamViews, JoinSetComposerDesc joinSetComposer, NamedWindowTailViewInstance[] namedWindowTailViews, FilterSpecCompiled[] namedWindowPostloadFilters, List<ExprNode>[] namedWindowFilters, Annotation[] annotations, ExprEvaluatorContext exprEvaluatorContext) {
+    public StatementAgentInstancePostLoadSelect(Viewable[] streamViews, JoinSetComposerDesc joinSetComposer, NamedWindowTailViewInstance[] namedWindowTailViews, QueryGraph[] namedWindowPostloadFilters, List<ExprNode>[] namedWindowFilters, Annotation[] annotations, ExprEvaluatorContext exprEvaluatorContext) {
         this.streamViews = streamViews;
         this.joinSetComposer = joinSetComposer;
         this.namedWindowTailViews = namedWindowTailViews;

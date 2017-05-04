@@ -11,7 +11,6 @@
 package com.espertech.esper.core.context.factory;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.context.activator.ViewableActivationResult;
 import com.espertech.esper.core.context.activator.ViewableActivator;
@@ -41,6 +40,7 @@ import com.espertech.esper.epl.expression.subquery.ExprSubselectNode;
 import com.espertech.esper.epl.expression.table.ExprTableAccessEvalStrategy;
 import com.espertech.esper.epl.expression.table.ExprTableAccessNode;
 import com.espertech.esper.epl.join.base.*;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.named.NamedWindowConsumerView;
 import com.espertech.esper.epl.named.NamedWindowProcessor;
 import com.espertech.esper.epl.named.NamedWindowProcessorInstance;
@@ -51,8 +51,6 @@ import com.espertech.esper.epl.spec.StreamSpecCompiled;
 import com.espertech.esper.epl.view.FilterExprView;
 import com.espertech.esper.epl.view.OutputProcessViewBase;
 import com.espertech.esper.epl.view.OutputProcessViewFactory;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.pattern.EvalRootMatchRemover;
 import com.espertech.esper.pattern.EvalRootState;
@@ -253,7 +251,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
             // Replay any named window data, for later consumers of named data windows
             if (services.getEventTableIndexService().allowInitIndex(isRecoveringResilient)) {
                 boolean hasNamedWindow = false;
-                FilterSpecCompiled[] namedWindowPostloadFilters = new FilterSpecCompiled[statementSpec.getStreamSpecs().length];
+                QueryGraph[] namedWindowPostloadFilters = new QueryGraph[statementSpec.getStreamSpecs().length];
                 NamedWindowTailViewInstance[] namedWindowTailViews = new NamedWindowTailViewInstance[statementSpec.getStreamSpecs().length];
                 List<ExprNode>[] namedWindowFilters = new List[statementSpec.getStreamSpecs().length];
 
@@ -274,15 +272,9 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                             // determine preload/postload filter for index access
                             if (!namedSpec.getFilterExpressions().isEmpty()) {
                                 namedWindowFilters[streamNum] = namedSpec.getFilterExpressions();
-                                try {
-                                    String streamName = streamSpec.getOptionalStreamName() != null ? streamSpec.getOptionalStreamName() : consumerView.getEventType().getName();
-                                    StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), streamName, false, services.getEngineURI());
-                                    LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
-                                    namedWindowPostloadFilters[i] = FilterSpecCompiler.makeFilterSpec(types.getEventTypes()[0], types.getStreamNames()[0],
-                                            namedSpec.getFilterExpressions(), null, tagged, tagged, types, null, statementContext, Collections.singleton(0));
-                                } catch (Exception ex) {
-                                    log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
-                                }
+                                String streamName = streamSpec.getOptionalStreamName() != null ? streamSpec.getOptionalStreamName() : consumerView.getEventType().getName();
+                                StreamTypeServiceImpl types = new StreamTypeServiceImpl(consumerView.getEventType(), streamName, false, services.getEngineURI());
+                                namedWindowPostloadFilters[i] = ExprNodeUtility.validateFilterGetQueryGraphSafe(ExprNodeUtility.connectExpressionsByLogicalAndWhenNeeded(namedSpec.getFilterExpressions()), statementContext, types);
                             }
 
                             // preload view for stream unless the expiry policy is batch window
@@ -295,7 +287,7 @@ public class StatementAgentInstanceFactorySelect extends StatementAgentInstanceF
                             }
                             if (preload) {
                                 final boolean yesRecoveringResilient = isRecoveringResilient;
-                                final FilterSpecCompiled preloadFilterSpec = namedWindowPostloadFilters[i];
+                                final QueryGraph preloadFilterSpec = namedWindowPostloadFilters[i];
                                 preloadList.add(new StatementAgentInstancePreload() {
                                     public void executePreload(ExprEvaluatorContext exprEvaluatorContext) {
                                         Collection<EventBean> snapshot = consumerView.snapshot(preloadFilterSpec, statementContext.getAnnotations());

@@ -12,8 +12,8 @@ package com.espertech.esper.core.start;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.virtualdw.VirtualDWView;
-import com.espertech.esper.filter.FilterSpecCompiled;
 import com.espertech.esper.view.Viewable;
 
 import java.lang.annotation.Annotation;
@@ -26,7 +26,7 @@ public abstract class FireAndForgetInstance {
 
     public abstract EventBean[] processUpdate(EPPreparedExecuteIUDSingleStreamExecUpdate update);
 
-    public abstract Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery epPreparedExecuteMethodQuery, FilterSpecCompiled filter, Annotation[] annotations);
+    public abstract Collection<EventBean> snapshotBestEffort(EPPreparedExecuteMethodQuery epPreparedExecuteMethodQuery, QueryGraph queryGraph, Annotation[] annotations);
 
     public abstract AgentInstanceContext getAgentInstanceContext();
 

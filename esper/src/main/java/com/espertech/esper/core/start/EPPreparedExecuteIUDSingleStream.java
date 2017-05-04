@@ -14,21 +14,23 @@ import com.espertech.esper.client.EPException;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.context.ContextPartitionSelector;
-import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.service.EPPreparedQueryResult;
 import com.espertech.esper.core.service.EPServicesContext;
 import com.espertech.esper.core.service.StatementContext;
 import com.espertech.esper.epl.core.StreamTypeServiceImpl;
+import com.espertech.esper.epl.expression.core.ExprNodeUtility;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
+import com.espertech.esper.epl.join.hint.ExcludePlanHint;
+import com.espertech.esper.epl.join.plan.QueryGraph;
 import com.espertech.esper.epl.spec.*;
-import com.espertech.esper.filter.FilterSpecCompiled;
-import com.espertech.esper.filter.FilterSpecCompiler;
 import com.espertech.esper.util.AuditPath;
 import com.espertech.esper.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Starts and provides the stop method for EPL statements.
@@ -44,7 +46,7 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
     protected final StatementContext statementContext;
     protected boolean hasTableAccess;
 
-    public abstract EPPreparedExecuteIUDSingleStreamExec getExecutor(FilterSpecCompiled filter, String aliasName)
+    public abstract EPPreparedExecuteIUDSingleStreamExec getExecutor(QueryGraph queryGraph, String aliasName)
             throws ExprValidationException;
 
     /**
@@ -98,29 +100,17 @@ public abstract class EPPreparedExecuteIUDSingleStream implements EPPreparedExec
 
         // compile filter to optimize access to named window
         StreamTypeServiceImpl typeService = new StreamTypeServiceImpl(new EventType[]{eventType}, new String[]{aliasName}, new boolean[]{true}, services.getEngineURI(), true);
-        FilterSpecCompiled filter;
+        ExcludePlanHint excludePlanHint = ExcludePlanHint.getHint(typeService.getStreamNames(), statementContext);
+        QueryGraph queryGraph = new QueryGraph(1, excludePlanHint, false);
         if (statementSpec.getFilterRootNode() != null) {
-            LinkedHashMap<String, Pair<EventType, String>> tagged = new LinkedHashMap<String, Pair<EventType, String>>();
-            FilterSpecCompiled filterCompiled;
-            try {
-                filterCompiled = FilterSpecCompiler.makeFilterSpec(eventType, aliasName,
-                        Collections.singletonList(statementSpec.getFilterRootNode()), null,
-                        tagged, tagged, typeService,
-                        null, statementContext, Collections.singleton(0));
-            } catch (Exception ex) {
-                log.warn("Unexpected exception analyzing filter paths: " + ex.getMessage(), ex);
-                filterCompiled = null;
-            }
-            filter = filterCompiled;
-        } else {
-            filter = null;
+            ExprNodeUtility.validateFilterWQueryGraphSafe(queryGraph, statementSpec.getFilterRootNode(), statementContext, typeService);
         }
 
         // validate expressions
         EPStatementStartMethodHelperValidate.validateNodes(statementSpec, statementContext, typeService, null);
 
         // get executor
-        executor = getExecutor(filter, aliasName);
+        executor = getExecutor(queryGraph, aliasName);
     }
 
     /**

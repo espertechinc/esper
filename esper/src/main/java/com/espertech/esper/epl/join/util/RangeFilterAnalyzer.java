@@ -13,12 +13,16 @@ package com.espertech.esper.epl.join.util;
 import com.espertech.esper.epl.expression.core.ExprIdentNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.join.plan.QueryGraph;
+import com.espertech.esper.epl.join.plan.QueryGraphRangeEnum;
 
 public class RangeFilterAnalyzer {
 
     public static void apply(ExprNode target, ExprNode start, ExprNode end,
                              boolean includeStart, boolean includeEnd, boolean isNot,
                              QueryGraph queryGraph) {
+
+        QueryGraphRangeEnum rangeOp = QueryGraphRangeEnum.getRangeOp(includeStart, includeEnd, isNot);
+
         if (((target instanceof ExprIdentNode)) &&
                 ((start instanceof ExprIdentNode)) &&
                 ((end instanceof ExprIdentNode))) {
@@ -31,8 +35,7 @@ public class RangeFilterAnalyzer {
             int valueStream = identNodeValue.getStreamId();
             queryGraph.addRangeStrict(keyStreamStart, identNodeStart, keyStreamEnd,
                     identNodeEnd, valueStream,
-                    identNodeValue,
-                    includeStart, includeEnd, isNot);
+                    identNodeValue, rangeOp);
             return;
         }
 
@@ -50,7 +53,7 @@ public class RangeFilterAnalyzer {
                 return;
             }
 
-            queryGraph.addRangeExpr(indexedStream, identNode, start, eligibilityStart.getStreamNum(), end, eligibilityEnd.getStreamNum());
+            queryGraph.addRangeExpr(indexedStream, identNode, start, eligibilityStart.getStreamNum(), end, eligibilityEnd.getStreamNum(), rangeOp);
         }
     }
 }
