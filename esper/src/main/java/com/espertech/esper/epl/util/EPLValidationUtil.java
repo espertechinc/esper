@@ -95,4 +95,10 @@ public class EPLValidationUtil {
     public static String getInvokablePrefix(String invocableName, String invocableType, boolean isFunction) {
         return "Error validating " + invocableType + " " + (isFunction ? "function '" : "method '") + invocableName + "', ";
     }
+
+    public static void validateParametersTypePredefined(ExprNode[] expressions, String invocableName, String invocableCategory, EPLExpressionParamType type) throws ExprValidationException {
+        for (int i = 0; i < expressions.length; i++) {
+            EPLValidationUtil.validateParameterType(invocableName, invocableCategory, true, type, null, expressions[i].getExprEvaluator().getType(), i, expressions[i]);
+        }
+    }
 }

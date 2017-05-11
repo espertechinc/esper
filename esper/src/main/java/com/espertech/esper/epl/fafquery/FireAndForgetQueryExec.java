@@ -18,7 +18,7 @@ import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 import com.espertech.esper.epl.expression.core.ExprNodeUtility;
-import com.espertech.esper.epl.index.quadtree.EventTablePointRegionQuadTree;
+import com.espertech.esper.epl.index.quadtree.EventTableQuadTree;
 import com.espertech.esper.epl.index.service.EventAdvancedIndexProvisionDesc;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValue;
 import com.espertech.esper.epl.join.exec.base.RangeIndexLookupValueRange;
@@ -274,7 +274,7 @@ public class FireAndForgetQueryExec {
         queryPlanReport(indexName, table, annotations, agentInstanceContext, queryPlanLogging, queryPlanLogDestination, objectName);
 
         // execute
-        EventTablePointRegionQuadTree index = (EventTablePointRegionQuadTree) table;
+        EventTableQuadTree index = (EventTableQuadTree) table;
         double x = eval(values.getPositionalExpressions().get(0).getExprEvaluator(), agentInstanceContext, "x");
         double y = eval(values.getPositionalExpressions().get(1).getExprEvaluator(), agentInstanceContext, "y");
         double width = eval(values.getPositionalExpressions().get(2).getExprEvaluator(), agentInstanceContext, "width");

@@ -10,6 +10,9 @@
  */
 package com.espertech.esper.filter;
 
+import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodPointInsideRectange;
+import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodRectangeIntersectsRectangle;
+
 /**
  * Factory for {@link FilterParamIndexBase} instances based on event property name and filter operator type.
  */
@@ -95,7 +98,15 @@ public class IndexFactory {
 
         // Handle advanced-index
         if (filterOperator == FilterOperator.ADVANCED_INDEX) {
-            return new FilterParamIndexAdvancedIndex(lockFactory.obtainNew(), lookupable);
+            FilterSpecLookupableAdvancedIndex advLookable = (FilterSpecLookupableAdvancedIndex) lookupable;
+            if (advLookable.getIndexType().equals(EngineImportApplicationDotMethodPointInsideRectange.INDEXTYPE_NAME)) {
+                return new FilterParamIndexQuadTreePointRegion(lockFactory.obtainNew(), lookupable);
+            } else if (advLookable.getIndexType().equals(EngineImportApplicationDotMethodRectangeIntersectsRectangle.INDEXTYPE_NAME)) {
+                return new FilterParamIndexQuadTreeMXCIF(lockFactory.obtainNew(), lookupable);
+            } else {
+                throw new IllegalStateException("Unrecognized index type " + advLookable.getIndexType());
+            }
+
         }
         throw new IllegalArgumentException("Cannot create filter index instance for filter operator " + filterOperator);
     }

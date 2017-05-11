@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.espertech.esper.supportregression.util.SupportSpatialUtil.*;
+
 public class TestSpatialPointRegionQuadTree extends TestCase {
     private static final Logger log = LoggerFactory.getLogger(TestSpatialPointRegionQuadTree.class);
 
@@ -67,43 +69,44 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         listener = null;
     }
 
-    public void testFilterIndex() throws Exception {
-        runAssertionFilterPerfStatement();
-        runAssertionFilterPerfContextPartition();
-        runAssertionFilterPerfPattern();
-        runAssertionFilterUnoptimized();
-        runAssertionFilterIndexTypeAssertion();
-    }
-
     public void testInvalid() throws Exception {
         runAssertionInvalidEventIndexCreate();
         runAssertionInvalidEventIndexRuntime();
         runAssertionInvalidMethod();
         runAssertionInvalidFilterIndex();
+
+        runAssertionDocSample();
+    }
+
+    public void testFilterIndex() throws Exception {
+        runAssertionFilterIndexPerfStatement();
+        runAssertionFilterIndexPerfContextPartition();
+        runAssertionFilterIndexPerfPattern();
+        runAssertionFilterIndexUnoptimized();
+        runAssertionFilterIndexTypeAssertion();
     }
 
     public void testEventIndex() throws Exception {
-        runAssertionUnindexed();
+        runAssertionEventIndexUnindexed();
 
-        runAssertionIndexUnusedOnTrigger();
-        runAssertionIndexUnusedNamedWindowFireAndForget();
+        runAssertionEventIndexUnusedOnTrigger();
+        runAssertionEventIndexUnusedNamedWindowFireAndForget();
 
-        runAssertionIndexedOnTriggerNWInsertRemove(false);
-        runAssertionIndexedOnTriggerNWInsertRemove(true);
-        runAssertionIndexedOnTriggerContextParameterized();
-        runAssertionIndexedSubqNamedWindowIndexShare();
-        runAssertionIndexedOnTriggerTable();
-        runAssertionIndexedChoiceOfTwo();
-        runAssertionIndexedExpression();
-        runAssertionIndexedUnique();
-        runAssertionIndexedPerformance();
-        runAssertionIndexedChoiceBetweenIndexTypes();
-        runAssertionDocSample();
-        runAssertionIndexedTableFireAndForget();
-        runAssertionIndexedNWFireAndForgetPerformance();
+        runAssertionEventIndexOnTriggerNWInsertRemove(false);
+        runAssertionEventIndexOnTriggerNWInsertRemove(true);
+        runAssertionEventIndexOnTriggerContextParameterized();
+        runAssertionEventIndexSubqNamedWindowIndexShare();
+        runAssertionEventIndexOnTriggerTable();
+        runAssertionEventIndexChoiceOfTwo();
+        runAssertionEventIndexExpression();
+        runAssertionEventIndexUnique();
+        runAssertionEventIndexPerformance();
+        runAssertionEventIndexChoiceBetweenIndexTypes();
+        runAssertionEventIndexTableFireAndForget();
+        runAssertionEventIndexNWFireAndForgetPerformance();
     }
 
-    private void runAssertionIndexedNWFireAndForgetPerformance() throws Exception {
+    private void runAssertionEventIndexNWFireAndForgetPerformance() throws Exception {
         String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
                 "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "create index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n";
@@ -133,7 +136,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
             prepared.setObject(3, 5);
             prepared.setObject(4, 5);
             EventBean[] events = epService.getEPRuntime().executeQuery(prepared).getArray();
-            Object[][] expected = getExpected(points, x, y, 5, 5);
+            Object[][] expected = SupportSpatialUtil.getExpected(points, x, y, 5, 5);
             EPAssertionUtil.assertPropsPerRowAnyOrder(events, fields, expected);
         }
         long delta = System.currentTimeMillis() - start;
@@ -148,7 +151,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         String eplIndexed = "expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialAABB(point(0, 0, filterindex:myindex).inside(rectangle(x, y, width, height)))";
-        SupportFilterHelper.assertFilterMulti(epService, eplIndexed, "SupportSpatialAABB", new SupportFilterItem[][] {{new SupportFilterItem("x,y,width,height/myindex/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
+        SupportFilterHelper.assertFilterMulti(epService, eplIndexed, "SupportSpatialAABB", new SupportFilterItem[][] {{new SupportFilterItem("x,y,width,height/myindex/pointregionquadtree/0.0,0.0,100.0,100.0,4.0,20.0", FilterOperator.ADVANCED_INDEX)}});
 
         epService.getEPAdministrator().destroyAllStatements();
     }
@@ -198,16 +201,16 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void runAssertionIndexedChoiceBetweenIndexTypes() throws Exception {
+    private void runAssertionEventIndexChoiceBetweenIndexTypes() throws Exception {
         String epl = "@Name('win') create window MyPointWindow#keepall as (id string, category string, px double, py double);\n" +
                 "@Name('insert') insert into MyPointWindow select id, category, px, py from SupportSpatialPoint;\n" +
                 "@Name('idx1') create index IdxHash on MyPointWindow(category);\n" +
                 "@Name('idx2') create index IdxQuadtree on MyPointWindow((px, py) pointregionquadtree(0, 0, 100, 100));\n";
         String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
 
-        sendPoint("P1", 10, 15, "X");
-        sendPoint("P2", 10, 15, "Y");
-        sendPoint("P3", 10, 15, "Z");
+        sendPoint(epService, "P1", 10, 15, "X");
+        sendPoint(epService, "P2", 10, 15, "Y");
+        sendPoint(epService, "P3", 10, 15, "Z");
 
         assertIndexChoice("", "IdxQuadtree");
         assertIndexChoice("@Hint('index(IdxHash, bust)')", "IdxQuadtree");
@@ -215,7 +218,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void runAssertionIndexedUnique() throws Exception {
+    private void runAssertionEventIndexUnique() throws Exception {
         String epl = "@Name('win') create window MyPointWindow#keepall as (id string, px double, py double);\n" +
                 "@Name('insert') insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "@Name('idx') create unique index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n" +
@@ -223,9 +226,9 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         String deploymentId = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl).getDeploymentId();
         epService.getEPAdministrator().getStatement("out").addListener(listener);
 
-        sendPoint("P1", 10, 15);
+        sendPoint(epService, "P1", 10, 15);
         try {
-            sendPoint("P2", 10, 15);
+            sendPoint(epService, "P2", 10, 15);
             fail();
         } catch (RuntimeException ex) { // we have a handler
             SupportMessageAssertUtil.assertMessage(ex,
@@ -235,7 +238,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void runAssertionIndexedPerformance() throws Exception {
+    private void runAssertionEventIndexPerformance() throws Exception {
         String epl = "create window MyPointWindow#keepall as (id string, px double, py double);\n" +
                 "insert into MyPointWindow select id, px, py from SupportSpatialPoint;\n" +
                 "create index Idx on MyPointWindow( (px, py) pointregionquadtree(0, 0, 100, 100));\n" +
@@ -262,7 +265,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void runAssertionIndexUnusedNamedWindowFireAndForget() throws Exception {
+    private void runAssertionEventIndexUnusedNamedWindowFireAndForget() throws Exception {
         String epl = "@Resilient create window PointWindow#keepall as (id string, px double, py double);\n" +
                 "@Resilient create index MyIndex on PointWindow((px,py) pointregionquadtree(0,0,100,100,2,12));\n" +
                 "@Resilient insert into PointWindow select id, px, py from SupportSpatialPoint;\n" +
@@ -274,7 +277,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeployRemove(deploymentId);
     }
 
-    private void runAssertionIndexedTableFireAndForget() {
+    private void runAssertionEventIndexTableFireAndForget() {
         epService.getEPAdministrator().createEPL("create table MyTable(id string primary key, tx double, ty double)");
         epService.getEPAdministrator().createEPL("insert into MyTable select id, px as tx, py as ty from SupportSpatialPoint");
         epService.getEPRuntime().sendEvent(new SupportSpatialPoint("P1", 50d, 50d));
@@ -282,13 +285,13 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().createEPL("create index MyIdxWithExpr on MyTable( (tx, ty) pointregionquadtree(0, 0, 100, 100))");
 
         EPOnDemandQueryResult result = epService.getEPRuntime().executeQuery(IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "select id as c0 from MyTable where point(tx, ty).inside(rectangle(45, 45, 10, 10))");
-        SupportQueryPlanIndexHook.assertFAFAndReset("MyIdxWithExpr", "EventTablePointRegionQuadTreeImpl");
+        SupportQueryPlanIndexHook.assertFAFAndReset("MyIdxWithExpr", "EventTableQuadTreePointRegionImpl");
         EPAssertionUtil.assertPropsPerRowAnyOrder(result.getArray(), "c0".split(","), new Object[][]{{"P1"}, {"P2"}});
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionIndexedExpression() {
+    private void runAssertionEventIndexExpression() {
         epService.getEPAdministrator().createEPL("create table MyTable(id string primary key, tx double, ty double)");
         epService.getEPRuntime().executeQuery("insert into MyTable values ('P1', 50, 30)");
         epService.getEPRuntime().executeQuery("insert into MyTable values ('P2', 50, 28)");
@@ -300,21 +303,21 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         EPStatement statementOne = epService.getEPAdministrator().createEPL(eplOne);
         statementOne.addListener(listener);
         SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
-        assertRectanglesManyRow(BOXES, "P4", "P1,P2,P3", null, null, "P1,P2,P3,P4");
+        assertRectanglesManyRow(epService, listener, BOXES, "P4", "P1,P2,P3", null, null, "P1,P2,P3,P4");
         statementOne.destroy();
 
         String eplTwo = IndexBackingTableInfo.INDEX_CALLBACK_HOOK + "on SupportSpatialAABB select tbl.id as c0 from MyTable as tbl where point(tx*10, tbl.ty*10).inside(rectangle(x, y, width, height))";
         EPStatement statementTwo = epService.getEPAdministrator().createEPL(eplTwo);
         statementTwo.addListener(listener);
         SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIdxWithExpr", "non-unique hash={} btree={} advanced={pointregionquadtree(tx*10,ty*10)}");
-        assertRectanglesManyRow(BOXES, null, null, null, null, null);
-        assertRectanglesManyRow(Collections.singletonList(new BoundingBox(500, 300, 501, 301)), "P1,P3");
+        assertRectanglesManyRow(epService, listener, BOXES, null, null, null, null, null);
+        assertRectanglesManyRow(epService, listener, Collections.singletonList(new BoundingBox(500, 300, 501, 301)), "P1,P3");
         statementTwo.destroy();
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionIndexedChoiceOfTwo() throws Exception {
+    private void runAssertionEventIndexChoiceOfTwo() throws Exception {
         String epl =
                 "create table MyPointTable(" +
                         " id string primary key," +
@@ -338,14 +341,14 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPRuntime().sendEvent(new SupportSpatialDualPoint("P1", 10, 10, 60, 60));
         epService.getEPRuntime().sendEvent(new SupportSpatialDualPoint("P2", 55, 20, 4, 88));
 
-        assertRectanglesSingleValue(BOXES, "P1", "P2", "P2", "P1", "P1");
+        assertRectanglesSingleValue(epService, listener, BOXES, "P1", "P2", "P2", "P1", "P1");
 
         statementOne.destroy();
         statementTwo.destroy();
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
     }
 
-    private void runAssertionIndexedSubqNamedWindowIndexShare() throws Exception {
+    private void runAssertionEventIndexSubqNamedWindowIndexShare() throws Exception {
         String epl = "@Hint('enable_window_subquery_indexshare') create window MyWindow#length(5) as select * from SupportSpatialPoint;\n" +
                 "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into MyWindow select * from SupportSpatialPoint;\n" +
@@ -359,20 +362,20 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         assertEquals("non-unique hash={} btree={} advanced={pointregionquadtree(px,py)}", subquery.getTables()[0].getIndexDesc());
         assertEquals("MyIndex", subquery.getTables()[0].getIndexName());
 
-        sendPoint("P1", 10, 40);
-        assertRectanglesSingleValue(BOXES, "P1", "", "", "", "");
+        sendPoint(epService, "P1", 10, 40);
+        assertRectanglesSingleValue(epService, listener, BOXES, "P1", "", "", "", "");
 
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentResult.getDeploymentId());
     }
 
-    private void runAssertionIndexUnusedOnTrigger() throws Exception {
+    private void runAssertionEventIndexUnusedOnTrigger() throws Exception {
         String epl = "create window MyWindow#length(5) as select * from SupportSpatialPoint;\n" +
                 "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100));\n" +
                 "insert into MyWindow select * from SupportSpatialPoint;\n";
         DeploymentResult deploymentResult = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
 
-        sendPoint("P1", 5, 5);
-        sendPoint("P2", 55, 60);
+        sendPoint(epService, "P1", 5, 5);
+        sendPoint(epService, "P2", 55, 60);
 
         runIndexUnusedConstantsOnly();
         runIndexUnusedPointValueDepends();
@@ -389,7 +392,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
 
-        assertRectanglesManyRow(BOXES, "P1,P2", "P1,P2", "P1,P2", "P1,P2", "P1,P2");
+        assertRectanglesManyRow(epService, listener, BOXES, "P1,P2", "P1,P2", "P1,P2", "P1,P2", "P1,P2");
 
         stmt.destroy();
     }
@@ -402,7 +405,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
 
-        assertRectanglesManyRow(BOXES, "P1", "P1", "P1", "P1", "P1");
+        assertRectanglesManyRow(epService, listener, BOXES, "P1", "P1", "P1", "P1", "P1");
 
         stmt.destroy();
     }
@@ -415,7 +418,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         SupportQueryPlanIndexHook.assertOnExprTableAndReset(null, null);
 
-        assertRectanglesManyRow(BOXES, "P1,P2", null, null, null, null);
+        assertRectanglesManyRow(epService, listener, BOXES, "P1,P2", null, null, null, null);
 
         stmt.destroy();
     }
@@ -433,29 +436,29 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
                 "Failed to validate filter expression 'point(0,0).inside(0)': point.inside requires a single rectangle as parameter");
     }
 
-    private void runAssertionUnindexed() {
+    private void runAssertionEventIndexUnindexed() {
         EPStatement stmt = epService.getEPAdministrator().createEPL("select point(xOffset, yOffset).inside(rectangle(x, y, width, height)) as c0 from MyEventRectangleWithOffset");
         stmt.addListener(listener);
 
-        sendAssert(1, 1, 0, 0, 2, 2, true);
-        sendAssert(3, 1, 0, 0, 2, 2, false);
-        sendAssert(2, 1, 0, 0, 2, 2, false);
-        sendAssert(1, 3, 0, 0, 2, 2, false);
-        sendAssert(1, 2, 0, 0, 2, 2, false);
-        sendAssert(0, 0, 1, 1, 2, 2, false);
-        sendAssert(1, 0, 1, 1, 2, 2, false);
-        sendAssert(0, 1, 1, 1, 2, 2, false);
-        sendAssert(1, 1, 1, 1, 2, 2, true);
-        sendAssert(2.9999, 2.9999, 1, 1, 2, 2, true);
-        sendAssert(3, 2.9999, 1, 1, 2, 2, false);
-        sendAssert(2.9999, 3, 1, 1, 2, 2, false);
-        sendAssertWNull(null, 0d, 0d, 0d, 0d, 0d, null);
-        sendAssertWNull(0d, 0d, 0d, null, 0d, 0d, null);
+        sendAssert(epService, listener, 1, 1, 0, 0, 2, 2, true);
+        sendAssert(epService, listener, 3, 1, 0, 0, 2, 2, false);
+        sendAssert(epService, listener, 2, 1, 0, 0, 2, 2, false);
+        sendAssert(epService, listener, 1, 3, 0, 0, 2, 2, false);
+        sendAssert(epService, listener, 1, 2, 0, 0, 2, 2, false);
+        sendAssert(epService, listener, 0, 0, 1, 1, 2, 2, false);
+        sendAssert(epService, listener, 1, 0, 1, 1, 2, 2, false);
+        sendAssert(epService, listener, 0, 1, 1, 1, 2, 2, false);
+        sendAssert(epService, listener, 1, 1, 1, 1, 2, 2, true);
+        sendAssert(epService, listener, 2.9999, 2.9999, 1, 1, 2, 2, true);
+        sendAssert(epService, listener, 3, 2.9999, 1, 1, 2, 2, false);
+        sendAssert(epService, listener, 2.9999, 3, 1, 1, 2, 2, false);
+        sendAssertWNull(epService, listener, null, 0d, 0d, 0d, 0d, 0d, null);
+        sendAssertWNull(epService, listener, 0d, 0d, 0d, null, 0d, 0d, null);
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionIndexedOnTriggerContextParameterized() throws Exception {
+    private void runAssertionEventIndexOnTriggerContextParameterized() throws Exception {
         String epl = "create context CtxBox initiated by MyEventRectangleWithOffset box;\n" +
                 "context CtxBox create window MyWindow#keepall as SupportSpatialPoint;\n" +
                 "context CtxBox create index MyIndex on MyWindow((px+context.box.xOffset, py+context.box.yOffset) pointregionquadtree(context.box.x, context.box.y, context.box.width, context.box.height));\n" +
@@ -467,8 +470,8 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         epService.getEPRuntime().sendEvent(new MyEventRectangleWithOffset("NW", 0d, 0d, 0d, 0d, 50d, 50d));
         epService.getEPRuntime().sendEvent(new MyEventRectangleWithOffset("SE", 0d, 0d, 50d, 50d, 50d, 50d));
-        sendPoint("P1", 60, 90, "SE");
-        sendPoint("P2", 5, 20, "NW");
+        sendPoint(epService, "P1", 60, 90, "SE");
+        sendPoint(epService, "P2", 5, 20, "NW");
 
         epService.getEPRuntime().sendEvent(new SupportSpatialAABB("R1", 60, 60, 40, 40, "SE"));
         assertEquals("P1", listener.assertOneGetNewAndReset().get("c0"));
@@ -483,7 +486,7 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentResult.getDeploymentId());
     }
 
-    private void runAssertionIndexedOnTriggerNWInsertRemove(boolean soda) {
+    private void runAssertionEventIndexOnTriggerNWInsertRemove(boolean soda) {
         SupportModelHelper.createByCompileOrParse(epService, soda, "create window MyWindow#length(5) as select * from SupportSpatialPoint");
         SupportModelHelper.createByCompileOrParse(epService, soda, "create index MyIndex on MyWindow((px,py) pointregionquadtree(0,0,100,100))");
         SupportModelHelper.createByCompileOrParse(epService, soda, "insert into MyWindow select * from SupportSpatialPoint");
@@ -495,43 +498,43 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={pointregionquadtree(px,py)}");
 
-        sendPoint("P1", 10, 40);
-        assertRectanglesManyRow(BOXES, "P1", null, null, null, null);
+        sendPoint(epService, "P1", 10, 40);
+        assertRectanglesManyRow(epService, listener, BOXES, "P1", null, null, null, null);
 
-        sendPoint("P2", 80, 80);
-        assertRectanglesManyRow(BOXES, "P1", null, null, "P2", null);
+        sendPoint(epService, "P2", 80, 80);
+        assertRectanglesManyRow(epService, listener, BOXES, "P1", null, null, "P2", null);
 
-        sendPoint("P3", 10, 40);
-        assertRectanglesManyRow(BOXES, "P1,P3", null, null, "P2", null);
+        sendPoint(epService, "P3", 10, 40);
+        assertRectanglesManyRow(epService, listener, BOXES, "P1,P3", null, null, "P2", null);
 
-        sendPoint("P4", 60, 40);
-        assertRectanglesManyRow(BOXES, "P1,P3", "P4", null, "P2", "P4");
+        sendPoint(epService, "P4", 60, 40);
+        assertRectanglesManyRow(epService, listener, BOXES, "P1,P3", "P4", null, "P2", "P4");
 
-        sendPoint("P5", 20, 75);
-        assertRectanglesManyRow(BOXES, "P1,P3", "P4", "P5", "P2", "P4");
+        sendPoint(epService, "P5", 20, 75);
+        assertRectanglesManyRow(epService, listener, BOXES, "P1,P3", "P4", "P5", "P2", "P4");
 
-        sendPoint("P6", 50, 50);
-        assertRectanglesManyRow(BOXES, "P3", "P4", "P5", "P2,P6", "P4,P6");
+        sendPoint(epService, "P6", 50, 50);
+        assertRectanglesManyRow(epService, listener, BOXES, "P3", "P4", "P5", "P2,P6", "P4,P6");
 
-        sendPoint("P7", 0, 0);
-        assertRectanglesManyRow(BOXES, "P3,P7", "P4", "P5", "P6", "P4,P6");
+        sendPoint(epService, "P7", 0, 0);
+        assertRectanglesManyRow(epService, listener, BOXES, "P3,P7", "P4", "P5", "P6", "P4,P6");
 
-        sendPoint("P8", 99.999, 0);
-        assertRectanglesManyRow(BOXES, "P7", "P4,P8", "P5", "P6", "P4,P6");
+        sendPoint(epService, "P8", 99.999, 0);
+        assertRectanglesManyRow(epService, listener, BOXES, "P7", "P4,P8", "P5", "P6", "P4,P6");
 
-        sendPoint("P9", 0, 99.999);
-        assertRectanglesManyRow(BOXES, "P7", "P8", "P5,P9", "P6", "P6");
+        sendPoint(epService, "P9", 0, 99.999);
+        assertRectanglesManyRow(epService, listener, BOXES, "P7", "P8", "P5,P9", "P6", "P6");
 
-        sendPoint("P10", 99.999, 99.999);
-        assertRectanglesManyRow(BOXES, "P7", "P8", "P9", "P6,P10", "P6");
+        sendPoint(epService, "P10", 99.999, 99.999);
+        assertRectanglesManyRow(epService, listener, BOXES, "P7", "P8", "P9", "P6,P10", "P6");
 
-        sendPoint("P11", 0, 0);
-        assertRectanglesManyRow(BOXES, "P7,P11", "P8", "P9", "P10", null);
+        sendPoint(epService, "P11", 0, 0);
+        assertRectanglesManyRow(epService, listener, BOXES, "P7,P11", "P8", "P9", "P10", null);
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionIndexedOnTriggerTable() throws Exception {
+    private void runAssertionEventIndexOnTriggerTable() throws Exception {
         String epl =
                 "create table MyPointTable(my_x double primary key, my_y double primary key, my_id string);\n" +
                         "@Audit create index MyIndex on MyPointTable( (my_x, my_y) pointregionquadtree(0, 0, 100, 100));\n" +
@@ -545,46 +548,20 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
 
         SupportQueryPlanIndexHook.assertOnExprTableAndReset("MyIndex", "non-unique hash={} btree={} advanced={pointregionquadtree(my_x,my_y)}");
 
-        sendPoint("P1", 55, 45);
-        assertRectanglesManyRow(BOXES, null, "P1", null, null, "P1");
+        sendPoint(epService, "P1", 55, 45);
+        assertRectanglesManyRow(epService, listener, BOXES, null, "P1", null, null, "P1");
 
-        sendPoint("P2", 45, 45);
-        assertRectanglesManyRow(BOXES, "P2", "P1", null, null, "P1,P2");
+        sendPoint(epService, "P2", 45, 45);
+        assertRectanglesManyRow(epService, listener, BOXES, "P2", "P1", null, null, "P1,P2");
 
-        sendPoint("P3", 55, 55);
-        assertRectanglesManyRow(BOXES, "P2", "P1", null, "P3", "P1,P2,P3");
+        sendPoint(epService, "P3", 55, 55);
+        assertRectanglesManyRow(epService, listener, BOXES, "P2", "P1", null, "P3", "P1,P2,P3");
 
         epService.getEPRuntime().executeQuery("delete from MyPointTable where my_x = 55 and my_y = 45");
-        sendPoint("P4", 45, 55);
-        assertRectanglesManyRow(BOXES, "P2", null, "P4", "P3", "P2,P3,P4");
+        sendPoint(epService, "P4", 45, 55);
+        assertRectanglesManyRow(epService, listener, BOXES, "P2", null, "P4", "P3", "P2,P3,P4");
 
         epService.getEPAdministrator().getDeploymentAdmin().undeploy(deploymentId);
-    }
-
-    private void assertRectanglesSingleValue(List<BoundingBox> rectangles, String... matches) {
-        for (int i = 0; i < rectangles.size(); i++) {
-            BoundingBox box = rectangles.get(i);
-            sendRectangle("R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
-            String c0 = listener.assertOneGetNewAndReset().get("c0").toString();
-            assertEquals("for box " + i, matches[i], c0);
-        }
-    }
-
-    private void assertRectanglesManyRow(List<BoundingBox> rectangles, String... matches) {
-        for (int i = 0; i < rectangles.size(); i++) {
-            BoundingBox box = rectangles.get(i);
-            sendRectangle("R" + box.toString(), box.getMinX(), box.getMinY(), box.getMaxX() - box.getMinX(), box.getMaxY() - box.getMinY());
-            if (matches[i] == null) {
-                if (listener.isInvoked()) {
-                    fail("Unexpected output for box " + i + ": " + joinProperty(listener.getAndResetLastNewData(), "c0"));
-                }
-            } else {
-                if (!listener.isInvoked()) {
-                    fail("No output for box " + i);
-                }
-                assertEquals(matches[i], joinProperty(listener.getAndResetLastNewData(), "c0"));
-            }
-        }
     }
 
     private void runAssertionInvalidEventIndexRuntime() throws Exception {
@@ -680,18 +657,18 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionFilterUnoptimized() {
+    private void runAssertionFilterIndexUnoptimized() {
         EPStatement stmt = epService.getEPAdministrator().createEPL("select * from SupportSpatialAABB(point(5, 10).inside(rectangle(x, y, width, height)))");
         stmt.addListener(listener);
 
-        sendRectangle("R1", 0, 0, 5, 10);
-        sendRectangle("R2", 4, 3, 2, 20);
+        sendRectangle(epService, "R1", 0, 0, 5, 10);
+        sendRectangle(epService, "R2", 4, 3, 2, 20);
         assertEquals("R2", listener.assertOneGetNewAndReset().get("id"));
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionFilterPerfStatement() {
+    private void runAssertionFilterIndexPerfStatement() {
         EPPreparedStatement prepared = epService.getEPAdministrator().prepareEPL("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from SupportSpatialAABB(point(?, ?, filterindex:myindex).inside(rectangle(x, y, width, height)))");
 
@@ -702,54 +679,33 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
                 epService.getEPAdministrator().create(prepared).addListener(listener);
             }
         }
-        sendAssertSpatialAABB(100, 20, 1000);
+        sendAssertSpatialAABB(epService, listener, 100, 20, 1000);
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionFilterPerfPattern() {
+    private void runAssertionFilterIndexPerfPattern() {
         EPStatement stmt = epService.getEPAdministrator().createEPL("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "select * from pattern [every p=SupportSpatialPoint -> SupportSpatialAABB(point(p.px, p.py, filterindex:myindex).inside(rectangle(x, y, width, height)))]");
         stmt.addListener(listener);
 
-        sendSpatialPoints(100, 100);
-        sendAssertSpatialAABB(100, 100, 1000);
+        sendSpatialPoints(epService, 100, 100);
+        sendAssertSpatialAABB(epService, listener, 100, 100, 1000);
 
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void runAssertionFilterPerfContextPartition() {
+    private void runAssertionFilterIndexPerfContextPartition() {
 
         epService.getEPAdministrator().createEPL("create context PerPointCtx initiated by SupportSpatialPoint ssp");
         EPStatement stmt = epService.getEPAdministrator().createEPL("expression myindex {pointregionquadtree(0, 0, 100, 100)}" +
                 "context PerPointCtx select count(*) from SupportSpatialAABB(point(context.ssp.px, context.ssp.py, filterindex:myindex).inside(rectangle(x, y, width, height)))");
         stmt.addListener(listener);
 
-        sendSpatialPoints(100, 100);
-        sendAssertSpatialAABB(100, 100, 1000);
+        sendSpatialPoints(epService, 100, 100);
+        sendAssertSpatialAABB(epService, listener, 100, 100, 1000);
 
         epService.getEPAdministrator().destroyAllStatements();
-    }
-
-    private void sendPoint(String id, double x, double y) {
-        epService.getEPRuntime().sendEvent(new SupportSpatialPoint(id, x, y));
-    }
-
-    private void sendPoint(String id, double x, double y, String category) {
-        epService.getEPRuntime().sendEvent(new SupportSpatialPoint(id, x, y, category));
-    }
-
-    private void sendRectangle(String id, double x, double y, double width, double height) {
-        epService.getEPRuntime().sendEvent(new SupportSpatialAABB(id, x, y, width, height));
-    }
-
-    private void sendAssert(double px, double py, double x, double y, double width, double height, boolean expected) {
-        sendAssertWNull(px, py, x, y, width, height, expected);
-    }
-
-    private void sendAssertWNull(Double px, Double py, Double x, Double y, Double width, Double height, Boolean expected) {
-        epService.getEPRuntime().sendEvent(new MyEventRectangleWithOffset("E", px, py, x, y, width, height));
-        assertEquals(expected, listener.assertOneGetNewAndReset().get("c0"));
     }
 
     private void assertIndexChoice(String hint, String expectedIndexName) {
@@ -766,53 +722,6 @@ public class TestSpatialPointRegionQuadTree extends TestCase {
         assertEquals("P2", listener.assertOneGetNewAndReset().get("c0"));
 
         stmt.destroy();
-    }
-
-    private String joinProperty(EventBean[] events, String propertyName) {
-        StringJoiner joiner = new StringJoiner(",");
-        for (EventBean event : events) {
-            joiner.add(event.get(propertyName).toString());
-        }
-        return joiner.toString();
-    }
-
-    private void sendSpatialPoints(int numX, int numY) {
-        for (int x = 0; x < numX; x++) {
-            for (int y = 0; y < numY; y++) {
-                epService.getEPRuntime().sendEvent(new SupportSpatialPoint("P_" + x + "_" + y, (double) x, (double) y));
-            }
-        }
-    }
-
-    private Object[][] getExpected(List<SupportSpatialPoint> points, double x, double y, double width, double height) {
-        Set<String> expected = new TreeSet<>();
-        BoundingBox boundingBox = new BoundingBox(x, y, x+width, y+height);
-        for (SupportSpatialPoint p : points) {
-            if (boundingBox.containsPoint(p.getPx(), p.getPy())) {
-                if (expected.contains(p.getId())) {
-                    fail();
-                }
-                expected.add(p.getId());
-            }
-        }
-        Object[][] rows = new Object[expected.size()][];
-        int index = 0;
-        for (String id : expected) {
-            rows[index++] = new Object[] {id};
-        }
-        return rows;
-    }
-
-    private void sendAssertSpatialAABB(int numX, int numY, long deltaMSec) {
-        long start = System.currentTimeMillis();
-        for (int x = 0; x < numX; x++) {
-            for (int y = 0; y < numY; y++) {
-                epService.getEPRuntime().sendEvent(new SupportSpatialAABB("", x, y, 1, 1));
-                listener.assertOneGetNewAndReset();
-            }
-        }
-        long delta = System.currentTimeMillis() - start;
-        assertTrue("Delta: " + delta, delta < deltaMSec);
     }
 
     public static class MyEventRectangleWithOffset {

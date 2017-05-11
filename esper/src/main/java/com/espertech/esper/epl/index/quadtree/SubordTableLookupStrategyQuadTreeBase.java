@@ -19,10 +19,10 @@ import com.espertech.esper.epl.lookup.LookupStrategyDesc;
 import java.util.Collection;
 
 public class SubordTableLookupStrategyQuadTreeBase {
-    private final EventTablePointRegionQuadTree index;
+    private final EventTableQuadTree index;
     private final SubordTableLookupStrategyFactoryQuadTree factory;
 
-    public SubordTableLookupStrategyQuadTreeBase(EventTablePointRegionQuadTree index, SubordTableLookupStrategyFactoryQuadTree factory) {
+    public SubordTableLookupStrategyQuadTreeBase(EventTableQuadTree index, SubordTableLookupStrategyFactoryQuadTree factory) {
         this.index = index;
         this.factory = factory;
     }

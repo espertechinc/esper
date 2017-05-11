@@ -13,6 +13,7 @@ package com.espertech.esper.epl.expression.dot;
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.core.start.EPStatementStartMethod;
+import com.espertech.esper.epl.core.EngineImportApplicationDotMethod;
 import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.core.PropertyResolutionDescriptor;
 import com.espertech.esper.epl.core.StreamTypeService;
@@ -21,6 +22,7 @@ import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitor;
 import com.espertech.esper.epl.expression.visitor.ExprNodeVisitorWithParent;
 import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodPointInsideRectange;
+import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodRectangeIntersectsRectangle;
 import com.espertech.esper.epl.join.plan.FilterExprAnalyzerAffector;
 import com.espertech.esper.epl.rettype.EPType;
 import com.espertech.esper.epl.rettype.EPTypeHelper;
@@ -543,7 +545,23 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
     }
 
     private ExprValidationException handleNotFound(String name) {
-        return new ExprValidationException("Unknown single-row function, expression declaration, script or aggregation function named '" + name + "' could not be resolved");
+        String appDotMethodDidYouMean = getAppDotMethodDidYouMean();
+        String message = "Unknown single-row function, expression declaration, script or aggregation function named '" + name + "' could not be resolved";
+        if (appDotMethodDidYouMean != null) {
+            message += " (did you mean '" + appDotMethodDidYouMean + "')";
+        }
+        return new ExprValidationException(message);
+    }
+
+    private String getAppDotMethodDidYouMean() {
+        String lhsName = chainSpec.get(0).getName().toLowerCase(Locale.ENGLISH);
+        if (lhsName.equals("rectangle")) {
+            return "rectangle.intersects";
+        }
+        if (lhsName.equals("point")) {
+            return "point.inside";
+        }
+        return null;
     }
 
     private ExprAppDotMethodImpl getAppDotMethod(boolean filterExpression) throws ExprValidationException {
@@ -551,11 +569,10 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
             return null;
         }
         String lhsName = chainSpec.get(0).getName().toLowerCase(Locale.ENGLISH);
-        if (!lhsName.equals("point")) {
-            return null;
-        }
         String operationName = chainSpec.get(1).getName().toLowerCase(Locale.ENGLISH);
-        if (!operationName.equals("inside")) {
+        boolean pointInside = lhsName.equals("point") && operationName.equals("inside");
+        boolean rectangleIntersects = lhsName.equals("rectangle") && operationName.equals("intersects");
+        if (!pointInside && !rectangleIntersects) {
             return null;
         }
         if (chainSpec.get(1).getParameters().size() != 1) {
@@ -570,7 +587,9 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
             throw getAppDocMethodException(lhsName, operationName);
         }
         String rhsName = compared.getChainSpec().get(0).getName().toLowerCase(Locale.ENGLISH);
-        if (!rhsName.equals("rectangle")) {
+        boolean pointInsideRectangle = pointInside && rhsName.equals("rectangle");
+        boolean rectangleIntersectsRectangle = rectangleIntersects && rhsName.equals("rectangle");
+        if (!pointInsideRectangle && !rectangleIntersectsRectangle) {
             throw getAppDocMethodException(lhsName, operationName);
         }
 
@@ -595,8 +614,14 @@ public class ExprDotNodeImpl extends ExprNodeBase implements ExprDotNode, ExprNo
 
         ExprNode[] lhs = ExprNodeUtility.toArray(lhsExpressionsValues);
         ExprNode[] rhs = ExprNodeUtility.toArray(compared.getChainSpec().get(0).getParameters());
-        EngineImportApplicationDotMethodPointInsideRectange special = new EngineImportApplicationDotMethodPointInsideRectange(lhsName, lhs, operationName, rhsName, rhs, indexNamedParameter);
-        return new ExprAppDotMethodImpl(special);
+
+        EngineImportApplicationDotMethod predefined;
+        if (pointInsideRectangle) {
+            predefined = new EngineImportApplicationDotMethodPointInsideRectange(lhsName, lhs, operationName, rhsName, rhs, indexNamedParameter);
+        } else {
+            predefined = new EngineImportApplicationDotMethodRectangeIntersectsRectangle(lhsName, lhs, operationName, rhsName, rhs, indexNamedParameter);
+        }
+        return new ExprAppDotMethodImpl(predefined);
     }
 
     private ExprValidationException getAppDocMethodException(String lhsName, String operationName) {

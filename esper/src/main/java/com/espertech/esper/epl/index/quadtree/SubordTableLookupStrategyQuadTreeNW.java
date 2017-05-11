@@ -17,7 +17,7 @@ import com.espertech.esper.epl.lookup.SubordTableLookupStrategy;
 import java.util.Collection;
 
 public class SubordTableLookupStrategyQuadTreeNW extends SubordTableLookupStrategyQuadTreeBase implements SubordTableLookupStrategy {
-    public SubordTableLookupStrategyQuadTreeNW(EventTablePointRegionQuadTree index, SubordTableLookupStrategyFactoryQuadTree factory) {
+    public SubordTableLookupStrategyQuadTreeNW(EventTableQuadTree index, SubordTableLookupStrategyFactoryQuadTree factory) {
         super(index, factory);
     }
 

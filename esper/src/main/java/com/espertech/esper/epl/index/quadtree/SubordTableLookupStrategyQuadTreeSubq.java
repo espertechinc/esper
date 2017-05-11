@@ -19,7 +19,7 @@ import java.util.Collection;
 public class SubordTableLookupStrategyQuadTreeSubq extends SubordTableLookupStrategyQuadTreeBase implements SubordTableLookupStrategy {
     private final EventBean[] events;
 
-    public SubordTableLookupStrategyQuadTreeSubq(EventTablePointRegionQuadTree index, SubordTableLookupStrategyFactoryQuadTree factory, int numStreamsOuter) {
+    public SubordTableLookupStrategyQuadTreeSubq(EventTableQuadTree index, SubordTableLookupStrategyFactoryQuadTree factory, int numStreamsOuter) {
         super(index, factory);
         this.events = new EventBean[numStreamsOuter + 1];
     }

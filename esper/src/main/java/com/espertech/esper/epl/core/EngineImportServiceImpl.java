@@ -25,6 +25,7 @@ import com.espertech.esper.epl.expression.core.ExprCurrentEvaluationContextNode;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.methodagg.*;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
+import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderMXCIFQuadTree;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderPointRegionQuadTree;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
 import com.espertech.esper.type.MinMaxTypeEnum;
@@ -82,6 +83,7 @@ public class EngineImportServiceImpl implements EngineImportService {
         this.transientConfiguration = transientConfiguration;
         this.aggregationFactoryFactory = aggregationFactoryFactory;
         this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
+        this.advancedIndexProviders.put("mxcifquadtree", new AdvancedIndexFactoryProviderMXCIFQuadTree());
     }
 
     public boolean isUdfCache() {

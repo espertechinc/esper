@@ -30,6 +30,12 @@ public class AdvancedIndexValidationHelper {
         }
     }
 
+    public static void validateParameterCountEither(int expectedOne, int expectedTwo, String indexTypeName, int paramCount) throws ExprValidationException {
+        if (paramCount != expectedOne && paramCount != expectedTwo) {
+            throw new ExprValidationException("Index of type '" + indexTypeName + "' requires at either " + expectedOne + " or " + expectedTwo + " parameters but received " + paramCount);
+        }
+    }
+
     public static void validateColumnReturnTypeNumber(String indexTypeName, int colnum, ExprNode expr, String name) throws ExprValidationException {
         Class receivedType = expr.getExprEvaluator().getType();
         if (!isNumeric(receivedType)) {

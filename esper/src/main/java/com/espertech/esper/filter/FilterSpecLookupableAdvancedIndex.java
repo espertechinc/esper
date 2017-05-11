@@ -19,14 +19,16 @@ public class FilterSpecLookupableAdvancedIndex extends FilterSpecLookupable {
     private final EventPropertyGetter y;
     private final EventPropertyGetter width;
     private final EventPropertyGetter height;
+    private final String indexType;
 
-    public FilterSpecLookupableAdvancedIndex(String expression, EventPropertyGetter getter, Class returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetter x, EventPropertyGetter y, EventPropertyGetter width, EventPropertyGetter height) {
+    public FilterSpecLookupableAdvancedIndex(String expression, EventPropertyGetter getter, Class returnType, AdvancedIndexConfigContextPartitionQuadTree quadTreeConfig, EventPropertyGetter x, EventPropertyGetter y, EventPropertyGetter width, EventPropertyGetter height, String indexType) {
         super(expression, getter, returnType, true);
         this.quadTreeConfig = quadTreeConfig;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.indexType = indexType;
     }
 
     public EventPropertyGetter getX() {
@@ -47,6 +49,10 @@ public class FilterSpecLookupableAdvancedIndex extends FilterSpecLookupable {
 
     public AdvancedIndexConfigContextPartitionQuadTree getQuadTreeConfig() {
         return quadTreeConfig;
+    }
+
+    public String getIndexType() {
+        return indexType;
     }
 }
 

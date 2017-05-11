@@ -43,12 +43,16 @@ public class BoundingBox {
         return x >= minX && y >= minY && x < maxX && y < maxY;
     }
 
-    public boolean intersectsBox(double x, double y, double width, double height) {
-        double otherMaxX = x + width;
-        double otherMaxY = y + height;
-        if (maxX < x) return false; // a is left of b
+    public boolean intersectsBoxIncludingEnd(double x, double y, double width, double height) {
+        return intersectsBoxIncludingEnd(minX, minY, maxX, maxY, x, y, width, height);
+    }
+
+    public static boolean intersectsBoxIncludingEnd(double minX, double minY, double maxX, double maxY, double otherX, double otherY, double otherWidth, double otherHeight) {
+        double otherMaxX = otherX + otherWidth;
+        double otherMaxY = otherY + otherHeight;
+        if (maxX < otherX) return false; // a is left of b
         if (minX > otherMaxX) return false; // a is right of b
-        if (maxY < y) return false; // a is above b
+        if (maxY < otherY) return false; // a is above b
         if (minY > otherMaxY) return false; // a is below b
         return true; // boxes overlap
     }
@@ -79,6 +83,53 @@ public class BoundingBox {
             return deltaY < halfHeight ? QuadrantEnum.NW : QuadrantEnum.SW;
         }
         return deltaY < halfHeight ? QuadrantEnum.NE : QuadrantEnum.SE;
+    }
+
+    public QuadrantAppliesEnum getQuadrantApplies(double x, double y, double w, double h) {
+        double deltaX = x - minX;
+        double deltaY = y - minY;
+        double halfWidth = (maxX - minX) / 2;
+        double halfHeight = (maxY - minY) / 2;
+        double midX = minX + halfWidth;
+        double midY = minY + halfHeight;
+        if (deltaX < halfWidth) {
+            if (deltaY < halfHeight) {
+                // x,y is NW world
+                if (x + w < minX || y + h < minY) {
+                    return QuadrantAppliesEnum.NONE;
+                }
+                if (x + w >= midX || y + h >= midY) {
+                    return QuadrantAppliesEnum.SOME;
+                }
+                return QuadrantAppliesEnum.NW;
+            } else {
+                if (y > maxY || x + w < minX) {
+                    return QuadrantAppliesEnum.NONE;
+                }
+                if (x + w >= midX || y <= midY) {
+                    return QuadrantAppliesEnum.SOME;
+                }
+                return QuadrantAppliesEnum.SW;
+            }
+        }
+        if (deltaY < halfHeight) {
+            // x,y is NE world
+            if (x > maxX || y + h < minY) {
+                return QuadrantAppliesEnum.NONE;
+            }
+            if (x <= midX || y + h >= midY) {
+                return QuadrantAppliesEnum.SOME;
+            }
+            return QuadrantAppliesEnum.NE;
+        } else {
+            if (x > maxX || y > maxY) {
+                return QuadrantAppliesEnum.NONE;
+            }
+            if (x <= midX || y <= midY) {
+                return QuadrantAppliesEnum.SOME;
+            }
+            return QuadrantAppliesEnum.SE;
+        }
     }
 
     public boolean equals(Object o) {
@@ -128,6 +179,10 @@ public class BoundingBox {
             quadrants[3] = subs[3].treeForDepth(depth - 1);
         }
         return new BoundingBoxNode(this, quadrants[0], quadrants[1], quadrants[2], quadrants[3]);
+    }
+
+    public static BoundingBox from(double x, double y, double width, double height) {
+        return new BoundingBox(x, y, x + width, y + height);
     }
 
     public BoundingBoxNode treeForPath(String[] path) {

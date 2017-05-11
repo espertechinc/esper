@@ -39,9 +39,9 @@ public class SubordTableLookupStrategyFactoryQuadTree implements SubordTableLook
 
     public SubordTableLookupStrategy makeStrategy(EventTable[] eventTable, VirtualDWView vdw) {
         if (isNWOnTrigger) {
-            return new SubordTableLookupStrategyQuadTreeNW((EventTablePointRegionQuadTree) eventTable[0], this);
+            return new SubordTableLookupStrategyQuadTreeNW((EventTableQuadTree) eventTable[0], this);
         }
-        return new SubordTableLookupStrategyQuadTreeSubq((EventTablePointRegionQuadTree) eventTable[0], this, streamCountOuter);
+        return new SubordTableLookupStrategyQuadTreeSubq((EventTableQuadTree) eventTable[0], this, streamCountOuter);
     }
 
     public String toQueryPlan() {

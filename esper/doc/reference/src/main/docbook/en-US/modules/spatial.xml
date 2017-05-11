@@ -45,13 +45,24 @@
 				</thead>
 				<tbody>
 					<row>
-						<entry>point(coordinates).inside(rectangle(coordinates, size))</entry>
+						<entry>point(x,y).inside(rectangle(x,y,width,height))</entry>
 						<entry>
 							<para>
 								Returns true if the point is inside the rectangle.
 							</para>
 							<para>
 								<xref linkend="spatial_method_pointinsiderectangle"/>.
+							</para>
+						</entry>
+					</row>
+					<row>
+						<entry>rectangle(x,y,width,height).intersects(rectangle(x,y,width,height))</entry>
+						<entry>
+							<para>
+								Returns true if the rectangle intersects with the rectangle.
+							</para>
+							<para>
+								<xref linkend="spatial_method_rectangleintersectsrectangle"/>.
 							</para>
 						</entry>
 					</row>
@@ -74,6 +85,7 @@
 			<para>
 				For the point, please provide the <emphasis>point_x</emphasis> and <emphasis>point_y</emphasis> expressions that return the (x, y)-coordinates of the point. 
 				The <literal>filterindex</literal> named parameter is for use with filter indexes as described below.
+				The left-hand side point can be subject to point-region quadtree indexing (MX-CIF quadtrees do not apply).
 			</para>
 
 			<para>
@@ -88,7 +100,7 @@
 				A point is considered inside the rectangle if <literal>(point_x &gt;= rect_x) and (point_x &lt; rect_x + width) and (point_y &gt;= rect_y) and (point_y &lt; rect_y + height)</literal>.
 			</para>
 
-			<table frame="topbot" xml:id="spatial_method_pointinsiderectange" revision="2">
+			<table frame="topbot" xml:id="spatial_method_pointinsiderectangle" revision="2">
 				<title>Point-Inside-Rectangle Examples</title>
 				<tgroup cols="2">
 					<colspec colwidth="5.0*"/>
@@ -101,20 +113,106 @@
 					</thead>
 					<tbody>
 						<row>
-							<entry><synopsis>point(10, 20).inside(rectange(0, 0, 50, 50))</synopsis></entry>
+							<entry><synopsis>point(10, 20).inside(rectangle(0, 0, 50, 50))</synopsis></entry>
 							<entry>true</entry>
 						</row>
 						<row>
-							<entry><synopsis>point(10, 20).inside(rectange(20, 20, 50, 50))</synopsis></entry>
+							<entry><synopsis>point(10, 20).inside(rectangle(20, 20, 50, 50))</synopsis></entry>
 							<entry>false</entry>
 						</row>
 						<row>
-							<entry><synopsis>point(10, 20).inside(rectange(9, 19, 1, 1))</synopsis></entry>
+							<entry><synopsis>point(10, 20).inside(rectangle(9, 19, 1, 1))</synopsis></entry>
 							<entry>false</entry>
 						</row>
 						<row>
-							<entry><synopsis>point(10, 20).inside(rectange(9, 19, 1.0001, 1.0001))</synopsis></entry>
+							<entry><synopsis>point(10, 20).inside(rectangle(9, 19, 1.0001, 1.0001))</synopsis></entry>
 							<entry>true</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>		
+		</sect2>
+
+		<sect2 xml:id="spatial_method_rectangleintersectsrectangle">
+		  <title>Rectangle-Intersects-Rectangle</title>
+		  
+		  	<para>
+				The method compares a rectangle to a rectangle and returns true if the rectangles intersect.
+			</para>
+			
+			<para>
+				The method takes a rectangle as input and a rectangle as a parameter:
+			</para>
+			<synopsis>rectangle(<emphasis>rect_x</emphasis>, <emphasis>rect_y</emphasis>, <emphasis>rect_width</emphasis>, <emphasis>rect_height</emphasis> [, filterindex:<emphasis>configexpression</emphasis>]).intersects(rectangle(<emphasis>other_x</emphasis>, <emphasis>other_y</emphasis>, <emphasis>other_width</emphasis>, <emphasis>other_height</emphasis>))</synopsis>
+
+			<para>
+				The left-hand side is the rectangle's <emphasis>rect_x</emphasis>, <emphasis>rects_y</emphasis>, <emphasis>rect_width</emphasis> and <emphasis>rect_height</emphasis> expressions 
+				that return the (x, y)-coordinates and the size of the rectangle.
+				The <literal>filterindex</literal> named parameter is for use with filter indexes as described below.
+				The left-hand side rectangle can be subject to MX-CIF quadtree indexing (point-region quadtrees do not apply).
+			</para>
+
+			<para>
+				For the compared-to rectangle on the right-hand side, the <emphasis>other_x</emphasis>, <emphasis>other_y</emphasis>, <emphasis>other_width</emphasis> and <emphasis>other_height</emphasis> expressions return the (x, y)-coordinates and size of the compared-to rectangle.
+			</para>
+
+			<para>
+				All expressions must return a number-type and the implementation compares the <literal>double</literal>-values returned by the expressions. 
+			</para>
+
+			<para>
+				A rectangle is considered to intersect another rectangle if:
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para><literal>rect_x + rect_width &gt;= other_x</literal> (a is not left of b) and</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para><literal>rect_x &lt;= other_x + other_width</literal> (a is not right of b) and</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para><literal>rect_y + rect_height &gt;= other_y</literal> (a is not above b) and</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para><literal>rect_y &lt;= other_y + other_height</literal> (a is not below b).</para>
+				</ns:listitem>
+			</itemizedlist>
+
+			<table frame="topbot" xml:id="spatial_method_rectangleintersectsrectangle" revision="2">
+				<title>Rectangle-Intersects-Rectangle Examples</title>
+				<tgroup cols="2">
+					<colspec colwidth="5.0*"/>
+					<colspec colwidth="1.0*"/>
+					<thead>
+						<row>
+							<entry>Expression</entry>
+							<entry>Result</entry>
+						</row>
+					</thead>
+					<tbody>
+						<row>
+							<entry><synopsis>rectangle(10, 20, 5, 5).intersects(rectangle(0, 0, 50, 50))</synopsis></entry>
+							<entry>true</entry>
+						</row>
+						<row>
+							<entry><synopsis>rectangle(10, 20, 5, 5).intersects(rectangle(20, 20, 50, 50))</synopsis></entry>
+							<entry>false</entry>
+						</row>
+						<row>
+							<entry><synopsis>rectangle(10, 20, 5, 5).intersects(rectangle(9, 19, 1, 1))</synopsis></entry>
+							<entry>true</entry>
+						</row>
+						<row>
+							<entry><synopsis>rectangle(10, 20, 5, 5).intersects(rectangle(9, 19, 0.999, 0.999))</synopsis></entry>
+							<entry>false</entry>
+						</row>
+						<row>
+							<entry><synopsis>rectangle(10, 20, 5, 5).intersects(rectangle(15, 25, 1, 1))</synopsis></entry>
+							<entry>true</entry>
+						</row>
+						<row>
+							<entry><synopsis>rectangle(10, 20, 5, 5).intersects(rectangle(15.001, 25.001, 1, 1))</synopsis></entry>
+							<entry>false</entry>
 						</row>
 					</tbody>
 				</tgroup>
@@ -130,25 +228,9 @@
 		<sect2 xml:id="spatial_index_overview">
 			<title>Overview</title>
 			<para>
-				A quadtree is a tree data structure in which each internal node has exactly four children. 
+				A quadtree is a tree data structure in which each branch node has exactly four children. 
 				Quadtrees are often used to partition a two-dimensional space by recursively subdividing it into four quadrants or regions (source:WikiPedia).			
 			</para>		
-			
-			<para>
-				A node in a point-region quadtree contains:
-			</para>
-			<itemizedlist>
-				<ns:listitem>
-					<para>
-						Four pointers to nodes: quadrant north-west, quadrant north-east, quadrant south-west, and quadrant south-east.
-					</para>
-				</ns:listitem>
-				<ns:listitem>
-					<para>
-						(x,y) Coordinates; each coordinate pair is associated to index content; same (x, y) coordinates share the same entry. Index content is active filters for filter indexes and events for event indexes.
-					</para>
-				</ns:listitem>
-			</itemizedlist>
 			
 			<para>
 				Quadtree indexes can be used for:
@@ -161,20 +243,33 @@
 					<para>Event indexes, which organize properties of events so that they can be searched efficiently. When the engine performs statement processing it may use event indexes to find correlated events efficiently.</para>
 				</ns:listitem>
 			</itemizedlist>
+
+			<para>
+				The <emphasis>point-region quadtree</emphasis> is a quadtree for the efficient finding of points that fall inside a given rectangle. Use this index with the point-inside-rectangle method described above.
+			</para>
+			
+			<para>
+				The <emphasis>MX-CIF quadtree</emphasis> is a quadtree for the efficient finding of rectangles that intersect with a given rectangle. Use this index with the rectangle-intersects-rectangle method described above.
+			</para>
+
+			<para>
+				While point-region quadtree and MX-CIF quadtree are similar, they are not compatible and are not the same. In point-region quadtree, only leaf nodes have data. In MX-CIF quadtrees both branch and leaf nodes have data as branches hold rectangles that don't fit any given quadrant. The engine expands and shrinks both types of trees dynamically based on data by promoting or subdividing a leaf node to branch nodes when adding data and by demoting or merging branches to a leaf node when removing data.
+			</para>
 		</sect2>
 			
-		<sect2 xml:id="spatial_index_declarae">
-			<title>Declaring a Quadtree Index</title>
+		<sect2 xml:id="spatial_index_pointregionquadtreedeclare">
+			<title>Declaring a Point-Region Quadtree Index</title>
 			
 			<para>
-				Declaring a quadtree index is the same for both filter indexes and event indexes.
+				Declaring a point-region quadtree index is the same for both filter indexes and event indexes.
+				Point-region quadtrees are suitable for efficiently finding points inside a rectangle, when there are many points.
 			</para>
 			
 			<para>
-				The synopsis to declare a quadtree index, as part of an EPL statement, is:
+				The synopsis to declare a point-region quadtree index, as part of an EPL statement, is:
 			</para>
 			<synopsis>pointregionquadtree(<emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>, 
-  <emphasis>width</emphasis>, <emphasis>height</emphasis> [, <emphasis>leaf_capacity_expression</emphasis> [, <emphasis>max_tree_height_expression</emphasis>]] )</synopsis>
+  <emphasis>width</emphasis>, <emphasis>height</emphasis> [, <emphasis>leaf_capacity_expression</emphasis> [, <emphasis>max_tree_height_expression</emphasis>]])</synopsis>
 
 			<para>
 				The <emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>,  <emphasis>width</emphasis>, <emphasis>height</emphasis> are index parameter expressions 
@@ -199,8 +294,8 @@
 			</para>
 		</sect2>
 		
-		<sect2 xml:id="spatial_filterindex_use">
-			<title>Using Quadtree as a Filter Index</title>
+		<sect2 xml:id="spatial_index_pointregionquadtreefilterindex">
+			<title>Using a Point-Region Quadtree as a Filter Index</title>
 
 			<para>
 				The section that summarizes filter indexes is <xref linkend="processingmodel_indexes_filterindexes"/>.
@@ -208,11 +303,11 @@
 			</para>
 
 			<para>
-				For use of a quadtree index within filter criteria you must: 
+				For use of a point-region quadtree index within filter criteria you must: 
 			</para>
 			<itemizedlist>
 				<ns:listitem>
-					<para>Define an expression that returns the quadtree configuration.</para>
+					<para>Define an expression that returns the point-region quadtree configuration, making sure it specifies <literal>pointregionquadtree</literal>.</para>
 				</ns:listitem>
 				<ns:listitem>
 					<para>Add the <literal>filterindex</literal> named parameter providing the expression name.</para>
@@ -224,41 +319,41 @@
 			</para>
 			
 			<para>
-				This sample EPL query defines the quadtree filter index to have a bounding box of <literal>(0,0,100,100)</literal>:
+				This sample EPL query defines the point-region quadtree filter index to have a bounding box of <literal>(0,0,100,100)</literal>:
 			</para>
-			<programlisting>expression myQuadtreeSettings { pointregionquadtree(0, 0, 100, 100) } 
-select * from RectangleEvent(point(0, 0, filterindex:myQuadtreeSettings).inside(rectangle(x, y, width, height)))</programlisting>
+			<programlisting>expression myPointRegionQuadtreeSettings { pointregionquadtree(0, 0, 100, 100) } 
+select * from RectangleEvent(point(0, 0, filterindex:myPointRegionQuadtreeSettings).inside(rectangle(x, y, width, height)))</programlisting>
 	
 			<para>
-				The <literal>filterindex</literal> named parameter instructs the engine that the settings for the quadtree filter index are provided by the expression <literal>myQuadtreeSettings</literal>, a local expression in this example.
-				For sharing quadtree settings across statements you may use a global expression instead. Please see <xref linkend="create-exprglobal"/>.
+				The <literal>filterindex</literal> named parameter instructs the engine that the settings for the point-region quadtree filter index are provided by the expression <literal>myPointRegionQuadtreeSettings</literal>, a local expression in this example.
+				For sharing point-region quadtree settings across statements you may use a global expression instead. Please see <xref linkend="create-exprglobal"/>.
 			</para>
 			
 			<para>
-				If your EPL does not specify <literal>filterindex</literal> the engine does not build a quadtree filter index.
+				If your EPL does not specify <literal>filterindex</literal> the engine does not build a point-region quadtree filter index.
 			</para>
 
 			<para>
-				If your EPL specifies <literal>filterindex</literal> the engine always builds and uses a quadtree filter index.
-				In the case when the engine analyses filter criteria and determines that it cannot use the quadtree filter index, the engine fails statement validation.
+				If your EPL specifies <literal>filterindex</literal> the engine always builds and uses a point-region quadtree filter index.
+				In the case the engine analyses filter criteria and determines that it cannot use the point-region quadtree filter index, the engine fails statement validation.
 			</para>
 
 			<para>
-				If your EPL specifies <literal>filterindex</literal> and the engine determines that it cannot use the quadtree filter index it fails statement validation.
+				If your EPL specifies <literal>filterindex</literal> and the engine determines that it cannot use the point-region quadtree filter index it fails statement validation.
 			</para>
 			
 			<para>
-				The engine shares quadtree filter indexes across the engine within the same event type given that:
+				The engine shares point-region quadtree filter indexes across the engine within the same event type given that:
 			</para>
 			<orderedlist>
 				<listitem>
 					<para>Filters have the same <literal>rectangle</literal> expressions.</para>
 				</listitem>
 				<listitem>
-					<para>Filters use the same <literal>filterindex</literal> parameter i.e. the text <literal>myQuadtreeSettings</literal> in above example</para>
+					<para>Filters use the same <literal>filterindex</literal> parameter i.e. the text <literal>myPointRegionQuadtreeSettings</literal> in above example.</para>
 				</listitem>
 				<listitem>
-					<para>Filters use the same quadtree configuration i.e. <literal>(0,0,100,100)</literal> in above example</para>
+					<para>Filters use the same point-region quadtree index configuration i.e. <literal>pointregionquadtree(0,0,100,100)</literal> in above example.</para>
 				</listitem>
 			</orderedlist>
 
@@ -281,8 +376,8 @@ select * from RectangleEvent(point(0, 0, filterindex:myQuadtreeSettings).inside(
 			</orderedlist>
 		</sect2>
 
-		<sect2 xml:id="spatial_eventindex_use">
-			<title>Using Quadtree as an Event Index</title>
+		<sect2 xml:id="spatial_index_pointregionquadtreeeventindex">
+			<title>Using a Point-Region Quadtree as an Event Index</title>
 
 			<para>
 				The section that summarizes event indexes is  <xref linkend="processingmodel_indexes_eventindexes"/>. The <literal>create index</literal> clause is described in <xref linkend="named_explicit_index"/>.
@@ -292,18 +387,15 @@ select * from RectangleEvent(point(0, 0, filterindex:myQuadtreeSettings).inside(
 				Declare a point-region quadtree event index as follows:
 			</para>
 			<synopsis>create index ... on ... (
-  (<emphasis>x_expression</emphasis>, <emphasis>y_expression</emphasis>) pointregionquadtree(<emphasis>quadtree_configuration</emphasis>)
+  (<emphasis>x_expression</emphasis>, <emphasis>y_expression</emphasis>) pointregionquadtree(<emphasis>pointregion_quadtree_configuration</emphasis>)
 )</synopsis>
 	
 			<para>
 				The <emphasis>x_expression</emphasis> and <emphasis>y_expression</emphasis> expressions form the index columns. 
 				The expressions return the (x, y)-coordinates and must return numeric values.  Coordinates are represented as <literal>double</literal>-type values internally.
+				See above for the <emphasis>pointregion_quadtree_configuration</emphasis> point-region quadtree configuration.
 			</para>
-			
-			<para>
-				The description of <emphasis>quadtree_configuration</emphasis> quadtree configuration can be found above.
-			</para>
-	
+				
 			<para>
 				For example, assume we have a table that contains points:
 			</para>
@@ -324,38 +416,224 @@ select * from RectangleEvent(point(0, 0, filterindex:myQuadtreeSettings).inside(
 			<programlisting>create schema RectangleEvent(rx double, ry double, w double, h double)</programlisting>
 			
 			<para>
-				This EPL outputs, upon arrival of a RectangleEvent, all points that fall inside the rectange:
+				This EPL outputs, upon arrival of a RectangleEvent, all points that fall inside the rectangle:
 			</para>
 			<programlisting>on RectangleEvent
 select pointId from PointTable
 where point(px, py).inside(rectangle(rx, ry, w, h))</programlisting>
 
 			<para>
-				Internally the engine does not instantiate point or rectange objects at all but instead optimizes the expression to comparison between <literal>double</literal>-type values.
+				Internally the engine does not instantiate point or rectangle objects at all but instead optimizes the expression to comparison between <literal>double</literal>-type values.
 			</para>
 
-			<sect3 xml:id="spatial_eventindex_use_notes">
-				<title>Quadtree Event Index Usage Notes</title>
+			<sect3 xml:id="spatial_index_pointregionquadtreeusenotes">
+				<title>Point-Region Quadtree Event Index Usage Notes</title>
 				<para>
-					Quadtree indexes allow computed values for both index columns and index parameters. For example, the following EPL declares an index wherein (x, y)-coordinates are <literal>(px/100, py/100)</literal>-values. The sample EPL assumes that <literal>context.frame</literal> is a built-in property as provided by context <literal>FramedCtx</literal>:
+					Point-Region quadtree indexes allow computed values for both index columns and index parameters. For example, the following EPL declares an index wherein (x, y)-coordinates are <literal>(px/100, py/100)</literal>-values. The sample EPL assumes that <literal>context.frame</literal> is a built-in property as provided by context <literal>FramedCtx</literal>:
 				</para>		
 				<programlisting>context FramedCtx create index PointIndex on PointTable((Math.round(px/100), Math.round(py/100)) pointregionquadtree(context.frame.startx, context.frame.starty, context.frame.w, context.frame.h))</programlisting>
 				
 				<para>
-					The engine compares the index column expressions to the <literal>point-in-rectangle</literal> left-hand-side expressions to determine which index to use.				
+					The engine compares the index column expressions to the <literal>point-inside-rectangle</literal> left-hand-side expressions to determine which index to use.				
 					For example, if the expression is <literal>point(px+1, py+1).inside(rectangle(rx, ry, w, h))</literal>
 					as <literal>(px+1, py+1)</literal> does not match <literal>(Math.round(px/100), Math.round(py/100))</literal> the query planner does not use the index.
 					If the expression is <literal>point(Math.round(px/100), Math.round(py/100)).inside(rectangle(rx, ry, w, h))</literal> the query planner does use the index as index column expressions match.
 				</para>
 				
 				<para>
-					The query planner prefers quadtree over other index types. Index hints are not yet available for query planning with quadtree indexes.
+					The query planner prefers point-region quadtree over other index types. Index hints are not yet available for query planning with quadtree indexes.
+				</para>			
+			</sect3>
+		</sect2>
+	
+		<sect2 xml:id="spatial_index_mxcifquadtreedeclare">
+			<title>Declaring a MX-CIF Quadtree Index</title>
+			
+			<para>
+				Declaring a MX-CIF quadtree index is the same for both filter indexes and event indexes.
+				MX-CIF quadtrees are suitable for efficiently finding rectangles that intersect with a rectangle, when there are many rectangles.
+			</para>
+			
+			<para>
+				The synopsis to declare a MX-CIF quadtree index, as part of an EPL statement, is:
+			</para>
+			<synopsis>mxcifquadtree(<emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>, 
+  <emphasis>width</emphasis>, <emphasis>height</emphasis> [, <emphasis>leaf_capacity_expression</emphasis> [, <emphasis>max_tree_height_expression</emphasis>]])</synopsis>
+
+			<para>
+				The <emphasis>min_x_expression</emphasis>, <emphasis>min_y_expression</emphasis>,  <emphasis>width</emphasis>, <emphasis>height</emphasis> are index parameter expressions 
+				that return the range of the index. The width and height must be greater zero. The index range rectangle is represented by <literal>double</literal>-type values internally.
+				A given rectangle must intersect with the index range.
+			</para>
+				
+			<note>
+				<para>
+					An attempt to insert rectangles into the index that do not intersect with the declared index range causes an exception. 
+				</para>
+			</note>
+
+			<para>
+				The <emphasis>leaf_capacity_expression</emphasis> is optional and must return a positive integer. It defines the number of coordinates a node may contain before it gets split into regions.
+				The default value is 4.
+			</para>
+	
+			<para>
+				The <emphasis>max_tree_height_expression</emphasis> is optional and must return an integer value of 2 or more. It defines the maximum depth of the tree. 
+				Upon the tree reaching the maximum depth a leaf node  does not get split into regions. The default value is 20.
+			</para>
+		</sect2>
+		
+		<sect2 xml:id="spatial_index_mxcifquadtreefilterindex">
+			<title>Using a MX-CIF Quadtree as a Filter Index</title>
+
+			<para>
+				The section that summarizes filter indexes is <xref linkend="processingmodel_indexes_filterindexes"/>.
+				As there could be many <literal>rectangle(...).intersects(rectangle)</literal> filters active, having a filter index allows the engine to efficiently match incoming events to EPL statements.
+			</para>
+
+			<para>
+				For use of a MX-CIF quadtree index within filter criteria you must: 
+			</para>
+			<itemizedlist>
+				<ns:listitem>
+					<para>Define an expression that returns the MX-CIF quadtree configuration, making sure it specifies <literal>mxcifquadtree</literal>.</para>
+				</ns:listitem>
+				<ns:listitem>
+					<para>Add the <literal>filterindex</literal> named parameter providing the expression name.</para>
+				</ns:listitem>
+			</itemizedlist>
+			
+			<para>
+				For defining a local or global expression, please consult <xref linkend="epl-syntax-expression-decl"/>.
+			</para>
+			
+			<para>
+				This sample EPL query defines the MX-CIF quadtree filter index to have a bounding box of <literal>(0,0,100,100)</literal>:
+			</para>
+			<programlisting>expression myMXCIFQuadtreeSettings { mxcifquadtree(0, 0, 100, 100) } 
+select * from RectangleEvent(rectangle(10, 20, 5, 5, filterindex:myMXCIFQuadtreeSettings).intersects(rectangle(x, y, width, height)))</programlisting>
+	
+			<para>
+				The <literal>filterindex</literal> named parameter instructs the engine that the settings for the MX-CIF quadtree filter index are provided by the expression <literal>myMXCIFQuadtreeSettings</literal>, a local expression in this example.
+				For sharing MX-CIF quadtree settings across statements you may use a global expression instead. Please see <xref linkend="create-exprglobal"/>.
+			</para>
+			
+			<para>
+				If your EPL does not specify <literal>filterindex</literal> the engine does not build a MX-CIF quadtree filter index.
+			</para>
+
+			<para>
+				If your EPL specifies <literal>filterindex</literal> the engine always builds and uses a MX-CIF quadtree filter index.
+				In the case the engine analyses filter criteria and determines that it cannot use the MX-CIF quadtree filter index, the engine fails statement validation.
+			</para>
+
+			<para>
+				If your EPL specifies <literal>filterindex</literal> and the engine determines that it cannot use the MX-CIF quadtree filter index it fails statement validation.
+			</para>
+			
+			<para>
+				The engine shares MX-CIF quadtree filter indexes across the engine within the same event type given that:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>Filters have the same <literal>rectangle</literal> expressions.</para>
+				</listitem>
+				<listitem>
+					<para>Filters use the same <literal>filterindex</literal> parameter i.e. the text <literal>myMXCIFQuadtreeSettings</literal> in above example.</para>
+				</listitem>
+				<listitem>
+					<para>Filters use the same MX-CIF quadtree index configuration i.e. <literal>mxcifquadtree(0,0,100,100)</literal> in above example.</para>
+				</listitem>
+			</orderedlist>
+
+			<para>
+				For use with the <literal>filterindex</literal> named parameter, the following requirements apply towards left-hand side <literal>rectangle</literal> expressions:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>Left-hand side  rectangle expressions must be a constant, a context-provided built-in property or an event property provided by a previous pattern match within the same pattern.</para>
+				</listitem>
+			</orderedlist>
+
+			<para>
+				For use with the <literal>filterindex</literal> named parameter, the following requirements apply towards right-hand side <literal>rectangle</literal> expressions:
+			</para>
+			<orderedlist>
+				<listitem>
+					<para>Right-hand side rectangle expressions must be event properties.</para>
+				</listitem>
+			</orderedlist>
+		</sect2>
+
+		<sect2 xml:id="spatial_index_mxcifquadtreeeventindex">
+			<title>Using a MX-CIF Quadtree as an Event Index</title>
+
+			<para>
+				The section that summarizes event indexes is  <xref linkend="processingmodel_indexes_eventindexes"/>. The <literal>create index</literal> clause is described in <xref linkend="named_explicit_index"/>.
+			</para>
+			
+			<para>
+				Declare a MX-CIF quadtree event index as follows:
+			</para>
+			<synopsis>create index ... on ... (
+  (<emphasis>x_expression</emphasis>, <emphasis>y_expression</emphasis>, <emphasis>width_expression</emphasis>, <emphasis>height_expression</emphasis>) mxcifquadtree(<emphasis>mxcif_quadtree_configuration</emphasis>)
+)</synopsis>
+	
+			<para>
+				The <emphasis>x_expression</emphasis>, <emphasis>y_expression</emphasis>, <emphasis>width_expression</emphasis> and <emphasis>height_expression</emphasis> expressions form the index columns. 
+				The expressions return the (x, y)-coordinates and rectangle size and must return numeric values.  Coordinates and sizes are represented as <literal>double</literal>-type values internally.
+				See above for the <emphasis>mxcif_quadtree_configuration</emphasis> MX-CIF quadtree configuration.
+			</para>
+				
+			<para>
+				For example, assume we have a table that contains rectangles:
+			</para>
+			<programlisting>create table RectangleTable(rectangleId string primary key, rx double, ry double, rwidth double, rheight double)</programlisting>
+			
+			<para>
+				This example EPL declares an index on the rectangles, with <literal>rx</literal>, <literal>ry</literal>, <literal>rwidth</literal> and <literal>rheight</literal> becoming index columns that determine the (x, y)-coordinates and the sizes:
+			</para>
+			<programlisting>create index RectangleIndex on RectangleTable((rx, ry, rwidth, rheight) mxcifquadtree(0, 0, 100, 100))</programlisting>
+
+			<para>
+				The above sample quadtree index expects rectangles to intersect the rectangle <literal>(0, 0, 100, 100)</literal>.
+			</para>
+
+			<para>
+				The example schema for arriving events is:
+			</para>
+			<programlisting>create schema OtherRectangleEvent(otherX double, otherY double, otherWidth double, otherHeight double)</programlisting>
+			
+			<para>
+				This EPL outputs, upon arrival of a <literal>OtherRectangleEvent</literal>, all rectangles stored in the table that intersect the arriving-events rectangle:
+			</para>
+			<programlisting>on OtherRectangleEvent
+select rectangleId from RectangleTable
+where rectangle(rx, ry, rwidth, rheight).intersects(rectangle(otherX, otherY, otherWidth, otherHeight))</programlisting>
+
+			<para>
+				Internally the engine does not instantiate rectangle objects at all but instead optimizes the expression to comparison between <literal>double</literal>-type values.
+			</para>
+
+			<sect3 xml:id="spatial_index_mxcifquadtreeusenotes">
+				<title>MX-CIF Quadtree Event Index Usage Notes</title>
+				<para>
+					MX-CIF quadtree indexes allow computed values for both index columns and index parameters. For example, the following EPL declares an index wherein (x, y)-coordinates are <literal>(px/100, py/100)</literal>-values. The sample EPL assumes that <literal>context.frame</literal> is a built-in property as provided by context <literal>FramedCtx</literal>:
+				</para>		
+				<programlisting>context FramedCtx create index RectangleIndex on RectangleTable((Math.round(rx/100), Math.round(ry/100), Math.round(rwidth/100), Math.round(rheight/100)) mxcifquadtree(context.frame.startx, context.frame.starty, context.frame.w, context.frame.h))</programlisting>
+				
+				<para>
+					The engine compares the index column expressions to the <literal>rectangle-interwsects-rectangle</literal> left-hand-side expressions to determine which index to use.				
+				</para>
+				
+				<para>
+					The query planner prefers MX-CIF quadtree over other index types. Index hints are not yet available for query planning with quadtree indexes.
 				</para>			
 			</sect3>
 		</sect2>
 	</sect1>
-	
-		<sect1 xml:id="spatial_etc">
+
+	<sect1 xml:id="spatial_etc">
 		<title>Spatial Types, Functions and Methods from External Libraries</title>
 		<indexterm><primary>spatial</primary><secondary>types</secondary></indexterm>
 		<indexterm><primary>spatial</primary><secondary>functions</secondary></indexterm>

@@ -17,12 +17,14 @@ public class FilterSpecCompilerAdvIndexDesc {
     private final ExprNode[] indexExpressions;
     private final ExprNode[] keyExpressions;
     private final AdvancedIndexConfigContextPartition indexSpec;
+    private final String indexType;
     private final String indexName;
 
-    public FilterSpecCompilerAdvIndexDesc(ExprNode[] indexExpressions, ExprNode[] keyExpressions, AdvancedIndexConfigContextPartition indexSpec, String indexName) {
+    public FilterSpecCompilerAdvIndexDesc(ExprNode[] indexExpressions, ExprNode[] keyExpressions, AdvancedIndexConfigContextPartition indexSpec, String indexType, String indexName) {
         this.indexExpressions = indexExpressions;
         this.keyExpressions = keyExpressions;
         this.indexSpec = indexSpec;
+        this.indexType = indexType;
         this.indexName = indexName;
     }
 
@@ -40,5 +42,9 @@ public class FilterSpecCompilerAdvIndexDesc {
 
     public String getIndexName() {
         return indexName;
+    }
+
+    public String getIndexType() {
+        return indexType;
     }
 }

@@ -18,11 +18,14 @@ import com.espertech.esper.epl.expression.dot.FilterSpecCompilerAdvIndexDescProv
 import com.espertech.esper.epl.expression.funcs.ExprPlugInSingleRowNode;
 import com.espertech.esper.epl.expression.ops.*;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexConfigContextPartitionQuadTree;
+import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodPointInsideRectange;
+import com.espertech.esper.epl.index.quadtree.EngineImportApplicationDotMethodRectangeIntersectsRectangle;
 import com.espertech.esper.event.property.IndexedProperty;
 import com.espertech.esper.event.property.NestedProperty;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
-import com.espertech.esper.spatial.quadtree.core.XYPoint;
+import com.espertech.esper.spatial.quadtree.mxcif.XYWHRectangle;
+import com.espertech.esper.spatial.quadtree.pointregion.XYPoint;
 import com.espertech.esper.type.RelationalOpEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleNumberCoercer;
@@ -98,10 +101,6 @@ public final class FilterSpecCompilerMakeParamUtil {
             return null;
         }
 
-        ExprNode[] indexExpressions = filterDesc.getIndexExpressions();
-        FilterSpecParamFilterForEvalDouble xEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[0], arrayEventTypes, statementName, exprEvaluatorContext);
-        FilterSpecParamFilterForEvalDouble yEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[1], arrayEventTypes, statementName, exprEvaluatorContext);
-
         ExprNode[] keyExpressions = filterDesc.getKeyExpressions();
         EventPropertyGetter xGetter = resolveFilterIndexRequiredGetter(filterDesc.getIndexName(), keyExpressions[0]);
         EventPropertyGetter yGetter = resolveFilterIndexRequiredGetter(filterDesc.getIndexName(), keyExpressions[1]);
@@ -120,11 +119,38 @@ public final class FilterSpecCompilerMakeParamUtil {
         builder.append("/");
         builder.append(filterDesc.getIndexName().toLowerCase(Locale.ENGLISH));
         builder.append("/");
+        builder.append(filterDesc.getIndexType().toLowerCase(Locale.ENGLISH));
+        builder.append("/");
         config.toConfiguration(builder);
         String expression = builder.toString();
 
-        FilterSpecLookupableAdvancedIndex lookupable = new FilterSpecLookupableAdvancedIndex(expression, null, XYPoint.class, config, xGetter, yGetter, widthGetter, heightGetter);
-        return new FilterSpecParamAdvancedIndex(lookupable, FilterOperator.ADVANCED_INDEX, xEval, yEval);
+        Class returnType;
+        switch (filterDesc.getIndexType()) {
+            case EngineImportApplicationDotMethodPointInsideRectange.INDEXTYPE_NAME:
+                returnType = XYPoint.class;
+                break;
+            case EngineImportApplicationDotMethodRectangeIntersectsRectangle.INDEXTYPE_NAME:
+                returnType = XYWHRectangle.class;
+                break;
+            default:
+                throw new IllegalStateException("Unrecognized index type " + filterDesc.getIndexType());
+        }
+
+        FilterSpecLookupableAdvancedIndex lookupable = new FilterSpecLookupableAdvancedIndex(expression, null, returnType, config, xGetter, yGetter, widthGetter, heightGetter, filterDesc.getIndexType());
+
+        ExprNode[] indexExpressions = filterDesc.getIndexExpressions();
+        FilterSpecParamFilterForEvalDouble xEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[0], arrayEventTypes, statementName, exprEvaluatorContext);
+        FilterSpecParamFilterForEvalDouble yEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[1], arrayEventTypes, statementName, exprEvaluatorContext);
+        switch (filterDesc.getIndexType()) {
+            case EngineImportApplicationDotMethodPointInsideRectange.INDEXTYPE_NAME:
+                return new FilterSpecParamAdvancedIndexQuadTreePointRegion(lookupable, FilterOperator.ADVANCED_INDEX, xEval, yEval);
+            case EngineImportApplicationDotMethodRectangeIntersectsRectangle.INDEXTYPE_NAME:
+                FilterSpecParamFilterForEvalDouble widthEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[2], arrayEventTypes, statementName, exprEvaluatorContext);
+                FilterSpecParamFilterForEvalDouble heightEval = resolveFilterIndexDoubleEval(filterDesc.getIndexName(), indexExpressions[3], arrayEventTypes, statementName, exprEvaluatorContext);
+                return new FilterSpecParamAdvancedIndexQuadTreeMXCIF(lookupable, FilterOperator.ADVANCED_INDEX, xEval, yEval, widthEval, heightEval);
+            default:
+                throw new IllegalStateException("Unrecognized index type " + filterDesc.getIndexType());
+        }
     }
 
     private static FilterSpecParamFilterForEvalDouble resolveFilterIndexDoubleEval(String indexName, ExprNode indexExpression, LinkedHashMap<String, Pair<EventType, String>> arrayEventTypes, String statementName, ExprEvaluatorContext exprEvaluatorContext) throws ExprValidationException {
