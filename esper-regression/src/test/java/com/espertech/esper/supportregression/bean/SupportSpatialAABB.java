@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportSpatialAABB implements Serializable
-{
+public class SupportSpatialAABB implements Serializable {
     private String id;
     private double x;
     private double y;

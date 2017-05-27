@@ -12,22 +12,18 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportLegacyBeanInt implements Serializable
-{
+public class SupportLegacyBeanInt implements Serializable {
     public int fieldIntPrimitive;
 
-    public SupportLegacyBeanInt(int fieldIntPrimitive)
-    {
+    public SupportLegacyBeanInt(int fieldIntPrimitive) {
         this.fieldIntPrimitive = fieldIntPrimitive;
     }
 
-    public int getIntPrimitive()
-    {
+    public int getIntPrimitive() {
         return fieldIntPrimitive;
     }
 
-    public int readIntPrimitive()
-    {
+    public int readIntPrimitive() {
         return fieldIntPrimitive;
     }
 }

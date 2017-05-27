@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportRevisionFull implements ISupportRevisionFull
-{
+public class SupportRevisionFull implements ISupportRevisionFull {
     private final String k0;
     private final String p0;
     private final String p1;
@@ -20,8 +19,7 @@ public class SupportRevisionFull implements ISupportRevisionFull
     private final String p4;
     private final String p5;
 
-    public SupportRevisionFull(String k0, String p0, String p1, String p2, String p3, String p4, String p5)
-    {
+    public SupportRevisionFull(String k0, String p0, String p1, String p2, String p3, String p4, String p5) {
         this.k0 = k0;
         this.p0 = p0;
         this.p1 = p1;
@@ -31,8 +29,7 @@ public class SupportRevisionFull implements ISupportRevisionFull
         this.p5 = p5;
     }
 
-    public SupportRevisionFull(String k0, String p1, String p5)
-    {
+    public SupportRevisionFull(String k0, String p1, String p5) {
         this.k0 = k0;
         this.p0 = null;
         this.p1 = p1;
@@ -42,38 +39,31 @@ public class SupportRevisionFull implements ISupportRevisionFull
         this.p5 = p5;
     }
 
-    public String getK0()
-    {
+    public String getK0() {
         return k0;
     }
 
-    public String getP0()
-    {
+    public String getP0() {
         return p0;
     }
 
-    public String getP1()
-    {
+    public String getP1() {
         return p1;
     }
 
-    public String getP2()
-    {
+    public String getP2() {
         return p2;
     }
 
-    public String getP3()
-    {
+    public String getP3() {
         return p3;
     }
 
-    public String getP4()
-    {
+    public String getP4() {
         return p4;
     }
 
-    public String getP5()
-    {
+    public String getP5() {
         return p5;
     }
 }

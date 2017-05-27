@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanDynRoot implements SupportMarkerInterface
-{
+public class SupportBeanDynRoot implements SupportMarkerInterface {
     private Object item;
 
-    public SupportBeanDynRoot(Object inner)
-    {
+    public SupportBeanDynRoot(Object inner) {
         this.item = inner;
     }
 
-    public Object getItem()
-    {
+    public Object getItem() {
         return item;
     }
 }

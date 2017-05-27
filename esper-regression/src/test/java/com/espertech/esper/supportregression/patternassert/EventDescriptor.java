@@ -10,25 +10,21 @@
  */
 package com.espertech.esper.supportregression.patternassert;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
-public class EventDescriptor
-{
+public class EventDescriptor {
     private Map<String, Object> eventProperties;
 
-    public EventDescriptor()
-    {
+    public EventDescriptor() {
         eventProperties = new HashMap<String, Object>();
     }
 
-    public Map<String, Object> getEventProperties()
-    {
+    public Map<String, Object> getEventProperties() {
         return eventProperties;
     }
 
-    public void put(String propertyName, Object value)
-    {
+    public void put(String propertyName, Object value) {
         eventProperties.put(propertyName, value);
     }
 }

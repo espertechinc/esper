@@ -10,27 +10,23 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanReservedKeyword
-{
+public class SupportBeanReservedKeyword {
     private int seconds;
     private int order;
     private Inner timestamp;
     private int[] group;
     public SupportBeanReservedKeyword innerbean;
 
-    public SupportBeanReservedKeyword(int seconds, int order)
-    {
+    public SupportBeanReservedKeyword(int seconds, int order) {
         this.seconds = seconds;
         this.order = order;
     }
 
-    public int getSeconds()
-    {
+    public int getSeconds() {
         return seconds;
     }
 
-    public void setSeconds(int seconds)
-    {
+    public void setSeconds(int seconds) {
         this.seconds = seconds;
     }
 
@@ -42,13 +38,11 @@ public class SupportBeanReservedKeyword
         this.group = group;
     }
 
-    public int getOrder()
-    {
+    public int getOrder() {
         return order;
     }
 
-    public void setOrder(int order)
-    {
+    public void setOrder(int order) {
         this.order = order;
     }
 
@@ -60,27 +54,22 @@ public class SupportBeanReservedKeyword
         this.innerbean = innerbean;
     }
 
-    public Inner getTimestamp()
-    {
+    public Inner getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Inner timestamp)
-    {
+    public void setTimestamp(Inner timestamp) {
         this.timestamp = timestamp;
     }
 
-    public static class Inner
-    {
+    public static class Inner {
         private int hour;
 
-        public int getHour()
-        {
+        public int getHour() {
             return hour;
         }
 
-        public void setHour(int hour)
-        {
+        public void setHour(int hour) {
             this.hour = hour;
         }
     }

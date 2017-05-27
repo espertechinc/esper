@@ -22,11 +22,11 @@ import java.util.List;
 
 public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
 
-    private static final List<QueryPlanIndexDescSubquery> subqueries = new ArrayList<QueryPlanIndexDescSubquery>();
-    private static final List<QueryPlanIndexDescOnExpr> onexprs = new ArrayList<QueryPlanIndexDescOnExpr>();
-    private static final List<QueryPlanIndexDescFAF> fafSnapshots = new ArrayList<QueryPlanIndexDescFAF>();
-    private static final List<QueryPlan> joins = new ArrayList<QueryPlan>();
-    private static final List<QueryPlanIndexDescHistorical> historical = new ArrayList<QueryPlanIndexDescHistorical>();
+    private static final List<QueryPlanIndexDescSubquery> SUBQUERIES = new ArrayList<QueryPlanIndexDescSubquery>();
+    private static final List<QueryPlanIndexDescOnExpr> ONEXPRS = new ArrayList<QueryPlanIndexDescOnExpr>();
+    private static final List<QueryPlanIndexDescFAF> FAFSNAPSHOTS = new ArrayList<QueryPlanIndexDescFAF>();
+    private static final List<QueryPlan> JOINS = new ArrayList<QueryPlan>();
+    private static final List<QueryPlanIndexDescHistorical> HISTORICALS = new ArrayList<QueryPlanIndexDescHistorical>();
 
     public static String resetGetClassName() {
         reset();
@@ -34,41 +34,41 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     }
 
     public static void reset() {
-        subqueries.clear();
-        onexprs.clear();
-        fafSnapshots.clear();
-        joins.clear();
-        historical.clear();
+        SUBQUERIES.clear();
+        ONEXPRS.clear();
+        FAFSNAPSHOTS.clear();
+        JOINS.clear();
+        HISTORICALS.clear();
     }
 
     public void historical(QueryPlanIndexDescHistorical historicalPlan) {
-        historical.add(historicalPlan);
+        HISTORICALS.add(historicalPlan);
     }
 
     public void subquery(QueryPlanIndexDescSubquery subquery) {
-        subqueries.add(subquery);
+        SUBQUERIES.add(subquery);
     }
 
     public void infraOnExpr(QueryPlanIndexDescOnExpr onexprdesc) {
-        onexprs.add(onexprdesc);
+        ONEXPRS.add(onexprdesc);
     }
 
     public void fireAndForget(QueryPlanIndexDescFAF fafdesc) {
-        fafSnapshots.add(fafdesc);
+        FAFSNAPSHOTS.add(fafdesc);
     }
 
     public void join(QueryPlan join) {
-        joins.add(join);
+        JOINS.add(join);
     }
 
     public static List<QueryPlanIndexDescSubquery> getAndResetSubqueries() {
-        List<QueryPlanIndexDescSubquery> copy = new ArrayList<QueryPlanIndexDescSubquery>(subqueries);
+        List<QueryPlanIndexDescSubquery> copy = new ArrayList<QueryPlanIndexDescSubquery>(SUBQUERIES);
         reset();
         return copy;
     }
 
     public static QueryPlanIndexDescOnExpr getAndResetOnExpr() {
-        QueryPlanIndexDescOnExpr onexpr = onexprs.get(0);
+        QueryPlanIndexDescOnExpr onexpr = ONEXPRS.get(0);
         reset();
         return onexpr;
     }
@@ -84,27 +84,26 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     }
 
     public static void assertSubqueryBackingAndReset(int subqueryNum, String tableName, String indexBackingClass) {
-        Assert.assertTrue(subqueries.size() == 1);
-        QueryPlanIndexDescSubquery subquery = subqueries.get(0);
+        Assert.assertTrue(SUBQUERIES.size() == 1);
+        QueryPlanIndexDescSubquery subquery = SUBQUERIES.get(0);
         assertSubquery(subquery, subqueryNum, tableName, indexBackingClass);
         reset();
     }
 
     public static QueryPlanIndexDescSubquery assertSubqueryAndReset() {
-        Assert.assertTrue(subqueries.size() == 1);
-        QueryPlanIndexDescSubquery subquery = subqueries.get(0);
+        Assert.assertTrue(SUBQUERIES.size() == 1);
+        QueryPlanIndexDescSubquery subquery = SUBQUERIES.get(0);
         reset();
         return subquery;
     }
 
     public static void assertOnExprTableAndReset(String indexName, String indexDescription) {
-        Assert.assertTrue(onexprs.size() == 1);
-        QueryPlanIndexDescOnExpr onexp = onexprs.get(0);
+        Assert.assertTrue(ONEXPRS.size() == 1);
+        QueryPlanIndexDescOnExpr onexp = ONEXPRS.get(0);
         if (indexDescription != null) {
             Assert.assertEquals(indexDescription, onexp.getTables()[0].getIndexDesc());
             Assert.assertEquals(indexName, onexp.getTables()[0].getIndexName()); // can be null
-        }
-        else {
+        } else {
             Assert.assertNull(onexp.getTables());
             Assert.assertNull(onexp.getTableLookupStrategy());
         }
@@ -112,23 +111,23 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     }
 
     public static QueryPlanIndexDescOnExpr assertOnExprAndReset() {
-        Assert.assertTrue(onexprs.size() == 1);
-        QueryPlanIndexDescOnExpr onexp = onexprs.get(0);
+        Assert.assertTrue(ONEXPRS.size() == 1);
+        QueryPlanIndexDescOnExpr onexp = ONEXPRS.get(0);
         reset();
         return onexp;
     }
 
     public static void assertFAFAndReset(String tableName, String indexBackingClass) {
-        Assert.assertTrue(fafSnapshots.size() == 1);
-        QueryPlanIndexDescFAF fafdesc = fafSnapshots.get(0);
+        Assert.assertTrue(FAFSNAPSHOTS.size() == 1);
+        QueryPlanIndexDescFAF fafdesc = FAFSNAPSHOTS.get(0);
         Assert.assertEquals(tableName, fafdesc.getTables()[0].getIndexName());
         Assert.assertEquals(indexBackingClass, fafdesc.getTables()[0].getIndexDesc());
         reset();
     }
 
     public static void assertJoinOneStreamAndReset(boolean unique) {
-        Assert.assertTrue(joins.size() == 1);
-        QueryPlan join = joins.get(0);
+        Assert.assertTrue(JOINS.size() == 1);
+        QueryPlan join = JOINS.get(0);
         QueryPlanIndex first = join.getIndexSpecs()[1];
         TableLookupIndexReqKey firstName = first.getItems().keySet().iterator().next();
         QueryPlanIndexItem index = first.getItems().get(firstName);
@@ -137,15 +136,15 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     }
 
     public static QueryPlan assertJoinAndReset() {
-        Assert.assertTrue(joins.size() == 1);
-        QueryPlan join = joins.get(0);
+        Assert.assertTrue(JOINS.size() == 1);
+        QueryPlan join = JOINS.get(0);
         reset();
         return join;
     }
 
     public static void assertJoinAllStreamsAndReset(boolean unique) {
-        Assert.assertTrue(joins.size() == 1);
-        QueryPlan join = joins.get(0);
+        Assert.assertTrue(JOINS.size() == 1);
+        QueryPlan join = JOINS.get(0);
         for (QueryPlanIndex index : join.getIndexSpecs()) {
             TableLookupIndexReqKey firstName = index.getItems().keySet().iterator().next();
             QueryPlanIndexItem indexDesc = index.getItems().get(firstName);
@@ -155,7 +154,7 @@ public class SupportQueryPlanIndexHook implements QueryPlanIndexHook {
     }
 
     public static QueryPlanIndexDescHistorical assertHistoricalAndReset() {
-        QueryPlanIndexDescHistorical item = historical.get(0);
+        QueryPlanIndexDescHistorical item = HISTORICALS.get(0);
         reset();
         return item;
     }

@@ -10,14 +10,12 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportChainTop
-{
+public class SupportChainTop {
     public static SupportChainTop make() {
         return new SupportChainTop();
     }
 
-    public SupportChainChildOne getChildOne(String text, int value)
-    {
+    public SupportChainChildOne getChildOne(String text, int value) {
         return new SupportChainChildOne(text, value);
     }
 }

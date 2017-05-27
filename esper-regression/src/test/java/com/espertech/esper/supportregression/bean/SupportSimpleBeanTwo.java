@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportSimpleBeanTwo implements Serializable
-{
+public class SupportSimpleBeanTwo implements Serializable {
     private String s2;
     private int i2;
     private double d2;

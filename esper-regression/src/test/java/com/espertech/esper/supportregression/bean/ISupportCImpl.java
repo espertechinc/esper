@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class ISupportCImpl implements ISupportC
-{
+public class ISupportCImpl implements ISupportC {
     private String valueC;
 
-    public ISupportCImpl(String valueC)
-    {
+    public ISupportCImpl(String valueC) {
         this.valueC = valueC;
     }
 
-    public String getC()
-    {
+    public String getC() {
         return valueC;
     }
 }

@@ -13,27 +13,22 @@ package com.espertech.esper.supportregression.patternassert;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CaseList
-{
+public class CaseList {
     private LinkedList<EventExpressionCase> results;
 
-    public CaseList()
-    {
+    public CaseList() {
         results = new LinkedList<EventExpressionCase>();
     }
 
-    public void addTest(EventExpressionCase desc)
-    {
+    public void addTest(EventExpressionCase desc) {
         results.add(desc);
     }
 
-    public int getNumTests()
-    {
+    public int getNumTests() {
         return results.size();
     }
 
-    public List<EventExpressionCase> getResults()
-    {
+    public List<EventExpressionCase> getResults() {
         return results;
     }
 }

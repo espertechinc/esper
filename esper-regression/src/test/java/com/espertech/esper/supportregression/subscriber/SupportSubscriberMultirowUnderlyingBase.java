@@ -18,23 +18,19 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-public abstract class SupportSubscriberMultirowUnderlyingBase extends SupportSubscriberBase
-{
+public abstract class SupportSubscriberMultirowUnderlyingBase extends SupportSubscriberBase {
     private final ArrayList<UniformPair<Object[]>> indicate = new ArrayList<UniformPair<Object[]>>();
 
     public SupportSubscriberMultirowUnderlyingBase(boolean requiresStatementDelivery) {
         super(requiresStatementDelivery);
     }
 
-    public void addIndication(Object[] newEvents, Object[] oldEvents)
-    {
+    public void addIndication(Object[] newEvents, Object[] oldEvents) {
         indicate.add(new UniformPair<Object[]>(newEvents, oldEvents));
     }
 
-    public void addIndication(EPStatement stmt, Object[]newEvents, Object[] oldEvents)
-    {
+    public void addIndication(EPStatement stmt, Object[] newEvents, Object[] oldEvents) {
         indicate.add(new UniformPair<Object[]>(newEvents, oldEvents));
         addStmtIndication(stmt);
     }

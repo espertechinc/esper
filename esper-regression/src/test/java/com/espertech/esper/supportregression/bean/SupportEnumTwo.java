@@ -12,11 +12,10 @@ package com.espertech.esper.supportregression.bean;
 
 import com.espertech.esper.client.EventBean;
 
-public enum SupportEnumTwo
-{
-    ENUM_VALUE_1(100, new String[] {"1", "0", "0"}),
-    ENUM_VALUE_2(200, new String[] {"2", "0", "0"}),
-    ENUM_VALUE_3(300, new String[] {"3", "0", "0"});
+public enum SupportEnumTwo {
+    ENUM_VALUE_1(100, new String[]{"1", "0", "0"}),
+    ENUM_VALUE_2(200, new String[]{"2", "0", "0"}),
+    ENUM_VALUE_3(300, new String[]{"3", "0", "0"});
 
     private final int associatedValue;
     private final String[] mystrings;

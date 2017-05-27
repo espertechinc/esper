@@ -13,7 +13,7 @@ package com.espertech.esper.supportregression.util;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.scopetest.SupportUpdateListener;
-import com.espertech.esper.regression.spatial.TestSpatialPointRegionQuadTree;
+import com.espertech.esper.regression.spatial.ExecSpatialPointRegionQuadTreeEventIndex;
 import com.espertech.esper.spatial.quadtree.core.BoundingBox;
 import com.espertech.esper.supportregression.bean.SupportSpatialAABB;
 import com.espertech.esper.supportregression.bean.SupportSpatialPoint;
@@ -66,7 +66,7 @@ public class SupportSpatialUtil {
     }
 
     public static void sendAssertWNull(EPServiceProvider epService, SupportUpdateListener listener, Double px, Double py, Double x, Double y, Double width, Double height, Boolean expected) {
-        epService.getEPRuntime().sendEvent(new TestSpatialPointRegionQuadTree.MyEventRectangleWithOffset("E", px, py, x, y, width, height));
+        epService.getEPRuntime().sendEvent(new ExecSpatialPointRegionQuadTreeEventIndex.MyEventRectangleWithOffset("E", px, py, x, y, width, height));
         assertEquals(expected, listener.assertOneGetNewAndReset().get("c0"));
     }
 
@@ -94,7 +94,7 @@ public class SupportSpatialUtil {
 
     public static Object[][] getExpected(List<SupportSpatialPoint> points, double x, double y, double width, double height) {
         Set<String> expected = new TreeSet<>();
-        BoundingBox boundingBox = new BoundingBox(x, y, x+width, y+height);
+        BoundingBox boundingBox = new BoundingBox(x, y, x + width, y + height);
         for (SupportSpatialPoint p : points) {
             if (boundingBox.containsPoint(p.getPx(), p.getPy())) {
                 if (expected.contains(p.getId())) {
@@ -106,7 +106,7 @@ public class SupportSpatialUtil {
         Object[][] rows = new Object[expected.size()][];
         int index = 0;
         for (String id : expected) {
-            rows[index++] = new Object[] {id};
+            rows[index++] = new Object[]{id};
         }
         return rows;
     }

@@ -10,22 +10,18 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportAmbigousEventType
-{
+public class SupportAmbigousEventType {
     private int id;
 
-    public SupportAmbigousEventType(int id)
-    {
+    public SupportAmbigousEventType(int id) {
         this.id = id;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 }

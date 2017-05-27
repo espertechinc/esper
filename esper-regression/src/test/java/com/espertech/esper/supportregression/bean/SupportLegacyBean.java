@@ -10,14 +10,13 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-import java.util.Map;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Legacy Java class for testing non-JavaBean style accessor methods.
  */
-public class SupportLegacyBean implements Serializable
-{
+public class SupportLegacyBean implements Serializable {
     private String legacyBeanVal;
     private String[] stringArray;
     private Map<String, String> mapped;
@@ -28,18 +27,15 @@ public class SupportLegacyBean implements Serializable
     public Map<String, String> fieldMapped;
     public LegacyNested fieldNested;
 
-    public SupportLegacyBean(String legacyBeanVal)
-    {
-        this(legacyBeanVal, null, null, null);        
+    public SupportLegacyBean(String legacyBeanVal) {
+        this(legacyBeanVal, null, null, null);
     }
 
-    public SupportLegacyBean(String[] stringArray)
-    {
+    public SupportLegacyBean(String[] stringArray) {
         this(null, stringArray, null, null);
     }
 
-    public SupportLegacyBean(String legacyBeanVal, String[] stringArray, Map<String, String> mapped, String legacyNested)
-    {
+    public SupportLegacyBean(String legacyBeanVal, String[] stringArray, Map<String, String> mapped, String legacyNested) {
         this.legacyBeanVal = legacyBeanVal;
         this.stringArray = stringArray;
         this.mapped = mapped;
@@ -51,47 +47,38 @@ public class SupportLegacyBean implements Serializable
         this.fieldNested = this.legacyNested;
     }
 
-    public String readLegacyBeanVal()
-    {
+    public String readLegacyBeanVal() {
         return legacyBeanVal;
     }
 
-    public String[] readStringArray()
-    {
+    public String[] readStringArray() {
         return stringArray;
     }
 
-    public String readStringIndexed(int i)
-    {
+    public String readStringIndexed(int i) {
         return stringArray[i];
     }
 
-    public String readMapByKey(String key)
-    {
+    public String readMapByKey(String key) {
         return mapped.get(key);
     }
 
-    public Map readMap()
-    {
+    public Map readMap() {
         return mapped;
     }
 
-    public LegacyNested readLegacyNested()
-    {
+    public LegacyNested readLegacyNested() {
         return legacyNested;
     }
 
-    public class LegacyNested implements Serializable
-    {
+    public class LegacyNested implements Serializable {
         public String fieldNestedValue;
 
-        public LegacyNested(String nestedValue)
-        {
+        public LegacyNested(String nestedValue) {
             this.fieldNestedValue = nestedValue;
         }
 
-        public String readNestedValue()
-        {
+        public String readNestedValue() {
             return fieldNestedValue;
         }
     }

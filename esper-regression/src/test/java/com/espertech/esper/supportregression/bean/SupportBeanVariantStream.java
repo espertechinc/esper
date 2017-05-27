@@ -13,8 +13,7 @@ package com.espertech.esper.supportregression.bean;
 import java.io.Serializable;
 
 // For testing variant streams to act as a variant of SupportBean
-public class SupportBeanVariantStream implements Serializable
-{
+public class SupportBeanVariantStream implements Serializable {
     private String theString;
     private boolean boolBoxed;
     private Integer intPrimitive;
@@ -22,13 +21,11 @@ public class SupportBeanVariantStream implements Serializable
     private float doublePrimitive;
     private SupportEnum enumValue;
 
-    public SupportBeanVariantStream(String theString)
-    {
+    public SupportBeanVariantStream(String theString) {
         this.theString = theString;
     }
 
-    public SupportBeanVariantStream(String theString, boolean boolBoxed, Integer intPrimitive, int longPrimitive, float doublePrimitive, SupportEnum enumValue)
-    {
+    public SupportBeanVariantStream(String theString, boolean boolBoxed, Integer intPrimitive, int longPrimitive, float doublePrimitive, SupportEnum enumValue) {
         this.theString = theString;
         this.boolBoxed = boolBoxed;
         this.intPrimitive = intPrimitive;
@@ -37,33 +34,27 @@ public class SupportBeanVariantStream implements Serializable
         this.enumValue = enumValue;
     }
 
-    public String getTheString()
-    {
+    public String getTheString() {
         return theString;
     }
 
-    public boolean isBoolBoxed()
-    {
+    public boolean isBoolBoxed() {
         return boolBoxed;
     }
 
-    public Integer getIntPrimitive()
-    {
+    public Integer getIntPrimitive() {
         return intPrimitive;
     }
 
-    public int getLongPrimitive()
-    {
+    public int getLongPrimitive() {
         return longPrimitive;
     }
 
-    public float getDoublePrimitive()
-    {
+    public float getDoublePrimitive() {
         return doublePrimitive;
     }
 
-    public SupportEnum getEnumValue()
-    {
+    public SupportEnum getEnumValue() {
         return enumValue;
     }
 }

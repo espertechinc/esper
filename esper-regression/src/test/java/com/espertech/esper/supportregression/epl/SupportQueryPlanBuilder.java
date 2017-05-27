@@ -51,13 +51,13 @@ public class SupportQueryPlanBuilder {
 
     public SupportQueryPlanBuilder addIndexHashSingleNonUnique(int stream, String indexName, String property) {
         QueryPlanIndex index = queryPlan.getIndexSpecs()[stream];
-        index.getItems().put(new TableLookupIndexReqKey(indexName), new QueryPlanIndexItem(new String[] {property}, null, new String[0], null, false, null));
+        index.getItems().put(new TableLookupIndexReqKey(indexName), new QueryPlanIndexItem(new String[]{property}, null, new String[0], null, false, null));
         return this;
     }
 
     public SupportQueryPlanBuilder addIndexBtreeSingle(int stream, String indexName, String property) {
         QueryPlanIndex index = queryPlan.getIndexSpecs()[stream];
-        index.getItems().put(new TableLookupIndexReqKey(indexName), new QueryPlanIndexItem(new String[0], null, new String[] {property}, null, false, null));
+        index.getItems().put(new TableLookupIndexReqKey(indexName), new QueryPlanIndexItem(new String[0], null, new String[]{property}, null, false, null));
         return this;
     }
 

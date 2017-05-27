@@ -10,20 +10,17 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanErrorTestingOne     // don't make serializable
-{
-    public SupportBeanErrorTestingOne()
-    {
+// don't make serializable
+public class SupportBeanErrorTestingOne {
+    public SupportBeanErrorTestingOne() {
         throw new RuntimeException("Default ctor manufactured test exception");
     }
 
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         throw new RuntimeException("Setter manufactured test exception");
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         throw new RuntimeException("Getter manufactured test exception");
     }
 }

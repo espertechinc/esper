@@ -16,11 +16,9 @@ import com.espertech.esper.client.soda.EPStatementObjectModel;
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerEvent;
 import com.espertech.esper.event.EventBeanUtility;
-import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.bean.*;
-import com.espertech.esper.supportregression.client.SupportConfigFactory;
-import org.junit.Assert;
 import junit.framework.TestCase;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,48 +29,32 @@ import java.util.Map;
 /**
  * Test harness for testing expressions and comparing received MatchedEventMap instances against against expected results.
  */
-public class PatternTestHarness implements SupportBeanConstants
-{
+public class PatternTestHarness implements SupportBeanConstants {
     private final EventCollection sendEventCollection;
     private final CaseList caseList;
     private final Class testClass;
-    private final String testMethodName;
 
     // Array of expressions and match listeners for listening to events for each test descriptor
     private EPStatement expressions[];
     private SupportUpdateListener listeners[];
 
-    public PatternTestHarness( EventCollection sendEventCollection,
-                               CaseList caseList,
-                               Class testClass,
-                               String testMethodName)
-    {
+    public PatternTestHarness(EventCollection sendEventCollection,
+                              CaseList caseList,
+                              Class testClass) {
         this.sendEventCollection = sendEventCollection;
         this.caseList = caseList;
         this.testClass = testClass;
-        this.testMethodName = testMethodName;
 
         // Create a listener for each test descriptor
         this.listeners = new SupportUpdateListener[caseList.getNumTests()];
-        for (int i = 0; i < listeners.length; i++)
-        {
+        for (int i = 0; i < listeners.length; i++) {
             listeners[i] = new SupportUpdateListener();
         }
         expressions = new EPStatement[listeners.length];
     }
 
-    public void runTest() throws Exception
-    {
-        runTest(PatternTestStyle.USE_PATTERN_LANGUAGE);
-        runTest(PatternTestStyle.USE_EPL);
-        runTest(PatternTestStyle.COMPILE_TO_MODEL);
-        runTest(PatternTestStyle.COMPILE_TO_EPL);
-        runTest(PatternTestStyle.USE_EPL_AND_CONSUME_NOCHECK);
-    }
-
-    private void runTest(PatternTestStyle testStyle) throws Exception
-    {
-        Configuration config = SupportConfigFactory.getConfiguration();
+    public void runTest(EPServiceProvider epService) throws Exception {
+        ConfigurationOperations config = epService.getEPAdministrator().getConfiguration();
         config.addEventType("A", SupportBean_A.class);
         config.addEventType("B", SupportBean_B.class);
         config.addEventType("C", SupportBean_C.class);
@@ -80,15 +62,19 @@ public class PatternTestHarness implements SupportBeanConstants
         config.addEventType("E", SupportBean_E.class);
         config.addEventType("F", SupportBean_F.class);
         config.addEventType("G", SupportBean_G.class);
-        EPServiceProvider serviceProvider = EPServiceProviderManager.getDefaultProvider(config);
-        serviceProvider.initialize();
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.startTest(serviceProvider, testClass, testMethodName);}
 
-        EPRuntime runtime = serviceProvider.getEPRuntime();
+        runTest(epService, PatternTestStyle.USE_PATTERN_LANGUAGE);
+        runTest(epService, PatternTestStyle.USE_EPL);
+        runTest(epService, PatternTestStyle.COMPILE_TO_MODEL);
+        runTest(epService, PatternTestStyle.COMPILE_TO_EPL);
+        runTest(epService, PatternTestStyle.USE_EPL_AND_CONSUME_NOCHECK);
+    }
+
+    private void runTest(EPServiceProvider epService, PatternTestStyle testStyle) throws Exception {
+        EPRuntime runtime = epService.getEPRuntime();
 
         // Send the start time to the runtime
-        if (sendEventCollection.getTime(EventCollection.ON_START_EVENT_ID) != null)
-        {
+        if (sendEventCollection.getTime(EventCollection.ON_START_EVENT_ID) != null) {
             TimerEvent startTime = new CurrentTimeEvent(sendEventCollection.getTime(EventCollection.ON_START_EVENT_ID));
             runtime.sendEvent(startTime);
             log.debug(".runTest Start time is " + startTime);
@@ -97,63 +83,44 @@ public class PatternTestHarness implements SupportBeanConstants
         // Set up expression filters and match listeners
 
         int index = 0;
-        for (EventExpressionCase descriptor : caseList.getResults())
-        {
+        for (EventExpressionCase descriptor : caseList.getResults()) {
             String expressionText = descriptor.getExpressionText();
             EPStatementObjectModel model = descriptor.getObjectModel();
 
             EPStatement statement = null;
 
-            try
-            {
-                if (model != null)
-                {
-                    statement = serviceProvider.getEPAdministrator().create(model, "name--" + expressionText);
-                }
-                else
-                {
-                    if (testStyle == PatternTestStyle.USE_PATTERN_LANGUAGE)
-                    {
-                        statement = serviceProvider.getEPAdministrator().createPattern(expressionText, "name--" + expressionText);
-                    }
-                    else if (testStyle == PatternTestStyle.USE_EPL)
-                    {
+            try {
+                if (model != null) {
+                    statement = epService.getEPAdministrator().create(model, "name--" + expressionText);
+                } else {
+                    if (testStyle == PatternTestStyle.USE_PATTERN_LANGUAGE) {
+                        statement = epService.getEPAdministrator().createPattern(expressionText, "name--" + expressionText);
+                    } else if (testStyle == PatternTestStyle.USE_EPL) {
                         String text = "@Audit('pattern') @Audit('pattern-instances') select * from pattern [" + expressionText + "]";
-                        statement = serviceProvider.getEPAdministrator().createEPL(text);
+                        statement = epService.getEPAdministrator().createEPL(text);
                         expressionText = text;
-                    }
-                    else if (testStyle == PatternTestStyle.USE_EPL_AND_CONSUME_NOCHECK)
-                    {
+                    } else if (testStyle == PatternTestStyle.USE_EPL_AND_CONSUME_NOCHECK) {
                         String text = "select * from pattern @DiscardPartialsOnMatch @SuppressOverlappingMatches [" + expressionText + "]";
-                        statement = serviceProvider.getEPAdministrator().createEPL(text);
+                        statement = epService.getEPAdministrator().createEPL(text);
                         expressionText = text;
-                    }
-                    else if (testStyle == PatternTestStyle.COMPILE_TO_MODEL)
-                    {
+                    } else if (testStyle == PatternTestStyle.COMPILE_TO_MODEL) {
                         String text = "select * from pattern [" + expressionText + "]";
-                        EPStatementObjectModel mymodel = serviceProvider.getEPAdministrator().compileEPL(text);
-                        statement = serviceProvider.getEPAdministrator().create(mymodel);
+                        EPStatementObjectModel mymodel = epService.getEPAdministrator().compileEPL(text);
+                        statement = epService.getEPAdministrator().create(mymodel);
                         expressionText = text;
-                    }
-                    else if (testStyle == PatternTestStyle.COMPILE_TO_EPL)
-                    {
+                    } else if (testStyle == PatternTestStyle.COMPILE_TO_EPL) {
                         String text = "select * from pattern [" + expressionText + "]";
-                        EPStatementObjectModel mymodel = serviceProvider.getEPAdministrator().compileEPL(text);
+                        EPStatementObjectModel mymodel = epService.getEPAdministrator().compileEPL(text);
                         String reverse = mymodel.toEPL();
-                        statement = serviceProvider.getEPAdministrator().createEPL(reverse);
+                        statement = epService.getEPAdministrator().createEPL(reverse);
                         expressionText = reverse;
-                    }
-                    else
-                    {
+                    } else {
                         throw new IllegalArgumentException("Unknown test style");
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 String text = expressionText;
-                if (model != null)
-                {
+                if (model != null) {
                     text = "Model: " + model.toEPL();
                 }
                 log.error(".runTest Failed to create statement for style " + testStyle + " pattern expression=" + text, ex);
@@ -180,12 +147,10 @@ public class PatternTestHarness implements SupportBeanConstants
         // event itself cannot carry any information and is thus ignore. Note subsequent events
         // generated by the same pattern are fine.
         int totalEventsReceived = 0;
-        if (testStyle != PatternTestStyle.USE_PATTERN_LANGUAGE)
-        {
+        if (testStyle != PatternTestStyle.USE_PATTERN_LANGUAGE) {
             clearListenerEvents();
             totalEventsReceived += countExpectedEvents(EventCollection.ON_START_EVENT_ID);
-        }
-        else    // Patterns do need to handle event publishing upon pattern expression start (patterns that turn true right away)
+        } else    // Patterns do need to handle event publishing upon pattern expression start (patterns that turn true right away)
         {
             checkResults(testStyle, EventCollection.ON_START_EVENT_ID);
             totalEventsReceived += countListenerEvents();
@@ -193,18 +158,16 @@ public class PatternTestHarness implements SupportBeanConstants
         }
 
         // Send actual test events
-        for (Map.Entry<String, Object> entry : sendEventCollection.entrySet())
-        {
+        for (Map.Entry<String, Object> entry : sendEventCollection.entrySet()) {
             String eventId = entry.getKey();
 
             // Manipulate the time when this event was send
-            if (sendEventCollection.getTime(eventId) != null)
-            {
+            if (sendEventCollection.getTime(eventId) != null) {
                 TimerEvent currentTimeEvent = new CurrentTimeEvent(sendEventCollection.getTime(eventId));
                 runtime.sendEvent(currentTimeEvent);
                 log.debug(".runTest Sending event " + entry.getKey()
-                           + " = " + entry.getValue() +
-                          "  timed " + currentTimeEvent);
+                        + " = " + entry.getValue() +
+                        "  timed " + currentTimeEvent);
             }
 
             // Send event itself
@@ -222,54 +185,45 @@ public class PatternTestHarness implements SupportBeanConstants
 
         // Count number of expected matches
         int totalExpected = 0;
-        for (EventExpressionCase descriptor : caseList.getResults())
-        {
-            for (LinkedList<EventDescriptor> events : descriptor.getExpectedResults().values())
-            {
+        for (EventExpressionCase descriptor : caseList.getResults()) {
+            for (LinkedList<EventDescriptor> events : descriptor.getExpectedResults().values()) {
                 totalExpected += events.size();
             }
         }
 
-        if (totalExpected != totalEventsReceived && testStyle != PatternTestStyle.USE_EPL_AND_CONSUME_NOCHECK)
-        {
+        if (totalExpected != totalEventsReceived && testStyle != PatternTestStyle.USE_EPL_AND_CONSUME_NOCHECK) {
             log.debug(".test Count expected does not match count received, expected=" + totalExpected +
                     " received=" + totalEventsReceived);
             TestCase.assertTrue(false);
         }
 
         // Kill all expressions
-        for (EPStatement expression : expressions)
-        {
+        for (EPStatement expression : expressions) {
             expression.removeAllListeners();
         }
 
         // Send test events again to also test that all were indeed killed
-        for (Map.Entry<String, Object> entry : sendEventCollection.entrySet())
-        {
+        for (Map.Entry<String, Object> entry : sendEventCollection.entrySet()) {
             runtime.sendEvent(entry.getValue());
         }
 
         // Make sure all listeners are still at zero
-        for (SupportUpdateListener listener : listeners)
-        {
-            if (listener.getNewDataList().size() > 0)
-            {
+        for (SupportUpdateListener listener : listeners) {
+            if (listener.getNewDataList().size() > 0) {
                 log.debug(".test A match was received after stopping all expressions");
                 TestCase.assertTrue(false);
             }
         }
 
-        if (InstrumentationHelper.ENABLED) { InstrumentationHelper.endTest();}
+        epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private void checkResults(PatternTestStyle testStyle, String eventId)
-    {
+    private void checkResults(PatternTestStyle testStyle, String eventId) {
         // For each test descriptor, make sure the listener has received exactly the events expected
         int index = 0;
         log.debug(".checkResults Checking results for event " + eventId);
 
-        for (EventExpressionCase descriptor : caseList.getResults())
-        {
+        for (EventExpressionCase descriptor : caseList.getResults()) {
             String expressionText = expressions[index].getText();
 
             LinkedHashMap<String, LinkedList<EventDescriptor>> allExpectedResults = descriptor.getExpectedResults();
@@ -277,10 +231,8 @@ public class PatternTestHarness implements SupportBeanConstants
             index++;
 
             // If nothing at all was expected for this event, make sure nothing was received
-            if (!(allExpectedResults.containsKey(eventId)))
-            {
-                if ((receivedResults != null) && (receivedResults.length > 0))
-                {
+            if (!(allExpectedResults.containsKey(eventId))) {
+                if ((receivedResults != null) && (receivedResults.length > 0)) {
                     log.debug(".checkResults Incorrect result for style " + testStyle + " expression : " + expressionText);
                     log.debug(".checkResults Expected no results for event " + eventId + ", but received " + receivedResults.length + " events");
                     log.debug(".checkResults Received, have " + receivedResults.length + " entries");
@@ -294,8 +246,7 @@ public class PatternTestHarness implements SupportBeanConstants
 
             // Compare the result lists, not caring about the order of the elements
             try {
-                if (!(compareLists(receivedResults, expectedResults)))
-                {
+                if (!(compareLists(receivedResults, expectedResults))) {
                     log.debug(".checkResults Incorrect result for style " + testStyle + " expression : " + expressionText);
                     log.debug(".checkResults Expected size=" + expectedResults.size() + " received size=" + (receivedResults == null ? 0 : receivedResults.length));
 
@@ -306,8 +257,7 @@ public class PatternTestHarness implements SupportBeanConstants
 
                     TestCase.assertFalse(true);
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 Assert.fail("For statement '" + expressionText + "' failed to assert: " + ex.getMessage());
             }
@@ -315,11 +265,9 @@ public class PatternTestHarness implements SupportBeanConstants
     }
 
     private boolean compareLists(EventBean[] receivedResults,
-                                 LinkedList<EventDescriptor> expectedResults)
-    {
+                                 LinkedList<EventDescriptor> expectedResults) {
         int receivedSize = (receivedResults == null) ? 0 : receivedResults.length;
-        if (expectedResults.size() != receivedSize)
-        {
+        if (expectedResults.size() != receivedSize) {
             return false;
         }
 
@@ -327,22 +275,18 @@ public class PatternTestHarness implements SupportBeanConstants
         LinkedList<EventDescriptor> expectedResultsClone = new LinkedList<EventDescriptor>(expectedResults);
 
         // Go through the list of expected results and remove from received result list if found
-        for (EventDescriptor desc : expectedResults)
-        {
+        for (EventDescriptor desc : expectedResults) {
             EventDescriptor foundMatch = null;
 
-            for (EventBean received : receivedResults)
-            {
-                if (compareEvents(desc, received))
-                {
+            for (EventBean received : receivedResults) {
+                if (compareEvents(desc, received)) {
                     foundMatch = desc;
                     break;
                 }
             }
 
             // No match between expected and received
-            if (foundMatch == null)
-            {
+            if (foundMatch == null) {
                 return false;
             }
 
@@ -350,21 +294,17 @@ public class PatternTestHarness implements SupportBeanConstants
         }
 
         // Any left over received results also invalidate the test
-        if (expectedResultsClone.size() > 0)
-        {
+        if (expectedResultsClone.size() > 0) {
             return false;
         }
         return true;
     }
 
-    private static boolean compareEvents(EventDescriptor eventDesc, EventBean eventBean)
-    {
-        for (Map.Entry<String, Object> entry : eventDesc.getEventProperties().entrySet())
-        {
+    private static boolean compareEvents(EventDescriptor eventDesc, EventBean eventBean) {
+        for (Map.Entry<String, Object> entry : eventDesc.getEventProperties().entrySet()) {
             Object left = eventBean.get(entry.getKey());
             Object right = entry.getValue();
-            if (left != right)
-            {
+            if (left != right) {
                 return false;
             }
         }
@@ -374,10 +314,8 @@ public class PatternTestHarness implements SupportBeanConstants
     /**
      * Clear the event list of all listeners
      */
-    private void clearListenerEvents()
-    {
-        for (SupportUpdateListener listener : listeners)
-        {
+    private void clearListenerEvents() {
+        for (SupportUpdateListener listener : listeners) {
             listener.reset();
         }
     }
@@ -385,29 +323,23 @@ public class PatternTestHarness implements SupportBeanConstants
     /**
      * Clear the event list of all listeners
      */
-    private int countListenerEvents()
-    {
+    private int countListenerEvents() {
         int count = 0;
-        for (SupportUpdateListener listener : listeners)
-        {
-            for (EventBean[] events : listener.getNewDataList())
-            {
+        for (SupportUpdateListener listener : listeners) {
+            for (EventBean[] events : listener.getNewDataList()) {
                 count += events.length;
             }
         }
         return count;
     }
 
-    private void printList(LinkedList<EventDescriptor> events)
-    {
+    private void printList(LinkedList<EventDescriptor> events) {
         int index = 0;
-        for (EventDescriptor desc : events)
-        {
+        for (EventDescriptor desc : events) {
             StringBuilder buffer = new StringBuilder();
             int count = 0;
 
-            for (Map.Entry<String, Object> entry : desc.getEventProperties().entrySet())
-            {
+            for (Map.Entry<String, Object> entry : desc.getEventProperties().entrySet()) {
                 buffer.append(" (" + (count++) + ") ");
                 buffer.append("tag=" + entry.getKey());
 
@@ -420,17 +352,14 @@ public class PatternTestHarness implements SupportBeanConstants
         }
     }
 
-    private void printList(EventBean[] events)
-    {
-        if (events == null)
-        {
+    private void printList(EventBean[] events) {
+        if (events == null) {
             log.debug(".printList : null-value events array");
             return;
         }
 
         log.debug(".printList : " + events.length + " elements...");
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             log.debug("  " + EventBeanUtility.printEvent(events[i]));
         }
     }
@@ -438,36 +367,29 @@ public class PatternTestHarness implements SupportBeanConstants
     /**
      * Find the value object in the map of object names and values
      */
-    private String findValue(Object value)
-    {
-        for (Map.Entry<String, Object> entry : sendEventCollection.entrySet())
-        {
-            if (value == entry.getValue())
-            {
+    private String findValue(Object value) {
+        for (Map.Entry<String, Object> entry : sendEventCollection.entrySet()) {
+            if (value == entry.getValue()) {
                 return entry.getKey();
             }
         }
         return null;
     }
 
-    private int countExpectedEvents(String eventId)
-    {
+    private int countExpectedEvents(String eventId) {
         int result = 0;
-        for (EventExpressionCase descriptor : caseList.getResults())
-        {
+        for (EventExpressionCase descriptor : caseList.getResults()) {
             LinkedHashMap<String, LinkedList<EventDescriptor>> allExpectedResults = descriptor.getExpectedResults();
 
             // If nothing at all was expected for this event, make sure nothing was received
-            if (allExpectedResults.containsKey(eventId))
-            {
+            if (allExpectedResults.containsKey(eventId)) {
                 result++;
             }
         }
         return result;
     }
 
-    private enum PatternTestStyle
-    {
+    private enum PatternTestStyle {
         USE_PATTERN_LANGUAGE,
         USE_EPL,
         COMPILE_TO_MODEL,

@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.supportregression.xml;
 
-import javax.xml.xpath.XPathFunctionResolver;
-import javax.xml.xpath.XPathFunction;
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathFunction;
+import javax.xml.xpath.XPathFunctionResolver;
 
-public class SupportXPathFunctionResolver implements XPathFunctionResolver
-{
+public class SupportXPathFunctionResolver implements XPathFunctionResolver {
     public XPathFunction resolveFunction(QName functionName, int arity) {
         return null;
     }

@@ -16,17 +16,14 @@ import com.espertech.esper.epl.expression.core.ExprEvaluatorContext;
 
 import java.util.Collection;
 
-public class SupportAggregationResultFuture implements AggregationResultFuture
-{
+public class SupportAggregationResultFuture implements AggregationResultFuture {
     private Object[] values;
 
-    public SupportAggregationResultFuture(Object[] values)
-    {
+    public SupportAggregationResultFuture(Object[] values) {
         this.values = values;
     }
 
-    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext)
-    {
+    public Object getValue(int column, int agentInstanceId, EventBean[] eventsPerStream, boolean isNewData, ExprEvaluatorContext exprEvaluatorContext) {
         return values[column];
     }
 

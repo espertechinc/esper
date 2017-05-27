@@ -10,29 +10,24 @@
  */
 package com.espertech.esper.supportregression.subscriber;
 
-public class SupportSubscriberRowByRowFullNStmt extends SupportSubscriberRowByRowFullBase
-{
+public class SupportSubscriberRowByRowFullNStmt extends SupportSubscriberRowByRowFullBase {
     public SupportSubscriberRowByRowFullNStmt() {
         super(false);
     }
 
-    public void updateStart(int lengthIStream, int lengthRStream)
-    {
+    public void updateStart(int lengthIStream, int lengthRStream) {
         addUpdateStart(lengthIStream, lengthRStream);
     }
 
-    public void update(String theString, int intPrimitive)
-    {
-        addUpdate(new Object[] {theString, intPrimitive});
+    public void update(String theString, int intPrimitive) {
+        addUpdate(new Object[]{theString, intPrimitive});
     }
 
-    public void updateRStream(String theString, int intPrimitive)
-    {
-        addUpdateRStream(new Object[] {theString, intPrimitive});
+    public void updateRStream(String theString, int intPrimitive) {
+        addUpdateRStream(new Object[]{theString, intPrimitive});
     }
 
-    public void updateEnd()
-    {
+    public void updateEnd() {
         addUpdateEnd();
     }
 }

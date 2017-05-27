@@ -14,8 +14,7 @@ import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 
-public class SupportPluginAggregationMethodOneFactory implements AggregationFunctionFactory
-{
+public class SupportPluginAggregationMethodOneFactory implements AggregationFunctionFactory {
     public void setFunctionName(String functionName) {
     }
 

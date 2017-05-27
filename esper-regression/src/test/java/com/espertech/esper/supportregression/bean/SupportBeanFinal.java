@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public final class SupportBeanFinal
-{
+public final class SupportBeanFinal {
     private final int intPrimitive;
 
-    public SupportBeanFinal(int intPrimitive)
-    {
+    public SupportBeanFinal(int intPrimitive) {
         this.intPrimitive = intPrimitive;
     }
 
-    public final int getIntPrimitive()
-    {
+    public final int getIntPrimitive() {
         return intPrimitive;
     }
 }

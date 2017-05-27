@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanWriteOnly
-{
-    public void setSide(String buySell)
-    {
-        
+public class SupportBeanWriteOnly {
+    public void setSide(String buySell) {
+
     }
 }

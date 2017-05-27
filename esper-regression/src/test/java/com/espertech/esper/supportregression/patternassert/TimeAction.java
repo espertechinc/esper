@@ -12,11 +12,10 @@ package com.espertech.esper.supportregression.patternassert;
 
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class TimeAction
-{
+public class TimeAction {
     private List<EventSendDesc> events;
     private String actionDesc;
 
@@ -24,8 +23,7 @@ public class TimeAction
         events = new ArrayList<EventSendDesc>();
     }
 
-    public void add(SupportMarketDataBean theEvent, String eventDesc)
-    {
+    public void add(SupportMarketDataBean theEvent, String eventDesc) {
         events.add(new EventSendDesc(theEvent, eventDesc));
     }
 

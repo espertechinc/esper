@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanTwo implements Serializable
-{
+public class SupportBeanTwo implements Serializable {
     private String stringTwo;
 
     private boolean boolPrimitiveTwo;
@@ -36,8 +35,7 @@ public class SupportBeanTwo implements Serializable
 
     private SupportEnum enumValueTwo;
 
-    public SupportBeanTwo()
-    {
+    public SupportBeanTwo() {
     }
 
     public SupportBeanTwo(String stringTwo, int intPrimitiveTwo) {
@@ -189,8 +187,7 @@ public class SupportBeanTwo implements Serializable
         this.enumValueTwo = enumValueTwo;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return this.getClass().getSimpleName() + "(" + stringTwo + ", " + intPrimitiveTwo + ")";
     }
 }

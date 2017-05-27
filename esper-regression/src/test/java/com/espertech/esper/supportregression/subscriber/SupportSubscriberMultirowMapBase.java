@@ -17,12 +17,9 @@ import com.espertech.esper.collection.UniformPair;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public abstract class SupportSubscriberMultirowMapBase extends SupportSubscriberBase
-{
+public abstract class SupportSubscriberMultirowMapBase extends SupportSubscriberBase {
     private final ArrayList<UniformPair<Map[]>> indicate = new ArrayList<UniformPair<Map[]>>();
 
     protected SupportSubscriberMultirowMapBase(boolean requiresStatementDelivery) {

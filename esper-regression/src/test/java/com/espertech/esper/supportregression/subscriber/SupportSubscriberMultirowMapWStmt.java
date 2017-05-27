@@ -14,8 +14,7 @@ import com.espertech.esper.client.EPStatement;
 
 import java.util.Map;
 
-public class SupportSubscriberMultirowMapWStmt extends SupportSubscriberMultirowMapBase
-{
+public class SupportSubscriberMultirowMapWStmt extends SupportSubscriberMultirowMapBase {
     public SupportSubscriberMultirowMapWStmt() {
         super(true);
     }

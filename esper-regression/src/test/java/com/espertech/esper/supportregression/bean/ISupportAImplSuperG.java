@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public abstract class ISupportAImplSuperG implements ISupportA
-{
+public abstract class ISupportAImplSuperG implements ISupportA {
     public abstract String getG();
 }

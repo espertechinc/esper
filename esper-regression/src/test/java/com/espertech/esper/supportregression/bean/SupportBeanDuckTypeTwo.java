@@ -10,12 +10,10 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanDuckTypeTwo implements SupportBeanDuckType
-{
+public class SupportBeanDuckTypeTwo implements SupportBeanDuckType {
     private int intValue;
 
-    public SupportBeanDuckTypeTwo(int intValue)
-    {
+    public SupportBeanDuckTypeTwo(int intValue) {
         this.intValue = intValue;
     }
 

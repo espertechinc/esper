@@ -11,20 +11,50 @@
 package com.espertech.esper.supportregression.util;
 
 import com.espertech.esper.client.*;
-import com.espertech.esper.util.support.SupportEventTypeAssertionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 
 public class SupportMessageAssertUtil {
-    private static final Logger log = LoggerFactory.getLogger(SupportMessageAssertUtil.class);
-
     public static void tryInvalid(EPServiceProvider engine, String epl, String message) {
         try {
             engine.getEPAdministrator().createEPL(epl);
             Assert.fail();
+        } catch (EPStatementException ex) {
+            assertMessage(ex, message);
         }
-        catch (EPStatementException ex) {
+    }
+
+    public static void tryInvalidSyntax(EPServiceProvider engine, String epl, String message) {
+        try {
+            engine.getEPAdministrator().createEPL(epl);
+            Assert.fail();
+        } catch (EPStatementSyntaxException ex) {
+            assertMessage(ex, message);
+        }
+    }
+
+    public static void tryInvalidFAF(EPServiceProvider engine, String epl, String message) {
+        try {
+            engine.getEPRuntime().executeQuery(epl);
+            Assert.fail();
+        } catch (EPStatementException ex) {
+            assertMessage(ex, message);
+        }
+    }
+
+    public static void tryInvalidFAFSyntax(EPServiceProvider engine, String epl, String message) {
+        try {
+            engine.getEPRuntime().executeQuery(epl);
+            Assert.fail();
+        } catch (EPStatementSyntaxException ex) {
+            assertMessage(ex, message);
+        }
+    }
+
+    public static void tryInvalidPattern(EPServiceProvider engine, String epl, String message) {
+        try {
+            engine.getEPAdministrator().createPattern(epl);
+            Assert.fail();
+        } catch (EPStatementException ex) {
             assertMessage(ex, message);
         }
     }
@@ -33,8 +63,7 @@ public class SupportMessageAssertUtil {
         try {
             engine.getEPRuntime().executeQuery(epl);
             Assert.fail();
-        }
-        catch (EPStatementException ex) {
+        } catch (EPStatementException ex) {
             assertMessage(ex, message);
         }
     }
@@ -59,8 +88,7 @@ public class SupportMessageAssertUtil {
                 ex.printStackTrace();
                 Assert.fail("\nExpected:" + message + "\nReceived:" + ex.getMessage());
             }
-        }
-        else {
+        } else {
             // Comment-in for logging: log.error("Exception: " + ex.getMessage(), ex);
             ex.printStackTrace();
             Assert.fail("No assertion provided, received: " + ex.getMessage());
@@ -72,8 +100,7 @@ public class SupportMessageAssertUtil {
         try {
             stmt.iterator();
             Assert.fail();
-        }
-        catch (UnsupportedOperationException ex) {
+        } catch (UnsupportedOperationException ex) {
             assertMessage(ex, message);
         }
         stmt.destroy();
@@ -83,8 +110,7 @@ public class SupportMessageAssertUtil {
         try {
             event.get(propertyName);
             Assert.fail();
-        }
-        catch (PropertyAccessException ex) {
+        } catch (PropertyAccessException ex) {
             // expected
             assertMessage(ex, "Property named '" + propertyName + "' is not a valid property name for this type");
         }
@@ -94,8 +120,7 @@ public class SupportMessageAssertUtil {
         try {
             event.getFragment(propertyName);
             Assert.fail();
-        }
-        catch (PropertyAccessException ex) {
+        } catch (PropertyAccessException ex) {
             // expected
             assertMessage(ex, "Property named '" + propertyName + "' is not a valid property name for this type");
         }

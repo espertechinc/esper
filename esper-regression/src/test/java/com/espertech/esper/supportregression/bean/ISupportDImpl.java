@@ -10,31 +10,26 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class ISupportDImpl implements ISupportD
-{
+public class ISupportDImpl implements ISupportD {
     private String valueD;
     private String valueBaseD;
     private String valueBaseDBase;
 
-    public ISupportDImpl(String valueD, String valueBaseD, String valueBaseDBase)
-    {
+    public ISupportDImpl(String valueD, String valueBaseD, String valueBaseDBase) {
         this.valueD = valueD;
         this.valueBaseD = valueBaseD;
         this.valueBaseDBase = valueBaseDBase;
     }
 
-    public String getD()
-    {
+    public String getD() {
         return valueD;
     }
 
-    public String getBaseD()
-    {
+    public String getBaseD() {
         return valueBaseD;
     }
 
-    public String getBaseDBase()
-    {
+    public String getBaseDBase() {
         return valueBaseDBase;
     }
 }

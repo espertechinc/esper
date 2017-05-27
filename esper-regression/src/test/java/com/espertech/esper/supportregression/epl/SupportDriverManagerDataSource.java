@@ -19,40 +19,30 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class SupportDriverManagerDataSource implements DataSource
-{
+public class SupportDriverManagerDataSource implements DataSource {
     private Properties properties;
 
-    public SupportDriverManagerDataSource(Properties properties)
-    {
+    public SupportDriverManagerDataSource(Properties properties) {
         this.properties = properties;
     }
 
-    public Connection getConnection() throws SQLException
-    {
+    public Connection getConnection() throws SQLException {
         return getConnectionInternal();
     }
 
-    public Connection getConnection(String username, String password) throws SQLException
-    {
+    public Connection getConnection(String username, String password) throws SQLException {
         throw new UnsupportedOperationException();
     }
 
-    private Connection getConnectionInternal()
-    {
+    private Connection getConnectionInternal() {
         // load driver class
         String driverClassName = properties.getProperty("driverClassName");
-        try
-        {
+        try {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Class.forName(driverClassName, true, cl);
-        }
-        catch (ClassNotFoundException ex)
-        {
+        } catch (ClassNotFoundException ex) {
             throw new RuntimeException("Error loading driver class '" + driverClassName + '\'', ex);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             throw new RuntimeException("Error loading driver class '" + driverClassName + '\'', ex);
         }
 
@@ -62,12 +52,9 @@ public class SupportDriverManagerDataSource implements DataSource
         String user = properties.getProperty("username");
         String pwd = properties.getProperty("password");
 
-        try
-        {
+        try {
             connection = DriverManager.getConnection(url, user, pwd);
-        }
-        catch (SQLException ex)
-        {
+        } catch (SQLException ex) {
             String detail = "SQLException: " + ex.getMessage() +
                     " SQLState: " + ex.getSQLState() +
                     " VendorError: " + ex.getErrorCode();
@@ -80,31 +67,25 @@ public class SupportDriverManagerDataSource implements DataSource
         return connection;
     }
 
-    public PrintWriter getLogWriter() throws SQLException
-    {
+    public PrintWriter getLogWriter() throws SQLException {
         return null;
     }
 
-    public void setLogWriter(PrintWriter outWriter) throws SQLException
-    {
+    public void setLogWriter(PrintWriter outWriter) throws SQLException {
     }
 
-    public void setLoginTimeout(int seconds) throws SQLException
-    {
+    public void setLoginTimeout(int seconds) throws SQLException {
     }
 
-    public int getLoginTimeout() throws SQLException
-    {
+    public int getLoginTimeout() throws SQLException {
         return 0;
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException
-    {
+    public <T> T unwrap(Class<T> iface) throws SQLException {
         return null;
     }
 
-    public boolean isWrapperFor(Class<?> iface) throws SQLException
-    {
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return false;
     }
 

@@ -12,22 +12,19 @@ package com.espertech.esper.supportregression.epl;
 
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class SupportStaticMethodInvocations
-{
+public class SupportStaticMethodInvocations {
     private static List<String> invocations = new ArrayList<String>();
 
-    public static int getInvocationSizeReset()
-    {
+    public static int getInvocationSizeReset() {
         int size = invocations.size();
         invocations.clear();
         return size;
     }
 
-    public static SupportBean_S0 fetchObjectLog(String fetchId, int passThroughNumber)
-    {
+    public static SupportBean_S0 fetchObjectLog(String fetchId, int passThroughNumber) {
         invocations.add(fetchId);
         return new SupportBean_S0(passThroughNumber, "|" + fetchId + "|");
     }

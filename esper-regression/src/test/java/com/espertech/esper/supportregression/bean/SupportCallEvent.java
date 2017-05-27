@@ -12,16 +12,14 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportCallEvent implements Serializable
-{
+public class SupportCallEvent implements Serializable {
     private long callId;
     private String source;
     private String dest;
     private long startTime;
     private long endTime;
 
-    public SupportCallEvent(long callId, String source, String destination, long startTime, long endTime)
-    {
+    public SupportCallEvent(long callId, String source, String destination, long startTime, long endTime) {
         this.callId = callId;
         this.source = source;
         this.dest = destination;
@@ -29,28 +27,23 @@ public class SupportCallEvent implements Serializable
         this.endTime = endTime;
     }
 
-    public long getCallId()
-    {
+    public long getCallId() {
         return callId;
     }
 
-    public String getSource()
-    {
+    public String getSource() {
         return source;
     }
 
-    public String getDest()
-    {
+    public String getDest() {
         return dest;
     }
 
-    public long getStartTime()
-    {
+    public long getStartTime() {
         return startTime;
     }
 
-    public long getEndTime()
-    {
+    public long getEndTime() {
         return endTime;
     }
 }

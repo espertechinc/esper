@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanRange implements Serializable
-{
+public class SupportBeanRange implements Serializable {
     private String id;
     private String key;
     private Integer rangeStart;

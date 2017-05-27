@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.patternassert;
 
-public class StepDesc
-{
+public class StepDesc {
     private final int step;
     private final Object[][] newDataPerRow;
     private final Object[][] oldDataPerRow;

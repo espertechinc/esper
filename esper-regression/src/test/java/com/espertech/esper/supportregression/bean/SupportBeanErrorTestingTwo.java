@@ -10,22 +10,18 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanErrorTestingTwo
-{
+public class SupportBeanErrorTestingTwo {
     private String value;
-    
-    public SupportBeanErrorTestingTwo()
-    {
+
+    public SupportBeanErrorTestingTwo() {
         value = "default";
     }
 
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         throw new RuntimeException("Setter manufactured test exception");
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 }

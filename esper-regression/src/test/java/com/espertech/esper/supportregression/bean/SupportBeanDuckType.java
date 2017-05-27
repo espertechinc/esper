@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public interface SupportBeanDuckType
-{
+public interface SupportBeanDuckType {
     public double returnDouble();
 }

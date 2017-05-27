@@ -59,7 +59,7 @@ public class SupportEventInfra {
         Assert.assertEquals(expected.isExists(), eventBean.get("exists_" + propertyName));
     }
 
-    public  static LinkedHashMap<String, Object> twoEntryMap(String keyOne, Object valueOne, String keyTwo, Object valueTwo) {
+    public static LinkedHashMap<String, Object> twoEntryMap(String keyOne, Object valueOne, String keyTwo, Object valueTwo) {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         map.put(keyOne, valueOne);
         map.put(keyTwo, valueTwo);
@@ -116,8 +116,7 @@ public class SupportEventInfra {
         String xml;
         if (event.toString().contains("<myevent")) {
             xml = event.toString();
-        }
-        else {
+        } else {
             xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<myevent>\n" +
                     "  " + event + "\n" +
@@ -125,13 +124,12 @@ public class SupportEventInfra {
         }
         try {
             SupportXML.sendEvent(epService.getEPRuntime(), xml);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     };
 
-    public static Function<Object, Object> XML_TO_VALUE = (in) -> {
+    public static Function<Object, Object> xmlToValue = (in) -> {
         if (in == null) return null;
         if (in instanceof Attr) {
             return ((Attr) in).getValue();

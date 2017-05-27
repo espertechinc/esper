@@ -13,17 +13,14 @@ package com.espertech.esper.supportregression.subscriber;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SupportSubscriberRowByRowStatic
-{
+public class SupportSubscriberRowByRowStatic {
     private static ArrayList<Object[]> indicate = new ArrayList<Object[]>();
 
-    public static void update(String theString, int intPrimitive)
-    {
-        indicate.add(new Object[] {theString, intPrimitive});
+    public static void update(String theString, int intPrimitive) {
+        indicate.add(new Object[]{theString, intPrimitive});
     }
 
-    public static List<Object[]> getAndResetIndicate()
-    {
+    public static List<Object[]> getAndResetIndicate() {
         List<Object[]> result = indicate;
         indicate = new ArrayList<Object[]>();
         return result;

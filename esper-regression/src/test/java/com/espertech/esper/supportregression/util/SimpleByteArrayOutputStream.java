@@ -13,8 +13,7 @@ package com.espertech.esper.supportregression.util;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SimpleByteArrayOutputStream extends OutputStream
-{
+public class SimpleByteArrayOutputStream extends OutputStream {
     protected byte[] buf = null;
     protected int size = 0;
 
@@ -33,7 +32,7 @@ public class SimpleByteArrayOutputStream extends OutputStream
     private void verifyBufferSize(int sz) {
         if (sz > buf.length) {
             byte[] old = buf;
-            buf = new byte[Math.max(sz, 2 * buf.length )];
+            buf = new byte[Math.max(sz, 2 * buf.length)];
             System.arraycopy(old, 0, buf, 0, old.length);
             old = null;
         }
@@ -47,13 +46,13 @@ public class SimpleByteArrayOutputStream extends OutputStream
         return buf;
     }
 
-    public final void write(byte b[]) {
+    public final void write(byte[] b) {
         verifyBufferSize(size + b.length);
         System.arraycopy(b, 0, buf, size, b.length);
         size += b.length;
     }
 
-    public final void write(byte b[], int off, int len) {
+    public final void write(byte[] b, int off, int len) {
         verifyBufferSize(size + len);
         System.arraycopy(b, off, buf, size, len);
         size += len;

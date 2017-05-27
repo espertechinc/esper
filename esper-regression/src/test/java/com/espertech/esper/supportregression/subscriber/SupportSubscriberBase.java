@@ -16,11 +16,10 @@ import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import java.util.ArrayList;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertSame;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public abstract class SupportSubscriberBase
-{
+public abstract class SupportSubscriberBase {
     private final boolean requiresStatementDelivery;
     private final ArrayList<EPStatement> statements = new ArrayList<EPStatement>();
 
@@ -35,8 +34,7 @@ public abstract class SupportSubscriberBase
     protected void assertStmtOneReceived(EPStatement stmt) {
         if (requiresStatementDelivery) {
             EPAssertionUtil.assertEqualsExactOrder(new EPStatement[]{stmt}, statements.toArray());
-        }
-        else {
+        } else {
             assertTrue(statements.isEmpty());
         }
     }
@@ -47,8 +45,7 @@ public abstract class SupportSubscriberBase
             for (EPStatement indicated : statements) {
                 assertSame(indicated, stmt);
             }
-        }
-        else {
+        } else {
             assertTrue(statements.isEmpty());
         }
     }

@@ -10,7 +10,10 @@
  */
 package com.espertech.esper.supportregression.client;
 
-import com.espertech.esper.client.hook.*;
+import com.espertech.esper.client.hook.ConditionHandler;
+import com.espertech.esper.client.hook.ConditionHandlerContext;
+import com.espertech.esper.client.hook.ConditionHandlerFactory;
+import com.espertech.esper.client.hook.ConditionHandlerFactoryContext;
 
 import java.util.ArrayList;
 import java.util.List;

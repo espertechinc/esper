@@ -12,38 +12,32 @@ package com.espertech.esper.supportregression.bean.bookexample;
 
 import java.io.Serializable;
 
-public class GameDesc implements Serializable
-{
+public class GameDesc implements Serializable {
     private final String gameId;
     private final String title;
     private final String publisher;
     private final Review[] reviews;
 
-    public GameDesc(String gameId, String title, String publisher, Review[] reviews)
-    {
+    public GameDesc(String gameId, String title, String publisher, Review[] reviews) {
         this.publisher = publisher;
         this.gameId = gameId;
         this.title = title;
         this.reviews = reviews;
     }
 
-    public String getGameId()
-    {
+    public String getGameId() {
         return gameId;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public String getPublisher()
-    {
+    public String getPublisher() {
         return publisher;
     }
 
-    public Review[] getReviews()
-    {
+    public Review[] getReviews() {
         return reviews;
     }
 }

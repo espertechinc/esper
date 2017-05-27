@@ -48,7 +48,7 @@ public class SupportBean_ST0_Container {
         return items.toArray(new SupportBean_ST0[items.size()]);
     }
 
-    public static SupportBean_ST0_Container make3Value(String ... values) {
+    public static SupportBean_ST0_Container make3Value(String... values) {
         if (values == null) {
             return new SupportBean_ST0_Container(null);
         }
@@ -60,7 +60,7 @@ public class SupportBean_ST0_Container {
         return new SupportBean_ST0_Container(contained);
     }
 
-    public static List<SupportBean_ST0> make2ValueList(String ... values) {
+    public static List<SupportBean_ST0> make2ValueList(String... values) {
         if (values == null) {
             return null;
         }
@@ -72,7 +72,7 @@ public class SupportBean_ST0_Container {
         return result;
     }
 
-    public static SupportBean_ST0_Container make2Value(String ... values) {
+    public static SupportBean_ST0_Container make2Value(String... values) {
         return new SupportBean_ST0_Container(make2ValueList(values));
     }
 

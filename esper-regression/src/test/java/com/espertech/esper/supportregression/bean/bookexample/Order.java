@@ -12,24 +12,20 @@ package com.espertech.esper.supportregression.bean.bookexample;
 
 import java.io.Serializable;
 
-public class Order implements Serializable
-{
+public class Order implements Serializable {
     private String orderId;
     private OrderItem[] items;
 
-    public Order(String orderId, OrderItem[] items)
-    {
+    public Order(String orderId, OrderItem[] items) {
         this.items = items;
         this.orderId = orderId;
     }
 
-    public OrderItem[] getItems()
-    {
+    public OrderItem[] getItems() {
         return items;
     }
 
-    public String getOrderId()
-    {
+    public String getOrderId() {
         return orderId;
     }
 }

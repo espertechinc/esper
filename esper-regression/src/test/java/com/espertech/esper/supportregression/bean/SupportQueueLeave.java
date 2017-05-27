@@ -10,31 +10,26 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportQueueLeave
-{
+public class SupportQueueLeave {
     private int id;
     private String location;
     private long timeLeave;
 
-    public SupportQueueLeave(int id, String location, long timeLeave)
-    {
+    public SupportQueueLeave(int id, String location, long timeLeave) {
         this.id = id;
         this.location = location;
         this.timeLeave = timeLeave;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public String getLocation()
-    {
+    public String getLocation() {
         return location;
     }
 
-    public long getTimeLeave()
-    {
+    public long getTimeLeave() {
         return timeLeave;
     }
 }

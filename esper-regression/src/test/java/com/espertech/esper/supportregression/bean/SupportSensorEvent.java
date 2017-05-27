@@ -12,20 +12,17 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportSensorEvent implements Serializable
-{
+public class SupportSensorEvent implements Serializable {
     private int id;
     private String type;
     private String device;
     private double measurement;
     private double confidence;
 
-    private SupportSensorEvent()
-    {        
+    private SupportSensorEvent() {
     }
 
-    public SupportSensorEvent(int id, String type, String device, double measurement, double confidence)
-    {
+    public SupportSensorEvent(int id, String type, String device, double measurement, double confidence) {
         this.id = id;
         this.type = type;
         this.device = device;
@@ -33,54 +30,44 @@ public class SupportSensorEvent implements Serializable
         this.confidence = confidence;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
-    public String getDevice()
-    {
+    public String getDevice() {
         return device;
     }
 
-    public double getMeasurement()
-    {
+    public double getMeasurement() {
         return measurement;
     }
 
-    public double getConfidence()
-    {
+    public double getConfidence() {
         return confidence;
     }
 
 
-    public void setConfidence(double confidence)
-    {
+    public void setConfidence(double confidence) {
         this.confidence = confidence;
     }
 
-    public void setDevice(String device)
-    {
+    public void setDevice(String device) {
         this.device = device;
     }
 
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public void setMeasurement(double measurement)
-    {
+    public void setMeasurement(double measurement) {
         this.measurement = measurement;
     }
 
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 }

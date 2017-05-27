@@ -14,19 +14,16 @@ import com.espertech.esper.client.EPStatement;
 
 import java.util.Map;
 
-public class SupportSubscriberRowByRowMapWStmt extends SupportSubscriberRowByRowMapBase
-{
+public class SupportSubscriberRowByRowMapWStmt extends SupportSubscriberRowByRowMapBase {
     public SupportSubscriberRowByRowMapWStmt() {
         super(true);
     }
 
-    public void update(EPStatement stmt, Map row)
-    {
+    public void update(EPStatement stmt, Map row) {
         addIndicationIStream(stmt, row);
     }
 
-    public void updateRStream(EPStatement stmt, Map row)
-    {
+    public void updateRStream(EPStatement stmt, Map row) {
         addIndicationRStream(stmt, row);
     }
 }

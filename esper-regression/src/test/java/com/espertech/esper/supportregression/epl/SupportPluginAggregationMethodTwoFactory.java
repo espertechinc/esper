@@ -16,10 +16,8 @@ import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 
 import java.io.Serializable;
 
-public class SupportPluginAggregationMethodTwoFactory implements AggregationFunctionFactory, Serializable
-{
-    public void validate(AggregationValidationContext validationContext)
-    {
+public class SupportPluginAggregationMethodTwoFactory implements AggregationFunctionFactory, Serializable {
+    public void validate(AggregationValidationContext validationContext) {
         throw new IllegalArgumentException("Invalid parameter type '" + validationContext.getParameterTypes()[0].getName() + "', expecting string");
     }
 

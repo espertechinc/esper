@@ -18,8 +18,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-public abstract class SupportSubscriberMultirowObjectArrayBase extends SupportSubscriberBase
-{
+public abstract class SupportSubscriberMultirowObjectArrayBase extends SupportSubscriberBase {
     private final ArrayList<UniformPair<Object[][]>> indicate = new ArrayList<UniformPair<Object[][]>>();
 
     protected SupportSubscriberMultirowObjectArrayBase(boolean requiresStatementDelivery) {
@@ -51,8 +50,7 @@ public abstract class SupportSubscriberMultirowObjectArrayBase extends SupportSu
         reset();
     }
 
-    public ArrayList<UniformPair<Object[][]>> getAndResetIndicateArr()
-    {
+    public ArrayList<UniformPair<Object[][]>> getAndResetIndicateArr() {
         ArrayList<UniformPair<Object[][]>> result = new ArrayList<UniformPair<Object[][]>>(indicate);
         reset();
         return result;

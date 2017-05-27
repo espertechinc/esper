@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportPriceEvent implements Serializable
-{
+public class SupportPriceEvent implements Serializable {
     private int price;
     private String sym;
 

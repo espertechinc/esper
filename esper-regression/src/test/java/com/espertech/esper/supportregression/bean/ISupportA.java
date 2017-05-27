@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public interface ISupportA extends ISupportBaseAB
-{
+public interface ISupportA extends ISupportBaseAB {
     public static final int VALUE_1 = 1;
     public static final int VALUE_2 = 2;
 

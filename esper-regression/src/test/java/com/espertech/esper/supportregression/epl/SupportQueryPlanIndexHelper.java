@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 public class SupportQueryPlanIndexHelper {
 
@@ -55,7 +55,7 @@ public class SupportQueryPlanIndexHelper {
         Iterator<Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem>> itExpected = expectedItems.entrySet().iterator();
 
         int count = 0;
-        for (;itActual.hasNext();) {
+        for (; itActual.hasNext(); ) {
             Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> actualItem = itActual.next();
             Map.Entry<TableLookupIndexReqKey, QueryPlanIndexItem> expectedItem = itExpected.next();
             SupportQueryPlanIndexHelper.compareIndexItem(streamNum, count, expectedItem.getValue(), actualItem.getValue());
@@ -73,17 +73,13 @@ public class SupportQueryPlanIndexHelper {
 
     private static void compareExecNodeSpec(int streamNum, QueryPlanNode expected, QueryPlanNode actual, Map<TableLookupIndexReqKey, TableLookupIndexReqKey> indexNameMapping) {
         if (actual instanceof QueryPlanNodeNoOp && expected == null) {
-        }
-        else if (actual instanceof TableLookupNode && expected instanceof TableLookupNode) {
+        } else if (actual instanceof TableLookupNode && expected instanceof TableLookupNode) {
             compareTableLookup(streamNum, (TableLookupNode) expected, (TableLookupNode) actual, indexNameMapping);
-        }
-        else if (actual instanceof TableOuterLookupNode && expected instanceof TableOuterLookupNode) {
+        } else if (actual instanceof TableOuterLookupNode && expected instanceof TableOuterLookupNode) {
             compareTableLookupOuter(streamNum, (TableOuterLookupNode) expected, (TableOuterLookupNode) actual, indexNameMapping);
-        }
-        else if (actual instanceof LookupInstructionQueryPlanNode && expected instanceof LookupInstructionQueryPlanNode) {
+        } else if (actual instanceof LookupInstructionQueryPlanNode && expected instanceof LookupInstructionQueryPlanNode) {
             compareInstruction(streamNum, (LookupInstructionQueryPlanNode) expected, (LookupInstructionQueryPlanNode) actual, indexNameMapping);
-        }
-        else {
+        } else {
             Assert.fail("Failed to compare plan node for stream " + streamNum + ", unhandled plan " + actual.getClass().getName());
         }
     }
@@ -127,29 +123,24 @@ public class SupportQueryPlanIndexHelper {
         }
 
         if (expectedPlan instanceof FullTableScanLookupPlan && actualPlan instanceof FullTableScanLookupPlan) {
-        }
-        else if (expectedPlan instanceof IndexedTableLookupPlanSingle && actualPlan instanceof IndexedTableLookupPlanSingle) {
+        } else if (expectedPlan instanceof IndexedTableLookupPlanSingle && actualPlan instanceof IndexedTableLookupPlanSingle) {
             IndexedTableLookupPlanSingle singleActual = (IndexedTableLookupPlanSingle) actualPlan;
             IndexedTableLookupPlanSingle singleExpected = (IndexedTableLookupPlanSingle) expectedPlan;
             compareIndexDesc(singleExpected.getKeyDescriptor(), singleActual.getKeyDescriptor());
-        }
-        else if (expectedPlan instanceof InKeywordTableLookupPlanMultiIdx && actualPlan instanceof InKeywordTableLookupPlanMultiIdx) {
+        } else if (expectedPlan instanceof InKeywordTableLookupPlanMultiIdx && actualPlan instanceof InKeywordTableLookupPlanMultiIdx) {
             InKeywordTableLookupPlanMultiIdx inExpected = (InKeywordTableLookupPlanMultiIdx) expectedPlan;
             InKeywordTableLookupPlanMultiIdx inActual = (InKeywordTableLookupPlanMultiIdx) actualPlan;
             assertTrue(ExprNodeUtility.deepEquals(inExpected.getKeyExpr(), inActual.getKeyExpr(), false));
-        }
-        else if (expectedPlan instanceof InKeywordTableLookupPlanSingleIdx && actualPlan instanceof InKeywordTableLookupPlanSingleIdx) {
+        } else if (expectedPlan instanceof InKeywordTableLookupPlanSingleIdx && actualPlan instanceof InKeywordTableLookupPlanSingleIdx) {
             InKeywordTableLookupPlanSingleIdx inExpected = (InKeywordTableLookupPlanSingleIdx) expectedPlan;
             InKeywordTableLookupPlanSingleIdx inActual = (InKeywordTableLookupPlanSingleIdx) actualPlan;
             assertTrue(ExprNodeUtility.deepEquals(inExpected.getExpressions(), inActual.getExpressions(), false));
-        }
-        else if (expectedPlan instanceof SortedTableLookupPlan && actualPlan instanceof SortedTableLookupPlan) {
+        } else if (expectedPlan instanceof SortedTableLookupPlan && actualPlan instanceof SortedTableLookupPlan) {
             SortedTableLookupPlan inExpected = (SortedTableLookupPlan) expectedPlan;
             SortedTableLookupPlan inActual = (SortedTableLookupPlan) actualPlan;
             assertEquals(inExpected.getLookupStream(), inActual.getLookupStream());
             assertTrue(ExprNodeUtility.deepEquals(inExpected.getRangeKeyPair().getExpressions(), inActual.getRangeKeyPair().getExpressions(), false));
-        }
-        else {
+        } else {
             Assert.fail("Failed to compare plan for stream " + streamNum + ", found type " + actualPlan.getClass());
         }
     }

@@ -13,8 +13,7 @@ package com.espertech.esper.supportregression.bean;
 import java.math.BigDecimal;
 import java.util.*;
 
-public class SupportCollection
-{
+public class SupportCollection {
     private static String sampleStaticCSV;
 
     private Collection<String> strvals;
@@ -101,18 +100,15 @@ public class SupportCollection
     private static List<String> toListString(String csvlist) {
         if (csvlist == null) {
             return null;
-        }
-        else if (csvlist.isEmpty()) {
+        } else if (csvlist.isEmpty()) {
             return Collections.emptyList();
-        }
-        else {
+        } else {
             String[] items = csvlist.split(",");
             List<String> list = new ArrayList<String>();
             for (int i = 0; i < items.length; i++) {
                 if (items[i].equals("null")) {
                     list.add(null);
-                }
-                else {
+                } else {
                     list.add(items[i]);
                 }
             }

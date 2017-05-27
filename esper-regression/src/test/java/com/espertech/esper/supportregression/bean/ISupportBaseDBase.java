@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public interface ISupportBaseDBase
-{
-    public String getBaseDBase();            
+public interface ISupportBaseDBase {
+    public String getBaseDBase();
 }

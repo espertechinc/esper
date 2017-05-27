@@ -12,34 +12,28 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanSimple implements Serializable
-{
+public class SupportBeanSimple implements Serializable {
     private String myString;
     private int myInt;
 
-    public SupportBeanSimple(String myString, int myInt)
-    {
+    public SupportBeanSimple(String myString, int myInt) {
         this.myString = myString;
         this.myInt = myInt;
     }
 
-    public String getMyString()
-    {
+    public String getMyString() {
         return myString;
     }
 
-    public void setMyString(String myString)
-    {
+    public void setMyString(String myString) {
         this.myString = myString;
     }
 
-    public int getMyInt()
-    {
+    public int getMyInt() {
         return myInt;
     }
 
-    public void setMyInt(int myInt)
-    {
+    public void setMyInt(int myInt) {
         this.myInt = myInt;
     }
 

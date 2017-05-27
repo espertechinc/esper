@@ -12,31 +12,26 @@ package com.espertech.esper.supportregression.bean.bookexample;
 
 import java.io.Serializable;
 
-public class OrderBean implements Serializable
-{
+public class OrderBean implements Serializable {
     private Order orderdetail;
     private BookDesc[] books;
     private GameDesc[] games;
 
-    public OrderBean(Order order, BookDesc[] books, GameDesc[] games)
-    {
+    public OrderBean(Order order, BookDesc[] books, GameDesc[] games) {
         this.books = books;
         this.games = games;
         this.orderdetail = order;
     }
 
-    public BookDesc[] getBooks()
-    {
+    public BookDesc[] getBooks() {
         return books;
     }
 
-    public Order getOrderdetail()
-    {
+    public Order getOrderdetail() {
         return orderdetail;
     }
 
-    public GameDesc[] getGames()
-    {
+    public GameDesc[] getGames() {
         return games;
     }
 }

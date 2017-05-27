@@ -10,9 +10,10 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public interface ISupportRevisionFull
-{
+public interface ISupportRevisionFull {
     public String getK0();
+
     public String getP0();
+
     public String getP1();
 }

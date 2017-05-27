@@ -12,16 +12,14 @@ package com.espertech.esper.supportregression.bean.bookexample;
 
 import java.io.Serializable;
 
-public class BookDesc implements Serializable
-{
+public class BookDesc implements Serializable {
     private final String bookId;
     private final String title;
     private final String author;
     private final double price;
     private final Review[] reviews;
 
-    public BookDesc(String bookId, String title, String author, double price, Review[] reviews)
-    {
+    public BookDesc(String bookId, String title, String author, double price, Review[] reviews) {
         this.author = author;
         this.bookId = bookId;
         this.title = title;
@@ -29,23 +27,19 @@ public class BookDesc implements Serializable
         this.reviews = reviews;
     }
 
-    public String getAuthor()
-    {
+    public String getAuthor() {
         return author;
     }
 
-    public String getBookId()
-    {
+    public String getBookId() {
         return bookId;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public Review[] getReviews()
-    {
+    public Review[] getReviews() {
         return reviews;
     }
 

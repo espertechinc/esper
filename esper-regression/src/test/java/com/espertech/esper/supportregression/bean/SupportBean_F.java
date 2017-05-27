@@ -12,10 +12,8 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBean_F extends SupportBeanBase implements Serializable
-{
-    public SupportBean_F(String id)
-    {
+public class SupportBean_F extends SupportBeanBase implements Serializable {
+    public SupportBean_F(String id) {
         super(id);
     }
 }

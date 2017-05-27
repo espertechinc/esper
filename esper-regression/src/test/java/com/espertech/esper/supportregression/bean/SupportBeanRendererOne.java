@@ -12,17 +12,14 @@ package com.espertech.esper.supportregression.bean;
 
 import java.util.Map;
 
-public class SupportBeanRendererOne
-{
+public class SupportBeanRendererOne {
     private Map<String, Object> stringObjectMap;
 
-    public Map<String, Object> getStringObjectMap()
-    {
+    public Map<String, Object> getStringObjectMap() {
         return stringObjectMap;
     }
 
-    public void setStringObjectMap(Map<String, Object> stringObjectMap)
-    {
+    public void setStringObjectMap(Map<String, Object> stringObjectMap) {
         this.stringObjectMap = stringObjectMap;
     }
 }

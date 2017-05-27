@@ -14,14 +14,12 @@ import com.espertech.esper.client.EPStatement;
 
 import java.util.ArrayList;
 
-public class SupportSubscriberRowByRowStaticWStatement
-{
+public class SupportSubscriberRowByRowStaticWStatement {
     private static ArrayList<Object[]> indicate = new ArrayList<Object[]>();
     private static ArrayList<EPStatement> statements = new ArrayList<EPStatement>();
 
-    public static void update(EPStatement statement, String theString, int intPrimitive)
-    {
-        indicate.add(new Object[] {theString, intPrimitive});
+    public static void update(EPStatement statement, String theString, int intPrimitive) {
+        indicate.add(new Object[]{theString, intPrimitive});
         statements.add(statement);
     }
 

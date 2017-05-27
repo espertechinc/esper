@@ -12,19 +12,16 @@ package com.espertech.esper.supportregression.subscriber;
 
 import java.util.Map;
 
-public class SupportSubscriberRowByRowMapNStmt extends SupportSubscriberRowByRowMapBase
-{
+public class SupportSubscriberRowByRowMapNStmt extends SupportSubscriberRowByRowMapBase {
     public SupportSubscriberRowByRowMapNStmt() {
         super(false);
     }
 
-    public void update(Map row)
-    {
+    public void update(Map row) {
         addIndicationIStream(row);
     }
 
-    public void updateRStream(Map row)
-    {
+    public void updateRStream(Map row) {
         addIndicationRStream(row);
     }
 }

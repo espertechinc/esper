@@ -16,13 +16,12 @@ import com.espertech.esper.util.MultiKeyComparator;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
-public class ArrayHandlingUtil
-{
+public class ArrayHandlingUtil {
     public static EventBean[] reorder(final String key, EventBean[] events) {
-        return reorder(new String[] {key}, events);
+        return reorder(new String[]{key}, events);
     }
 
     public static EventBean[] reorder(final String[] keys, EventBean[] events) {
@@ -48,15 +47,12 @@ public class ArrayHandlingUtil
         return new MultiKeyUntyped(mk);
     }
 
-    public static Object[][] getUnderlyingEvents(EventBean[] events, String[] keys)
-    {
+    public static Object[][] getUnderlyingEvents(EventBean[] events, String[] keys) {
         List<Object[]> resultList = new LinkedList<Object[]>();
 
-        for (int i = 0; i < events.length; i++)
-        {
+        for (int i = 0; i < events.length; i++) {
             Object[] row = new Object[keys.length];
-            for (int j = 0; j < keys.length; j++)
-            {
+            for (int j = 0; j < keys.length; j++) {
                 row[j] = events[i].get(keys[j]);
             }
             resultList.add(row);
@@ -64,8 +60,7 @@ public class ArrayHandlingUtil
 
         Object[][] results = new Object[resultList.size()][];
         int count = 0;
-        for (Object[] row : resultList)
-        {
+        for (Object[] row : resultList) {
             results[count++] = row;
         }
         return results;

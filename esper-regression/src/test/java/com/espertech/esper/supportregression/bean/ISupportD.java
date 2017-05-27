@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public interface ISupportD extends ISupportBaseD
-{
-    public String getD();        
+public interface ISupportD extends ISupportBaseD {
+    public String getD();
 }

@@ -20,8 +20,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-public class SupportStaticMethodLib 
-{
+public class SupportStaticMethodLib {
     private static List<Object[]> invocations = new ArrayList<Object[]>();
     private static List<EPLMethodInvocationContext> methodInvocationContexts = new ArrayList<EPLMethodInvocationContext>();
 
@@ -50,46 +49,39 @@ public class SupportStaticMethodLib
         return eventBeanCollectionForString(value, context).iterator();
     }
 
-    public static boolean compareEvents(SupportMarketDataBean beanOne, SupportBean beanTwo)
-    {
+    public static boolean compareEvents(SupportMarketDataBean beanOne, SupportBean beanTwo) {
         return beanOne.getSymbol().equals(beanTwo.getTheString());
     }
 
-    public static Map fetchMapArrayMRMetadata()
-    {
+    public static Map fetchMapArrayMRMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static LinkedHashMap fetchObjectArrayEventBeanMetadata()
-    {
+    public static LinkedHashMap fetchObjectArrayEventBeanMetadata() {
         LinkedHashMap<String, Class> values = new LinkedHashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static LinkedHashMap fetchOAArrayMRMetadata()
-    {
+    public static LinkedHashMap fetchOAArrayMRMetadata() {
         LinkedHashMap<String, Class> values = new LinkedHashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static Map fetchSingleValueMetadata()
-    {
+    public static Map fetchSingleValueMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("result", Integer.class);
         return values;
     }
 
-    public static Map[] fetchResult12(Integer value)
-    {
-        if (value == null)
-        {
+    public static Map[] fetchResult12(Integer value) {
+        if (value == null) {
             return new Map[0];
         }
 
@@ -101,17 +93,14 @@ public class SupportStaticMethodLib
         return result;
     }
 
-    public static Map fetchResult12Metadata()
-    {
+    public static Map fetchResult12Metadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("value", Integer.class);
         return values;
     }
 
-    public static Map[] fetchResult23(Integer value)
-    {
-        if (value == null)
-        {
+    public static Map[] fetchResult23(Integer value) {
+        if (value == null) {
             return new Map[0];
         }
 
@@ -123,8 +112,7 @@ public class SupportStaticMethodLib
         return result;
     }
 
-    public static Map fetchResult23Metadata()
-    {
+    public static Map fetchResult23Metadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("value", Integer.class);
         values.put("valueTwo", Integer.class);
@@ -135,14 +123,11 @@ public class SupportStaticMethodLib
         return bean.getTheString() + " " + Integer.toString(bean.getIntPrimitive());
     }
 
-    public static Map[] fetchResult100()
-    {
+    public static Map[] fetchResult100() {
         Map[] result = new Map[100];
         int count = 0;
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
                 result[count] = new HashMap<String, Integer>();
                 result[count].put("col1", i);
                 result[count].put("col2", j);
@@ -152,31 +137,26 @@ public class SupportStaticMethodLib
         return result;
     }
 
-    public static Map fetchResult100Metadata()
-    {
+    public static Map fetchResult100Metadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("col1", Integer.class);
         values.put("col2", Integer.class);
         return values;
     }
 
-    public static Map[] fetchBetween(Integer lower, Integer upper)
-    {
-        if (lower == null || upper == null)
-        {
+    public static Map[] fetchBetween(Integer lower, Integer upper) {
+        if (lower == null || upper == null) {
             return new Map[0];
         }
 
-        if (upper < lower)
-        {
+        if (upper < lower) {
             return new Map[0];
         }
-        
+
         int delta = upper - lower + 1;
         Map[] result = new Map[delta];
         int count = 0;
-        for (int i = lower; i <= upper; i++)
-        {
+        for (int i = lower; i <= upper; i++) {
             Map<String, Integer> values = new HashMap<String, Integer>();
             values.put("value", i);
             result[count++] = values;
@@ -184,23 +164,19 @@ public class SupportStaticMethodLib
         return result;
     }
 
-    public static Map[] fetchBetweenString(Integer lower, Integer upper)
-    {
-        if (lower == null || upper == null)
-        {
+    public static Map[] fetchBetweenString(Integer lower, Integer upper) {
+        if (lower == null || upper == null) {
             return new Map[0];
         }
 
-        if (upper < lower)
-        {
+        if (upper < lower) {
             return new Map[0];
         }
 
         int delta = upper - lower + 1;
         Map[] result = new Map[delta];
         int count = 0;
-        for (int i = lower; i <= upper; i++)
-        {
+        for (int i = lower; i <= upper; i++) {
             Map<String, String> values = new HashMap<String, String>();
             values.put("value", Integer.toString(i));
             result[count++] = values;
@@ -208,35 +184,29 @@ public class SupportStaticMethodLib
         return result;
     }
 
-    public static Map fetchBetweenMetadata()
-    {
+    public static Map fetchBetweenMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("value", Integer.class);
         return values;
     }
 
-    public static Map fetchBetweenStringMetadata()
-    {
+    public static Map fetchBetweenStringMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("value", String.class);
         return values;
     }
 
-    public static Map[] fetchMapArrayMR(String theString, int id)
-    {
-        if (id < 0)
-        {
+    public static Map[] fetchMapArrayMR(String theString, int id) {
+        if (id < 0) {
             return null;
         }
 
-        if (id == 0)
-        {
+        if (id == 0) {
             return new Map[0];
         }
 
         Map[] rows = new Map[id];
-        for (int i = 0; i < id; i++)
-        {
+        for (int i = 0; i < id; i++) {
             Map<String, Object> values = new HashMap<String, Object>();
             rows[i] = values;
 
@@ -247,21 +217,17 @@ public class SupportStaticMethodLib
         return rows;
     }
 
-    public static Object[][] fetchOAArrayMR(String theString, int id)
-    {
-        if (id < 0)
-        {
+    public static Object[][] fetchOAArrayMR(String theString, int id) {
+        if (id < 0) {
             return null;
         }
 
-        if (id == 0)
-        {
+        if (id == 0) {
             return new Object[0][];
         }
 
         Object[][] rows = new Object[id][];
-        for (int i = 0; i < id; i++)
-        {
+        for (int i = 0; i < id; i++) {
             Object[] values = new Object[2];
             rows[i] = values;
 
@@ -272,53 +238,45 @@ public class SupportStaticMethodLib
         return rows;
     }
 
-    public static Map fetchMapMetadata()
-    {
+    public static Map fetchMapMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static Map fetchMap(String theString, int id)
-    {
-        if (id < 0)
-        {
+    public static Map fetchMap(String theString, int id) {
+        if (id < 0) {
             return null;
         }
 
         Map<String, Object> values = new HashMap<String, Object>();
-        if (id == 0)
-        {
+        if (id == 0) {
             return values;
         }
-        
+
         values.put("mapstring", "|" + theString + "|");
         values.put("mapint", id + 1);
         return values;
     }
 
-    public static Map fetchMapEventBeanMetadata()
-    {
+    public static Map fetchMapEventBeanMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static Map fetchMapEventBean(EventBean eventBean, String propOne, String propTwo)
-    {
+    public static Map fetchMapEventBean(EventBean eventBean, String propOne, String propTwo) {
         String theString = (String) eventBean.get(propOne);
         int id = (Integer) eventBean.get(propTwo);
 
-        if (id < 0)
-        {
+        if (id < 0) {
             return null;
         }
 
         Map<String, Object> values = new HashMap<String, Object>();
-        if (id == 0)
-        {
+        if (id == 0) {
             return values;
         }
 
@@ -327,35 +285,30 @@ public class SupportStaticMethodLib
         return values;
     }
 
-    public static Map fetchIdDelimitedMetadata()
-    {
+    public static Map fetchIdDelimitedMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("result", String.class);
         return values;
     }
 
-    public static Map fetchIdDelimited(Integer value)
-    {
+    public static Map fetchIdDelimited(Integer value) {
         Map<String, Object> values = new HashMap<String, Object>();
         values.put("result", "|" + value + "|");
         return values;
     }
 
-    public static Map convertEventMap(Map<String, Object> values)
-    {
+    public static Map convertEventMap(Map<String, Object> values) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("one", values.get("one"));
         result.put("two", "|" + values.get("two") + "|");
         return result;
     }
 
-    public static Object[] convertEventObjectArray(Object[] values)
-    {
-        return new Object[] {values[0], "|" + values[1] + "|"};
+    public static Object[] convertEventObjectArray(Object[] values) {
+        return new Object[]{values[0], "|" + values[1] + "|"};
     }
 
-    public static GenericData.Record convertEventAvro(GenericData.Record row)
-    {
+    public static GenericData.Record convertEventAvro(GenericData.Record row) {
         String val1 = row.get("one").toString();
         String val2 = row.get("two").toString();
         GenericData.Record upd = new GenericData.Record(row.getSchema());
@@ -364,215 +317,168 @@ public class SupportStaticMethodLib
         return upd;
     }
 
-    public static SupportBean convertEvent(SupportMarketDataBean bean)
-    {
+    public static SupportBean convertEvent(SupportMarketDataBean bean) {
         return new SupportBean(bean.getSymbol(), (bean.getVolume()).intValue());
     }
 
-    public static Object staticMethod(Object object)
-	{
-		return object;
-	}
+    public static Object staticMethod(Object object) {
+        return object;
+    }
 
-    public static Object staticMethodWithContext(Object object, EPLMethodInvocationContext context)
-    {
+    public static Object staticMethodWithContext(Object object, EPLMethodInvocationContext context) {
         methodInvocationContexts.add(context);
         return object;
     }
-	
-    public static int arrayLength(Object object)
-	{
+
+    public static int arrayLength(Object object) {
         if (!object.getClass().isArray()) {
             return -1;
         }
-		return Array.getLength(object);
-	}
+        return Array.getLength(object);
+    }
 
-	public static void throwException() throws Exception
-	{
-		throw new Exception("throwException text here");
-	}
-
-    public static SupportBean throwExceptionBeanReturn() throws Exception
-    {
+    public static void throwException() throws Exception {
         throw new Exception("throwException text here");
     }
 
-    public static boolean isStringEquals(String value, String compareTo)
-    {
+    public static SupportBean throwExceptionBeanReturn() throws Exception {
+        throw new Exception("throwException text here");
+    }
+
+    public static boolean isStringEquals(String value, String compareTo) {
         return value.equals(compareTo);
     }
 
-    public static double minusOne(double value)
-    {
+    public static double minusOne(double value) {
         return value - 1;
     }
 
-    public static int plusOne(int value)
-    {
+    public static int plusOne(int value) {
         return value + 1;
     }
 
-    public static String appendPipe(String theString, String value)
-    {
+    public static String appendPipe(String theString, String value) {
         return theString + "|" + value;
     }
 
-    public static SupportBean_S0 fetchObjectAndSleep(String fetchId, int passThroughNumber, long msecSleepTime)
-    {
-        try
-        {
+    public static SupportBean_S0 fetchObjectAndSleep(String fetchId, int passThroughNumber, long msecSleepTime) {
+        try {
             Thread.sleep(msecSleepTime);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
         }
         return new SupportBean_S0(passThroughNumber, "|" + fetchId + "|");
     }
 
-    public static FetchedData fetchObjectNoArg()
-    {
+    public static FetchedData fetchObjectNoArg() {
         return new FetchedData("2");
     }
 
-    public static FetchedData fetchObject(String id)
-    {
-        if (id == null)
-        {
+    public static FetchedData fetchObject(String id) {
+        if (id == null) {
             return null;
         }
         return new FetchedData("|" + id + "|");
     }
 
-    public static FetchedData[] fetchArrayNoArg()
-    {
-        return new FetchedData[] { new FetchedData("1") }; 
+    public static FetchedData[] fetchArrayNoArg() {
+        return new FetchedData[]{new FetchedData("1")};
     }
 
-    public static FetchedData[] fetchArrayGen(int numGenerate)
-    {
-        if (numGenerate < 0)
-        {
+    public static FetchedData[] fetchArrayGen(int numGenerate) {
+        if (numGenerate < 0) {
             return null;
         }
-        if (numGenerate == 0)
-        {
+        if (numGenerate == 0) {
             return new FetchedData[0];
         }
-        if (numGenerate == 1)
-        {
-            return new FetchedData[] { new FetchedData("A") };
+        if (numGenerate == 1) {
+            return new FetchedData[]{new FetchedData("A")};
         }
 
         FetchedData[] fetched = new FetchedData[numGenerate];
-        for (int i = 0; i < numGenerate; i++)
-        {
+        for (int i = 0; i < numGenerate; i++) {
             int c = 'A' + i;
-            fetched[i] = new FetchedData(Character.toString((char)c));
+            fetched[i] = new FetchedData(Character.toString((char) c));
         }
         return fetched;
     }
 
-    public static long passthru(long value)
-    {
+    public static long passthru(long value) {
         return value;
     }
 
-    public static void sleep(long msec)
-    {
-        try
-        {
+    public static void sleep(long msec) {
+        try {
             Thread.sleep(msec);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted during sleep", e);
         }
     }
 
-    public static boolean sleepReturnTrue(long msec)
-    {
-        try
-        {
+    public static boolean sleepReturnTrue(long msec) {
+        try {
             Thread.sleep(msec);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted during sleep", e);
         }
         return true;
     }
 
-    public static String delimitPipe(String theString)
-    {
-        if (theString == null)
-        {
+    public static String delimitPipe(String theString) {
+        if (theString == null) {
             return "|<null>|";
         }
         return "|" + theString + "|";
     }
 
-    public static class FetchedData
-    {
+    public static class FetchedData {
         private String id;
 
-        public FetchedData(String id)
-        {
+        public FetchedData(String id) {
             this.id = id;
         }
 
-        public String getId()
-        {
+        public String getId() {
             return id;
         }
 
-        public void setId(String id)
-        {
+        public void setId(String id) {
             this.id = id;
         }
     }
 
-    public static boolean volumeGreaterZero(SupportMarketDataBean bean)
-    {
+    public static boolean volumeGreaterZero(SupportMarketDataBean bean) {
         return bean.getVolume() > 0;
     }
 
-    public static boolean volumeGreaterZeroEventBean(EventBean bean)
-    {
+    public static boolean volumeGreaterZeroEventBean(EventBean bean) {
         long volume = (Long) bean.get("volume");
         return volume > 0;
     }
 
-    public static BigInteger myBigIntFunc(BigInteger val)
-    {
+    public static BigInteger myBigIntFunc(BigInteger val) {
         return val;
     }
 
-    public static BigDecimal myBigDecFunc(BigDecimal val)
-    {
+    public static BigDecimal myBigDecFunc(BigDecimal val) {
         return val;
     }
 
-    public static Map<String, String> myMapFunc()
-    {
+    public static Map<String, String> myMapFunc() {
         Map<String, String> map = new HashMap<String, String>();
         map.put("A", "A1");
         map.put("B", "B1");
         return map;
     }
 
-    public static int[] myArrayFunc()
-    {
-        return new int[] {100, 200, 300};
+    public static int[] myArrayFunc() {
+        return new int[]{100, 200, 300};
     }
 
-    public static int arraySumIntBoxed(Integer[] array)
-    {
+    public static int arraySumIntBoxed(Integer[] array) {
         int sum = 0;
-        for (int i = 0; i < array.length; i++)
-        {
-            if (array[i] == null)
-            {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
                 continue;
             }
             sum += array[i];
@@ -580,13 +486,10 @@ public class SupportStaticMethodLib
         return sum;
     }
 
-    public static double arraySumDouble(Double[] array)
-    {
+    public static double arraySumDouble(Double[] array) {
         double sum = 0;
-        for (int i = 0; i < array.length; i++)
-        {
-            if (array[i] == null)
-            {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
                 continue;
             }
             sum += array[i];
@@ -594,13 +497,10 @@ public class SupportStaticMethodLib
         return sum;
     }
 
-    public static double arraySumString(String[] array)
-    {
+    public static double arraySumString(String[] array) {
         double sum = 0;
-        for (int i = 0; i < array.length; i++)
-        {
-            if (array[i] == null)
-            {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
                 continue;
             }
             sum += Double.parseDouble(array[i]);
@@ -613,21 +513,15 @@ public class SupportStaticMethodLib
         return true;
     }
 
-    public static double arraySumObject(Object[] array)
-    {
+    public static double arraySumObject(Object[] array) {
         double sum = 0;
-        for (int i = 0; i < array.length; i++)
-        {
-            if (array[i] == null)
-            {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
                 continue;
             }
-            if (array[i] instanceof Number)
-            {
+            if (array[i] instanceof Number) {
                 sum += ((Number) array[i]).doubleValue();
-            }
-            else
-            {
+            } else {
                 sum += Double.parseDouble(array[i].toString());
             }
         }
@@ -642,16 +536,13 @@ public class SupportStaticMethodLib
         return new SupportBeanNumeric(intOne, intTwo);
     }
 
-    public static Object[] fetchObjectArrayEventBean(String theString, int id)
-    {
-        if (id < 0)
-        {
+    public static Object[] fetchObjectArrayEventBean(String theString, int id) {
+        if (id < 0) {
             return null;
         }
 
         Map<String, Object> values = new HashMap<String, Object>();
-        if (id == 0)
-        {
+        if (id == 0) {
             return new Object[2];
         }
 
@@ -661,8 +552,7 @@ public class SupportStaticMethodLib
         return fields;
     }
 
-    public static LinkedHashMap<String, Object> fetchTwoRows3ColsMetadata()
-    {
+    public static LinkedHashMap<String, Object> fetchTwoRows3ColsMetadata() {
         LinkedHashMap<String, Object> values = new LinkedHashMap<String, Object>();
         values.put("pkey0", String.class);
         values.put("pkey1", Integer.class);
@@ -670,9 +560,8 @@ public class SupportStaticMethodLib
         return values;
     }
 
-    public static Map[] fetchTwoRows3Cols()
-    {
-        Map[] result = new Map[] {new HashMap<String, Object>(), new HashMap<String, Object>()};
+    public static Map[] fetchTwoRows3Cols() {
+        Map[] result = new Map[]{new HashMap<String, Object>(), new HashMap<String, Object>()};
 
         result[0].put("pkey0", "E1");
         result[0].put("pkey1", 10);
@@ -690,9 +579,9 @@ public class SupportStaticMethodLib
             return null;
         }
         if (myint == 0) {
-            return new MyMethodReturn[] {new MyMethodReturn(null, null)};
+            return new MyMethodReturn[]{new MyMethodReturn(null, null)};
         }
-        return new MyMethodReturn[] {new MyMethodReturn("|" + mystring + "|", myint + 1)};
+        return new MyMethodReturn[]{new MyMethodReturn("|" + mystring + "|", myint + 1)};
     }
 
     public static Collection<MyMethodReturn> fetchPOJOCollection(String mystring, int myint) {
@@ -713,19 +602,16 @@ public class SupportStaticMethodLib
     }
 
     public static MyMethodReturn[] fetchPOJOArrayMR(String theString, int id) {
-        if (id < 0)
-        {
+        if (id < 0) {
             return null;
         }
 
-        if (id == 0)
-        {
+        if (id == 0) {
             return new MyMethodReturn[0];
         }
 
         MyMethodReturn[] rows = new MyMethodReturn[id];
-        for (int i = 0; i < id; i++)
-        {
+        for (int i = 0; i < id; i++) {
             rows[i] = new MyMethodReturn("|" + theString + "_" + i + "|", i + 100);
         }
 
@@ -733,19 +619,16 @@ public class SupportStaticMethodLib
     }
 
     public static Collection<MyMethodReturn> fetchPOJOCollectionMR(String theString, int id) {
-        if (id < 0)
-        {
+        if (id < 0) {
             return null;
         }
 
-        if (id == 0)
-        {
+        if (id == 0) {
             return Collections.emptyList();
         }
 
         List<MyMethodReturn> rows = new ArrayList<MyMethodReturn>(id);
-        for (int i = 0; i < id; i++)
-        {
+        for (int i = 0; i < id; i++) {
             rows.add(new MyMethodReturn("|" + theString + "_" + i + "|", i + 100));
         }
 
@@ -759,16 +642,14 @@ public class SupportStaticMethodLib
         return fetchPOJOCollectionMR(theString, id).iterator();
     }
 
-    public static Map fetchMapCollectionMRMetadata()
-    {
+    public static Map fetchMapCollectionMRMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static Collection<Map> fetchMapCollectionMR(String theString, int id)
-    {
+    public static Collection<Map> fetchMapCollectionMR(String theString, int id) {
         if (id < 0) {
             return null;
         }
@@ -778,8 +659,7 @@ public class SupportStaticMethodLib
         }
 
         List<Map> rows = new ArrayList<Map>(id);
-        for (int i = 0; i < id; i++)
-        {
+        for (int i = 0; i < id; i++) {
             Map<String, Object> values = new HashMap<String, Object>();
             rows.add(values);
 
@@ -790,29 +670,25 @@ public class SupportStaticMethodLib
         return rows;
     }
 
-    public static Map fetchMapIteratorMRMetadata()
-    {
+    public static Map fetchMapIteratorMRMetadata() {
         return fetchMapCollectionMRMetadata();
     }
 
-    public static Iterator<Map> fetchMapIteratorMR(String theString, int id)
-    {
+    public static Iterator<Map> fetchMapIteratorMR(String theString, int id) {
         if (id < 0) {
             return null;
         }
         return fetchMapCollectionMR(theString, id).iterator();
     }
 
-    public static LinkedHashMap fetchOACollectionMRMetadata()
-    {
+    public static LinkedHashMap fetchOACollectionMRMetadata() {
         LinkedHashMap<String, Class> values = new LinkedHashMap<String, Class>();
         values.put("mapstring", String.class);
         values.put("mapint", Integer.class);
         return values;
     }
 
-    public static Collection<Object[]> fetchOACollectionMR(String theString, int id)
-    {
+    public static Collection<Object[]> fetchOACollectionMR(String theString, int id) {
         if (id < 0) {
             return null;
         }
@@ -822,8 +698,7 @@ public class SupportStaticMethodLib
         }
 
         List<Object[]> rows = new ArrayList<Object[]>(id);
-        for (int i = 0; i < id; i++)
-        {
+        for (int i = 0; i < id; i++) {
             Object[] values = new Object[2];
             rows.add(values);
 
@@ -834,13 +709,11 @@ public class SupportStaticMethodLib
         return rows;
     }
 
-    public static LinkedHashMap fetchOAIteratorMRMetadata()
-    {
+    public static LinkedHashMap fetchOAIteratorMRMetadata() {
         return fetchOACollectionMRMetadata();
     }
 
-    public static Iterator<Object[]> fetchOAIteratorMR(String theString, int id)
-    {
+    public static Iterator<Object[]> fetchOAIteratorMR(String theString, int id) {
         if (id < 0) {
             return null;
         }
@@ -865,33 +738,27 @@ public class SupportStaticMethodLib
         }
     }
 
-    public static Map[] overloadedMethodForJoin()
-    {
+    public static Map[] overloadedMethodForJoin() {
         return getOverloadedMethodForJoinResult("A", "B");
     }
 
-    public static Map[] overloadedMethodForJoin(int first)
-    {
+    public static Map[] overloadedMethodForJoin(int first) {
         return getOverloadedMethodForJoinResult(Integer.toString(first), "B");
     }
 
-    public static Map[] overloadedMethodForJoin(String first)
-    {
+    public static Map[] overloadedMethodForJoin(String first) {
         return getOverloadedMethodForJoinResult(first, "B");
     }
 
-    public static Map[] overloadedMethodForJoin(String first, int second)
-    {
+    public static Map[] overloadedMethodForJoin(String first, int second) {
         return getOverloadedMethodForJoinResult(first, Integer.toString(second));
     }
 
-    public static Map[] overloadedMethodForJoin(int first, int second)
-    {
+    public static Map[] overloadedMethodForJoin(int first, int second) {
         return getOverloadedMethodForJoinResult(Integer.toString(first), Integer.toString(second));
     }
 
-    public static Map overloadedMethodForJoinMetadata()
-    {
+    public static Map overloadedMethodForJoinMetadata() {
         Map<String, Class> values = new HashMap<String, Class>();
         values.put("col1", String.class);
         values.put("col2", String.class);
@@ -910,6 +777,6 @@ public class SupportStaticMethodLib
         Map<String, Object> values = new HashMap<>();
         values.put("col1", first);
         values.put("col2", second);
-        return new Map[] {values};
+        return new Map[]{values};
     }
 }

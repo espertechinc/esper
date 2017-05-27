@@ -10,17 +10,14 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class ISupportBaseABImpl implements ISupportBaseAB
-{
+public class ISupportBaseABImpl implements ISupportBaseAB {
     private String valueBaseAB;
 
-    public ISupportBaseABImpl(String valueBaseAB)
-    {
+    public ISupportBaseABImpl(String valueBaseAB) {
         this.valueBaseAB = valueBaseAB;
     }
 
-    public String getBaseAB()
-    {
+    public String getBaseAB() {
         return valueBaseAB;
     }
 }

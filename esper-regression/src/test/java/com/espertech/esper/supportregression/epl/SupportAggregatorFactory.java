@@ -21,8 +21,7 @@ import com.espertech.esper.epl.expression.baseagg.ExprAggregateNodeBase;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 
-public class SupportAggregatorFactory implements AggregationMethodFactory
-{
+public class SupportAggregatorFactory implements AggregationMethodFactory {
     public boolean isAccessAggregation() {
         return false;
     }

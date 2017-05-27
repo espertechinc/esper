@@ -10,19 +10,18 @@
  */
 package com.espertech.esper.supportregression.util;
 
-import org.junit.Assert;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.collection.UniformPair;
+import org.junit.Assert;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListener
-{
+public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListener {
     private final List<EPStatement> statementList;
     private final List<EPServiceProvider> svcProviderList;
     private final List<EventBean[]> newDataList;
@@ -31,16 +30,14 @@ public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListe
     private EventBean[] lastOldData;
     private boolean isInvoked;
 
-    public SupportStmtAwareUpdateListener()
-    {
+    public SupportStmtAwareUpdateListener() {
         newDataList = new LinkedList<EventBean[]>();
         oldDataList = new LinkedList<EventBean[]>();
         statementList = new ArrayList<EPStatement>();
         svcProviderList = new ArrayList<EPServiceProvider>();
     }
 
-    public void update(EventBean[] newData, EventBean[] oldData, EPStatement statement, EPServiceProvider serviceProvider)
-    {
+    public void update(EventBean[] newData, EventBean[] oldData, EPStatement statement, EPServiceProvider serviceProvider) {
         statementList.add(statement);
         svcProviderList.add(serviceProvider);
 
@@ -53,8 +50,7 @@ public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListe
         isInvoked = true;
     }
 
-    public void reset()
-    {
+    public void reset() {
         statementList.clear();
         svcProviderList.clear();
         this.oldDataList.clear();
@@ -64,30 +60,25 @@ public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListe
         isInvoked = false;
     }
 
-    public EventBean[] getLastNewData()
-    {
+    public EventBean[] getLastNewData() {
         return lastNewData;
     }
 
-    public EventBean[] getAndResetLastNewData()
-    {
+    public EventBean[] getAndResetLastNewData() {
         EventBean[] lastNew = lastNewData;
         reset();
         return lastNew;
     }
 
-    public List<EPStatement> getStatementList()
-    {
+    public List<EPStatement> getStatementList() {
         return statementList;
     }
 
-    public List<EPServiceProvider> getSvcProviderList()
-    {
+    public List<EPServiceProvider> getSvcProviderList() {
         return svcProviderList;
     }
 
-    public EventBean assertOneGetNewAndReset()
-    {
+    public EventBean assertOneGetNewAndReset() {
         Assert.assertTrue(isInvoked);
 
         Assert.assertEquals(1, newDataList.size());
@@ -101,8 +92,7 @@ public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListe
         return lastNew;
     }
 
-    public EventBean assertOneGetOldAndReset()
-    {
+    public EventBean assertOneGetOldAndReset() {
         Assert.assertTrue(isInvoked);
 
         Assert.assertEquals(1, newDataList.size());
@@ -116,67 +106,53 @@ public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListe
         return lastNew;
     }
 
-    public EventBean[] getLastOldData()
-    {
+    public EventBean[] getLastOldData() {
         return lastOldData;
     }
 
-    public List<EventBean[]> getNewDataList()
-    {
+    public List<EventBean[]> getNewDataList() {
         return newDataList;
     }
 
-    public List<EventBean[]> getOldDataList()
-    {
+    public List<EventBean[]> getOldDataList() {
         return oldDataList;
     }
 
-    public boolean isInvoked()
-    {
+    public boolean isInvoked() {
         return isInvoked;
     }
 
-    public boolean getAndClearIsInvoked()
-    {
+    public boolean getAndClearIsInvoked() {
         boolean invoked = isInvoked;
         isInvoked = false;
         return invoked;
     }
 
-    public void setLastNewData(EventBean[] lastNewData)
-    {
+    public void setLastNewData(EventBean[] lastNewData) {
         this.lastNewData = lastNewData;
     }
 
-    public void setLastOldData(EventBean[] lastOldData)
-    {
+    public void setLastOldData(EventBean[] lastOldData) {
         this.lastOldData = lastOldData;
     }
 
-    public EventBean[] getNewDataListFlattened()
-    {
+    public EventBean[] getNewDataListFlattened() {
         return flatten(newDataList);
     }
 
-    private EventBean[] flatten(List<EventBean[]> list)
-    {
+    private EventBean[] flatten(List<EventBean[]> list) {
         int count = 0;
-        for (EventBean[] events : list)
-        {
-            if (events != null)
-            {
+        for (EventBean[] events : list) {
+            if (events != null) {
                 count += events.length;
             }
         }
 
         EventBean[] array = new EventBean[count];
         count = 0;
-        for (EventBean[] events : list)
-        {
-            if (events != null)
-            {
-                for (int i = 0; i < events.length; i++)
-                {
+        for (EventBean[] events : list) {
+            if (events != null) {
+                for (int i = 0; i < events.length; i++) {
                     array[count++] = events[i];
                 }
             }
@@ -184,83 +160,64 @@ public class SupportStmtAwareUpdateListener implements StatementAwareUpdateListe
         return array;
     }
 
-    public void assertUnderlyingAndReset(Object[] expectedUnderlyingNew, Object[] expectedUnderlyingOld)
-    {
+    public void assertUnderlyingAndReset(Object[] expectedUnderlyingNew, Object[] expectedUnderlyingOld) {
         Assert.assertEquals(1, getNewDataList().size());
         Assert.assertEquals(1, getOldDataList().size());
 
         EventBean[] newEvents = getLastNewData();
         EventBean[] oldEvents = getLastOldData();
 
-        if (expectedUnderlyingNew != null)
-        {
+        if (expectedUnderlyingNew != null) {
             Assert.assertEquals(expectedUnderlyingNew.length, newEvents.length);
-            for (int i = 0; i < expectedUnderlyingNew.length; i++)
-            {
+            for (int i = 0; i < expectedUnderlyingNew.length; i++) {
                 Assert.assertSame(expectedUnderlyingNew[i], newEvents[i].getUnderlying());
             }
-        }
-        else
-        {
+        } else {
             Assert.assertNull(newEvents);
         }
 
-        if (expectedUnderlyingOld != null)
-        {
+        if (expectedUnderlyingOld != null) {
             Assert.assertEquals(expectedUnderlyingOld.length, oldEvents.length);
-            for (int i = 0; i < expectedUnderlyingOld.length; i++)
-            {
+            for (int i = 0; i < expectedUnderlyingOld.length; i++) {
                 Assert.assertSame(expectedUnderlyingOld[i], oldEvents[i].getUnderlying());
             }
-        }
-        else
-        {
+        } else {
             Assert.assertNull(oldEvents);
         }
 
         reset();
     }
 
-    public void assertFieldEqualsAndReset(String fieldName, Object[] expectedNew, Object[] expectedOld)
-    {
+    public void assertFieldEqualsAndReset(String fieldName, Object[] expectedNew, Object[] expectedOld) {
         Assert.assertEquals(1, getNewDataList().size());
         Assert.assertEquals(1, getOldDataList().size());
 
         EventBean[] newEvents = getLastNewData();
         EventBean[] oldEvents = getLastOldData();
 
-        if (expectedNew != null)
-        {
+        if (expectedNew != null) {
             Assert.assertEquals(expectedNew.length, newEvents.length);
-            for (int i = 0; i < expectedNew.length; i++)
-            {
+            for (int i = 0; i < expectedNew.length; i++) {
                 Object result = newEvents[i].get(fieldName);
                 Assert.assertEquals(expectedNew[i], result);
             }
-        }
-        else
-        {
+        } else {
             Assert.assertNull(newEvents);
         }
 
-        if (expectedOld != null)
-        {
+        if (expectedOld != null) {
             Assert.assertEquals(expectedOld.length, oldEvents.length);
-            for (int i = 0; i < expectedOld.length; i++)
-            {
+            for (int i = 0; i < expectedOld.length; i++) {
                 Assert.assertEquals(expectedOld[i], oldEvents[i].get(fieldName));
             }
-        }
-        else
-        {
+        } else {
             Assert.assertNull(oldEvents);
         }
 
         reset();
     }
 
-    public UniformPair<EventBean[]> getDataListsFlattened()
-    {
+    public UniformPair<EventBean[]> getDataListsFlattened() {
         return new UniformPair<EventBean[]>(flatten(newDataList), flatten(oldDataList));
     }
 }

@@ -19,8 +19,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public abstract class SupportSubscriberRowByRowMapBase extends SupportSubscriberBase
-{
+public abstract class SupportSubscriberRowByRowMapBase extends SupportSubscriberBase {
     private final ArrayList<Map> indicateIStream = new ArrayList<Map>();
     private final ArrayList<Map> indicateRStream = new ArrayList<Map>();
 
@@ -54,8 +53,7 @@ public abstract class SupportSubscriberRowByRowMapBase extends SupportSubscriber
 
         if (expectedRStream == null) {
             assertTrue(indicateRStream.isEmpty());
-        }
-        else {
+        } else {
             assertEquals(1, indicateRStream.size());
             EPAssertionUtil.assertPropsMap(indicateRStream.get(0), fields, expectedRStream);
         }

@@ -12,14 +12,12 @@ package com.espertech.esper.supportregression.subscriber;
 
 import com.espertech.esper.client.EPStatement;
 
-public class SupportSubscriberMultirowObjectArrayWStmt extends SupportSubscriberMultirowObjectArrayBase
-{
+public class SupportSubscriberMultirowObjectArrayWStmt extends SupportSubscriberMultirowObjectArrayBase {
     public SupportSubscriberMultirowObjectArrayWStmt() {
         super(true);
     }
 
-    public void update(EPStatement stmt, Object[][] newEvents, Object[][] oldEvents)
-    {
+    public void update(EPStatement stmt, Object[][] newEvents, Object[][] oldEvents) {
         addIndication(stmt, newEvents, oldEvents);
     }
 }

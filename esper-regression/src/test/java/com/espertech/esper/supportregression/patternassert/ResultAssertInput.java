@@ -14,12 +14,10 @@ import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 
 import java.util.TreeMap;
 
-public class ResultAssertInput
-{
+public class ResultAssertInput {
     private static TreeMap<Long, TimeAction> actions;
 
-    static
-    {
+    static {
         init();
     }
 
@@ -27,8 +25,7 @@ public class ResultAssertInput
         return actions;
     }
 
-    private static void init()
-    {
+    private static void init() {
         actions = new TreeMap<Long, TimeAction>();
 
         // Instructions for a test set:
@@ -62,35 +59,29 @@ public class ResultAssertInput
         add(7200);
     }
 
-    private static void add(long time, SupportMarketDataBean theEvent, String eventDesc)
-    {
+    private static void add(long time, SupportMarketDataBean theEvent, String eventDesc) {
         TimeAction timeAction = actions.get(time);
-        if (timeAction == null)
-        {
+        if (timeAction == null) {
             timeAction = new TimeAction();
             actions.put(time, timeAction);
         }
         timeAction.add(theEvent, eventDesc);
     }
 
-    private static void add(long time)
-    {
+    private static void add(long time) {
         add(time, null);
     }
 
-    private static void add(long time, String desc)
-    {
+    private static void add(long time, String desc) {
         TimeAction timeAction = actions.get(time);
-        if (timeAction == null)
-        {
+        if (timeAction == null) {
             timeAction = new TimeAction();
             timeAction.setActionDesc(desc);
             actions.put(time, timeAction);
         }
     }
 
-    private static SupportMarketDataBean makeEvent(String symbol, long volume, double price)
-    {
+    private static SupportMarketDataBean makeEvent(String symbol, long volume, double price) {
         return new SupportMarketDataBean(symbol, price, volume, "");
     }
 

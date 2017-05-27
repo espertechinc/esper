@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.patternassert;
 
-public enum ResultAssertExecutionTestSelector
-{
+public enum ResultAssertExecutionTestSelector {
     TEST_BOTH_ISTREAM_AND_IRSTREAM,
     TEST_ONLY_AS_PROVIDED;
 }

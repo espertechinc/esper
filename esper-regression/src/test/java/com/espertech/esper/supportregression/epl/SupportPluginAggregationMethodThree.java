@@ -14,13 +14,11 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 
 import java.io.Serializable;
 
-public class SupportPluginAggregationMethodThree implements Serializable, AggregationMethod
-{
+public class SupportPluginAggregationMethodThree implements Serializable, AggregationMethod {
     private static Object[] lastEnterParameters;
     private int count;
 
-    public void clear()
-    {
+    public void clear() {
         count = 0;
     }
 
@@ -28,33 +26,28 @@ public class SupportPluginAggregationMethodThree implements Serializable, Aggreg
         return lastEnterParameters;
     }
 
-    public void enter(Object value)
-    {
+    public void enter(Object value) {
         Object[] parameters = (Object[]) value;
         lastEnterParameters = parameters;
         int lower = (Integer) parameters[0];
         int upper = (Integer) parameters[1];
         int val = (Integer) parameters[2];
-        if ((val >= lower) && (val <= upper))
-        {
+        if ((val >= lower) && (val <= upper)) {
             count++;
         }
     }
 
-    public void leave(Object value)
-    {
+    public void leave(Object value) {
         Object[] parameters = (Object[]) value;
         int lower = (Integer) parameters[0];
         int upper = (Integer) parameters[1];
         int val = (Integer) parameters[2];
-        if ((val >= lower) && (val <= upper))
-        {
+        if ((val >= lower) && (val <= upper)) {
             count--;
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return count;
     }
 

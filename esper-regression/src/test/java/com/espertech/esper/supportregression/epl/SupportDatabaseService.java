@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.epl;
 
-public class SupportDatabaseService
-{
+public class SupportDatabaseService {
     public final static String DBUSER = "root";
     public final static String DBPWD = "password";
     public final static String DRIVER = "com.mysql.jdbc.Driver";

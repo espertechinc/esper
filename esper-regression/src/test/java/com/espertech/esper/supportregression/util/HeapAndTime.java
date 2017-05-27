@@ -29,10 +29,10 @@ public class HeapAndTime {
         long deltaNano = System.nanoTime() - thenNano;
 
         return "Delta: Sec " + deltaMsec / 1000d +
-               "  SecHres " + deltaNano / 1000000000d +
-               "  MaxMB " + deltaHeapMaxSize / 1024d / 1024d +
-               "  FreeMB " + deltaHeapFreeSize / 1024d / 1024d +
-               "  SizeMB " + deltaHeapSize +
-               "  (heap max " + thenHeapMaxSize/ 1024d / 1024d + ")";
+                "  SecHres " + deltaNano / 1000000000d +
+                "  MaxMB " + deltaHeapMaxSize / 1024d / 1024d +
+                "  FreeMB " + deltaHeapFreeSize / 1024d / 1024d +
+                "  SizeMB " + deltaHeapSize +
+                "  (heap max " + thenHeapMaxSize / 1024d / 1024d + ")";
     }
 }

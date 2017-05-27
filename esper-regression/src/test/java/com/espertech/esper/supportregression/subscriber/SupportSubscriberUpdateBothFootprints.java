@@ -25,6 +25,6 @@ public class SupportSubscriberUpdateBothFootprints extends SupportSubscriberRowB
     }
 
     public void update(EPStatement stmt, String theString, int intPrimitive) {
-        addIndication(stmt, new Object[] {theString, intPrimitive});
+        addIndication(stmt, new Object[]{theString, intPrimitive});
     }
 }

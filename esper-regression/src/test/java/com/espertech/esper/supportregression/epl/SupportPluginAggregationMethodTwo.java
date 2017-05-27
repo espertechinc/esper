@@ -14,25 +14,20 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 
 import java.io.Serializable;
 
-public class SupportPluginAggregationMethodTwo implements AggregationMethod, Serializable
-{
-    public void clear()
-    {
+public class SupportPluginAggregationMethodTwo implements AggregationMethod, Serializable {
+    public void clear() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void enter(Object value)
-    {
+    public void enter(Object value) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void leave(Object value)
-    {
+    public void leave(Object value) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

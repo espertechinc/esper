@@ -12,24 +12,20 @@ package com.espertech.esper.supportregression.bean.bookexample;
 
 import java.io.Serializable;
 
-public class Review implements Serializable
-{
+public class Review implements Serializable {
     private int reviewId;
     private String comment;
 
-    public Review(int reviewId, String comment)
-    {
+    public Review(int reviewId, String comment) {
         this.reviewId = reviewId;
         this.comment = comment;
     }
 
-    public int getReviewId()
-    {
+    public int getReviewId() {
         return reviewId;
     }
 
-    public String getComment()
-    {
+    public String getComment() {
         return comment;
     }
 }

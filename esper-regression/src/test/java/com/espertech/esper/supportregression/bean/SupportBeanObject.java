@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanObject implements Serializable
-{
+public class SupportBeanObject implements Serializable {
     private Object one;
     private Object two;
     private Object three;
@@ -28,63 +27,51 @@ public class SupportBeanObject implements Serializable
         this.one = one;
     }
 
-    public Object getFive()
-    {
+    public Object getFive() {
         return five;
     }
 
-    public void setFive(Object five)
-    {
+    public void setFive(Object five) {
         this.five = five;
     }
 
-    public Object getFour()
-    {
+    public Object getFour() {
         return four;
     }
 
-    public void setFour(Object four)
-    {
+    public void setFour(Object four) {
         this.four = four;
     }
 
-    public Object getOne()
-    {
+    public Object getOne() {
         return one;
     }
 
-    public void setOne(Object one)
-    {
+    public void setOne(Object one) {
         this.one = one;
     }
 
-    public Object getSix()
-    {
+    public Object getSix() {
         return six;
     }
 
-    public void setSix(Object six)
-    {
+    public void setSix(Object six) {
         this.six = six;
     }
 
-    public Object getThree()
-    {
+    public Object getThree() {
         return three;
     }
 
-    public void setThree(Object three)
-    {
+    public void setThree(Object three) {
         this.three = three;
     }
 
-    public Object getTwo()
-    {
+    public Object getTwo() {
         return two;
     }
 
-    public void setTwo(Object two)
-    {
+    public void setTwo(Object two) {
         this.two = two;
     }
 }

@@ -10,22 +10,18 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportMarkerImplB implements SupportMarkerInterface
-{
+public class SupportMarkerImplB implements SupportMarkerInterface {
     private int id;
 
-    public SupportMarkerImplB(int id)
-    {
+    public SupportMarkerImplB(int id) {
         this.id = id;
     }
 
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 }

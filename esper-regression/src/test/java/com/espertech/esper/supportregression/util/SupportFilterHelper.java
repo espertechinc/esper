@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SupportFilterHelper {
     public static void assertFilterTwo(EPServiceProvider epService, String epl, String expressionOne, FilterOperator opOne, String expressionTwo, FilterOperator opTwo) {

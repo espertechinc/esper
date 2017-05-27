@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBean_StringAlphabetic implements Serializable
-{
+public class SupportBean_StringAlphabetic implements Serializable {
     private final String a;
     private final String b;
     private final String c;
@@ -37,7 +36,7 @@ public class SupportBean_StringAlphabetic implements Serializable
     }
 
     public SupportBean_StringAlphabetic(String a, String b, String c, String d, String e) {
-        this(a,b,c,d,e,null,null,null,null);
+        this(a, b, c, d, e, null, null, null, null);
     }
 
     public SupportBean_StringAlphabetic(String a, String b, String c) {

@@ -29,6 +29,6 @@ public class Zone {
     }
 
     public static String[] getZoneNames() {
-        return new String[] {"Z1", "Z2"};
+        return new String[]{"Z1", "Z2"};
     }
 }

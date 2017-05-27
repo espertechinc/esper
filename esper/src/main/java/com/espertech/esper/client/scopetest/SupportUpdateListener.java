@@ -405,4 +405,17 @@ public class SupportUpdateListener implements UpdateListener {
         }
         return invoked;
     }
+
+    /**
+     * Produce an array of listeners
+     * @param size of array
+     * @return array of listeners
+     */
+    public static SupportUpdateListener[] makeListeners(int size) {
+        SupportUpdateListener[] listeners = new SupportUpdateListener[size];
+        for (int i = 0; i < listeners.length; i++) {
+            listeners[i] = new SupportUpdateListener();
+        }
+        return listeners;
+    }
 }

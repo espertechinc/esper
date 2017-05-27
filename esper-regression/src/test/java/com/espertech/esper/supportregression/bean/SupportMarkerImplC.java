@@ -10,6 +10,5 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportMarkerImplC implements SupportMarkerInterface
-{
+public class SupportMarkerImplC implements SupportMarkerInterface {
 }

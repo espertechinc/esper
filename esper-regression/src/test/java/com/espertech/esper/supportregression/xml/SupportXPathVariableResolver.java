@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.supportregression.xml;
 
-import javax.xml.xpath.XPathVariableResolver;
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathVariableResolver;
 
-public class SupportXPathVariableResolver implements XPathVariableResolver
-{
+public class SupportXPathVariableResolver implements XPathVariableResolver {
     public Object resolveVariable(QName variableName) {
-        return "value";    
+        return "value";
     }
 }

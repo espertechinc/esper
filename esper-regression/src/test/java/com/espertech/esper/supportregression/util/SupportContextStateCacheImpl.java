@@ -41,14 +41,13 @@ public class SupportContextStateCacheImpl implements ContextStateCache {
             Object payloadReceived = ContextStateCacheNoSave.DEFAULT_SPI_TEST_BINDING.byteArrayToObject(value.getBlob(), null);
             if (desc.getPayload() == null) {
                 Assert.assertNotNull(payloadReceived);
-            }
-            else {
+            } else {
                 EPAssertionUtil.assertEqualsAllowArray(text, desc.getPayload(), payloadReceived);
             }
         }
     }
 
-    public static void assertRemovedState(ContextStatePathKey ... keys) {
+    public static void assertRemovedState(ContextStatePathKey... keys) {
         Assert.assertEquals(keys.length, removedState.size());
         int count = -1;
         for (ContextStatePathKey key : keys) {

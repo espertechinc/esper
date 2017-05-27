@@ -10,12 +10,11 @@
  */
 package com.espertech.esper.supportregression.patternassert;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.HashMap;
 
-public class ResultAssertTestResult
-{
+public class ResultAssertTestResult {
     private final String category;
     private final String title;
     private final String[] properties;
@@ -30,31 +29,25 @@ public class ResultAssertTestResult
         assertions = new TreeMap<Long, Map<Integer, StepDesc>>();
     }
 
-    public void addResultInsert(long time, int step, Object[][] newDataPerRow)
-    {        
+    public void addResultInsert(long time, int step, Object[][] newDataPerRow) {
         addResultInsRem(time, step, newDataPerRow, null);
     }
 
-    public void addResultRemove(long time, int step, Object[][] oldDataPerRow)
-    {
+    public void addResultRemove(long time, int step, Object[][] oldDataPerRow) {
         addResultInsRem(time, step, null, oldDataPerRow);
     }
 
-    public void addResultInsRem(long time, int step, Object[][] newDataPerRow, Object[][] oldDataPerRow)
-    {
-        if (step >= 10)
-        {
+    public void addResultInsRem(long time, int step, Object[][] newDataPerRow, Object[][] oldDataPerRow) {
+        if (step >= 10) {
             throw new IllegalArgumentException("Step max value is 10 for any time slot");
         }
         Map<Integer, StepDesc> stepMap = assertions.get(time);
-        if (stepMap == null)
-        {
+        if (stepMap == null) {
             stepMap = new HashMap<Integer, StepDesc>();
             assertions.put(time, stepMap);
         }
 
-        if (stepMap.containsKey(step))
-        {
+        if (stepMap.containsKey(step)) {
             throw new IllegalArgumentException("Step already in map for time slot");
         }
         stepMap.put(step, new StepDesc(step, newDataPerRow, oldDataPerRow));

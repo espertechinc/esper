@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.patternassert;
 
 import com.espertech.esper.supportregression.bean.SupportMarketDataBean;
 
-public class EventSendDesc
-{
+public class EventSendDesc {
     private SupportMarketDataBean theEvent;
     private String eventDesc;
 

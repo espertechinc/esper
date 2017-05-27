@@ -13,38 +13,30 @@ package com.espertech.esper.supportregression.epl;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.core.EngineImportService;
 
-public class SupportAggregator implements AggregationMethod
-{
+public class SupportAggregator implements AggregationMethod {
     private int sum;
 
-    public void clear()
-    {
-        
+    public void clear() {
+
     }
 
-    public void enter(Object value)
-    {
-        if (value != null)
-        {
+    public void enter(Object value) {
+        if (value != null) {
             sum += (Integer) value;
         }
     }
 
-    public void leave(Object value)
-    {
-        if (value != null)
-        {
+    public void leave(Object value) {
+        if (value != null) {
             sum -= (Integer) value;
         }
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return sum;
     }
 
-    public AggregationMethod newAggregator(EngineImportService engineImportService)
-    {
+    public AggregationMethod newAggregator(EngineImportService engineImportService) {
         return new SupportAggregator();
     }
 

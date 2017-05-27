@@ -10,12 +10,10 @@
  */
 package com.espertech.esper.supportregression.util;
 
-import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 
-public class NoActionUpdateListener implements UpdateListener
-{
-    public void update(EventBean[] newEvents, EventBean[] oldEvents)
-    {
+public class NoActionUpdateListener implements UpdateListener {
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
     }
 }

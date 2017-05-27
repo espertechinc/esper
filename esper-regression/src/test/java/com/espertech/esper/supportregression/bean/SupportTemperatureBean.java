@@ -10,27 +10,22 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportTemperatureBean
-{
+public class SupportTemperatureBean {
     private String geom;
 
-    private SupportTemperatureBean()
-    {
+    private SupportTemperatureBean() {
         // need a private ctor for testing
     }
 
-    public SupportTemperatureBean(String geom)
-    {
+    public SupportTemperatureBean(String geom) {
         this.geom = geom;
     }
 
-    public String getGeom()
-    {
+    public String getGeom() {
         return geom;
     }
 
-    public void setGeom(String geom)
-    {
+    public void setGeom(String geom) {
         this.geom = geom;
     }
 }

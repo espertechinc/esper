@@ -10,35 +10,30 @@
  */
 package com.espertech.esper.supportregression.client;
 
-import com.espertech.esper.core.service.StatementLifecycleObserver;
 import com.espertech.esper.core.service.StatementLifecycleEvent;
+import com.espertech.esper.core.service.StatementLifecycleObserver;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class SupportStmtLifecycleObserver implements StatementLifecycleObserver
-{
+public class SupportStmtLifecycleObserver implements StatementLifecycleObserver {
     private List<StatementLifecycleEvent> events = new ArrayList<StatementLifecycleEvent>();
     private Object[] lastContext;
 
-    public void observe(StatementLifecycleEvent theEvent)
-    {
+    public void observe(StatementLifecycleEvent theEvent) {
         events.add(theEvent);
         lastContext = theEvent.getParameters();
     }
 
-    public Object[] getLastContext()
-    {
+    public Object[] getLastContext() {
         return lastContext;
     }
 
-    public List<StatementLifecycleEvent> getEvents()
-    {
+    public List<StatementLifecycleEvent> getEvents() {
         return events;
     }
 
-    public String getEventsAsString()
-    {
+    public String getEventsAsString() {
         String result = "";
         for (StatementLifecycleEvent theEvent : events) {
             result += theEvent.getEventType().toString() + ";";
@@ -46,8 +41,7 @@ public class SupportStmtLifecycleObserver implements StatementLifecycleObserver
         return result;
     }
 
-    public void flush()
-    {
+    public void flush() {
         events.clear();
     }
 }

@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.subscriber;
 
 import java.util.Map;
 
-public class SupportSubscriberMultirowMapNStmt extends SupportSubscriberMultirowMapBase
-{
+public class SupportSubscriberMultirowMapNStmt extends SupportSubscriberMultirowMapBase {
     public SupportSubscriberMultirowMapNStmt() {
         super(false);
     }

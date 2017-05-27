@@ -43,7 +43,7 @@ public class ValueWithExistsFlag {
         return flagged;
     }
 
-    public static ValueWithExistsFlag[] allExist(Object ... values) {
+    public static ValueWithExistsFlag[] allExist(Object... values) {
         ValueWithExistsFlag[] flagged = new ValueWithExistsFlag[values.length];
         for (int i = 0; i < values.length; i++) {
             flagged[i] = exists(values[i]);

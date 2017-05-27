@@ -106,39 +106,30 @@ public class SupportDateTime {
     private static Object coerce(long time, String format) {
         if (format.equalsIgnoreCase("long")) {
             return time;
-        }
-        else if (format.equalsIgnoreCase("util")) {
+        } else if (format.equalsIgnoreCase("util")) {
             return new Date(time);
-        }
-        else if (format.equalsIgnoreCase("cal")) {
+        } else if (format.equalsIgnoreCase("cal")) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(time);
             return cal;
-        }
-        else if (format.equalsIgnoreCase("ldt")) {
+        } else if (format.equalsIgnoreCase("ldt")) {
             return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-        }
-        else if (format.equalsIgnoreCase("zdt")) {
+        } else if (format.equalsIgnoreCase("zdt")) {
             return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-        }
-        else if (format.equalsIgnoreCase("sdf")) {
+        } else if (format.equalsIgnoreCase("sdf")) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(time);
             SimpleDateFormat sdf = new SimpleDateFormat();
             return sdf.format(cal.getTime());
-        }
-        else if (format.equalsIgnoreCase("dtf_isodt")) {
+        } else if (format.equalsIgnoreCase("dtf_isodt")) {
             LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
             return DateTimeFormatter.ISO_DATE_TIME.format(date);
-        }
-        else if (format.equalsIgnoreCase("dtf_isozdt")) {
+        } else if (format.equalsIgnoreCase("dtf_isozdt")) {
             ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
             return DateTimeFormatter.ISO_ZONED_DATE_TIME.format(date);
-        }
-        else if (format.equalsIgnoreCase("null")) {
+        } else if (format.equalsIgnoreCase("null")) {
             return null;
-        }
-        else {
+        } else {
             throw new RuntimeException("Unrecognized format abbreviation '" + format + "'");
         }
     }

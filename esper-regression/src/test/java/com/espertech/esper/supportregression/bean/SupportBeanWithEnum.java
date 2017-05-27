@@ -12,24 +12,20 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanWithEnum implements Serializable
-{
+public class SupportBeanWithEnum implements Serializable {
     private String theString;
     private SupportEnum supportEnum;
 
-    public SupportBeanWithEnum(String theString, SupportEnum supportEnum)
-    {
+    public SupportBeanWithEnum(String theString, SupportEnum supportEnum) {
         this.theString = theString;
         this.supportEnum = supportEnum;
     }
 
-    public String getTheString()
-    {
+    public String getTheString() {
         return theString;
     }
 
-    public SupportEnum getSupportEnum()
-    {
+    public SupportEnum getSupportEnum() {
         return supportEnum;
     }
 }

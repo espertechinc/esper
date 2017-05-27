@@ -18,22 +18,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SupportPluginAggregationMethodThreeFactory implements Serializable, AggregationFunctionFactory
-{
+public class SupportPluginAggregationMethodThreeFactory implements Serializable, AggregationFunctionFactory {
     private static List<AggregationValidationContext> contexts = new ArrayList<AggregationValidationContext>();
 
-    public static List<AggregationValidationContext> getContexts()
-    {
+    public static List<AggregationValidationContext> getContexts() {
         return contexts;
     }
 
-    public void validate(AggregationValidationContext validationContext)
-    {
+    public void validate(AggregationValidationContext validationContext) {
         contexts.add(validationContext);
     }
 
-    public Class getValueType()
-    {
+    public Class getValueType() {
         return int.class;
     }
 

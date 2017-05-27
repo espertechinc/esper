@@ -13,14 +13,12 @@ package com.espertech.esper.supportregression.subscriber;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.supportregression.bean.SupportBean;
 
-public class SupportSubscriberMultirowUnderlyingWStmt extends SupportSubscriberMultirowUnderlyingBase
-{
+public class SupportSubscriberMultirowUnderlyingWStmt extends SupportSubscriberMultirowUnderlyingBase {
     public SupportSubscriberMultirowUnderlyingWStmt() {
         super(true);
     }
 
-    public void update(EPStatement stmt, SupportBean[]newEvents, SupportBean[] oldEvents)
-    {
+    public void update(EPStatement stmt, SupportBean[] newEvents, SupportBean[] oldEvents) {
         addIndication(stmt, newEvents, oldEvents);
     }
 }

@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public interface SupportBeanConstants
-{
+public interface SupportBeanConstants {
     public final static String EVENT_BEAN_PACKAGE = SupportBean.class.getPackage().getName() + ".";
 
     public final static String EVENT_A_CLASS = EVENT_BEAN_PACKAGE + "SupportBean_A";

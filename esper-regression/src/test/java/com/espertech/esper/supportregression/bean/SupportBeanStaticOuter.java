@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanStaticOuter
-{
+public class SupportBeanStaticOuter {
     private SupportBeanStaticInner inside;
 
     public SupportBeanStaticOuter() {

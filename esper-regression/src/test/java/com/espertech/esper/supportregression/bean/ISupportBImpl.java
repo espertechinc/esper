@@ -12,24 +12,20 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class ISupportBImpl implements ISupportB, Serializable
-{
+public class ISupportBImpl implements ISupportB, Serializable {
     private String valueB;
     private String valueBaseAB;
 
-    public ISupportBImpl(String valueB, String valueBaseAB)
-    {
+    public ISupportBImpl(String valueB, String valueBaseAB) {
         this.valueB = valueB;
         this.valueBaseAB = valueBaseAB;
     }
 
-    public String getB()
-    {
+    public String getB() {
         return valueB;
     }
 
-    public String getBaseAB()
-    {
+    public String getBaseAB() {
         return valueBaseAB;
     }
 

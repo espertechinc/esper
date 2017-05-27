@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.supportregression.util;
 
-import com.espertech.esper.client.annotation.Hook;
 import com.espertech.esper.client.annotation.HookType;
 import com.espertech.esper.epl.join.table.*;
 import com.espertech.esper.supportregression.epl.SupportQueryPlanIndexHook;

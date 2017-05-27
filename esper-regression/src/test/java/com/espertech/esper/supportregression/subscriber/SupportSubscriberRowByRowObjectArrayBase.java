@@ -17,21 +17,18 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class SupportSubscriberRowByRowObjectArrayBase extends SupportSubscriberBase
-{
+public abstract class SupportSubscriberRowByRowObjectArrayBase extends SupportSubscriberBase {
     private final ArrayList<Object[]> indicate = new ArrayList<Object[]>();
 
     protected SupportSubscriberRowByRowObjectArrayBase(boolean requiresStatementDelivery) {
         super(requiresStatementDelivery);
     }
 
-    protected void addIndication(Object[] row)
-    {
+    protected void addIndication(Object[] row) {
         indicate.add(row);
     }
 
-    protected void addIndication(EPStatement stmt, Object[] row)
-    {
+    protected void addIndication(EPStatement stmt, Object[] row) {
         indicate.add(row);
         addStmtIndication(stmt);
     }

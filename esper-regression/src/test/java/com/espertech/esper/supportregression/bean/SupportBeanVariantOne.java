@@ -13,8 +13,7 @@ package com.espertech.esper.supportregression.bean;
 import java.io.Serializable;
 import java.util.*;
 
-public class SupportBeanVariantOne implements Serializable
-{
+public class SupportBeanVariantOne implements Serializable {
     private ISupportB p0;
     private ISupportAImplSuperG p1;
     private ArrayList p2;
@@ -25,80 +24,65 @@ public class SupportBeanVariantOne implements Serializable
     private Map<String, String> mapped;
     private SupportBeanVariantOneInner inneritem;
 
-    public SupportBeanVariantOne()
-    {
-        indexed = new int[] {1, 2, 3};
+    public SupportBeanVariantOne() {
+        indexed = new int[]{1, 2, 3};
         mapped = new HashMap<String, String>();
         mapped.put("a", "val1");
         inneritem = new SupportBeanVariantOneInner("i1");
     }
 
-    public ISupportB getP0()
-    {
+    public ISupportB getP0() {
         return new ISupportABCImpl("a", "b", "baseAB", "c");
     }
 
-    public ISupportAImplSuperG getP1()
-    {
-        return new ISupportAImplSuperGImpl("g","a","baseAB");
+    public ISupportAImplSuperG getP1() {
+        return new ISupportAImplSuperGImpl("g", "a", "baseAB");
     }
 
-    public ArrayList getP2()
-    {
+    public ArrayList getP2() {
         return p2;
     }
 
-    public List getP3()
-    {
+    public List getP3() {
         return p3;
     }
 
-    public Collection getP4()
-    {
+    public Collection getP4() {
         return p4;
     }
 
-    public List getP5()
-    {
+    public List getP5() {
         return p5;
     }
 
-    public int[] getIndexed()
-    {
+    public int[] getIndexed() {
         return indexed;
     }
 
-    public int getIndexArr(int index)
-    {
+    public int getIndexArr(int index) {
         return indexed[index];
     }
 
-    public Map getMapped()
-    {
+    public Map getMapped() {
         return mapped;
     }
 
-    public String getMappedKey(String key)
-    {
+    public String getMappedKey(String key) {
         return mapped.get(key);
     }
 
-    public SupportBeanVariantOneInner getInneritem()
-    {
+    public SupportBeanVariantOneInner getInneritem() {
         return inneritem;
     }
 
-    public static class SupportBeanVariantOneInner
-    {
+    public static class SupportBeanVariantOneInner {
         private String val;
 
-        public SupportBeanVariantOneInner(String val)
-        {
+        public SupportBeanVariantOneInner(String val) {
             this.val = val;
         }
 
-        public String getVal()
-        {
+        public String getVal() {
             return val;
         }
     }

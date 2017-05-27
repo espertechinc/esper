@@ -10,14 +10,15 @@
  */
 package com.espertech.esper.supportregression.patternassert;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Contains a set of events to send to the runtime for testing along with a time for each event.
  * Each event has a string event id that can be obtained via the getParentEvent method.
  */
-public class EventCollection
-{
+public class EventCollection {
     public final static String ON_START_EVENT_ID = "ON_START_ID";
 
     // Ordered map of string event id and event object
@@ -28,28 +29,23 @@ public class EventCollection
     private Map<String, Long> testEventTimes;
 
     public EventCollection(LinkedHashMap<String, Object> testEvents,
-                           Map<String, Long> testEventTimes)
-    {
+                           Map<String, Long> testEventTimes) {
         this.testEvents = testEvents;
         this.testEventTimes = testEventTimes;
     }
 
-    public Object getEvent(String eventId)
-    {
-        if (!testEvents.containsKey(eventId))
-        {
+    public Object getEvent(String eventId) {
+        if (!testEvents.containsKey(eventId)) {
             throw new IllegalArgumentException("Event id " + eventId + " not found in data set");
         }
         return testEvents.get(eventId);
     }
 
-    public Long getTime(String eventId)
-    {
+    public Long getTime(String eventId) {
         return testEventTimes.get(eventId);
     }
 
-    public Set<Map.Entry<String, Object>> entrySet()
-    {
+    public Set<Map.Entry<String, Object>> entrySet() {
         return testEvents.entrySet();
     }
 }

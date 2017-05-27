@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanReadOnly
-{
-    public String getSide()
-    {
+public class SupportBeanReadOnly {
+    public String getSide() {
         return "buy";
     }
 }

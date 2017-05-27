@@ -12,8 +12,7 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportSpatialEventRectangle implements Serializable
-{
+public class SupportSpatialEventRectangle implements Serializable {
     private String id;
     private Double x;
     private Double y;

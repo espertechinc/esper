@@ -20,8 +20,7 @@ public enum SupportDateTimeFieldType {
     DATE("java.util.Date", SupportTimeStartBase::getUtildateEnd),
     CAL("java.util.Calendar", SupportTimeStartBase::getCaldateEnd),
     LDT("java.time.LocalDateTime", SupportTimeStartBase::getLdtEnd),
-    ZDT("java.time.ZonedDateTime", SupportTimeStartBase::getZdtEnd),
-    ;
+    ZDT("java.time.ZonedDateTime", SupportTimeStartBase::getZdtEnd);
 
     private final String type;
     private final Function<SupportTimeStartEndA, Object> endDateTimeProvider;

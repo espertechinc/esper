@@ -10,30 +10,25 @@
  */
 package com.espertech.esper.supportregression.epl;
 
-import com.espertech.esper.epl.named.NamedWindowLifecycleObserver;
 import com.espertech.esper.epl.named.NamedWindowLifecycleEvent;
-
-import java.util.List;
-import java.util.ArrayList;
-
+import com.espertech.esper.epl.named.NamedWindowLifecycleObserver;
 import org.junit.Assert;
 
-public class SupportNamedWindowObserver implements NamedWindowLifecycleObserver
-{
+import java.util.ArrayList;
+import java.util.List;
+
+public class SupportNamedWindowObserver implements NamedWindowLifecycleObserver {
     private List<NamedWindowLifecycleEvent> events = new ArrayList<NamedWindowLifecycleEvent>();
 
-    public void observe(NamedWindowLifecycleEvent theEvent)
-    {
+    public void observe(NamedWindowLifecycleEvent theEvent) {
         events.add(theEvent);
     }
 
-    public List<NamedWindowLifecycleEvent> getEvents()
-    {
+    public List<NamedWindowLifecycleEvent> getEvents() {
         return events;
     }
 
-    public NamedWindowLifecycleEvent getFirstAndReset()
-    {
+    public NamedWindowLifecycleEvent getFirstAndReset() {
         Assert.assertEquals(1, events.size());
         NamedWindowLifecycleEvent theEvent = events.get(0);
         events.clear();

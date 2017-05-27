@@ -15,8 +15,7 @@ import com.espertech.esper.client.ConfigurationEngineDefaults;
 
 import java.lang.reflect.Method;
 
-public class SupportConfigFactory
-{
+public class SupportConfigFactory {
     private static final String TEST_CONFIG_FACTORY_CLASS = "CONFIGFACTORY_CLASS";
     private static final String SKIP_TEST = "SKIP_TEST";
 
@@ -34,27 +33,20 @@ public class SupportConfigFactory
         return false;
     }
 
-    public static Configuration getConfiguration()
-    {
+    public static Configuration getConfiguration() {
         Configuration config;
         String configFactoryClass = System.getProperty(TEST_CONFIG_FACTORY_CLASS);
-        if (configFactoryClass != null)
-        {
-            try
-            {
+        if (configFactoryClass != null) {
+            try {
                 Class clazz = Class.forName(configFactoryClass);
                 Object instance = clazz.newInstance();
                 Method m = clazz.getMethod("getConfigurationEsperRegression");
                 Object result = m.invoke(instance);
                 config = (Configuration) result;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new RuntimeException("Error using configuration factory class '" + configFactoryClass + "'", e);
             }
-        }
-        else
-        {
+        } else {
             config = new Configuration();
             config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
             config.getEngineDefaults().getExceptionHandling().addClass(SupportExceptionHandlerFactoryRethrow.class);

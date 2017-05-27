@@ -10,8 +10,7 @@
  */
 package com.espertech.esper.supportregression.bean;
 
-public class SupportBeanKeywords
-{
+public class SupportBeanKeywords {
     private int count = 1;
     private int escape = 1;
     private int every = 1;
@@ -47,173 +46,139 @@ public class SupportBeanKeywords
     private int right = 1;
     private int join = 1;
 
-    public int getCount()
-    {
+    public int getCount() {
         return count;
     }
 
-    public int getEscape()
-    {
+    public int getEscape() {
         return escape;
     }
 
-    public int getEvery()
-    {
+    public int getEvery() {
         return every;
     }
 
-    public int getSum()
-    {
+    public int getSum() {
         return sum;
     }
 
-    public int getAvg()
-    {
+    public int getAvg() {
         return avg;
     }
 
-    public int getMax()
-    {
+    public int getMax() {
         return max;
     }
 
-    public int getMin()
-    {
+    public int getMin() {
         return min;
     }
 
-    public int getCoalesce()
-    {
+    public int getCoalesce() {
         return coalesce;
     }
 
-    public int getMedian()
-    {
+    public int getMedian() {
         return median;
     }
 
-    public int getStddev()
-    {
+    public int getStddev() {
         return stddev;
     }
 
-    public int getAvedev()
-    {
+    public int getAvedev() {
         return avedev;
     }
 
-    public int getEvents()
-    {
+    public int getEvents() {
         return events;
     }
 
-    public int getSeconds()
-    {
+    public int getSeconds() {
         return seconds;
     }
 
-    public int getMinutes()
-    {
+    public int getMinutes() {
         return minutes;
     }
 
-    public int getFirst()
-    {
+    public int getFirst() {
         return first;
     }
 
-    public int getLast()
-    {
+    public int getLast() {
         return last;
     }
 
-    public int getUnidirectional()
-    {
+    public int getUnidirectional() {
         return unidirectional;
     }
 
-    public int getPattern()
-    {
+    public int getPattern() {
         return pattern;
     }
 
-    public int getSql()
-    {
+    public int getSql() {
         return sql;
     }
 
-    public int getMetadatasql()
-    {
+    public int getMetadatasql() {
         return metadatasql;
     }
 
-    public int getPrev()
-    {
+    public int getPrev() {
         return prev;
     }
 
-    public int getPrior()
-    {
+    public int getPrior() {
         return prior;
     }
 
-    public int getWeekday()
-    {
+    public int getWeekday() {
         return weekday;
     }
 
-    public int getLastweekday()
-    {
+    public int getLastweekday() {
         return lastweekday;
     }
 
-    public int getCast()
-    {
+    public int getCast() {
         return cast;
     }
 
-    public int getSnapshot()
-    {
+    public int getSnapshot() {
         return snapshot;
     }
 
-    public int getVariable()
-    {
+    public int getVariable() {
         return variable;
     }
 
-    public int getWindow()
-    {
+    public int getWindow() {
         return window;
     }
 
-    public int getFull()
-    {
+    public int getFull() {
         return full;
     }
 
-    public int getInner()
-    {
+    public int getInner() {
         return inner;
     }
 
-    public int getOuter()
-    {
+    public int getOuter() {
         return outer;
     }
 
-    public int getLeft()
-    {
+    public int getLeft() {
         return left;
     }
 
-    public int getRight()
-    {
+    public int getRight() {
         return right;
     }
 
-    public int getJoin()
-    {
+    public int getJoin() {
         return join;
     }
 }

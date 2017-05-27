@@ -12,37 +12,31 @@ package com.espertech.esper.supportregression.bean;
 
 import java.io.Serializable;
 
-public class SupportBeanTimestamp implements Serializable
-{
+public class SupportBeanTimestamp implements Serializable {
     private String id;
     private long timestamp;
     private String groupId;
 
-    public SupportBeanTimestamp(String id, long timestamp)
-    {
+    public SupportBeanTimestamp(String id, long timestamp) {
         this.id = id;
         this.timestamp = timestamp;
     }
 
-    public SupportBeanTimestamp(String id, String groupId, long timestamp)
-    {
+    public SupportBeanTimestamp(String id, String groupId, long timestamp) {
         this.id = id;
         this.groupId = groupId;
         this.timestamp = timestamp;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
-    public long getTimestamp()
-    {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public String getGroupId()
-    {
+    public String getGroupId() {
         return groupId;
     }
 }

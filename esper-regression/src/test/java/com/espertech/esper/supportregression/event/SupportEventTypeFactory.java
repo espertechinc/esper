@@ -15,20 +15,16 @@ import com.espertech.esper.core.support.SupportEventAdapterService;
 
 import java.util.Map;
 
-public class SupportEventTypeFactory
-{
-    public static EventType createBeanType(Class clazz, String name)
-    {
+public class SupportEventTypeFactory {
+    public static EventType createBeanType(Class clazz, String name) {
         return SupportEventAdapterService.getService().addBeanType(name, clazz, false, false, false);
     }
 
-    public static EventType createBeanType(Class clazz)
-    {
+    public static EventType createBeanType(Class clazz) {
         return SupportEventAdapterService.getService().addBeanType(clazz.getName(), clazz, false, false, false);
     }
 
-    public static EventType createMapType(Map<String,Object> map)
-    {
+    public static EventType createMapType(Map<String, Object> map) {
         return SupportEventAdapterService.getService().createAnonymousMapType("test", map, true);
     }
 }

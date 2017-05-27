@@ -41,6 +41,7 @@ public class SupportExceptionHandlerFactory implements ExceptionHandlerFactory {
 
     public static class SupportExceptionHandler implements ExceptionHandler {
         private List<ExceptionHandlerContext> contexts = new ArrayList<ExceptionHandlerContext>();
+
         public void handle(ExceptionHandlerContext context) {
             contexts.add(context);
         }
