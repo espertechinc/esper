@@ -48,10 +48,10 @@ public class ExecMTContextNestedNonOverlapAtNow implements RegressionExecution {
             epService.getEPRuntime().sendEvent(new TestEvent("TEST", -25));
         }
 
+        Thread.sleep(250);
+
         int numDeliveries = listener.getNewDataList().size();
         assertTrue("Done " + numLoops + " loops, have " + numDeliveries + " deliveries", numDeliveries >= 2);
-
-        Thread.sleep(250);
 
         int sum = 0;
         long count = 0;
