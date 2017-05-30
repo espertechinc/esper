@@ -27,6 +27,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -245,6 +246,11 @@ public class BaseNestableEventUtil {
     }
 
     public static Object getFragmentArray(EventAdapterService eventAdapterService, Object value, EventType fragmentEventType) {
+
+        if (value instanceof List) {
+            value = ((List) value).toArray();
+        }
+		
         if (value instanceof Object[]) {
             Object[] subEvents = (Object[]) value;
 
