@@ -31,8 +31,7 @@ public class CodegenChainElement {
                     builder.append("\"");
                     builder.append(constant);
                     builder.append("\"");
-                }
-                else {
+                } else {
                     builder.append(constant);
                 }
                 delimiter = ",";

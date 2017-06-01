@@ -70,8 +70,7 @@ public class CodeGenerationUtil {
         }
         if (clazz.getDeclaringClass() == null) {
             builder.append(clazz.getName());
-        }
-        else {
+        } else {
             builder.append(clazz.getName().replace("$", "."));
         }
         builder.append(";\n");

@@ -165,11 +165,9 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
         if (getter instanceof BeanEventPropertyGetter) {
             BeanEventPropertyGetter beanGetter = (BeanEventPropertyGetter) getter;
             return block.methodReturn(getter.codegenUnderlyingExists(cast(beanGetter.getTargetType(), ref("result")), context));
-        }
-        else if (getter instanceof MapEventPropertyGetter) {
+        } else if (getter instanceof MapEventPropertyGetter) {
             return block.methodReturn(getter.codegenUnderlyingExists(cast(Map.class, ref("result")), context));
-        }
-        else {
+        } else {
             block.ifInstanceOf("result", EventBean.class)
                     .blockReturn(getter.codegenEventBeanExists(cast(EventBean.class, ref("result")), context));
             return block.methodReturn(constantFalse());
@@ -210,13 +208,13 @@ public class MapNestedPropertyGetterMixedType implements MapEventPropertyGetter 
             if (getter instanceof BeanEventPropertyGetter) {
                 Class type = ((BeanEventPropertyGetter) getter).getTargetType();
                 blockBean.blockElse()
-                    .assignRef("result", getter.codegenUnderlyingGet(cast(type, ref("result")), context))
-                    .blockEnd();
+                        .assignRef("result", getter.codegenUnderlyingGet(cast(type, ref("result")), context))
+                        .blockEnd();
             } else if (getter instanceof MapEventPropertyGetter) {
                 blockBean.blockElse()
-                    .ifRefNotTypeReturnConst("result", Map.class, null)
-                    .assignRef("result", getter.codegenUnderlyingGet(cast(Map.class, ref("result")), context))
-                    .blockEnd();
+                        .ifRefNotTypeReturnConst("result", Map.class, null)
+                        .assignRef("result", getter.codegenUnderlyingGet(cast(Map.class, ref("result")), context))
+                        .blockEnd();
             } else {
                 blockBean.blockElse().blockReturn(constantNull());
             }

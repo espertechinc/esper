@@ -25,8 +25,7 @@ public class CodegenExpressionExprDotName implements CodegenExpression {
     public void render(StringBuilder builder, Map<Class, String> imports) {
         if (lhs instanceof CodegenExpressionRef) {
             lhs.render(builder, imports);
-        }
-        else {
+        } else {
             builder.append("(");
             lhs.render(builder, imports);
             builder.append(")");

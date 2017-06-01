@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.event.vaevent;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**

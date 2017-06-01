@@ -11,7 +11,6 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.EventAdapterService;

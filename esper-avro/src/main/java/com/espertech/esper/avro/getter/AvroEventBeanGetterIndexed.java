@@ -17,10 +17,8 @@ import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
-import sun.net.www.content.text.Generic;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,8 +33,9 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
+     *
      * @param values coll
-     * @param index index
+     * @param index  index
      * @return value
      */
     public static Object getAvroIndexedValue(Collection values, int index) {

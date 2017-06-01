@@ -16,39 +16,32 @@ import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 
-import static com.espertech.esper.codegen.model.blocks.CodegenBlockPropertyBeanOrUnd.AccessType.EXISTS;
-import static com.espertech.esper.codegen.model.blocks.CodegenBlockPropertyBeanOrUnd.AccessType.FRAGMENT;
-import static com.espertech.esper.codegen.model.blocks.CodegenBlockPropertyBeanOrUnd.AccessType.GET;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.cast;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.codegen.model.blocks.CodegenBlockPropertyBeanOrUnd.AccessType.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
- *  if (!(valueMap instanceof TYPE)) {
- *    if (value instanceof EventBean) {
- *      return getter.XXX((EventBean) value);
- *    }
- *    return XXXX;
- *  }
- *  return getter.getXXXX(value);
+ * if (!(valueMap instanceof TYPE)) {
+ * if (value instanceof EventBean) {
+ * return getter.XXX((EventBean) value);
+ * }
+ * return XXXX;
+ * }
+ * return getter.getXXXX(value);
  */
 public class CodegenBlockPropertyBeanOrUnd {
     public static String from(CodegenContext context, Class expectedUnderlyingType, EventPropertyGetterSPI innerGetter, AccessType accessType, Class generator) {
-        CodegenBlock block = context.addMethod((accessType == EXISTS ? boolean.class : Object.class), Object.class, "value", generator)
+        CodegenBlock block = context.addMethod(accessType == EXISTS ? boolean.class : Object.class, Object.class, "value", generator)
                 .ifNotInstanceOf("value", expectedUnderlyingType)
-                    .ifInstanceOf("value", EventBean.class)
-                        .declareVarWCast(EventBean.class, "bean", "value");
+                .ifInstanceOf("value", EventBean.class)
+                .declareVarWCast(EventBean.class, "bean", "value");
 
         if (accessType == GET) {
             block = block.blockReturn(innerGetter.codegenEventBeanGet(ref("bean"), context));
-        }
-        else if (accessType == EXISTS) {
+        } else if (accessType == EXISTS) {
             block = block.blockReturn(innerGetter.codegenEventBeanExists(ref("bean"), context));
-        }
-        else if (accessType == FRAGMENT) {
+        } else if (accessType == FRAGMENT) {
             block = block.blockReturn(innerGetter.codegenEventBeanFragment(ref("bean"), context));
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Invalid access type " + accessType);
         }
 
@@ -57,14 +50,11 @@ public class CodegenBlockPropertyBeanOrUnd {
         CodegenExpression expression;
         if (accessType == GET) {
             expression = innerGetter.codegenUnderlyingGet(cast(expectedUnderlyingType, ref("value")), context);
-        }
-        else if (accessType == EXISTS) {
+        } else if (accessType == EXISTS) {
             expression = innerGetter.codegenUnderlyingExists(cast(expectedUnderlyingType, ref("value")), context);
-        }
-        else if (accessType == FRAGMENT) {
+        } else if (accessType == FRAGMENT) {
             expression = innerGetter.codegenUnderlyingFragment(cast(expectedUnderlyingType, ref("value")), context);
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Invalid access type " + accessType);
         }
         return block.methodReturn(expression);

@@ -10,7 +10,6 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventPropertyType;

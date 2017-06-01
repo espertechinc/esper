@@ -656,42 +656,49 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             int[] codePoint;
             int index = 0, dotex = -1;
             boolean needStart = true;
-            escape: {
-                if(name == null || name.isEmpty()) break escape;
-                if(name.codePointAt(0) == '.') break escape;
+            escape:
+            {
+                if (name == null || name.isEmpty()) break escape;
+                if (name.codePointAt(0) == '.') break escape;
                 codePoint = name.codePoints().toArray();
                 while (index <= codePoint.length) {
-                    if(index == codePoint.length) {
-                        if(codePoint[index - 1] == '.'){
-                            ret = PackageName.INVALID; break escape;}
+                    if (index == codePoint.length) {
+                        if (codePoint[index - 1] == '.') {
+                            ret = PackageName.INVALID;
+                            break escape;
+                        }
                         int start = dotex + 1;
                         int end = index;
                         start = name.offsetByCodePoints(0, start);
                         end = name.offsetByCodePoints(0, end);
                         String test = name.substring(start, end);
-                        if(!(Arrays.binarySearch(reserved, test) < 0)){
-                            ret = PackageName.INVALID; break escape;}
-                        if(!(ret == PackageName.QUALIFIED)) ret = PackageName.SIMPLE;
+                        if (!(Arrays.binarySearch(RESERVED, test) < 0)) {
+                            ret = PackageName.INVALID;
+                            break escape;
+                        }
+                        if (!(ret == PackageName.QUALIFIED)) ret = PackageName.SIMPLE;
                         break escape;
                     }
-                    if(codePoint[index] == '.') {
-                        if(codePoint[index - 1] == '.'){
-                            ret = PackageName.INVALID;  break escape;}
-                        else {
+                    if (codePoint[index] == '.') {
+                        if (codePoint[index - 1] == '.') {
+                            ret = PackageName.INVALID;
+                            break escape;
+                        } else {
                             needStart = true;
                             int start = dotex + 1;
                             int end = index;
                             start = name.offsetByCodePoints(0, start);
                             end = name.offsetByCodePoints(0, end);
                             String test = name.substring(start, end);
-                            if(!(Arrays.binarySearch(reserved, test) < 0)) break escape;
+                            if (!(Arrays.binarySearch(RESERVED, test) < 0)) break escape;
                             dotex = index;
                             ret = PackageName.QUALIFIED;
                         }
-                    } else if(Character.isJavaIdentifierStart(codePoint[index])) {
-                        if(needStart) needStart = false;
-                    } else if((!Character.isJavaIdentifierPart(codePoint[index]))){
-                        ret = PackageName.INVALID; break escape;
+                    } else if (Character.isJavaIdentifierStart(codePoint[index])) {
+                        if (needStart) needStart = false;
+                    } else if (!Character.isJavaIdentifierPart(codePoint[index])) {
+                        ret = PackageName.INVALID;
+                        break escape;
                     }
                     index++;
                 }
@@ -699,17 +706,17 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             return ret;
         }
 
-        private static final String[] reserved;
+        private static final String[] RESERVED;
 
         static {
-            reserved = new String[] { "abstract", "assert", "boolean", "break", "byte",
-                    "case", "catch", "char", "class", "const", "continue", "default", "do",
-                    "double", "else", "enum", "extends", "false", "final", "finally",
-                    "float", "for", "if", "goto", "implements", "import", "instanceof",
-                    "int", "interface", "long", "native", "new", "null", "package",
-                    "private", "protected", "public", "return", "short", "static",
-                    "strictfp", "super", "switch", "synchronized", "this", "throw",
-                    "throws", "transient", "true", "try", "void", "volatile", "while" };
+            RESERVED = new String[]{"abstract", "assert", "boolean", "break", "byte",
+                "case", "catch", "char", "class", "const", "continue", "default", "do",
+                "double", "else", "enum", "extends", "false", "final", "finally",
+                "float", "for", "if", "goto", "implements", "import", "instanceof",
+                "int", "interface", "long", "native", "new", "null", "package",
+                "private", "protected", "public", "return", "short", "static",
+                "strictfp", "super", "switch", "synchronized", "this", "throw",
+                "throws", "transient", "true", "try", "void", "volatile", "while"};
         }
     }
 }

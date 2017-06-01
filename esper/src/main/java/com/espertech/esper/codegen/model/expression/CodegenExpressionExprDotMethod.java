@@ -30,8 +30,7 @@ public class CodegenExpressionExprDotMethod implements CodegenExpression {
     public void render(StringBuilder builder, Map<Class, String> imports) {
         if (expression instanceof CodegenExpressionRef) {
             expression.render(builder, imports);
-        }
-        else {
+        } else {
             builder.append("(");
             expression.render(builder, imports);
             builder.append(")");

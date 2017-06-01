@@ -17,7 +17,6 @@ import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 
 import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 

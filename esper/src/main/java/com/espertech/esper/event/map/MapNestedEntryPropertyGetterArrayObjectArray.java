@@ -17,8 +17,6 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
-
 public class MapNestedEntryPropertyGetterArrayObjectArray extends MapNestedEntryPropertyGetterBase {
 
     private final int index;

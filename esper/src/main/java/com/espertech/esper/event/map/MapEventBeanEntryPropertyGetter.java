@@ -11,11 +11,9 @@
 package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.epl.join.rep.Node;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventPropertyGetterSPI;
 

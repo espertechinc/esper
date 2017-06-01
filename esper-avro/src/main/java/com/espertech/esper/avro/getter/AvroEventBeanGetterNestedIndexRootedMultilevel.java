@@ -34,7 +34,7 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        GenericData.Record value = navigate((GenericData.Record)eventBean.getUnderlying());
+        GenericData.Record value = navigate((GenericData.Record) eventBean.getUnderlying());
         if (value == null) {
             return null;
         }
@@ -53,7 +53,7 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     }
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
-        GenericData.Record value = navigate((GenericData.Record)eventBean.getUnderlying());
+        GenericData.Record value = navigate((GenericData.Record) eventBean.getUnderlying());
         if (value == null) {
             return null;
         }
@@ -102,9 +102,9 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
     private String navigateMethodCodegen(CodegenContext context) {
         String navigateRecordMethod = navigateRecordMethodCodegen(context);
         return context.addMethod(GenericData.Record.class, GenericData.Record.class, "record", this.getClass())
-            .declareVar(Object.class, "value", staticMethodTakingExprAndConst(AvroEventBeanGetterNestedIndexRooted.class, "getAtIndex", ref("record"), posTop, index))
-            .ifRefNullReturnNull("value")
-            .methodReturn(CodegenExpressionBuilder.localMethod(navigateRecordMethod, castRef(GenericData.Record.class, "value")));
+                .declareVar(Object.class, "value", staticMethodTakingExprAndConst(AvroEventBeanGetterNestedIndexRooted.class, "getAtIndex", ref("record"), posTop, index))
+                .ifRefNullReturnNull("value")
+                .methodReturn(CodegenExpressionBuilder.localMethod(navigateRecordMethod, castRef(GenericData.Record.class, "value")));
     }
 
     private GenericData.Record navigateRecord(GenericData.Record record) {
@@ -121,12 +121,12 @@ public class AvroEventBeanGetterNestedIndexRootedMultilevel implements EventProp
 
     private String navigateRecordMethodCodegen(CodegenContext context) {
         CodegenBlock block = context.addMethod(GenericData.Record.class, GenericData.Record.class, "record", this.getClass())
-            .declareVar(GenericData.Record.class, "current", ref("record"))
-            .declareVarNull(Object.class, "value");
+                .declareVar(GenericData.Record.class, "current", ref("record"))
+                .declareVarNull(Object.class, "value");
         for (int i = 0; i < nested.length - 1; i++) {
             block.assignRef("value", nested[i].codegenUnderlyingGet(ref("current"), context))
-                .ifRefNotTypeReturnConst("value", GenericData.Record.class, null)
-                .assignRef("current", castRef(GenericData.Record.class, "value"));
+                    .ifRefNotTypeReturnConst("value", GenericData.Record.class, null)
+                    .assignRef("current", castRef(GenericData.Record.class, "value"));
         }
         return block.methodReturn(ref("current"));
     }

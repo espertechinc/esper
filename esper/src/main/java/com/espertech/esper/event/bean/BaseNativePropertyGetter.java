@@ -11,8 +11,6 @@
 package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
-import com.espertech.esper.client.EventType;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.core.CodegenContext;
 import com.espertech.esper.codegen.core.CodegenMember;
@@ -39,12 +37,14 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
     private final boolean isIterable;
 
     public abstract Class getTargetType();
+
     public abstract Class getBeanPropType();
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param object array
-     * @param fragmentEventType fragment type
+     *
+     * @param object              array
+     * @param fragmentEventType   fragment type
      * @param eventAdapterService event adapters
      * @return array
      */
@@ -141,7 +141,7 @@ public abstract class BaseNativePropertyGetter implements EventPropertyGetterSPI
      * Returns the fragment for dynamic properties.
      *
      * @param object              to inspect
-     * @param fragmentEventType type
+     * @param fragmentEventType   type
      * @param eventAdapterService factory for event beans and event types
      * @return fragment
      */

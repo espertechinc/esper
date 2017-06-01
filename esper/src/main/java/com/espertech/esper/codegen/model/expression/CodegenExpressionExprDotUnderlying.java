@@ -13,9 +13,6 @@ package com.espertech.esper.codegen.model.expression;
 import java.util.Map;
 import java.util.Set;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.mergeClassesExpressions;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.renderExpressions;
-
 public class CodegenExpressionExprDotUnderlying implements CodegenExpression {
     private final CodegenExpression expression;
 
@@ -26,8 +23,7 @@ public class CodegenExpressionExprDotUnderlying implements CodegenExpression {
     public void render(StringBuilder builder, Map<Class, String> imports) {
         if (expression instanceof CodegenExpressionRef) {
             expression.render(builder, imports);
-        }
-        else {
+        } else {
             builder.append("(");
             expression.render(builder, imports);
             builder.append(")");

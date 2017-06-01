@@ -13,8 +13,6 @@ package com.espertech.esper.codegen.model.statement;
 import com.espertech.esper.codegen.core.CodegenBlock;
 import com.espertech.esper.codegen.model.expression.CodegenExpression;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class CodegenStatementIfConditionBlock {

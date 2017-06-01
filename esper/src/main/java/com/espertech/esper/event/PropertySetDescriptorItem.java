@@ -11,7 +11,6 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventPropertyDescriptor;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.FragmentEventType;
 
 /**

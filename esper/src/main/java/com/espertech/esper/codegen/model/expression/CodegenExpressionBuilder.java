@@ -10,8 +10,6 @@
  */
 package com.espertech.esper.codegen.model.expression;
 
-import com.espertech.esper.codegen.core.CodegenContext;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -100,11 +98,11 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionEqualsNull(lhs, false);
     }
 
-    public static CodegenExpression staticMethod(Class clazz, String method, String ... refs) {
+    public static CodegenExpression staticMethod(Class clazz, String method, String... refs) {
         return new CodegenExpressionStaticMethodTakingRefs(clazz, method, refs);
     }
 
-    public static CodegenExpression staticMethod(Class clazz, String method, CodegenExpression ... params) {
+    public static CodegenExpression staticMethod(Class clazz, String method, CodegenExpression... params) {
         return new CodegenExpressionStaticMethodTakingAny(clazz, method, params);
     }
 
@@ -120,7 +118,7 @@ public class CodegenExpressionBuilder {
         return new CodegenExpressionArrayLength(expression);
     }
 
-    public static CodegenExpression newInstance(Class clazz, CodegenExpression ... params) {
+    public static CodegenExpression newInstance(Class clazz, CodegenExpression... params) {
         return new CodegenExpressionNewInstance(clazz, params);
     }
 

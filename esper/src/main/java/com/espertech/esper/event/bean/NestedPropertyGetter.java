@@ -21,9 +21,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.List;
 
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.castUnderlying;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
-import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for one or more levels deep nested properties.
@@ -135,8 +133,7 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
         }
         if (!exists) {
             return block.methodReturn(getterChain[getterChain.length - 1].codegenUnderlyingGet(ref(lastName), context));
-        }
-        else {
+        } else {
             return block.methodReturn(getterChain[getterChain.length - 1].codegenUnderlyingExists(ref(lastName), context));
         }
     }

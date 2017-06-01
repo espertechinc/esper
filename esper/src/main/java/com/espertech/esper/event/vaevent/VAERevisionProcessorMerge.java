@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.event.vaevent;
 
-import com.espertech.esper.client.*;
-import com.espertech.esper.codegen.core.CodegenContext;
-import com.espertech.esper.codegen.model.expression.CodegenExpression;
-import com.espertech.esper.collection.MultiKeyUntyped;
+import com.espertech.esper.client.ConfigurationRevisionEventType;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.client.EventType;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.join.table.EventTable;

@@ -31,8 +31,9 @@ public class VariantEventPropertyGetterAny implements EventPropertyGetterSPI {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param eventBean bean
-     * @param propertyGetterCache cache
+     *
+     * @param eventBean              bean
+     * @param propertyGetterCache    cache
      * @param assignedPropertyNumber num
      * @return value
      * @throws PropertyAccessException ex
@@ -48,8 +49,9 @@ public class VariantEventPropertyGetterAny implements EventPropertyGetterSPI {
 
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
-     * @param eventBean bean
-     * @param propertyGetterCache cache
+     *
+     * @param eventBean              bean
+     * @param propertyGetterCache    cache
      * @param assignedPropertyNumber num
      * @return value
      */

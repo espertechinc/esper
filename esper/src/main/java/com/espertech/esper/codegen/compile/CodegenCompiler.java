@@ -198,8 +198,7 @@ public class CodegenCompiler {
                 imports.put(clazz, clazz.getSimpleName());
                 return;
             }
-        }
-        catch (Throwable r) {
+        } catch (Throwable r) {
             System.out.println(r);
         }
 

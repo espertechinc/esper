@@ -35,8 +35,7 @@ public class CodegenExpressionRelational implements CodegenExpression {
         rhs.mergeClasses(classes);
     }
 
-    public enum CodegenRelational
-    {
+    public enum CodegenRelational {
         GE(">="),
         GT(">"),
         LE("<="),

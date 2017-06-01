@@ -17,19 +17,15 @@ public class CodegenExpressionUtil {
             String seq = (String) constant;
             if (seq.indexOf('\"') == -1) {
                 builder.append(constant);
-            }
-            else {
+            } else {
                 appendSequenceEscapeDQ(builder, seq);
             }
             builder.append('"');
-        }
-        else if (constant instanceof CharSequence) {
+        } else if (constant instanceof CharSequence) {
             appendSequenceEscapeDQ(builder, (CharSequence) constant);
-        }
-        else if (constant == null) {
+        } else if (constant == null) {
             builder.append("null");
-        }
-        else if (constant instanceof int[]) {
+        } else if (constant instanceof int[]) {
             builder.append("new int[] {");
             int[] nums = (int[]) constant;
             String delimiter = "";
@@ -38,8 +34,7 @@ public class CodegenExpressionUtil {
                 delimiter = ",";
             }
             builder.append("}");
-        }
-        else {
+        } else {
             builder.append(constant);
         }
     }
