@@ -13,9 +13,17 @@ package com.espertech.esper.event.bean;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenBlock;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.util.JavaClassHelper;
 
 import java.util.List;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.castUnderlying;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
 
 /**
  * Getter for one or more levels deep nested properties.
@@ -81,5 +89,55 @@ public class NestedPropertyGetter extends BaseNativePropertyGetter implements Be
 
     public boolean isExistsProperty(EventBean eventBean) {
         return isBeanExistsProperty(eventBean.getUnderlying());
+    }
+
+    public Class getBeanPropType() {
+        return getterChain[getterChain.length - 1].getBeanPropType();
+    }
+
+    public Class getTargetType() {
+        return getterChain[0].getTargetType();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropCodegen(context, false), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropCodegen(context, true), underlyingExpression);
+    }
+
+    private String getBeanPropCodegen(CodegenContext context, boolean exists) {
+        CodegenBlock block = context.addMethod(exists ? boolean.class : JavaClassHelper.getBoxedType(getterChain[getterChain.length - 1].getBeanPropType()), getterChain[0].getTargetType(), "value", this.getClass());
+        if (!exists) {
+            block.ifRefNullReturnNull("value");
+        } else {
+            block.ifRefNullReturnFalse("value");
+        }
+        String lastName = "value";
+        for (int i = 0; i < getterChain.length - 1; i++) {
+            String varName = "l" + i;
+            block.declareVar(getterChain[i].getBeanPropType(), varName, getterChain[i].codegenUnderlyingGet(ref(lastName), context));
+            lastName = varName;
+            if (!exists) {
+                block.ifRefNullReturnNull(lastName);
+            } else {
+                block.ifRefNullReturnFalse(lastName);
+            }
+        }
+        if (!exists) {
+            return block.methodReturn(getterChain[getterChain.length - 1].codegenUnderlyingGet(ref(lastName), context));
+        }
+        else {
+            return block.methodReturn(getterChain[getterChain.length - 1].codegenUnderlyingExists(ref(lastName), context));
+        }
     }
 }

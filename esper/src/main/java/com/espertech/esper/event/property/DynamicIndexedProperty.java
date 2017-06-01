@@ -12,6 +12,7 @@ package com.espertech.esper.event.property;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayIndexedPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
@@ -53,7 +54,7 @@ public class DynamicIndexedProperty extends PropertyBase implements DynamicPrope
         return new String[]{this.getPropertyNameAtomic()};
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return new DynamicIndexedPropertyGetter(propertyNameAtomic, index, eventAdapterService);
     }
 
@@ -86,7 +87,7 @@ public class DynamicIndexedProperty extends PropertyBase implements DynamicPrope
         writer.append('?');
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         return new DOMIndexedGetter(propertyNameAtomic, index, null);
     }
 
@@ -94,7 +95,7 @@ public class DynamicIndexedProperty extends PropertyBase implements DynamicPrope
         return null;  // dynamic properties always return Node
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         return new DOMIndexedGetter(propertyNameAtomic, index, null);
     }
 

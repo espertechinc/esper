@@ -376,7 +376,7 @@ public class ExecTableSelectStarPublicTypeVisibility implements RegressionExecut
         return ((EPServiceProviderSPI) epService).getServicesContext().getTableService().getTableMetadata(tableName).getPublicEventType();
     }
 
-    private static final class MyBeanCtor {
+    public static final class MyBeanCtor {
         private final SupportBean_S2 sb;
         private final Object[] arr;
 

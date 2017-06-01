@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
@@ -46,7 +47,7 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
         return new String[]{this.getPropertyNameAtomic()};
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         InternalEventPropDescriptor propertyDesc = eventType.getSimpleProperty(propertyNameAtomic);
         if (propertyDesc == null) {
             return null;
@@ -54,7 +55,7 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
         if (!propertyDesc.getPropertyType().equals(EventPropertyType.SIMPLE)) {
             return null;
         }
-        return eventType.getGetter(propertyNameAtomic);
+        return eventType.getGetterSPI(propertyNameAtomic);
     }
 
     public Class getPropertyType(BeanEventType eventType, EventAdapterService eventAdapterService) {
@@ -130,11 +131,11 @@ public class SimpleProperty extends PropertyBase implements PropertySimple {
         writer.append(propertyNameAtomic);
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         return new DOMAttributeAndElementGetter(propertyNameAtomic);
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression) {
         for (SchemaItemAttribute attribute : complexProperty.getAttributes()) {
             if (attribute.getName().equals(propertyNameAtomic)) {
                 return new DOMSimpleAttributeGetter(propertyNameAtomic);

@@ -311,7 +311,7 @@ public class ExecTableOnMerge implements RegressionExecution {
         return bean;
     }
 
-    private static class LocalSubBean {
+    public static class LocalSubBean {
         private int keyOne;
         private String keyTwo;
         private String prop;
@@ -341,7 +341,7 @@ public class ExecTableOnMerge implements RegressionExecution {
         }
     }
 
-    private static class LocalBean {
+    public static class LocalBean {
         private LocalSubBean val0;
 
         public LocalSubBean getVal0() {

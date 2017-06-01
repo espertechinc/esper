@@ -12,13 +12,20 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionRelational;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.vaevent.PropertyUtility;
+import com.espertech.esper.util.JavaClassHelper;
 import net.sf.cglib.reflect.FastMethod;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for an array property identified by a given index, using the CGLIB fast method.
@@ -48,20 +55,6 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
         return getBeanPropInternal(object, index);
     }
 
-    private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
-        try {
-            Object value = fastMethod.invoke(object, null);
-            if (Array.getLength(value) <= index) {
-                return null;
-            }
-            return Array.get(value, index);
-        } catch (ClassCastException e) {
-            throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
-        } catch (InvocationTargetException e) {
-            throw PropertyUtility.getInvocationTargetException(fastMethod.getJavaMethod(), e);
-        }
-    }
-
     public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
@@ -82,5 +75,50 @@ public class ArrayFastPropertyGetter extends BaseNativePropertyGetter implements
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getBeanPropType() {
+        return fastMethod.getReturnType().getComponentType();
+    }
+
+    public Class getTargetType() {
+        return fastMethod.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCode(context, fastMethod.getJavaMethod(), index), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
+        try {
+            Object value = fastMethod.invoke(object, null);
+            if (Array.getLength(value) <= index) {
+                return null;
+            }
+            return Array.get(value, index);
+        } catch (ClassCastException e) {
+            throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
+        } catch (InvocationTargetException e) {
+            throw PropertyUtility.getInvocationTargetException(fastMethod.getJavaMethod(), e);
+        }
+    }
+
+    protected static String getBeanPropInternalCode(CodegenContext context, Method method, int index) {
+        return context.addMethod(JavaClassHelper.getBoxedType(method.getReturnType().getComponentType()), method.getDeclaringClass(), "obj", ArrayFastPropertyGetter.class)
+            .declareVar(method.getReturnType(), "array", exprDotMethod(ref("obj"), method.getName()))
+            .ifConditionReturnConst(relational(arrayLength(ref("array")), CodegenExpressionRelational.CodegenRelational.LE, constant(index)), null)
+            .methodReturn(arrayAtIndex(ref("array"), constant(index)));
     }
 }

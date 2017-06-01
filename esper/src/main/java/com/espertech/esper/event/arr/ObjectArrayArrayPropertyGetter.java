@@ -13,8 +13,13 @@ package com.espertech.esper.event.arr;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for Map-entries with well-defined fragment type.
@@ -60,7 +65,7 @@ public class ObjectArrayArrayPropertyGetter implements ObjectArrayEventPropertyG
 
     private Object getObjectArrayInternal(Object[] array, int index) throws PropertyAccessException {
         Object value = array[propertyIndex];
-        return BaseNestableEventUtil.getIndexedValue(value, index);
+        return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -69,6 +74,32 @@ public class ObjectArrayArrayPropertyGetter implements ObjectArrayEventPropertyG
 
     public Object getFragment(EventBean obj) throws PropertyAccessException {
         Object fragmentUnderlying = get(obj);
-        return BaseNestableEventUtil.getFragmentNonPojo(eventAdapterService, fragmentUnderlying, fragmentType);
+        return BaseNestableEventUtil.getBNFragmentNonPojo(fragmentUnderlying, fragmentType, eventAdapterService);
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(BaseNestableEventUtil.class, "getBNArrayValueAtIndexWithNullCheck", arrayAtIndex(underlyingExpression, constant(propertyIndex)), constant(index));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
+        return staticMethod(BaseNestableEventUtil.class, "getBNFragmentNonPojo", codegenUnderlyingGet(underlyingExpression, context), ref(mType.getMemberName()), ref(mSvc.getMemberName()));
     }
 }

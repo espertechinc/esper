@@ -12,6 +12,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -19,6 +21,9 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for an iterable property identified by a given index, using vanilla reflection.
@@ -44,6 +49,42 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
         }
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * Returns the iterable at a certain index, or null.
+     *
+     * @param value the iterable
+     * @param index index
+     * @return value at index
+     */
+    public static Object getBeanEventIterableValue(Object value, int index) {
+        if (!(value instanceof Iterable)) {
+            return null;
+        }
+
+        Iterator it = ((Iterable) value).iterator();
+
+        if (index == 0) {
+            if (it.hasNext()) {
+                return it.next();
+            }
+            return null;
+        }
+
+        int count = 0;
+        while (true) {
+            if (!it.hasNext()) {
+                return null;
+            }
+            if (count < index) {
+                it.next();
+            } else {
+                return it.next();
+            }
+            count++;
+        }
+    }
+
     public Object getBeanProp(Object object) throws PropertyAccessException {
         return getBeanPropInternal(object, index);
     }
@@ -55,7 +96,7 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
     private Object getBeanPropInternal(Object object, int index) throws PropertyAccessException {
         try {
             Object value = method.invoke(object, (Object[]) null);
-            return IterableFastPropertyGetter.getIterable(value, index);
+            return getBeanEventIterableValue(value, index);
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(method, object, e);
         } catch (InvocationTargetException e) {
@@ -65,6 +106,12 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
         } catch (IllegalArgumentException e) {
             throw PropertyUtility.getIllegalArgumentException(method, e);
         }
+    }
+
+    protected static String getBeanPropCodegen(CodegenContext context, Class beanPropType, Class targetType, Method method, int index) {
+        return context.addMethod(beanPropType, targetType, "object", IterableMethodPropertyGetter.class)
+                .declareVar(Object.class, "value", exprDotMethod(ref("object"), method.getName()))
+                .methodReturn(cast(beanPropType, staticMethod(IterableMethodPropertyGetter.class, "getBeanEventIterableValue", ref("value"), constant(index))));
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -84,5 +131,29 @@ public class IterableMethodPropertyGetter extends BaseNativePropertyGetter imple
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getBeanPropType() {
+        return JavaClassHelper.getGenericReturnType(method, false);
+    }
+
+    public Class getTargetType() {
+        return method.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constant(true);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropCodegen(context, getBeanPropType(), getTargetType(), method, index), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constant(true);
     }
 }

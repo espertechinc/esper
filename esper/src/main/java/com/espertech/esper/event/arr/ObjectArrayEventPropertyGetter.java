@@ -12,11 +12,12 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**
  * Property getter for Objectarray-underlying events.
  */
-public interface ObjectArrayEventPropertyGetter extends EventPropertyGetter {
+public interface ObjectArrayEventPropertyGetter extends EventPropertyGetterSPI {
     /**
      * Returns a property of an event.
      *

@@ -208,7 +208,7 @@ public class ExecQuerytypeRollupGroupingFuncs implements RegressionExecution {
         }
     }
 
-    private static class CarInfoEvent {
+    public static class CarInfoEvent {
         private final String name;
         private final String place;
         private final String refId;
@@ -232,7 +232,7 @@ public class ExecQuerytypeRollupGroupingFuncs implements RegressionExecution {
         }
     }
 
-    private static class CarEvent {
+    public static class CarEvent {
         private final String name;
         private final String place;
         private final int count;

@@ -502,7 +502,7 @@ public class ExecPatternConsumingPattern implements RegressionExecution {
         epService.getEPRuntime().sendEvent(new CEvent(id, pc));
     }
 
-    private static class AEvent implements Serializable {
+    public static class AEvent implements Serializable {
         private final String id;
         private final String pa;
         private final Integer mysec;
@@ -526,7 +526,7 @@ public class ExecPatternConsumingPattern implements RegressionExecution {
         }
     }
 
-    private static class BEvent implements Serializable {
+    public static class BEvent implements Serializable {
         private final String id;
         private final String pb;
 
@@ -544,7 +544,7 @@ public class ExecPatternConsumingPattern implements RegressionExecution {
         }
     }
 
-    private static class CEvent implements Serializable {
+    public static class CEvent implements Serializable {
         private final String id;
         private final String pc;
 
@@ -562,7 +562,7 @@ public class ExecPatternConsumingPattern implements RegressionExecution {
         }
     }
 
-    private static class DEvent implements Serializable {
+    public static class DEvent implements Serializable {
         private final String id;
 
         private DEvent(String id) {

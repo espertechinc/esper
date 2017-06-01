@@ -13,7 +13,12 @@ package com.espertech.esper.avro.getter;
 import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import org.apache.avro.generic.GenericData;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter {
     private final String propertyName;
@@ -44,6 +49,30 @@ public class AvroEventBeanGetterSimpleDynamic implements AvroEventPropertyGetter
 
     public Object getAvroFragment(GenericData.Record record) {
         return null;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return CodegenExpressionBuilder.exprDotMethod(underlyingExpression, "get", constant(propertyName));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return notEqualsNull(exprDotMethodChain(underlyingExpression).addNoParam("getSchema").addWConst("getField", propertyName));
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
     }
 }
 

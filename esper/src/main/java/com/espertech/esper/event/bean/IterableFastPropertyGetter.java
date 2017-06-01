@@ -12,6 +12,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -20,7 +22,9 @@ import net.sf.cglib.reflect.FastMethod;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.event.bean.IterableMethodPropertyGetter.getBeanEventIterableValue;
 
 /**
  * Getter for a iterable property identified by a given index, using the CGLIB fast method.
@@ -50,7 +54,7 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
     public Object getBeanProp(Object object) throws PropertyAccessException {
         try {
             Object value = fastMethod.invoke(object, null);
-            return getIterable(value, index);
+            return getBeanEventIterableValue(value, index);
         } catch (ClassCastException e) {
             throw PropertyUtility.getMismatchException(fastMethod.getJavaMethod(), object, e);
         } catch (InvocationTargetException e) {
@@ -58,43 +62,9 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
         }
     }
 
+
     public Object get(EventBean eventBean, int index) throws PropertyAccessException {
-        return getIterable(eventBean.getUnderlying(), index);
-    }
-
-    /**
-     * Returns the iterable at a certain index, or null.
-     *
-     * @param value the iterable
-     * @param index index
-     * @return value at index
-     */
-    protected static Object getIterable(Object value, int index) {
-        if (!(value instanceof Iterable)) {
-            return null;
-        }
-
-        Iterator it = ((Iterable) value).iterator();
-
-        if (index == 0) {
-            if (it.hasNext()) {
-                return it.next();
-            }
-            return null;
-        }
-
-        int count = 0;
-        while (true) {
-            if (!it.hasNext()) {
-                return null;
-            }
-            if (count < index) {
-                it.next();
-            } else {
-                return it.next();
-            }
-            count++;
-        }
+        return getBeanEventIterableValue(eventBean.getUnderlying(), index);
     }
 
     public boolean isBeanExistsProperty(Object object) {
@@ -114,5 +84,29 @@ public class IterableFastPropertyGetter extends BaseNativePropertyGetter impleme
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getBeanPropType() {
+        return JavaClassHelper.getGenericReturnType(fastMethod.getJavaMethod(), false);
+    }
+
+    public Class getTargetType() {
+        return fastMethod.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(IterableMethodPropertyGetter.getBeanPropCodegen(context, getBeanPropType(), getTargetType(), fastMethod.getJavaMethod(), index), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
     }
 }

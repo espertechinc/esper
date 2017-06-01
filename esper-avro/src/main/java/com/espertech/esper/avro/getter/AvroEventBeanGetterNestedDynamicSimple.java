@@ -11,11 +11,15 @@
 package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
 
-public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGetter {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGetterSPI {
 
     private final int posTop;
     private final String propertyName;
@@ -26,7 +30,14 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
+        return get((GenericData.Record) eventBean.getUnderlying());
+    }
+
+    public boolean isExistsProperty(EventBean eventBean) {
+        return isExistsProperty((GenericData.Record) eventBean.getUnderlying());
+    }
+
+    private Object get(GenericData.Record record) throws PropertyAccessException {
         GenericData.Record inner = (GenericData.Record) record.get(posTop);
         if (inner == null) {
             return null;
@@ -34,8 +45,14 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return inner.get(propertyName);
     }
 
-    public boolean isExistsProperty(EventBean eventBean) {
-        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
+    private String getCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+                .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
+                .ifRefNullReturnNull("inner")
+                .methodReturn(exprDotMethod(ref("inner"), "get", constant(propertyName)));
+    }
+
+    private boolean isExistsProperty(GenericData.Record record) {
         GenericData.Record inner = (GenericData.Record) record.get(posTop);
         if (inner == null) {
             return false;
@@ -43,7 +60,38 @@ public class AvroEventBeanGetterNestedDynamicSimple implements EventPropertyGett
         return inner.getSchema().getField(propertyName) != null;
     }
 
+    private String isExistsPropertyCodegen(CodegenContext context) {
+        return context.addMethod(boolean.class, GenericData.Record.class, "record", this.getClass())
+                .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
+                .ifRefNullReturnFalse("inner")
+                .methodReturn(notEqualsNull(exprDotMethodChain(ref("inner")).addNoParam("getSchema").addWConst("getField", propertyName)));
+    }
+
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
     }
 }

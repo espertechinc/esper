@@ -10,14 +10,14 @@
  */
 package com.espertech.esperio.representation.axiom;
 
-import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**
  * Interface for property getters also returning type information for the property.
  *
  * @author pablo
  */
-public interface TypedEventPropertyGetter extends EventPropertyGetter {
+public interface TypedEventPropertyGetter extends EventPropertyGetterSPI {
 
     /**
      * Returns type of event property.

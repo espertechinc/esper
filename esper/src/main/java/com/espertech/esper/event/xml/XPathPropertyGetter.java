@@ -11,8 +11,11 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
@@ -27,12 +30,14 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import java.lang.reflect.Array;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Getter for properties of DOM xml events.
  *
  * @author pablo
  */
-public class XPathPropertyGetter implements EventPropertyGetter {
+public class XPathPropertyGetter implements EventPropertyGetterSPI {
     private static final Logger log = LoggerFactory.getLogger(XPathPropertyGetter.class);
     private final XPathExpression expression;
     private final String expressionText;
@@ -90,8 +95,23 @@ public class XPathPropertyGetter implements EventPropertyGetter {
         if (!(und instanceof Node)) {
             throw new PropertyAccessException("Unexpected underlying event of type '" + und.getClass() + "' encountered, expecting org.w3c.dom.Node as underlying");
         }
-        try {
+        return evaluateXPathGet((Node) und, expression, expressionText, property, optionalCastToType, resultType, isCastToArray, simpleTypeParser);
+    }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param und underlying
+     * @param expression xpath
+     * @param expressionText text
+     * @param property prop
+     * @param optionalCastToType type or null
+     * @param resultType result xpath type
+     * @param isCastToArray array indicator
+     * @param simpleTypeParser parse
+     * @return value
+     */
+    public static Object evaluateXPathGet(Node und, XPathExpression expression, String expressionText, String property, Class optionalCastToType, QName resultType, boolean isCastToArray, SimpleTypeParser simpleTypeParser) {
+        try {
             if (log.isDebugEnabled()) {
                 log.debug("Running XPath '" + expressionText + "' for property '" + property + "' against Node XML :" + SchemaUtil.serialize((Node) und));
             }
@@ -108,7 +128,7 @@ public class XPathPropertyGetter implements EventPropertyGetter {
             }
 
             if (isCastToArray) {
-                return castToArray(result);
+                return castToArray(result, optionalCastToType, simpleTypeParser, expression);
             }
 
             // string results get parsed
@@ -147,23 +167,7 @@ public class XPathPropertyGetter implements EventPropertyGetter {
         }
     }
 
-    public boolean isExistsProperty(EventBean eventBean) {
-        return true; // Property exists as the property is not dynamic (unchecked)
-    }
-
-    public Object getFragment(EventBean eventBean) {
-        if (fragmentFactory == null) {
-            return null;
-        }
-
-        Object und = eventBean.getUnderlying();
-        if (und == null) {
-            throw new PropertyAccessException("Unexpected null underlying event encountered, expecting org.w3c.dom.Node instance as underlying");
-        }
-        if (!(und instanceof Node)) {
-            throw new PropertyAccessException("Unexpected underlying event of type '" + und.getClass() + "' encountered, expecting org.w3c.dom.Node as underlying");
-        }
-
+    public static Object evaluateXPathFragment(Object und, XPathExpression expression, String expressionText, String property, FragmentFactory fragmentFactory, QName resultType) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Running XPath '" + expressionText + "' for property '" + property + "' against Node XML :" + SchemaUtil.serialize((Node) und));
@@ -191,7 +195,70 @@ public class XPathPropertyGetter implements EventPropertyGetter {
         }
     }
 
-    private Object castToArray(Object result) {
+    public boolean isExistsProperty(EventBean eventBean) {
+        return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Object getFragment(EventBean eventBean) {
+        if (fragmentFactory == null) {
+            return null;
+        }
+
+        Object und = eventBean.getUnderlying();
+        if (und == null) {
+            throw new PropertyAccessException("Unexpected null underlying event encountered, expecting org.w3c.dom.Node instance as underlying");
+        }
+        if (!(und instanceof Node)) {
+            throw new PropertyAccessException("Unexpected underlying event of type '" + und.getClass() + "' encountered, expecting org.w3c.dom.Node as underlying");
+        }
+
+        return evaluateXPathFragment(und, expression, expressionText, property, fragmentFactory, resultType);
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        CodegenMember mExpression = context.makeAddMember(XPathExpression.class, expression);
+        CodegenMember mExpressionText = context.makeAddMember(String.class, expressionText);
+        CodegenMember mProperty = context.makeAddMember(String.class, property);
+        CodegenMember mOptionalCastToType = context.makeAddMember(Class.class, optionalCastToType);
+        CodegenMember mResultType = context.makeAddMember(QName.class, resultType);
+        CodegenMember mIsCastToArray = context.makeAddMember(boolean.class, isCastToArray);
+        CodegenMember mSimpleTypeParser = context.makeAddMember(SimpleTypeParser.class, simpleTypeParser);
+        return staticMethod(XPathPropertyGetter.class, "evaluateXPathGet", underlyingExpression,
+                ref(mExpression.getMemberName()), ref(mExpressionText.getMemberName()), ref(mProperty.getMemberName()),
+                ref(mOptionalCastToType.getMemberName()), ref(mResultType.getMemberName()), ref(mIsCastToArray.getMemberName()), ref(mSimpleTypeParser.getMemberName()));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        if (fragmentFactory == null) {
+            return constantNull();
+        }
+        CodegenMember mExpression = context.makeAddMember(XPathExpression.class, expression);
+        CodegenMember mExpressionText = context.makeAddMember(String.class, expressionText);
+        CodegenMember mProperty = context.makeAddMember(String.class, property);
+        CodegenMember mFragmentFactory = context.makeAddMember(FragmentFactory.class, fragmentFactory);
+        CodegenMember mResultType = context.makeAddMember(QName.class, resultType);
+        return staticMethod(XPathPropertyGetter.class, "evaluateXPathFragment", underlyingExpression,
+                ref(mExpression.getMemberName()), ref(mExpressionText.getMemberName()), ref(mProperty.getMemberName()),
+                ref(mFragmentFactory.getMemberName()), ref(mResultType.getMemberName()));
+    }
+
+    private static Object castToArray(Object result, Class optionalCastToType, SimpleTypeParser simpleTypeParser, XPathExpression expression) {
         if (!(result instanceof NodeList)) {
             return null;
         }

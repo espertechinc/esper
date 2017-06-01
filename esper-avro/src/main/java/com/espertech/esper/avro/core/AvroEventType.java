@@ -32,7 +32,6 @@ import static com.espertech.esper.avro.core.AvroFragmentTypeUtil.getFragmentEven
 
 public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
     private final EventTypeMetadata metadata;
-    private final String eventTypeName;
     private final int typeId;
     private final EventAdapterService eventAdapterService;
     private final Schema avroSchema;
@@ -44,7 +43,8 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
 
     private EventPropertyDescriptor[] propertyDescriptors;
     private String[] propertyNames;
-    private HashMap<String, EventPropertyGetter> propertyGetterCache;
+    private HashMap<String, EventPropertyGetterSPI> propertyGetterCache;
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     public AvroEventType(EventTypeMetadata metadata,
                          String eventTypeName,
@@ -56,7 +56,6 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
                          EventType[] optionalSuperTypes,
                          Set<EventType> deepSupertypes) {
         this.metadata = metadata;
-        this.eventTypeName = eventTypeName;
         this.typeId = typeId;
         this.eventAdapterService = eventAdapterService;
         this.avroSchema = avroSchema;
@@ -96,11 +95,34 @@ public class AvroEventType implements AvroSchemaEventType, EventTypeSPI {
         return AvroPropertyUtil.getGetter(avroSchema, propertyGetterCache, propertyItems, propertyExpression, false, eventAdapterService) != null;
     }
 
-    public EventPropertyGetter getGetter(String propertyExpression) {
+    public EventPropertyGetterSPI getGetterSPI(String propertyExpression) {
         if (propertyGetterCache == null) {
             propertyGetterCache = new HashMap<>();
         }
         return AvroPropertyUtil.getGetter(avroSchema, propertyGetterCache, propertyItems, propertyExpression, true, eventAdapterService);
+    }
+
+    public EventPropertyGetter getGetter(String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public FragmentEventType getFragmentType(String propertyExpression) {

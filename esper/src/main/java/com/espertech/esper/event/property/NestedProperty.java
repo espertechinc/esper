@@ -14,6 +14,8 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
+import com.espertech.esper.event.EventTypeSPI;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
@@ -68,7 +70,7 @@ public class NestedProperty implements Property {
         return false;
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         List<EventPropertyGetter> getters = new LinkedList<EventPropertyGetter>();
 
         Property lastProperty = null;
@@ -244,7 +246,7 @@ public class NestedProperty implements Property {
     }
 
     public MapEventPropertyGetter getGetterMap(Map optionalMapPropTypes, EventAdapterService eventAdapterService) {
-        List<EventPropertyGetter> getters = new LinkedList<EventPropertyGetter>();
+        List<EventPropertyGetterSPI> getters = new LinkedList<EventPropertyGetterSPI>();
         Map currentDictionary = optionalMapPropTypes;
 
         int count = 0;
@@ -253,7 +255,7 @@ public class NestedProperty implements Property {
             Property property = it.next();
 
             // manufacture a getter for getting the item out of the map
-            EventPropertyGetter getter = property.getGetterMap(currentDictionary, eventAdapterService);
+            EventPropertyGetterSPI getter = property.getGetterMap(currentDictionary, eventAdapterService);
             if (getter == null) {
                 return null;
             }
@@ -292,7 +294,7 @@ public class NestedProperty implements Property {
                         }
 
                         String remainingProps = toPropertyEPL(properties, count);
-                        EventPropertyGetter getterInner = innerType.getGetter(remainingProps);
+                        EventPropertyGetterSPI getterInner = ((EventTypeSPI) innerType).getGetterSPI(remainingProps);
                         if (getterInner == null) {
                             return null;
                         }
@@ -302,7 +304,7 @@ public class NestedProperty implements Property {
                     } else if (propertyReturnType instanceof EventType) {
                         EventType innerType = (EventType) propertyReturnType;
                         String remainingProps = toPropertyEPL(properties, count);
-                        EventPropertyGetter getterInner = innerType.getGetter(remainingProps);
+                        EventPropertyGetterSPI getterInner = ((EventTypeSPI) innerType).getGetterSPI(remainingProps);
                         if (getterInner == null) {
                             return null;
                         }
@@ -315,7 +317,7 @@ public class NestedProperty implements Property {
                         if (!pojoClass.isArray()) {
                             BeanEventType beanType = eventAdapterService.getBeanEventTypeFactory().createBeanType(pojoClass.getName(), pojoClass, false, false, false);
                             String remainingProps = toPropertyEPL(properties, count);
-                            EventPropertyGetter getterInner = beanType.getGetter(remainingProps);
+                            EventPropertyGetterSPI getterInner = ((EventTypeSPI) beanType).getGetterSPI(remainingProps);
                             if (getterInner == null) {
                                 return null;
                             }
@@ -325,7 +327,7 @@ public class NestedProperty implements Property {
                             Class componentType = pojoClass.getComponentType();
                             BeanEventType beanType = eventAdapterService.getBeanEventTypeFactory().createBeanType(componentType.getName(), componentType, false, false, false);
                             String remainingProps = toPropertyEPL(properties, count);
-                            EventPropertyGetter getterInner = beanType.getGetter(remainingProps);
+                            EventPropertyGetterSPI getterInner = ((EventTypeSPI) beanType).getGetterSPI(remainingProps);
                             if (getterInner == null) {
                                 return null;
                             }
@@ -368,7 +370,7 @@ public class NestedProperty implements Property {
         return propertyNames.toArray(new String[propertyNames.size()]);
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         List<EventPropertyGetter> getters = new LinkedList<EventPropertyGetter>();
 
         for (Iterator<Property> it = properties.iterator(); it.hasNext(); ) {
@@ -384,7 +386,7 @@ public class NestedProperty implements Property {
         return new DOMNestedPropertyGetter(getters, null);
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex parentComplexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex parentComplexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         List<EventPropertyGetter> getters = new LinkedList<EventPropertyGetter>();
 
         SchemaElementComplex complexElement = parentComplexProperty;

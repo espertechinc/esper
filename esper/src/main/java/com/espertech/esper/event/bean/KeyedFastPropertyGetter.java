@@ -12,6 +12,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.EventPropertyGetterAndMapped;
@@ -19,6 +21,9 @@ import com.espertech.esper.event.vaevent.PropertyUtility;
 import net.sf.cglib.reflect.FastMethod;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for a key property identified by a given key value, using the CGLIB fast method.
@@ -70,6 +75,11 @@ public class KeyedFastPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
+    protected static String getBeanPropInternalCodegen(CodegenContext context, Class targetType, Method method, Object key) {
+        return context.addMethod(method.getReturnType(), targetType, "object", KeyedFastPropertyGetter.class)
+                .methodReturn(exprDotMethod(ref("object"), method.getName(), constant(key)));
+    }
+
     public String toString() {
         return "KeyedFastPropertyGetter " +
                 " fastMethod=" + fastMethod.toString() +
@@ -78,5 +88,29 @@ public class KeyedFastPropertyGetter extends BaseNativePropertyGetter implements
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getBeanPropType() {
+        return fastMethod.getReturnType();
+    }
+
+    public Class getTargetType() {
+        return fastMethod.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCodegen(context, getTargetType(), fastMethod.getJavaMethod(), key), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
     }
 }

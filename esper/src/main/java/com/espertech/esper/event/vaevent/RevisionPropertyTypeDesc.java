@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.event.vaevent;
 
-import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**
  * Property descriptor for use by revision event types to maintain access to revision event properties.
  */
 public class RevisionPropertyTypeDesc {
-    private final EventPropertyGetter revisionGetter;
+    private final EventPropertyGetterSPI revisionGetter;
     private final RevisionGetterParameters revisionGetterParams;
     private final Object propertyType;  // Can be the {Class|Map|EventType}
 
@@ -27,7 +27,7 @@ public class RevisionPropertyTypeDesc {
      * @param revisionGetterParams getter parameters
      * @param propertyType         type of the property
      */
-    public RevisionPropertyTypeDesc(EventPropertyGetter revisionGetter, RevisionGetterParameters revisionGetterParams, Class propertyType) {
+    public RevisionPropertyTypeDesc(EventPropertyGetterSPI revisionGetter, RevisionGetterParameters revisionGetterParams, Class propertyType) {
         this.revisionGetter = revisionGetter;
         this.revisionGetterParams = revisionGetterParams;
         this.propertyType = propertyType;
@@ -38,7 +38,7 @@ public class RevisionPropertyTypeDesc {
      *
      * @return getter
      */
-    public EventPropertyGetter getRevisionGetter() {
+    public EventPropertyGetterSPI getRevisionGetter() {
         return revisionGetter;
     }
 

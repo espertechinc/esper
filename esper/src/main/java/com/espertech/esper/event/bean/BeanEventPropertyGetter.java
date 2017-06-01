@@ -10,13 +10,13 @@
  */
 package com.espertech.esper.event.bean;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**
  * Shortcut-evaluator for use with POJO-backed events only.
  */
-public interface BeanEventPropertyGetter extends EventPropertyGetter {
+public interface BeanEventPropertyGetter extends EventPropertyGetterSPI {
     /**
      * Returns the property as an object.
      *
@@ -33,4 +33,8 @@ public interface BeanEventPropertyGetter extends EventPropertyGetter {
      * @return indicator if property exists
      */
     public boolean isBeanExistsProperty(Object object);
+
+    public Class getBeanPropType();
+
+    public Class getTargetType();
 }

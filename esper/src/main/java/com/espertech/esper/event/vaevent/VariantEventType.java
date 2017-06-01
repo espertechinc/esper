@@ -25,6 +25,7 @@ import java.util.Set;
  * Caches properties after having resolved a property via a resolution strategy.
  */
 public class VariantEventType implements EventTypeSPI {
+    private final EventAdapterService eventAdapterService;
     private final EventTypeMetadata metadata;
     private final EventType[] variants;
     private final VariantPropResolutionStrategy propertyResStrategy;
@@ -34,6 +35,7 @@ public class VariantEventType implements EventTypeSPI {
     private final Map<String, EventPropertyDescriptor> propertyDescriptorMap;
     private final int eventTypeId;
     private final ConfigurationVariantStream config;
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     /**
      * Ctor.
@@ -44,7 +46,8 @@ public class VariantEventType implements EventTypeSPI {
      * @param eventTypeId         type id
      * @param config              configs
      */
-    public VariantEventType(EventTypeMetadata metadata, int eventTypeId, VariantSpec variantSpec, VariantPropResolutionStrategy propertyResStrategy, ConfigurationVariantStream config) {
+    public VariantEventType(EventAdapterService eventAdapterService, EventTypeMetadata metadata, int eventTypeId, VariantSpec variantSpec, VariantPropResolutionStrategy propertyResStrategy, ConfigurationVariantStream config) {
+        this.eventAdapterService = eventAdapterService;
         this.metadata = metadata;
         this.eventTypeId = eventTypeId;
         this.variants = variantSpec.getEventTypes();
@@ -114,7 +117,7 @@ public class VariantEventType implements EventTypeSPI {
         return config;
     }
 
-    public EventPropertyGetter getGetter(String property) {
+    public EventPropertyGetterSPI getGetterSPI(String property) {
         VariantPropertyDesc entry = propertyDesc.get(property);
         if (entry != null) {
             return entry.getGetter();
@@ -124,6 +127,29 @@ public class VariantEventType implements EventTypeSPI {
             return entry.getGetter();
         }
         return null;
+    }
+
+    public EventPropertyGetter getGetter(String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public String[] getPropertyNames() {

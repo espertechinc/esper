@@ -11,6 +11,8 @@
 package com.espertech.esper.event.vaevent;
 
 import com.espertech.esper.client.*;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
@@ -18,6 +20,7 @@ import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.epl.named.NamedWindowRootViewInstance;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeIdGenerator;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.view.StatementStopCallback;
@@ -69,21 +72,7 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
             final RevisionGetterParameters parameters = new RevisionGetterParameters(property, propertyNumber, fullGetter, null);
 
             // if there are no groups (full event property only), then simply use the full event getter
-            EventPropertyGetter revisionGetter = new EventPropertyGetter() {
-                public Object get(EventBean eventBean) throws PropertyAccessException {
-                    RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
-                    return riv.getVersionedValue(parameters);
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    return true;
-                }
-
-                public Object getFragment(EventBean eventBean) {
-                    return null; // fragments no provided by revision events
-                }
-            };
-
+            EventPropertyGetterSPI revisionGetter = new VAERevisionEventPropertyGetterMerge(parameters);
             Class type = spec.getBaseEventType().getPropertyType(property);
             if (type == null) {
                 for (EventType deltaType : spec.getDeltaTypes()) {
@@ -103,37 +92,11 @@ public class VAERevisionProcessorMerge extends VAERevisionProcessorBase implemen
         for (String property : spec.getKeyPropertyNames()) {
             final int keyPropertyNumber = count;
 
-            EventPropertyGetter revisionGetter;
+            EventPropertyGetterSPI revisionGetter;
             if (spec.getKeyPropertyNames().length == 1) {
-                revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException {
-                        RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
-                        return riv.getKey();
-                    }
-
-                    public boolean isExistsProperty(EventBean eventBean) {
-                        return true;
-                    }
-
-                    public Object getFragment(EventBean eventBean) {
-                        return null;
-                    }
-                };
+                revisionGetter = new VAERevisionEventPropertyGetterMergeOneKey();
             } else {
-                revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException {
-                        RevisionEventBeanMerge riv = (RevisionEventBeanMerge) eventBean;
-                        return ((MultiKeyUntyped) riv.getKey()).getKeys()[keyPropertyNumber];
-                    }
-
-                    public boolean isExistsProperty(EventBean eventBean) {
-                        return true;
-                    }
-
-                    public Object getFragment(EventBean eventBean) {
-                        return null;
-                    }
-                };
+                revisionGetter = new VAERevisionEventPropertyGetterMergeNKey(keyPropertyNumber);
             }
 
             Class type = spec.getBaseEventType().getPropertyType(property);

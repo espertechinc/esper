@@ -12,7 +12,13 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.castUnderlying;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constantNull;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethodTakingExprAndConst;
 
 /**
  * Getter for a dynamic indexed property for maps.
@@ -20,6 +26,32 @@ import com.espertech.esper.event.BaseNestableEventUtil;
 public class ObjectArrayIndexedPropertyGetter implements ObjectArrayEventPropertyGetter {
     private final int propertyIndex;
     private final int index;
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param array array
+     * @param propertyIndex prop index
+     * @param index index
+     * @return value
+     * @throws PropertyAccessException exception
+     */
+    public static Object getObjectArrayIndexValue(Object[] array, int propertyIndex, int index) throws PropertyAccessException {
+        Object value = array[propertyIndex];
+        return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param array array
+     * @param propertyIndex prop index
+     * @param index index
+     * @return value
+     * @throws PropertyAccessException exception
+     */
+    public static boolean isObjectArrayExistsProperty(Object[] array, int propertyIndex, int index) throws PropertyAccessException {
+        Object value = array[propertyIndex];
+        return BaseNestableEventUtil.isExistsIndexedValue(value, index);
+    }
 
     /**
      * Ctor.
@@ -33,13 +65,11 @@ public class ObjectArrayIndexedPropertyGetter implements ObjectArrayEventPropert
     }
 
     public Object getObjectArray(Object[] array) throws PropertyAccessException {
-        Object value = array[propertyIndex];
-        return BaseNestableEventUtil.getIndexedValue(value, index);
+        return getObjectArrayIndexValue(array, propertyIndex, index);
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
-        Object value = array[propertyIndex];
-        return BaseNestableEventUtil.isExistsIndexedValue(value, index);
+        return isObjectArrayExistsProperty(array, propertyIndex, index);
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -52,5 +82,29 @@ public class ObjectArrayIndexedPropertyGetter implements ObjectArrayEventPropert
 
     public Object getFragment(EventBean eventBean) {
         return null;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethodTakingExprAndConst(this.getClass(), "getObjectArrayIndexValue", underlyingExpression, propertyIndex, index);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethodTakingExprAndConst(this.getClass(), "isObjectArrayExistsProperty", underlyingExpression, propertyIndex, index);
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
     }
 }

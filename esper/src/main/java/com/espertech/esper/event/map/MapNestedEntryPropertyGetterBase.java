@@ -13,10 +13,14 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 
 import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public abstract class MapNestedEntryPropertyGetterBase implements MapEventPropertyGetter {
 
@@ -38,8 +42,9 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
     }
 
     public abstract Object handleNestedValue(Object value);
-
     public abstract Object handleNestedValueFragment(Object value);
+    public abstract CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context);
+    public abstract CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context);
 
     public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         Object value = map.get(propertyMap);
@@ -47,6 +52,13 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
             return null;
         }
         return handleNestedValue(value);
+    }
+
+    private String getMapCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, Map.class, "map", this.getClass())
+                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+                .ifRefNullReturnNull("value")
+                .methodReturn(handleNestedValueCodegen(ref("value"), context));
     }
 
     public boolean isMapExistsProperty(Map<String, Object> map) {
@@ -68,5 +80,36 @@ public abstract class MapNestedEntryPropertyGetterBase implements MapEventProper
             return null;
         }
         return handleNestedValueFragment(value);
+    }
+
+    private String getFragmentCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, Map.class, "map", this.getClass())
+                .declareVar(Object.class, "value", exprDotMethod(ref("map"), "get", constant(propertyMap)))
+                .ifRefNullReturnNull("value")
+                .methodReturn(handleNestedValueFragmentCodegen(ref("value"), context));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Map.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getMapCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

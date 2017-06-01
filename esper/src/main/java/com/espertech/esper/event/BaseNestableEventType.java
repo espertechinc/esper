@@ -38,10 +38,11 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
     protected EventPropertyDescriptor[] propertyDescriptors;
 
     protected final Map<String, PropertySetDescriptorItem> propertyItems;
-    protected Map<String, EventPropertyGetter> propertyGetterCache; // Mapping of all property names and getters
+    protected Map<String, EventPropertyGetterSPI> propertyGetterCache; // Mapping of all property names and getters
 
     // Nestable definition of Map contents is here
     protected Map<String, Object> nestableTypes;  // Deep definition of the map-type, containing nested maps and objects
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     protected String startTimestampPropertyName;
     protected String endTimestampPropertyName;
@@ -120,11 +121,34 @@ public abstract class BaseNestableEventType implements EventTypeSPI {
         return EventTypeUtility.getNestablePropertyType(propertyName, propertyItems, nestableTypes, eventAdapterService);
     }
 
-    public EventPropertyGetter getGetter(final String propertyName) {
+    public EventPropertyGetterSPI getGetterSPI(String propertyName) {
         if (propertyGetterCache == null) {
             propertyGetterCache = new HashMap<>();
         }
         return EventTypeUtility.getNestableGetter(propertyName, propertyItems, propertyGetterCache, nestableTypes, eventAdapterService, getterFactory, metadata.getOptionalApplicationType() == EventTypeMetadata.ApplicationType.OBJECTARR);
+    }
+
+    public EventPropertyGetter getGetter(final String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {

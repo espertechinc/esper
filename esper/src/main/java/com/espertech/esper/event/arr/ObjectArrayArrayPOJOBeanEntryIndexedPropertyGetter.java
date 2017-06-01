@@ -12,10 +12,14 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BaseNativePropertyGetter;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * A getter that works on POJO events residing within a Map as an event property.
@@ -48,6 +52,12 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
         return BaseNestableEventUtil.getBeanArrayValue(nestedGetter, value, index);
     }
 
+    private String getObjectArrayCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+                .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
+                .methodReturn(localMethod(BaseNestableEventUtil.getBeanArrayValueCodegen(context, nestedGetter, index), ref("value")));
+    }
+
     public boolean isObjectArrayExistsProperty(Object[] array) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
@@ -59,5 +69,29 @@ public class ObjectArrayArrayPOJOBeanEntryIndexedPropertyGetter extends BaseNati
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getObjectArrayCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public Class getTargetType() {
+        return Object[].class;
+    }
+
+    public Class getBeanPropType() {
+        return Object.class;
     }
 }

@@ -12,10 +12,14 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BaseNativePropertyGetter;
 import com.espertech.esper.event.bean.BeanEventPropertyGetter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * A getter that works on POJO events residing within a Map as an event property.
@@ -54,6 +58,15 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
         return entryGetter.getBeanProp(value);
     }
 
+    private String getObjectArrayCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+                .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
+                .ifRefNullReturnNull("value")
+                .ifInstanceOf("value", EventBean.class)
+                    .blockReturn(entryGetter.codegenEventBeanGet(castRef(EventBean.class, "value"), context))
+                .methodReturn(entryGetter.codegenUnderlyingGet(cast(entryGetter.getTargetType(), ref("value")), context));
+    }
+
     public boolean isObjectArrayExistsProperty(Object[] array) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
@@ -65,6 +78,10 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
 
     public boolean isExistsProperty(EventBean eventBean) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
+        return isExistsProperty(array);
+    }
+
+    private boolean isExistsProperty(Object[] array) {
         Object value = array[propertyIndex];
 
         if (value == null) {
@@ -76,5 +93,38 @@ public class ObjectArrayPOJOEntryPropertyGetter extends BaseNativePropertyGetter
             return entryGetter.isExistsProperty((EventBean) value);
         }
         return entryGetter.isBeanExistsProperty(value);
+    }
+
+    private String isExistsPropertyCodegen(CodegenContext context) {
+        return context.addMethod(boolean.class, Object[].class, "array", this.getClass())
+                .declareVar(Object.class, "value", arrayAtIndex(ref("array"), constant(propertyIndex)))
+                .ifRefNullReturnFalse("value")
+                .ifInstanceOf("value", EventBean.class)
+                .blockReturn(entryGetter.codegenEventBeanExists(castRef(EventBean.class, "value"), context))
+                .methodReturn(entryGetter.codegenUnderlyingExists(cast(entryGetter.getTargetType(), ref("value")), context));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getObjectArrayCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(isExistsPropertyCodegen(context), underlyingExpression);
+    }
+
+    public Class getTargetType() {
+        return Object[].class;
+    }
+
+    public Class getBeanPropType() {
+        return Object.class;
     }
 }

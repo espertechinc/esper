@@ -159,7 +159,7 @@ public class ExecEventInfraEventRenderer implements RegressionExecution {
                 .endRecord();
     }
 
-    private final static class MyInsideEvent {
+    public final static class MyInsideEvent {
         private int myInsideInt;
 
         public MyInsideEvent(int myInsideInt) {
@@ -171,7 +171,7 @@ public class ExecEventInfraEventRenderer implements RegressionExecution {
         }
     }
 
-    private final static class MyEvent {
+    public final static class MyEvent {
         private int myInt;
         private String myString;
         private MyInsideEvent nested;

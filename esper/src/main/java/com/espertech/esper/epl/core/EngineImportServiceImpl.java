@@ -14,6 +14,8 @@ import com.espertech.esper.client.*;
 import com.espertech.esper.client.annotation.BuiltinAnnotation;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.client.util.ClassForNameProvider;
+import com.espertech.esper.client.util.ClassLoaderProvider;
+import com.espertech.esper.codegen.compile.CodegenEventPropertyGetter;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.epl.agg.access.AggregationStateType;
 import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
@@ -28,6 +30,7 @@ import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderMXCIFQuadTree;
 import com.espertech.esper.epl.index.quadtree.AdvancedIndexFactoryProviderPointRegionQuadTree;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.type.MinMaxTypeEnum;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.MethodResolver;
@@ -44,7 +47,7 @@ import java.util.*;
 /**
  * Implementation for engine-level imports.
  */
-public class EngineImportServiceImpl implements EngineImportService {
+public class EngineImportServiceImpl implements EngineImportService, ClassLoaderProvider {
     private static final Logger log = LoggerFactory.getLogger(EngineImportServiceImpl.class);
 
     private final List<String> imports;
@@ -64,8 +67,10 @@ public class EngineImportServiceImpl implements EngineImportService {
     private final Map<String, Object> transientConfiguration;
     private final AggregationFactoryFactory aggregationFactoryFactory;
     private final LinkedHashMap<String, AdvancedIndexFactoryProvider> advancedIndexProviders = new LinkedHashMap<>(8);
+    private final boolean isCodegenEventPropertyGetters;
+    private final String engineURI;
 
-    public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory) {
+    public EngineImportServiceImpl(boolean allowExtendedAggregationFunc, boolean isUdfCache, boolean isDuckType, boolean sortUsingCollator, MathContext optionalDefaultMathContext, TimeZone timeZone, TimeAbacus timeAbacus, ConfigurationEngineDefaults.ThreadingProfile threadingProfile, Map<String, Object> transientConfiguration, AggregationFactoryFactory aggregationFactoryFactory, boolean isCodegenEventPropertyGetters, String engineURI) {
         imports = new ArrayList<String>();
         annotationImports = new ArrayList<String>(2);
         aggregationFunctions = new HashMap<String, ConfigurationPlugInAggregationFunction>();
@@ -84,6 +89,8 @@ public class EngineImportServiceImpl implements EngineImportService {
         this.aggregationFactoryFactory = aggregationFactoryFactory;
         this.advancedIndexProviders.put("pointregionquadtree", new AdvancedIndexFactoryProviderPointRegionQuadTree());
         this.advancedIndexProviders.put("mxcifquadtree", new AdvancedIndexFactoryProviderMXCIFQuadTree());
+        this.isCodegenEventPropertyGetters = isCodegenEventPropertyGetters;
+        this.engineURI = engineURI;
     }
 
     public boolean isUdfCache() {
@@ -108,6 +115,10 @@ public class EngineImportServiceImpl implements EngineImportService {
 
     public ClassLoader getClassLoader() {
         return TransientConfigurationResolver.resolveClassLoader(transientConfiguration).classloader();
+    }
+
+    public ClassLoader classloader() {
+        return getClassLoader();
     }
 
     /**
@@ -495,6 +506,14 @@ public class EngineImportServiceImpl implements EngineImportService {
             throw new EngineImportException("Unrecognized advanced-type index '" + indexTypeName + "'");
         }
         return provider;
+    }
+
+    public boolean isCodegenEventPropertyGetters() {
+        return isCodegenEventPropertyGetters;
+    }
+
+    public EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String propertyExpression) {
+        return CodegenEventPropertyGetter.compile(engineURI, this, getterSPI, propertyExpression);
     }
 
     /**

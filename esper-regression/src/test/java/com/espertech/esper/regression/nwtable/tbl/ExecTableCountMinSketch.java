@@ -261,7 +261,7 @@ public class ExecTableCountMinSketch implements RegressionExecution {
         }
     }
 
-    private abstract static class MyByteArrayEvent {
+    public abstract static class MyByteArrayEvent {
         private final byte[] data;
 
         private MyByteArrayEvent(byte[] data) {
@@ -273,13 +273,13 @@ public class ExecTableCountMinSketch implements RegressionExecution {
         }
     }
 
-    private static class MyByteArrayEventRead extends MyByteArrayEvent {
+    public static class MyByteArrayEventRead extends MyByteArrayEvent {
         private MyByteArrayEventRead(byte[] data) {
             super(data);
         }
     }
 
-    private static class MyByteArrayEventCount extends MyByteArrayEvent {
+    public static class MyByteArrayEventCount extends MyByteArrayEvent {
         private MyByteArrayEventCount(byte[] data) {
             super(data);
         }

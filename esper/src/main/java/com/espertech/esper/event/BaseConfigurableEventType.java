@@ -35,11 +35,12 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
     private EventPropertyDescriptor[] propertyDescriptors;
     private String[] propertyNames;
     private Map<String, Pair<ExplicitPropertyDescriptor, FragmentEventType>> propertyFragmentTypes;
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     /**
      * Getters for each known property.
      */
-    protected Map<String, EventPropertyGetter> propertyGetters;
+    protected Map<String, EventPropertyGetterSPI> propertyGetters;
 
     /**
      * Descriptors for each known property.
@@ -71,7 +72,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
      * @param property is the property expression
      * @return getter for property
      */
-    protected abstract EventPropertyGetter doResolvePropertyGetter(String property);
+    protected abstract EventPropertyGetterSPI doResolvePropertyGetter(String property);
 
     /**
      * Subclasses must implement this and return a type for a property.
@@ -108,7 +109,7 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
      * @param explicitProperties property descriptors for explicit properties
      */
     protected void initialize(List<ExplicitPropertyDescriptor> explicitProperties) {
-        propertyGetters = new HashMap<String, EventPropertyGetter>();
+        propertyGetters = new HashMap<String, EventPropertyGetterSPI>();
         propertyDescriptors = new EventPropertyDescriptor[explicitProperties.size()];
         propertyNames = new String[explicitProperties.size()];
         propertyDescriptorMap = new HashMap<String, EventPropertyDescriptor>();
@@ -146,13 +147,36 @@ public abstract class BaseConfigurableEventType implements EventTypeSPI {
         return underlyngType;
     }
 
-    public EventPropertyGetter getGetter(String propertyExpression) {
-        EventPropertyGetter getter = propertyGetters.get(propertyExpression);
+    public EventPropertyGetterSPI getGetterSPI(String propertyExpression) {
+        EventPropertyGetterSPI getter = propertyGetters.get(propertyExpression);
         if (getter != null) {
             return getter;
         }
 
         return doResolvePropertyGetter(propertyExpression);
+    }
+
+    public EventPropertyGetter getGetter(String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {

@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.avro.core;
 
-import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
 
-public interface AvroEventPropertyGetter extends EventPropertyGetter {
+public interface AvroEventPropertyGetter extends EventPropertyGetterSPI {
     Object getAvroFieldValue(GenericData.Record record);
 
     Object getAvroFragment(GenericData.Record record);

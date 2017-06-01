@@ -11,27 +11,32 @@
 package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
 
-public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetter {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetterSPI {
     private final int top;
     private final int[] path;
     private final EventType fragmentEventType;
     private final EventAdapterService eventAdapterService;
 
-    public AvroEventBeanGetterNestedMultiLevel(int top, int[] path, EventType fragmentEventType, EventAdapterService eventAdapterService) {
-        this.top = top;
-        this.path = path;
-        this.fragmentEventType = fragmentEventType;
-        this.eventAdapterService = eventAdapterService;
-    }
-
-    public Object get(EventBean eventBean) throws PropertyAccessException {
-        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param record record
+     * @param top top index
+     * @param path path of indexes
+     * @return value
+     * @throws PropertyAccessException
+     */
+    public static Object getRecordValueTopWPath(GenericData.Record record, int top, int[] path) throws PropertyAccessException {
         GenericData.Record inner = (GenericData.Record) record.get(top);
         if (inner == null) {
             return null;
@@ -43,6 +48,17 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetter 
             }
         }
         return inner.get(path[path.length - 1]);
+    }
+
+    public AvroEventBeanGetterNestedMultiLevel(int top, int[] path, EventType fragmentEventType, EventAdapterService eventAdapterService) {
+        this.top = top;
+        this.path = path;
+        this.fragmentEventType = fragmentEventType;
+        this.eventAdapterService = eventAdapterService;
+    }
+
+    public Object get(EventBean eventBean) throws PropertyAccessException {
+        return getRecordValueTopWPath((GenericData.Record) eventBean.getUnderlying(), top, path);
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -58,5 +74,38 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetter 
             return null;
         }
         return eventAdapterService.adapterForTypedAvro(value, fragmentEventType);
+    }
+
+    private String getFragmentCodegen(CodegenContext context) {
+        CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
+        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+                .declareVar(Object.class, "value", codegenUnderlyingGet(ref("record"), context))
+                .ifRefNullReturnNull("value")
+                .methodReturn(exprDotMethod(ref(mSvc.getMemberName()), "adapterForTypedAvro", ref("value"), ref(mType.getMemberName())));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(AvroEventBeanGetterNestedMultiLevel.class, "getRecordValueTopWPath", underlyingExpression, constant(top), constant(path));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

@@ -11,9 +11,13 @@
 package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
 
 public class MapNestedEntryPropertyGetterArrayObjectArray extends MapNestedEntryPropertyGetterBase {
 
@@ -32,5 +36,13 @@ public class MapNestedEntryPropertyGetterArrayObjectArray extends MapNestedEntry
 
     public Object handleNestedValueFragment(Object value) {
         return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayFragment(value, index, getter, fragmentType, eventAdapterService);
+    }
+
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayCodegen(index, getter, name, context, this.getClass());
+    }
+
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithObjectArrayFragmentCodegen(index, getter, name, context, this.getClass());
     }
 }

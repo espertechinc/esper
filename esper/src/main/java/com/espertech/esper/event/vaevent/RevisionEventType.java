@@ -33,6 +33,7 @@ public class RevisionEventType implements EventTypeSPI {
     private Map<String, EventPropertyDescriptor> propertyDescriptorMap;
     private Map<String, RevisionPropertyTypeDesc> propertyDesc;
     private EventAdapterService eventAdapterService;
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     /**
      * Ctor.
@@ -74,7 +75,7 @@ public class RevisionEventType implements EventTypeSPI {
         return null;
     }
 
-    public EventPropertyGetter getGetter(String propertyName) {
+    public EventPropertyGetterSPI getGetterSPI(String propertyName) {
         RevisionPropertyTypeDesc desc = propertyDesc.get(propertyName);
         if (desc != null) {
             return desc.getRevisionGetter();
@@ -131,8 +132,8 @@ public class RevisionEventType implements EventTypeSPI {
         if (desc.getPropertyType() instanceof Class) {
             // ask the nested class to resolve the property
             Class simpleClass = (Class) desc.getPropertyType();
-            EventType nestedEventType = eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
-            final EventPropertyGetter nestedGetter = nestedEventType.getGetter(propertyNested);
+            EventTypeSPI nestedEventType = (EventTypeSPI) eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
+            EventPropertyGetterSPI nestedGetter = nestedEventType.getGetterSPI(propertyNested);
             if (nestedGetter == null) {
                 return null;
             }
@@ -142,6 +143,29 @@ public class RevisionEventType implements EventTypeSPI {
         } else {
             return null;
         }
+    }
+
+    public EventPropertyGetter getGetter(String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public String getName() {

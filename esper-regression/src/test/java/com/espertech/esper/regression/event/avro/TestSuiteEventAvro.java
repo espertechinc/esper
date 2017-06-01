@@ -26,4 +26,7 @@ public class TestSuiteEventAvro extends TestCase {
         RegressionRunner.run(new ExecEventAvroHook());
     }
 
+    public void testExecAvroEventBean() {
+        RegressionRunner.run(new ExecAvroEventBean());
+    }
 }

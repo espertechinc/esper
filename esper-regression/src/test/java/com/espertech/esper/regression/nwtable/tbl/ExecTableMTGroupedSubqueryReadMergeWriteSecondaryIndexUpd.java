@@ -180,7 +180,7 @@ public class ExecTableMTGroupedSubqueryReadMergeWriteSecondaryIndexUpd implement
         }
     }
 
-    private static class LocalGroupEvent {
+    public static class LocalGroupEvent {
         private final String op;
         private final int topgroup;
         private final int subgroup;

@@ -11,18 +11,70 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for retrieving a value at a certain index.
  */
-public class DOMIndexedGetter implements EventPropertyGetter, DOMPropertyGetter {
+public class DOMIndexedGetter implements EventPropertyGetterSPI, DOMPropertyGetter {
     private final String propertyName;
     private final int index;
     private final FragmentFactory fragmentFactory;
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param node node
+     * @param propertyName property
+     * @param index index
+     * @return value
+     */
+    public static Node getNodeValue(Node node, String propertyName, int index) {
+        NodeList list = node.getChildNodes();
+        int count = 0;
+        for (int i = 0; i < list.getLength(); i++) {
+            Node childNode = list.item(i);
+            if (childNode == null) {
+                continue;
+            }
+            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            String elementName = childNode.getLocalName();
+            if (elementName == null) {
+                elementName = childNode.getNodeName();
+            }
+
+            if (!(propertyName.equals(elementName))) {
+                continue;
+            }
+
+            if (count == index) {
+                return childNode;
+            }
+            count++;
+        }
+        return null;
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param node node
+     * @param propertyName property
+     * @param index index
+     * @return value
+     */
+    public static boolean getNodeValueExists(Node node, String propertyName, int index) {
+        return getNodeValue(node, propertyName, index) != null;
+    }
 
     /**
      * Ctor.
@@ -52,33 +104,16 @@ public class DOMIndexedGetter implements EventPropertyGetter, DOMPropertyGetter 
         return fragmentFactory.getEvent(result);
     }
 
+    private String getValueAsFragmentCodegen(CodegenContext context) {
+        CodegenMember member = context.makeAddMember(FragmentFactory.class, fragmentFactory);
+        return context.addMethod(Object.class, Node.class, "node", this.getClass())
+                .declareVar(Node.class, "result", staticMethod(DOMIndexedGetter.class, "getNodeValue", ref("node"), constant(propertyName), constant(index)))
+                .ifRefNullReturnNull("result")
+                .methodReturn(exprDotMethod(ref(member.getMemberName()), "getEvent", ref("result")));
+    }
+
     public Node getValueAsNode(Node node) {
-        NodeList list = node.getChildNodes();
-        int count = 0;
-        for (int i = 0; i < list.getLength(); i++) {
-            Node childNode = list.item(i);
-            if (childNode == null) {
-                continue;
-            }
-            if (childNode.getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-
-            String elementName = childNode.getLocalName();
-            if (elementName == null) {
-                elementName = childNode.getNodeName();
-            }
-
-            if (!(propertyName.equals(elementName))) {
-                continue;
-            }
-
-            if (count == index) {
-                return childNode;
-            }
-            count++;
-        }
-        return null;
+        return getNodeValue(node, propertyName, index);
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
@@ -96,7 +131,6 @@ public class DOMIndexedGetter implements EventPropertyGetter, DOMPropertyGetter 
             return false;
         }
         Node node = (Node) result;
-
         return getValueAsNode(node) != null;
     }
 
@@ -107,5 +141,44 @@ public class DOMIndexedGetter implements EventPropertyGetter, DOMPropertyGetter 
         }
         Node node = (Node) result;
         return getValueAsFragment(node);
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethodTakingExprAndConst(this.getClass(), "getNodeValue", underlyingExpression, propertyName, index);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethodTakingExprAndConst(this.getClass(), "getNodeValueExists", underlyingExpression, propertyName, index);
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        if (fragmentFactory == null) {
+            return constantNull();
+        }
+        return localMethod(getValueAsFragmentCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context) {
+        return codegenUnderlyingGet(value, context);
+    }
+
+    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenContext context) {
+        return codegenUnderlyingFragment(value, context);
     }
 }

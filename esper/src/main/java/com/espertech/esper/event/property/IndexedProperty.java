@@ -10,10 +10,10 @@
  */
 package com.espertech.esper.event.property;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeUtility;
 import com.espertech.esper.event.arr.ObjectArrayArrayPOJOEntryIndexedPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayArrayPropertyGetter;
@@ -266,11 +266,11 @@ public class IndexedProperty extends PropertyBase implements PropertyWithIndex {
         writer.append("]");
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         return new DOMIndexedGetter(propertyNameAtomic, index, null);
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         for (SchemaElementSimple simple : complexProperty.getSimpleElements()) {
             if (!simple.isArray()) {
                 continue;

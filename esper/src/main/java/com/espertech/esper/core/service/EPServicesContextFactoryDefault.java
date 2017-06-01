@@ -95,7 +95,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
         EngineEnvContext jndiContext = new EngineEnvContext();
 
         // Engine import service
-        EngineImportService engineImportService = makeEngineImportService(configSnapshot, AggregationFactoryFactoryDefault.INSTANCE);
+        EngineImportService engineImportService = makeEngineImportService(configSnapshot, AggregationFactoryFactoryDefault.INSTANCE, epServiceProvider.getURI());
 
         // Event Type Id Generation
         EventTypeIdGenerator eventTypeIdGenerator;
@@ -513,7 +513,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      * @param aggregationFactoryFactory factory of aggregation service provider
      * @return service
      */
-    protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot, AggregationFactoryFactory aggregationFactoryFactory) {
+    protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot, AggregationFactoryFactory aggregationFactoryFactory, String engineURI) {
         TimeUnit timeUnit = configSnapshot.getEngineDefaults().getTimeSource().getTimeUnit();
         TimeAbacus timeAbacus;
         if (timeUnit == TimeUnit.MILLISECONDS) {
@@ -524,6 +524,13 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             throw new ConfigurationException("Invalid time-source time unit of " + timeUnit + ", expected millis or micros");
         }
 
+        boolean codegenGetters = configSnapshot.getEngineDefaults().getExecution().getCodeGeneration().isEnablePropertyGetter();
+        if (codegenGetters) {
+            if (PackageName.check("uri_" + engineURI) == PackageName.INVALID) {
+                throw new ConfigurationException("Invalid engine URI '" + engineURI + "', code generation requires an engine URI that is a valid Java-language identifier and may not contain Java language keywords");
+            }
+        }
+
         ConfigurationEngineDefaults.Expression expression = configSnapshot.getEngineDefaults().getExpression();
         EngineImportServiceImpl engineImportService = new EngineImportServiceImpl(expression.isExtendedAggregation(),
                 expression.isUdfCache(), expression.isDuckTyping(),
@@ -532,7 +539,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
                 configSnapshot.getEngineDefaults().getExpression().getTimeZone(), timeAbacus,
                 configSnapshot.getEngineDefaults().getExecution().getThreadingProfile(),
                 configSnapshot.getTransientConfiguration(),
-                aggregationFactoryFactory);
+                aggregationFactoryFactory, codegenGetters, engineURI);
         engineImportService.addMethodRefs(configSnapshot.getMethodInvocationReferences());
 
         // Add auto-imports
@@ -638,5 +645,71 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
             clazz = Array.newInstance(clazz, 0).getClass();
         }
         return clazz;
+    }
+
+    public enum PackageName {
+
+        SIMPLE, QUALIFIED, INVALID;
+
+        public static final PackageName check(String name) {
+            PackageName ret = PackageName.INVALID;
+            int[] codePoint;
+            int index = 0, dotex = -1;
+            boolean needStart = true;
+            escape: {
+                if(name == null || name.isEmpty()) break escape;
+                if(name.codePointAt(0) == '.') break escape;
+                codePoint = name.codePoints().toArray();
+                while (index <= codePoint.length) {
+                    if(index == codePoint.length) {
+                        if(codePoint[index - 1] == '.'){
+                            ret = PackageName.INVALID; break escape;}
+                        int start = dotex + 1;
+                        int end = index;
+                        start = name.offsetByCodePoints(0, start);
+                        end = name.offsetByCodePoints(0, end);
+                        String test = name.substring(start, end);
+                        if(!(Arrays.binarySearch(reserved, test) < 0)){
+                            ret = PackageName.INVALID; break escape;}
+                        if(!(ret == PackageName.QUALIFIED)) ret = PackageName.SIMPLE;
+                        break escape;
+                    }
+                    if(codePoint[index] == '.') {
+                        if(codePoint[index - 1] == '.'){
+                            ret = PackageName.INVALID;  break escape;}
+                        else {
+                            needStart = true;
+                            int start = dotex + 1;
+                            int end = index;
+                            start = name.offsetByCodePoints(0, start);
+                            end = name.offsetByCodePoints(0, end);
+                            String test = name.substring(start, end);
+                            if(!(Arrays.binarySearch(reserved, test) < 0)) break escape;
+                            dotex = index;
+                            ret = PackageName.QUALIFIED;
+                        }
+                    } else if(Character.isJavaIdentifierStart(codePoint[index])) {
+                        if(needStart) needStart = false;
+                    } else if((!Character.isJavaIdentifierPart(codePoint[index]))){
+                        ret = PackageName.INVALID; break escape;
+                    }
+                    index++;
+                }
+            }
+            return ret;
+        }
+
+        private static final String[] reserved;
+
+        static {
+            reserved = new String[] { "abstract", "assert", "boolean", "break", "byte",
+                    "case", "catch", "char", "class", "const", "continue", "default", "do",
+                    "double", "else", "enum", "extends", "false", "final", "finally",
+                    "float", "for", "if", "goto", "implements", "import", "instanceof",
+                    "int", "interface", "long", "native", "new", "null", "package",
+                    "private", "protected", "public", "return", "short", "static",
+                    "strictfp", "super", "switch", "synchronized", "this", "throw",
+                    "throws", "transient", "true", "try", "void", "volatile", "while" };
+        }
     }
 }

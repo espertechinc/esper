@@ -26,4 +26,8 @@ public class UuidGenerator {
     public static String generate() {
         return UUID.randomUUID().toString();
     }
+
+    public static String generateNoDash() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
 }

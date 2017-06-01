@@ -25,44 +25,44 @@ import java.util.Map;
 
 public interface EventTypeNestableGetterFactory {
 
-    public EventPropertyGetter getPropertyProvidedGetter(Map<String, Object> nestableTypes, String propertyName, Property prop, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getPropertyProvidedGetter(Map<String, Object> nestableTypes, String propertyName, Property prop, EventAdapterService eventAdapterService);
 
     public EventPropertyGetterMapped getPropertyProvidedGetterMap(Map<String, Object> nestableTypes, String mappedPropertyName, MappedProperty mappedProperty, EventAdapterService eventAdapterService);
 
     public EventPropertyGetterIndexed getPropertyProvidedGetterIndexed(Map<String, Object> nestableTypes, String indexedPropertyName, IndexedProperty indexedProperty, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetter getGetterProperty(String name, BeanEventType nativeFragmentType, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetterProperty(String name, BeanEventType nativeFragmentType, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetter getGetterEventBean(String name);
+    public EventPropertyGetterSPI getGetterEventBean(String name);
 
-    public EventPropertyGetter getGetterEventBeanArray(String name, EventType eventType);
+    public EventPropertyGetterSPI getGetterEventBeanArray(String name, EventType eventType);
 
-    public EventPropertyGetter getGetterBeanNested(String name, EventType eventType, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetterBeanNested(String name, EventType eventType, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetter getGetterBeanNestedArray(String name, EventType eventType, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetterBeanNestedArray(String name, EventType eventType, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetter getGetterIndexedEventBean(String propertyNameAtomic, int index);
+    public EventPropertyGetterSPI getGetterIndexedEventBean(String propertyNameAtomic, int index);
 
-    public EventPropertyGetter getGetterIndexedUnderlyingArray(String propertyNameAtomic, int index, EventAdapterService eventAdapterService, EventType innerType);
+    public EventPropertyGetterSPI getGetterIndexedUnderlyingArray(String propertyNameAtomic, int index, EventAdapterService eventAdapterService, EventType innerType);
 
-    public EventPropertyGetter getGetterIndexedPOJO(String propertyNameAtomic, int index, EventAdapterService eventAdapterService, Class componentType);
+    public EventPropertyGetterSPI getGetterIndexedPOJO(String propertyNameAtomic, int index, EventAdapterService eventAdapterService, Class componentType);
 
-    public EventPropertyGetter getGetterMappedProperty(String propertyNameAtomic, String key);
+    public EventPropertyGetterSPI getGetterMappedProperty(String propertyNameAtomic, String key);
 
-    public EventPropertyGetter getGetterNestedEntryBeanArray(String propertyNameAtomic, int index, EventPropertyGetter getter, EventType innerType, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetterNestedEntryBeanArray(String propertyNameAtomic, int index, EventPropertyGetter getter, EventType innerType, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetter getGetterIndexedEntryEventBeanArrayElement(String propertyNameAtomic, int index, EventPropertyGetter nestedGetter);
+    public EventPropertyGetterSPI getGetterIndexedEntryEventBeanArrayElement(String propertyNameAtomic, int index, EventPropertyGetterSPI nestedGetter);
 
-    public EventPropertyGetter getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventAdapterService eventAdapterService, Class propertyTypeGetter);
+    public EventPropertyGetterSPI getGetterIndexedEntryPOJO(String propertyNameAtomic, int index, BeanEventPropertyGetter nestedGetter, EventAdapterService eventAdapterService, Class propertyTypeGetter);
 
-    public EventPropertyGetter getGetterNestedMapProp(String propertyName, MapEventPropertyGetter getterNestedMap);
+    public EventPropertyGetterSPI getGetterNestedMapProp(String propertyName, MapEventPropertyGetter getterNestedMap);
 
-    public EventPropertyGetter getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventAdapterService eventAdapterService, Class nestedReturnType, Class nestedComponentType);
+    public EventPropertyGetterSPI getGetterNestedPOJOProp(String propertyName, BeanEventPropertyGetter nestedGetter, EventAdapterService eventAdapterService, Class nestedReturnType, Class nestedComponentType);
 
-    public EventPropertyGetter getGetterNestedEventBean(String propertyName, EventPropertyGetter nestedGetter);
+    public EventPropertyGetterSPI getGetterNestedEventBean(String propertyName, EventPropertyGetterSPI nestedGetter);
 
-    public EventPropertyGetter getGetterNestedPropertyProvidedGetterDynamic(Map<String, Object> nestableTypes, String propertyName, EventPropertyGetter nestedGetter, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetterNestedPropertyProvidedGetterDynamic(Map<String, Object> nestableTypes, String propertyName, EventPropertyGetter nestedGetter, EventAdapterService eventAdapterService);
 
-    public EventPropertyGetter getGetterNestedEntryBean(String propertyName, EventPropertyGetter innerGetter, EventType innerType, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetterNestedEntryBean(String propertyName, EventPropertyGetter innerGetter, EventType innerType, EventAdapterService eventAdapterService);
 
 }

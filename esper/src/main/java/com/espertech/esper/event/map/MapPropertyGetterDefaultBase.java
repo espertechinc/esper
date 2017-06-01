@@ -13,10 +13,14 @@ package com.espertech.esper.event.map;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 
 import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for map entry.
@@ -40,6 +44,7 @@ public abstract class MapPropertyGetterDefaultBase implements MapEventPropertyGe
     }
 
     protected abstract Object handleCreateFragment(Object value);
+    protected abstract CodegenExpression handleCreateFragmentCodegen(CodegenExpression value, CodegenContext context);
 
     public Object getMap(Map<String, Object> map) throws PropertyAccessException {
         return map.get(propertyName);
@@ -60,5 +65,35 @@ public abstract class MapPropertyGetterDefaultBase implements MapEventPropertyGe
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         Object value = get(eventBean);
         return handleCreateFragment(value);
+    }
+
+    private String getFragmentCodegen(CodegenContext context) throws PropertyAccessException {
+        return context.addMethod(Object.class, Map.class, "underlying", this.getClass())
+                .declareVar(Object.class, "value", codegenUnderlyingGet(ref("underlying"), context))
+                .methodReturn(handleCreateFragmentCodegen(ref("value"), context));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Map.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(Map.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Map.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return exprDotMethod(underlyingExpression, "get", constant(propertyName));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

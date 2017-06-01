@@ -11,56 +11,31 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for a DOM complex element.
  */
-public class DOMComplexElementGetter implements EventPropertyGetter, DOMPropertyGetter {
+public class DOMComplexElementGetter implements EventPropertyGetterSPI, DOMPropertyGetter {
     private final String propertyName;
     private final FragmentFactory fragmentFactory;
     private final boolean isArray;
 
     /**
-     * Ctor.
-     *
-     * @param propertyName    property name
-     * @param fragmentFactory for creating fragments
-     * @param isArray         if this is an array property
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param node node
+     * @param propertyName prop name
+     * @return node
      */
-    public DOMComplexElementGetter(String propertyName, FragmentFactory fragmentFactory, boolean isArray) {
-        this.propertyName = propertyName;
-        this.fragmentFactory = fragmentFactory;
-        this.isArray = isArray;
-    }
-
-    public Object getValueAsFragment(Node node) {
-        if (!isArray) {
-            Node result = getValueAsNode(node);
-            if (result == null) {
-                return result;
-            }
-
-            return fragmentFactory.getEvent(result);
-        } else {
-            Node[] result = getValueAsNodeArray(node);
-            if ((result == null) || (result.length == 0)) {
-                return new EventBean[0];
-            }
-
-            EventBean[] events = new EventBean[result.length];
-            int count = 0;
-            for (int i = 0; i < result.length; i++) {
-                events[count++] = fragmentFactory.getEvent(result[i]);
-            }
-            return events;
-        }
-    }
-
-    public Node getValueAsNode(Node node) {
+    public static Node getValueAsNode(Node node, String propertyName) {
         NodeList list = node.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node childNode = list.item(i);
@@ -84,7 +59,13 @@ public class DOMComplexElementGetter implements EventPropertyGetter, DOMProperty
         return null;
     }
 
-    public Node[] getValueAsNodeArray(Node node) {
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param node node
+     * @param propertyName prop name
+     * @return node
+     */
+    public static Node[] getValueAsNodeArray(Node node, String propertyName) {
         NodeList list = node.getChildNodes();
 
         int count = 0;
@@ -133,6 +114,71 @@ public class DOMComplexElementGetter implements EventPropertyGetter, DOMProperty
         return shrunk;
     }
 
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param node node
+     * @param propertyName prop name
+     * @param fragmentFactory fragment factory
+     * @return node
+     */
+    public static Object getValueAsNodeFragment(Node node, String propertyName, FragmentFactory fragmentFactory) {
+        Node result = getValueAsNode(node, propertyName);
+        if (result == null) {
+            return null;
+        }
+        return fragmentFactory.getEvent(result);
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param node node
+     * @param propertyName prop name
+     * @param fragmentFactory fragment factory
+     * @return node
+     */
+    public static Object getValueAsNodeFragmentArray(Node node, String propertyName, FragmentFactory fragmentFactory) {
+        Node[] result = getValueAsNodeArray(node, propertyName);
+        if ((result == null) || (result.length == 0)) {
+            return new EventBean[0];
+        }
+
+        EventBean[] events = new EventBean[result.length];
+        int count = 0;
+        for (int i = 0; i < result.length; i++) {
+            events[count++] = fragmentFactory.getEvent(result[i]);
+        }
+        return events;
+    }
+
+    /**
+     * Ctor.
+     *
+     * @param propertyName    property name
+     * @param fragmentFactory for creating fragments
+     * @param isArray         if this is an array property
+     */
+    public DOMComplexElementGetter(String propertyName, FragmentFactory fragmentFactory, boolean isArray) {
+        this.propertyName = propertyName;
+        this.fragmentFactory = fragmentFactory;
+        this.isArray = isArray;
+    }
+
+    public Object getValueAsFragment(Node node) {
+        if (!isArray) {
+            return getValueAsNodeFragment(node, propertyName, fragmentFactory);
+        } else {
+            return getValueAsNodeFragmentArray(node, propertyName, fragmentFactory);
+        }
+    }
+
+    public Node getValueAsNode(Node node) {
+        return getValueAsNode(node, propertyName);
+    }
+
+    public Node[] getValueAsNodeArray(Node node) {
+        return getValueAsNodeArray(node, propertyName);
+    }
+
     public Object get(EventBean obj) throws PropertyAccessException {
         // The underlying is expected to be a map
         if (!(obj.getUnderlying() instanceof Node)) {
@@ -162,5 +208,49 @@ public class DOMComplexElementGetter implements EventPropertyGetter, DOMProperty
 
         Node node = (Node) obj.getUnderlying();
         return getValueAsFragment(node);
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        if (!isArray) {
+            return staticMethod(this.getClass(), "getValueAsNode", underlyingExpression, constant(propertyName));
+        }
+        return staticMethod(this.getClass(), "getValueAsNodeArray", underlyingExpression, constant(propertyName));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        CodegenMember member = context.makeAddMember(FragmentFactory.class, fragmentFactory);
+        if (!isArray) {
+            return staticMethod(this.getClass(), "getValueAsNodeFragment", underlyingExpression, constant(propertyName), ref(member.getMemberName()));
+        } else {
+            return staticMethod(this.getClass(), "getValueAsNodeFragmentArray", underlyingExpression, constant(propertyName), ref(member.getMemberName()));
+        }
+    }
+
+    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context) {
+        return staticMethod(this.getClass(), "getValueAsNode", value, constant(propertyName));
+    }
+
+    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context) {
+        return staticMethod(this.getClass(), "getValueAsNodeArray", value, constant(propertyName));
+    }
+
+    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenContext context) {
+        return codegenUnderlyingFragment(value, context);
     }
 }

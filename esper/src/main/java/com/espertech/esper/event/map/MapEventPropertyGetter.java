@@ -10,15 +10,15 @@
  */
 package com.espertech.esper.event.map;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 import java.util.Map;
 
 /**
  * Property getter for Map-underlying events.
  */
-public interface MapEventPropertyGetter extends EventPropertyGetter {
+public interface MapEventPropertyGetter extends EventPropertyGetterSPI {
     /**
      * Returns a property of an event.
      *

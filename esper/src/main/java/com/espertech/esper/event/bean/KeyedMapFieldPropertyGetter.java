@@ -12,6 +12,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndMapped;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -19,6 +21,9 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.constant;
 
 /**
  * Getter for a key property identified by a given key value, using vanilla reflection.
@@ -65,6 +70,14 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
         }
     }
 
+    private String getBeanPropInternalCodegen(CodegenContext context) throws PropertyAccessException {
+        return context.addMethod(getBeanPropType(), getTargetType(), "object", this.getClass())
+                .declareVar(Object.class, "result", exprDotName(ref("object"), field.getName()))
+                .ifRefNotTypeReturnConst("result", Map.class, null)
+                .declareVarWCast(Map.class, "map", "result")
+                .methodReturn(cast(getBeanPropType(), exprDotMethod(ref("map"), "get", constant(key))));
+    }
+
     public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
@@ -82,5 +95,29 @@ public class KeyedMapFieldPropertyGetter extends BaseNativePropertyGetter implem
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getBeanPropType() {
+        return JavaClassHelper.getGenericFieldTypeMap(field, false);
+    }
+
+    public Class getTargetType() {
+        return field.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
     }
 }

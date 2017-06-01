@@ -162,7 +162,7 @@ public class ExecFromClauseMethodVariable implements RegressionExecution {
         }
     }
 
-    private static class MyNonConstantServiceVariable implements Serializable {
+    public static class MyNonConstantServiceVariable implements Serializable {
         private String postfix;
 
         public MyNonConstantServiceVariable(String postfix) {

@@ -20,10 +20,10 @@ import com.espertech.esper.client.FragmentEventType;
 public class PropertySetDescriptorItem {
     private EventPropertyDescriptor propertyDescriptor;
     private Class simplePropertyType;
-    private EventPropertyGetter propertyGetter;
+    private EventPropertyGetterSPI propertyGetter;
     private FragmentEventType fragmentEventType;
 
-    public PropertySetDescriptorItem(EventPropertyDescriptor propertyDescriptor, Class simplePropertyType, EventPropertyGetter propertyGetter, FragmentEventType fragmentEventType) {
+    public PropertySetDescriptorItem(EventPropertyDescriptor propertyDescriptor, Class simplePropertyType, EventPropertyGetterSPI propertyGetter, FragmentEventType fragmentEventType) {
         this.propertyDescriptor = propertyDescriptor;
         this.simplePropertyType = simplePropertyType;
         this.propertyGetter = propertyGetter;
@@ -38,7 +38,7 @@ public class PropertySetDescriptorItem {
         return simplePropertyType;
     }
 
-    public EventPropertyGetter getPropertyGetter() {
+    public EventPropertyGetterSPI getPropertyGetter() {
         return propertyGetter;
     }
 

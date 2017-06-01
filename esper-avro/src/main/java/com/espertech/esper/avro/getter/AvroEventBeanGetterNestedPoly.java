@@ -12,13 +12,17 @@ package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
 
 import static com.espertech.esper.avro.getter.AvroEventBeanGetterDynamicPoly.*;
+import static com.espertech.esper.avro.getter.AvroEventBeanGetterDynamicPoly.getAvroFieldValuePoly;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
-public class AvroEventBeanGetterNestedPoly implements EventPropertyGetter {
+public class AvroEventBeanGetterNestedPoly implements EventPropertyGetterSPI {
     private final int top;
     private final AvroEventPropertyGetter[] getters;
 
@@ -43,5 +47,29 @@ public class AvroEventBeanGetterNestedPoly implements EventPropertyGetter {
         GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
         GenericData.Record inner = (GenericData.Record) record.get(top);
         return getAvroFieldFragmentPoly(inner, getters);
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getAvroFieldValuePolyCodegen(context, getters), cast(GenericData.Record.class, exprDotMethod(underlyingExpression, "get", constant(top))));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getAvroFieldValuePolyExistsCodegen(context, getters), cast(GenericData.Record.class, exprDotMethod(underlyingExpression, "get", constant(top))));
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getAvroFieldFragmentPolyCodegen(context, getters), cast(GenericData.Record.class, exprDotMethod(underlyingExpression, "get", constant(top))));
     }
 }

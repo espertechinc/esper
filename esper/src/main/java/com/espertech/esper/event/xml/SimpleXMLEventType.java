@@ -12,10 +12,10 @@ package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.ConfigurationEventTypeXMLDOM;
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.epl.generated.EsperEPL2GrammarParser;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.property.Property;
 import com.espertech.esper.event.property.PropertyParser;
@@ -46,7 +46,7 @@ import java.util.Map;
 public class SimpleXMLEventType extends BaseXMLEventType {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleXMLEventType.class);
-    private final Map<String, EventPropertyGetter> propertyGetterCache;
+    private final Map<String, EventPropertyGetterSPI> propertyGetterCache;
     private String defaultNamespacePrefix;
     private final boolean isResolvePropertiesAbsolute;
 
@@ -61,7 +61,7 @@ public class SimpleXMLEventType extends BaseXMLEventType {
     public SimpleXMLEventType(EventTypeMetadata eventTypeMetadata, int eventTypeId, ConfigurationEventTypeXMLDOM configurationEventTypeXMLDOM, EventAdapterService eventAdapterService) {
         super(eventTypeMetadata, eventTypeId, configurationEventTypeXMLDOM, eventAdapterService);
         isResolvePropertiesAbsolute = configurationEventTypeXMLDOM.isXPathResolvePropertiesAbsolute();
-        propertyGetterCache = new HashMap<String, EventPropertyGetter>();
+        propertyGetterCache = new HashMap<String, EventPropertyGetterSPI>();
 
         // Set of namespace context for XPath expressions
         XPathNamespaceContext xPathNamespaceContext = new XPathNamespaceContext();
@@ -94,8 +94,8 @@ public class SimpleXMLEventType extends BaseXMLEventType {
         }
     }
 
-    protected EventPropertyGetter doResolvePropertyGetter(String propertyExpression) {
-        EventPropertyGetter getter = propertyGetterCache.get(propertyExpression);
+    protected EventPropertyGetterSPI doResolvePropertyGetter(String propertyExpression) {
+        EventPropertyGetterSPI getter = propertyGetterCache.get(propertyExpression);
         if (getter != null) {
             return getter;
         }
@@ -104,7 +104,7 @@ public class SimpleXMLEventType extends BaseXMLEventType {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyExpression);
             getter = prop.getGetterDOM();
             if (!prop.isDynamic()) {
-                getter = new DOMConvertingGetter(propertyExpression, (DOMPropertyGetter) getter, String.class);
+                getter = new DOMConvertingGetter((DOMPropertyGetter) getter, String.class);
             }
         } else {
             XPathExpression xPathExpression;

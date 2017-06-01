@@ -14,17 +14,41 @@ import com.espertech.esper.avro.core.AvroEventPropertyGetter;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 import com.espertech.esper.event.EventAdapterService;
 import org.apache.avro.generic.GenericData;
+import sun.net.www.content.text.Generic;
 
 import java.util.Collection;
 import java.util.List;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     private final int pos;
     private final int index;
     private final EventType fragmentEventType;
     private final EventAdapterService eventAdapterService;
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param values coll
+     * @param index index
+     * @return value
+     */
+    public static Object getAvroIndexedValue(Collection values, int index) {
+        if (values == null) {
+            return null;
+        }
+        if (values instanceof List) {
+            List list = (List) values;
+            return list.size() > index ? list.get(index) : null;
+        }
+        return values.toArray()[index];
+    }
 
     public AvroEventBeanGetterIndexed(int pos, int index, EventType fragmentEventType, EventAdapterService eventAdapterService) {
         this.pos = pos;
@@ -36,12 +60,12 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
     public Object get(EventBean eventBean) throws PropertyAccessException {
         GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
         Collection values = (Collection) record.get(pos);
-        return getIndexedValue(values, index);
+        return getAvroIndexedValue(values, index);
     }
 
     public Object getAvroFieldValue(GenericData.Record record) {
         Collection values = (Collection) record.get(pos);
-        return getIndexedValue(values, index);
+        return getAvroIndexedValue(values, index);
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -68,14 +92,39 @@ public class AvroEventBeanGetterIndexed implements AvroEventPropertyGetter {
         return eventAdapterService.adapterForTypedAvro(value, fragmentEventType);
     }
 
-    protected static Object getIndexedValue(Collection values, int index) {
-        if (values == null) {
-            return null;
+    private String getAvroFragmentCodegen(CodegenContext context) {
+        CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mType = context.makeAddMember(EventType.class, fragmentEventType);
+        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+                .declareVar(Object.class, "value", codegenUnderlyingGet(ref("record"), context))
+                .methodReturn(exprDotMethod(ref(mSvc.getMemberName()), "adapterForTypedAvro", ref("value"), ref(mType.getMemberName())));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        CodegenExpression values = cast(Collection.class, exprDotMethod(underlyingExpression, "get", constant(pos)));
+        return staticMethod(this.getClass(), "getAvroIndexedValue", values, constant(index));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        if (fragmentEventType == null) {
+            return constantNull();
         }
-        if (values instanceof List) {
-            List list = (List) values;
-            return list.size() > index ? list.get(index) : null;
-        }
-        return values.toArray()[index];
+        return localMethod(getAvroFragmentCodegen(context), underlyingExpression);
     }
 }

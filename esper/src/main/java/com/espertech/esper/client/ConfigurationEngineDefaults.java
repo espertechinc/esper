@@ -1753,6 +1753,7 @@ public class ConfigurationEngineDefaults implements Serializable {
         private FilterServiceProfile filterServiceProfile = FilterServiceProfile.READMOSTLY;
         private int filterServiceMaxFilterWidth = 16;
         private int declaredExprValueCacheSize = 1;
+        private CodeGeneration codeGeneration = new CodeGeneration();
 
         private static final long serialVersionUID = 0L;
 
@@ -1913,6 +1914,14 @@ public class ConfigurationEngineDefaults implements Serializable {
          */
         public void setDeclaredExprValueCacheSize(int declaredExprValueCacheSize) {
             this.declaredExprValueCacheSize = declaredExprValueCacheSize;
+        }
+
+        public CodeGeneration getCodeGeneration() {
+            return codeGeneration;
+        }
+
+        public void setCodeGeneration(CodeGeneration codeGeneration) {
+            this.codeGeneration = codeGeneration;
         }
     }
 
@@ -2267,5 +2276,20 @@ public class ConfigurationEngineDefaults implements Serializable {
          * @param configuration information
          */
         public void configure(Configuration configuration);
+    }
+
+    public static class CodeGeneration implements Serializable {
+        private boolean enablePropertyGetter = false;
+
+        public CodeGeneration() {
+        }
+
+        public boolean isEnablePropertyGetter() {
+            return enablePropertyGetter;
+        }
+
+        public void setEnablePropertyGetter(boolean enablePropertyGetter) {
+            this.enablePropertyGetter = enablePropertyGetter;
+        }
     }
 }

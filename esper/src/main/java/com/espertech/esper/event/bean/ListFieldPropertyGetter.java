@@ -12,6 +12,8 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.vaevent.PropertyUtility;
@@ -19,6 +21,9 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import java.lang.reflect.Field;
 import java.util.List;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 
 /**
  * Getter for a list property backed by a field, identified by a given index, using vanilla reflection.
@@ -72,6 +77,15 @@ public class ListFieldPropertyGetter extends BaseNativePropertyGetter implements
         }
     }
 
+    private String getBeanPropInternalCodegen(CodegenContext context) {
+        return context.addMethod(getBeanPropType(), getTargetType(), "object", this.getClass())
+                .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
+                .ifRefNotTypeReturnConst("value", List.class, null)
+                .declareVar(List.class, "l", cast(List.class, ref("value")))
+                .ifConditionReturnConst(relational(exprDotMethod(ref("l"), "size"), LE, constant(index)), null)
+                .methodReturn(cast(getBeanPropType(), exprDotMethod(ref("l"), "get", constant(index))));
+    }
+
     public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
@@ -89,5 +103,29 @@ public class ListFieldPropertyGetter extends BaseNativePropertyGetter implements
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getBeanPropType() {
+        return JavaClassHelper.getGenericFieldType(field, false);
+    }
+
+    public Class getTargetType() {
+        return field.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
     }
 }

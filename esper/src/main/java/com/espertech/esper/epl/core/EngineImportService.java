@@ -18,6 +18,7 @@ import com.espertech.esper.epl.agg.factory.AggregationFactoryFactory;
 import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.epl.expression.time.TimeAbacus;
 import com.espertech.esper.epl.index.service.AdvancedIndexFactoryProvider;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -224,4 +225,8 @@ public interface EngineImportService {
     public ClassLoader getClassLoader();
 
     public AdvancedIndexFactoryProvider resolveAdvancedIndexProvider(String indexTypeName) throws EngineImportException;
+
+    public boolean isCodegenEventPropertyGetters();
+
+    EventPropertyGetter codegenGetter(EventPropertyGetterSPI getterSPI, String propertyExpression);
 }

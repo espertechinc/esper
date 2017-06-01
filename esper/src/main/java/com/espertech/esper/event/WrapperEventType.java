@@ -13,6 +13,8 @@ package com.espertech.esper.event;
 import com.espertech.esper.client.*;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.map.MapEventType;
+import com.espertech.esper.event.wrap.WrapperMapPropertyGetter;
+import com.espertech.esper.event.wrap.WrapperUnderlyingPropertyGetter;
 
 import java.util.*;
 
@@ -50,10 +52,11 @@ public class WrapperEventType implements EventTypeSPI {
     private final int eventTypeId;
 
     private final boolean isNoMapProperties;
-    private final Map<String, EventPropertyGetter> propertyGetterCache;
+    private final Map<String, EventPropertyGetterSPI> propertyGetterCache;
     private final EventAdapterService eventAdapterService;
     private EventPropertyDescriptor[] writableProperties;
     private Map<String, Pair<EventPropertyDescriptor, EventPropertyWriter>> writers;
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     private String startTimestampPropertyName;
     private String endTimestampPropertyName;
@@ -79,7 +82,7 @@ public class WrapperEventType implements EventTypeSPI {
         this.isNoMapProperties = properties.isEmpty();
         this.eventAdapterService = eventAdapterService;
         this.eventTypeId = eventTypeId;
-        propertyGetterCache = new HashMap<String, EventPropertyGetter>();
+        propertyGetterCache = new HashMap<String, EventPropertyGetterSPI>();
 
         updatePropertySet();
 
@@ -144,78 +147,48 @@ public class WrapperEventType implements EventTypeSPI {
         return eventTypeId;
     }
 
-    public EventPropertyGetter getGetter(final String property) {
-        EventPropertyGetter cachedGetter = propertyGetterCache.get(property);
+    public EventPropertyGetterSPI getGetterSPI(String property) {
+        EventPropertyGetterSPI cachedGetter = propertyGetterCache.get(property);
         if (cachedGetter != null) {
             return cachedGetter;
         }
 
         if (underlyingMapType.isProperty(property) && (property.indexOf('?') == -1)) {
-            final EventPropertyGetter mapGetter = underlyingMapType.getGetter(property);
-            EventPropertyGetter getter = new EventPropertyGetter() {
-                public Object get(EventBean theEvent) {
-                    if (!(theEvent instanceof DecoratingEventBean)) {
-                        throw new PropertyAccessException("Mismatched property getter to EventBean type");
-                    }
-                    DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
-                    Map map = wrapperEvent.getDecoratingProperties();
-                    return mapGetter.get(eventAdapterService.adapterForTypedMap(map, underlyingMapType));
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    return true; // Property exists as the property is not dynamic (unchecked)
-                }
-
-                public Object getFragment(EventBean theEvent) {
-                    if (!(theEvent instanceof DecoratingEventBean)) {
-                        throw new PropertyAccessException("Mismatched property getter to EventBean type");
-                    }
-                    DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
-                    Map map = wrapperEvent.getDecoratingProperties();
-                    return mapGetter.getFragment(eventAdapterService.adapterForTypedMap(map, underlyingMapType));
-                }
-            };
+            EventPropertyGetterSPI mapGetter = underlyingMapType.getGetterSPI(property);
+            WrapperMapPropertyGetter getter = new WrapperMapPropertyGetter(this, eventAdapterService, underlyingMapType, mapGetter);
             propertyGetterCache.put(property, getter);
             return getter;
         } else if (underlyingEventType.isProperty(property)) {
-            EventPropertyGetter getter = new EventPropertyGetter() {
-                public Object get(EventBean theEvent) {
-                    if (!(theEvent instanceof DecoratingEventBean)) {
-                        throw new PropertyAccessException("Mismatched property getter to EventBean type");
-                    }
-                    DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
-                    EventBean wrappedEvent = wrapperEvent.getUnderlyingEvent();
-                    if (wrappedEvent == null) {
-                        return null;
-                    }
-
-                    EventPropertyGetter underlyingGetter = underlyingEventType.getGetter(property);
-                    return underlyingGetter.get(wrappedEvent);
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    return true; // Property exists as the property is not dynamic (unchecked)
-                }
-
-                public Object getFragment(EventBean theEvent) {
-                    if (!(theEvent instanceof DecoratingEventBean)) {
-                        throw new PropertyAccessException("Mismatched property getter to EventBean type");
-                    }
-                    DecoratingEventBean wrapperEvent = (DecoratingEventBean) theEvent;
-                    EventBean wrappedEvent = wrapperEvent.getUnderlyingEvent();
-                    if (wrappedEvent == null) {
-                        return null;
-                    }
-
-                    EventPropertyGetter underlyingGetter = underlyingEventType.getGetter(property);
-                    return underlyingGetter.getFragment(wrappedEvent);
-                }
-            };
+            EventPropertyGetterSPI underlyingGetter = ((EventTypeSPI) underlyingEventType).getGetterSPI(property);
+            WrapperUnderlyingPropertyGetter getter = new WrapperUnderlyingPropertyGetter(underlyingGetter);
             propertyGetterCache.put(property, getter);
             return getter;
         } else {
             return null;
         }
+    }
+
+    public EventPropertyGetter getGetter(final String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedProperty) {

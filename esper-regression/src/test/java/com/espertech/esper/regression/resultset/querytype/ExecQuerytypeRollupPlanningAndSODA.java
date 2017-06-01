@@ -174,7 +174,7 @@ public class ExecQuerytypeRollupPlanningAndSODA implements RegressionExecution {
         return writer.toString();
     }
 
-    private static class ABCProp {
+    public static class ABCProp {
         private final String a;
         private final String b;
         private final String c;

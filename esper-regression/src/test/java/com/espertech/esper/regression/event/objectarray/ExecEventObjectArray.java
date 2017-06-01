@@ -39,7 +39,30 @@ public class ExecEventObjectArray implements RegressionExecution {
         runAssertionNestedObjects(epService);
         runAssertionQueryFields(epService);
         runAssertionInvalid(epService);
+        runAssertionNestedEventBeanArray(epService);
         runAssertionAddRemoveType(epService);
+    }
+
+    private void runAssertionNestedEventBeanArray(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("create objectarray schema NBALvl1(val string)");
+        EPStatement stmt = epService.getEPAdministrator().createEPL("select * from NBALvl1");
+        SupportUpdateListener listener = new SupportUpdateListener();
+        stmt.addListener(listener);
+
+        epService.getEPRuntime().sendEvent(new Object[] {"somevalue"}, "NBALvl1");
+        EventBean event = listener.assertOneGetNewAndReset();
+        stmt.destroy();
+
+        // add containing-type via API
+        epService.getEPAdministrator().getConfiguration().addEventType("NBALvl0", new String[] {"lvl1s"}, new Object[] {new EventType[] {event.getEventType()}});
+        stmt = epService.getEPAdministrator().createEPL("select lvl1s[0] as c0 from NBALvl0");
+        stmt.addListener(listener);
+        epService.getEPRuntime().sendEvent(new Object[] {new EventBean[] {event}}, "NBALvl0");
+        assertEquals("somevalue", ((Object[]) listener.assertOneGetNewAndReset().get("c0"))[0]);
+
+        epService.getEPAdministrator().destroyAllStatements();
+        epService.getEPAdministrator().getConfiguration().removeEventType("NBALvl1", true);
+        epService.getEPAdministrator().getConfiguration().removeEventType("NBALvl0", true);
     }
 
     protected static Object getNestedKeyOA(Object[] array, int index, String keyTwo) {

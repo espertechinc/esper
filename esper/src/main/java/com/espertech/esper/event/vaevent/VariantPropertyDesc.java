@@ -11,13 +11,14 @@
 package com.espertech.esper.event.vaevent;
 
 import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**
  * Descriptor for a variant stream property.
  */
 public class VariantPropertyDesc {
     private final Class propertyType;
-    private final EventPropertyGetter getter;
+    private final EventPropertyGetterSPI getter;
     private final boolean isProperty;
 
     /**
@@ -27,7 +28,7 @@ public class VariantPropertyDesc {
      * @param getter       the getter or null if not exists
      * @param property     the boolean indicating whether it exists or not
      */
-    public VariantPropertyDesc(Class propertyType, EventPropertyGetter getter, boolean property) {
+    public VariantPropertyDesc(Class propertyType, EventPropertyGetterSPI getter, boolean property) {
         this.propertyType = propertyType;
         this.getter = getter;
         isProperty = property;
@@ -56,7 +57,7 @@ public class VariantPropertyDesc {
      *
      * @return property getter
      */
-    public EventPropertyGetter getGetter() {
+    public EventPropertyGetterSPI getGetter() {
         return getter;
     }
 }

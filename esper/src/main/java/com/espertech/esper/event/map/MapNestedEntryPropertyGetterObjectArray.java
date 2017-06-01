@@ -12,8 +12,17 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.blocks.CodegenBlockPropertyBeanOrUnd;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
+
+import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.localMethod;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.staticMethodTakingExprAndConst;
 
 /**
  * A getter that works on EventBean events residing within a Map as an event property.
@@ -48,5 +57,15 @@ public class MapNestedEntryPropertyGetterObjectArray extends MapNestedEntryPrope
         // If the map does not contain the key, this is allowed and represented as null
         EventBean eventBean = eventAdapterService.adapterForTypedObjectArray((Object[]) value, fragmentType);
         return arrayGetter.getFragment(eventBean);
+    }
+
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression name, CodegenContext context) {
+        String method = CodegenBlockPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenBlockPropertyBeanOrUnd.AccessType.GET, this.getClass());
+        return localMethod(method, name);
+    }
+
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression name, CodegenContext context) {
+        String method = CodegenBlockPropertyBeanOrUnd.from(context, Object[].class, arrayGetter, CodegenBlockPropertyBeanOrUnd.AccessType.FRAGMENT, this.getClass());
+        return localMethod(method, name);
     }
 }

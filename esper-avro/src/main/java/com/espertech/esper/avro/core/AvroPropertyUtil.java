@@ -11,11 +11,11 @@
 package com.espertech.esper.avro.core;
 
 import com.espertech.esper.avro.getter.*;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.FragmentEventType;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.PropertySetDescriptorItem;
 import com.espertech.esper.event.property.*;
 import org.apache.avro.Schema;
@@ -43,8 +43,8 @@ public class AvroPropertyUtil {
         return AvroTypeUtil.propertyType(typeSchema);
     }
 
-    protected static EventPropertyGetter getGetter(Schema avroSchema, HashMap<String, EventPropertyGetter> propertyGetterCache, Map<String, PropertySetDescriptorItem> propertyDescriptors, String propertyName, boolean addToCache, EventAdapterService eventAdapterService) {
-        EventPropertyGetter getter = propertyGetterCache.get(propertyName);
+    protected static EventPropertyGetterSPI getGetter(Schema avroSchema, HashMap<String, EventPropertyGetterSPI> propertyGetterCache, Map<String, PropertySetDescriptorItem> propertyDescriptors, String propertyName, boolean addToCache, EventAdapterService eventAdapterService) {
+        EventPropertyGetterSPI getter = propertyGetterCache.get(propertyName);
         if (getter != null) {
             return getter;
         }
@@ -143,7 +143,7 @@ public class AvroPropertyUtil {
         return getter;
     }
 
-    private static EventPropertyGetter propertyGetterNested(GetterNestedFactory factory, Schema fieldSchema, Property property, EventAdapterService eventAdapterService) {
+    private static EventPropertyGetterSPI propertyGetterNested(GetterNestedFactory factory, Schema fieldSchema, Property property, EventAdapterService eventAdapterService) {
         if (property instanceof SimpleProperty) {
             Schema.Field fieldNested = fieldSchema.getField(property.getPropertyNameAtomic());
             if (fieldNested == null) {
@@ -280,7 +280,7 @@ public class AvroPropertyUtil {
         return new AvroEventBeanGetterDynamicPoly(getters);
     }
 
-    private static void mayAddToGetterCache(String propertyName, HashMap<String, EventPropertyGetter> propertyGetterCache, EventPropertyGetter getter, boolean add) {
+    private static void mayAddToGetterCache(String propertyName, HashMap<String, EventPropertyGetterSPI> propertyGetterCache, EventPropertyGetterSPI getter, boolean add) {
         if (!add) {
             return;
         }
@@ -288,17 +288,17 @@ public class AvroPropertyUtil {
     }
 
     private interface GetterNestedFactory {
-        EventPropertyGetter makeSimple(int posNested, EventType fragmentEventType);
+        EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType);
 
-        EventPropertyGetter makeIndexed(int posNested, int index, EventType fragmentEventType);
+        EventPropertyGetterSPI makeIndexed(int posNested, int index, EventType fragmentEventType);
 
-        EventPropertyGetter makeMapped(int posNested, String key);
+        EventPropertyGetterSPI makeMapped(int posNested, String key);
 
-        EventPropertyGetter makeDynamicSimple(String propertyName);
+        EventPropertyGetterSPI makeDynamicSimple(String propertyName);
 
-        EventPropertyGetter makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType);
+        EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType);
 
-        EventPropertyGetter makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters);
+        EventPropertyGetterSPI makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters);
     }
 
     private static class GetterNestedFactoryRootedSimple implements GetterNestedFactory {
@@ -310,27 +310,27 @@ public class AvroPropertyUtil {
             this.posTop = posTop;
         }
 
-        public EventPropertyGetter makeSimple(int posNested, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType) {
             return new AvroEventBeanGetterNestedSimple(posTop, posNested, fragmentEventType, eventAdapterService);
         }
 
-        public EventPropertyGetter makeIndexed(int posNested, int index, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeIndexed(int posNested, int index, EventType fragmentEventType) {
             return new AvroEventBeanGetterNestedIndexed(posTop, posNested, index, fragmentEventType, eventAdapterService);
         }
 
-        public EventPropertyGetter makeMapped(int posNested, String key) {
+        public EventPropertyGetterSPI makeMapped(int posNested, String key) {
             return new AvroEventBeanGetterNestedMapped(posTop, posNested, key);
         }
 
-        public EventPropertyGetter makeDynamicSimple(String propertyName) {
+        public EventPropertyGetterSPI makeDynamicSimple(String propertyName) {
             return new AvroEventBeanGetterNestedDynamicSimple(posTop, propertyName);
         }
 
-        public EventPropertyGetter makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType) {
             return new AvroEventBeanGetterNestedMultiLevel(posTop, path, fragmentEventType, eventAdapterService);
         }
 
-        public EventPropertyGetter makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters) {
+        public EventPropertyGetterSPI makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters) {
             return new AvroEventBeanGetterNestedPoly(posTop, getters);
         }
     }
@@ -346,23 +346,23 @@ public class AvroPropertyUtil {
             this.index = index;
         }
 
-        public EventPropertyGetter makeSimple(int posNested, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeSimple(int posNested, EventType fragmentEventType) {
             return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterSimple(posNested, fragmentEventType, eventAdapterService));
         }
 
-        public EventPropertyGetter makeIndexed(int posNested, int index, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeIndexed(int posNested, int index, EventType fragmentEventType) {
             return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterIndexed(posNested, index, fragmentEventType, eventAdapterService));
         }
 
-        public EventPropertyGetter makeMapped(int posNested, String key) {
+        public EventPropertyGetterSPI makeMapped(int posNested, String key) {
             return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterMapped(posNested, key));
         }
 
-        public EventPropertyGetter makeDynamicSimple(String propertyName) {
+        public EventPropertyGetterSPI makeDynamicSimple(String propertyName) {
             return new AvroEventBeanGetterNestedIndexRooted(pos, index, new AvroEventBeanGetterSimpleDynamic(propertyName));
         }
 
-        public EventPropertyGetter makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType) {
+        public EventPropertyGetterSPI makeNestedSimpleMultiLevel(int[] path, EventType fragmentEventType) {
             AvroEventPropertyGetter[] getters = new AvroEventPropertyGetter[path.length];
             for (int i = 0; i < path.length; i++) {
                 getters[i] = new AvroEventBeanGetterSimple(path[i], fragmentEventType, eventAdapterService);
@@ -370,7 +370,7 @@ public class AvroPropertyUtil {
             return new AvroEventBeanGetterNestedIndexRootedMultilevel(pos, index, getters);
         }
 
-        public EventPropertyGetter makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters) {
+        public EventPropertyGetterSPI makeNestedPolyMultiLevel(AvroEventPropertyGetter[] getters) {
             return new AvroEventBeanGetterNestedIndexRootedMultilevel(pos, index, getters);
         }
     }

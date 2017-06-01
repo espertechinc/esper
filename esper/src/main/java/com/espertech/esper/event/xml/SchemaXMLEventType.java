@@ -13,6 +13,7 @@ package com.espertech.esper.event.xml;
 import com.espertech.esper.client.*;
 import com.espertech.esper.epl.parse.ASTUtil;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.event.ExplicitPropertyDescriptor;
 import com.espertech.esper.event.property.IndexedProperty;
@@ -43,7 +44,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
     private final SchemaModel schemaModel;
     private final SchemaElementComplex schemaModelRoot;
     private final String rootElementNamespace;
-    private final Map<String, EventPropertyGetter> propertyGetterCache;
+    private final Map<String, EventPropertyGetterSPI> propertyGetterCache;
     private final boolean isPropertyExpressionXPath;
 
     /**
@@ -58,7 +59,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
     public SchemaXMLEventType(EventTypeMetadata eventTypeMetadata, int eventTypeId, ConfigurationEventTypeXMLDOM config, SchemaModel schemaModel, EventAdapterService eventAdapterService) {
         super(eventTypeMetadata, eventTypeId, config, eventAdapterService);
 
-        this.propertyGetterCache = new HashMap<String, EventPropertyGetter>();
+        this.propertyGetterCache = new HashMap<String, EventPropertyGetterSPI>();
         this.schemaModel = schemaModel;
         this.rootElementNamespace = config.getRootElementNamespace();
         this.schemaModelRoot = SchemaUtil.findRootElement(schemaModel, rootElementNamespace, this.getRootElementName());
@@ -96,7 +97,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
                 isFragment = canFragment(complex);
             }
 
-            EventPropertyGetter getter = doResolvePropertyGetter(propertyName, true);
+            EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
             EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, propertyComponentType, false, false, complex.isArray(), false, isFragment);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
@@ -106,7 +107,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         for (SchemaElementSimple simple : schemaModelRoot.getSimpleElements()) {
             String propertyName = simple.getName();
             Class returnType = SchemaUtil.toReturnType(simple);
-            EventPropertyGetter getter = doResolvePropertyGetter(propertyName, true);
+            EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
             EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, null, false, false, simple.isArray(), false, false);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
@@ -116,7 +117,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         for (SchemaItemAttribute attribute : schemaModelRoot.getAttributes()) {
             String propertyName = attribute.getName();
             Class returnType = SchemaUtil.toReturnType(attribute);
-            EventPropertyGetter getter = doResolvePropertyGetter(propertyName, true);
+            EventPropertyGetterSPI getter = doResolvePropertyGetter(propertyName, true);
             EventPropertyDescriptor desc = new EventPropertyDescriptor(propertyName, returnType, null, false, false, false, false, false);
             ExplicitPropertyDescriptor explicit = new ExplicitPropertyDescriptor(desc, getter, false, null);
             additionalSchemaProps.add(explicit);
@@ -221,12 +222,12 @@ public class SchemaXMLEventType extends BaseXMLEventType {
         return SchemaUtil.toReturnType(item);
     }
 
-    protected EventPropertyGetter doResolvePropertyGetter(String property) {
+    protected EventPropertyGetterSPI doResolvePropertyGetter(String property) {
         return doResolvePropertyGetter(property, false);
     }
 
-    private EventPropertyGetter doResolvePropertyGetter(String propertyExpression, boolean allowSimpleProperties) {
-        EventPropertyGetter getter = propertyGetterCache.get(propertyExpression);
+    private EventPropertyGetterSPI doResolvePropertyGetter(String propertyExpression, boolean allowSimpleProperties) {
+        EventPropertyGetterSPI getter = propertyGetterCache.get(propertyExpression);
         if (getter != null) {
             return getter;
         }
@@ -279,7 +280,7 @@ public class SchemaXMLEventType extends BaseXMLEventType {
                 Class returnType = SchemaUtil.toReturnType(item);
                 if ((returnType != Node.class) && (returnType != NodeList.class)) {
                     if (!returnType.isArray()) {
-                        getter = new DOMConvertingGetter(propertyExpression, (DOMPropertyGetter) getter, returnType);
+                        getter = new DOMConvertingGetter((DOMPropertyGetter) getter, returnType);
                     } else {
                         getter = new DOMConvertingArrayGetter((DOMPropertyGetter) getter, returnType.getComponentType());
                     }

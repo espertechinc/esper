@@ -10,13 +10,15 @@
  */
 package com.espertech.esper.event.xml;
 
-import com.espertech.esper.client.EventPropertyGetter;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.w3c.dom.Node;
 
 /**
  * Shortcut-getter for DOM underlying objects.
  */
-public interface DOMPropertyGetter extends EventPropertyGetter {
+public interface DOMPropertyGetter extends EventPropertyGetterSPI {
     /**
      * Returns a property value as a node.
      *
@@ -40,4 +42,8 @@ public interface DOMPropertyGetter extends EventPropertyGetter {
      * @return fragment
      */
     public Object getValueAsFragment(Node node);
+
+    public CodegenExpression getValueAsNodeCodegen(CodegenExpression value, CodegenContext context);
+    public CodegenExpression getValueAsNodeArrayCodegen(CodegenExpression value, CodegenContext context);
+    public CodegenExpression getValueAsFragmentCodegen(CodegenExpression value, CodegenContext context);
 }

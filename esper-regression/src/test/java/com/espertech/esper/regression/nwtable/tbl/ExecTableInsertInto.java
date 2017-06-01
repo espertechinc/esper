@@ -232,7 +232,7 @@ public class ExecTableInsertInto implements RegressionExecution {
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private static class MyP0P1Event {
+    public static class MyP0P1Event {
         private final String p0;
         private final String p1;
 

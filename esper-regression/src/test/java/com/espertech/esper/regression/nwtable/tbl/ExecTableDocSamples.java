@@ -144,7 +144,7 @@ public class ExecTableDocSamples implements RegressionExecution {
         epService.getEPAdministrator().createEPL("select theWindow.first(), theWindow.last(), theWindow.window() from MyEvent, MyWindowTable");
     }
 
-    private static class MyEvent {
+    public static class MyEvent {
         private int mySortValue;
 
         public int getMySortValue() {
@@ -152,7 +152,7 @@ public class ExecTableDocSamples implements RegressionExecution {
         }
     }
 
-    private static class TrafficEvent {
+    public static class TrafficEvent {
         private String carId;
         private double speed;
 
@@ -165,7 +165,7 @@ public class ExecTableDocSamples implements RegressionExecution {
         }
     }
 
-    private static class IntrusionEvent {
+    public static class IntrusionEvent {
         private String fromAddress;
         private String toAddress;
 

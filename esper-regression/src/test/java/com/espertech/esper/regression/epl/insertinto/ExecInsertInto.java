@@ -750,7 +750,7 @@ public class ExecInsertInto implements RegressionExecution {
         EPAssertionUtil.assertProps(listener.assertOneGetNewAndReset(), "p0,p1,c0".split(","), new Object[]{"a", 10, null});
     }
 
-    private static class MyP0P1EventSource {
+    public static class MyP0P1EventSource {
         private final String p0;
         private final int p1;
 
@@ -768,7 +768,7 @@ public class ExecInsertInto implements RegressionExecution {
         }
     }
 
-    private static class MyP0P1EventTarget {
+    public static class MyP0P1EventTarget {
         private String p0;
         private int p1;
         private Object c0;

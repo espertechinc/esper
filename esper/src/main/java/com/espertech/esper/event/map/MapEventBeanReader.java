@@ -32,7 +32,7 @@ public class MapEventBeanReader implements EventBeanReader {
         String[] properties = type.getPropertyNames();
         List<MapEventPropertyGetter> getters = new ArrayList<MapEventPropertyGetter>();
         for (String property : properties) {
-            MapEventPropertyGetter getter = (MapEventPropertyGetter) type.getGetter(property);
+            MapEventPropertyGetter getter = (MapEventPropertyGetter) type.getGetterSPI(property);
             if (getter != null) {
                 getters.add(getter);
             }

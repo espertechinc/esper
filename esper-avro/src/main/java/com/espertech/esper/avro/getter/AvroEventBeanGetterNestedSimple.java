@@ -11,13 +11,18 @@
 package com.espertech.esper.avro.getter;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import org.apache.avro.generic.GenericData;
 
-public class AvroEventBeanGetterNestedSimple implements EventPropertyGetter {
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
+public class AvroEventBeanGetterNestedSimple implements EventPropertyGetterSPI {
     private final int posTop;
     private final int posInner;
     private final EventType fragmentType;
@@ -31,12 +36,7 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetter {
     }
 
     public Object get(EventBean eventBean) throws PropertyAccessException {
-        GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
-        GenericData.Record inner = (GenericData.Record) record.get(posTop);
-        if (inner == null) {
-            return null;
-        }
-        return inner.get(posInner);
+        return get((GenericData.Record) eventBean.getUnderlying());
     }
 
     public boolean isExistsProperty(EventBean eventBean) {
@@ -52,5 +52,56 @@ public class AvroEventBeanGetterNestedSimple implements EventPropertyGetter {
             return null;
         }
         return eventAdapterService.adapterForTypedAvro(value, fragmentType);
+    }
+
+    private String getFragmentCodegen(CodegenContext context) throws PropertyAccessException {
+        CodegenMember mSvc = context.makeAddMember(EventAdapterService.class, eventAdapterService);
+        CodegenMember mType = context.makeAddMember(EventType.class, fragmentType);
+        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+                .declareVar(Object.class, "value", codegenUnderlyingGet(ref("record"), context))
+                .ifRefNullReturnNull("value")
+                .methodReturn(exprDotMethod(ref(mSvc.getMemberName()), "adapterForTypedAvro", ref("value"), ref(mType.getMemberName())));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(GenericData.Record.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        if (fragmentType == null) {
+            return constantNull();
+        }
+        return localMethod(getFragmentCodegen(context), underlyingExpression);
+    }
+
+    private Object get(GenericData.Record record) throws PropertyAccessException {
+        GenericData.Record inner = (GenericData.Record) record.get(posTop);
+        if (inner == null) {
+            return null;
+        }
+        return inner.get(posInner);
+    }
+
+    private String getCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, GenericData.Record.class, "record", this.getClass())
+                .declareVar(GenericData.Record.class, "inner", cast(GenericData.Record.class, exprDotMethod(ref("record"), "get", constant(posTop))))
+                .ifRefNullReturnNull("inner")
+                .methodReturn(exprDotMethod(ref("inner"), "get", constant(posInner)));
     }
 }

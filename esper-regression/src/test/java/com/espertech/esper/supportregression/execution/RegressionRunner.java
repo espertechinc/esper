@@ -17,12 +17,6 @@ import com.espertech.esper.metrics.instrumentation.InstrumentationHelper;
 import com.espertech.esper.supportregression.client.SupportConfigFactory;
 
 public class RegressionRunner {
-    public static void run(RegressionExecution[] executions) {
-        for (RegressionExecution execution : executions) {
-            run(execution);
-        }
-    }
-
     public static void run(RegressionExecution execution) {
         Configuration configuration = SupportConfigFactory.getConfiguration();
         try {

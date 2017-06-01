@@ -185,7 +185,7 @@ public class ExecEPLPlanExcludeHint implements RegressionExecution, IndexBacking
         epService.getEPAdministrator().destroyAllStatements();
     }
 
-    private static class AEvent {
+    public static class AEvent {
         private final String aprop;
 
         private AEvent(String aprop) {
@@ -197,7 +197,7 @@ public class ExecEPLPlanExcludeHint implements RegressionExecution, IndexBacking
         }
     }
 
-    private static class BEvent {
+    public static class BEvent {
         private final String bprop;
 
         private BEvent(String bprop) {

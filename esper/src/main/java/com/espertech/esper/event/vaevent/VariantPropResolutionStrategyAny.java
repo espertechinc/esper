@@ -10,10 +10,8 @@
  */
 package com.espertech.esper.event.vaevent;
 
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
-import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 
 /**
  * A property resolution strategy that allows any type, wherein all properties are Object type.
@@ -36,31 +34,7 @@ public class VariantPropResolutionStrategyAny implements VariantPropResolutionSt
         final int assignedPropertyNumber = currentPropertyNumber;
         currentPropertyNumber++;
         propertyGetterCache.addGetters(assignedPropertyNumber, propertyName);
-
-        EventPropertyGetter getter = new EventPropertyGetter() {
-            public Object get(EventBean eventBean) throws PropertyAccessException {
-                VariantEvent variant = (VariantEvent) eventBean;
-                EventPropertyGetter getter = propertyGetterCache.getGetter(assignedPropertyNumber, variant.getUnderlyingEventBean().getEventType());
-                if (getter == null) {
-                    return null;
-                }
-                return getter.get(variant.getUnderlyingEventBean());
-            }
-
-            public boolean isExistsProperty(EventBean eventBean) {
-                VariantEvent variant = (VariantEvent) eventBean;
-                EventPropertyGetter getter = propertyGetterCache.getGetter(assignedPropertyNumber, variant.getUnderlyingEventBean().getEventType());
-                if (getter == null) {
-                    return false;
-                }
-                return getter.isExistsProperty(variant.getUnderlyingEventBean());
-            }
-
-            public Object getFragment(EventBean eventBean) {
-                return null; // no fragments provided as the type is not known in advance
-            }
-        };
-
+        EventPropertyGetterSPI getter = new VariantEventPropertyGetterAny(propertyGetterCache, assignedPropertyNumber);
         return new VariantPropertyDesc(Object.class, getter, true);
     }
 }

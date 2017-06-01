@@ -11,6 +11,8 @@
 package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventType;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
@@ -34,10 +36,22 @@ public class ObjectArrayNestedEntryPropertyGetterArrayMap extends ObjectArrayNes
     }
 
     public Object handleNestedValueFragment(Object value) {
-        return BaseNestableEventUtil.handleNestedValueArrayWithMapFragment(value, index, getter, eventAdapterService, fragmentType);
+        return BaseNestableEventUtil.handleBNNestedValueArrayWithMapFragment(value, index, getter, eventAdapterService, fragmentType);
     }
 
     public boolean handleNestedValueExists(Object value) {
         return BaseNestableEventUtil.handleNestedValueArrayWithMapExists(value, index, getter);
+    }
+
+    public CodegenExpression handleNestedValueCodegen(CodegenExpression refName, CodegenContext context) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapCode(index, getter, refName, context, this.getClass());
+    }
+
+    public CodegenExpression handleNestedValueExistsCodegen(CodegenExpression refName, CodegenContext context) {
+        return BaseNestableEventUtil.handleNestedValueArrayWithMapExistsCode(index, getter, refName, context, eventAdapterService, fragmentType, this.getClass());
+    }
+
+    public CodegenExpression handleNestedValueFragmentCodegen(CodegenExpression refName, CodegenContext context) {
+        return BaseNestableEventUtil.handleBNNestedValueArrayWithMapFragmentCode(index, getter, refName, context, eventAdapterService, fragmentType, this.getClass());
     }
 }

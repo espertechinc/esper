@@ -12,6 +12,7 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.EventPropertyType;
 import com.espertech.esper.event.WriteablePropertyDescriptor;
 import net.sf.cglib.reflect.FastClass;
@@ -36,7 +37,7 @@ public class PropertyHelper {
      * @param eventAdapterService factory for event beans and event types
      * @return property getter
      */
-    public static EventPropertyGetter getGetter(Method method, FastClass fastClass, EventAdapterService eventAdapterService) {
+    public static EventPropertyGetterSPI getGetter(Method method, FastClass fastClass, EventAdapterService eventAdapterService) {
         // Get CGLib fast method handle
         FastMethod fastMethod = null;
         try {
@@ -48,7 +49,7 @@ public class PropertyHelper {
         }
 
         // Construct the appropriate property getter CGLib or reflect
-        EventPropertyGetter getter;
+        EventPropertyGetterSPI getter;
         if (fastMethod != null) {
             getter = new CGLibPropertyGetter(method, fastMethod, eventAdapterService);
         } else {

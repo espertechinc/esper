@@ -12,6 +12,7 @@ package com.espertech.esper.event.property;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayMappedPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
@@ -53,7 +54,7 @@ public class DynamicMappedProperty extends PropertyBase implements DynamicProper
         return new String[]{this.getPropertyNameAtomic()};
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return new DynamicMappedPropertyGetter(propertyNameAtomic, key, eventAdapterService);
     }
 
@@ -81,7 +82,7 @@ public class DynamicMappedProperty extends PropertyBase implements DynamicProper
         writer.append('?');
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         return new DOMMapGetter(propertyNameAtomic, key, null);
     }
 
@@ -89,7 +90,7 @@ public class DynamicMappedProperty extends PropertyBase implements DynamicProper
         return null;  // always returns Node
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         return new DOMMapGetter(propertyNameAtomic, key, null);
     }
 

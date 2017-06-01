@@ -1692,4 +1692,19 @@ public class JavaClassHelper {
         }
         return name;
     }
+
+    public static Class getComponentTypeOutermost(Class clazz) {
+        if (!clazz.isArray()) {
+            return clazz;
+        }
+        return getComponentTypeOutermost(clazz.getComponentType());
+    }
+
+    public static int getNumberOfDimensions(Class clazz) {
+        if (clazz.getComponentType() == null) {
+            return 0;
+        } else {
+            return getNumberOfDimensions(clazz.getComponentType()) + 1;
+        }
+    }
 }

@@ -14,6 +14,9 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esper.util.SimpleTypeCaster;
 import com.espertech.esper.util.SimpleTypeCasterFactory;
@@ -126,60 +129,12 @@ public class VariantPropResolutionStrategyDefault implements VariantPropResoluti
         currentPropertyNumber++;
         propertyGetterCache.addGetters(assignedPropertyNumber, propertyName);
 
-        EventPropertyGetter getter;
+        EventPropertyGetterSPI getter;
         if (mustCoerce) {
-            final SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(null, commonType);
-            getter = new EventPropertyGetter() {
-                public Object get(EventBean eventBean) throws PropertyAccessException {
-                    VariantEvent variant = (VariantEvent) eventBean;
-                    EventPropertyGetter getter = propertyGetterCache.getGetter(assignedPropertyNumber, variant.getUnderlyingEventBean().getEventType());
-                    if (getter == null) {
-                        return null;
-                    }
-                    Object value = getter.get(variant.getUnderlyingEventBean());
-                    if (value == null) {
-                        return value;
-                    }
-                    return caster.cast(value);
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    VariantEvent variant = (VariantEvent) eventBean;
-                    EventPropertyGetter getter = propertyGetterCache.getGetter(assignedPropertyNumber, variant.getUnderlyingEventBean().getEventType());
-                    if (getter == null) {
-                        return false;
-                    }
-                    return getter.isExistsProperty(variant.getUnderlyingEventBean());
-                }
-
-                public Object getFragment(EventBean eventBean) {
-                    return null;
-                }
-            };
+            SimpleTypeCaster caster = SimpleTypeCasterFactory.getCaster(null, commonType);
+            getter = new VariantEventPropertyGetterAnyWCast(propertyGetterCache, assignedPropertyNumber, caster);
         } else {
-            getter = new EventPropertyGetter() {
-                public Object get(EventBean eventBean) throws PropertyAccessException {
-                    VariantEvent variant = (VariantEvent) eventBean;
-                    EventPropertyGetter getter = propertyGetterCache.getGetter(assignedPropertyNumber, variant.getUnderlyingEventBean().getEventType());
-                    if (getter == null) {
-                        return null;
-                    }
-                    return getter.get(variant.getUnderlyingEventBean());
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    VariantEvent variant = (VariantEvent) eventBean;
-                    EventPropertyGetter getter = propertyGetterCache.getGetter(assignedPropertyNumber, variant.getUnderlyingEventBean().getEventType());
-                    if (getter == null) {
-                        return false;
-                    }
-                    return getter.isExistsProperty(variant.getUnderlyingEventBean());
-                }
-
-                public Object getFragment(EventBean eventBean) {
-                    return null;
-                }
-            };
+            getter = new VariantEventPropertyGetterAny(propertyGetterCache, assignedPropertyNumber);
         }
 
         return new VariantPropertyDesc(commonType, getter, true);

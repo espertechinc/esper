@@ -12,6 +12,7 @@ package com.espertech.esper.event.property;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.bean.BeanEventType;
 import com.espertech.esper.event.map.MapEventPropertyGetter;
@@ -53,7 +54,7 @@ public interface Property {
      * @param eventAdapterService factory for event beans and event types
      * @return fast property value getter for property
      */
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService);
+    public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventAdapterService eventAdapterService);
 
     /**
      * Returns the property type for use with Map event representations.
@@ -93,14 +94,14 @@ public interface Property {
      * @param propertyExpression  the full property expression
      * @return getter
      */
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression);
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType xmlEventType, String propertyExpression);
 
     /**
      * Returns the getter-method for use with XML DOM event representations.
      *
      * @return getter
      */
-    public EventPropertyGetter getGetterDOM();
+    public EventPropertyGetterSPI getGetterDOM();
 
     /**
      * Write the EPL-representation of the property.

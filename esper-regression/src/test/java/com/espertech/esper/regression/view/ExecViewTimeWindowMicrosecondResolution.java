@@ -15,6 +15,7 @@ import com.espertech.esper.client.EPServiceProviderIsolated;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.scopetest.EPAssertionUtil;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.client.util.DateTime;
 import com.espertech.esper.supportregression.bean.SupportBean;
 import com.espertech.esper.supportregression.execution.RegressionExecution;
 import com.espertech.esper.supportregression.util.SupportEngineFactory;
@@ -47,7 +48,7 @@ public class ExecViewTimeWindowMicrosecondResolution implements RegressionExecut
         runAssertionTimeWindow(engineMillis, 0, "1 months 10 milliseconds", timePlusMonth(0, 1) + 10);
         runAssertionTimeWindow(engineMicros, 0, "1 months 10 microseconds", timePlusMonth(0, 1) * 1000 + 10);
 
-        long currentTime = System.currentTimeMillis();
+        long currentTime = DateTime.parseDefaultMSec("2002-05-1T08:00:01.999");
         runAssertionTimeWindow(engineMillis, currentTime, "1 months 50 milliseconds", timePlusMonth(currentTime, 1) + 50);
         runAssertionTimeWindow(engineMicros, currentTime * 1000 + 33, "3 months 100 microseconds", timePlusMonth(currentTime, 3) * 1000 + 33 + 100);
     }

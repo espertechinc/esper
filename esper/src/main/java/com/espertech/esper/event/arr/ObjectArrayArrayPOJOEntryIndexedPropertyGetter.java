@@ -12,9 +12,14 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.bean.BaseNativePropertyGetter;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.GT;
 
 /**
  * A getter that works on arrays residing within a Map as an event property.
@@ -22,6 +27,12 @@ import com.espertech.esper.event.bean.BaseNativePropertyGetter;
 public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePropertyGetter implements ObjectArrayEventPropertyGetterAndIndexed {
     private final int propertyIndex;
     private final int index;
+
+    public static Object getArrayValue(Object[] array, int propertyIndex, int index) throws PropertyAccessException {
+        // If the oa does not contain the key, this is allowed and represented as null
+        Object value = array[propertyIndex];
+        return BaseNestableEventUtil.getBNArrayValueAtIndexWithNullCheck(value, index);
+    }
 
     /**
      * Ctor.
@@ -38,13 +49,7 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
     }
 
     public Object getObjectArray(Object[] array) throws PropertyAccessException {
-        return getArrayInternal(array, index);
-    }
-
-    public Object getArrayInternal(Object[] array, int index) throws PropertyAccessException {
-        // If the map does not contain the key, this is allowed and represented as null
-        Object value = array[propertyIndex];
-        return BaseNestableEventUtil.getIndexedValue(value, index);
+        return getArrayValue(array, propertyIndex, index);
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -53,7 +58,7 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
 
     public Object get(EventBean eventBean, int index) throws PropertyAccessException {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
-        return getArrayInternal(array, index);
+        return getArrayValue(array, propertyIndex, index);
     }
 
     public Object get(EventBean obj) {
@@ -64,5 +69,29 @@ public class ObjectArrayArrayPOJOEntryIndexedPropertyGetter extends BaseNativePr
     public boolean isExistsProperty(EventBean eventBean) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(eventBean);
         return array.length > index;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingExists(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getArrayValue", underlyingExpression, constant(propertyIndex), constant(index));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return relational(arrayLength(underlyingExpression), GT, constant(index));
+    }
+
+    public Class getTargetType() {
+        return Object[].class;
+    }
+
+    public Class getBeanPropType() {
+        return Object.class;
     }
 }

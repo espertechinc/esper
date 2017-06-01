@@ -10,9 +10,9 @@
  */
 package com.espertech.esper.event.property;
 
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndMapped;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetterAndMapped;
 import com.espertech.esper.event.arr.ObjectArrayMappedPropertyGetter;
 import com.espertech.esper.event.bean.*;
@@ -195,7 +195,7 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
         writer.append("')");
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         for (SchemaElementComplex complex : complexProperty.getChildren()) {
             if (!complex.getName().equals(propertyNameAtomic)) {
                 continue;
@@ -212,7 +212,7 @@ public class MappedProperty extends PropertyBase implements PropertyWithKey {
         return null;
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         return new DOMMapGetter(propertyNameAtomic, key, null);
     }
 

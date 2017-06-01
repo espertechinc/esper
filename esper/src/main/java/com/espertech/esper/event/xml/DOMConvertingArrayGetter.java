@@ -11,18 +11,23 @@
 package com.espertech.esper.event.xml;
 
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.core.CodegenMember;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Array;
 
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+
 /**
  * Getter for converting a Node child nodes into an array.
  */
-public class DOMConvertingArrayGetter implements EventPropertyGetter {
+public class DOMConvertingArrayGetter implements EventPropertyGetterSPI {
     private final DOMPropertyGetter getter;
     private final Class componentType;
     private final SimpleTypeParser parser;
@@ -45,14 +50,31 @@ public class DOMConvertingArrayGetter implements EventPropertyGetter {
             throw new PropertyAccessException("Mismatched property getter to event bean type, " +
                     "the underlying data object is not of type Node");
         }
-
         Node node = (Node) obj.getUnderlying();
-
         Node[] result = getter.getValueAsNodeArray(node);
         if (result == null) {
             return null;
         }
+        return getDOMArrayFromNodes(result, componentType, parser);
+    }
 
+    private String getCodegen(CodegenContext context) {
+        CodegenMember mComponentType = context.makeAddMember(Class.class, componentType);
+        CodegenMember mParser = context.makeAddMember(SimpleTypeParser.class, parser);
+        return context.addMethod(Object.class, Node.class, "node", this.getClass())
+                .declareVar(Node[].class, "result", getter.getValueAsNodeArrayCodegen(ref("node"), context))
+                .ifRefNullReturnNull("result")
+                .methodReturn(staticMethod(this.getClass(), "getDOMArrayFromNodes", ref("result"), ref(mComponentType.getMemberName()), ref(mParser.getMemberName())));
+    }
+
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param result nodes
+     * @param componentType type
+     * @param parser parser
+     * @return result
+     */
+    public static Object getDOMArrayFromNodes(Node[] result, Class componentType, SimpleTypeParser parser) {
         Object array = Array.newInstance(componentType, result.length);
         for (int i = 0; i < result.length; i++) {
             String text = result[i].getTextContent();
@@ -73,5 +95,29 @@ public class DOMConvertingArrayGetter implements EventPropertyGetter {
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Node.class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
     }
 }

@@ -49,7 +49,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
     private Map<String, List<SimplePropertyInfo>> indexedSmartPropertyTable;
     private Map<String, List<SimplePropertyInfo>> mappedSmartPropertyTable;
 
-    private final Map<String, EventPropertyGetter> propertyGetterCache;
+    private final Map<String, EventPropertyGetterSPI> propertyGetterCache;
     private EventPropertyDescriptor[] propertyDescriptors;
     private EventPropertyDescriptor[] writeablePropertyDescriptors;
     private Map<String, Pair<EventPropertyDescriptor, BeanEventPropertyWriter>> writerMap;
@@ -58,6 +58,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
     private String copyMethodName;
     private String startTimestampPropertyName;
     private String endTimestampPropertyName;
+    private Map<String, EventPropertyGetter> propertyGetterCodegeneratedCache;
 
     /**
      * Constructor takes a java bean class as an argument.
@@ -86,7 +87,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
         } else {
             this.propertyResolutionStyle = eventAdapterService.getBeanEventTypeFactory().getDefaultPropertyResolutionStyle();
         }
-        propertyGetterCache = new HashMap<String, EventPropertyGetter>();
+        propertyGetterCache = new HashMap<String, EventPropertyGetterSPI>();
 
         initialize(false, eventAdapterService.getEngineImportService());
 
@@ -162,15 +163,15 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
         return propertyResolutionStyle;
     }
 
-    public EventPropertyGetter getGetter(String propertyName) {
-        EventPropertyGetter cachedGetter = propertyGetterCache.get(propertyName);
+    public EventPropertyGetterSPI getGetterSPI(String propertyName) {
+        EventPropertyGetterSPI cachedGetter = propertyGetterCache.get(propertyName);
         if (cachedGetter != null) {
             return cachedGetter;
         }
 
         SimplePropertyInfo simpleProp = getSimplePropertyInfo(propertyName);
         if ((simpleProp != null) && (simpleProp.getter != null)) {
-            EventPropertyGetter getter = simpleProp.getGetter();
+            EventPropertyGetterSPI getter = simpleProp.getGetter();
             propertyGetterCache.put(propertyName, getter);
             return getter;
         }
@@ -181,9 +182,33 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
             return null;
         }
 
-        EventPropertyGetter getter = prop.getGetter(this, eventAdapterService);
+        EventPropertyGetterSPI getter = prop.getGetter(this, eventAdapterService);
         propertyGetterCache.put(propertyName, getter);
+
         return getter;
+    }
+
+    public EventPropertyGetter getGetter(String propertyName) {
+        if (!eventAdapterService.getEngineImportService().isCodegenEventPropertyGetters()) {
+            return getGetterSPI(propertyName);
+        }
+        if (propertyGetterCodegeneratedCache == null) {
+            propertyGetterCodegeneratedCache = new HashMap<>();
+        }
+
+        EventPropertyGetter getter = propertyGetterCodegeneratedCache.get(propertyName);
+        if (getter != null) {
+            return getter;
+        }
+
+        EventPropertyGetterSPI getterSPI = getGetterSPI(propertyName);
+        if (getterSPI == null) {
+            return null;
+        }
+
+        EventPropertyGetter getterCode = eventAdapterService.getEngineImportService().codegenGetter(getterSPI, propertyName);
+        propertyGetterCodegeneratedCache.put(propertyName, getterCode);
+        return getterCode;
     }
 
     public EventPropertyGetterMapped getGetterMapped(String mappedPropertyName) {
@@ -351,7 +376,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
             boolean isFragment;
 
             if (desc.getPropertyType().equals(EventPropertyType.SIMPLE)) {
-                EventPropertyGetter getter;
+                EventPropertyGetterSPI getter;
                 Class type;
                 if (desc.getReadMethod() != null) {
                     getter = PropertyHelper.getGetter(desc.getReadMethod(), fastClass, eventAdapterService);
@@ -611,7 +636,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
      */
     public static class SimplePropertyInfo {
         private Class clazz;
-        private EventPropertyGetter getter;
+        private EventPropertyGetterSPI getter;
         private InternalEventPropDescriptor descriptor;
 
         /**
@@ -621,7 +646,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
          * @param getter     is the getter
          * @param descriptor is the property info
          */
-        public SimplePropertyInfo(Class clazz, EventPropertyGetter getter, InternalEventPropDescriptor descriptor) {
+        public SimplePropertyInfo(Class clazz, EventPropertyGetterSPI getter, InternalEventPropDescriptor descriptor) {
             this.clazz = clazz;
             this.getter = getter;
             this.descriptor = descriptor;
@@ -641,7 +666,7 @@ public class BeanEventType implements EventTypeSPI, NativeEventType {
          *
          * @return getter
          */
-        public EventPropertyGetter getGetter() {
+        public EventPropertyGetterSPI getGetter() {
             return getter;
         }
 

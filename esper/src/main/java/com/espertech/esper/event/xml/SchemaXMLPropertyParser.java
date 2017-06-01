@@ -15,6 +15,7 @@ import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.collection.Pair;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.property.*;
 import com.espertech.esper.util.ExecutionPathDebugLog;
 import org.slf4j.Logger;
@@ -46,15 +47,15 @@ public class SchemaXMLPropertyParser {
      * @return xpath expression
      * @throws EPException is there are XPath errors
      */
-    public static EventPropertyGetter getXPathResolution(String propertyName,
-                                                         XPathFactory xPathFactory,
-                                                         String rootElementName,
-                                                         String namespace,
-                                                         SchemaModel schemaModel,
-                                                         EventAdapterService eventAdapterService,
-                                                         BaseXMLEventType xmlEventType,
-                                                         boolean isAllowFragment,
-                                                         String defaultNamespace) throws EPException {
+    public static EventPropertyGetterSPI getXPathResolution(String propertyName,
+                                                            XPathFactory xPathFactory,
+                                                            String rootElementName,
+                                                            String namespace,
+                                                            SchemaModel schemaModel,
+                                                            EventAdapterService eventAdapterService,
+                                                            BaseXMLEventType xmlEventType,
+                                                            boolean isAllowFragment,
+                                                            String defaultNamespace) throws EPException {
         if (log.isDebugEnabled()) {
             log.debug("Determining XPath expression for property '" + propertyName + "'");
         }

@@ -18,6 +18,7 @@ import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.expression.core.ExprValidationException;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.epl.named.NamedWindowRootViewInstance;
+import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventTypeIdGenerator;
 import com.espertech.esper.event.EventTypeMetadata;
 import com.espertech.esper.view.Viewable;
@@ -39,7 +40,7 @@ public class VAEVariantProcessor implements ValueAddEventProcessor {
      */
     protected VariantEventType variantEventType;
 
-    public VAEVariantProcessor(VariantSpec variantSpec, EventTypeIdGenerator eventTypeIdGenerator, ConfigurationVariantStream config) {
+    public VAEVariantProcessor(EventAdapterService eventAdapterService, VariantSpec variantSpec, EventTypeIdGenerator eventTypeIdGenerator, ConfigurationVariantStream config) {
         this.variantSpec = variantSpec;
 
         VariantPropResolutionStrategy strategy;
@@ -50,7 +51,7 @@ public class VAEVariantProcessor implements ValueAddEventProcessor {
         }
 
         EventTypeMetadata metadata = EventTypeMetadata.createValueAdd(variantSpec.getVariantStreamName(), EventTypeMetadata.TypeClass.VARIANT);
-        variantEventType = new VariantEventType(metadata, eventTypeIdGenerator.getTypeId(variantSpec.getVariantStreamName()), variantSpec, strategy, config);
+        variantEventType = new VariantEventType(eventAdapterService, metadata, eventTypeIdGenerator.getTypeId(variantSpec.getVariantStreamName()), variantSpec, strategy, config);
     }
 
     public EventType getValueAddEventType() {

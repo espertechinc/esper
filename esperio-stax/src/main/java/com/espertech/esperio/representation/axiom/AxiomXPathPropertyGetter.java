@@ -12,6 +12,8 @@ package com.espertech.esperio.representation.axiom;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.util.SimpleTypeParser;
 import com.espertech.esper.util.SimpleTypeParserFactory;
 import org.apache.axiom.om.OMNode;
@@ -119,5 +121,33 @@ public class AxiomXPathPropertyGetter implements TypedEventPropertyGetter {
 
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        throw getUnsupported();
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        throw getUnsupported();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        throw getUnsupported();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        throw getUnsupported();
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        throw getUnsupported();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        throw getUnsupported();
+    }
+
+    private UnsupportedOperationException getUnsupported() {
+        return new UnsupportedOperationException("Codegeneration not supported with Axiom event type");
     }
 }

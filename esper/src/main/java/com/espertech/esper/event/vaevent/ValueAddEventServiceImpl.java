@@ -80,7 +80,7 @@ public class ValueAddEventServiceImpl implements ValueAddEventService {
 
     public void addVariantStream(String variantStreamname, ConfigurationVariantStream variantStreamConfig, EventAdapterService eventAdapterService, EventTypeIdGenerator eventTypeIdGenerator) throws ConfigurationException {
         VariantSpec variantSpec = validateVariantStream(variantStreamname, variantStreamConfig, eventAdapterService);
-        VAEVariantProcessor processor = new VAEVariantProcessor(variantSpec, eventTypeIdGenerator, variantStreamConfig);
+        VAEVariantProcessor processor = new VAEVariantProcessor(eventAdapterService, variantSpec, eventTypeIdGenerator, variantStreamConfig);
         eventAdapterService.addTypeByName(variantStreamname, processor.getValueAddEventType());
         variantProcessors.put(variantStreamname, processor);
     }

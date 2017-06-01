@@ -91,7 +91,7 @@ public class ExecSubselectWithinHaving implements RegressionExecution {
         epService.getEPAdministrator().getConfiguration().removeEventType("MyInfra", false);
     }
 
-    private final static class MaxAmountEvent {
+    public final static class MaxAmountEvent {
         private String key;
         private double maxAmount;
 

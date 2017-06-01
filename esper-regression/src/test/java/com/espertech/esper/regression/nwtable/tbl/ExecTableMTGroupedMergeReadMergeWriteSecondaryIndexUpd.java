@@ -183,7 +183,7 @@ public class ExecTableMTGroupedMergeReadMergeWriteSecondaryIndexUpd implements R
         }
     }
 
-    private static class LocalGroupEvent {
+    public static class LocalGroupEvent {
         private final int topgroup;
         private final int subgroup;
 

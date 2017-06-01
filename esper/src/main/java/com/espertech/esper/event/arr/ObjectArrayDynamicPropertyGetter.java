@@ -12,6 +12,10 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for a dynamic property (syntax field.inner?), using vanilla reflection.
@@ -31,7 +35,14 @@ public class ObjectArrayDynamicPropertyGetter implements ObjectArrayEventPropert
         return false;
     }
 
-    public Object get(EventBean eventBean) throws PropertyAccessException {
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param eventBean bean
+     * @param propertyName props
+     * @return value
+     * @throws PropertyAccessException exception
+     */
+    public static Object getOADynamicProp(EventBean eventBean, String propertyName) throws PropertyAccessException {
         ObjectArrayEventType objectArrayEventType = (ObjectArrayEventType) eventBean.getEventType();
         Integer index = objectArrayEventType.getPropertiesIndexes().get(propertyName);
         if (index == null) {
@@ -41,13 +52,51 @@ public class ObjectArrayDynamicPropertyGetter implements ObjectArrayEventPropert
         return theEvent[index];
     }
 
-    public boolean isExistsProperty(EventBean eventBean) {
+    /**
+     * NOTE: Code-generation-invoked method, method name and parameter order matters
+     * @param eventBean bean
+     * @param propertyName name
+     * @return flag
+     */
+    public static boolean isExistsOADynamicProp(EventBean eventBean, String propertyName) {
         ObjectArrayEventType objectArrayEventType = (ObjectArrayEventType) eventBean.getEventType();
         Integer index = objectArrayEventType.getPropertiesIndexes().get(propertyName);
         return index != null;
     }
 
+    public Object get(EventBean eventBean) throws PropertyAccessException {
+        return getOADynamicProp(eventBean, propertyName);
+    }
+
+    public boolean isExistsProperty(EventBean eventBean) {
+        return isExistsOADynamicProp(eventBean, propertyName);
+    }
+
     public Object getFragment(EventBean eventBean) throws PropertyAccessException {
         return null;
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "getOADynamicProp", beanExpression, constant(propertyName));
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return staticMethod(this.getClass(), "isExistsOADynamicProp", beanExpression, constant(propertyName));
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantFalse();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
     }
 }

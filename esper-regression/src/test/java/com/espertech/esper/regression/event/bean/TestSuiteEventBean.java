@@ -81,6 +81,10 @@ public class TestSuiteEventBean extends TestCase {
         RegressionRunner.run(new ExecEventBeanPropertyResolutionFragment());
     }
 
+    public void testExecEventBeanPropertyIterableMapList() {
+        RegressionRunner.run(new ExecEventBeanPropertyIterableMapList());
+    }
+
     public void testInvalidConfig() {
         Properties properties = new Properties();
         properties.put("astring", "XXXX");

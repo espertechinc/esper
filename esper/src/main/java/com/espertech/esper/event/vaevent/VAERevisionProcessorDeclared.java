@@ -14,15 +14,15 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.collection.MultiKeyUntyped;
 import com.espertech.esper.core.context.util.AgentInstanceContext;
 import com.espertech.esper.core.context.util.EPStatementAgentInstanceHandle;
 import com.espertech.esper.epl.join.table.EventTable;
 import com.espertech.esper.epl.lookup.EventTableIndexRepository;
 import com.espertech.esper.epl.named.NamedWindowRootViewInstance;
-import com.espertech.esper.event.EventAdapterService;
-import com.espertech.esper.event.EventTypeIdGenerator;
-import com.espertech.esper.event.EventTypeMetadata;
+import com.espertech.esper.event.*;
 import com.espertech.esper.view.StatementStopCallback;
 import com.espertech.esper.view.StatementStopService;
 import com.espertech.esper.view.Viewable;
@@ -281,20 +281,7 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
             final RevisionGetterParameters parameters = new RevisionGetterParameters(property, propertyNumber, fullGetter, propGroupsProperty);
 
             // if there are no groups (full event property only), then simply use the full event getter
-            EventPropertyGetter revisionGetter = new EventPropertyGetter() {
-                public Object get(EventBean eventBean) throws PropertyAccessException {
-                    RevisionEventBeanDeclared riv = (RevisionEventBeanDeclared) eventBean;
-                    return riv.getVersionedValue(parameters);
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    return true;
-                }
-
-                public Object getFragment(EventBean eventBean) {
-                    return null; // fragments no provided by revision events
-                }
-            };
+            EventPropertyGetterSPI revisionGetter = new VAERevisionEventPropertyGetterDeclaredGetVersioned(parameters);
 
             Class type = spec.getBaseEventType().getPropertyType(property);
             RevisionPropertyTypeDesc propertyTypeDesc = new RevisionPropertyTypeDesc(revisionGetter, parameters, type);
@@ -303,28 +290,10 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
         }
 
         for (String property : spec.getBaseEventOnlyPropertyNames()) {
-            final EventPropertyGetter fullGetter = spec.getBaseEventType().getGetter(property);
+            final EventPropertyGetterSPI fullGetter = ((EventTypeSPI) spec.getBaseEventType()).getGetterSPI(property);
 
             // if there are no groups (full event property only), then simply use the full event getter
-            EventPropertyGetter revisionGetter = new EventPropertyGetter() {
-                public Object get(EventBean eventBean) throws PropertyAccessException {
-                    RevisionEventBeanDeclared riv = (RevisionEventBeanDeclared) eventBean;
-                    EventBean bean = riv.getLastBaseEvent();
-                    if (bean == null) {
-                        return null;
-                    }
-                    return fullGetter.get(bean);
-                }
-
-                public boolean isExistsProperty(EventBean eventBean) {
-                    return true;
-                }
-
-                public Object getFragment(EventBean eventBean) {
-                    return null; // fragments no provided by revision events
-                }
-            };
-
+            EventPropertyGetterSPI revisionGetter = new VAERevisionEventPropertyGetterDeclaredLast(fullGetter);
             Class type = spec.getBaseEventType().getPropertyType(property);
             RevisionPropertyTypeDesc propertyTypeDesc = new RevisionPropertyTypeDesc(revisionGetter, null, type);
             propertyDesc.put(property, propertyTypeDesc);
@@ -335,41 +304,11 @@ public class VAERevisionProcessorDeclared extends VAERevisionProcessorBase imple
         for (String property : spec.getKeyPropertyNames()) {
             final int keyPropertyNumber = count;
 
-            EventPropertyGetter revisionGetter;
+            EventPropertyGetterSPI revisionGetter;
             if (spec.getKeyPropertyNames().length == 1) {
-                revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException {
-                        RevisionEventBeanDeclared riv = (RevisionEventBeanDeclared) eventBean;
-                        return riv.getKey();
-                    }
-
-                    public boolean isExistsProperty(EventBean eventBean) {
-                        return true;
-                    }
-
-                    public Object getFragment(EventBean eventBean) {
-                        return null;
-                    }
-                };
+                revisionGetter = new VAERevisionEventPropertyGetterDeclaredOneKey();
             } else {
-                revisionGetter = new EventPropertyGetter() {
-                    public Object get(EventBean eventBean) throws PropertyAccessException {
-                        RevisionEventBeanDeclared riv = (RevisionEventBeanDeclared) eventBean;
-                        MultiKeyUntyped key = (MultiKeyUntyped) riv.getKey();
-                        if (key == null) {
-                            return null;
-                        }
-                        return key.getKeys()[keyPropertyNumber];
-                    }
-
-                    public boolean isExistsProperty(EventBean eventBean) {
-                        return true;
-                    }
-
-                    public Object getFragment(EventBean eventBean) {
-                        return null;
-                    }
-                };
+                revisionGetter = new VAERevisionEventPropertyGetterDeclaredNKey(keyPropertyNumber);
             }
 
             Class type = spec.getBaseEventType().getPropertyType(property);

@@ -440,7 +440,7 @@ public class EventTypeUtility {
                         isFragment = false;
                     }
                 }
-                EventPropertyGetter getter = factory.getGetterProperty(name, nativeFragmentType, eventAdapterService);
+                EventPropertyGetterSPI getter = factory.getGetterProperty(name, nativeFragmentType, eventAdapterService);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, classType, componentType, false, false, isArray, isMapped, isFragment);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, classType, getter, fragmentType);
                 propertyNameList.add(name);
@@ -451,7 +451,7 @@ public class EventTypeUtility {
 
             // A null-type is also allowed
             if (entry.getValue() == null) {
-                EventPropertyGetter getter = factory.getGetterProperty(name, null, null);
+                EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, null, null, false, false, false, false, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, null, getter, null);
                 propertyNameList.add(name);
@@ -462,7 +462,7 @@ public class EventTypeUtility {
 
             // Add Map itself as a property
             if (entry.getValue() instanceof Map) {
-                EventPropertyGetter getter = factory.getGetterProperty(name, null, null);
+                EventPropertyGetterSPI getter = factory.getGetterProperty(name, null, null);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, Map.class, null, false, false, false, true, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, Map.class, getter, null);
                 propertyNameList.add(name);
@@ -473,7 +473,7 @@ public class EventTypeUtility {
 
             if (entry.getValue() instanceof EventType) {
                 // Add EventType itself as a property
-                EventPropertyGetter getter = factory.getGetterEventBean(name);
+                EventPropertyGetterSPI getter = factory.getGetterEventBean(name);
                 EventType eventType = (EventType) entry.getValue();
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, eventType.getUnderlyingType(), null, false, false, false, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, false, false);
@@ -488,7 +488,7 @@ public class EventTypeUtility {
                 // Add EventType array itself as a property, type is expected to be first array element
                 EventType eventType = ((EventType[]) entry.getValue())[0];
                 Object prototypeArray = Array.newInstance(eventType.getUnderlyingType(), 0);
-                EventPropertyGetter getter = factory.getGetterEventBeanArray(name, eventType);
+                EventPropertyGetterSPI getter = factory.getGetterEventBeanArray(name, eventType);
                 EventPropertyDescriptor descriptor = new EventPropertyDescriptor(name, prototypeArray.getClass(), eventType.getUnderlyingType(), false, false, true, false, true);
                 FragmentEventType fragmentEventType = new FragmentEventType(eventType, true, false);
                 PropertySetDescriptorItem item = new PropertySetDescriptorItem(descriptor, prototypeArray.getClass(), getter, fragmentEventType);
@@ -520,7 +520,7 @@ public class EventTypeUtility {
                         underlyingType = Array.newInstance(underlyingType, 0).getClass();
                     }
                 }
-                EventPropertyGetter getter;
+                EventPropertyGetterSPI getter;
                 if (!isArray) {
                     getter = factory.getGetterBeanNested(name, eventType, eventAdapterService);
                 } else {
@@ -719,14 +719,14 @@ public class EventTypeUtility {
         }
     }
 
-    public static EventPropertyGetter getNestableGetter(String propertyName,
+    public static EventPropertyGetterSPI getNestableGetter(String propertyName,
                                                         Map<String, PropertySetDescriptorItem> propertyGetters,
-                                                        Map<String, EventPropertyGetter> propertyGetterCache,
+                                                        Map<String, EventPropertyGetterSPI> propertyGetterCache,
                                                         Map<String, Object> nestableTypes,
                                                         EventAdapterService eventAdapterService,
                                                         EventTypeNestableGetterFactory factory,
                                                         boolean isObjectArray) {
-        EventPropertyGetter cachedGetter = propertyGetterCache.get(propertyName);
+        EventPropertyGetterSPI cachedGetter = propertyGetterCache.get(propertyName);
         if (cachedGetter != null) {
             return cachedGetter;
         }
@@ -734,7 +734,7 @@ public class EventTypeUtility {
         String unescapePropName = ASTUtil.unescapeDot(propertyName);
         PropertySetDescriptorItem item = propertyGetters.get(unescapePropName);
         if (item != null) {
-            EventPropertyGetter getter = item.getPropertyGetter();
+            EventPropertyGetterSPI getter = item.getPropertyGetter();
             propertyGetterCache.put(propertyName, getter);
             return getter;
         }
@@ -744,7 +744,7 @@ public class EventTypeUtility {
         if (index == -1) {
             Property prop = PropertyParser.parseAndWalkLaxToSimple(propertyName);
             if (prop instanceof DynamicProperty) {
-                EventPropertyGetter getterDyn = factory.getPropertyProvidedGetter(nestableTypes, propertyName, prop, eventAdapterService);
+                EventPropertyGetterSPI getterDyn = factory.getPropertyProvidedGetter(nestableTypes, propertyName, prop, eventAdapterService);
                 propertyGetterCache.put(propertyName, getterDyn);
                 return getterDyn;
             } else if (prop instanceof IndexedProperty) {
@@ -753,7 +753,7 @@ public class EventTypeUtility {
                 if (type == null) {
                     return null;
                 } else if (type instanceof EventType[]) {
-                    EventPropertyGetter getterArr = factory.getGetterIndexedEventBean(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex());
+                    EventPropertyGetterSPI getterArr = factory.getGetterIndexedEventBean(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex());
                     propertyGetterCache.put(propertyName, getterArr);
                     return getterArr;
                 } else if (type instanceof String) {
@@ -766,7 +766,7 @@ public class EventTypeUtility {
                     if (!(innerType instanceof BaseNestableEventType)) {
                         return null;
                     }
-                    EventPropertyGetter typeGetter;
+                    EventPropertyGetterSPI typeGetter;
                     if (!isArray) {
                         typeGetter = factory.getGetterBeanNested(indexedProp.getPropertyNameAtomic(), innerType, eventAdapterService);
                     } else {
@@ -785,7 +785,7 @@ public class EventTypeUtility {
 
                 // its an array
                 Class componentType = ((Class) type).getComponentType();
-                EventPropertyGetter indexedGetter = factory.getGetterIndexedPOJO(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventAdapterService, componentType);
+                EventPropertyGetterSPI indexedGetter = factory.getGetterIndexedPOJO(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), eventAdapterService, componentType);
                 propertyGetterCache.put(propertyName, indexedGetter);
                 return indexedGetter;
             } else if (prop instanceof MappedProperty) {
@@ -832,15 +832,15 @@ public class EventTypeUtility {
                     if (isArray) {
                         nestedTypeName = EventTypeUtility.getPropertyRemoveArray(nestedTypeName);
                     }
-                    EventType innerType = eventAdapterService.getExistsTypeByName(nestedTypeName);
+                    EventTypeSPI innerType = (EventTypeSPI) eventAdapterService.getExistsTypeByName(nestedTypeName);
                     if (!(innerType instanceof BaseNestableEventType)) {
                         return null;
                     }
-                    EventPropertyGetter typeGetter;
+                    EventPropertyGetterSPI typeGetter;
                     if (!isArray) {
                         typeGetter = factory.getGetterNestedEntryBean(propertyMap, innerType.getGetter(propertyNested), innerType, eventAdapterService);
                     } else {
-                        EventPropertyGetter innerGetter = innerType.getGetter(propertyNested);
+                        EventPropertyGetterSPI innerGetter = innerType.getGetterSPI(propertyNested);
                         if (innerGetter == null) {
                             return null;
                         }
@@ -849,12 +849,12 @@ public class EventTypeUtility {
                     propertyGetterCache.put(propertyName, typeGetter);
                     return typeGetter;
                 } else if (type instanceof EventType[]) {
-                    EventType componentType = ((EventType[]) type)[0];
-                    final EventPropertyGetter nestedGetter = componentType.getGetter(propertyNested);
+                    EventTypeSPI componentType = (EventTypeSPI) ((EventType[]) type)[0];
+                    EventPropertyGetterSPI nestedGetter = componentType.getGetterSPI(propertyNested);
                     if (nestedGetter == null) {
                         return null;
                     }
-                    EventPropertyGetter typeGetter = factory.getGetterIndexedEntryEventBeanArrayElement(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), nestedGetter);
+                    EventPropertyGetterSPI typeGetter = factory.getGetterIndexedEntryEventBeanArrayElement(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), nestedGetter);
                     propertyGetterCache.put(propertyName, typeGetter);
                     return typeGetter;
                 } else {
@@ -865,15 +865,15 @@ public class EventTypeUtility {
                         return null;
                     }
                     Class componentType = ((Class) type).getComponentType();
-                    EventType nestedEventType = eventAdapterService.addBeanType(componentType.getName(), componentType, false, false, false);
+                    EventTypeSPI nestedEventType = (EventTypeSPI) eventAdapterService.addBeanType(componentType.getName(), componentType, false, false, false);
 
-                    final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetter(propertyNested);
+                    final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetterSPI(propertyNested);
                     if (nestedGetter == null) {
                         return null;
                     }
                     Class propertyTypeGetter = nestedEventType.getPropertyType(propertyNested);
                     // construct getter for nested property
-                    EventPropertyGetter indexGetter = factory.getGetterIndexedEntryPOJO(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), nestedGetter, eventAdapterService, propertyTypeGetter);
+                    EventPropertyGetterSPI indexGetter = factory.getGetterIndexedEntryPOJO(indexedProp.getPropertyNameAtomic(), indexedProp.getIndex(), nestedGetter, eventAdapterService, propertyTypeGetter);
                     propertyGetterCache.put(propertyName, indexGetter);
                     return indexGetter;
                 }
@@ -883,8 +883,8 @@ public class EventTypeUtility {
                 if (isRootedDynamic) {
                     Property prop = PropertyParser.parseAndWalk(propertyNested, true);
                     if (!isObjectArray) {
-                        EventPropertyGetter getterNested = prop.getGetterMap(null, eventAdapterService);
-                        EventPropertyGetter dynamicGetter = factory.getGetterNestedPropertyProvidedGetterDynamic(nestableTypes, propertyMap, getterNested, eventAdapterService);
+                        EventPropertyGetterSPI getterNested = prop.getGetterMap(null, eventAdapterService);
+                        EventPropertyGetterSPI dynamicGetter = factory.getGetterNestedPropertyProvidedGetterDynamic(nestableTypes, propertyMap, getterNested, eventAdapterService);
                         propertyGetterCache.put(propertyName, dynamicGetter);
                         return dynamicGetter;
                     }
@@ -901,7 +901,7 @@ public class EventTypeUtility {
             if (getterNestedMap == null) {
                 return null;
             }
-            EventPropertyGetter mapGetter = factory.getGetterNestedMapProp(propertyMap, getterNestedMap);
+            EventPropertyGetterSPI mapGetter = factory.getGetterNestedMapProp(propertyMap, getterNestedMap);
             propertyGetterCache.put(propertyName, mapGetter);
             return mapGetter;
         } else if (nestedType instanceof Map) {
@@ -911,7 +911,7 @@ public class EventTypeUtility {
             if (getterNestedMap == null) {
                 return null;
             }
-            EventPropertyGetter mapGetter = factory.getGetterNestedMapProp(propertyMap, getterNestedMap);
+            EventPropertyGetterSPI mapGetter = factory.getGetterNestedMapProp(propertyMap, getterNestedMap);
             propertyGetterCache.put(propertyName, mapGetter);
             return mapGetter;
         } else if (nestedType instanceof Class) {
@@ -920,8 +920,8 @@ public class EventTypeUtility {
             if (simpleClass.isArray()) {
                 return null;
             }
-            EventType nestedEventType = eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
-            final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetter(propertyNested);
+            EventTypeSPI nestedEventType = (EventTypeSPI) eventAdapterService.addBeanType(simpleClass.getName(), simpleClass, false, false, false);
+            final BeanEventPropertyGetter nestedGetter = (BeanEventPropertyGetter) nestedEventType.getGetterSPI(propertyNested);
             if (nestedGetter == null) {
                 return null;
             }
@@ -938,24 +938,24 @@ public class EventTypeUtility {
             }
 
             // construct getter for nested property
-            EventPropertyGetter getter = factory.getGetterNestedPOJOProp(propertyMap, nestedGetter, eventAdapterService, propertyType, propertyComponentType);
+            EventPropertyGetterSPI getter = factory.getGetterNestedPOJOProp(propertyMap, nestedGetter, eventAdapterService, propertyType, propertyComponentType);
             propertyGetterCache.put(propertyName, getter);
             return getter;
         } else if (nestedType instanceof EventType) {
             // ask the nested class to resolve the property
-            EventType innerType = (EventType) nestedType;
-            final EventPropertyGetter nestedGetter = innerType.getGetter(propertyNested);
+            EventTypeSPI innerType = (EventTypeSPI) nestedType;
+            final EventPropertyGetterSPI nestedGetter = innerType.getGetterSPI(propertyNested);
             if (nestedGetter == null) {
                 return null;
             }
 
             // construct getter for nested property
-            EventPropertyGetter getter = factory.getGetterNestedEventBean(propertyMap, nestedGetter);
+            EventPropertyGetterSPI getter = factory.getGetterNestedEventBean(propertyMap, nestedGetter);
             propertyGetterCache.put(propertyName, getter);
             return getter;
         } else if (nestedType instanceof EventType[]) {
             EventType[] typeArray = (EventType[]) nestedType;
-            EventPropertyGetter beanArrGetter = factory.getGetterEventBeanArray(propertyMap, typeArray[0]);
+            EventPropertyGetterSPI beanArrGetter = factory.getGetterEventBeanArray(propertyMap, typeArray[0]);
             propertyGetterCache.put(propertyName, beanArrGetter);
             return beanArrGetter;
         } else if (nestedType instanceof String) {
@@ -968,11 +968,11 @@ public class EventTypeUtility {
             if (!(innerType instanceof BaseNestableEventType)) {
                 return null;
             }
-            EventPropertyGetter innerGetter = innerType.getGetter(propertyNested);
+            EventPropertyGetterSPI innerGetter = ((EventTypeSPI) innerType).getGetterSPI(propertyNested);
             if (innerGetter == null) {
                 return null;
             }
-            EventPropertyGetter outerGetter;
+            EventPropertyGetterSPI outerGetter;
             if (!isArray) {
                 outerGetter = factory.getGetterNestedEntryBean(propertyMap, innerGetter, innerType, eventAdapterService);
             } else {

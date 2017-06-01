@@ -143,7 +143,7 @@ public class ExecEventObjectArrayEventNestedPojo implements RegressionExecution 
         return new Pair<String[], Object[]>(levelZeroProps, levelZeroTypes);
     }
 
-    private static class MyNested {
+    public static class MyNested {
         private final List<MyInside> insides;
 
         private MyNested(List<MyInside> insides) {
@@ -155,7 +155,7 @@ public class ExecEventObjectArrayEventNestedPojo implements RegressionExecution 
         }
     }
 
-    private static class MyInside {
+    public static class MyInside {
         private final String id;
 
         private MyInside(String id) {

@@ -11,6 +11,7 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventPropertyDescriptor;
+import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.client.EventType;
 
 /**
@@ -72,4 +73,6 @@ public interface EventTypeSPI extends EventType {
     public EventBeanReader getReader();
 
     public boolean equalsCompareType(EventType eventType);
+
+    public EventPropertyGetterSPI getGetterSPI(String propertyExpression);
 }

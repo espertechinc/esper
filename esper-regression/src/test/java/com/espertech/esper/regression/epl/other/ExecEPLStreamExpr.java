@@ -297,7 +297,7 @@ public class ExecEPLStreamExpr implements RegressionExecution {
         }
     }
 
-    private static class MyTestEvent {
+    public static class MyTestEvent {
 
         private int id;
 

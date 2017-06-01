@@ -12,7 +12,11 @@ package com.espertech.esper.event.arr;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
 import com.espertech.esper.event.BaseNestableEventUtil;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 /**
  * Getter for array events.
@@ -35,7 +39,13 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
     public Object getObjectArray(Object[] array) throws PropertyAccessException {
         // If the map does not contain the key, this is allowed and represented as null
         EventBean[] wrapper = (EventBean[]) array[propertyIndex];
-        return BaseNestableEventUtil.getArrayPropertyUnderlying(wrapper, index);
+        return BaseNestableEventUtil.getBNArrayPropertyUnderlying(wrapper, index);
+    }
+
+    private String getObjectArrayCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+                .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
+                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayPropertyUnderlying", ref("wrapper"), constant(index)));
     }
 
     public boolean isObjectArrayExistsProperty(Object[] array) {
@@ -54,6 +64,36 @@ public class ObjectArrayEventBeanArrayIndexedPropertyGetter implements ObjectArr
     public Object getFragment(EventBean obj) {
         Object[] array = BaseNestableEventUtil.checkedCastUnderlyingObjectArray(obj);
         EventBean[] wrapper = (EventBean[]) array[propertyIndex];
-        return BaseNestableEventUtil.getArrayPropertyBean(wrapper, index);
+        return BaseNestableEventUtil.getBNArrayPropertyBean(wrapper, index);
+    }
+
+    private String getFragmentCodegen(CodegenContext context) {
+        return context.addMethod(Object.class, Object[].class, "array", this.getClass())
+                .declareVar(EventBean[].class, "wrapper", cast(EventBean[].class, arrayAtIndex(ref("array"), constant(propertyIndex))))
+                .methodReturn(staticMethod(BaseNestableEventUtil.class, "getBNArrayPropertyBean", ref("wrapper"), constant(index)));
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingFragment(castUnderlying(Object[].class, beanExpression), context);
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getObjectArrayCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getFragmentCodegen(context), underlyingExpression);
     }
 }

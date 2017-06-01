@@ -12,6 +12,7 @@ package com.espertech.esper.event.property;
 
 import com.espertech.esper.client.EventPropertyGetter;
 import com.espertech.esper.event.EventAdapterService;
+import com.espertech.esper.event.EventPropertyGetterSPI;
 import com.espertech.esper.event.arr.ObjectArrayDynamicPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayEventPropertyGetter;
 import com.espertech.esper.event.arr.ObjectArrayPropertyGetterDefaultObjectArray;
@@ -42,7 +43,7 @@ public class DynamicSimpleProperty extends PropertyBase implements DynamicProper
         super(propertyName);
     }
 
-    public EventPropertyGetter getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
+    public EventPropertyGetterSPI getGetter(BeanEventType eventType, EventAdapterService eventAdapterService) {
         return new DynamicSimplePropertyGetter(propertyNameAtomic, eventAdapterService);
     }
 
@@ -74,11 +75,11 @@ public class DynamicSimpleProperty extends PropertyBase implements DynamicProper
         writer.append(propertyNameAtomic);
     }
 
-    public EventPropertyGetter getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
+    public EventPropertyGetterSPI getGetterDOM(SchemaElementComplex complexProperty, EventAdapterService eventAdapterService, BaseXMLEventType eventType, String propertyExpression) {
         return new DOMAttributeAndElementGetter(propertyNameAtomic);
     }
 
-    public EventPropertyGetter getGetterDOM() {
+    public EventPropertyGetterSPI getGetterDOM() {
         return new DOMAttributeAndElementGetter(propertyNameAtomic);
     }
 

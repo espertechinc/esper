@@ -31,7 +31,7 @@ public class BeanEventBeanReader implements EventBeanReader {
         String[] properties = type.getPropertyNames();
         List<BeanEventPropertyGetter> getters = new ArrayList<BeanEventPropertyGetter>();
         for (String property : properties) {
-            BeanEventPropertyGetter getter = (BeanEventPropertyGetter) type.getGetter(property);
+            BeanEventPropertyGetter getter = (BeanEventPropertyGetter) type.getGetterSPI(property);
             if (getter != null) {
                 getters.add(getter);
             }

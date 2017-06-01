@@ -11,13 +11,12 @@
 package com.espertech.esper.event;
 
 import com.espertech.esper.client.EventPropertyDescriptor;
-import com.espertech.esper.client.EventPropertyGetter;
 
 /**
  * Descriptor for explicit properties for use with {@link BaseConfigurableEventType}.
  */
 public class ExplicitPropertyDescriptor {
-    private final EventPropertyGetter getter;
+    private final EventPropertyGetterSPI getter;
     private final EventPropertyDescriptor descriptor;
     private final String optionalFragmentTypeName;
     private final boolean isFragmentArray;
@@ -30,7 +29,7 @@ public class ExplicitPropertyDescriptor {
      * @param fragmentArray            true if array fragment
      * @param optionalFragmentTypeName null if not a fragment, else fragment type name
      */
-    public ExplicitPropertyDescriptor(EventPropertyDescriptor descriptor, EventPropertyGetter getter, boolean fragmentArray, String optionalFragmentTypeName) {
+    public ExplicitPropertyDescriptor(EventPropertyDescriptor descriptor, EventPropertyGetterSPI getter, boolean fragmentArray, String optionalFragmentTypeName) {
         this.descriptor = descriptor;
         this.getter = getter;
         isFragmentArray = fragmentArray;
@@ -51,7 +50,7 @@ public class ExplicitPropertyDescriptor {
      *
      * @return getter
      */
-    public EventPropertyGetter getGetter() {
+    public EventPropertyGetterSPI getGetter() {
         return getter;
     }
 

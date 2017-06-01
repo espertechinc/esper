@@ -105,8 +105,8 @@ public class AxiomXMLEventType implements EventTypeSPI {
         return OMNode.class;
     }
 
-    public EventPropertyGetter getGetter(String property) {
-        EventPropertyGetter getter = propertyGetterCache.get(property);
+    public EventPropertyGetterSPI getGetterSPI(String property) {
+        EventPropertyGetterSPI getter = propertyGetterCache.get(property);
         if (getter != null)
             return getter;
         try {
@@ -114,6 +114,10 @@ public class AxiomXMLEventType implements EventTypeSPI {
         } catch (XPathExpressionException e) {
             return null;
         }
+    }
+
+    public EventPropertyGetterSPI getGetter(String property) {
+        return getGetterSPI(property);
     }
 
     public String[] getPropertyNames() {

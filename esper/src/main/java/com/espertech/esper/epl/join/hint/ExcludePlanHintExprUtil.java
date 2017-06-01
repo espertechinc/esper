@@ -14,6 +14,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.core.context.mgr.ContextManagementServiceImpl;
 import com.espertech.esper.core.service.EPAdministratorHelper;
 import com.espertech.esper.core.service.StatementContext;
+import com.espertech.esper.core.support.SupportEventAdapterService;
 import com.espertech.esper.epl.declexpr.ExprDeclaredServiceImpl;
 import com.espertech.esper.epl.expression.core.*;
 import com.espertech.esper.epl.spec.SelectClauseStreamSelectorEnum;
@@ -39,7 +40,7 @@ public class ExcludePlanHintExprUtil {
         properties.put("opname", String.class);
         properties.put("exprs", String[].class);
         OAEXPRESSIONTYPE = new ObjectArrayEventType(EventTypeMetadata.createAnonymous(ExcludePlanHintExprUtil.class.getSimpleName(), EventTypeMetadata.ApplicationType.OBJECTARR),
-                ExcludePlanHintExprUtil.class.getSimpleName(), 0, null, properties, null, null, null);
+                ExcludePlanHintExprUtil.class.getSimpleName(), 0, SupportEventAdapterService.getService(), properties, null, null, null);
     }
 
     public static EventBean toEvent(int fromStreamnum,

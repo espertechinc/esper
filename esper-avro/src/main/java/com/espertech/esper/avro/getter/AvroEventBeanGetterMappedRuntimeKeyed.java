@@ -17,7 +17,7 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.Map;
 
-import static com.espertech.esper.avro.getter.AvroEventBeanGetterMapped.getMappedValue;
+import static com.espertech.esper.avro.getter.AvroEventBeanGetterMapped.getAvroMappedValueWNullCheck;
 
 public class AvroEventBeanGetterMappedRuntimeKeyed implements EventPropertyGetterMapped {
     private final int pos;
@@ -29,6 +29,6 @@ public class AvroEventBeanGetterMappedRuntimeKeyed implements EventPropertyGette
     public Object get(EventBean eventBean, String mapKey) throws PropertyAccessException {
         GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
         Map values = (Map) record.get(pos);
-        return getMappedValue(values, mapKey);
+        return getAvroMappedValueWNullCheck(values, mapKey);
     }
 }

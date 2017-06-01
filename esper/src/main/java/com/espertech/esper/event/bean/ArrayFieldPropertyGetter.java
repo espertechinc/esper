@@ -12,12 +12,19 @@ package com.espertech.esper.event.bean;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.event.BaseNestableEventUtil;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.event.EventPropertyGetterAndIndexed;
 import com.espertech.esper.event.vaevent.PropertyUtility;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.ref;
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionRelational.CodegenRelational.LE;
 
 /**
  * Getter for an array property backed by a field, identified by a given index, using vanilla reflection.
@@ -63,6 +70,13 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
         }
     }
 
+    private String getBeanPropInternalCodegen(CodegenContext context) {
+        return context.addMethod(getBeanPropType(), getTargetType(), "object", this.getClass())
+                .declareVar(Object.class, "value", exprDotName(ref("object"), field.getName()))
+                .ifConditionReturnConst(relational(staticMethod(Array.class, "getLength", ref("value")), LE, constant(index)), null)
+                .methodReturn(cast(getBeanPropType(), staticMethod(Array.class, "get", ref("value"), constant(index))));
+    }
+
     public boolean isBeanExistsProperty(Object object) {
         return true; // Property exists as the property is not dynamic (unchecked)
     }
@@ -75,6 +89,10 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
         return getBeanPropInternal(eventBean.getUnderlying(), index);
     }
 
+    public Class getBeanPropType() {
+        return field.getType().getComponentType();
+    }
+
     public String toString() {
         return "ArrayFieldPropertyGetter " +
                 " field=" + field.toString() +
@@ -83,5 +101,25 @@ public class ArrayFieldPropertyGetter extends BaseNativePropertyGetter implement
 
     public boolean isExistsProperty(EventBean eventBean) {
         return true; // Property exists as the property is not dynamic (unchecked)
+    }
+
+    public Class getTargetType() {
+        return field.getDeclaringClass();
+    }
+
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return codegenUnderlyingGet(castUnderlying(getTargetType(), beanExpression), context);
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return constantTrue();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return localMethod(getBeanPropInternalCodegen(context), underlyingExpression);
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantTrue();
     }
 }

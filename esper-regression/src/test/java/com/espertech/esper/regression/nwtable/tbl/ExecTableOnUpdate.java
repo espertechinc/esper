@@ -70,7 +70,7 @@ public class ExecTableOnUpdate implements RegressionExecution {
         }
     }
 
-    private static class MyUpdateEvent {
+    public static class MyUpdateEvent {
         private final String k1;
         private final int k2;
         private final int newValue;

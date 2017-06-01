@@ -89,5 +89,4 @@ public class TestSuiteQuerytype extends TestCase {
     public void testExecQuerytypeRowPerEventPerformance() {
         RegressionRunner.run(new ExecQuerytypeRowPerEventPerformance());
     }
-
 }

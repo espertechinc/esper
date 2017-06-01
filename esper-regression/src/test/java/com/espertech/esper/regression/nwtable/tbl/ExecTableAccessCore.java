@@ -735,7 +735,7 @@ public class ExecTableAccessCore implements RegressionExecution {
         assertEquals(Integer.class, fragType.getFragmentType().getPropertyType("thetotal"));
     }
 
-    private static class AggSubBean {
+    public static class AggSubBean {
         private int thetotal;
         private Object[][] thewindow;
 
@@ -756,7 +756,7 @@ public class ExecTableAccessCore implements RegressionExecution {
         }
     }
 
-    private static class AggBean {
+    public static class AggBean {
         private AggSubBean val0;
 
         public AggSubBean getVal0() {

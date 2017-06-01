@@ -12,8 +12,13 @@ package com.espertech.esper.event.map;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.PropertyAccessException;
+import com.espertech.esper.codegen.core.CodegenContext;
+import com.espertech.esper.codegen.model.expression.CodegenExpression;
+import com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder;
 
 import java.util.Map;
+
+import static com.espertech.esper.codegen.model.expression.CodegenExpressionBuilder.*;
 
 public class MapDynamicPropertyGetter implements MapEventPropertyGetter {
 
@@ -45,4 +50,27 @@ public class MapDynamicPropertyGetter implements MapEventPropertyGetter {
         return null;
     }
 
+    public CodegenExpression codegenEventBeanGet(CodegenExpression beanExpression, CodegenContext context) {
+        return exprDotMethod(castUnderlying(Map.class, beanExpression), "get", constant(propertyName));
+    }
+
+    public CodegenExpression codegenEventBeanExists(CodegenExpression beanExpression, CodegenContext context) {
+        return exprDotMethod(castUnderlying(Map.class, beanExpression), "containsKey", constant(propertyName));
+    }
+
+    public CodegenExpression codegenEventBeanFragment(CodegenExpression beanExpression, CodegenContext context) {
+        return constantNull();
+    }
+
+    public CodegenExpression codegenUnderlyingGet(CodegenExpression underlyingExpression, CodegenContext context) {
+        return exprDotMethod(underlyingExpression, "get", constant(propertyName));
+    }
+
+    public CodegenExpression codegenUnderlyingExists(CodegenExpression underlyingExpression, CodegenContext context) {
+        return exprDotMethod(underlyingExpression, "containsKey", constant(propertyName));
+    }
+
+    public CodegenExpression codegenUnderlyingFragment(CodegenExpression underlyingExpression, CodegenContext context) {
+        return constantNull();
+    }
 }

@@ -17,7 +17,7 @@ import org.apache.avro.generic.GenericData;
 
 import java.util.Collection;
 
-import static com.espertech.esper.avro.getter.AvroEventBeanGetterIndexed.getIndexedValue;
+import static com.espertech.esper.avro.getter.AvroEventBeanGetterIndexed.getAvroIndexedValue;
 
 public class AvroEventBeanGetterIndexedRuntimeKeyed implements EventPropertyGetterIndexed {
     private final int pos;
@@ -29,6 +29,6 @@ public class AvroEventBeanGetterIndexedRuntimeKeyed implements EventPropertyGett
     public Object get(EventBean eventBean, int index) throws PropertyAccessException {
         GenericData.Record record = (GenericData.Record) eventBean.getUnderlying();
         Collection values = (Collection) record.get(pos);
-        return getIndexedValue(values, index);
+        return getAvroIndexedValue(values, index);
     }
 }
