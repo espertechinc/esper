@@ -69,6 +69,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * sent in.
  */
 public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerCallback, InternalEventRouteDest {
+    protected static final Logger log = LoggerFactory.getLogger(EPRuntimeImpl.class);
+
     protected EPServicesContext services;
     protected boolean isLatchStatementInsertStream;
     protected boolean isUsingExternalClocking;
@@ -1566,6 +1568,10 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
         return result;
     }
 
+    public ExceptionHandlingService getExceptionHandlingService() {
+        return services.getExceptionHandlingService();
+    }
+
     public String getEngineURI() {
         return services.getEngineURI();
     }
@@ -1669,6 +1675,4 @@ public class EPRuntimeImpl implements EPRuntimeSPI, EPRuntimeEventSender, TimerC
             services.getVariableService().getReadWriteLock().writeLock().unlock();
         }
     }
-
-    protected static final Logger log = LoggerFactory.getLogger(EPRuntimeImpl.class);
 }

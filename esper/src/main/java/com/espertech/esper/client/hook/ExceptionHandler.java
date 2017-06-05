@@ -22,6 +22,11 @@ package com.espertech.esper.client.hook;
  * <p>
  * An application may throw a runtime exception in the @handle method to cancel further processing
  * of an event against statements.
+ * <p>
+ * Registering an exception handler does not mean that the {{@link com.espertech.esper.client.EPRuntime#sendEvent}}
+ * does not throw any exceptions, as exception unassociated to a specific statement are still thrown
+ * from {{@link com.espertech.esper.client.EPRuntime#sendEvent}}.
+ * For inbound pools use {@link #handleInboundPoolUnassociated(ExceptionHandlerContextUnassociated)}.
  */
 public interface ExceptionHandler {
 
@@ -31,4 +36,13 @@ public interface ExceptionHandler {
      * @param context the exception information
      */
     public void handle(ExceptionHandlerContext context);
+
+    /**
+     * For use with inbound-thread-pool only, when the engine evaluates events as shared filters
+     * and not associated to any statements, the engine passes the exception to this method.
+     * @param context
+     */
+    public default void handleInboundPoolUnassociated(ExceptionHandlerContextUnassociated context) {
+        // Override as needed
+    }
 }

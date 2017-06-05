@@ -10,10 +10,7 @@
  */
 package com.espertech.esper.supportregression.client;
 
-import com.espertech.esper.client.hook.ExceptionHandler;
-import com.espertech.esper.client.hook.ExceptionHandlerContext;
-import com.espertech.esper.client.hook.ExceptionHandlerFactory;
-import com.espertech.esper.client.hook.ExceptionHandlerFactoryContext;
+import com.espertech.esper.client.hook.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +38,10 @@ public class SupportExceptionHandlerFactory implements ExceptionHandlerFactory {
 
     public static class SupportExceptionHandler implements ExceptionHandler {
         private List<ExceptionHandlerContext> contexts = new ArrayList<ExceptionHandlerContext>();
+        private List<ExceptionHandlerContextUnassociated> inboundPoolContexts = new ArrayList<ExceptionHandlerContextUnassociated>();
+
+        public SupportExceptionHandler() {
+        }
 
         public void handle(ExceptionHandlerContext context) {
             contexts.add(context);
@@ -48,6 +49,14 @@ public class SupportExceptionHandlerFactory implements ExceptionHandlerFactory {
 
         public List<ExceptionHandlerContext> getContexts() {
             return contexts;
+        }
+
+        public List<ExceptionHandlerContextUnassociated> getInboundPoolContexts() {
+            return inboundPoolContexts;
+        }
+
+        public void handleInboundPoolUnassociated(ExceptionHandlerContextUnassociated context) {
+            inboundPoolContexts.add(context);
         }
     }
 }

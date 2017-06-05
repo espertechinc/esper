@@ -36,8 +36,9 @@ public class InboundUnitSendEvent implements InboundUnitRunnable {
     public void run() {
         try {
             runtime.processEvent(theEvent);
-        } catch (RuntimeException e) {
-            log.error("Unexpected error processing unwrapped event: " + e.getMessage(), e);
+        } catch (Throwable t) {
+            runtime.getExceptionHandlingService().handleInboundPoolException(runtime.getEngineURI(), t, theEvent);
+            log.error("Unexpected error processing unwrapped event: " + t.getMessage(), t);
         }
     }
 }

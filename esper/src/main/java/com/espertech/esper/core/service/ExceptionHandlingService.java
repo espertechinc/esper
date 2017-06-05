@@ -82,4 +82,11 @@ public class ExceptionHandlingService {
             handler.handle(context);
         }
     }
+
+    public void handleInboundPoolException(String engineURI, Throwable exception, Object event) {
+        ExceptionHandlerContextUnassociated context = new ExceptionHandlerContextUnassociated(engineURI, exception, event);
+        for (ExceptionHandler handler : exceptionHandlers) {
+            handler.handleInboundPoolUnassociated(context);
+        }
+    }
 }
