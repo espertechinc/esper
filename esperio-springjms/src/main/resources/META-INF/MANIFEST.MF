@@ -34,4 +34,5 @@ Import-Package: com.espertech.esper.client,
  org.springframework.beans,
  org.springframework.context.support,
  org.springframework.jms.core,
- org.w3c.dom,org.xml.sax
+ org.w3c.dom,org.xml.sax,
+ org.slf4j

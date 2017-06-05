@@ -174,4 +174,5 @@ Import-Package: javax.management,
  org.antlr.v4.runtime.misc,
  org.antlr.v4.runtime.tree,
  org.w3c.dom,org.w3c.dom.bootstrap,
- org.xml.sax
+ org.xml.sax,
+ org.slf4j

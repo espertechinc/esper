@@ -29,4 +29,5 @@ Import-Package: com.espertech.esper.client,
  javax.xml.xpath,
  org.xml.sax,
  org.xml.sax.ext,
- org.xml.sax.helpers
+ org.xml.sax.helpers,
+ org.slf4j

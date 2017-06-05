@@ -30,4 +30,5 @@ Import-Package: com.espertech.esper.client,
  org.apache.axiom.om,
  org.apache.axiom.om.xpath,
  org.jaxen,
- org.w3c.dom,org.xml.sax
+ org.w3c.dom,org.xml.sax,
+ org.slf4j

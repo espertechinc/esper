@@ -27,4 +27,8 @@ Import-Package: com.espertech.esper.client,
  javax.xml.parsers,
  javax.xml.xpath,
  net.sf.cglib.reflect,
- org.apache.commons.beanutils
+ org.apache.commons.beanutils,
+ org.slf4j,
+ org.apache.kafka.clients.consumer,
+ org.apache.kafka.clients.producer,
+ org.apache.kafka.common.serialization
