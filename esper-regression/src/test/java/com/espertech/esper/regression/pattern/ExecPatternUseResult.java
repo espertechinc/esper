@@ -14,6 +14,8 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.deploy.DeploymentResult;
+import com.espertech.esper.client.scopetest.SupportUpdateListener;
 import com.espertech.esper.supportregression.bean.SupportBeanConstants;
 import com.espertech.esper.supportregression.bean.SupportBean_N;
 import com.espertech.esper.supportregression.bean.SupportBean_S0;
@@ -24,12 +26,42 @@ import com.espertech.esper.supportregression.patternassert.*;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ExecPatternUseResult implements RegressionExecution, SupportBeanConstants {
     public void run(EPServiceProvider epService) throws Exception {
+        /* TODO
         runAssertionNumeric(epService);
         runAssertionObjectId(epService);
         runAssertionFollowedByFilter(epService);
+        */
+        runAssertionPatternTypeCacheForRepeat(epService);
+    }
+
+    private void runAssertionPatternTypeCacheForRepeat(EPServiceProvider epService) throws Exception {
+        // UEJ-229-28464 bug fix for type reuse for dissimilar types
+        String epl = "create objectarray schema TypeOne(symbol string, price double);\n" +
+                "create objectarray schema TypeTwo(symbol string, market string, price double);\n" +
+                "\n" +
+                "@Name('Out2') select a[0].symbol from pattern [ [2] a=TypeOne ]\n;" +
+                "@Name('Out3') select a[0].market from pattern [ [2] a=TypeTwo ];";
+        DeploymentResult result = epService.getEPAdministrator().getDeploymentAdmin().parseDeploy(epl);
+
+        SupportUpdateListener listenerOut2 = new SupportUpdateListener();
+        epService.getEPAdministrator().getStatement("Out2").addListener(listenerOut2);
+
+        SupportUpdateListener listenerOut3 = new SupportUpdateListener();
+        epService.getEPAdministrator().getStatement("Out3").addListener(listenerOut3);
+
+        epService.getEPRuntime().sendEvent(new Object[] {"GE", 10}, "TypeOne");
+        epService.getEPRuntime().sendEvent(new Object[] {"GE", 10}, "TypeOne");
+        assertTrue(listenerOut2.getIsInvokedAndReset());
+
+        epService.getEPRuntime().sendEvent(new Object[] {"GE", 10, 5}, "TypeTwo");
+        epService.getEPRuntime().sendEvent(new Object[] {"GE", 10, 5}, "TypeTwo");
+        assertTrue(listenerOut3.getIsInvokedAndReset());
+
+        epService.getEPAdministrator().getDeploymentAdmin().undeployRemove(result.getDeploymentId());
     }
 
     private void runAssertionNumeric(EPServiceProvider epService) throws Exception {

@@ -591,6 +591,9 @@ public class BaseNestableEventUtil {
         if (type instanceof EventType) {
             return "event type '" + ((EventType) type).getName() + "'";
         }
+        if (type instanceof EventType[]) {
+            return "event type array '" + ((EventType[]) type)[0].getName() + "'";
+        }
         if (type instanceof String) {
             Class boxedType = JavaClassHelper.getBoxedType(JavaClassHelper.getPrimitiveClassForName((String) type));
             if (boxedType != null) {
