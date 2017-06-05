@@ -689,7 +689,7 @@ public class EPServiceProviderImpl implements EPServiceProviderSPI {
             // Avro schemas are not serializable
             Map<String, ConfigurationEventTypeAvro> avroSchemas = null;
             if (!configuration.getEventTypesAvro().isEmpty()) {
-                avroSchemas = new HashMap<>(configuration.getEventTypesAvro());
+                avroSchemas = new LinkedHashMap<>(configuration.getEventTypesAvro());
                 configuration.getEventTypesAvro().clear();
             }
 
