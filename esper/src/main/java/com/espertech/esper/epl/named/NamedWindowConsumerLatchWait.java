@@ -68,28 +68,33 @@ public class NamedWindowConsumerLatchWait extends NamedWindowConsumerLatch {
      * Blcking call that returns only when the earlier latch completed.
      */
     public void await() {
-        if (earlier.isCompleted) {
-            currentThread = Thread.currentThread();
-            return;
-        }
 
-        if (earlier.getCurrentThread() == Thread.currentThread()) {
-            currentThread = Thread.currentThread();
-            return;
-        }
+        Thread thread = Thread.currentThread();
 
-        synchronized (this) {
-            if (!earlier.isCompleted) {
-                try {
-                    this.wait(factory.getMsecWait());
-                } catch (InterruptedException e) {
-                    log.error("Interrupted: " + e.getMessage(), e);
+        try {
+            if (earlier.isCompleted) {
+                return;
+            }
+
+            if (earlier.getCurrentThread() == thread) {
+                return;
+            }
+
+            synchronized (this) {
+                if (!earlier.isCompleted) {
+                    try {
+                        this.wait(factory.getMsecWait());
+                    } catch (InterruptedException e) {
+                        log.error("Interrupted: " + e.getMessage(), e);
+                    }
                 }
             }
-        }
 
-        if (!earlier.isCompleted) {
-            log.info("Wait timeout exceeded for named window '" + "' consumer dispatch with notify");
+            if (!earlier.isCompleted) {
+                log.info("Wait timeout exceeded for named window '" + "' consumer dispatch with notify");
+            }
+        } finally {
+            currentThread = thread;
         }
     }
 

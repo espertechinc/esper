@@ -57,24 +57,28 @@ public class NamedWindowConsumerLatchSpin extends NamedWindowConsumerLatch {
      * Blocking call that returns only when the earlier latch completed.
      */
     public void await() {
-        if (earlier.isCompleted) {
-            currentThread = Thread.currentThread();
-            return;
-        }
+        Thread thread = Thread.currentThread();
 
-        if (earlier.getCurrentThread() == Thread.currentThread()) {
-            currentThread = Thread.currentThread();
-            return;
-        }
-
-        long spinStartTime = factory.getTimeSourceService().getTimeMillis();
-        while (!earlier.isCompleted) {
-            Thread.yield();
-            long spinDelta = factory.getTimeSourceService().getTimeMillis() - spinStartTime;
-            if (spinDelta > factory.getMsecWait()) {
-                log.info("Spin wait timeout exceeded in named window '" + factory.getName() + "' consumer dispatch at " + factory.getMsecWait() + "ms for " + factory.getName() + ", consider disabling named window consumer dispatch latching for better performance");
-                break;
+        try {
+            if (earlier.isCompleted) {
+                return;
             }
+
+            if (earlier.getCurrentThread() == thread) {
+                return;
+            }
+
+            long spinStartTime = factory.getTimeSourceService().getTimeMillis();
+            while (!earlier.isCompleted) {
+                Thread.yield();
+                long spinDelta = factory.getTimeSourceService().getTimeMillis() - spinStartTime;
+                if (spinDelta > factory.getMsecWait()) {
+                    log.info("Spin wait timeout exceeded in named window '" + factory.getName() + "' consumer dispatch at " + factory.getMsecWait() + "ms for " + factory.getName() + ", consider disabling named window consumer dispatch latching for better performance");
+                    break;
+                }
+            }
+        } finally {
+            this.currentThread = thread;
         }
     }
 
