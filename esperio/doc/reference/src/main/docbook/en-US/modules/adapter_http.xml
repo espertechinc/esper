@@ -191,6 +191,14 @@ httpAdapter.destroy();]]></programlisting>
 			</para>
 
 		</sect2>
+
+		<sect2 xml:id="adapterhttp-input-limitations">
+			<title>HTTP Input Limitations</title>
+		
+			<para>
+				The XML DOM target type is not supported. There is no support for building a DOM object from the HTTP input and sending that as an event into the engine.
+			</para>			
+		</sect2>
 	</sect1>
 
     <sect1 xml:id="adapterhttp-output">
