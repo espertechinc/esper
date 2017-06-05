@@ -553,59 +553,6 @@ timer:interval(5 min) and not MyEvent]]></programlisting></entry>
 		 <programlisting><![CDATA[RfidEvent(zone=1, category=10)
 ...is equivalent to...
 RfidEvent(zone=1 and category=10)]]></programlisting>
-
-		<para>
-			The following set of operators are highly optimized through indexing and are the preferred means of filtering high-volume event streams:
-		</para>
-
-		<itemizedlist spacing="compact">
-			<listitem>
-				<para>
-					equals <literal>=</literal>
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					not equals <literal>!=</literal>
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					comparison operators <literal>&lt; , &gt; , &gt;=, &lt;=</literal>
-				</para>
-			</listitem>
-			<listitem>
-				<para>
-					ranges 
-				</para>
-				<itemizedlist spacing="compact">
-					<listitem>
-						<para>
-							use the <literal>between</literal> keyword for a closed range where both endpoints are included
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							use the <literal>in </literal> keyword and round <literal>()</literal> or square brackets <literal>[]</literal> to control how endpoints are included
-						</para>
-					</listitem>
-					<listitem>
-						<para>
-							for inverted ranges use the <literal>not</literal> keyword and the <literal>between</literal> or <literal>in</literal> keywords
-						</para>
-					</listitem>
-				</itemizedlist>
-			</listitem>
-			<listitem>
-				<para>
-					list-of-values checks using the <literal>in</literal> keyword or the <literal>not in </literal> keywords followed by a comma-separated list of values
-				</para>
-			</listitem>
-		</itemizedlist>
-
-		<para>
-			At compile time as well as at run time, the engine scans new filter expressions for subexpressions that can be indexed. Indexing filter values to match event properties of incoming events enables the engine to match incoming events faster. The above list of operators represents the set of operators that the engine can best convert into indexes. The use of comma or logical <literal>and</literal> in filter expressions does not impact optimizations by the engine. 
-		</para>
 		
 		<para>
 			For more information on filters please see <xref linkend="epl-from-clause-filter"/>. Contained-event selection on filters in patterns is further described in <xref linkend="epl-containedeventselect"/>.
@@ -630,6 +577,75 @@ RfidEvent(zone=1 and category=10)]]></programlisting>
 		<para>
 			The pattern above is satisfied as soon as only one event with zone in the interval [2, 9] is received.
 		 </para>
+
+		<sect2 xml:id="pattern-filter-performance">
+			<title>Filter Expressions and Filter Indexes</title>
+
+			<important>
+				<para>
+					A detailed description of how filters become active and are indexed engine-wide is provided at <xref linkend="processingmodel_indexes_filterindexes_pattern"/>.
+				</para>
+				<para>
+					An expression such as <literal>a=A -&gt; B(id=a.id)</literal> (A followed-by B with the same id as A) is not just a state change, in fact the engine registers new B-filter instances dynamically and in engine-wide shared filter indexes.
+					This means that while such a pattern seems to be slow if you are sending A-events, the engine can filter, match or discard B-events very fast as for B-events it only needs to perform a lookup in filter indexes.
+					If you are looking for best performance and don't expect to need filter indexes, or if you compare to another technology that doesn't have the concept of filter indexes, please use match-recognize instead.
+				</para>
+			</important>
+
+			<para>
+				The following operators are highly optimized through filter indexes and are the preferred means of filtering high-volume event streams:
+			</para>
+	
+			<itemizedlist spacing="compact">
+				<listitem>
+					<para>
+						equals <literal>=</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						not equals <literal>!=</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						comparison operators <literal>&lt; , &gt; , &gt;=, &lt;=</literal>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						ranges 
+					</para>
+					<itemizedlist spacing="compact">
+						<listitem>
+							<para>
+								use the <literal>between</literal> keyword for a closed range where both endpoints are included
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								use the <literal>in </literal> keyword and round <literal>()</literal> or square brackets <literal>[]</literal> to control how endpoints are included
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								for inverted ranges use the <literal>not</literal> keyword and the <literal>between</literal> or <literal>in</literal> keywords
+							</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+				<listitem>
+					<para>
+						list-of-values checks using the <literal>in</literal> keyword or the <literal>not in </literal> keywords followed by a comma-separated list of values
+					</para>
+				</listitem>
+			</itemizedlist>
+	
+			<para>
+				At compile time the engine scans filter expressions for subexpressions that can be indexed. The above list of operators represents the set of operators that the engine can best convert into filter indexes. 
+				The use of comma or logical <literal>and</literal> in filter expressions does not impact optimizations by the engine. 
+			</para>			
+		</sect2>
 
 		<sect2 xml:id="pattern-filter-consumption">
 			<title>Controlling Event Consumption</title>
