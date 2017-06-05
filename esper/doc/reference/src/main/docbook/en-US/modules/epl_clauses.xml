@@ -4663,7 +4663,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
 </synopsis>
 
 			<para>
-				If the outer join is a left outer join, there will be an output event for each event of the stream on the left-hand side of the clause. For example, in the left outer join shown below we will get output for each event in the stream RfidEvent, even if the event does not match any event in the event stream OrderList.
+				If the outer join is a left outer join, there will be at least one output event for each event of the stream on the left-hand side of the clause. For example, in the left outer join shown below we will get output for each event in the stream RfidEvent, even if the event does not match any event in the event stream OrderList.
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
@@ -4672,7 +4672,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
      on rfid.itemId = orderList.itemId]]></programlisting>
 		
 			<para>
-				Similarly, if the join is a Right Outer Join, then there will be an output event for each event of the stream on the right-hand side of the clause. For example, in the right outer join shown below we will get output for each event in the stream OrderList, even if the event does not match any event in the event stream RfidEvent.
+				Similarly, if the join is a Right Outer Join, then there will be at least one output event for each event of the stream on the right-hand side of the clause. For example, in the right outer join shown below we will get output for each event in the stream OrderList, even if the event does not match any event in the event stream RfidEvent.
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
@@ -4694,7 +4694,7 @@ where t.symbol = n.symbol group by symbol]]></programlisting>
        on rfid.itemId = orderList.itemId and rfid.assetId = orderList.assetId]]></programlisting>
 
 			<para>
-				The last type of join is an inner join. In an inner join, the engine produces an output event for each event of the stream on the left-hand side that matches at least one event on the right hand side considering the join properties. For example, in the inner join shown below we will get output for each event in the RfidEvent stream that matches one or more events in the OrderList data window:
+				The last type of join is an inner join. In an inner join, the engine produces at least one output event for each event of the stream on the left-hand side that matches at least one event on the right hand side considering the join properties. For example, in the inner join shown below we will get output for each event in the RfidEvent stream that matches one or more events in the OrderList data window:
 			</para>
 
 <programlisting><![CDATA[select * from RfidEvent#time(30 sec) as rfid
