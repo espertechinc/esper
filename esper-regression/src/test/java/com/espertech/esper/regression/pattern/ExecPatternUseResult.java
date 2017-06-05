@@ -30,11 +30,9 @@ import static org.junit.Assert.assertTrue;
 
 public class ExecPatternUseResult implements RegressionExecution, SupportBeanConstants {
     public void run(EPServiceProvider epService) throws Exception {
-        /* TODO
         runAssertionNumeric(epService);
         runAssertionObjectId(epService);
         runAssertionFollowedByFilter(epService);
-        */
         runAssertionPatternTypeCacheForRepeat(epService);
     }
 
