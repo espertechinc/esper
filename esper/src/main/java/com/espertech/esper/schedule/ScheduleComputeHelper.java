@@ -315,7 +315,7 @@ public final class ScheduleComputeHelper {
      * If the valueSet passed is null it is treated as a wildcard and the same startValue is returned
      */
     private static int nextValue(SortedSet<Integer> valueSet, int startValue) {
-        if (valueSet == null) {
+        if (valueSet == null || valueSet.isEmpty()) {
             return startValue;
         }
 

@@ -41,6 +41,11 @@ public class ExecPatternObserverTimerAt implements RegressionExecution, SupportB
         runAssertionAtWeekdaysVariable(epService);
         runAssertionExpression(epService);
         runAssertionPropertyAndSODAAndTimezone(epService);
+        runAssertionEvery15thMonth(epService);
+    }
+
+    private void runAssertionEvery15thMonth(EPServiceProvider epService) {
+        epService.getEPAdministrator().createEPL("select * from pattern[every timer:at(*,*,*,*/15,*)]").destroy();
     }
 
     private void runAssertionOp(EPServiceProvider epService) throws Exception {
