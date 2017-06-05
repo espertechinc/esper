@@ -100,7 +100,7 @@
 				A point is considered inside the rectangle if <literal>(point_x &gt;= rect_x) and (point_x &lt; rect_x + width) and (point_y &gt;= rect_y) and (point_y &lt; rect_y + height)</literal>.
 			</para>
 
-			<table frame="topbot" xml:id="spatial_method_pointinsiderectangle" revision="2">
+			<table frame="topbot" xml:id="spatial_method_pointinsiderectangle_example" revision="2">
 				<title>Point-Inside-Rectangle Examples</title>
 				<tgroup cols="2">
 					<colspec colwidth="5.0*"/>
@@ -178,7 +178,7 @@
 				</ns:listitem>
 			</itemizedlist>
 
-			<table frame="topbot" xml:id="spatial_method_rectangleintersectsrectangle" revision="2">
+			<table frame="topbot" xml:id="spatial_method_rectangleintersectsrectangle_example" revision="2">
 				<title>Rectangle-Intersects-Rectangle Examples</title>
 				<tgroup cols="2">
 					<colspec colwidth="5.0*"/>
