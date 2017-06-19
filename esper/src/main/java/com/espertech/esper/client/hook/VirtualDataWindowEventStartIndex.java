@@ -83,6 +83,12 @@ public class VirtualDataWindowEventStartIndex extends VirtualDataWindowEvent {
         private String type;
         private List<ExprNode> parameters;
 
+        /**
+         * Ctor.
+         * @param expressions expressions
+         * @param type field type
+         * @param parameters parameters
+         */
         public VDWCreateIndexField(List<ExprNode> expressions, String type, List<ExprNode> parameters) {
             this.expressions = expressions;
             this.type = type;

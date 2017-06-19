@@ -1916,10 +1916,18 @@ public class ConfigurationEngineDefaults implements Serializable {
             this.declaredExprValueCacheSize = declaredExprValueCacheSize;
         }
 
+        /**
+         * Returns code generation settings
+         * @return code generation settings
+         */
         public CodeGeneration getCodeGeneration() {
             return codeGeneration;
         }
 
+        /**
+         * Sets code generation settings
+         * @param codeGeneration settings
+         */
         public void setCodeGeneration(CodeGeneration codeGeneration) {
             this.codeGeneration = codeGeneration;
         }
@@ -2265,16 +2273,24 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
     }
 
+    /**
+     * Code generation settings
+     */
     public static class CodeGeneration implements Serializable {
         private boolean enablePropertyGetter = false;
 
-        public CodeGeneration() {
-        }
-
+        /**
+         * Returns indicator whether to enable code generation for event property getters (false by default).
+         * @return indicator
+         */
         public boolean isEnablePropertyGetter() {
             return enablePropertyGetter;
         }
 
+        /**
+         * Sets indicator whether to enable code generation for event property getters (false by default).
+         * @param enablePropertyGetter indicator
+         */
         public void setEnablePropertyGetter(boolean enablePropertyGetter) {
             this.enablePropertyGetter = enablePropertyGetter;
         }

@@ -30,6 +30,10 @@ public enum CreateIndexColumnType {
         this.nameLower = nameLower;
     }
 
+    /**
+     * Returns the name (lowercase).
+     * @return name
+     */
     public String getNameLower() {
         return nameLower;
     }
