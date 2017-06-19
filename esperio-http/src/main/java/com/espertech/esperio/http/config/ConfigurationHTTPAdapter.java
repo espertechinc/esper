@@ -77,7 +77,7 @@ public class ConfigurationHTTPAdapter {
     /**
      * Use the ConfigurationHTTPAdapter specified in the given application
      * resource. The format of the resource is defined in
-     * <tt>esper-configuration-2.0.xsd</tt>.
+     * <tt>esper-configuration-(version).xsd</tt>.
      * <p>
      * The resource is found via <tt>getConfigurationInputStream(resource)</tt>.
      * That method can be overridden to implement an arbitrary lookup strategy.
@@ -115,7 +115,7 @@ public class ConfigurationHTTPAdapter {
     /**
      * Use the ConfigurationHTTPAdapter specified by the given XML String.
      * The format of the document obtained from the URL is defined in
-     * <tt>esper-configuration-2.0.xsd</tt>.
+     * <tt>esper-configuration-(version).xsd</tt>.
      *
      * @param xml XML string
      * @return A ConfigurationHTTPAdapter configured via the file
@@ -145,7 +145,7 @@ public class ConfigurationHTTPAdapter {
     /**
      * Use the ConfigurationHTTPAdapter specified by the given URL.
      * The format of the document obtained from the URL is defined in
-     * <tt>esper-configuration-2.0.xsd</tt>.
+     * <tt>esper-configuration-(version).xsd</tt>.
      *
      * @param url URL from which you wish to load the configuration
      * @return A ConfigurationHTTPAdapter configured via the file
@@ -209,7 +209,7 @@ public class ConfigurationHTTPAdapter {
     /**
      * Use the ConfigurationHTTPAdapter specified in the given application
      * file. The format of the file is defined in
-     * <tt>esper-configuration-2.0.xsd</tt>.
+     * <tt>esper-configuration-(version).xsd</tt>.
      *
      * @param configFile <tt>File</tt> from which you wish to load the configuration
      * @return A ConfigurationHTTPAdapter configured via the file

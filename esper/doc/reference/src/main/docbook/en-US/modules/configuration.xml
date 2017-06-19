@@ -78,7 +78,7 @@ configuration.configure("myengine.esper.cfg.xml");
         <para>
 			Here is an example configuration file.
             The schema for the configuration file can be found in the <literal>etc</literal> folder and is named <literal>esper-configuration-6-0.xsd</literal>.
-            It is also available online at <literal>http://www.espertech.com/schema/esper/esper-configuration-</literal><emphasis>majorversion</emphasis><literal>.0.xsd</literal> so that IDE can fetch it automatically.
+            It is also available online at <literal>http://www.espertech.com/schema/esper/esper-configuration-</literal><emphasis>majorversion</emphasis><literal>-0.xsd</literal> so that IDE can fetch it automatically.
             The namespace used is <literal>http://www.espertech.com/schema/esper</literal>.
         </para>
 		<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
@@ -86,7 +86,7 @@ configuration.configure("myengine.esper.cfg.xml");
     xmlns="http://www.espertech.com/schema/esper"
     xsi:schemaLocation="
 http://www.espertech.com/schema/esper
-http://www.espertech.com/schema/esper/esper-configuration-6.0.xsd">
+http://www.espertech.com/schema/esper/esper-configuration-6-0.xsd">
   <event-type name="StockTick" class="com.espertech.esper.example.stockticker.event.StockTick"/>
   <event-type name="PriceLimit" class="com.espertech.esper.example.stockticker.event.PriceLimit"/>
   <auto-import import-name="org.mycompany.mypackage.MyUtility"/>
