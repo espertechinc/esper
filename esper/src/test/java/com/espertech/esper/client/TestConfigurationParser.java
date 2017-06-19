@@ -73,7 +73,7 @@ public class TestConfigurationParser extends TestCase {
         assertNull(config.getEngineDefaults().getEventMeta().getAvroSettings().getObjectValueTypeWidenerFactoryClass());
         assertNull(config.getEngineDefaults().getEventMeta().getAvroSettings().getTypeRepresentationMapperClass());
 
-        assertTrue(config.getEngineDefaults().getViewResources().isShareViews());
+        assertFalse(config.getEngineDefaults().getViewResources().isShareViews());
         assertFalse(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
         assertFalse(config.getEngineDefaults().getViewResources().isIterableUnbound());
         assertFalse(config.getEngineDefaults().getLogging().isEnableExecutionDebug());
@@ -410,7 +410,7 @@ public class TestConfigurationParser extends TestCase {
 
         assertFalse(config.getEngineDefaults().getThreading().isInternalTimerEnabled());
         assertEquals(1234567, config.getEngineDefaults().getThreading().getInternalTimerMsecResolution());
-        assertFalse(config.getEngineDefaults().getViewResources().isShareViews());
+        assertTrue(config.getEngineDefaults().getViewResources().isShareViews());
         assertTrue(config.getEngineDefaults().getViewResources().isAllowMultipleExpiryPolicies());
         assertTrue(config.getEngineDefaults().getViewResources().isIterableUnbound());
         assertEquals(Configuration.PropertyResolutionStyle.DISTINCT_CASE_INSENSITIVE, config.getEngineDefaults().getEventMeta().getClassPropertyResolutionStyle());

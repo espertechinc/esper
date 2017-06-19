@@ -1955,15 +1955,45 @@ config.getEngineDefaults().getEventMeta().setAnonymousCacheSize(5);]]></programl
 				<title>Sharing View Resources between Statements</title>
 
 				<para>
-				   The engine by default attempts to optimize resource usage and thus re-uses or shares views between statements that declare same views. However, in multi-threaded environments, this can lead to reduced concurrency as 
-				   locking for shared view resources must take place. Via this setting this behavior can be turned off for higher concurrency in multi-threaded processing.
+					As multi-threaded environments are common, the engine by default does not implicitly share data windows between multiple statements. The <literal>share-views</literal> setting is thereby false by default.
+				</para>
+				
+				<note>
+					<para>
+						The preferred means of sharing data windows is by declaring a named window or table.
+					</para>
+				</note>
+
+				<para>
+					By setting <literal>share-views</literal> to true the engine checks upon statement creation whether it can re-use an existing statement's data window, under these conditions:
+				</para>
+				<itemizedlist>
+					<ns:listitem>
+						<para>
+							The statement does not have an associated context declared using <literal>context ...</literal>.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							The other statement must declare the same event type, filter criteria and data window including data window parameters.
+						</para>
+					</ns:listitem>
+					<ns:listitem>
+						<para>
+							The other statement data window must be empty.
+						</para>
+					</ns:listitem>
+				</itemizedlist>
+				
+				<para>
+					Setting <literal>share-views</literal> to true means that statements can implicitly share locks which can reduce performance in multi-threaded environments, at the benefit of sharing data window's data structures, however that does generally not reduce memory use significantly.
 				</para>
 
 				<para>
-					The next code snippet outlines the API to turn off view resource sharing between statements:
+					The next code snippet outlines the API to turn on view resource sharing between statements:
 				</para>
 				<programlisting><![CDATA[Configuration config = new Configuration();
-config.getEngineDefaults().getViewResources().setShareViews(false);]]></programlisting>
+config.getEngineDefaults().getViewResources().setShareViews(true);]]></programlisting>
 			</sect3>
 
 			<sect3 xml:id="config-engine-viewresources-iterableunbound" revision="1">

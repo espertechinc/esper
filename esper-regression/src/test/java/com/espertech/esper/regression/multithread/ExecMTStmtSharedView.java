@@ -37,6 +37,7 @@ public class ExecMTStmtSharedView implements RegressionExecution {
 
     public void configure(Configuration configuration) throws Exception {
         configuration.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
+        configuration.getEngineDefaults().getViewResources().setShareViews(true);
     }
 
     public void run(EPServiceProvider epService) throws Exception {

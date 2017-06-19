@@ -596,25 +596,6 @@ MyGetterUpdateListener listener = new MyGetterUpdateListener(stmt.getEventType()
 			</para>
 		</sect2>
 
-		<sect2 xml:id="perf-tips-10">
-			<title>Disable view sharing</title>
-
-			<para>
-				By default, Esper compares streams and views in use with existing statement's streams and views, and then reuses views to efficiently share resources between statements. The benefit is reduced resources usage, however the potential cost is that in multithreaded applications a shared view may mean excessive locking of multiple processing threads.
-			</para>
-	
-			<para>
-				Consider disabling view sharing for better threading performance if your application overall uses fewer statements and statements have very similar streams, filters and views. 
-			</para>
-
-			<para>
-				View sharing can be disabled via XML configuration or API, and the next code snippet shows how, using the API:
-			</para>
-<programlisting><![CDATA[Configuration config = new Configuration();
-config.getEngineDefaults().getViewResources().setShareViews(false);]]></programlisting>
-
-		</sect2>
-
 		<sect2 xml:id="perf-tips-11">
 			<title>Tune or disable delivery order guarantees</title>
 

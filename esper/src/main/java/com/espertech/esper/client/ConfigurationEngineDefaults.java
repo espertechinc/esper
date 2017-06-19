@@ -841,14 +841,14 @@ public class ConfigurationEngineDefaults implements Serializable {
          * Ctor - sets up defaults.
          */
         protected ViewResources() {
-            shareViews = true;
+            shareViews = false;
             allowMultipleExpiryPolicies = false;
             iterableUnbound = false;
         }
 
         /**
-         * Returns true to indicate the engine shares view resources between statements, or false
-         * to indicate the engine does not share view resources between statements.
+         * Returns false to indicate the engine does not implicitly share similar view resources between statements (false is the default),
+         * or true to indicate that the engine may implicitly share view resources between statements.
          *
          * @return indicator whether view resources are shared between statements if
          * statements share same-views and the engine sees opportunity to reuse an existing view.
@@ -858,8 +858,8 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
 
         /**
-         * Set the flag to instruct the engine whether to share view resources between
-         * statements for not
+         * Set the flag to instruct the engine whether to implicitly share view resources between
+         * statements or not (false by default).
          *
          * @param shareViews is true to share view resources between statements, or false to not share view
          *                   resources between statements declaring same-views
