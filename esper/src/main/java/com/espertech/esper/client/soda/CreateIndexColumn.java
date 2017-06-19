@@ -48,7 +48,7 @@ public class CreateIndexColumn implements Serializable {
      * @param type       index type
      */
     public CreateIndexColumn(String columnName, CreateIndexColumnType type) {
-        this.columns = Collections.singletonList(Expressions.property(columnName));
+        this.columns = Collections.<Expression>singletonList(Expressions.property(columnName));
         this.type = type.name();
     }
 

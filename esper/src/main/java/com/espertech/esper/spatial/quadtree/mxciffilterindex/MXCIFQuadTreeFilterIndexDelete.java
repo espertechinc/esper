@@ -82,7 +82,7 @@ public class MXCIFQuadTreeFilterIndexDelete {
         count += mergeChildNodes(collection, neLeaf.getData());
         count += mergeChildNodes(collection, swLeaf.getData());
         count += mergeChildNodes(collection, seLeaf.getData());
-        return new MXCIFQuadTreeNodeLeaf<>(branch.getBb(), branch.getLevel(), collection, count);
+        return new MXCIFQuadTreeNodeLeaf<Object>(branch.getBb(), branch.getLevel(), collection, count);
     }
 
     private static <L> boolean deleteFromData(double x, double y, double width, double height, Object data) {

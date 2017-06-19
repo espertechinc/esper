@@ -58,7 +58,7 @@ public class CodegenContext {
 
     public CodegenBlock addMethod(Class returnType, Class generator) {
         String methodName = CodeGenerationIDGenerator.generateMethod();
-        CodegenMethod method = new CodegenMethod(returnType, methodName, Collections.emptyList(), getGeneratorDetail(generator));
+        CodegenMethod method = new CodegenMethod(returnType, methodName, Collections.<CodegenNamedParam>emptyList(), getGeneratorDetail(generator));
         methods.add(method);
         return method.statements();
     }

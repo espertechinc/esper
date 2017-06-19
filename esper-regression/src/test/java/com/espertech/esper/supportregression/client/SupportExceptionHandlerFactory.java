@@ -36,7 +36,7 @@ public class SupportExceptionHandlerFactory implements ExceptionHandlerFactory {
         return handlers;
     }
 
-    public static class SupportExceptionHandler implements ExceptionHandler {
+    public static class SupportExceptionHandler implements ExceptionHandlerInboundPool {
         private List<ExceptionHandlerContext> contexts = new ArrayList<ExceptionHandlerContext>();
         private List<ExceptionHandlerContextUnassociated> inboundPoolContexts = new ArrayList<ExceptionHandlerContextUnassociated>();
 

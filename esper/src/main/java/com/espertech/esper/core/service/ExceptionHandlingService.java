@@ -86,7 +86,9 @@ public class ExceptionHandlingService {
     public void handleInboundPoolException(String engineURI, Throwable exception, Object event) {
         ExceptionHandlerContextUnassociated context = new ExceptionHandlerContextUnassociated(engineURI, exception, event);
         for (ExceptionHandler handler : exceptionHandlers) {
-            handler.handleInboundPoolUnassociated(context);
+            if (handler instanceof ExceptionHandlerInboundPool) {
+                ((ExceptionHandlerInboundPool) handler).handleInboundPoolUnassociated(context);
+            }
         }
     }
 }

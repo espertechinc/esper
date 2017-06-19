@@ -79,7 +79,7 @@ public class PointRegionQuadTreeRowIndexRemove {
         count += mergeChildNodes(collection, neLeaf.getPoints());
         count += mergeChildNodes(collection, swLeaf.getPoints());
         count += mergeChildNodes(collection, seLeaf.getPoints());
-        return new PointRegionQuadTreeNodeLeaf<>(branch.getBb(), branch.getLevel(), collection, count);
+        return new PointRegionQuadTreeNodeLeaf<Object>(branch.getBb(), branch.getLevel(), collection, count);
     }
 
     private static boolean removeFromPoints(double x, double y, Object value, Object points) {

@@ -90,7 +90,7 @@ public class MXCIFQuadTreeRowIndexRemove {
         count += mergeChildNodes(collection, neLeaf.getData());
         count += mergeChildNodes(collection, swLeaf.getData());
         count += mergeChildNodes(collection, seLeaf.getData());
-        return new MXCIFQuadTreeNodeLeaf<>(branch.getBb(), branch.getLevel(), collection, count);
+        return new MXCIFQuadTreeNodeLeaf<Object>(branch.getBb(), branch.getLevel(), collection, count);
     }
 
     private static boolean removeFromPoints(double x, double y, double width, double height, Object value, Object data) {

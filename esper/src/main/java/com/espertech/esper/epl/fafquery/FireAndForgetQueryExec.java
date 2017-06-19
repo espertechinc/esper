@@ -71,9 +71,9 @@ public class FireAndForgetQueryExec {
 
         // determine lookup based on hash-keys and ranges
         QueryGraphValuePairHashKeyIndex keysAvailable = queryGraphValue.getHashKeyProps();
-        Set<String> keyNamesAvailable = keysAvailable.getIndexed().length == 0 ? Collections.emptySet() : new HashSet<>(Arrays.asList(keysAvailable.getIndexed()));
+        Set<String> keyNamesAvailable = keysAvailable.getIndexed().length == 0 ? Collections.<String>emptySet() : new HashSet<>(Arrays.asList(keysAvailable.getIndexed()));
         QueryGraphValuePairRangeIndex rangesAvailable = queryGraphValue.getRangeProps();
-        Set<String> rangeNamesAvailable = rangesAvailable.getIndexed().length == 0 ? Collections.emptySet() : new HashSet<>(Arrays.asList(rangesAvailable.getIndexed()));
+        Set<String> rangeNamesAvailable = rangesAvailable.getIndexed().length == 0 ? Collections.<String>emptySet() : new HashSet<>(Arrays.asList(rangesAvailable.getIndexed()));
         Pair<IndexMultiKey, EventTableAndNamePair> tablePair;
 
         // find index that matches the needs
@@ -110,7 +110,7 @@ public class FireAndForgetQueryExec {
             return null;
         }
 
-        Pair<IndexMultiKey, EventTableAndNamePair> tablePair = findIndex(new HashSet<>(Arrays.asList(inkwSingles.getIndexed())), Collections.emptySet(), indexRepository, virtualDataWindow, annotations);
+        Pair<IndexMultiKey, EventTableAndNamePair> tablePair = findIndex(new HashSet<>(Arrays.asList(inkwSingles.getIndexed())), Collections.<String>emptySet(), indexRepository, virtualDataWindow, annotations);
         if (tablePair == null) {
             return null;
         }
@@ -141,7 +141,7 @@ public class FireAndForgetQueryExec {
             Collection<EventBean> result = fafTableLookup(virtualDataWindow, tablePair.getFirst(), tablePair.getSecond().getEventTable(), keys, null, annotations);
             events.addAll(result);
         }
-        return new NullableObject<>(events);
+        return new NullableObject<Collection<EventBean>>(events);
     }
 
     private static Collection<EventBean> snapshotIndex(QueryGraphValuePairHashKeyIndex keysAvailable, QueryGraphValuePairRangeIndex rangesAvailable, Pair<IndexMultiKey, EventTableAndNamePair> tablePair, VirtualDWView virtualDataWindow, Annotation[] annotations, AgentInstanceContext agentInstanceContext, boolean queryPlanLogging, Logger queryPlanLogDestination, String objectName) {
