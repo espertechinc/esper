@@ -42,6 +42,7 @@ public class VariantEventType implements EventTypeSPI {
      *
      * @param variantSpec         the variant specification
      * @param propertyResStrategy stragegy for resolving properties
+     * @param eventAdapterService event adapter service
      * @param metadata            event type metadata
      * @param eventTypeId         type id
      * @param config              configs

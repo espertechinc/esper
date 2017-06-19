@@ -29,6 +29,8 @@ public class MXCIFQuadTreeRowIndexAdd {
      *
      * @param x         x
      * @param y         y
+     * @param width     width
+     * @param height    height
      * @param value     value to add
      * @param tree      quadtree
      * @param unique    true for unique

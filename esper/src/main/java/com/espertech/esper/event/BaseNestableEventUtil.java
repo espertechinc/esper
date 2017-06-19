@@ -313,7 +313,7 @@ public class BaseNestableEventUtil {
     /**
      * NOTE: Code-generation-invoked method, method name and parameter order matters
      * @param value value
-     * @param fragmentEventType
+     * @param fragmentEventType fragment type
      * @param eventAdapterService svc
      * @return fragment
      */

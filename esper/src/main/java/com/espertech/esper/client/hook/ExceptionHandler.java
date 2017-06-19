@@ -40,7 +40,7 @@ public interface ExceptionHandler {
     /**
      * For use with inbound-thread-pool only, when the engine evaluates events as shared filters
      * and not associated to any statements, the engine passes the exception to this method.
-     * @param context
+     * @param context the exception information
      */
     public default void handleInboundPoolUnassociated(ExceptionHandlerContextUnassociated context) {
         // Override as needed

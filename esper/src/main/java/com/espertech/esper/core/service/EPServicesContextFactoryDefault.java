@@ -511,6 +511,7 @@ public class EPServicesContextFactoryDefault implements EPServicesContextFactory
      *
      * @param configSnapshot            config info
      * @param aggregationFactoryFactory factory of aggregation service provider
+     * @param engineURI engine URI
      * @return service
      */
     protected static EngineImportService makeEngineImportService(ConfigurationInformation configSnapshot, AggregationFactoryFactory aggregationFactoryFactory, String engineURI) {
