@@ -2265,19 +2265,6 @@ public class ConfigurationEngineDefaults implements Serializable {
         }
     }
 
-    /**
-     * Interface for cluster configurator.
-     */
-    public static interface ClusterConfigurator {
-
-        /**
-         * Provide cluster configuration information.
-         *
-         * @param configuration information
-         */
-        public void configure(Configuration configuration);
-    }
-
     public static class CodeGeneration implements Serializable {
         private boolean enablePropertyGetter = false;
 
