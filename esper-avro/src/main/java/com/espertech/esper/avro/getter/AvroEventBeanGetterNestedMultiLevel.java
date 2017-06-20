@@ -34,7 +34,7 @@ public class AvroEventBeanGetterNestedMultiLevel implements EventPropertyGetterS
      * @param top top index
      * @param path path of indexes
      * @return value
-     * @throws PropertyAccessException
+     * @throws PropertyAccessException property access problem
      */
     public static Object getRecordValueTopWPath(GenericData.Record record, int top, int[] path) throws PropertyAccessException {
         GenericData.Record inner = (GenericData.Record) record.get(top);
