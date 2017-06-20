@@ -35,7 +35,7 @@
         examples/terminalsvc-jse/lib/*.jar,
         examples/cycledetect/lib/*.jar,
         **/antlr-4.5.3-complete.jar,
-        **/junit-4.11.jar, **/junit.license,
+        **/junit-*.jar, **/junit.license,
         **/mysql-connector-java-*.jar,**/OTFeed*.jar"/>
 
 	<target name="zipjar">
@@ -115,6 +115,7 @@
 			<zipfileset prefix="${name}-${version}/esperio-socket" dir="esperio-socket" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/esperio-springjms" dir="esperio-springjms" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 			<zipfileset prefix="${name}-${version}/esperio-stax" dir="esperio-stax" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
+			<zipfileset prefix="${name}-${version}/esperio-kafka" dir="esperio-kafka" includes="etc/*.*, lib/*.*" excludes="${dist_excludes}"/>
 		</zip>
 		<checksum file="${zip-file}" algorithm="MD5" fileext=".md5"/>
 		<checksum file="${zip-file}" algorithm="SHA" fileext=".asc"/>		
