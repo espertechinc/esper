@@ -3,11 +3,28 @@ Esper Changelog
 
 Changes in version 6.1.0
 ------------------------
+  - Support for spatial point-region and MX-CIF quadtree indexes both filters and events
+  - Support for "cast" to take a date format expression
+  - Support for date-time "format" method to take a format expression
+  - Support for a new time-to-live data window for use with watermarks
+  - Support for all aggregation functions to receive a filter expression
+  - Minor change in default configuration: By default the "share-view" settings is now false and "configuration.getEngineDefaults().getViewResources().setShareViews(false)" is the default.
 
-API Change:
-  - We have changed how to the statement object model reflects indexes. This affected the following classes:
-    com.espertech.esper.client.soda.CreateIndexColumn (from the statement object model)
-    com.espertech.esper.client.hook.VirtualDataWindowEventStartIndex (from the virtual data window SPI)
+Minor API Change:
+  - We have changed how to the statement object model SPI reflects indexes. This affected the following classes:
+    com.espertech.esper.client.soda.CreateIndexColumn (from the statement object model), columns are now expressions
+    com.espertech.esper.client.hook.VirtualDataWindowEventStartIndex (from the virtual data window SPI), fields are now expressions
+
+Bug fixes
+  - Fixed issue #71 OSGi Import-Package: org.slf4j is missed
+  - Fixed issue #74 Broken link to configuration schema
+  - Fixed issue #76 Inheritance of avro events fails unpredictably
+  - Fixed issue TBQ-406-26288 Crontab non-sensible schedule causes hang
+  - Fixed issue NEA-374-86427 Inbound pool event processing exception not handled by custom ExceptionHandler
+  - Fixed issue UEJ-229-28464 similar pattern with repeat not firing
+  - Fixed issue CWV-630-11507 Explicit indexes cause extraneous calls to validateCompileExplicitIndex
+  - Fixed issue RYX-964-66911 NullpointerException query INNER JOIN without ON
+  - Many other improvements across the code and documentation that are not explicitly listed above
 
 Changes in version 6.0.1
 ------------------------
