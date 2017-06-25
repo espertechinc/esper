@@ -593,58 +593,16 @@ RfidEvent(zone=1 and category=10)]]></programlisting>
 			</important>
 
 			<para>
-				The following operators are highly optimized through filter indexes and are the preferred means of filtering high-volume event streams:
-			</para>
-	
-			<itemizedlist spacing="compact">
-				<listitem>
-					<para>
-						equals <literal>=</literal>
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						not equals <literal>!=</literal>
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						comparison operators <literal>&lt; , &gt; , &gt;=, &lt;=</literal>
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						ranges 
-					</para>
-					<itemizedlist spacing="compact">
-						<listitem>
-							<para>
-								use the <literal>between</literal> keyword for a closed range where both endpoints are included
-							</para>
-						</listitem>
-						<listitem>
-							<para>
-								use the <literal>in </literal> keyword and round <literal>()</literal> or square brackets <literal>[]</literal> to control how endpoints are included
-							</para>
-						</listitem>
-						<listitem>
-							<para>
-								for inverted ranges use the <literal>not</literal> keyword and the <literal>between</literal> or <literal>in</literal> keywords
-							</para>
-						</listitem>
-					</itemizedlist>
-				</listitem>
-				<listitem>
-					<para>
-						list-of-values checks using the <literal>in</literal> keyword or the <literal>not in </literal> keywords followed by a comma-separated list of values
-					</para>
-				</listitem>
-			</itemizedlist>
-	
-			<para>
-				At compile time the engine scans filter expressions for subexpressions that can be indexed. The above list of operators represents the set of operators that the engine can best convert into filter indexes. 
-				The use of comma or logical <literal>and</literal> in filter expressions does not impact optimizations by the engine. 
+				The engine analyzes all filter expressions within a pattern and determines the filter indexes to use or to create. Indexing filter values to match event properties of incoming events enables the engine to match incoming events faster to pattern subexpressions. 
 			</para>			
+			
+			<para>
+				More information on filter indexes in general can be found at <xref linkend="processingmodel_indexes_filterindexes"/>.
+			</para>
+			
+			<para>
+				More information on the operators relevant to filter indexes can be found at <xref linkend="epl-filter-criteria"/>.
+			</para>
 		</sect2>
 
 		<sect2 xml:id="pattern-filter-consumption">

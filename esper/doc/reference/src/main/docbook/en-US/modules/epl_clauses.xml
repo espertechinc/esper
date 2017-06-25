@@ -1646,7 +1646,7 @@ from MyEvent#length(2) as s0</programlisting>
 select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 	
 				<para>
-					The following operators are highly optimized through indexing and are the preferred means of filtering in high-volume event streams and especially in the presence of a larger number of filters or statements:
+					The engine analyzes the filter expressions and determines the filter indexes to use or to create. The following operators are the preferred means of filtering event streams, especially in the presence of a larger number of filters or statements. Please read <xref linkend="processingmodel_indexes_filterindexes"/> for more information. The engine can translate the following operators, including combinations of these operators connected via <literal>and</literal> and <literal>or</literal>, into filter indexes:
 				</para>
 		
 				<itemizedlist spacing="compact">
@@ -1705,7 +1705,7 @@ select * from RfidEvent(zone=1 and category=10)]]></programlisting>
 				</itemizedlist>
 	
 				<para>
-					At compile time as well as at run time, the engine scans new filter expressions for sub-expressions that can be indexed. Indexing filter values to match event properties of incoming events enables the engine to match incoming events faster, especially if your application creates a large number of statements or requires many similar filters. The above list of operators represents the set of operators that the engine can best convert into indexes. The use of comma or logical <literal>and</literal> in filter expressions does not impact optimizations by the engine. 
+					At compile time the engine scans new filter expressions for sub-expressions that can be placed into filter indexes. Indexing filter values to match event properties of incoming events enables the engine to match incoming events faster, especially if your application creates a large number of statements or context partitions or requires many similar filters. The above list of operators represents the set of operators that the engine can best convert into filter index entries. The use of comma or logical <literal>and</literal> in filter expressions is fully equivalent. 
 				</para>
 			</sect3>
 			
