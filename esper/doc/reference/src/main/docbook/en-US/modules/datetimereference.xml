@@ -195,6 +195,9 @@
 							<para>
 								<xref linkend="datetime-method-getitem"/>.
 							</para>
+							<para>
+								 For the date-time types <literal>ZonedDateTime</literal> and <literal>LocalDateTime</literal> the method <literal>getDayOfWeek</literal>, <literal>getDayOfMonth</literal> and <literal>getDayOfYear</literal> are provided by the respective class.
+							</para>
 						</entry>
 					</row>
 					<row>
