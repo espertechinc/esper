@@ -61,9 +61,14 @@
 			The engine can process Avro's <literal>GenericData.Record</literal> events via the <literal>sendEventAvro(Object avroGenericDataDotRecord, String avroEventTypeName)</literal> method on the <literal>EPRuntime</literal> interface.
 		</para>
 		
-		<para>
-			The engine does not validate Avro events. Your application must ensure that Avro values match the declaration of the schema and that the schema of the event matches the schema declared for the event type of the event.
-		</para>
+		<note>
+			<para>
+			The engine does not validate the actual Avro events that your application provides to the engine. Your application must ensure that Avro values match the declaration of the schema and that the schema of the event matches the schema declared for the event type of the event.
+			</para>
+			<para>
+				The behavior is undefined in the case that value types do not match defined property types.
+			</para>
+		</note>
 
 		<para>
 			A given Avro event type can have only a single supertype that must also be an Avro event type. All properties available on the Avro supertype is also available on the type itself. In addition, anywhere within EPL that an event type name of an Avro supertype is used, the Avro subtype and the subtype of the subtype match that expression.
