@@ -4,7 +4,7 @@
 	<property name="Name" value="Esper"/>
 	<property name="name" value="esper"/>
 	<property name="nameio" value="esperio"/>
-	<property name="version" value="6.1.0"/>
+	<property name="version" value="7.0.0"/>
 	<property name="patchlevel" value=""/>
 	<property name="fullversion" value="${version}${patchlevel}"/>
 	<property name="fullname" value="${name}-${fullversion}"/>

@@ -3,7 +3,7 @@
 	<name>Esper Reference Documentation</name>
 	<groupId>com.espertech</groupId>
 	<artifactId>esper_reference</artifactId>
-	<version>6.1.0</version>
+	<version>7.0.0</version>
 	<packaging>jdocbook</packaging>
 	<licenses>
 		<license>
